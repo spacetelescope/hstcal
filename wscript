@@ -68,7 +68,7 @@ def configure(conf):
     conf.env.LOCAL_LIBS = ['applib', 'xtables', 'hstio', 'cvos']
     conf.env.EXTERNAL_LIBS = ['cfitsio', 'm']
     if sys.platform.startswith('sunos'):
-            conf.env.EXTERNAL_LIBS += ['socket', 'nls']
+            conf.env.EXTERNAL_LIBS += ['socket', 'nsl']
     conf.env.LIBPATH = [conf.env.CFITSIO]
     
 def build(bld):
