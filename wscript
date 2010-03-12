@@ -1,4 +1,7 @@
-import os, sys
+import os, platform, sys
+
+import Options
+import Scripting
 import Task
 from TaskGen import extension
 
@@ -6,18 +9,19 @@ APPNAME = 'hstcal'
 VERSION = '0.1'
 
 top = '.'
-out = 'bin.' + sys.platform
+out = 'bin.' + platform.platform()
 
 SUBDIRS = [
     'applib',
     'cvos',
     'hstio',
+    'include',
     'pkg',
     'tables',
     ]
 
-# Add support for simple Fortran files.  This isn't complete, but it meets the
-# simple .f -> .o mapping we use here.
+# Add support for simple Fortran files.  This isn't a complete Fortran
+# solution, but it meets the simple .f -> .o mapping we use here.
 Task.simple_task_type(
     'fortran',
     'f77 -c ${SRC} -o ${TGT}',
@@ -31,6 +35,9 @@ def process_fortran(self, node):
         self.create_task('fortran', [node], [o_node])
         self.add_obj_file(o_node.file())
 
+# Have 'waf dist' create tar.gz files, rather than tar.bz2 files
+Scripting.g_gz = 'gz'
+        
 def set_options(opt):
     opt.tool_options('compiler_cc')
 
@@ -58,13 +65,8 @@ def configure(conf):
 
     conf.env.INCLUDEDIR = os.path.join(
         os.path.abspath(conf.srcdir), 'include') # the hstcal include directory
-
         
 def build(bld):
-    # This is to tell waf where we keep the header files
-    bld.path.find_dir('include')
-    
     # Recurse into all of the libraries
     for library in SUBDIRS:
         bld.recurse(library)
-    
