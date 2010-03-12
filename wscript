@@ -65,7 +65,12 @@ def configure(conf):
 
     conf.env.INCLUDEDIR = os.path.join(
         os.path.abspath(conf.srcdir), 'include') # the hstcal include directory
-        
+    conf.env.LOCAL_LIBS = ['applib', 'xtables', 'hstio', 'cvos']
+    conf.env.EXTERNAL_LIBS = ['cfitsio', 'm']
+    if sys.platform.startswith('sunos'):
+            conf.env.EXTERNAL_LIBS += ['socket', 'nls']
+    conf.env.LIBPATH = [conf.env.CFITSIO]
+    
 def build(bld):
     # Recurse into all of the libraries
     for library in SUBDIRS:
