@@ -1,5 +1,5 @@
-# include <xtables.h>
-# include "../stis.h"
+# include "xtables.h"
+# include "stis.h"
 # include "calstis6.h"
 
 /* This routine computes the heliocentric correction factor.  An

@@ -1,9 +1,9 @@
 # include <stdio.h>
 
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stisdq.h"
+# include "stisdq.h"
 
 /* We'll flag beyond the slit ends if the slit is shorter than this
    fraction of the image height.

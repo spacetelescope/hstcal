@@ -3,14 +3,14 @@
 # include <math.h>
 # include <float.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
-# include "../stistemperature.h"
+# include "stiserr.h"
+# include "stisdef.h"
+# include "stistemperature.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */

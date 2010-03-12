@@ -2,13 +2,13 @@
 # include <stdlib.h>
 # include <string.h>		/* strstr */
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* This routine gets keyword values from an extension header.
 

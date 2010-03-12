@@ -1,11 +1,11 @@
 # include <stdio.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* This routine subtracts the bias image from x (in-place).
    For science data (as opposed to wavecals), it will normally be the

@@ -1,11 +1,11 @@
 # include <stdio.h>
 # include <stdlib.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* Check calibration switch, and set flag to PERFORM, COMPLETE or
    OMIT.  The other options (SKIPPED, DUMMY) are not set here.

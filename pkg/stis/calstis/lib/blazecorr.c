@@ -1,7 +1,7 @@
 # include <stdio.h>
 
-# include "../stis.h"
-# include "../stispht.h"
+# include "stis.h"
+# include "stispht.h"
 
 /* This routine applies the MSM/blaze correction to the photometry
    wavelength array.

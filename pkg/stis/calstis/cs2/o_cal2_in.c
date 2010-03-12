@@ -1,11 +1,11 @@
 # include	<stdio.h>
 # include	<string.h>
-# include	<hstio.h>
-# include	<c_iraf.h>
-# include	<xtables.h>
+# include	"hstio.h"
+# include	"c_iraf.h"
+# include	"xtables.h"
 
-# include	"../stis.h"
-# include	"../cs2.h"
+# include	"stis.h"
+# include	"cs2.h"
 # include	"calstis2.h"
 
 /*  o_cal2_in -- Read CL parameters for the task crrej.

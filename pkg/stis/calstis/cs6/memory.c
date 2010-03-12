@@ -1,12 +1,12 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stispht.h"
+# include "stiserr.h"
+# include "stispht.h"
 
 
 /* 

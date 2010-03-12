@@ -3,7 +3,7 @@
 # include <string.h>
 # include <ctype.h>
 
-# include "../stis.h"	/* for NOT_APPLICABLE */
+# include "stis.h"	/* for NOT_APPLICABLE */
 
 int GotFileName (char *filename) {
 

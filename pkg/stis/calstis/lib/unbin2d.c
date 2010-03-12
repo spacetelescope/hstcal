@@ -9,12 +9,12 @@
 # include <string.h>		/* strncmp */
 # include <math.h>		/* sqrt */
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 static void InterpInfo (float, int, int *, float *, float *);
 static void InterpDQInfo (float, int, int *, int *, int *);

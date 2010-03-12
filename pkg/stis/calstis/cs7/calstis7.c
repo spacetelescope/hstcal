@@ -8,11 +8,11 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <hstio.h>
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static void StisInit7 (StisInfo7 *);
 

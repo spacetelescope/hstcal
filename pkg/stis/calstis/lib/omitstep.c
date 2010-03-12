@@ -1,4 +1,4 @@
-# include "../stis.h"
+# include "stis.h"
 
 /* This routine returns one if the flag is OMIT or COMPLETE.  This means
    that the calibration step was not even attempted.

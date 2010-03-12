@@ -7,14 +7,14 @@
 # include <string.h>
 # include <math.h>	/* sqrt */
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stistemperature.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stistemperature.h"
+# include "stisdef.h"
 
 static int UpdateCCDTemperature(StisInfo1 *, Hdr *);
 

@@ -1,8 +1,8 @@
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 
 /* The science data and the error array values are multiplied by k;
    the data quality array is not modified.

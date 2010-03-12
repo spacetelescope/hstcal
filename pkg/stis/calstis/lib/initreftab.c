@@ -1,4 +1,4 @@
-# include "../stis.h"
+# include "stis.h"
 
 /* Initialize the elements of a RefTab structure.
 

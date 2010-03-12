@@ -1,8 +1,8 @@
 # include <stdio.h>
-# include <hstio.h>	/* for ckNewFile */
+# include "hstio.h"	/* for ckNewFile */
 
-# include "../stis.h"
-# include "../stiserr.h"
+# include "stis.h"
+# include "stiserr.h"
 
 /* This routine takes action if the output file already exists.  If not,
    zero is returned.  If it does, the environment variable imclobber is

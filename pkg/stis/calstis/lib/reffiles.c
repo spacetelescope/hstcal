@@ -8,8 +8,8 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include "../stis.h"
-# include "../stiserr.h"
+# include "stis.h"
+# include "stiserr.h"
 
 /* These routines are for managing a list of keyword & value pairs
    for reference file names.

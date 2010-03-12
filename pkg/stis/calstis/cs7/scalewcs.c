@@ -1,8 +1,8 @@
 # include <stdio.h>
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stissizes.h"
+# include "stissizes.h"
 
 /* This routine changes the image size and world coordinate system values
    that describe the output image, if the input image is binned (if CCD)

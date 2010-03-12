@@ -3,10 +3,10 @@
 # include <string.h>
 # include <math.h>
 
-# include <hstio.h>	/* this is only used for writing debug image */
-# include "../stis.h"
+# include "hstio.h"	/* this is only used for writing debug image */
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static int AddTrace (StisInfo4 *, LampInfo *, DispRelation *,
 		SpTrace *, double [], CmplxArray *);

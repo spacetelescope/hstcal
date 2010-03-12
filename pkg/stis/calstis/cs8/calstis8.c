@@ -21,13 +21,13 @@
 # include <string.h>
 # include <math.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis8.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 static int FindExtver (int *, int, int, int);
 static int GetKeyInfo8 (StisInfo8 *, Hdr *);

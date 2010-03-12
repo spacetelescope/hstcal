@@ -1,13 +1,13 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* This routine opens the reference table header and gets pedigree and
    descrip.  If the input name is null (or the first character is a blank),

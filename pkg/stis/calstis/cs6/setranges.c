@@ -2,11 +2,11 @@
 # include <stdlib.h>	/* atoi, atof */
 # include <string.h>
 
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static void RemoveBlanks (char *, char *);
 static double WaveToPix (double, RowContents *);

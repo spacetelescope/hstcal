@@ -2,10 +2,10 @@
 # include	<string.h>
 # include	<stdlib.h>
 # include	<math.h>
-# include	<hstio.h>
+# include	"hstio.h"
 
-# include	"../stis.h"
-# include	"../cs2.h"
+# include	"stis.h"
+# include	"cs2.h"
 # include	"calstis2.h"
 
 /*  crrej_loop -- Perform cosmic ray rejection

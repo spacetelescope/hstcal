@@ -1,14 +1,14 @@
 # include <stdio.h>
 # include <string.h>	/* strcmp */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */

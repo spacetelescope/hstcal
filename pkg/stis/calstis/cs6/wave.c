@@ -2,12 +2,12 @@
 # include <string.h>
 # include <math.h>
 
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
-# include "../stisdq.h"
+# include "stis.h"
+# include "stisdq.h"
 # include "calstis6.h"
-# include "../stissizes.h"
+# include "stissizes.h"
 
 # define MAXIT 	   100     /* maximum number of Newton-Raphson iterations */
 # define PIX_RANGE 10.     /* range in pixels where to look for wavelength */

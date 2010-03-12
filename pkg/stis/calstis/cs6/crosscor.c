@@ -3,14 +3,14 @@
 # include <math.h>	/* fabs */
 # include <float.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stiserr.h"
+# include "stisdq.h"
 
 /*
    Cross-correlation routine.

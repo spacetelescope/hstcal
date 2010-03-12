@@ -1,9 +1,9 @@
 # include 	<stdio.h>
 # include 	<string.h>
-# include 	<hstio.h>      
+# include 	"hstio.h"      
 
-# include	"../stis.h"
-# include	"../cs2.h"
+# include	"stis.h"
+# include	"cs2.h"
 # include	"calstis2.h"
 
 /*  crrej_check -- check input files of crrej

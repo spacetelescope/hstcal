@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include <math.h>	/* fabs */
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis11.h"
 
 /* This routine finds which imset in the science file is the most

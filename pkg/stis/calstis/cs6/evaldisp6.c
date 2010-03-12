@@ -1,6 +1,6 @@
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
 
 

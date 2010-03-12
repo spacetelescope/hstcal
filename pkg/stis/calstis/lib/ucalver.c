@@ -1,9 +1,9 @@
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
-# include "../stisversion.h"	/* defines CAL_VER */
+# include "stis.h"
+# include "stisdef.h"
+# include "stisversion.h"	/* defines CAL_VER */
 
 /* This routine updates the CAL_VER primary header keyword, or adds it
    to the header if it's not already present.  This keyword gives the

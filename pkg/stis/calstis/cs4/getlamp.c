@@ -2,15 +2,15 @@
 # include <stdlib.h>	/* malloc */
 # include <string.h>	/* strcpy */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
-# include "../stiswild.h"	/* for STRING_WILDCARD */
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stiswild.h"	/* for STRING_WILDCARD */
+# include "stisdef.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */

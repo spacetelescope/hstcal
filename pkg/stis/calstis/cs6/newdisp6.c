@@ -25,11 +25,11 @@ internal:
 # include <stdlib.h>
 # include <string.h>
 
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 # define MAX(x,y)  ((x) >= (y) ? (x) : (y))
 

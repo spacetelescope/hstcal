@@ -10,9 +10,9 @@ internal:
 # include <stdio.h>
 # include <stdlib.h>
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static void CopyCoord (CoordInfo *, CoordInfo *);
 

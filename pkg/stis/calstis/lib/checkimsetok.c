@@ -1,13 +1,13 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
-# include "../stiserr.h"
+# include "stis.h"
+# include "stisdef.h"
+# include "stiserr.h"
 
 /* This routine gets keyword IMSET_OK from an extension header and
    returns the value of this keyword (default is True).  A value of

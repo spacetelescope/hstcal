@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include <string.h>
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis0.h"
 
 static int SpecialKey (char *);

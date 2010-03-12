@@ -1,11 +1,11 @@
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
 # include <math.h>	/* fabs */
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis12.h"
-# include "../cs12.h"		/* for interpolation options */
-# include "../stiserr.h"
+# include "cs12.h"		/* for interpolation options */
+# include "stiserr.h"
 
 /* This routine gets the shift for each axis, by interpolation
    within the array of wavecals, and copies those values to the

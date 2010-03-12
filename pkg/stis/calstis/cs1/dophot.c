@@ -1,14 +1,14 @@
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xsynphot.h>		/* for c_phopar */
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xsynphot.h"		/* for c_phopar */
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
-# include "../stistds.h"
+# include "stiserr.h"
+# include "stisdef.h"
+# include "stistds.h"
 
 # define NPHOT      4		/* size of phot returned by c_phopar */
 

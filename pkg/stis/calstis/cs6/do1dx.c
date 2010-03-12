@@ -3,16 +3,16 @@
 # include <string.h>
 # include <math.h>		/* fabs */
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
-# include "../stisdq.h"
-# include "../stispht.h"
-# include "../stistds.h"
+# include "stiserr.h"
+# include "stisdef.h"
+# include "stisdq.h"
+# include "stispht.h"
+# include "stistds.h"
 
 static int OpenSGeo (char *, FloatHdrData *, FloatHdrData *);
 static void warnDummy (char *, int, int);

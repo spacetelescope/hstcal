@@ -1,13 +1,13 @@
 # include 	<stdio.h>
 # include 	<stdlib.h>
 # include 	<string.h>
-# include 	<c_iraf.h>
-# include 	<hstio.h>
+# include 	"c_iraf.h"
+# include 	"hstio.h"
 
-# include	"../stis.h"
-# include	"../cs2.h"
+# include	"stis.h"
+# include	"cs2.h"
 # include	"calstis2.h"
-# include	"../stisdef.h"
+# include	"stisdef.h"
 
 /*  crrej_do -- Perform the cosmic ray rejection for STIS images
 

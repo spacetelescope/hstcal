@@ -14,11 +14,11 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stiserr.h"
+# include "stisdq.h"
 
 # define NELEM_SUMS  5		/* size of sums array */
 

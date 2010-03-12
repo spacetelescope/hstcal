@@ -19,8 +19,8 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# include "../stis.h"
-# include "../stiserr.h"
+# include "stis.h"
+# include "stiserr.h"
 
 
 /*

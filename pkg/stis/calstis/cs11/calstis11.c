@@ -9,12 +9,12 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <hstio.h>
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis11.h"
-# include "../stiserr.h"
-# include "../stisshutter.h"	/* for EXT_SHUTTER_CLOSED */
+# include "stiserr.h"
+# include "stisshutter.h"	/* for EXT_SHUTTER_CLOSED */
 
 static void StisInit11 (StisInfo11 *, StisInfo11 *);
 

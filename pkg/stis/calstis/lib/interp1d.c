@@ -1,5 +1,5 @@
 # include <stdio.h>
-# include "../stis.h"
+# include "stis.h"
 
 /* This routine uses linear interpolation.
    The function value is the interpolated value.

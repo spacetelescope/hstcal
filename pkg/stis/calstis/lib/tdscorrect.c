@@ -1,5 +1,5 @@
 # include <stdio.h>
-# include "../stistds.h"
+# include "stistds.h"
 
 /* This routine generates an array with time-dependent sensitivity 
    correction factors.

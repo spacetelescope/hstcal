@@ -2,13 +2,13 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 static int UpdateSwitch (char *, int, Hdr *, int *);
 

@@ -1,11 +1,11 @@
 # include <stdio.h>
 # include <string.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* This routine writes history records for a reference image, including
    the name of the file and the pedigree and descrip values.

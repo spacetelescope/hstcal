@@ -1,11 +1,11 @@
 # include	<stdio.h>
 # include	<string.h>
 # include 	<stdlib.h>
-# include	<hstio.h>
+# include	"hstio.h"
 
-# include	"../stis.h"
+# include	"stis.h"
 # include	"calstis2.h"
-# include	"../cs2.h"
+# include	"cs2.h"
 
 /*  crrej_init -- get the initial average pixel values
 

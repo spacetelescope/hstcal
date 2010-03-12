@@ -1,0 +1,8 @@
+INSTRUMENTS = [
+    'stis'
+    ]
+
+def build(bld):
+    for instrument in INSTRUMENTS:
+        bld.recurse(instrument)
+

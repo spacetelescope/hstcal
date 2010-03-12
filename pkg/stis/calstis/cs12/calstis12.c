@@ -9,11 +9,11 @@
 # include <stdio.h>
 # include <string.h>	/* strcpy, strcmp */
 
-# include <hstio.h>
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis12.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static void StisInit12 (StisInfo12 *, StisInfo12 *);
 

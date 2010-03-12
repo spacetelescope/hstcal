@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include <string.h>
-# include "../stis.h"
-# include "../stisaper.h"	/* pseudo_ap, for pseudo-aperture suffixes */
+# include "stis.h"
+# include "stisaper.h"	/* pseudo_ap, for pseudo-aperture suffixes */
 
 /* This routine checks whether propaper ends in one of the "pseudo-aperture"
    suffixes, and if it does, it appends that string to aperture (unless

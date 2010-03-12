@@ -1,11 +1,11 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <c_iraf.h>		/* for c_irafinit, IRAFPointer */
-# include <ximio.h>		/* for the imt routines */
+# include "c_iraf.h"		/* for c_irafinit, IRAFPointer */
+# include "ximio.h"		/* for the imt routines */
 
-# include "../stis.h"
-# include "../stiserr.h"
+# include "stis.h"
+# include "stiserr.h"
 # include "calstis6.h"
 
 /*

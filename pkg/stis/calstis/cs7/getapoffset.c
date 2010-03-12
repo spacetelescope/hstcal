@@ -2,13 +2,13 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */

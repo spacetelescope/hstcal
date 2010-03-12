@@ -1,10 +1,10 @@
 # include <stdio.h>
 # include <stdlib.h>	/* calloc */
 
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static int CollapsePrism (SpTrace *, SingleGroup *,
 		int, int, int, int,

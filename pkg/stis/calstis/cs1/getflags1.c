@@ -1,12 +1,12 @@
 # include <stdio.h>
 # include <string.h>		/* for strncmp, strcmp, strlen */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"		/* defines error codes */
-# include "../stisdef.h"
+# include "stiserr.h"		/* defines error codes */
+# include "stisdef.h"
 
 static int checkAtoD (Hdr *, StisInfo1 *, int *, int *);
 static int checkBias (Hdr *, StisInfo1 *, int *, int *);

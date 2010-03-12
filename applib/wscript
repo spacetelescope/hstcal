@@ -1,0 +1,12 @@
+def build(bld):
+    bld(
+        features = ['cc', 'cstaticlib'],
+        source = [
+            'ncarfft.f'
+            ],
+        target = 'applib',
+        install_path = '${PREFIX}/lib',
+        add_source = 'ncarfft'
+        )
+    
+    

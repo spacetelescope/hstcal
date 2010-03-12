@@ -1,9 +1,9 @@
 # include <stdio.h>
 # include <math.h>	/* fabs */
-# include "../stis.h"
+# include "stis.h"
 # include "calstis12.h"
-# include "../cs12.h"		/* for interpolation options */
-# include "../stiserr.h"
+# include "cs12.h"		/* for interpolation options */
+# include "stiserr.h"
 
 /* This routine interpolates the shift in each axis.  The independent
    variable is time, given by midpt for the current science image

@@ -20,10 +20,10 @@
 
 # include <stdio.h>
 # include <stdlib.h>
-# include <hstio.h>
+# include "hstio.h"
 
-# include "../../stis.h"
-# include "../../stiserr.h"
+# include "stis.h"
+# include "stiserr.h"
 # include "idtalg.h"
 
 static int CDebug (char *, CmplxArray *);

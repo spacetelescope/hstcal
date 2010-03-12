@@ -1,10 +1,10 @@
 # include <stdio.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis12.h"
-# include "../stisdef.h"
+# include "stisdef.h"
 
 /* This routine gets the time of the middle of the exposure and the
    shift for each axis from an extension header.

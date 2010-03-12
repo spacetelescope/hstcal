@@ -2,14 +2,14 @@
 # include <stdlib.h>
 # include <string.h>		/* strcmp */
 
-# include <hstio.h>
-# include <xtables.h>
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stiserr.h"
+# include "stisdq.h"
 
 /*
    Get keyword values from an extension header.

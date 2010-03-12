@@ -1,13 +1,13 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 # include "calstis6.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 /*
    calstis6std -- Standard 1-D spectral extraction and profile generator.

@@ -2,11 +2,11 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
-# include <hstio.h>
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis0.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 /* calstis0 -- integrated calstis processing
 
@@ -742,7 +742,7 @@ char *outfile   i: name of output file
    and calls calstis2.
 */
 
-# include "../cs2.h"
+# include "cs2.h"
 
 static int CalStis2_0 (char *input, char *output, int printtime, int verbose) {
 
@@ -864,7 +864,7 @@ static int CalStis7_0 (char *input, char *output,
 
 /* This function is an interface for calling calstis12. */
 
-# include "../cs12.h"		/* for interpolation options */
+# include "cs12.h"		/* for interpolation options */
 
 static int CalStis12_0 (char *wavecal, char *science,
 		int printtime, int verbose) {

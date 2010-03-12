@@ -1,7 +1,7 @@
 # include <stdio.h>
 
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis4.h"
 
 /* This routine finds the shifts for the current image set.

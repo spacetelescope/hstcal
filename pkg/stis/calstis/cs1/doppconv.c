@@ -1,10 +1,10 @@
 # include <stdio.h>
 # include <stdlib.h>		/* calloc */
 # include <math.h>		/* sqrt */
-# include <hstio.h>
+# include "hstio.h"
 
-# include "../stisdq.h"		/* for GOODPIXEL and DETECTORPROB */
-# include "../stiserr.h"
+# include "stisdq.h"		/* for GOODPIXEL and DETECTORPROB */
+# include "stiserr.h"
 
 /* This routine convolves the science, error, and data quality arrays
    with a Doppler smearing function in the first axis direction, leaving

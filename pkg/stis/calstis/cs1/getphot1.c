@@ -1,14 +1,14 @@
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */
@@ -55,7 +55,7 @@ static int ClosePhotTab (TblInfo *);
 	Extracted from dophot.c.
 
    Phil Hodge, 1998 Feb 6:
-	Remove the include for <hstio.h>.
+	Remove the include for "hstio.h".
 
    Phil Hodge, 1998 Oct 5:
 	Change status value 1010 to GENERIC_ERROR_CODE.

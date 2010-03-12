@@ -1,9 +1,9 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <math.h>
-# include "../stis.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 # define ARCSEC_PER_DEGREE  3600.
 # define MIN_BARWEIGHT      0.5		/* fraction of expected peak */

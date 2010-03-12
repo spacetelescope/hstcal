@@ -1,11 +1,11 @@
 # include <stdio.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis0.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 static int GetSw (Hdr *, char *, int *);
 static int optionalSwitch (Hdr *, char *, int *);

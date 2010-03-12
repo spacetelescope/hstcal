@@ -3,11 +3,11 @@
 # include <string.h>
 # include <math.h>	/* fabs, qsort */
 
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
-# include "../stisdq.h"	/* for DATAMASKED and DATAREJECT */
+# include "stiserr.h"
+# include "stisdq.h"	/* for DATAMASKED and DATAREJECT */
 
 static int FlagLine (StisInfo4 *,
 	float *, short *, int, float *, float *, float *);

@@ -8,13 +8,13 @@
 # include <stdio.h>
 # include <math.h>		/* for sqrt and exp, in FindRate */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdq.h"		/* for SATPIXEL */
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdq.h"		/* for SATPIXEL */
+# include "stisdef.h"
 
 static double FindGlobRate (SingleGroup *, double);
 static double FindRate (double, double);

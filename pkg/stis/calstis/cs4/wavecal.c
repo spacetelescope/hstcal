@@ -7,13 +7,13 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdq.h"
+# include "stisdef.h"
 
 static void ScaleTrim (StisInfo4 *);
 static void ScaleOne (int, double, int, int []);

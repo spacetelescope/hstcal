@@ -7,13 +7,13 @@
 
 static int WavOption (char *, int *);
 
-# include <c_iraf.h>		/* for c_irafinit */
-# include <ximio.h>
+# include "c_iraf.h"		/* for c_irafinit */
+# include "ximio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis12.h"
-# include "../cs12.h"		/* for interpolation options */
-# include "../stiserr.h"
+# include "cs12.h"		/* for interpolation options */
+# include "stiserr.h"
 
 static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *, char *);

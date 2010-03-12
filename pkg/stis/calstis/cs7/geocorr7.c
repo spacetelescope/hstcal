@@ -1,14 +1,14 @@
 # include <stdio.h>
 # include <math.h>		/* for sqrt in Interp7 */
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdq.h"
+# include "stisdef.h"
 
 static int GeoOnePoint (StisInfo7 *, double, double,
 	DistInfo *, FloatHdrData *, FloatHdrData *,

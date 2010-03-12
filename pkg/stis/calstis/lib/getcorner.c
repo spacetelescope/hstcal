@@ -1,10 +1,10 @@
 # include <stdio.h>
 # include <math.h>		/* for fabs */
-# include <c_iraf.h>
-# include <hstio.h>		/* for Hdr */
+# include "c_iraf.h"
+# include "hstio.h"		/* for Hdr */
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 
 static void FromLT (int, double *, double *, int *, int *);
 

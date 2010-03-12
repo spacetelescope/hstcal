@@ -1,13 +1,13 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stiserr.h"	/* defines error codes */
-# include "../stisdef.h"
+# include "stiserr.h"	/* defines error codes */
+# include "stisdef.h"
 
 static int CheckFlux (Hdr *, StisInfo7 *, int *, int *);
 static int CheckSmGeo (Hdr *, StisInfo7 *, int *, int *);

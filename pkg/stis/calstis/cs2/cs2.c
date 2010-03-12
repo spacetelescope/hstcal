@@ -4,11 +4,11 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
-# include <c_iraf.h>		/* for c_irafinit */
+# include "c_iraf.h"		/* for c_irafinit */
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../cs2.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "cs2.h"
 
 int main (int argc, char **argv) {
 

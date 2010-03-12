@@ -1,8 +1,8 @@
 # include <stdio.h>
 # include <math.h>		/* for sqrt */
 
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
 
 /* This routine checks whether the error array is all zero, and if so,

@@ -1,13 +1,13 @@
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis11.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* This routine opens the input wavecal and science files, selects the
    best (closest in time) science image for each wavecal, and calls a

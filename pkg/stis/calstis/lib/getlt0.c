@@ -1,9 +1,9 @@
 # include <stdio.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 
 /* This routine gets the LTV and LTM keyword values and converts LTV
    from one to zero indexing.

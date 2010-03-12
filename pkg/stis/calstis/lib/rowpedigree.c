@@ -1,12 +1,12 @@
 # include <stdio.h>
 # include <string.h>
-# include <c_iraf.h>
-# include <hstio.h>
-# include <xtables.h>
+# include "c_iraf.h"
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* This routine gets pedigree and descrip from the current table row.
 

@@ -1,12 +1,12 @@
 # include <stdio.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 # include "calstis6.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 
 typedef struct {

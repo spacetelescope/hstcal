@@ -1,12 +1,12 @@
 # include <stdio.h>
 # include <ctype.h>		/* for isspace */
 # include <string.h>		/* for strcpy, strlen */
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 static void KeyMissing (char *);	/* prints error message */
 static void AddKeywordMessage (char *);	/* prints warning message */

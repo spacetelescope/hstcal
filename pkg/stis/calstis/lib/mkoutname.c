@@ -7,8 +7,8 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include "../stis.h"
-# include "../stiserr.h"
+# include "stis.h"
+# include "stiserr.h"
 
 # define FITS_EXTN  ".fits"	/* default extension */
 

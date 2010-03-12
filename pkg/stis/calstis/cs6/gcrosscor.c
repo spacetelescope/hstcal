@@ -4,13 +4,13 @@
 # include <time.h>
 # include <math.h>		/* fabs */
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stiserr.h"
+# include "stisdq.h"
 
 static double average (double *, int *, int, double, double *);
 static int OpenSGeo1 (char *, FloatHdrData *, FloatHdrData *);

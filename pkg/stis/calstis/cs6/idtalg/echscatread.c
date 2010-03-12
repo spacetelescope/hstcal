@@ -3,14 +3,14 @@
 # include <math.h>
 # include <float.h>
 
-# include <xtables.h>
-# include <ximio.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "ximio.h"
+# include "hstio.h"
 
-# include "../../stis.h"
-# include "../../stiserr.h"
-# include "../../stisdef.h"
-# include "../calstis6.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
+# include "calstis6.h"
 # include "idtalg.h"
 
 static int GetScatter (char *, ScatterFunctions *);

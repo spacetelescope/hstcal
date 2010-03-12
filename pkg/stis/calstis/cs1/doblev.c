@@ -7,13 +7,13 @@
 # include <stdio.h>
 # include <math.h>		/* sqrt */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdq.h"		/* for CALIBDEFECT */
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdq.h"		/* for CALIBDEFECT */
+# include "stisdef.h"
 
 static FILE *BlevOpen (char *, int, int *);
 static void FitToOverscan (SingleGroup *, short, int, int, int *, double);

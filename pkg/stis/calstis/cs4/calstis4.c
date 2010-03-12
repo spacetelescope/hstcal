@@ -9,11 +9,11 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <hstio.h>
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static void StisInit4 (StisInfo4 *);
 

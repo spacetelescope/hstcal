@@ -6,7 +6,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include "../stis.h"
+# include "stis.h"
 
 static int CompareDouble (const void *vp, const void *vq);
 static int CompareFloat (const void *vp, const void *vq);

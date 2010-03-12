@@ -1,15 +1,15 @@
 # include <stdio.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stisdq.h"
-# include "../stispht.h"
-# include "../stisdef.h"
-# include "../stistds.h"
-# include "../stiserr.h"
+# include "stisdq.h"
+# include "stispht.h"
+# include "stisdef.h"
+# include "stistds.h"
+# include "stiserr.h"
 
 # define  HST_AREA  45238.93416		/* cm**2, including obscured areas */
 # define  H_PLANCK  (6.6260755e-27)	/* Planck's constant, erg * sec */

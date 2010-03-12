@@ -1,12 +1,12 @@
 # include <stdio.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdq.h"
+# include "stisdef.h"
 
 /* This routine computes the minimum, mean, and maximum of the science
    data values that are flagged as good in the data quality array.  These

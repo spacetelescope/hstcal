@@ -7,13 +7,13 @@
 # include <stdio.h>
 # include <math.h>	/* fabs, sqrt */
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis11.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdef.h"
 
 /* Add to (or subtract from) corner locations before rounding to nearest
    integer, to avoid roundoff error and to resolve NINT(0.5) ambiguity.

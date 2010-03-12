@@ -1,12 +1,12 @@
 # include <stdio.h>
 # include <math.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdq.h"
 # include "calstis6.h"
 
 static void AddPixel (int, RowContents *, short, double *, double *, int *);

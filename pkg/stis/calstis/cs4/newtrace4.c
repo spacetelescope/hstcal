@@ -10,9 +10,9 @@ internal:
 # include <stdlib.h>
 # include <string.h>
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 # define MAX(x,y)  ((x) >= (y) ? (x) : (y))
 

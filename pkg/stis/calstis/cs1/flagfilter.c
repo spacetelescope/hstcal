@@ -3,11 +3,11 @@
 # include <string.h>
 # include <math.h>		/* for fabs */
 
-# include <hstio.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stissizes.h"	/* for CCD_NPIX_X and CCD_NPIX_Y */
-# include "../stisdq.h"
+# include "stissizes.h"	/* for CCD_NPIX_X and CCD_NPIX_Y */
+# include "stisdq.h"
 
 # define SHORT_SLIT    5.
 # define LONG_SLIT    45.

@@ -2,8 +2,8 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include "../stis.h"
-# include "../stiserr.h"
+# include "stis.h"
+# include "stiserr.h"
 
 int MkName (char *input, char *isuffix, char *osuffix,
 		char *output, int maxch) {

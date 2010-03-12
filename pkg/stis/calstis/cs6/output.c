@@ -1,14 +1,14 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stiserr.h"
+# include "stisdq.h"
 
 # define SZ_KWD	80	/* size of keyword string buffer */
 

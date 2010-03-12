@@ -1,6 +1,6 @@
 # include <stdio.h>
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis1.h"
 
 /* This routine resets switches that are inappropriate for the current

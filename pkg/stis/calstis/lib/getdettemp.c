@@ -1,13 +1,13 @@
 # include <stdio.h>
 # include <string.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdef.h"
-# include "../stistemperature.h"	/* defines BEGIN_SIDE2 */
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdef.h"
+# include "stistemperature.h"	/* defines BEGIN_SIDE2 */
 
 /* This routine gets the detector temperature from a header keyword.
    The keyword name depends on the detector.  If the detector is

@@ -1,7 +1,7 @@
 # include <stdlib.h>
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
 
 /* Initialize the calstis6 structure.  This includes information about the

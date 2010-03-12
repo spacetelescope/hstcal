@@ -4,12 +4,12 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
-# include <c_iraf.h>		/* for c_irafinit */
-# include <ximio.h>
+# include "c_iraf.h"		/* for c_irafinit */
+# include "ximio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis0.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static void FreeNames (char *, char *, char *, char *, char *, char *);
 

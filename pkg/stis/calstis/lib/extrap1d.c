@@ -1,5 +1,5 @@
 # include <stdio.h>
-# include "../stis.h"
+# include "stis.h"
 
 static double extrapolate (double, double, double, double, double);
 

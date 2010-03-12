@@ -2,12 +2,12 @@
 # include <math.h>
 # include <stdlib.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "stisdq.h"
 # include "calstis6.h"
 
 # define BOX_LOWER	-1	/* position of current pixel in */

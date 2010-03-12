@@ -2,14 +2,14 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
-# include <hstio.h>
-# include <xtables.h>
+# include "hstio.h"
+# include "xtables.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stispht.h"
+# include "stiserr.h"
+# include "stispht.h"
 
 
 typedef struct {

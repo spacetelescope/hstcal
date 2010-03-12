@@ -1,10 +1,10 @@
 # include <math.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"	/* SIZE_MISMATCH */
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"	/* SIZE_MISMATCH */
+# include "stisdef.h"
 
 /* Add two SingleGroup triplets, leaving the result in the first.
 

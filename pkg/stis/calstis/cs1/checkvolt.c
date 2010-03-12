@@ -1,9 +1,9 @@
 # include <stdio.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisvoltages.h"
+# include "stis.h"
+# include "stisvoltages.h"
 
 /* Value to assign if keyword is not found. */
 # define DEFAULT_VOLTAGE  (-9999.)

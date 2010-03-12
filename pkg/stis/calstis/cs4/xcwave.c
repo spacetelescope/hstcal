@@ -11,9 +11,9 @@
 # include <string.h>	/* memcpy */
 # include <math.h>
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis4.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static int SumSpec (double [], double [], int, int, double [],
 		double, double, double, double, double,

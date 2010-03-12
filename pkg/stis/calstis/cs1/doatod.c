@@ -2,14 +2,14 @@
 # include <stdlib.h>		/* for malloc */
 # include <math.h>		/* for fabs */
 
-# include <hstio.h>
-# include <c_iraf.h>
-# include <xtables.h>
-# include "../stis.h"
+# include "hstio.h"
+# include "c_iraf.h"
+# include "xtables.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stisdq.h"		/* for SATPIXEL */
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stisdq.h"		/* for SATPIXEL */
+# include "stisdef.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */

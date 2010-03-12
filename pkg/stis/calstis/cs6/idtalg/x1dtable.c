@@ -1,11 +1,11 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../../stis.h"
-# include "../../stiserr.h"
-# include "../calstis6.h"
+# include "stis.h"
+# include "stiserr.h"
+# include "calstis6.h"
 
 /*
    GetX1DTable -- Read X1D table from file.

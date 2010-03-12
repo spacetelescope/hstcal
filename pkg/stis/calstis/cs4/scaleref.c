@@ -1,5 +1,5 @@
 # include <stdio.h>
-# include "../stis.h"
+# include "stis.h"
 # include "calstis4.h"
 
 /* This routine multiplies the shift for each axis by the scale factor

@@ -3,14 +3,14 @@
 # include <math.h>	/* fabs */
 # include <float.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 # include "calstis6.h"
-# include "../stiserr.h"
-# include "../stisdq.h"
+# include "stiserr.h"
+# include "stisdq.h"
 
 # define	FWHM_X		1.0	/* 2-D Gaussian kernel */
 # define	FWHM_Y		2.5	/* 2-D Gaussian kernel */

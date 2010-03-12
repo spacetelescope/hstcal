@@ -2,10 +2,10 @@
 # include <stdlib.h>		/* atoi, atof */
 # include <string.h>
 
-# include <c_iraf.h>
+# include "c_iraf.h"
 
-# include "../stis.h"
-# include "../cs2.h"
+# include "stis.h"
+# include "cs2.h"
 
 void cs2_reset (clpar *, int []); 
 static int syntax_error (char *);

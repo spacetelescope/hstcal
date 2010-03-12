@@ -3,14 +3,14 @@
 # include <string.h>
 # include <math.h>
 
-# include <xtables.h>
-# include "../stis.h"
+# include "xtables.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stispht.h"
-# include "../stisdq.h"
-# include "../stissizes.h"
-# include "../stistds.h"
-# include "../stiserr.h"
+# include "stispht.h"
+# include "stisdq.h"
+# include "stissizes.h"
+# include "stistds.h"
+# include "stiserr.h"
 
 static int getHalo (StisInfo6 *, int, double [], float [], CTICorrInfo *);
 static float CtiCorr(StisInfo6 *, CTICorrInfo *,

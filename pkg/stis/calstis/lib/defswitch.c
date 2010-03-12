@@ -1,8 +1,8 @@
 # include <string.h>
 # include <ctype.h>
 
-# include "../stis.h"		/* for PERFORM and OMIT */
-# include "../stisomit.h"	/* a list of switches that should be OMIT */
+# include "stis.h"		/* for PERFORM and OMIT */
+# include "stisomit.h"	/* a list of switches that should be OMIT */
 # define SIZE_KEYWORD  9
 
 /* This routine assigns the default value for a calibration switch,

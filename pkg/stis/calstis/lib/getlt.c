@@ -1,9 +1,9 @@
 # include <stdio.h>
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
+# include "stis.h"
+# include "stisdef.h"
 
 /* This routine gets the LTV and LTM keyword values.  Note that this
    routine returns the values just as read from the header, which means

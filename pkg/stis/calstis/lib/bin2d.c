@@ -2,12 +2,12 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>		/* strncmp */
 # include <math.h>		/* sqrt */
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stiserr.h"	/* SIZE_MISMATCH */
-# include "../stisdef.h"
+# include "stis.h"
+# include "stiserr.h"	/* SIZE_MISMATCH */
+# include "stisdef.h"
 
 /* This routine takes an input data array, extracts a subset, bins it
    by averaging within rectangular bins, and assigns the values to an

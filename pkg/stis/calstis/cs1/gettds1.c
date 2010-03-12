@@ -2,13 +2,13 @@
 # include <string.h>  /* memcpy */
 # include <stdlib.h>  /* malloc */
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
-# include "../stisdef.h"
-# include "../stiserr.h"
-# include "../stistds.h"
+# include "stis.h"
+# include "stisdef.h"
+# include "stiserr.h"
+# include "stistds.h"
 # include "calstis1.h"
 
 typedef struct {

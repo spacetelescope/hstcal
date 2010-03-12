@@ -5,12 +5,12 @@
 # include <string.h>
 
 
-# include <c_iraf.h>		/* for c_irafinit */
-# include <ximio.h>
+# include "c_iraf.h"		/* for c_irafinit */
+# include "ximio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis7.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static int CompareNumbers (int, int, char *);
 static void FreeNames (char *, char *, char *, char *);

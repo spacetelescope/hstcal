@@ -1,7 +1,7 @@
 # include 	<stdio.h>
-# include 	<hstio.h>
+# include 	"hstio.h"
 
-# include	"../stis.h"
+# include	"stis.h"
 
 /*  cr_scaling -- Determine the scaling factors according to exposure times or
 		 other user specified scheme. */

@@ -7,13 +7,13 @@
 # include <stdlib.h>		/* calloc */
 # include <math.h>		/* fabs */
 
-# include <c_iraf.h>
-# include <hstio.h>
-# include "../stis.h"
+# include "c_iraf.h"
+# include "hstio.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"
-# include "../stistemperature.h"	/* defines DARKRATE */
-# include "../stisdef.h"
+# include "stiserr.h"
+# include "stistemperature.h"	/* defines DARKRATE */
+# include "stisdef.h"
 
 static double CCDFactor (double);
 static int MedSciVal (SingleGroup *, float *);

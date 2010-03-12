@@ -1,6 +1,6 @@
 # include <ctype.h>
 
-# include "../stis.h"
+# include "stis.h"
 
 /* This function compares two strings without regard to case, returning
    one if the strings are equal.

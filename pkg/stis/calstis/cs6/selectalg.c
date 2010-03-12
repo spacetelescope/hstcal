@@ -1,10 +1,10 @@
 # include <stdio.h>
 # include <string.h>
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 /* 
    Selects the extraction algorithm, based on command-line input and

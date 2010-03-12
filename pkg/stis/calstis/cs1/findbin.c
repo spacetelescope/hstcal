@@ -1,12 +1,12 @@
 # include <stdio.h>
 
-# include <c_iraf.h>
-# include <hstio.h>
+# include "c_iraf.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis1.h"
-# include "../stiserr.h"		/* for REF_TOO_SMALL */
-# include "../stisdef.h"
+# include "stiserr.h"		/* for REF_TOO_SMALL */
+# include "stisdef.h"
 
 /* This routine finds the bin factors and corner location to use
    when calling bin2d to extract and bin the appropriate subset of

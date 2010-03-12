@@ -2,12 +2,12 @@
 # include <string.h>
 # include <math.h>
 
-# include <xtables.h>
-# include <hstio.h>
+# include "xtables.h"
+# include "hstio.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 
 /* 

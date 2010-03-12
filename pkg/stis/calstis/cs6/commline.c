@@ -2,11 +2,11 @@
 # include <stdlib.h>		/* atoi, atof */
 # include <string.h>
 
-# include <xtables.h>
+# include "xtables.h"
 
-# include "../stis.h"
+# include "stis.h"
 # include "calstis6.h"
-# include "../stiserr.h"
+# include "stiserr.h"
 
 static int syntax_error (char *);
 static int getArgI (char **, int, int *, int *);
