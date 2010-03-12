@@ -1,0 +1,18 @@
+import os
+
+def build(bld):
+    t = bld(
+        features = ['cc', 'cstaticlib'],
+        source = [
+            'c_iraf_priv.c',
+            'irafinit.c',
+            ],
+        target = 'cvos',
+        includes = [
+            bld.env.INCLUDEDIR, # the hstcal include directory
+            '.',
+            ],
+        install_path = '${PREFIX}/lib'
+        )
+        
+    
