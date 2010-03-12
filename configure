@@ -1,0 +1,3 @@
+#!/bin/sh
+./waf configure $@
+echo Run "./waf build" to build
