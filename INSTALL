@@ -30,3 +30,8 @@ for local include files, and
 for system include files.  waf will not track changes to system
 include files, so the first syntax should be used whenever including
 files within the project.
+
+Outstanding waf issues
+======================
+
+waf dist seems to include all the .o files etc.
