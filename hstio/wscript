@@ -1,0 +1,22 @@
+import os
+
+def build(bld):
+    bld.path.find_dir('include')
+
+    t = bld(
+        features = ['cc', 'cstaticlib'],
+        source = [
+            'hstio.c',
+            'numeric.c',
+            'keyword.c'
+            ],
+        target = 'hstio',
+        includes = [
+            bld.env.INCLUDEDIR, # the hstcal include directory
+            '.',
+            bld.env.CFITSIO
+            ],
+        install_path = '${PREFIX}/lib'
+        )
+        
+    
