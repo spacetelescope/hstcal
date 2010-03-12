@@ -1,0 +1,110 @@
+# calstis6
+
+$call relink
+$exit
+
+update:
+	$call relink
+	$call install
+	;
+
+relink:
+	$set XFLAGS = "-Inolibc $(XFLAGS)"
+	$checkout calstis.a ../
+	$update calstis.a
+	$checkin calstis.a ../
+
+	$call linkonly2
+	;
+
+linkonly:
+	$set XFLAGS = "-Inolibc $(XFLAGS)"
+linkonly2:
+	$ifeq (MACH, alpha) then
+	$set LFLAGS = "-H -z -/non_shared $(LFLAGS)"
+	$else
+	$set LFLAGS = "-H -z $(LFLAGS)"
+	$endif
+	$omake cs6.c <ximio.h> <c_iraf.h> ../stis.h ../stiserr.h
+	$link cs6.o ../calstis.a \
+		-lhstio -lcvos -lapplib -ltbtables \
+		-o cs6.e
+	;
+
+install:
+	$move cs6.e stsdasbin$cs6.e
+	;
+
+debug:
+	$set XFLAGS = " -fgq -Inolibc $(XFLAGS) -/xO1"
+	$checkout calstis.a ../
+	$update calstis.a
+	$checkin calstis.a ../
+	$set LFLAGS = "-x -H -z $(LFLAGS) -/Bdynamic"
+	$omake cs6.c <ximio.h> <c_iraf.h> ../stis.h ../stiserr.h
+	$link cs6.o ../calstis.a \
+		-lsys -lhstio -lcvos -lapplib -ltbtables \
+		-o cs6.e
+	;
+
+calstis.a:
+	@idtalg
+	absflux6.c	<xtables.h> ../stis.h calstis6.h ../stisdq.h ../stispht.h
+	addoffsets6.c	<xtables.h> ../stis.h calstis6.h
+	adjustdisp6.c	<xtables.h> ../stis.h calstis6.h
+	background.c	<xtables.h> <hstio.h> ../stis.h ../stisdq.h calstis6.h 
+	buildoptprof.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	buildprof.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	calstis6.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	calstis6std.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+        checkoptimal.c  <xtables.h> ../stis.h calstis6.h ../stiserr.h
+	commline.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	crosscor.c <xtables.h> <hstio.h> ../stis.h calstis6.h ../stisdq.h ../stiserr.h
+	defineback.c    <xtables.h> <hstio.h> ../stis.h calstis6.h \
+        ../stisdq.h ../stiserr.h
+	do1dx.c         <xtables.h> <hstio.h> ../stis.h calstis6.h \
+        ../stisdq.h ../stiserr.h ../stisdef.h ../stispht.h
+	evaldisp6.c	<xtables.h> ../stis.h calstis6.h
+	findlya.c	<xtables.h> <hstio.h> ../stis.h ../stisdq.h calstis6.h 
+	gcrosscor.c     <hstio.h> ../stis.h calstis6.h ../stisdq.h ../stiserr.h
+	getabsphot6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h ../stispht.h
+	getapdes6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	getapoffset6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	getapthr6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+        getccdtab6.c    <xtables.h> ../stis.h calstis6.h ../stiserr.h \
+        ../stisdef.h <c_iraf.h> <hstio.h>
+
+	getcheckref.c	<xtables.h> <hstio.h> ../stis.h ../stiserr.h calstis6.h
+	getdisp6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	getextract.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	getflags6.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	getgac6.c	<xtables.h> <hstio.h> ../stis.h ../stisdef.h \
+		calstis6.h ../stiserr.h
+	getgrpinfo6.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	getinang6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	getintens.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h ../stispht.h
+	getkeyinfo6.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	getpct6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h ../stispht.h
+	getprofile.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+        getrefcline.c   <xtables.h> ../stis.h calstis6.h ../stiserr.h
+	getsdc6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	gettrace6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	heliofactor6.c	<xtables.h> ../stis.h calstis6.h
+	history6.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	init.c		<xtables.h> ../stis.h calstis6.h
+	lee.c		<xtables.h> <hstio.h> ../stis.h ../stisdq.h calstis6.h
+	memory.c	<xtables.h> ../stis.h ../stiserr.h calstis6.h ../stispht.h
+	message6.c	<xtables.h> ../stis.h calstis6.h
+	newcoord6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	newextract.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	newdisp6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	newprofile.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	newtrace6.c	<xtables.h> ../stis.h calstis6.h ../stiserr.h
+	output.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h ../stisdq.h
+        poly.c		
+        selectalg.c     <xtables.h> ../stis.h calstis6.h ../stiserr.h
+	setranges.c	<xtables.h> <hstio.h> ../stis.h calstis6.h ../stiserr.h
+	timestamp6.c
+	wave.c		<xtables.h> ../stis.h calstis6.h ../stissizes.h
+	x1dspec.c	<xtables.h> <hstio.h> ../stis.h ../stisdq.h calstis6.h
+	;

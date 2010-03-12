@@ -1,0 +1,51 @@
+# calstis12
+
+$call relink
+$exit
+
+update:
+	$call relink
+	$call install
+	;
+
+relink:
+	$set XFLAGS = "-Inolibc $(XFLAGS)"
+	$checkout calstis.a ../
+	$update calstis.a
+	$checkin calstis.a ../
+
+	$call linkonly2
+	;
+
+linkonly:
+	$set XFLAGS = "-Inolibc $(XFLAGS)"
+linkonly2:
+	$set LFLAGS = "-H -z $(LFLAGS)"
+
+	$omake cs12.c <c_iraf.h> <ximio.h> ../stis.h calstis12.h ../cs12.h \
+			../stiserr.h
+
+	$link cs12.o ../calstis.a \
+		-lhstio -lcvos -ltbtables \
+		-o cs12.e
+	;
+
+install:
+	$move cs12.e stsdasbin$cs12.e
+	;
+
+calstis.a:
+	calstis12.c	<hstio.h> ../stis.h calstis12.h ../stiserr.h
+	addshifts.c	<hstio.h> ../stis.h calstis12.h ../cs12.h ../stiserr.h
+	getkeyinfo12.c	<c_iraf.h> <hstio.h> ../stis.h calstis12.h \
+				../stiserr.h ../stisdef.h
+	getscigrp.c	<c_iraf.h> <hstio.h> ../stis.h calstis12.h \
+				../stiserr.h ../stisdef.h
+	getwavgrp.c	<c_iraf.h> <hstio.h> ../stis.h calstis12.h \
+				../stisdef.h
+	history12.c	<c_iraf.h> <hstio.h> ../stis.h calstis12.h \
+				../stiserr.h ../stisdef.h
+	matchwav.c	../stis.h calstis12.h ../cs12.h ../stiserr.h
+	targpos.c	<c_iraf.h> <hstio.h> ../stis.h calstis12.h \
+				../stiserr.h ../stisdef.h
+	;

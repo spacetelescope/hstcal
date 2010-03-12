@@ -1,0 +1,52 @@
+# Function      Total    wfc3    acs    nicmos    stis    ctools    
+ x  c_tbagtd       71       0      0         0      53        18    
+ x  c_tbagtr       21       1      1         1      18         0    
+ x  c_tbagts        2       0      0         0       1         1    
+ x  c_tbaptd       11       0      0         0       6         5    
+ x  c_tbaptr       18       0      0         0      18         0    
+ x  c_tbapts       10       0      0         0       9         1    
+ x  c_tbcdef1      42       0      0         2      31         9    
+ x  c_tbcfnd1     718      93     82         9     478        56    
+ x  c_tbciga        5       0      0         2       3         0    
+ x  c_tbcigi       18       0      0         0       2        16    
+ x  c_tbcigt       15       0      0         0       0        15    
+ x  c_tbcinf        3       0      3         0       0         0    
+ x  c_tbcnum        5       0      0         0       0         5    
+ x  c_tbegtb        5       1      1         3       0         0    
+ x  c_tbegtd      125       1      4         0     107        13    
+ x  c_tbegti      219      50     38         7     110        14    
+ x  c_tbegtr       79      24     23         3      29         0    
+ x  c_tbegts       17       3      2         0      11         1    
+ x  c_tbegtt      106      15     14         7      67         3    
+ x  c_tbeptb        9       2      2         5       0         0    
+ x  c_tbeptd        5       0      0         0       0         5    
+ x  c_tbepti        1       0      0         0       0         1    
+ x  c_tbeptr        6       0      0         6       0         0    
+ x  c_tbepts        1       0      0         0       0         1    
+ x  c_tbeptt        6       0      0         6       0         0    
+ x  c_tbfpri        3       0      0         0       0         3    splice/
+ x  c_tbfres        2       0      0         0       2         0    inttag.c
+ x  c_tbhadb        1       0      0         0       1         0    
+ x  c_tbhadd        4       0      0         0       4         0    
+ x  c_tbhadi        1       0      0         0       1         0    
+ x  c_tbhadr        1       0      0         1       0         0    
+ x  c_tbhadt        5       0      0         0       2         3    
+ x  c_tbhcal        5       0      0         2       0         3    
+ x  c_tbhgcm        1       0      0         0       1         0    inttag.c
+ x  c_tbhgnp        1       0      0         0       1         0    inttag.c
+ x  c_tbhgtd       10       0      0         0       2         8    
+ x  c_tbhgti       13       2      0         0       7         4    
+ x  c_tbhgtr        1       0      0         1       0         0    
+ x  c_tbhgtt       18       3      2         3       4         6    
+    c_tbhpcm        4       0      0         0       4         0    
+    c_tbhptt        5       0      0         5       0         0    
+    c_tbparse       6       0      0         0       0         6    splice/
+ x  c_tbpsta       95       7      8         4      61        15    
+    c_tbrcsc        2       0      0         0       0         2    splice/
+ x  c_tbrgtr        2       0      0         2       0         0    
+ x  c_tbrudf        5       0      0         5       0         0    
+ x  c_tbtacc        1       0      0         0       1         0    
+ x  c_tbtclo      281      23     24        44     169        21    
+ x  c_tbtcre        7       0      0         2       2         3    
+ x  c_tbtnam        4       0      0         0       4         0    
+ x  c_tbtopn      110      10     11         7      66        16    

@@ -1,0 +1,19 @@
+undefined reference to `c_pusherr'
+undefined reference to `c_poperr'
+undefined reference to `cvos_irafinit'
+undefined reference to `c_vfn2osfn'
+
+typedef void (*c_IRAFErrHandler)(void);
+
+int cvos_irafinit = 0;
+
+int c_pusherr (c_IRAFErrHandler x) {
+        return 1;
+}
+int c_poperr (void) {
+        return 1;
+}
+
+###
+
+undefined reference to `c_vfn2osfn'

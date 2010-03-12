@@ -1,0 +1,38 @@
+# calstis0
+
+$call recompile
+$exit
+
+update:
+	$call recompile
+	;
+
+recompile:
+	$set XFLAGS = "-Inolibc $(XFLAGS)"
+	$checkout calstis.a ../
+	$update calstis.a
+	$checkin calstis.a ../
+
+	$omake cs0.c <c_iraf.h> <ximio.h> ../stis.h calstis0.h ../stiserr.h
+	;
+
+calstis.a:
+	calstis0.c	<hstio.h> ../stis.h calstis0.h ../stiserr.h \
+				../cs2.h ../cs12.h
+	checkwav.c	<hstio.h> ../stis.h calstis0.h ../stiserr.h \
+				../stisdef.h
+	compfiles.c	../stis.h calstis0.h
+	getflags.c	<c_iraf.h> <hstio.h> ../stis.h calstis0.h ../stiserr.h \
+				../stisdef.h
+	getnewref.c	<c_iraf.h> <hstio.h> ../stis.h ../stiserr.h ../stisdef.h
+	getsciinfo.c	<c_iraf.h> <hstio.h> ../stis.h calstis0.h ../stiserr.h \
+			../stisdef.h
+	getwavinfo.c	<c_iraf.h> <hstio.h> ../stis.h calstis0.h ../stiserr.h \
+				../stisshutter.h ../stisdef.h
+	refexist.c	<c_iraf.h> <xtables.h> \
+				../stis.h calstis0.h ../stiserr.h
+	savename.c	../stiserr.h
+	sciflags.c	<hstio.h> ../stis.h calstis0.h
+	stisinit.c	../stis.h calstis0.h ../stiserr.h
+	wavflags.c	<hstio.h> ../stis.h calstis0.h
+	;
