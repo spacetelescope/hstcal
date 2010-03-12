@@ -1,0 +1,32 @@
+Experimentally (for now) this package is using waf for its build
+system.  The Makefiles are vestigial and may be broken.
+
+waf does not need to be installed.  A local copy is included in this
+distribution.  It requires only Python 2.3 - 3.1 to run.
+
+For more information about waf, type 
+
+  > ./waf --help
+
+A typical hstcal build would include the following:
+
+  > ./waf configure --cfitsio=path_to_cfitsio --prefix=install_prefix
+  > ./waf build
+  > ./waf install
+
+Notes about writing wscript files
+=================================
+
+Tracking dependencies
+---------------------
+C has two forms of #include syntax::
+
+  #include "foo.h"
+
+for local include files, and
+
+  #include <foo.h>
+
+for system include files.  waf will not track changes to system
+include files, so the first syntax should be used whenever including
+files within the project.

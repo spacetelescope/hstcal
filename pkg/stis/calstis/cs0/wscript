@@ -1,0 +1,21 @@
+import os
+
+def build(bld):
+    t = bld(
+        features = ['cc', 'cprogram'],
+        source = 'cs0.c',
+        target = 'cs0.e',
+        includes = [
+            bld.env.INCLUDEDIR, # the hstcal include directory
+            '.',
+            bld.env.CFITSIO,
+            '../include'
+            ],
+        # The order of these libraries is important
+        uselib_local = 'calstis applib xtables hstio cvos',
+        lib = ['cfitsio', 'm'],
+        libpath = [bld.env.CFITSIO],
+        install_path = '${PREFIX}/bin'
+        )
+        
+    
