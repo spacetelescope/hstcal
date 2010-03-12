@@ -1,4 +1,0 @@
-Bugs that have been found in calstis during this testing:
-
-cs2/crrej_check.c:  keyword CCDAMP is gotten via getKeyI, but it's a string
-lib/checkimsetok.c:  a call to c_tbtclo needs to be added
