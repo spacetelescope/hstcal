@@ -44,7 +44,7 @@ def configure(conf):
     conf.check_tool('compiler_cc')
 
     # Store and verify the location of CFITSIO
-    conf.env.CFITSIO = os.path.expanduser(Options.options.cfitsio or '')
+    conf.env.CFITSIO = os.path.expanduser(Options.options.cfitsio or '.')
     try:
         conf.check(
             header_name='fitsio.h',
