@@ -5,18 +5,41 @@ distribution, which requires only that Python 2.3 - 3.1 is installed.
 
 waf can be used either in the traditional UNIX way:
 
-  > ./configure --cfitsio=path_to_cfitsio
+  > ./configure
   > make
+  > make install (optionally)
 
 or by calling the waf script directly:
 
-  > ./waf configure --cfitsio=path_to_cfitsio --prefix=install_prefix
+  > ./waf configure
   > ./waf build
-  > ./waf install
+  > ./waf install (optionally)
 
 For more information, run:
 
   > ./waf --help
+
+Configuration options
+=====================
+
+The location of CFITSIO may be specified using commandline arguments
+to the configure command.
+
+   --cfitsio-inc specifies the directory containing the CFITSIO header files
+
+   --cfitsio-lib specifies the CFITSIO static library file (usually libcfitsio.a)
+
+For example:
+
+  > ./waf configure --cfitsio-inc=/path/to/cfitsio --cfitsio-lib=/path/to/cfitsio/libcfitsio.a
+
+build.cfg file
+==============
+
+Commandline arguments to 'configure' may also be provided in a file,
+'build.cfg'.  This file can contain any commandline arguments accepted
+by the configure command.  An example is given in the
+build.cfg.example file.
 
 
 Notes for developers

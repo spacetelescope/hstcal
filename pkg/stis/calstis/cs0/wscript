@@ -8,13 +8,13 @@ def build(bld):
         includes = [
             bld.env.INCLUDEDIR, # the hstcal include directory
             '.',
-            bld.env.CFITSIO,
             '../include'
             ],
         # The order of these libraries is important
         uselib_local = ['calstis'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
-        install_path = '${PREFIX}/bin'
+        install_path = '${PREFIX}/bin',
+        uselib = 'CFITSIO'
         )
     

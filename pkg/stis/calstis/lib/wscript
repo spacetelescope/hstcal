@@ -107,12 +107,11 @@ def build(bld):
         target = 'calstis',
         includes = [
             bld.env.INCLUDEDIR, # the hstcal include directory
-            bld.env.CFITSIO,
             '.',
             '../include'
             ],
-        lib = [],
-        install_path = '${PREFIX}/lib'
+        install_path = '${PREFIX}/lib',
+        uselib = 'CFITSIO'
         )
         
     

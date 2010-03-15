@@ -6,7 +6,6 @@ def build(bld):
             ],
         target = 'applib',
         install_path = '${PREFIX}/lib',
-        add_source = 'ncarfft'
         )
     
     

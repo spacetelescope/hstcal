@@ -30,32 +30,44 @@ def process_fortran(self, node):
 
 # Have 'waf dist' create tar.gz files, rather than tar.bz2 files
 Scripting.g_gz = 'gz'
-        
+
+option_parser = None
 def set_options(opt):
+    global option_parser
+    
     opt.tool_options('compiler_cc')
 
     # Add a required option to specify the location of CFITSIO
-    opt.add_option('--cfitsio', action='store', help="The location of CFITSIO")
+    opt.add_option(
+        '--cfitsio-inc', action='store',
+        help="The location of the CFITSIO header files")
+    opt.add_option(
+        '--cfitsio-lib', action='store',
+        help="The location of the CFITSIO static library file (eg. libcfitsio.a)")
+
+    option_parser = opt.parser
     
 def configure(conf):
     import Options
+
+    # Read in options from a file.  The file is just a set of
+    # commandline arguments in the same syntax.  May be spread across
+    # multiple lines.
+    fd = open('build.cfg', 'r')
+    for line in fd.readlines():
+        tokens = line.split()
+        options, args = option_parser.parse_args(tokens)
+        for key, val in options.__dict__.items():
+            if Options.options.__dict__.get(key) is None:
+                Options.options.__dict__[key] = val
+    fd.close()
     
     # Check for the existence of a C compiler
     conf.check_tool('compiler_cc')
 
-    # Store and verify the location of CFITSIO
-    conf.env.CFITSIO = os.path.expanduser(Options.options.cfitsio or '.')
-    try:
-        conf.check(
-            header_name='fitsio.h',
-            includes=conf.env.CFITSIO,
-            compile_mode='cc',
-            mandatory=True,
-            msg='Checking for CFITSIO')
-    except:
-        conf.fatal(
-            "Specify the location of CFITSIO using the --cfitsio=path commandline option")
-
+    # NOTE: All of the variables in conf.env are defined for use by
+    # wscript files in subdirectories.
+    
     # Set the location of the hstcal include directory
     conf.env.INCLUDEDIR = os.path.join(
         os.path.abspath(conf.srcdir), 'include') # the hstcal include directory
@@ -66,12 +78,35 @@ def configure(conf):
 
     # A list of external libraries that are typically linked with the
     # executables
-    conf.env.EXTERNAL_LIBS = ['cfitsio', 'm']
+    conf.env.EXTERNAL_LIBS = ['m']
     if sys.platform.startswith('sunos'):
             conf.env.EXTERNAL_LIBS += ['socket', 'nsl']
 
     # A list of paths in which to search for external libraries
-    conf.env.LIBPATH = [conf.env.CFITSIO]
+    conf.env.LIBPATH = []
+            
+    # Store and verify the location of CFITSIO header files and library
+    if Options.options.cfitsio_inc is not None:
+        conf.env.CPPPATH_CFITSIO = [
+            os.path.expanduser(Options.options.cfitsio_inc)]
+    if Options.options.cfitsio_lib is not None:
+        conf.env.LIBPATH_CFITSIO = [
+            os.path.dirname(
+                os.path.expanduser(Options.options.cfitsio_lib))]
+    conf.env.STATICLIB_CFITSIO = ['cfitsio']
+
+    try:
+        conf.check(
+            header_name='fitsio.h',
+            compile_mode='cc',
+            mandatory=True,
+            msg='Checking for CFITSIO header files',
+            uselib='CFITSIO')
+    except:
+        conf.fatal(
+            "Specify the location of the CFITSIO header files using the --cfitsio-inc commandline option")
+
+    conf.env.store("site.cfg")
 
     # Find a suitable Fortran compiler
     for compiler in ('f77', 'gfortran'):
@@ -121,5 +156,7 @@ def post_build(bld):
                 shutil.copy(src_path, dst_path)
                 
 def clean(ctx):
-    shutil.rmtree('bin.' + platform.platform())
+    bin_root = 'bin.' + platform.platform()
+    if os.path.exists(bin_root):
+        shutil.rmtree(bin_root)
     Scripting.clean(ctx)
