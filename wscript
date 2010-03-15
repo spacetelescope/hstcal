@@ -1,5 +1,6 @@
 import os, platform, shutil, sys
 
+import Configure
 import Options
 import Scripting
 import Task
@@ -20,15 +21,6 @@ SUBDIRS = [
     'pkg',
     'tables',
     ]
-
-# Add support for simple Fortran files.  This isn't a complete Fortran
-# solution, but it meets the simple .f -> .o mapping we use here.
-Task.simple_task_type(
-    'fortran',
-    'f77 -c ${SRC} -o ${TGT}',
-    color='GREEN',
-    ext_out='.o',
-    ext_in='.f')
 
 @extension('.f')
 def process_fortran(self, node):
@@ -80,8 +72,29 @@ def configure(conf):
 
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = [conf.env.CFITSIO]
+
+    # Find a suitable Fortran compiler
+    for compiler in ('f77', 'gfortran'):
+        try:
+            conf.find_program(compiler, mandatory=True)
+            conf.env.FORTRAN_COMPILER = compiler
+            break
+        except Configure.ConfigurationError:
+            pass
+    if conf.env.FORTRAN_COMPILER == []:
+        raise Configure.ConfigurationError(
+            "No Fortran compiler found.")
     
 def build(bld):
+    # Add support for simple Fortran files.  This isn't a complete Fortran
+    # solution, but it meets the simple .f -> .o mapping we use here.
+    Task.simple_task_type(
+        'fortran',
+        bld.env.FORTRAN_COMPILER + ' -c ${SRC} -o ${TGT}',
+        color='GREEN',
+        ext_out='.o',
+        ext_in='.f')
+
     # Recurse into all of the libraries
     for library in SUBDIRS:
         bld.recurse(library)
