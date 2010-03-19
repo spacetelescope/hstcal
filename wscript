@@ -53,14 +53,15 @@ def configure(conf):
     # Read in options from a file.  The file is just a set of
     # commandline arguments in the same syntax.  May be spread across
     # multiple lines.
-    fd = open('build.cfg', 'r')
-    for line in fd.readlines():
-        tokens = line.split()
-        options, args = option_parser.parse_args(tokens)
-        for key, val in options.__dict__.items():
-            if Options.options.__dict__.get(key) is None:
-                Options.options.__dict__[key] = val
-    fd.close()
+    if os.path.exists('build.cfg'):
+        fd = open('build.cfg', 'r')
+        for line in fd.readlines():
+            tokens = line.split()
+            options, args = option_parser.parse_args(tokens)
+            for key, val in options.__dict__.items():
+                if Options.options.__dict__.get(key) is None:
+                    Options.options.__dict__[key] = val
+        fd.close()
     
     # Check for the existence of a C compiler
     conf.check_tool('compiler_cc')
