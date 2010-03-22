@@ -43,11 +43,18 @@ Bool *buffer            o: value (True or False) read from table
             }
             free (value);
 
-        } else if (col_descr->datatype == IRAF_INT ||
-                   col_descr->datatype == IRAF_SHORT) {
+        } else if (col_descr->datatype == IRAF_INT) {
             int i_value;
             c_tbegti (tp, cp, row, &i_value);
             if (i_value)
+                *buffer = True;
+            else
+                *buffer = False;
+
+        } else if (col_descr->datatype == IRAF_SHORT) {
+            short si_value;
+            c_tbegts (tp, cp, row, &si_value);
+            if (si_value)
                 *buffer = True;
             else
                 *buffer = False;
@@ -96,6 +103,22 @@ double *buffer          o: value read from table
             *buffer = atof (value);
             free (value);
 
+        } else if (col_descr->datatype == IRAF_INT) {
+            int i_value;
+            c_tbegti (tp, cp, row, &i_value);
+            if (i_value == IRAF_INDEFI)
+                *buffer = IRAF_INDEFD;
+            else
+                *buffer = i_value;
+
+        } else if (col_descr->datatype == IRAF_SHORT) {
+            short si_value;
+            c_tbegts (tp, cp, row, &si_value);
+            if (si_value == IRAF_INDEFS)
+                *buffer = IRAF_INDEFD;
+            else
+                *buffer = si_value;
+
         } else {
 
             /* fits_read_col_dbl = ffgcvd */
@@ -135,6 +158,22 @@ float *buffer           o: value read from table
             c_tbegtt (tp, cp, row, value, maxch);
             *buffer = atof (value);
             free (value);
+
+        } else if (col_descr->datatype == IRAF_INT) {
+            int i_value;
+            c_tbegti (tp, cp, row, &i_value);
+            if (i_value == IRAF_INDEFI)
+                *buffer = IRAF_INDEFR;
+            else
+                *buffer = i_value;
+
+        } else if (col_descr->datatype == IRAF_SHORT) {
+            short si_value;
+            c_tbegts (tp, cp, row, &si_value);
+            if (si_value == IRAF_INDEFS)
+                *buffer = IRAF_INDEFR;
+            else
+                *buffer = si_value;
 
         } else {
 
@@ -184,6 +223,14 @@ int *buffer             o: value read from table
             else
                 *buffer = 0;
 
+        } else if (col_descr->datatype == IRAF_SHORT) {
+            short si_value;
+            c_tbegts (tp, cp, row, &si_value);
+            if (si_value == IRAF_INDEFS)
+                *buffer = IRAF_INDEFI;
+            else
+                *buffer = si_value;
+
         } else {
 
             /* fits_read_col_int = ffgcvk */
@@ -232,6 +279,14 @@ short *buffer           o: value read from table
             else
                 *buffer = 0;
 
+        } else if (col_descr->datatype == IRAF_INT) {
+            int i_value;
+            c_tbegti (tp, cp, row, &i_value);
+            if (i_value == IRAF_INDEFI)
+                *buffer = IRAF_INDEFS;
+            else
+                *buffer = (short)i_value;
+
         } else {
 
             /* fits_read_col_sht = ffgcvi */
@@ -266,20 +321,69 @@ int maxch               i: maximum length of the string (not incl NULL)
         tbl_descr = (TableDescr *)tp;
         col_descr = (ColumnDescr *)cp;
 
-        if (col_descr->width >= maxch)
-            len = col_descr->width;
-        else
-            len = maxch;
-        /* add 5 for extra space */
-        value = (char *)calloc (len+5, sizeof(char));
+        if (col_descr->datatype < 0) {
+            if (col_descr->width >= maxch)
+                len = col_descr->width;
+            else
+                len = maxch;
+        } else {
+            len = SZ_FITS_STR;
+        }
+        value = (char *)calloc (len+1, sizeof(char));
 
-        /* fits_read_col_str = ffgcvs */
-        fits_read_col_str (tbl_descr->fptr, col_descr->colnum,
+        if (col_descr->datatype == IRAF_BOOL) {
+            Bool b_value;
+            c_tbegtb (tp, cp, row, &b_value);
+            if (b_value == True)
+                strcpy (value, "yes");
+            else
+                strcpy (value, "no");
+
+        } else if (col_descr->datatype == IRAF_DOUBLE) {
+            double d_value;
+            c_tbegtd (tp, cp, row, &d_value);
+            if (d_value == IRAF_INDEFD)
+                strcpy (value, "INDEF");
+            else
+                sprintf (value, "%.16g", d_value);
+
+        } else if (col_descr->datatype == IRAF_REAL) {
+            float r_value;
+            c_tbegtr (tp, cp, row, &r_value);
+            if (r_value >= 0.99999 * IRAF_INDEFR &&
+                r_value <= 1.00001 * IRAF_INDEFR) {
+                strcpy (value, "INDEF");
+            } else {
+                sprintf (value, "%.7g", r_value);
+            }
+
+        } else if (col_descr->datatype == IRAF_INT) {
+            int i_value;
+            c_tbegti (tp, cp, row, &i_value);
+            if (i_value == IRAF_INDEFI)
+                strcpy (value, "INDEF");
+            else
+                sprintf (value, "%d", i_value);
+
+        } else if (col_descr->datatype == IRAF_SHORT) {
+            short si_value;
+            c_tbegts (tp, cp, row, &si_value);
+            if (si_value == IRAF_INDEFS)
+                strcpy (value, "INDEF");
+            else
+                sprintf (value, "%hd", si_value);
+
+        } else {
+
+            /* fits_read_col_str = ffgcvs */
+            fits_read_col_str (tbl_descr->fptr, col_descr->colnum,
                 (long)row, firstelem, nelem, "INDEF",
                 &value, &anynul, &status);
-        if (status != 0)
-            setError (status, "c_tbegtt:  error reading element");
+            if (status != 0)
+                setError (status, "c_tbegtt:  error reading element");
+        }
 
         copyString (buffer, value, maxch);
+
         free (value);
 }
