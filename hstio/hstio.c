@@ -1927,6 +1927,7 @@ static char* reservedKwds[] = {
     "DATAMIN ",
     "DATATYPE",
     "DATE    ",
+    "EXTEND  ",
     "GCOUNT  ",
     "GROUPS  ",
     "NAXIS   ",
@@ -1942,6 +1943,16 @@ static char* reservedKwds[] = {
     NULL
 };
 
+/* Whole cards to not allow in the user area.
+
+   Must remain alphabetized.
+*/
+static char* reservedCards[] = {
+    "COMMENT   FITS (Flexible Image Transport System) format is defined in 'Astronomy",
+    "COMMENT   and Astrophysics', volume 376, page 359; bibcode: 2001A&A...376..359H ",
+    NULL
+};
+
 int isReservedKwd(const char* card) {
         /* CFITSIO: Should this be made case-insensitive? */
         /* TODO: Maybe use a binary search? */
@@ -1950,8 +1961,16 @@ int isReservedKwd(const char* card) {
         int i;
         int match;
         char** kwd = reservedKwds;
+        int cmp;
 
-        while (*kwd != NULL) {
+        for (kwd = reservedCards; *kwd != NULL; ++kwd) {
+            cmp = strncmp(*kwd, card, 79);
+            if (cmp == 0) {
+                return 1;
+            }
+        }
+
+        for (kwd = reservedKwds; *kwd != NULL; ++kwd) {
             /* Short-circuit if we're certain not to find the kwd
                later in the list */
             if ((*kwd)[0] > card[0]) {
@@ -1974,8 +1993,6 @@ int isReservedKwd(const char* card) {
             if (match) {
                 return 1;
             }
-
-            ++kwd;
         }
 
         return 0;
@@ -2005,7 +2022,7 @@ int getHeader(IODescPtr iodesc_, Hdr *hd) {
         /* translate the data */
         hd->nlines = 0;
         for (i = 0; i < ncards; ++i) {
-            target = hd->array[i];
+            target = hd->array[hd->nlines];
             if (fits_read_record(iodesc->ff, i+1, source, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2014,9 +2031,9 @@ int getHeader(IODescPtr iodesc_, Hdr *hd) {
                 for (j = 0; j < (HDRSize -1); ++j) {
                     *target++ = source[j];
                 }
+                *target++ = '\0';
+                hd->nlines++;
             }
-            *target++ = '\0';
-            hd->nlines++;
         }
         iodesc->hdr = hd;
 
