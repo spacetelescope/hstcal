@@ -1799,7 +1799,6 @@ IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
             return NULL;
         }
 
-        /* CFITSIO TODO: write a real date */
         t = time(NULL);
         time_tmp = localtime(&t);
         strftime(date, 12, "%Y-%m-%d", time_tmp);
@@ -2022,12 +2021,12 @@ int getHeader(IODescPtr iodesc_, Hdr *hd) {
         /* translate the data */
         hd->nlines = 0;
         for (i = 0; i < ncards; ++i) {
-            target = hd->array[hd->nlines];
             if (fits_read_record(iodesc->ff, i+1, source, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
             }
             if (!isReservedKwd(source)) {
+                target = hd->array[hd->nlines];
                 for (j = 0; j < (HDRSize -1); ++j) {
                     *target++ = source[j];
                 }
@@ -2136,8 +2135,6 @@ int putHeader(IODescPtr iodesc_) {
  found_non_space:
         for (/* i from above */; i < iodesc->hdr->nlines; ++i) {
             source = iodesc->hdr->array[i];
-            /* CFITSIO TODO: Strictly speaking, we may want to write
-               even reserved keywords here... not sure */
             if (!isReservedKwd(source)) {
                 if (fits_write_record(iodesc->ff, source, &status)) {
                     ioerr(BADWRITE, iodesc, status);
@@ -2213,10 +2210,6 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
                here?  Original code gets type, but then does nothing
                with it. */
             if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1])) return -1;
-/*
-            if (c_imgnlr(iodesc->fdesc,&x,linevector) == IRAF_EOF) {
-                ioerr(BADREAD,iodesc); return -1; }
-*/
             fpixel[0] = 1;
             fpixel[1] = 1;
             if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
@@ -2522,12 +2515,7 @@ int getShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
             /* CFITSIO TODO: Should we verify the type is correct
                here?  Original code gets type, but then does nothing
                with it. */
-            /* type = (IRAFType)c_imgtypepix(iodesc->fdesc); */
             if (allocShortData(da, iodesc->dims[0], iodesc->dims[1])) return -1;
-/*
-            if (c_imgnls(iodesc->fdesc,&x,linevector) == IRAF_EOF) {
-                ioerr(BADREAD,iodesc); return -1; }
-*/
             fpixel[0] = 1;
             fpixel[1] = 1;
             if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL,
@@ -2539,7 +2527,6 @@ int getShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
             /* CFITSIO TODO: Should we verify the type is correct
                here?  Original code gets type, but then does nothing
                with it. */
-            /* type = (IRAFType)c_imgtypepix(iodesc->fdesc); */
             if (allocShortData(da, iodesc->dims[0], iodesc->dims[1])) return -1;
             fpixel[0] = 1;
             for (i = 0; i < iodesc->dims[1]; ++i) {
