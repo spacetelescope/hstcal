@@ -3,6 +3,14 @@
 # include <fitsio.h>
 # include "ctables.h"
 
+/* Data type conversion is supported for most cases.  The following
+   are NOT supported:
+
+function c_tbeptb:  table columns of type double, float, int or short
+function c_tbeptd:  table column of type boolean
+function c_tbeptr:  table column of type boolean
+*/
+
 void c_tbeptb (IRAFPointer tp, IRAFPointer cp, int row, Bool buffer) {
 
 /* Write a boolean value to a table column.
@@ -277,7 +285,9 @@ char *buffer            i: value to write to table
                 strcmp (value, "yes") == 0 ||
                 strcmp (value, "true") == 0) {
                 c_tbeptb (tp, cp, row, True);
-            } else if (strcmp (value, "0") == 0) {
+            } else if (strcmp (value, "0") == 0 ||
+                       strcmp (value, "no") == 0 ||
+                       strcmp (value, "false") == 0) {
                 c_tbeptb (tp, cp, row, False);
             } else {
                 /* neither True nor False, so set the value to undefined */

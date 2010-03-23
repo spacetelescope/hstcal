@@ -3,6 +3,14 @@
 # include <fitsio.h>
 # include "ctables.h"
 
+/* Data type conversion is supported for most cases.  The following
+   are NOT supported:
+
+function c_tbegtb:  table columns of type double or float
+function c_tbegtd:  table column of type boolean
+function c_tbegtr:  table column of type boolean
+*/
+
 void c_tbegtb (IRAFPointer tp, IRAFPointer cp, int row, Bool *buffer) {
 
 /* Read a boolean value from a table column.
@@ -46,7 +54,9 @@ Bool *buffer            o: value (True or False) read from table
         } else if (col_descr->datatype == IRAF_INT) {
             int i_value;
             c_tbegti (tp, cp, row, &i_value);
-            if (i_value)
+            if (i_value == IRAF_INDEFI)
+                *buffer = False;
+            else if (i_value)
                 *buffer = True;
             else
                 *buffer = False;
@@ -54,7 +64,9 @@ Bool *buffer            o: value (True or False) read from table
         } else if (col_descr->datatype == IRAF_SHORT) {
             short si_value;
             c_tbegts (tp, cp, row, &si_value);
-            if (si_value)
+            if (si_value == IRAF_INDEFS)
+                *buffer = False;
+            else if (si_value)
                 *buffer = True;
             else
                 *buffer = False;
@@ -100,7 +112,10 @@ double *buffer          o: value read from table
             maxch = col_descr->width + 5;
             value = (char *)calloc (maxch, sizeof(char));
             c_tbegtt (tp, cp, row, value, maxch);
-            *buffer = atof (value);
+            if (strcmp (value, "INDEF") == 0)
+                *buffer = IRAF_INDEFD;
+            else
+                *buffer = atof (value);
             free (value);
 
         } else if (col_descr->datatype == IRAF_INT) {
@@ -156,7 +171,10 @@ float *buffer           o: value read from table
             maxch = col_descr->width + 5;
             value = (char *)calloc (maxch, sizeof(char));
             c_tbegtt (tp, cp, row, value, maxch);
-            *buffer = atof (value);
+            if (strcmp (value, "INDEF") == 0)
+                *buffer = IRAF_INDEFR;
+            else
+                *buffer = atof (value);
             free (value);
 
         } else if (col_descr->datatype == IRAF_INT) {
@@ -212,7 +230,10 @@ int *buffer             o: value read from table
             maxch = col_descr->width + 5;
             value = (char *)calloc (maxch, sizeof(char));
             c_tbegtt (tp, cp, row, value, maxch);
-            *buffer = atoi (value);
+            if (strcmp (value, "INDEF") == 0)
+                *buffer = IRAF_INDEFI;
+            else
+                *buffer = atoi (value);
             free (value);
 
         } else if (col_descr->datatype == IRAF_BOOL) {
@@ -268,7 +289,10 @@ short *buffer           o: value read from table
             maxch = col_descr->width + 5;
             value = (char *)calloc (maxch, sizeof(char));
             c_tbegtt (tp, cp, row, value, maxch);
-            *buffer = atoi (value);
+            if (strcmp (value, "INDEF") == 0)
+                *buffer = IRAF_INDEFS;
+            else
+                *buffer = atoi (value);
             free (value);
 
         } else if (col_descr->datatype == IRAF_BOOL) {
