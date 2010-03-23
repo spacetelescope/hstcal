@@ -1,0 +1,68 @@
+# This wscript file merely calls out to the standard CFITSIO Makefile
+# to build libcfitsio.a
+
+import glob
+import os
+import subprocess
+import Options
+import Scripting
+import Utils
+
+def configure(ctx):
+    ctx.find_program('make')
+    
+    ctx.check_message_1('Configuring cfitsio')
+    Utils.cmd_output('cd cfitsio; ./configure; cd ..')
+    Utils.pprint('GREEN', 'done')
+
+    ctx.env.LIBPATH_CFITSIO = [os.path.join(ctx.srcdir, 'cfitsio')]
+    ctx.env.CPPPATH_CFITSIO = [os.path.join(ctx.srcdir, 'cfitsio')]
+    ctx.env.STATICLIB_CFITSIO = ['cfitsio']
+    
+def build(ctx):
+    def run_makefile(task):
+        Utils.pprint('GREEN', 'Running CFITSIO Makefile')
+
+        # cd into the cfitsio directory, run 'make', step back out
+        pwd = os.getcwd()
+        cwd = os.path.join(ctx.srcnode.abspath(), 'cfitsio')
+        task.exec_command('cd %s; make; cd %s' % (cwd, pwd))
+
+        # copy the .a file to waf's build heirarchy so it knows
+        # the build product has been created
+        src = os.path.join(cwd, 'libcfitsio.a')
+        dst = os.path.join(ctx.srcnode.abspath(ctx.env), 'cfitsio')
+        task.exec_command('cp %s %s' % (src, dst))
+        task.exec_command('cp %s %s/cfitsio' % (src, dst))
+
+    # Just assume all .c and .h files in the cfitsio directory
+    # contribute to libcfitsio.a.  The CFITSIO Makefile itself will
+    # worry about the details
+    sources = [
+        os.path.basename(x) for x in
+        glob.glob('cfitsio/*.c') + glob.glob('cfitsio/*.h')] + \
+        ['configure']
+        
+    x = ctx(
+        target='cfitsio',
+        source=sources,
+        rule=run_makefile,
+        name='cfitsio')
+
+from TaskGen import after, feature
+    
+@feature('cc')
+@after('apply_obj_vars_cc')
+def insert_myflags(self):
+    self.env.prepend_value(
+        'CCFLAGS',
+        '-I' + os.path.join(self.bld.srcnode.abspath(), 'cfitsio'))
+    self.env.prepend_value(
+        'LINKFLAGS',
+        '-Ldefault/cfitsio')
+    
+def clean(ctx):
+    pwd = os.getcwd()
+    cwd = os.path.join(ctx.srcnode.abspath(), 'cfitsio')
+    ctx.exec_command('cd %s; make clean; cd %s' % (cwd, pwd))
+    Scripting.clean(ctx)

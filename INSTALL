@@ -19,20 +19,6 @@ For more information, run:
 
   > ./waf --help
 
-Configuration options
-=====================
-
-The location of CFITSIO may be specified using commandline arguments
-to the configure command.
-
-   --cfitsio-inc specifies the directory containing the CFITSIO header files
-
-   --cfitsio-lib specifies the CFITSIO static library file (usually libcfitsio.a)
-
-For example:
-
-  > ./waf configure --cfitsio-inc=/path/to/cfitsio --cfitsio-lib=/path/to/cfitsio/libcfitsio.a
-
 build.cfg file
 ==============
 

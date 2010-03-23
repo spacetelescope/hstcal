@@ -12,9 +12,9 @@ def build(bld):
             ],
         # The order of these libraries is important
         uselib_local = ['calstis'] + bld.env.LOCAL_LIBS,
+        uselib = ['CFITSIO'],
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
-        install_path = '${PREFIX}/bin',
-        uselib = 'CFITSIO'
+        install_path = '${PREFIX}/bin'
         )
     

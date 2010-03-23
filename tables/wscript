@@ -19,7 +19,6 @@ def build(bld):
             '.',
             ],
         install_path = '${PREFIX}/lib',
-        uselib = 'CFITSIO'
         )
         
     
