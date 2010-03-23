@@ -1,3 +1,5 @@
+# vim: set syntax=python:
+
 import os, platform, shutil, sys
 
 import Configure

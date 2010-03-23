@@ -1,4 +1,4 @@
-import os
+# vim: set syntax=python:
 
 def build(bld):
     t = bld(

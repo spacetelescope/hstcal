@@ -1,3 +1,5 @@
+# vim: set syntax=python:
+
 SUBDIRS = [
     'lib',
     'cs0'

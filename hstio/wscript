@@ -1,6 +1,6 @@
-import os
+# vim: set syntax=python:
 
-def build(bld):
+'def build(bld):
     bld.path.find_dir('include')
 
     t = bld(

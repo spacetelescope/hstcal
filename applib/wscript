@@ -1,3 +1,5 @@
+# vim: set syntax=python:
+
 def build(bld):
     bld(
         features = ['cc', 'cstaticlib'],

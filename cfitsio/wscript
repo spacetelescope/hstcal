@@ -1,3 +1,5 @@
+# vim: set syntax=python:
+
 # This wscript file merely calls out to the standard CFITSIO Makefile
 # to build libcfitsio.a
 

@@ -1,8 +1,7 @@
-import os
+# vim: set syntax=python:
 
-# TODO: The files that make up calstis.a are distributed amongst the
-# various cs* directories.  Should that be changed?  MGD
-
+# The files that make up calstis.a are distributed amongst the
+# various cs* directories.
 
 def build(bld):
     t = bld(
