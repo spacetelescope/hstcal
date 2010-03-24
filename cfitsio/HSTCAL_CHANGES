@@ -1,0 +1,13 @@
+Index: swapproc.c
+===================================================================
+--- swapproc.c	(revision 8959)
++++ swapproc.c	(working copy)
+@@ -25,7 +25,7 @@
+ 
+     cvalues = (char *) svalues;      /* copy the initial pointer value */
+ 
+-    for (ii = 0; ii < nvals + 1;)
++    for (ii = 0; ii < nvals;)
+     {
+         u.sval = svalues[ii++];  /* copy next short to temporary buffer */
+ 
