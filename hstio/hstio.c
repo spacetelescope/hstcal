@@ -2044,6 +2044,7 @@ int putHeader(IODescPtr iodesc_) {
         IODesc *iodesc = (IODesc *)iodesc_;
         int i, j, tmp;
         int numkeys;
+        int num_space_lines;
         char *source;
         char card[80];
         int status = 0;
@@ -2133,6 +2134,8 @@ int putHeader(IODescPtr iodesc_) {
         }
 
  found_non_space:
+        num_space_lines = i;
+        
         for (/* i from above */; i < iodesc->hdr->nlines; ++i) {
             source = iodesc->hdr->array[i];
             if (!isReservedKwd(source)) {
