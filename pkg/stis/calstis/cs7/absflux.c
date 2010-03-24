@@ -89,6 +89,11 @@
    Phil Hodge, 2004 Dec 27:
 	Change the calling sequence of TdsCorrection, to include
 	temperature dependence in addition to time.
+
+   Phil Hodge, 2010 Mar 24:
+	Mike Droettboom discovered by using valgrind that tds_starti was not
+	initialized.  Instead, thr_starti was initialized twice, so the
+	second statement has been changed to initialize tds_starti.
 */
 
 int AbsFlux (StisInfo7 *sts, SingleGroup *out, CoordInfo *coord_o,
@@ -141,7 +146,7 @@ double *blazeshift;    o: blaze shift value actually used
 	abs_starti = 1;				/* initial values */
 	pct_starti = 1;
 	thr_starti = 1;
-	thr_starti = 1;
+	tds_starti = 1;
 
 	sum = 0.;
 
