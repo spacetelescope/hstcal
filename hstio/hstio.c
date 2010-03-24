@@ -2044,7 +2044,7 @@ int putHeader(IODescPtr iodesc_) {
         IODesc *iodesc = (IODesc *)iodesc_;
         int i, j, tmp;
         int numkeys;
-        int num_space_lines;
+        int found_non_space;
         char *source;
         char card[80];
         int status = 0;
@@ -2122,20 +2122,22 @@ int putHeader(IODescPtr iodesc_) {
         /* translate the data */
 
         /* Skip blank cards at the beginning */
+        found_non_space = 0;
         for (i = 0; i < iodesc->hdr->nlines; ++i) {
             source = iodesc->hdr->array[i];
             for (j = 0; j < 80; ++j) {
                 if (source[j] != ' ' && 
                     source[j] != '\n' && 
                     source[j] != 0) {
-                    goto found_non_space;
+                    found_non_space = 1;
+                    break;
                 }
+            }
+            if (found_non_space) {
+                break;
             }
         }
 
- found_non_space:
-        num_space_lines = i;
-        
         for (/* i from above */; i < iodesc->hdr->nlines; ++i) {
             source = iodesc->hdr->array[i];
             if (!isReservedKwd(source)) {
@@ -2151,7 +2153,7 @@ int putHeader(IODescPtr iodesc_) {
            the source image.  This was the source of a very
            hard-to-find bug. */
         if (iodesc->type == TFLOAT || iodesc->type == TDOUBLE) {
-          fits_set_bscale(iodesc->ff, 1.0, 0.0, &status);
+            fits_set_bscale(iodesc->ff, 1.0, 0.0, &status);
         }
 
         clear_err();
