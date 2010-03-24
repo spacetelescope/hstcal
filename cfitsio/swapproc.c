@@ -25,7 +25,7 @@ void ffswap2(short *svalues,  /* IO - pointer to shorts to be swapped       */
 
     cvalues = (char *) svalues;      /* copy the initial pointer value */
 
-    for (ii = 0; ii < nvals + 1;)
+    for (ii = 0; ii < nvals;)
     {
         u.sval = svalues[ii++];  /* copy next short to temporary buffer */
 
