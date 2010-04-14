@@ -37,6 +37,14 @@ typedef struct {
 	double **parvals; /* need to support multiple parameterized variables */
 } PhtRow;
 
+typedef struct {
+    int    ndim;   /* number of dimensions for each position */
+    double *index; /* array index along each axis, 
+                      used to determine which axis is being interpolated */
+    double *pos;   /* value of each axis at position given by index */
+    double value;  /* value at position */
+} BoundingPoint;
+
 
 /* Internal functions to be used to interpret IMPHTTAB ref tables */
 static int OpenPhotTab (char *, char *, PhtCols *);
@@ -661,20 +669,22 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     int iter, x;
     int dimpow,iterpow;
     double *ndposd;
-    int b0,b1;
+    int b0,b1,pindx;
     int deltadim;            /* index of varying dimension */
-    double **bvals, ***bpos; /* values and indices of results into arrays */ 
-    double **bindx;             /* indices into results array for bounding values */
+    double bindx[2],bvals[2]; /* indices into results array for bounding values */
     double rinterp;          /* placeholder for interpolated result */
-        
+    BoundingPoint **points;   /* array of bounding points defining the area of interpolation */
+    
     /* Define functions called in this functions */ 
     double linterp(double *, int, double *, double);
     void byteconvert(int, int *, int);
-    int computedeltadim(double *, double *);  
-    long computeindex(int *, int *, int);  
+    int computedeltadim(BoundingPoint *, BoundingPoint *);  
+    long computeindex(int *, double *, int);  
     void computebounds(double *, int, double, int *, int*);  
     int streq_ic(char *, char*);
-
+    BoundingPoint **InitBoundingPointArray(int, int);
+    void FreeBoundingPointArray(BoundingPoint **, int);
+    
     /* Initialize variables and allocate memory */  
     value = 0.0;
     ndim = tabrow->parnum;
@@ -690,18 +700,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     ndpos = (int *)calloc(ndim, sizeof(int));
     ndposd = (double *)calloc(ndim, sizeof(double));
     bounds = (int **) calloc(ndim, sizeof(int *));
-    for (p=0;p<ndim;p++) bounds[p] = (int *) calloc(2, sizeof(int));
-    
-    bpos = (double ***)calloc((dimpow)/2, sizeof(double **));
-    bvals = (double **)calloc((dimpow)/2, sizeof(double *));
-    bindx = (double **)calloc((dimpow)/2, sizeof(int *));
-    for (p=0;p<ndim;p++){
-        bvals[p] = (double *) calloc(2, sizeof(double));
-        bindx[p] = (double *) calloc(2, sizeof(double));
-        bpos[p] = (double **) calloc(2, sizeof(double *));
-        for (n=0;n<2;n++) bpos[p][n] = (double *) calloc(ndim, sizeof(double));
-    }
-    
+    for (p=0;p<ndim;p++) bounds[p] = (int *) calloc(2, sizeof(int));    
     
     /* We have parameterized values, so linear interpolation 
         will be needed in all dimensions to get correct value.
@@ -710,6 +709,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     */
     /* 
         Start by matching up the obsmode parameters with those in the table row 
+        These are the values along each dimension of the interpolation
     */
     for (p=0;p<ndim;p++){
         for(n=0;n<obs->npar;n++){
@@ -726,19 +726,16 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
             free (ndposd);
             for (p=0;p<ndim;p++)free(bounds[p]);
             free(bounds);
-            for (p=0;p<ndim;p++){
-                for (n=0;n<2;n++) free(bpos[p][n]);
-                free(bvals[p]);
-                free(bindx[p]);
-                free(bpos[p]);
-            }
-            free(bpos);
-            free(bvals);
-            free(bindx);
             
             return('\0');
         }
     }
+
+    /* Set up array of BoundingPoint objects to keep track of information needed
+        for the interpolation 
+    */
+    points = InitBoundingPointArray(dimpow,ndim);
+
     /* Now find the index of the obsmode parameterized value
         into each parameterized value array
         Equivalent to getting positions in each dimension (x,y,...).
@@ -751,21 +748,33 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
         if (value == '\0') {
             return('\0');
         }
-        obsindx[p] = value;
-        /* remember the bounding values for this position */
-        computebounds(out, nx, (double)floor(obsindx[p]), &b0, &b1);
+        obsindx[p] = value;  /* Index into dimension p */
+        computebounds(out, nx, (double)floor(value), &b0, &b1);
+        /* remember the bounding values for this position 
         bounds[p][0] = tabrow->parvals[p][b0];
         bounds[p][1] = tabrow->parvals[p][b1];
-        
+        */        
+        bounds[p][0] = b0;
+        bounds[p][1] = b1;
         /* Free memory so we can use this array for the next variable*/
         free(out);
     } /* End loop over each parameterized value */
+    
     /* 
-        Loop over each axis and perform interpolation to find final result 
-    */
+        Loop over each axis and perform interpolation to find final result
+        
+        For each axis, interpolate between all pairs of positions along the same axis
+        An example with 3 parameters/dimensions for a point with array index (2.2, 4.7, 1.3):
+          Iteration 1: for all z and y positions , interpolate between pairs in x
+              (2,4,1)vs(3,4,1), (2,5,1)vs(3,5,1), (2,4,2)vs(3,4,2), and (2,5,2)vs(3,5,2)
+          Iteration 2: for all z positions, interpolate between pairs from iteration 1 in y
+              (2.2, 4,1)vs(2.2, 5, 1) and (2.2, 4, 2)vs(2.2, 5, 2)
+          Iteration 3: interpolate between pairs from iteration 2 in z
+               (2.2, 4.7, 1) vs (2.2, 4.7, 2) ==> final answer
+    */ 
     for (iter=ndim; iter >0; iter--) {
         iterpow = pow(2,iter);
-        for (p=0;p < iterpow;p++){    
+        for (p=0;p < iterpow;p++){
             pdim = floor(p/2);
             ppos = p%2;
 
@@ -775,23 +784,29 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 */
                 /* Create a bitmask for each dimension for each position */
                 byteconvert(p,ndpos,ndim);
-                for (n=0;n<ndim;n++) bpos[pdim][ppos][n] = (double)ndpos[n];
+                for (n=0;n<ndim;n++) {
+                    pindx = bounds[pdim][ndpos[n]];
+                    points[pdim][ppos].index[n] = (double)pindx;
+                    points[pdim][ppos].pos[n] = tabrow->parvals[n][pindx];
+                }
 
                 /* Determine values from tables which correspond to 
                     bounding positions to be interpolated */
-                indx = computeindex(tabrow->nelem, ndpos, ndim);
-                bvals[pdim][ppos] = tabrow->results[indx];
+                indx = computeindex(tabrow->nelem, points[pdim][ppos].index, ndim);
+                points[pdim][ppos].value = tabrow->results[indx];
 
             } /* End if(iter==ndim) */ 
             if (ppos == 1) {
                 /* Determine which axis is varying, so we know which 
                     input value from the obsmode string 
                     we need to use for the interpolation */
-                deltadim = computedeltadim(bpos[pdim][1],bpos[pdim][0]);
-                bindx[pdim][0] = bounds[deltadim][0];
-                bindx[pdim][1] = bounds[deltadim][1];      
+                deltadim = computedeltadim(&points[pdim][0],&points[pdim][1]);
+                bindx[0] = points[pdim][0].pos[deltadim];
+                bindx[1] = points[pdim][1].pos[deltadim];
+                bvals[0] = points[pdim][0].value;
+                bvals[1] = points[pdim][1].value;      
                 /*Perform interpolation now and record the results */
-                rinterp = linterp(bindx[pdim], 2, bvals[pdim],obsindx[deltadim]);
+                rinterp = linterp(bindx, 2, bvals,obsvals[deltadim]);
 
                 /* 
                     Update intermediate arrays with results in 
@@ -800,10 +815,11 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 if (rinterp == '\0') return(rinterp);
                 /* Determine where the result of this interpolation should go */
                 x = (p-1)/2;
-                bvals[x][x%2] = rinterp;
-                /* update bpos and bindx for iteration over next dimension */
+                bvals[0] = rinterp;
+                /* update bpos and bindx for iteration over next dimension
                 for (n=0;n<ndim;n++) bpos[x][x%2][n] = bpos[pdim][ppos][n];
                 bpos[x][x%2][deltadim] = obsvals[deltadim];
+                */
                 
             } /* Finished working out what dimension is being interpolated */
             
@@ -812,7 +828,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     } /* End loop over axes(iterations), iter, for interpolation */
 
     /* Record result */
-    value = bvals[0][0];
+    value = bvals[0];
     
     /* clean up memory allocated within this function */
     free(obsindx);
@@ -822,16 +838,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     for (p=0;p<tabrow->parnum;p++)free(bounds[p]);
     free(bounds);
 
-    for (p=0;p<ndim;p++){
-        for (n=0;n<2;n++) free(bpos[p][n]);
-        free(bvals[p]);
-        free(bindx[p]);
-        free(bpos[p]);
-    }
-    free(bpos);
-    free(bvals);
-    free(bindx);
-
+    FreeBoundingPointArray(points,dimpow);
     return (value);
 }
 
@@ -894,7 +901,7 @@ void computebounds (double *x, int nx, double val, int *i0, int *i1) {
 /* Compute the 1-D index of a n-D (ndim) position given by the array 
     of values in pos[] 
 */
-long computeindex(int *nelem, int *pos, int ndim) {
+long computeindex(int *nelem, double *pos, int ndim) {
     int n, szaxis;    
     long indx;
     
@@ -934,13 +941,13 @@ void byteconvert(int val, int *result, int ndim) {
     NOTE: 
         This assumes that the positions only change in 1 dimension at a time. 
 */
-int computedeltadim(double *ndpos1, double *ndpos2){
-    int p,ndim;
+int computedeltadim(BoundingPoint *pos1, BoundingPoint *pos2){
+    int p;
     int xdim;
     
-    ndim = sizeof(ndpos1)/sizeof(*ndpos1);
-    for (p=0;p<ndim;p++){
-        if (abs(ndpos2[p] - ndpos1[p]) > 0) {
+    
+    for (p=0;p<pos1->ndim;p++){
+        if (abs(pos2->index[p] - pos1->index[p]) > 0) {
             xdim = p;
             break;
         }
@@ -978,6 +985,49 @@ static int ClosePhotTab (PhtCols *tabinfo){
 	return (status);
 }
 
+/* Initialize the array of BoundingPoint objects */
+BoundingPoint **InitBoundingPointArray(int npoints, int ndim){
+    int i,j;
+    int pdim;
+    void InitBoundingPoint(BoundingPoint *, int);
+    BoundingPoint **points; 
+    
+    pdim = npoints/2;
+    points = (BoundingPoint **)calloc(pdim,sizeof(BoundingPoint *));
+    for (i=0;i<pdim;i++) {
+        points[i] = (BoundingPoint *)calloc(2,sizeof(BoundingPoint));
+        InitBoundingPoint(&points[i][0],ndim);
+        InitBoundingPoint(&points[i][1],ndim);
+    }
+    return(points);   
+}
+void InitBoundingPoint(BoundingPoint *point, int ndim){
+
+    point->index = (double *)calloc(ndim, sizeof(double));
+    point->pos = (double *)calloc(ndim, sizeof(double));
+    point->ndim = ndim;
+    point->value=0.0;
+    
+}
+/* Free the memory allocated to an array of BoundingPoint objects */
+void FreeBoundingPointArray(BoundingPoint **points, int npoints){
+    int i;
+    int pdim;
+    void FreeBoundingPoint(BoundingPoint *);
+    pdim = npoints/2;
+
+    for (i=0;i<pdim;i++) {
+        FreeBoundingPoint(&points[i][0]);
+        FreeBoundingPoint(&points[i][1]);
+        free(points[i]);
+    }
+    free(points);
+}
+
+void FreeBoundingPoint(BoundingPoint *point){
+    free(point->index);
+    free(point->pos);
+}
 /* This routine gets pedigree and descrip from the current table row.
 
    The pedigree and descrip columns need not be defined.  If not, this
