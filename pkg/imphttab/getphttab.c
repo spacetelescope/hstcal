@@ -122,7 +122,7 @@ Calling routine will need to initialize and free PhotPar object using:
     double ComputeValue(PhtRow *, PhotPar *);
     
     extern int status;
-    extern char **photnames;
+    extern char *photnames[];
 
     
     /* Interpret OBSMODE string from science file header for
@@ -142,21 +142,21 @@ Calling routine will need to initialize and free PhotPar object using:
     /* Open the primary header of the reference file. */
     im = openInputImage (phdrname, "", 0);
     if (hstio_err()) {
-	    printf ("IMPHTTAB `%s' not found.", obs->name);
+	    printf ("IMPHTTAB `%s' not found.\n", obs->name);
 	    clear_hstioerr();
         status = OPEN_FAILED;
 	    return (status);
     }
     getHeader (im, &tphdr);
     if (hstio_err()){
-	    printf ("==>ERROR: IMPHTTAB `%s' not found.", obs->name);
+	    printf ("\n==>ERROR: IMPHTTAB `%s' not found.\n", obs->name);
 	    return (status = HEADER_PROBLEM);
     }
     /* Read in keywords from PRIMARY header for use in interpreting
         the tables */
 	key = findKw (&tphdr, "PARNUM");
 	if (key == NotFound) {
-		printf ("==>ERROR: Trying to get PARNUM...");
+		printf ("\n==>ERROR: Trying to get PARNUM...\n");
         closeImage(im);
 		return (status = KEYWORD_MISSING);
 	} else {
@@ -181,14 +181,14 @@ Calling routine will need to initialize and free PhotPar object using:
 	key = findKw (&tphdr, "PHOTZPT");
     obs->photzpt = getDoubleKw (key);
     if (hstio_err()){
-        printf("==>ERROR: Keyword `PHOTZPT` not found in PRIMARY header.");
+        printf("\n==>ERROR: Keyword `PHOTZPT` not found in PRIMARY header.\n");
         closeImage(im);
         return (status = KEYWORD_MISSING);
     }
 	key = findKw (&tphdr, "NEXTEND");
     numkeys = getIntKw (key);
     if (hstio_err()){
-        printf("==>ERROR: Keyword `NEXTEND` not found in PRIMARY header.");
+        printf("\n==>ERROR: Keyword `NEXTEND` not found in PRIMARY header.\n");
         closeImage(im);
         return (status = KEYWORD_MISSING);
     }
@@ -202,7 +202,7 @@ Calling routine will need to initialize and free PhotPar object using:
         extension.
     */
     for (extn = 1; extn <= numkeys; extn++){ 
-        strcpy(pname,&photnames[extn]);
+        strcpy(pname,photnames[extn]);
 	    /* Open the photometry parameters table and find columns. */
 	    if (OpenPhotTab (obs->name, pname, &tabinfo))
 	        return (status);
@@ -225,7 +225,7 @@ Calling routine will need to initialize and free PhotPar object using:
 			        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
 		            return (status);
 		        if (obs->goodPedigree == DUMMY_PEDIGREE) {
-		            printf ("==>Warning: Row %d of IMPHTTAB is DUMMY.", row);
+		            printf ("==>Warning: Row %d of IMPHTTAB is DUMMY.\n", row);
 			        /* trlwarn (MsgText); */
 		        }
 
@@ -238,7 +238,7 @@ Calling routine will need to initialize and free PhotPar object using:
                 if (value == '\0'){
                     return(status=INTERNAL_ERROR);
                 }
-                printf("==> Value of %s = %g",photnames[extn], &value);
+                printf("==> Value of %s = %g\n",photnames[extn], value);
 
                 /* Free memory used to read in this row */
                 ClosePhotRow(&tabrow);
@@ -247,10 +247,10 @@ Calling routine will need to initialize and free PhotPar object using:
             } /* End of if SameString() */
 	    } /* End of loop over table rows */
 
-	    if (!foundit) {
-	        printf ("==>ERROR: Matching row not found in IMPHTTAB `%s'.", obs->obsmode);
+	    if (foundit == 0) {
+	        printf ("\n==>ERROR: Matching row not found in IMPHTTAB `%s'.\n", obs->obsmode);
 	        /*trlerror (MsgText); */
-		    printf ("==>ERROR: OBSMODE %s",	obs->obsmode);
+		    printf ("\n==>ERROR: OBSMODE %s\n",	obs->obsmode);
 		    /*trlerror (MsgText); */
 
 	        ClosePhotTab (&tabinfo);
@@ -262,9 +262,9 @@ Calling routine will need to initialize and free PhotPar object using:
             
         /* Store computed value for keyword as appropriate member in 
             PhotPar struct */
-        if (strncmp(photnames[extn],"PHOTFLAM",6)) {
+        if (strncmp(pname,"PHOTFLAM",8) == 0) {
             obs->photflam = value;
-        } else if (strncmp(photnames[extn],"PHOTPLAM",6)) {
+        } else if (strncmp(pname,"PHOTPLAM",8) == 0) {
             obs->photplam = value;
         } else {
             obs->photbw = value;
@@ -320,7 +320,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("==>ERROR: IMPHTTAB extension`%s' not found.", tname);
+	    printf ("\n==>ERROR: IMPHTTAB extension`%s' not found.\n", tname);
 	    /*trlerror (MsgText); */
 		return (status = OPEN_FAILED);
 	}
@@ -339,6 +339,8 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "OBSMODE", &tabinfo->cp_obsmode);
 	c_tbcfnd1 (tabinfo->tp, "DATACOL", &tabinfo->cp_datacol);
 	c_tbcfnd1 (tabinfo->tp, photvar,   &tabinfo->cp_result[0]);
+	missing = 0;
+	i=0;
     for (parnum = 1;parnum <= tabinfo->parnum; parnum++){
         /* 
             Read in NELEM<parnum> columns 
@@ -352,17 +354,15 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
             Read in the PHOT*<parnum> columns 
         */
 	    c_tbcfnd1 (tabinfo->tp, colnames[parnum], &tabinfo->cp_result[parnum]);
+	    if (tabinfo->cp_result[parnum] == 0 ) { missing++; nocol[i] = YES;} i++;
     }	
 	/* Initialize counters here... */
-	missing = 0;
-	i=0;
 		
     /* Increment i for every column, mark only missing columns in
         nocol as YES.  WJH 27 July 1999
     */
 	if (tabinfo->cp_obsmode == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_datacol == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_result[0] == 0 ) { missing++; nocol[i] = YES;} i++;
 	
 	if (PrintMissingCols (missing, tabinfo->ncols, nocol, colnames, "IMPHTTAB", tabinfo->tp) )
 		return(status);
@@ -423,7 +423,7 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
     status = AllocPhotPar(obs,n);
     
     if (status > PHOT_OK){
-        printf("==>ERROR: Problems allocating memory for ObsmodeVars.");
+        printf("\n==>ERROR: Problems allocating memory for ObsmodeVars.\n");
         return(status);
     }
     strcpy(obs->photmode,photmode);
@@ -504,14 +504,14 @@ IRAFPointer tp		i: pointer to table, close it if necessary
 	int j;
 	/* If any columns are missing... */
 	if (missing) {
- 	    printf ("==>ERROR: %d columns not found in %s.", missing, tabname);
+ 	    printf ("\n==>ERROR: %d columns not found in %s.\n", missing, tabname);
 		/*trlerror (MsgText); */
        
 		for (j=0; j< numcols; j++) {
 			/* Recall which ones were marked missing... */
 			if (nocol[j]) {
 				/*... and print out that column's name */
-	    		printf ("==>ERROR: Column %s not found in %s.", cnames[j], tabname);
+	    		printf ("\n==>ERROR: Column %s not found in %s.\n", cnames[j], tabname);
 				/*trlerror (MsgText); */
 			}
 		}
@@ -814,21 +814,27 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 */
                 if (rinterp == '\0') return(rinterp);
                 /* Determine where the result of this interpolation should go */
-                x = (p-1)/2;
-                bvals[0] = rinterp;
+                x = floor((p-1)/2);
                 /* update bpos and bindx for iteration over next dimension
                 for (n=0;n<ndim;n++) bpos[x][x%2][n] = bpos[pdim][ppos][n];
                 bpos[x][x%2][deltadim] = obsvals[deltadim];
                 */
+                points[x][x%2].value = rinterp;
+                for (n=0;n<ndim;n++) {
+                    points[x][x%2].index[n] = points[pdim][0].index[n];
+                    points[x][x%2].pos[n] = points[pdim][0].pos[n];
+                }
+                points[x][x%2].index[deltadim] = obsindx[deltadim];
+                points[x][x%2].pos[deltadim] = obsvals[deltadim];
                 
-            } /* Finished working out what dimension is being interpolated */
+            } /* Finished with this pair of positions (end if(ppos==1)) */
             
         } /* End loop over p, data stored for interpolation in changing dimension */
         
     } /* End loop over axes(iterations), iter, for interpolation */
 
     /* Record result */
-    value = bvals[0];
+    value = points[0][0].value;
     
     /* clean up memory allocated within this function */
     free(obsindx);
