@@ -21,7 +21,7 @@ int main(int argc, char **argv){
     printf("==> Initialized IRAF environment for getphttab.\n");
 
     strcpy(photmode,"acs,wfc1,f814w,mjd#55021.0122");
-    strcpy(refname,"new_acs814_imp.fits");
+    strcpy(refname,"acstest_v2_imp.fits");
     strcpy(refpedigree,"Inflight calibrations");
     
     printf("==> photmode: %s\n",&photmode);

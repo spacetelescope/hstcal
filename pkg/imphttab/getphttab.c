@@ -385,6 +385,8 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
     int i,j;
     int numpar, n;
     int tok;
+    int indx;
+    char *loc;
     char *chtok,*chval;
     char **obsnames;
     int obselems;
@@ -467,10 +469,14 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
         tok = 0;
         obselems = 0;
         while (chtok != NULL) {
-            if (strstr(chtok,"#") == NULL) {
+            loc = strchr(chtok,'#');
+            if (loc == NULL) {
                 strcpy(obsnames[tok],chtok);
-                obselems++;
+            } else {    
+                indx = loc - chtok;
+                strncpy(obsnames[tok],chtok,indx);
             }
+            obselems++;
             chtok = strtok(NULL,",");
             tok++;
         }
