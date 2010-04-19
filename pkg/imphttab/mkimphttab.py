@@ -1,6 +1,7 @@
 import numpy as np
 import pyfits
 import pysynphot as S
+from pysynphot import observationmode
 from pyfits import Column
 
 def computeValues(obsmode):
@@ -124,6 +125,7 @@ def getDate():
 def createPrimaryHDU(filename,numpars,parnames,instrument):
     """ Create a Primary Header for the multi-extension FITS reference table
     """
+    d = observationmode.getref()
     phdu = pyfits.PrimaryHDU()
     phdu.header.update('date',getDate(),comment="Date FITS file was generated")
     phdu.header.update('filename',filename,comment='name of file')
@@ -135,8 +137,8 @@ def createPrimaryHDU(filename,numpars,parnames,instrument):
     phdu.header.update('dbtable','IMPHTTAB')
     phdu.header.update('instrume',instrument)
     phdu.header.update('synswver',S.__version__,comment='Version of synthetic photometry software')
-    phdu.header.update('graphtab',"",comment='HST Graph table')
-    phdu.header.update('comptab',"",comment='HST Components table')
+    phdu.header.update('graphtab',d['graphtable'],comment='HST Graph table')
+    phdu.header.update('comptab',d['comptable'],comment='HST Components table')
     phdu.header.update('useafter','')
     phdu.header.update('pedigree','Test data')
     phdu.header.updata('descrip','photometry keywords reference file')
