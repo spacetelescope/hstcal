@@ -46,14 +46,6 @@ typedef struct {
 # include <float.h>
 
 /* Initialize the static data */
-# if defined(VMS) && defined(D_FLOAT)
-static double tenpower[39] = { 1.0,  
-	  1.0E1,  1.0E2,  1.0E3,  1.0E4,  1.0E5,  1.0E6,  1.0E7,  1.0E8,
-	  1.0E9, 1.0E10, 1.0E11, 1.0E12, 1.0E13, 1.0E14, 1.0E15, 1.0E16,
-	 1.0E17, 1.0E18, 1.0E19, 1.0E20, 1.0E21, 1.0E22, 1.0E23, 1.0E24,
-	 1.0E25, 1.0E26, 1.0E27, 1.0E28, 1.0E29, 1.0E30, 1.0E31, 1.0E32,
-	 1.0E33, 1.0E34, 1.0E35, 1.0E36, 1.0E37, 1.0E38 };
-# else
 static double tenpower[309] = { 1.0,
 	  1.0E1,   1.0E2,   1.0E3,   1.0E4,   1.0E5,   1.0E6,   1.0E7,   1.0E8,
 	  1.0E9,  1.0E10,  1.0E11,  1.0E12,  1.0E13,  1.0E14,  1.0E15,  1.0E16,
@@ -94,7 +86,6 @@ static double tenpower[309] = { 1.0,
 	1.0E289, 1.0E290, 1.0E291, 1.0E292, 1.0E293, 1.0E294, 1.0E295, 1.0E296,
 	1.0E297, 1.0E298, 1.0E299, 1.0E300, 1.0E301, 1.0E302, 1.0E303, 1.0E304,
 	1.0E305, 1.0E306, 1.0E307, 1.0E308 };
-# endif
 static const int minfltexp = -38;
 static const int maxfltexp = 38;
 static const int mindblexp = -308;
