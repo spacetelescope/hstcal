@@ -2217,7 +2217,7 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1])) return -1;
             fpixel[0] = 1;
             fpixel[1] = 1;
-            if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
+            if (fits_read_pix(iodesc->ff, FLOAT_IMG, fpixel, iodesc->dims[0], 0,
                               (float *)&(PPix(da, 0, 0)), &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2232,7 +2232,7 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             fpixel[0] = 1;
             for (i = 0; i < iodesc->dims[1]; ++i) {
                 fpixel[1] = i + 1;
-                if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
+                if (fits_read_pix(iodesc->ff, FLOAT_IMG, fpixel, iodesc->dims[0], 0,
                                   (float *)&(PPix(da, 0, i)), &anynul, &status)) {
                     ioerr(BADREAD,iodesc, status);
                     return -1;
@@ -2255,6 +2255,7 @@ int putFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
         FitsKw kw;
         int is_eq;
         int naxis;
+        long dims[2];
         int status = 0;
 
         if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
@@ -2302,6 +2303,11 @@ int putFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
                 fits_write_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
                 iodesc->dims[0] = 0;
                 iodesc->dims[1] = 0;
+
+                if (fits_resize_img(iodesc->ff, FLOAT_IMG, 0, iodesc->dims, &status)) {
+                    ioerr(BADWRITE, iodesc, status); return -1;
+                }
+
                 /* update the header, etc. */
                 if (iodesc->hflag) {
                     iodesc->type = FLOAT_IMG;
@@ -2330,6 +2336,16 @@ int putFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
         if (kw != 0) /* remove it */
             delKw(kw);
 
+        /* Get the current CFITSIO size, and if it's different, resize it */
+        fits_get_img_size(iodesc->ff, 2, dims, &status);
+        if (dims[0] != da->nx || dims[1] != da->ny) {
+            iodesc->dims[0] = da->nx;
+            iodesc->dims[1] = da->ny;
+            if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, iodesc->dims, &status)) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+        }
+
         /* update the header area */
         if (iodesc->hflag) {
             iodesc->type = FLOAT_IMG;
@@ -2340,7 +2356,7 @@ int putFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
         fpixel[0] = 1;
         for (i = 0; i < da->ny; ++i) {
             fpixel[1] = i + 1;
-            if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, da->nx,
+            if (fits_write_pix(iodesc->ff, FLOAT_IMG, fpixel, da->nx,
                                (float *)&(PPix(da, 0, i)), &status)) {
                 ioerr(BADWRITE, iodesc, status);
                 return -1;
@@ -2457,7 +2473,7 @@ int putFloatSect(IODescPtr iodesc_, FloatTwoDArray *da, int xbeg,
         fpixel[0] = 1;
         for (i = ybeg; i < yend; ++i) {
             fpixel[1] = i - ybeg + 1;
-            if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, xsize,
+            if (fits_write_pix(iodesc->ff, FLOAT_IMG, fpixel, xsize,
                                (float*)&(PPix(da, xbeg, i)), &status)) {
                 ioerr(BADWRITE, iodesc, status);
                 return -1;
@@ -2523,7 +2539,7 @@ int getShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
             if (allocShortData(da, iodesc->dims[0], iodesc->dims[1])) return -1;
             fpixel[0] = 1;
             fpixel[1] = 1;
-            if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL,
+            if (fits_read_pix(iodesc->ff, SHORT_IMG, fpixel, iodesc->dims[0], NULL,
                               (short *)&(PPix(da, 0, 0)), &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2536,7 +2552,7 @@ int getShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
             fpixel[0] = 1;
             for (i = 0; i < iodesc->dims[1]; ++i) {
                 fpixel[1] = i + 1;
-                if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL,
+                if (fits_read_pix(iodesc->ff, SHORT_IMG, fpixel, iodesc->dims[0], NULL,
                                   (short *)&(PPix(da, 0, i)), &anynul, &status)) {
                     ioerr(BADREAD, iodesc, status);
                     return -1;
@@ -2559,6 +2575,7 @@ int putShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
         FitsKw kw;
         int is_eq;
         int naxis;
+        long dims[2];
         int status = 0;
 
         if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
@@ -2606,6 +2623,11 @@ int putShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
                 fits_write_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
                 iodesc->dims[0] = 0;
                 iodesc->dims[1] = 0;
+
+                if (fits_resize_img(iodesc->ff, SHORT_IMG, 0, iodesc->dims, &status)) {
+                    ioerr(BADWRITE, iodesc, status); return -1;
+                }
+
                 /* update the header, etc. */
                 if (iodesc->hflag) {
                     iodesc->type = SHORT_IMG;
@@ -2636,6 +2658,16 @@ int putShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
         if (kw != 0) /* remove it */
             delKw(kw);
 
+        /* Get the current CFITSIO size, and if it's different, resize it */
+        fits_get_img_size(iodesc->ff, 2, dims, &status);
+        if (dims[0] != da->nx || dims[1] != da->ny) {
+            iodesc->dims[0] = da->nx;
+            iodesc->dims[1] = da->ny;
+            if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, iodesc->dims, &status)) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+        }
+
         /* update the header area */
         if (iodesc->hflag) {
             iodesc->type = SHORT_IMG;
@@ -2646,7 +2678,7 @@ int putShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
         fpixel[0] = 1;
         for (i = 0; i < da->ny; ++i) {
             fpixel[1] = i + 1;
-            if (fits_write_pix(iodesc->ff, TSHORT, fpixel, da->nx,
+            if (fits_write_pix(iodesc->ff, SHORT_IMG, fpixel, da->nx,
                                (short *)&(PPix(da, 0, i)), &status)) {
                 ioerr(BADWRITE, iodesc, status); return -1;
             }
@@ -2760,7 +2792,7 @@ int putShortSect(IODescPtr iodesc_, ShortTwoDArray *da, int xbeg, int ybeg,
         fpixel[0] = 1;
         for (i = ybeg; i < yend; ++i) {
             fpixel[1] = i - ybeg + 1;
-            if (fits_write_pix(iodesc->ff, TSHORT, fpixel, xsize,
+            if (fits_write_pix(iodesc->ff, SHORT_IMG, fpixel, xsize,
                                (short *)&(PPix(da, xbeg, i)), &status)) {
                 ioerr(BADWRITE,iodesc, status);
                 return -1;
@@ -2806,7 +2838,7 @@ int getFloatLine(IODescPtr iodesc_, int line, float *ptr) {
             }
             fpixel[0] = 1;
             fpixel[1] = line + 1;
-            if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, dims[0], NULL,
+            if (fits_read_pix(iodesc->ff, FLOAT_IMG, fpixel, dims[0], NULL,
                               ptr, &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2826,7 +2858,7 @@ int putFloatLine(IODescPtr iodesc_, int line, float *ptr) {
 
         fpixel[0] = 1;
         fpixel[1] = line + 1;
-        if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0],
+        if (fits_write_pix(iodesc->ff, FLOAT_IMG, fpixel, iodesc->dims[0],
                            ptr, &status)) {
             ioerr(BADWRITE, iodesc, status);
             return -1;
@@ -2868,7 +2900,7 @@ int getShortLine(IODescPtr iodesc_, int line, short *ptr) {
             }
             fpixel[0] = 1;
             fpixel[1] = line + 1;
-            if (fits_read_pix(iodesc->ff, TSHORT, fpixel, dims[0], NULL,
+            if (fits_read_pix(iodesc->ff, SHORT_IMG, fpixel, dims[0], NULL,
                               ptr, &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2888,7 +2920,7 @@ int putShortLine(IODescPtr iodesc_, int line, short *ptr) {
 
         fpixel[0] = 1;
         fpixel[1] = line + 1;
-        if (fits_write_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0],
+        if (fits_write_pix(iodesc->ff, SHORT_IMG, fpixel, iodesc->dims[0],
                            ptr, &status)) {
             ioerr(BADWRITE, iodesc, status);
             return -1;

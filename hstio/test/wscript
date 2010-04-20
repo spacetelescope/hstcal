@@ -1,0 +1,20 @@
+# vim: set syntax=python:
+
+def build(bld):
+    t = bld(
+        features = ['cc', 'cprogram'],
+        source = 'test_hstio_resize_hdu.c',
+        target = 'test_hstio_resize_hdu',
+        includes = [
+            bld.env.INCLUDEDIR, # the hstcal include directory
+            '.',
+            '../include'
+            ],
+        # The order of these libraries is important
+        uselib_local = bld.env.LOCAL_LIBS,
+        uselib = ['CFITSIO'],
+        lib = bld.env.EXTERNAL_LIBS,
+        libpath = bld.env.LIBPATH,
+        install_path = '${PREFIX}/bin/test'
+        )
+    

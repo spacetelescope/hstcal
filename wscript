@@ -21,6 +21,7 @@ SUBDIRS = [
     'cfitsio',
     'cvos',
     'hstio',
+    'hstio/test',
     'include',
     'pkg',
     'tables',
