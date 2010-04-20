@@ -26,6 +26,7 @@ SUBDIRS = [
     'tables',
     ]
 
+# Support for .f files
 @extension('.f')
 def process_fortran(self, node):
     o_node = node.change_ext('.o')
@@ -37,6 +38,10 @@ Scripting.g_gz = 'gz'
 
 option_parser = None
 def set_options(opt):
+    # Normally, custom options would be set here.  We don't really
+    # have any, but we want to store the option parser object so we
+    # can use it later (during the configuration phase) to parse
+    # options stored in a file.
     global option_parser
     
     opt.tool_options('compiler_cc')
@@ -46,8 +51,6 @@ def set_options(opt):
     option_parser = opt.parser
     
 def configure(conf):
-    import Options
-
     # Read in options from a file.  The file is just a set of
     # commandline arguments in the same syntax.  May be spread across
     # multiple lines.
@@ -96,6 +99,8 @@ def configure(conf):
         raise Configure.ConfigurationError(
             "No Fortran compiler found.")
 
+    # The configuration related to cfitsio is stored in
+    # cfitsio/wscript
     conf.recurse('cfitsio')
     
 def build(bld):
@@ -111,12 +116,15 @@ def build(bld):
     # Recurse into all of the libraries
     for library in SUBDIRS:
         bld.recurse(library)
+
+    # Add a post-build callback function
     bld.add_post_fun(post_build)
     
 def post_build(bld):
     # WAF has its own way of dealing with build products.  We want to
     # emulate the old stsdas way of creating a flat directory full of
-    # .a and .e files.
+    # .a and .e files.  This simply runs through the build tree and
+    # copies such files to the bin.* directory.
     src_root = bld.srcnode.abspath(bld.env)
     dst_root = os.path.join(
         bld.srcnode.abspath(),
@@ -134,9 +142,13 @@ def post_build(bld):
                 shutil.copy(src_path, dst_path)
                 
 def clean(ctx):
+    # Clean the bin.* directory
     bin_root = 'bin.' + platform.platform()
     if os.path.exists(bin_root):
         shutil.rmtree(bin_root)
+        
     # CFITSIO is built using its own standard Makefile
     Utils.cmd_output('cd cfitsio; make clean; cd ..')
+
+    # Delegate to the built-in waf clean command
     Scripting.clean(ctx)
