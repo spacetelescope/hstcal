@@ -6,6 +6,7 @@ int
 main(int argc, char **argv) {
     ShortTwoDArray da;
     IODescPtr iodesc;
+    short buffer[2048];
     Hdr hdr;
     int x, y;
 
@@ -18,16 +19,15 @@ main(int argc, char **argv) {
     for (y = 0; y < da.ny; ++y) {
         for (x = 0; x < da.nx; ++x) {
             assert(PPix(&da, x, y) == 42);
-            if (PPix(&da, x, y) != 42) {
-                return 1;
-            }
         }
     }
 
     /* Now make it a non-constant array */
-    PPix(&da, 12, 34) = 43;
+    for (x = 0; x < 2048; ++x) {
+        buffer[x] = x;
+    }
 
-    if (putShortData(iodesc, &da)) {
+    if (putShortLine(iodesc, 1000, buffer)) {
         return 1;
     }
 

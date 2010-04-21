@@ -2217,7 +2217,7 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1])) return -1;
             fpixel[0] = 1;
             fpixel[1] = 1;
-            if (fits_read_pix(iodesc->ff, FLOAT_IMG, fpixel, iodesc->dims[0], 0,
+            if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
                               (float *)&(PPix(da, 0, 0)), &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2232,7 +2232,7 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             fpixel[0] = 1;
             for (i = 0; i < iodesc->dims[1]; ++i) {
                 fpixel[1] = i + 1;
-                if (fits_read_pix(iodesc->ff, FLOAT_IMG, fpixel, iodesc->dims[0], 0,
+                if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
                                   (float *)&(PPix(da, 0, i)), &anynul, &status)) {
                     ioerr(BADREAD,iodesc, status);
                     return -1;
@@ -2356,7 +2356,7 @@ int putFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
         fpixel[0] = 1;
         for (i = 0; i < da->ny; ++i) {
             fpixel[1] = i + 1;
-            if (fits_write_pix(iodesc->ff, FLOAT_IMG, fpixel, da->nx,
+            if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, da->nx,
                                (float *)&(PPix(da, 0, i)), &status)) {
                 ioerr(BADWRITE, iodesc, status);
                 return -1;
@@ -2380,6 +2380,7 @@ int putFloatSect(IODescPtr iodesc_, FloatTwoDArray *da, int xbeg,
         float tmp;
         FitsKw kw;
         long fpixel[2];
+        long dims[2];
         int is_eq;
         int naxis;
         int status = 0;
@@ -2463,6 +2464,19 @@ int putFloatSect(IODescPtr iodesc_, FloatTwoDArray *da, int xbeg,
                 delKw(kw);
         }
 
+        /* Get the current CFITSIO size, and if it's different, resize it */
+        fits_get_img_size(iodesc->ff, 2, dims, &status);
+        if (dims[0] != xend - xbeg || dims[1] != yend - ybeg) {
+            iodesc->dims[0] = xend - xbeg;
+            iodesc->dims[1] = yend - ybeg;
+            if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, iodesc->dims, &status)) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+
+            /* Note, we don't need to fill the image with the constant value, since
+               the image will be entirely over-written by the passed in array da */
+        }
+
         /* update the header area */
         if (iodesc->hflag) {
             iodesc->type = FLOAT_IMG;
@@ -2473,7 +2487,7 @@ int putFloatSect(IODescPtr iodesc_, FloatTwoDArray *da, int xbeg,
         fpixel[0] = 1;
         for (i = ybeg; i < yend; ++i) {
             fpixel[1] = i - ybeg + 1;
-            if (fits_write_pix(iodesc->ff, FLOAT_IMG, fpixel, xsize,
+            if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, xsize,
                                (float*)&(PPix(da, xbeg, i)), &status)) {
                 ioerr(BADWRITE, iodesc, status);
                 return -1;
@@ -2539,7 +2553,7 @@ int getShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
             if (allocShortData(da, iodesc->dims[0], iodesc->dims[1])) return -1;
             fpixel[0] = 1;
             fpixel[1] = 1;
-            if (fits_read_pix(iodesc->ff, SHORT_IMG, fpixel, iodesc->dims[0], NULL,
+            if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL,
                               (short *)&(PPix(da, 0, 0)), &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2552,7 +2566,7 @@ int getShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
             fpixel[0] = 1;
             for (i = 0; i < iodesc->dims[1]; ++i) {
                 fpixel[1] = i + 1;
-                if (fits_read_pix(iodesc->ff, SHORT_IMG, fpixel, iodesc->dims[0], NULL,
+                if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL,
                                   (short *)&(PPix(da, 0, i)), &anynul, &status)) {
                     ioerr(BADREAD, iodesc, status);
                     return -1;
@@ -2678,7 +2692,7 @@ int putShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
         fpixel[0] = 1;
         for (i = 0; i < da->ny; ++i) {
             fpixel[1] = i + 1;
-            if (fits_write_pix(iodesc->ff, SHORT_IMG, fpixel, da->nx,
+            if (fits_write_pix(iodesc->ff, TSHORT, fpixel, da->nx,
                                (short *)&(PPix(da, 0, i)), &status)) {
                 ioerr(BADWRITE, iodesc, status); return -1;
             }
@@ -2703,6 +2717,7 @@ int putShortSect(IODescPtr iodesc_, ShortTwoDArray *da, int xbeg, int ybeg,
         int naxis;
         int is_eq;
         long fpixel[2];
+        long dims[2];
         int status = 0;
 
         if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
@@ -2782,6 +2797,19 @@ int putShortSect(IODescPtr iodesc_, ShortTwoDArray *da, int xbeg, int ybeg,
                 delKw(kw);
         }
 
+        /* Get the current CFITSIO size, and if it's different, resize it */
+        fits_get_img_size(iodesc->ff, 2, dims, &status);
+        if (dims[0] != xend - xbeg || dims[1] != yend - ybeg) {
+            iodesc->dims[0] = xend - xbeg;
+            iodesc->dims[1] = yend - ybeg;
+            if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, iodesc->dims, &status)) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+
+            /* Note, we don't need to fill the image with the constant value, since
+               the image will be entirely over-written by the passed in array da */
+        }
+
         /* update the header area */
         if (iodesc->hflag) {
             iodesc->type = SHORT_IMG;
@@ -2792,7 +2820,7 @@ int putShortSect(IODescPtr iodesc_, ShortTwoDArray *da, int xbeg, int ybeg,
         fpixel[0] = 1;
         for (i = ybeg; i < yend; ++i) {
             fpixel[1] = i - ybeg + 1;
-            if (fits_write_pix(iodesc->ff, SHORT_IMG, fpixel, xsize,
+            if (fits_write_pix(iodesc->ff, TSHORT, fpixel, xsize,
                                (short *)&(PPix(da, xbeg, i)), &status)) {
                 ioerr(BADWRITE,iodesc, status);
                 return -1;
@@ -2838,7 +2866,7 @@ int getFloatLine(IODescPtr iodesc_, int line, float *ptr) {
             }
             fpixel[0] = 1;
             fpixel[1] = line + 1;
-            if (fits_read_pix(iodesc->ff, FLOAT_IMG, fpixel, dims[0], NULL,
+            if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, dims[0], NULL,
                               ptr, &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2851,14 +2879,79 @@ int getFloatLine(IODescPtr iodesc_, int line, float *ptr) {
 int putFloatLine(IODescPtr iodesc_, int line, float *ptr) {
         IODesc *iodesc = (IODesc *)iodesc_;
         long fpixel[2];
+        int no_dims;
+        long dims[2];
+        FitsKw kw;
+        float* buffer;
+        float val;
+        long i, j;
         int status = 0;
 
         if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
         if (iodesc->hflag) { iodesc->hflag = 0; putHeader(iodesc); }
 
+        /* If a constant array, convert to a non-constant array */
+        fits_get_img_dim(iodesc->ff, &no_dims, &status);
+        if (no_dims == 0) {
+            kw = findKw(iodesc->hdr,"NPIX1");
+            if (kw == 0) {
+                ioerr(BADSCIDIMS, iodesc, 0);
+                return -1;
+            } else {
+                dims[0] = getIntKw(kw);
+                delKw(kw);
+            }
+            
+            kw = findKw(iodesc->hdr,"NPIX2");
+            if (kw == 0) {
+                ioerr(BADSCIDIMS, iodesc, 0);
+                return -1;
+            } else {
+                dims[1] = getIntKw(kw);
+                delKw(kw);
+            }
+
+            kw = findKw(iodesc->hdr,"PIXVALUE");
+            if (kw == 0) { 
+                ioerr(BADSCIDIMS,iodesc,0); 
+                return -1; 
+            } else {
+                val = getFloatKw(kw);
+                delKw(kw);
+            }
+
+            iodesc->dims[0] = dims[0];
+            iodesc->dims[1] = dims[1];
+            if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, dims, &status)) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+
+            buffer = malloc(dims[0] * sizeof(float));
+            if (buffer == NULL) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+
+            for (i = 0; i < dims[0]; ++i) {
+                buffer[i] = val;
+            }
+
+            /* Write the constant value into CFITSIO's array */
+            fpixel[0] = 1;
+            for (j = 0; j < dims[1]; ++j) {
+                fpixel[1] = j + 1;
+                if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, dims[0], buffer, &status)) {
+                    ioerr(BADWRITE, iodesc, status);
+                    free(buffer);
+                    return -1;
+                }
+            }
+
+            free(buffer);
+        }
+
         fpixel[0] = 1;
         fpixel[1] = line + 1;
-        if (fits_write_pix(iodesc->ff, FLOAT_IMG, fpixel, iodesc->dims[0],
+        if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0],
                            ptr, &status)) {
             ioerr(BADWRITE, iodesc, status);
             return -1;
@@ -2900,7 +2993,7 @@ int getShortLine(IODescPtr iodesc_, int line, short *ptr) {
             }
             fpixel[0] = 1;
             fpixel[1] = line + 1;
-            if (fits_read_pix(iodesc->ff, SHORT_IMG, fpixel, dims[0], NULL,
+            if (fits_read_pix(iodesc->ff, TSHORT, fpixel, dims[0], NULL,
                               ptr, &anynul, &status)) {
                 ioerr(BADREAD, iodesc, status);
                 return -1;
@@ -2913,14 +3006,80 @@ int getShortLine(IODescPtr iodesc_, int line, short *ptr) {
 int putShortLine(IODescPtr iodesc_, int line, short *ptr) {
         IODesc *iodesc = (IODesc *)iodesc_;
         long fpixel[2];
+        long dims[2];
+        int no_dims;
+        FitsKw kw;
+        short val;
+        short* buffer;
+        long i, j;
         int status = 0;
 
         if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
         if (iodesc->hflag) { iodesc->hflag = 0; putHeader(iodesc); }
 
+        /* If a constant array, convert to a non-constant array */
+        fits_get_img_dim(iodesc->ff, &no_dims, &status);
+        if (no_dims == 0) {
+            kw = findKw(iodesc->hdr,"NPIX1");
+            if (kw == 0) {
+                ioerr(BADSCIDIMS, iodesc, 0);
+                return -1;
+            } else {
+                dims[0] = getIntKw(kw);
+                delKw(kw);
+            }
+            
+            kw = findKw(iodesc->hdr,"NPIX2");
+            if (kw == 0) {
+                ioerr(BADSCIDIMS, iodesc, 0);
+                return -1;
+            } else {
+                dims[1] = getIntKw(kw);
+                delKw(kw);
+            }
+
+            kw = findKw(iodesc->hdr,"PIXVALUE");
+            if (kw == 0) { 
+                ioerr(BADSCIDIMS,iodesc,0); 
+                return -1; 
+            } else {
+                val = getIntKw(kw);
+                delKw(kw);
+            }
+
+            iodesc->dims[0] = dims[0];
+            iodesc->dims[1] = dims[1];
+            if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, dims, &status)) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+
+            buffer = malloc(dims[0] * sizeof(short));
+            if (buffer == NULL) {
+                ioerr(BADWRITE, iodesc, status); return -1;
+            }
+
+            for (i = 0; i < dims[0]; ++i) {
+                buffer[i] = val;
+            }
+
+            /* Write the constant value into CFITSIO's array */
+
+            fpixel[0] = 1;
+            for (j = 0; j < dims[1]; ++j) {
+                fpixel[1] = j + 1;
+                if (fits_write_pix(iodesc->ff, TSHORT, fpixel, dims[0], buffer, &status)) {
+                    ioerr(BADWRITE, iodesc, status);
+                    free(buffer);
+                    return -1;
+                }
+            }
+
+            free(buffer);
+        }
+
         fpixel[0] = 1;
         fpixel[1] = line + 1;
-        if (fits_write_pix(iodesc->ff, SHORT_IMG, fpixel, iodesc->dims[0],
+        if (fits_write_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0],
                            ptr, &status)) {
             ioerr(BADWRITE, iodesc, status);
             return -1;
