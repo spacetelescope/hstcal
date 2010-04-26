@@ -18,10 +18,10 @@ static int CheckHelio (Hdr *, StisInfo6 *);
 static int CheckSmGeo (Hdr *, StisInfo6 *, int *);
 static int CheckWave (Hdr *, StisInfo6 *);
 
-/* 
-   Get calibration flag values and names of reference images and tables 
-   from the primary header. Check the existence of the reference files 
-   and get pedigree and descrip, and also check for possible inconsistency 
+/*
+   Get calibration flag values and names of reference images and tables
+   from the primary header. Check the existence of the reference files
+   and get pedigree and descrip, and also check for possible inconsistency
    between switches.
 
    The calibration switches are read from the header only if calstis6
@@ -61,57 +61,57 @@ static int CheckWave (Hdr *, StisInfo6 *);
 
 int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
 
-	int status;
+        int status;
 
-	int missing = 0;	/* true if any calibration file is missing */
+        int missing = 0;        /* true if any calibration file is missing */
 
-	/* Check main reference files. */
+        /* Check main reference files. */
 
-	if (status = CheckX1D (phdr, sts, &missing))
-	    return (status);
+        if (status = CheckX1D (phdr, sts, &missing))
+            return (status);
 
-	if (status = CheckOptimal (phdr, sts))
-	    return (status);
+        if (status = CheckOptimal (phdr, sts))
+            return (status);
 
-	/* Check remaining calibration switches and reference files. */
+        /* Check remaining calibration switches and reference files. */
 
-	if (status = CheckBack (phdr, sts))
-	    return (status);
+        if (status = CheckBack (phdr, sts))
+            return (status);
 
-	if (status = CheckDisp (phdr, sts, &missing))
-	    return (status);
+        if (status = CheckDisp (phdr, sts, &missing))
+            return (status);
 
-	if (status = CheckHelio (phdr, sts))
-	    return (status);
+        if (status = CheckHelio (phdr, sts))
+            return (status);
 
-	if (sts->dispcorr != PERFORM && sts->heliocorr == PERFORM) {
-	    printf (
+        if (sts->dispcorr != PERFORM && sts->heliocorr == PERFORM) {
+            printf (
         "ERROR    No wavelengths - cannot apply heliocentric correction.\n");
-	    return (ERROR_RETURN);
-	}
+            return (ERROR_RETURN);
+        }
 
-	if (status = CheckFlux (phdr, sts, &missing))
-	    return (status);
+        if (status = CheckFlux (phdr, sts, &missing))
+            return (status);
 
-	if (sts->fluxcorr == PERFORM && 
+        if (sts->fluxcorr == PERFORM &&
             sts->dispcorr != PERFORM) {
-	    printf (
+            printf (
            "ERROR    No wavelengths - cannot flux-calibrate.\n");
-	    return (ERROR_RETURN);
-	}
+            return (ERROR_RETURN);
+        }
 
-	if (sts->detector != CCD_DETECTOR) {
-	    if (status = CheckSmGeo (phdr, sts, &missing))
-	        return (status);
-	}
+        if (sts->detector != CCD_DETECTOR) {
+            if (status = CheckSmGeo (phdr, sts, &missing))
+                return (status);
+        }
 
-	if (status = CheckWave (phdr, sts))		/* just check flag */
-	    return (status);
+        if (status = CheckWave (phdr, sts))             /* just check flag */
+            return (status);
 
-	if (missing)
-	    return (CAL_FILE_MISSING);
-	else
-	    return (0);
+        if (missing)
+            return (CAL_FILE_MISSING);
+        else
+            return (0);
 }
 
 
@@ -126,54 +126,54 @@ StisInfo6 *sts  i: switches, file names, etc
 int *missing    io: incremented if the file is missing
 */
 
-	int status;
+        int status;
 
-	int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
+        int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
 
-	/* Spectrum trace table. */
-	if (status = GetCheckRef (phdr, "SPTRCTAB", &sts->sptrctab,
+        /* Spectrum trace table. */
+        if (status = GetCheckRef (phdr, "SPTRCTAB", &sts->sptrctab,
                                   &sts->x1d, missing, FATAL))
-	    return (status);
+            return (status);
 
-	/* SDC table. */
-	if (status = GetCheckRef (phdr, "SDCTAB", &sts->distntab,
+        /* SDC table. */
+        if (status = GetCheckRef (phdr, "SDCTAB", &sts->distntab,
                                   &sts->x1d, missing, FATAL))
-	    return (status);
+            return (status);
 
-	/* 1-D extraction parameters table. */
-	if (status = GetCheckRef (phdr, "XTRACTAB", &sts->xtrctab,
+        /* 1-D extraction parameters table. */
+        if (status = GetCheckRef (phdr, "XTRACTAB", &sts->xtrctab,
                                   &sts->x1d, missing, FATAL))
-	    return (status);
+            return (status);
 
-	/* Aperture description table. */
-	if (status = GetCheckRef (phdr, "APDESTAB", &sts->apdestab,
+        /* Aperture description table. */
+        if (status = GetCheckRef (phdr, "APDESTAB", &sts->apdestab,
                                   &sts->dispcorr, missing, FATAL))
-	    return (status);
+            return (status);
 
-	/* CCD description table. */
-	if (sts->detector == CCD_DETECTOR) {
-	    if (sts->ctecorr == PERFORM) {
-		if ((status = GetCheckRef (phdr, "CCDTAB", &sts->ccdtab,
+        /* CCD description table. */
+        if (sts->detector == CCD_DETECTOR) {
+            if (sts->ctecorr == PERFORM) {
+                if ((status = GetCheckRef (phdr, "CCDTAB", &sts->ccdtab,
                                   &sts->x1d, missing, FATAL)) != 0) {
-		    return (status);
-		}
-	    }
-	} else {
-	    sts->ctecorr = OMIT;
-	}
+                    return (status);
+                }
+            }
+        } else {
+            sts->ctecorr = OMIT;
+        }
 
-	if (sts->x1d != PERFORM) {
-	    printf (
+        if (sts->x1d != PERFORM) {
+            printf (
             "Warning  X1DCORR skipped due to dummy reference file.\n");
-	    return (NOTHING_TO_DO);
-	}
-	return (0);
+            return (NOTHING_TO_DO);
+        }
+        return (0);
 }
 
 
 
 /* Check optimal extraction-related reference files. Notice that the
-   "missing" global counter is replaced by a local counter. It is no 
+   "missing" global counter is replaced by a local counter. It is no
    error if the optimal extraction files are missing in the header.
 */
 
@@ -185,31 +185,31 @@ StisInfo6 *sts  i: switches, file names, etc
 int *missing    io: incremented if the file is missing
 */
 
-	int status;
-	int missing;
+        int status;
+        int missing;
 
-	int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
+        int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
 
-	missing = 0;
+        missing = 0;
 
-	/* Profile table. */
-	if (status = GetCheckRef (phdr, "OPROFTAB",
-			&sts->pftab, &sts->x1d, &missing, NO_FATAL))
-	    return (status);
+        /* Profile table. */
+        if (status = GetCheckRef (phdr, "OPROFTAB",
+                        &sts->pftab, &sts->x1d, &missing, NO_FATAL))
+            return (status);
 
-	/* Flux table. */
-	if (status = GetCheckRef (phdr, "OSPECTAB",
-			&sts->pxtab, &sts->x1d, &missing, NO_FATAL))
-	    return (status);
+        /* Flux table. */
+        if (status = GetCheckRef (phdr, "OSPECTAB",
+                        &sts->pxtab, &sts->x1d, &missing, NO_FATAL))
+            return (status);
 
 /*
-	if (missing != 0 && streq_ic (sts->xtracalg, OPTIMAL))
-	    printf (
+        if (missing != 0 && streq_ic (sts->xtracalg, OPTIMAL))
+            printf (
 "Warning  No reference file names for optimal extraction exist in header.\n");
 */
 
 
-	return (0);
+        return (0);
 }
 
 
@@ -226,16 +226,14 @@ static int CheckBack (Hdr *phdr, StisInfo6 *sts) {
 Hdr *phdr       i: primary header
 StisInfo6 *sts  i: switches, file names, etc
 */
-	int status;
+        /*
+        if (sts->pipeline) {
+            if (status = GetSwitch (phdr, "BACKCORR", &sts->backcorr))
+                return (status);
+        }
+        */
 
-	/*
-	if (sts->pipeline) {
-	    if (status = GetSwitch (phdr, "BACKCORR", &sts->backcorr))
-	        return (status);
-	}
-	*/
-
-	return (0);
+        return (0);
 }
 
 
@@ -252,31 +250,31 @@ StisInfo6 *sts  i: switches, file names, etc
 int *missing    io: incremented if the table is missing
 */
 
-	int status;
+        int status;
 
-	int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
+        int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
 
-	/*
-	if (sts->pipeline) {
-	    if (status = GetSwitch (phdr, "DISPCORR", &sts->dispcorr))
-	        return (status);
-	}
-	*/
+        /*
+        if (sts->pipeline) {
+            if (status = GetSwitch (phdr, "DISPCORR", &sts->dispcorr))
+                return (status);
+        }
+        */
 
-	if (sts->dispcorr == PERFORM) {
+        if (sts->dispcorr == PERFORM) {
 
-	    /* Dispersion coefficients. */
-	    if (status = GetCheckRef (phdr, "DISPTAB", &sts->disptab,
-			&sts->dispcorr, missing, FATAL))
-		return (status);
+            /* Dispersion coefficients. */
+            if (status = GetCheckRef (phdr, "DISPTAB", &sts->disptab,
+                        &sts->dispcorr, missing, FATAL))
+                return (status);
 
-	    /* Incidence-angle correction table. */
-	    if (status = GetCheckRef (phdr, "INANGTAB", &sts->inangtab,
-			&sts->dispcorr, missing, FATAL))
-		return (status);
-	}
+            /* Incidence-angle correction table. */
+            if (status = GetCheckRef (phdr, "INANGTAB", &sts->inangtab,
+                        &sts->dispcorr, missing, FATAL))
+                return (status);
+        }
 
-	return (0);
+        return (0);
 }
 
 
@@ -297,66 +295,66 @@ StisInfo6 *sts  i: switches, file names, etc
 int *missing    io: incremented if the table is missing
 */
 
-	int status;
-	int l_missing;		/* local variable for PCTAB */
+        int status;
+        int l_missing;          /* local variable for PCTAB */
 
-	int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
+        int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
 
-	/*
-	if (sts->pipeline) {
-	    if (status = GetSwitch (phdr, "FLUXCORR", &sts->fluxcorr))
-	        return (status);
-	}
-	*/
+        /*
+        if (sts->pipeline) {
+            if (status = GetSwitch (phdr, "FLUXCORR", &sts->fluxcorr))
+                return (status);
+        }
+        */
 
-	if (sts->fluxcorr == PERFORM) {
+        if (sts->fluxcorr == PERFORM) {
 
-	    /* Throughput table. */
-	    if (status = GetCheckRef (phdr, "PHOTTAB", &sts->phottab,
-			&sts->fluxcorr, missing, FATAL))
-		return (status);
+            /* Throughput table. */
+            if (status = GetCheckRef (phdr, "PHOTTAB", &sts->phottab,
+                        &sts->fluxcorr, missing, FATAL))
+                return (status);
 
-	    /* Relative aperture throughput table. */
-	    if (status = GetCheckRef (phdr, "APERTAB", &sts->apertab,
-			&sts->fluxcorr, missing, FATAL))
-		return (status);
+            /* Relative aperture throughput table. */
+            if (status = GetCheckRef (phdr, "APERTAB", &sts->apertab,
+                        &sts->fluxcorr, missing, FATAL))
+                return (status);
 
-	    /* Table for corrections for slit height.  Note that we pass
-		pctcorr instead of fluxcorr, and l_missing is local.
-	    */
-	    l_missing = 0;
-	    if (status = GetCheckRef (phdr, "PCTAB", &sts->pctab, 
+            /* Table for corrections for slit height.  Note that we pass
+                pctcorr instead of fluxcorr, and l_missing is local.
+            */
+            l_missing = 0;
+            if (status = GetCheckRef (phdr, "PCTAB", &sts->pctab,
                                       &sts->pctcorr, &l_missing, NO_FATAL))
-		return (status);
-	    if (l_missing > 0)
-		sts->pctcorr = OMIT;
+                return (status);
+            if (l_missing > 0)
+                sts->pctcorr = OMIT;
 
-	    /* Table for grating-aperture correction.  Note that we pass
-		gaccorr instead of fluxcorr, and l_missing is local.
-	    */
-	    l_missing = 0;
-	    if (status = GetCheckRef (phdr, "GACTAB", &sts->gactab, 
+            /* Table for grating-aperture correction.  Note that we pass
+                gaccorr instead of fluxcorr, and l_missing is local.
+            */
+            l_missing = 0;
+            if (status = GetCheckRef (phdr, "GACTAB", &sts->gactab,
                                       &sts->gaccorr, &l_missing, NO_FATAL))
-		return (status);
-	    if (l_missing > 0) {
-		sts->gaccorr = OMIT;
-		printf (
-	"Warning  Grating-aperture throughput correction table (GACTAB)"
-	" was not found,\n");
-		printf ("         and no gac corrections will be applied\n");
-	    }
+                return (status);
+            if (l_missing > 0) {
+                sts->gaccorr = OMIT;
+                printf (
+        "Warning  Grating-aperture throughput correction table (GACTAB)"
+        " was not found,\n");
+                printf ("         and no gac corrections will be applied\n");
+            }
 
-	    /* Time-dependent sensitivity table. Handled like pct. */
-	    l_missing = 0;
-	    if (status = GetCheckRef (phdr, "TDSTAB", &sts->tdstab,
-			              &sts->tdscorr, &l_missing, NO_FATAL))
-		return (status);
-	    sts->tdscorr = PERFORM;
-	    if (l_missing > 0)
-		sts->tdscorr = OMIT;
-	}
+            /* Time-dependent sensitivity table. Handled like pct. */
+            l_missing = 0;
+            if (status = GetCheckRef (phdr, "TDSTAB", &sts->tdstab,
+                                      &sts->tdscorr, &l_missing, NO_FATAL))
+                return (status);
+            sts->tdscorr = PERFORM;
+            if (l_missing > 0)
+                sts->tdscorr = OMIT;
+        }
 
-	return (0);
+        return (0);
 }
 
 
@@ -372,16 +370,16 @@ Hdr *phdr       i: primary header
 StisInfo6 *sts  i: switches, file names, etc
 */
 
-	int status;
+        int status;
 
-	/*
-	if (sts->pipeline) {
-	    if (status = GetSwitch (phdr, "HELCORR", &sts->heliocorr))
-	        return (status);
-	}
-	*/
+        /*
+        if (sts->pipeline) {
+            if (status = GetSwitch (phdr, "HELCORR", &sts->heliocorr))
+                return (status);
+        }
+        */
 
-	return (0);
+        return (0);
 }
 
 
@@ -398,40 +396,40 @@ StisInfo6 *sts  i: switches, file names, etc
 int *missing    io: incremented if the file is missing
 */
 
-	int status;
+        int status;
 
-	int use_def = 0;		/* missing keyword is fatal error */
+        int use_def = 0;                /* missing keyword is fatal error */
 
-	/*
-	if (sts->pipeline) {
-	    if (status = GetSwitch (phdr, "SGEOCORR", &sts->sgeocorr))
-	        return (status);
-	}
-	*/
+        /*
+        if (sts->pipeline) {
+            if (status = GetSwitch (phdr, "SGEOCORR", &sts->sgeocorr))
+                return (status);
+        }
+        */
 
-	/* Are we supposed to do this step? */
-	if (sts->sgeocorr == PERFORM) {
+        /* Are we supposed to do this step? */
+        if (sts->sgeocorr == PERFORM) {
 
-	    /* Small-scale distortion file. */
-	    if (status = Get_KeyS (phdr, "SDSTFILE", use_def, "",
-			sts->sdstfile.name, STIS_LINE))
-		return (status);
+            /* Small-scale distortion file. */
+            if (status = Get_KeyS (phdr, "SDSTFILE", use_def, "",
+                        sts->sdstfile.name, STIS_LINE))
+                return (status);
 
-	    /* Open the image to verify that it exists, and if it does,
-		get pedigree & descrip.
-	    */
-	    if (status = ImgPedigree (&sts->sdstfile))
-		return (status);
-	    if (sts->sdstfile.exists != EXISTS_YES) {
-		(*missing)++;
-		printf ("ERROR    SDSTFILE `%s' not found\n",
-			sts->sdstfile.name);
-	    }
-	    if (sts->sdstfile.goodPedigree != GOOD_PEDIGREE)
-		sts->sgeocorr = DUMMY;
-	}
+            /* Open the image to verify that it exists, and if it does,
+                get pedigree & descrip.
+            */
+            if (status = ImgPedigree (&sts->sdstfile))
+                return (status);
+            if (sts->sdstfile.exists != EXISTS_YES) {
+                (*missing)++;
+                printf ("ERROR    SDSTFILE `%s' not found\n",
+                        sts->sdstfile.name);
+            }
+            if (sts->sdstfile.goodPedigree != GOOD_PEDIGREE)
+                sts->sgeocorr = DUMMY;
+        }
 
-	return (0);
+        return (0);
 }
 
 
@@ -445,14 +443,12 @@ Hdr *phdr       i: primary header
 StisInfo6 *sts  i: switches, file names, etc
 */
 
-	int status;
+        /*
+        if (sts->pipeline) {
+            if (status = GetSwitch (phdr, "WAVECORR", &sts->wavecorr))
+                return (status);
+        }
+        */
 
-	/*
-	if (sts->pipeline) {
-	    if (status = GetSwitch (phdr, "WAVECORR", &sts->wavecorr))
-	        return (status);
-	}
-	*/
-
-	return (0);
+        return (0);
 }
