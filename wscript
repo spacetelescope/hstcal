@@ -44,13 +44,13 @@ def set_options(opt):
     # can use it later (during the configuration phase) to parse
     # options stored in a file.
     global option_parser
-    
+
     opt.tool_options('compiler_cc')
 
     # Store the option_parser so we can use it to parse options from a
     # file
     option_parser = opt.parser
-    
+
 def configure(conf):
     # Read in options from a file.  The file is just a set of
     # commandline arguments in the same syntax.  May be spread across
@@ -64,13 +64,13 @@ def configure(conf):
                 if Options.options.__dict__.get(key) is None:
                     Options.options.__dict__[key] = val
         fd.close()
-    
+
     # Check for the existence of a C compiler
     conf.check_tool('compiler_cc')
 
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
-    
+
     # Set the location of the hstcal include directory
     conf.env.INCLUDEDIR = os.path.join(
         os.path.abspath(conf.srcdir), 'include') # the hstcal include directory
@@ -87,7 +87,7 @@ def configure(conf):
 
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = []
-            
+
     # Find a suitable Fortran compiler
     for compiler in ('f77', 'gfortran'):
         try:
@@ -103,7 +103,7 @@ def configure(conf):
     # The configuration related to cfitsio is stored in
     # cfitsio/wscript
     conf.recurse('cfitsio')
-    
+
 def build(bld):
     # Add support for simple Fortran files.  This isn't a complete Fortran
     # solution, but it meets the simple .f -> .o mapping we use here.
@@ -120,7 +120,7 @@ def build(bld):
 
     # Add a post-build callback function
     bld.add_post_fun(post_build)
-    
+
 def post_build(bld):
     # WAF has its own way of dealing with build products.  We want to
     # emulate the old stsdas way of creating a flat directory full of
@@ -130,10 +130,10 @@ def post_build(bld):
     dst_root = os.path.join(
         bld.srcnode.abspath(),
         'bin.' + platform.platform())
-    
+
     if not os.path.exists(dst_root):
         os.mkdir(dst_root)
-        
+
     for root, dirs, files in os.walk(src_root):
         for file in files:
             base, ext = os.path.splitext(file)
@@ -141,15 +141,25 @@ def post_build(bld):
                 src_path = os.path.join(root, file)
                 dst_path = os.path.join(dst_root, file)
                 shutil.copy(src_path, dst_path)
-                
+
 def clean(ctx):
     # Clean the bin.* directory
     bin_root = 'bin.' + platform.platform()
     if os.path.exists(bin_root):
         shutil.rmtree(bin_root)
-        
+
     # CFITSIO is built using its own standard Makefile
     Utils.cmd_output('cd cfitsio; make clean; cd ..')
 
     # Delegate to the built-in waf clean command
     Scripting.clean(ctx)
+
+def test(ctx):
+    # Recurse into all of the libraries
+    # Just to check that nose is installed
+    import nose
+
+    for library in SUBDIRS:
+        if library.endswith('test'):
+            if os.system('nosetests %s' % library):
+                raise Exception("Tests failed")
