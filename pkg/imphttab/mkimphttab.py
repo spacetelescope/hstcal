@@ -4,6 +4,9 @@ import pysynphot as S
 from pysynphot import observationmode
 from pyfits import Column
 
+__version__ = '0.0.1'
+__vdate__ = '29-Apr-2010'
+
 def computeValues(obsmode):
     """ Compute the 3 photometric values needed for a given obsmode string
         using pysynphot
