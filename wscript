@@ -157,7 +157,10 @@ def clean(ctx):
 def test(ctx):
     # Recurse into all of the libraries
     # Just to check that nose is installed
-    import nose
+    try:
+        import nose
+    except ImportError:
+        raise ImportError("nose must be installed to run hstcal tests.")
 
     for library in SUBDIRS:
         if library.endswith('test'):
