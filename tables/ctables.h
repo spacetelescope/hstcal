@@ -37,6 +37,7 @@ typedef struct {
         char *tdisp;            /* display format */
         int typecode;           /* data type of column (CFITSIO typecode) */
         int datatype;           /* data type of column (IRAF code) */
+        int var_length;         /* 1 if variable-length array */
         long repeat;            /* repeat count (r in rAw for strings) */
         long nelem;             /* number of elements in array */
         int width;              /* for a string, size of one element */

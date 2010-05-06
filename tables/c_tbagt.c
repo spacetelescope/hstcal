@@ -30,10 +30,14 @@ function value          o: actual number of elements that were read
         tbl_descr = (TableDescr *)tp;
         col_descr = (ColumnDescr *)cp;
 
-        if (nelem <= col_descr->nelem-first+1)
+        if (col_descr->var_length) {
             nret = nelem;
-        else
-            nret = col_descr->nelem - first + 1;
+        } else {
+            if (nelem <= col_descr->nelem-first+1)
+                nret = nelem;
+            else
+                nret = col_descr->nelem - first + 1;
+        }
         value = (char *)calloc (nret+10, sizeof(char)); /* nret plus extra */
 
         /* fits_read_col_log = ffgcvl */
@@ -78,10 +82,14 @@ function value          o: actual number of elements that were read
         tbl_descr = (TableDescr *)tp;
         col_descr = (ColumnDescr *)cp;
 
-        if (nelem <= col_descr->nelem-first+1)
+        if (col_descr->var_length) {
             nret = nelem;
-        else
-            nret = col_descr->nelem - first + 1;
+        } else {
+            if (nelem <= col_descr->nelem-first+1)
+                nret = nelem;
+            else
+                nret = col_descr->nelem - first + 1;
+        }
 
         /* fits_read_col_dbl = ffgcvd */
         fits_read_col_dbl (tbl_descr->fptr, col_descr->colnum,
@@ -118,10 +126,14 @@ function value          o: actual number of elements that were read
         tbl_descr = (TableDescr *)tp;
         col_descr = (ColumnDescr *)cp;
 
-        if (nelem <= col_descr->nelem-first+1)
+        if (col_descr->var_length) {
             nret = nelem;
-        else
-            nret = col_descr->nelem - first + 1;
+        } else {
+            if (nelem <= col_descr->nelem-first+1)
+                nret = nelem;
+            else
+                nret = col_descr->nelem - first + 1;
+        }
 
         /* fits_read_col_flt = ffgcve */
         fits_read_col_flt (tbl_descr->fptr, col_descr->colnum,
@@ -158,10 +170,14 @@ function value          o: actual number of elements that were read
         tbl_descr = (TableDescr *)tp;
         col_descr = (ColumnDescr *)cp;
 
-        if (nelem <= col_descr->nelem-first+1)
+        if (col_descr->var_length) {
             nret = nelem;
-        else
-            nret = col_descr->nelem - first + 1;
+        } else {
+            if (nelem <= col_descr->nelem-first+1)
+                nret = nelem;
+            else
+                nret = col_descr->nelem - first + 1;
+        }
 
         /* fits_read_col_int = ffgcvk */
         fits_read_col_int (tbl_descr->fptr, col_descr->colnum,
@@ -198,10 +214,14 @@ function value          o: actual number of elements that were read
         tbl_descr = (TableDescr *)tp;
         col_descr = (ColumnDescr *)cp;
 
-        if (nelem <= col_descr->nelem-first+1)
+        if (col_descr->var_length) {
             nret = nelem;
-        else
-            nret = col_descr->nelem - first + 1;
+        } else {
+            if (nelem <= col_descr->nelem-first+1)
+                nret = nelem;
+            else
+                nret = col_descr->nelem - first + 1;
+        }
 
         /* fits_read_col_sht = ffgcvi */
         fits_read_col_sht (tbl_descr->fptr, col_descr->colnum,
@@ -242,10 +262,14 @@ function value          o: actual number of elements that were read
         tbl_descr = (TableDescr *)tp;
         col_descr = (ColumnDescr *)cp;
 
-        if (nelem <= col_descr->nelem-first+1)
+        if (col_descr->var_length) {
             nret = nelem;
-        else
-            nret = col_descr->nelem - first + 1;
+        } else {
+            if (nelem <= col_descr->nelem-first+1)
+                nret = nelem;
+            else
+                nret = col_descr->nelem - first + 1;
+        }
 
         if (col_descr->width >= maxch)
             len = col_descr->width;

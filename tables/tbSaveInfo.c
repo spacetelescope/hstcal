@@ -23,6 +23,7 @@ int *status             o: 0 is OK
         int typecode, datatype;         /* CFITSIO, IRAF data type codes */
         long nrows;
         long repeat;            /* number of elements in column array */
+        long offset;
         long width;
         char *errmsg;
         int i;
@@ -118,6 +119,14 @@ int *status             o: 0 is OK
             fits_get_eqcoltype (fptr, i+1, &typecode, &repeat, &width, status);
             col_descr->colnum = i + 1;          /* one indexed */
             col_descr->typecode = typecode;
+            if (typecode < 0) {
+                typecode = -typecode;           /* only change local var. */
+                col_descr->var_length = 1;      /* true, variable length */
+                /* fits_read_descript / ffgdes */
+                fits_read_descript (fptr, i+1, 1, &repeat, &offset, status);
+            } else {
+                col_descr->var_length = 0;      /* false */
+            }
             col_descr->repeat = repeat;
             if (typecode == TSTRING)
                 col_descr->nelem = repeat / width;
@@ -125,7 +134,7 @@ int *status             o: 0 is OK
                 col_descr->nelem = repeat;
             col_descr->width = width;
 
-            switch (col_descr->typecode) {
+            switch (typecode) {
             case TFLOAT:
                 datatype = IRAF_REAL;
                 break;

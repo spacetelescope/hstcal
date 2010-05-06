@@ -126,6 +126,7 @@ IRAFPointer init_cp (IRAFPointer tp) {
         }
         col_descr->typecode = 0;
         col_descr->datatype = 0;
+        col_descr->var_length = 0;
         col_descr->repeat = 0;
         col_descr->nelem = 0;
         col_descr->width = 0;
