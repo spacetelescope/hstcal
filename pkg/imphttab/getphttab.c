@@ -2,7 +2,7 @@
 # include <string.h>
 # include <stdlib.h>    /* for strtol function */
 # include <ctype.h>
-
+# include <math.h>
 # include "c_iraf.h"
 
 # include "hstio.h"
@@ -238,7 +238,7 @@ Calling routine will need to initialize and free PhotPar object using:
                 if (value == '\0'){
                     return(status=INTERNAL_ERROR);
                 }
-                printf("==> Value of %s = %g\n",photnames[extn], value);
+                printf("==> Value of %s = %0.8g\n",photnames[extn], value);
 
                 /* Free memory used to read in this row */
                 ClosePhotRow(&tabrow);
@@ -668,7 +668,8 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     double resvals[2]; /* Values from tabrow->results for interpolation */
     double resindx[2]; /* 1-D indices into tabrow->results for bounding positions*/
     int posindx;      /* N dimensional array of indices for a position */
-    int indx,pdim,ppos;
+    int indx,pdim,ppos,xdim,xpos;
+    int tabparlen;
     /* 
        intermediate products used in iterating over dims 
     */
@@ -687,7 +688,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     int computedeltadim(BoundingPoint *, BoundingPoint *);  
     long computeindex(int *, double *, int);  
     void computebounds(double *, int, double, int *, int*);  
-    int streq_ic(char *, char*);
+    int strneq_ic(char *, char*, int);
     BoundingPoint **InitBoundingPointArray(int, int);
     void FreeBoundingPointArray(BoundingPoint **, int);
     
@@ -718,8 +719,9 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
         These are the values along each dimension of the interpolation
     */
     for (p=0;p<ndim;p++){
+        tabparlen = strlen(tabrow->parnames[p]);
         for(n=0;n<obs->npar;n++){
-            if (streq_ic(tabrow->parnames[p],obs->parnames[n])){
+            if (strneq_ic(tabrow->parnames[p],obs->parnames[n],tabparlen)){
                 obsvals[p] = obs->parvalues[n];
                 break;
             }
@@ -791,7 +793,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 /* Create a bitmask for each dimension for each position */
                 byteconvert(p,ndpos,ndim);
                 for (n=0;n<ndim;n++) {
-                    pindx = bounds[pdim][ndpos[n]];
+                    pindx = bounds[n][ndpos[n]];
                     points[pdim][ppos].index[n] = (double)pindx;
                     points[pdim][ppos].pos[n] = tabrow->parvals[n][pindx];
                 }
@@ -821,17 +823,17 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 if (rinterp == '\0') return(rinterp);
                 /* Determine where the result of this interpolation should go */
                 x = floor((p-1)/2);
+                xdim = floor(x/2);
+                xpos = x%2;
                 /* update bpos and bindx for iteration over next dimension
-                for (n=0;n<ndim;n++) bpos[x][x%2][n] = bpos[pdim][ppos][n];
-                bpos[x][x%2][deltadim] = obsvals[deltadim];
                 */
-                points[x][x%2].value = rinterp;
+                points[xdim][xpos].value = rinterp;
                 for (n=0;n<ndim;n++) {
-                    points[x][x%2].index[n] = points[pdim][0].index[n];
-                    points[x][x%2].pos[n] = points[pdim][0].pos[n];
+                    points[xdim][xpos].index[n] = points[pdim][0].index[n];
+                    points[xdim][xpos].pos[n] = points[pdim][0].pos[n];
                 }
-                points[x][x%2].index[deltadim] = obsindx[deltadim];
-                points[x][x%2].pos[deltadim] = obsvals[deltadim];
+                points[xdim][xpos].index[deltadim] = obsindx[deltadim];
+                points[xdim][xpos].pos[deltadim] = obsvals[deltadim];
                 
             } /* Finished with this pair of positions (end if(ppos==1)) */
             
@@ -956,10 +958,11 @@ void byteconvert(int val, int *result, int ndim) {
 int computedeltadim(BoundingPoint *pos1, BoundingPoint *pos2){
     int p;
     int xdim;
-    
+    float diff;
     
     for (p=0;p<pos1->ndim;p++){
-        if (abs(pos2->index[p] - pos1->index[p]) > 0) {
+        diff = pos2->index[p] - pos1->index[p]; 
+        if ( diff != 0) {
             xdim = p;
             break;
         }
@@ -1167,6 +1170,26 @@ int streq_ic (char *s1, char *s2) {
 
 	c1 = 1;
 	for (i = 0;  c1 != 0;  i++) {
+
+	    c1 = s1[i];
+	    c2 = s2[i];
+	    if (isupper(c1))
+		c1 = tolower (c1);
+	    if (isupper(c2))
+		c2 = tolower (c2);
+	    if (c1 != c2)
+		return (0);
+	}
+	return (1);
+}
+
+int strneq_ic (char *s1, char *s2, int n) {
+
+	int c1, c2;
+	int i;
+
+	c1 = 1;
+	for (i = 0;  i < n;  i++) {
 
 	    c1 = s1[i];
 	    c2 = s2[i];
