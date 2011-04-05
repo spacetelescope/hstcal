@@ -1,3 +1,6 @@
+### 05-Apr-2011 - MRD -- Version 6.0.1
+    Updated CALACS to use new IMPHTTAB reference files instead of xsynphot.
+
 ### 27-Apr-2010 - WJH -- Version 5.1.1
     Updated ACSREJ to use the same 'strtor' function used by STIS and WFC3
     which correctly handles extraneous spaces within strings, such as the
