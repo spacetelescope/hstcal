@@ -78,10 +78,7 @@ Hdr *phdr       i: primary header
 	if (GetSw (phdr, "LFLGCORR", &sw->lflgcorr))
 	    return (status);
 	if (GetSw (phdr, "PHOTCORR", &sw->photcorr))
-	    return (status);
-    /* Set PHOTCORR to SKIPPED for all data until IMPHTTAB code is in place */
-    sw->photcorr = SKIPPED;
-    
+	    return (status);    
 	if (GetSw (phdr, "RPTCORR",  &sw->rptcorr))
 	    return (status);
 	if (GetSw (phdr, "SHADCORR", &sw->shadcorr))

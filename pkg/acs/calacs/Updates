@@ -1,3 +1,15 @@
+Update for version 6.0.0 - 05-Apr-11 (MRD)
+    include/acsinfo.h
+        added RefTab phot to ACSInfo struct
+        removed RefTabs graph and comp
+    calacs/sciflags.c
+        Changed photcorr reference table to IMPHTTAB
+    acs2d/get2dflags.c
+        Updated checkPhot function to find IMPHTTAB
+    acs2d/dophot.c
+        Removed variables and function prototypes no longer used.
+        Removed xsynphot functions and replaced them with imphttab functions.
+
 Update for Version 5.1.1 - 27-Apr-10 (WJH)
     acsrej/readpar.c:
         Replaced 'strtor' function with latest one from calstis/lib.

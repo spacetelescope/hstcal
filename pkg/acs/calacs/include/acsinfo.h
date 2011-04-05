@@ -119,8 +119,7 @@ typedef struct {
     RefImage cflt;      /* coronographic (spot) flat */
     RefImage shad;      /* shutter shading correction image */
     RefTab mlin;        /* MAMA nonlinearity info table */
-    RefTab graph;        /* synphot graph table */
-    RefTab comp;     /* synphot components table */
+    RefTab phot;        /* photometry table (processed from pysynphot) */
 } ACSInfo;
 
 /* This contains the throughput curve (from _pht table) and the aperture

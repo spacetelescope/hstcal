@@ -127,8 +127,7 @@ void ACSInit (ACSInfo *acs) {
 	InitRefImg (&(acs->cflt));
 	InitRefImg (&(acs->shad));
 	InitRefTab (&(acs->mlin));
-	InitRefTab (&(acs->graph));
-	InitRefTab (&(acs->comp));
+	InitRefTab (&(acs->phot));
 	
 }
 

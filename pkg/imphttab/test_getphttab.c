@@ -20,17 +20,17 @@ int main(int argc, char **argv){
     printf("==> Initialized IRAF environment for getphttab.\n");
 
     /* Test cases for interpolation half-way points for 2 par. values */
-    strcpy(photmode,"acs,wfc1,mjd#54718.0,fr853n#8344.75"); 
+    strcpy(photmode,"acs,wfc1,fr853n#8344.75,mjd#54718.0");
     computeValues(photmode);
-    strcpy(photmode,"acs,wfc1,mjd#54718.0,fr853n#8307.4");
+    strcpy(photmode,"acs,wfc1,fr853n#8307.4,mjd#54718.0");
     computeValues(photmode);
     strcpy(photmode,"acs,wfc1,mjd#54718.0,fr853n#8382.1");
     computeValues(photmode);
-    strcpy(photmode,"acs,wfc1,mjd#55516.0,fr853n#8344.75");
+    strcpy(photmode,"acs,wfc1,fr853n#8344.75,mjd#55516.0");
     computeValues(photmode);
     strcpy(photmode,"acs,wfc1,mjd#53920.0,fr853n#8344.75");
     computeValues(photmode);
-    strcpy(photmode,"acs,wfc1,mjd#53920.0,fr853n#8382.1");
+    strcpy(photmode,"acs,wfc1,fr853n#8382.1,mjd#53920.0");
     computeValues(photmode);
 
     /* Random test case of 2 parameterized variables */
@@ -47,8 +47,7 @@ void computeValues(char *photmode){
     int status;
     char refname[SZ_LINE], refpedigree[SZ_FITS_REC];
     
-    /*strcpy(refname,"acstest_v2_imp.fits"); */
-    strcpy(refname,"acs_2dv1_imp.fits");
+    strcpy(refname,"test_wfc1_imp.fits");
     strcpy(refpedigree,"Inflight calibrations");
 
     printf("\n\n==> PHOTMODE: %s\n",photmode);

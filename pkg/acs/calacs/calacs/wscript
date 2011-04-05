@@ -11,7 +11,7 @@ def build(bld):
             '../include'
             ],
         # The order of these libraries is important
-        uselib_local = ['calacs'] + bld.env.LOCAL_LIBS,
+        uselib_local = ['calacs','imphttab'] + bld.env.LOCAL_LIBS,
         uselib = ['CFITSIO'],
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
