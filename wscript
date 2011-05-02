@@ -27,6 +27,8 @@ SUBDIRS = [
     'tables',
     ]
 
+FFLAGS = [ ]
+
 # Support for .f files
 @extension('.f')
 def process_fortran(self, node):
@@ -107,9 +109,12 @@ def configure(conf):
 def build(bld):
     # Add support for simple Fortran files.  This isn't a complete Fortran
     # solution, but it meets the simple .f -> .o mapping we use here.
+    if not '-m32' in FFLAGS and not '-m64' in FFLAGS :
+        if os_name in ( 'snowleopard', 'lion' ) :
+            FFLAGS.append('-m64')
     Task.simple_task_type(
         'fortran',
-        bld.env.FORTRAN_COMPILER + ' -c ${SRC} -o ${TGT}',
+        '%s %s -c ${SRC} -o ${TGT}'%( bld.env.FORTRAN_COMPILER, ' '.join(FFLAGS) ),
         color='GREEN',
         ext_out='.o',
         ext_in='.f')
@@ -166,3 +171,43 @@ def test(ctx):
         if library.endswith('test'):
             if os.system('nosetests %s' % library):
                 raise Exception("Tests failed")
+
+
+#####
+# OS detection
+#####
+
+os_name = 'unknown'
+
+try :
+    import platform
+    if platform.system() == 'Darwin' :
+        # do not use any of the other features of platform.  They
+        # do not work reliably across all the python interpreters
+        # that we have.  Ask system_profiler because it always knows.
+        f = platform.popen("system_profiler | sed -n 's/System Version: Mac OS X//p' ")
+        s= f.read()
+
+        # this is going to look something like "       10.5.8 (9L31a)\n"
+        s = s.strip()
+
+        # break out just the OS version number
+        if ' ' in s :
+            s = s.split(' ')[0]
+        if '(' in s :
+            s = s.split(' ')[0]
+
+        # pick out just the X.Y part
+        s = '.'.join(s.split('.')[0:2])
+
+        if s == '10.5' :
+            os_name = 'leopard'
+        elif s == '10.6' :
+            os_name = 'snowleopard'
+        elif s == '10.7' :
+            os_name = 'lion'
+        else :
+            print "Do not recognize this Mac OS"
+            print "(only know 10.5-10.7)"
+except :
+        raise 
