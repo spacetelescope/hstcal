@@ -195,7 +195,7 @@ try :
         if ' ' in s :
             s = s.split(' ')[0]
         if '(' in s :
-            s = s.split(' ')[0]
+            s = s.split('(')[0]
 
         # pick out just the X.Y part
         s = '.'.join(s.split('.')[0:2])
