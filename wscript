@@ -3,6 +3,7 @@
 import os, platform, shutil, sys
 
 import Configure
+import Logs
 import Options
 import Scripting
 import Task
@@ -26,8 +27,6 @@ SUBDIRS = [
     'pkg',
     'tables',
     ]
-
-FFLAGS = [ ]
 
 # Support for .f files
 @extension('.f')
@@ -54,6 +53,44 @@ def set_options(opt):
     option_parser = opt.parser
 
 def configure(conf):
+    # On Mac OS-X, we need to know the specific version in order to
+    # send some compile flags to the Fortran compiler.
+    import platform
+    conf.env.MAC_OS_NAME = None
+    if platform.system() == 'Darwin' :
+        conf.check_message_1('Determining Mac OS-X version')
+
+        # do not use any of the other features of platform.  They
+        # do not work reliably across all the python interpreters
+        # that we have.  Ask system_profiler because it always knows.
+        f = platform.popen("/usr/sbin/system_profiler | sed -n 's/System Version: Mac OS X//p' ")
+        s = f.read()
+
+        # this is going to look something like "       10.5.8 (9L31a)\n"
+        s = s.strip()
+
+        # break out just the OS version number
+        if ' ' in s:
+            s = s.split(' ')[0]
+        if '(' in s:
+            s = s.split('(')[0]
+
+        # pick out just the X.Y part
+        s = '.'.join(s.split('.')[0:2])
+
+        conf.env.MAC_OS_NAME = None
+        if s == '10.5':
+            conf.env.MAC_OS_NAME = 'leopard'
+        elif s == '10.6':
+            conf.env.MAC_OS_NAME = 'snowleopard'
+        elif s == '10.7':
+            conf.env.MAC_OS_NAME = 'lion'
+
+        if conf.env.MAC_OS_NAME:
+            Utils.pprint('GREEN', conf.env.MAC_OS_NAME)
+        else:
+            Utils.pprint('YELLOW', "Do not recognize this Mac OS only know 10.5-10.7")
+
     # Read in options from a file.  The file is just a set of
     # commandline arguments in the same syntax.  May be spread across
     # multiple lines.
@@ -85,7 +122,7 @@ def configure(conf):
     # executables
     conf.env.EXTERNAL_LIBS = ['m']
     if sys.platform.startswith('sunos'):
-            conf.env.EXTERNAL_LIBS += ['socket', 'nsl']
+        conf.env.EXTERNAL_LIBS += ['socket', 'nsl']
 
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = []
@@ -102,6 +139,10 @@ def configure(conf):
         raise Configure.ConfigurationError(
             "No Fortran compiler found.")
 
+    conf.env.FFLAGS = []
+    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion') :
+        conf.env.FFLAGS.append('-m64')
+
     # The configuration related to cfitsio is stored in
     # cfitsio/wscript
     conf.recurse('cfitsio')
@@ -109,12 +150,9 @@ def configure(conf):
 def build(bld):
     # Add support for simple Fortran files.  This isn't a complete Fortran
     # solution, but it meets the simple .f -> .o mapping we use here.
-    if not '-m32' in FFLAGS and not '-m64' in FFLAGS :
-        if os_name in ( 'snowleopard', 'lion' ) :
-            FFLAGS.append('-m64')
     Task.simple_task_type(
         'fortran',
-        '%s %s -c ${SRC} -o ${TGT}'%( bld.env.FORTRAN_COMPILER, ' '.join(FFLAGS) ),
+        '%s %s -c ${SRC} -o ${TGT}' % (bld.env.FORTRAN_COMPILER, ' '.join(bld.env.FFLAGS)),
         color='GREEN',
         ext_out='.o',
         ext_in='.f')
@@ -172,42 +210,3 @@ def test(ctx):
             if os.system('nosetests %s' % library):
                 raise Exception("Tests failed")
 
-
-#####
-# OS detection
-#####
-
-os_name = 'unknown'
-
-try :
-    import platform
-    if platform.system() == 'Darwin' :
-        # do not use any of the other features of platform.  They
-        # do not work reliably across all the python interpreters
-        # that we have.  Ask system_profiler because it always knows.
-        f = platform.popen("/usr/sbin/system_profiler | sed -n 's/System Version: Mac OS X//p' ")
-        s= f.read()
-
-        # this is going to look something like "       10.5.8 (9L31a)\n"
-        s = s.strip()
-
-        # break out just the OS version number
-        if ' ' in s :
-            s = s.split(' ')[0]
-        if '(' in s :
-            s = s.split('(')[0]
-
-        # pick out just the X.Y part
-        s = '.'.join(s.split('.')[0:2])
-
-        if s == '10.5' :
-            os_name = 'leopard'
-        elif s == '10.6' :
-            os_name = 'snowleopard'
-        elif s == '10.7' :
-            os_name = 'lion'
-        else :
-            print "Do not recognize this Mac OS"
-            print "(only know 10.5-10.7)"
-except :
-        raise 
