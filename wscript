@@ -185,7 +185,7 @@ try :
         # do not use any of the other features of platform.  They
         # do not work reliably across all the python interpreters
         # that we have.  Ask system_profiler because it always knows.
-        f = platform.popen("system_profiler | sed -n 's/System Version: Mac OS X//p' ")
+        f = platform.popen("/usr/sbin/system_profiler | sed -n 's/System Version: Mac OS X//p' ")
         s= f.read()
 
         # this is going to look something like "       10.5.8 (9L31a)\n"
