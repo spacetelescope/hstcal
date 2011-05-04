@@ -2,12 +2,13 @@
 
 def build(bld):
     bld(
-        features = ['cc', 'cstaticlib'],
+        # Use Fortran
+        features = ['fc', 'fcstlib'],
         source = [
             'ncarfft.f'
             ],
         target = 'applib',
         install_path = '${PREFIX}/lib',
         )
-    
-    
+
+

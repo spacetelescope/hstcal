@@ -2,18 +2,10 @@
 import os
 
 def build_test(bld, name):
-    return bld(
-        features = ['cc', 'cprogram'],
+    return bld.program(
         source = name,
         target = os.path.splitext(name)[0],
-        includes = [
-            bld.env.INCLUDEDIR, # the hstcal include directory
-            '.',
-            '../include'
-            ],
-        # The order of these libraries is important
-        uselib_local = bld.env.LOCAL_LIBS,
-        uselib = ['CFITSIO'],
+        use = bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin/test'

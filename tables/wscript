@@ -1,10 +1,9 @@
 import os
 
 def build(bld):
-    t = bld(
-        features = ['cc', 'cstaticlib'],
+    t = bld.stlib(
         source = """
-            c_imt.c addCol.c ctables.c c_tbagt.c c_tbapt.c 
+            c_imt.c addCol.c ctables.c c_tbagt.c c_tbapt.c
             c_tbcdef1.c c_tbcfnd1.c c_tbciga.c c_tbcigi.c c_tbcigt.c
             c_tbcinf.c c_tbcnum.c c_tbegt.c c_tbept.c c_tbfpri.c c_tbfres.c
             c_tbhad.c c_tbhcal.c c_tbhgcm.c c_tbhgnp.c c_tbhgt.c c_tbhpcm.c
@@ -14,11 +13,8 @@ def build(bld):
             tbSaveInfo.c c_phopar.c
             """,
         target = 'xtables',
-        includes = [
-            bld.env.INCLUDEDIR, # the hstcal include directory
-            '.',
-            ],
         install_path = '${PREFIX}/lib',
+        use = 'CFITSIO'
         )
-        
-    
+
+

@@ -4,8 +4,7 @@
 # various acs* directories.
 
 def build(bld):
-    t = bld(
-        features = ['cc', 'cstaticlib'],
+    t = bld.stlib(
         source = """
             acshist.c  acsinfo.c   acssect.c   addk2d.c  bin2d.c   bincoords.c
             binupdate.c   comparenum.c   defswitch.c   detchip.c
@@ -27,36 +26,33 @@ def build(bld):
             ../acs2d/doshad.c   ../acs2d/dospot.c   ../acs2d/get2dflags.c
             ../acs2d/getlintab.c   ../acs2d/getspottab.c
             ../acs2d/photmode.c ../acs2d/sanity2d.c
-            
+
             ../acsccd/acsccd.c   ../acsccd/blevdrift.c ../acsccd/blevfit.c
             ../acsccd/doatod.c   ../acsccd/dobias.c ../acsccd/doblev.c
             ../acsccd/doccd.c   ../acsccd/doflash.c ../acsccd/findblev.c
             ../acsccd/findover.c ../acsccd/getacsflag.c
             ../acsccd/getccdsw.c
-            
+
             ../acsrej/acsrej.c ../acsrej/acsrej_check.c
             ../acsrej/acsrej_do.c ../acsrej/acsrej_init.c
             ../acsrej/acsrej_loop.c ../acsrej/acsrej_sky.c
             ../acsrej/cr_history.c ../acsrej/cr_mode.c
-            ../acsrej/cr_scaling.c 
+            ../acsrej/cr_scaling.c
             ../acsrej/piksrt.c ../acsrej/readpar.c ../acsrej/rej_command.c
-               
+
             ../acssum/acssum.c
 
-            ../calacs/acsdth.c   ../calacs/acsinit.c   
+            ../calacs/acsdth.c   ../calacs/acsinit.c
             ../calacs/acsmember.c ../calacs/acstable.c
             ../calacs/calacs.c   ../calacs/getflags.c
             ../calacs/getnewref.c ../calacs/getsciinfo.c
-            ../calacs/refexist.c   ../calacs/sciflags.c   
+            ../calacs/refexist.c   ../calacs/sciflags.c
             """,
         target = 'calacs',
-        includes = [
-            bld.env.INCLUDEDIR, # the hstcal include directory
-            '.',
-            '../include'
-            ],
         install_path = '${PREFIX}/lib',
-        uselib = 'CFITSIO'
+        use = ['CFITSIO'],
+        includes = ['../include'],
+        export_includes = ['../include']
         )
-        
-    
+
+

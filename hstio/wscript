@@ -1,21 +1,13 @@
 # vim: set syntax=python:
 
 def build(bld):
-    bld.path.find_dir('include')
-
-    t = bld(
-        features = ['cc', 'cstaticlib'],
+    t = bld.stlib(
         source = [
             'hstio.c',
             'numeric.c',
             'keyword.c'
             ],
         target = 'hstio',
-        includes = [
-            bld.env.INCLUDEDIR, # the hstcal include directory
-            '.',
-            ],
-        install_path = '${PREFIX}/lib',
+        uselib = ['CFITSIO'],
+        install_path = '${PREFIX}/lib'
         )
-        
-    

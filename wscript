@@ -8,7 +8,7 @@ import Options
 import Scripting
 import Task
 import Utils
-from TaskGen import extension
+import TaskGen
 
 APPNAME = 'hstcal'
 VERSION = '0.1'
@@ -18,8 +18,8 @@ out = 'build.' + platform.platform()
 
 # A list of subdirectories to recurse into
 SUBDIRS = [
+    'cfitsio', # cfitsio needs to go first
     'applib',
-    'cfitsio',
     'cvos',
     'hstio',
     'hstio/test',
@@ -28,25 +28,19 @@ SUBDIRS = [
     'tables',
     ]
 
-# Support for .f files
-@extension('.f')
-def process_fortran(self, node):
-    o_node = node.change_ext('.o')
-    self.create_task('fortran', [node], [o_node])
-    self.add_obj_file(o_node.file())
-
 # Have 'waf dist' create tar.gz files, rather than tar.bz2 files
 Scripting.g_gz = 'gz'
 
 option_parser = None
-def set_options(opt):
+def options(opt):
     # Normally, custom options would be set here.  We don't really
     # have any, but we want to store the option parser object so we
     # can use it later (during the configuration phase) to parse
     # options stored in a file.
     global option_parser
 
-    opt.tool_options('compiler_cc')
+    opt.load('compiler_c')
+    opt.load('compiler_fc')
 
     # Store the option_parser so we can use it to parse options from a
     # file
@@ -58,7 +52,7 @@ def configure(conf):
     import platform
     conf.env.MAC_OS_NAME = None
     if platform.system() == 'Darwin' :
-        conf.check_message_1('Determining Mac OS-X version')
+        conf.start_msg('Determining Mac OS-X version')
 
         # do not use any of the other features of platform.  They
         # do not work reliably across all the python interpreters
@@ -87,9 +81,14 @@ def configure(conf):
             conf.env.MAC_OS_NAME = 'lion'
 
         if conf.env.MAC_OS_NAME:
-            Utils.pprint('GREEN', conf.env.MAC_OS_NAME)
+            conf.end_msg(conf.env.MAC_OS_NAME, 'GREEN')
         else:
-            Utils.pprint('YELLOW', "Do not recognize this Mac OS only know 10.5-10.7")
+            conf.end_msg(
+                "Do not recognize this Mac OS only know 10.5-10.7",
+                'YELLOW')
+
+    # NOTE: All of the variables in conf.env are defined for use by
+    # wscript files in subdirectories.
 
     # Read in options from a file.  The file is just a set of
     # commandline arguments in the same syntax.  May be spread across
@@ -104,19 +103,19 @@ def configure(conf):
                     Options.options.__dict__[key] = val
         fd.close()
 
-    # Check for the existence of a C compiler
-    conf.check_tool('compiler_cc')
+    conf.load('compiler_c')
+    conf.load('compiler_fc')
 
-    # NOTE: All of the variables in conf.env are defined for use by
-    # wscript files in subdirectories.
+    # Check for the existence of a Fortran compiler
+    conf.check_fortran()
 
     # Set the location of the hstcal include directory
-    conf.env.INCLUDEDIR = os.path.join(
-        os.path.abspath(conf.srcdir), 'include') # the hstcal include directory
+    conf.env.INCLUDES = os.path.abspath('include') # the hstcal include directory
 
     # A list of the local (hstcal) libraries that are typically linked
     # with the executables
-    conf.env.LOCAL_LIBS = ['applib', 'xtables', 'hstio', 'cvos']
+    conf.env.LOCAL_LIBS = [
+        'applib', 'xtables', 'hstio', 'cvos', 'CFITSIO']
 
     # A list of external libraries that are typically linked with the
     # executables
@@ -127,39 +126,20 @@ def configure(conf):
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = []
 
-    # Find a suitable Fortran compiler
-    for compiler in ('f77', 'gfortran'):
-        try:
-            conf.find_program(compiler, mandatory=True)
-            conf.env.FORTRAN_COMPILER = compiler
-            break
-        except Configure.ConfigurationError:
-            pass
-    if conf.env.FORTRAN_COMPILER == []:
-        raise Configure.ConfigurationError(
-            "No Fortran compiler found.")
-
-    conf.env.FFLAGS = []
     if conf.env.MAC_OS_NAME in ('snowleopard', 'lion') :
-        conf.env.FFLAGS.append('-m64')
+        conf.env.append_value('FCFLAGS', '-m64')
 
     # The configuration related to cfitsio is stored in
     # cfitsio/wscript
     conf.recurse('cfitsio')
 
 def build(bld):
-    # Add support for simple Fortran files.  This isn't a complete Fortran
-    # solution, but it meets the simple .f -> .o mapping we use here.
-    Task.simple_task_type(
-        'fortran',
-        '%s %s -c ${SRC} -o ${TGT}' % (bld.env.FORTRAN_COMPILER, ' '.join(bld.env.FFLAGS)),
-        color='GREEN',
-        ext_out='.o',
-        ext_in='.f')
-
     # Recurse into all of the libraries
     for library in SUBDIRS:
         bld.recurse(library)
+
+    if bld.cmd == 'clean':
+        return clean(bld)
 
     # Add a post-build callback function
     bld.add_post_fun(post_build)
@@ -169,7 +149,9 @@ def post_build(bld):
     # emulate the old stsdas way of creating a flat directory full of
     # .a and .e files.  This simply runs through the build tree and
     # copies such files to the bin.* directory.
-    src_root = bld.srcnode.abspath(bld.env)
+    src_root = os.path.join(
+        bld.srcnode.abspath(),
+        'build.' + platform.platform())
     dst_root = os.path.join(
         bld.srcnode.abspath(),
         'bin.' + platform.platform())
@@ -190,12 +172,6 @@ def clean(ctx):
     bin_root = 'bin.' + platform.platform()
     if os.path.exists(bin_root):
         shutil.rmtree(bin_root)
-
-    # CFITSIO is built using its own standard Makefile
-    Utils.cmd_output('cd cfitsio; make clean; cd ..')
-
-    # Delegate to the built-in waf clean command
-    Scripting.clean(ctx)
 
 def test(ctx):
     # Recurse into all of the libraries

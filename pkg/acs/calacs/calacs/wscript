@@ -1,20 +1,12 @@
 # vim: set syntax=python:
 
 def build(bld):
-    t = bld(
-        features = ['cc', 'cprogram'],
+    t = bld.program(
         source = 'acsmain.c',
         target = 'calacs.e',
-        includes = [
-            bld.env.INCLUDEDIR, # the hstcal include directory
-            '.',
-            '../include'
-            ],
-        # The order of these libraries is important
-        uselib_local = ['calacs','imphttab'] + bld.env.LOCAL_LIBS,
-        uselib = ['CFITSIO'],
+        use = ['calacs', 'imphttab'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'
         )
-    
+

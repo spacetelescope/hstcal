@@ -4,8 +4,7 @@
 # various cs* directories.
 
 def build(bld):
-    t = bld(
-        features = ['cc', 'cstaticlib'],
+    t = bld.stlib(
         source = """
             add2d.c addk2d.c bin2d.c bincoords.c binupdate.c
             blazecorr.c checkimsetok.c defswitch.c div2d.c dostat.c
@@ -104,13 +103,10 @@ def build(bld):
             ../cs12/targpos.c
             """,
         target = 'calstis',
-        includes = [
-            bld.env.INCLUDEDIR, # the hstcal include directory
-            '.',
-            '../include'
-            ],
         install_path = '${PREFIX}/lib',
-        uselib = 'CFITSIO'
+        use = 'CFITSIO',
+        includes = ['../include'],
+        export_includes = ['../include']
         )
-        
-    
+
+
