@@ -5,6 +5,7 @@ cfitsio/        CFITSIO, compiled on herbert
 cvos/           copied from Mike's directory and modified to remove iraf
 hstio/          copied from Mike's directory and modified to remove iraf
 stisdata/       directory containing a stis exposure for testing
+waf_patches/	local patches to waf; see waf_patches/README
 
 c_iraf.h
 hstio.h
