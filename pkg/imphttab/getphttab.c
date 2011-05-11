@@ -302,7 +302,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 	int i, j, missing;
   int parnum;
   
-	int PrintMissingCols (int, int, int *, char **, char *, IRAFPointer);
+	int PrintMissingCols_IMPHTTAB (int, int, int *, char **, char *, IRAFPointer);
   int buildTabName (char *, char *, char *);
   
   /* allocate space for column names to be read from this table */
@@ -381,7 +381,8 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 	if (tabinfo->cp_obsmode == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_datacol == 0 ) { missing++; nocol[i] = YES;} i++;
 	
-	if (PrintMissingCols (missing, tabinfo->ncols, nocol, colnames, "IMPHTTAB", tabinfo->tp) )
+	if (PrintMissingCols_IMPHTTAB(missing, tabinfo->ncols, nocol, colnames, 
+                                "IMPHTTAB", tabinfo->tp) )
 		return(status);
   
 	/* Pedigree and descrip are optional columns. */
@@ -633,10 +634,10 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
   tabrow->telem = 1;
   
   if (tabrow->parnum == 0){
-    tabrow->parvals = (double **)calloc(1,sizeof(double *));
-    tabrow->parvals[0] = (double *) calloc(1,sizeof(double));
-    tabrow->nelem = calloc(1,sizeof(float));
-    tabrow->results = calloc(1,sizeof(double));
+    tabrow->parvals = (double **) malloc(sizeof(double *));
+    tabrow->parnames = (char **) malloc(sizeof(char *));
+    tabrow->nelem = (int *) malloc(sizeof(int));
+    tabrow->results = (double *) malloc(sizeof(double));
     c_tbegtd (tabinfo->tp, tabinfo->cp_result[0], row, &tabrow->results[0]);
     if (c_iraferr())
       return (status = TABLE_ERROR);
@@ -646,11 +647,11 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
      */
     /* Initialize NELEM arrays based on number of parameterized values 
      that need to be interpreted for this obsmode */
-    tabrow->nelem = calloc(tabrow->parnum+1, sizeof(int));
-    tabrow->parvals = (double **)calloc(tabrow->parnum, sizeof(double *));
-    tabrow->parnames = (char **)calloc(tabrow->parnum, sizeof(char *));
+    tabrow->nelem = (int *) malloc((tabrow->parnum+1) * sizeof(int));
+    tabrow->parvals = (double **) malloc(tabrow->parnum * sizeof(double *));
+    tabrow->parnames = (char **) malloc(tabrow->parnum * sizeof(char *));
     for (i=0,n=1; i<tabrow->parnum; i++,n++){
-      tabrow->parnames[i] = (char *) calloc (SZ_COLNAME, sizeof(char));
+      tabrow->parnames[i] = (char *) malloc (SZ_COLNAME * sizeof(char));
       /* 
        Copy name of parameterized value as defined in PRIMARY header 
        into this row's structure for matching with obsmode later
@@ -678,7 +679,7 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
         return (status = TABLE_ERROR);
       /* Now that we have found how many elements are in this paramaters
        array, we can use that to allocate memory for the values */
-      tabrow->parvals[col] = (double *) calloc (tabrow->nelem[n], sizeof(double));
+      tabrow->parvals[col] = (double *) malloc (tabrow->nelem[n] * sizeof(double));
       
       /* Read in parameterized values for this variable */
       c_tbagtd (tabinfo->tp, tabinfo->cp_parvalues[n], row, tabrow->parvals[col], 1, tabrow->nelem[n]);
@@ -692,7 +693,7 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
     
     /* Now that we have read in all the parameterized variable values,
      we know how many elements will be read in for the results */
-    tabrow->results = calloc(tabrow->telem,sizeof(double));
+    tabrow->results = (double *) malloc(tabrow->telem * sizeof(double));
     
     /* Start by reading in the full set of results from the 
      specified results column */
