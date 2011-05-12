@@ -125,7 +125,6 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
   extern int status;
   extern char *photnames[];
   
-  
   /* Interpret OBSMODE string from science file header for
    comparison with obsmode values in reference table
    primarily by stripping out any parameterized values */
@@ -165,7 +164,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
 	} else {
     tabinfo.parnum = getIntKw(key);
 	}
-
+  
   /* commented out because this keyword doesn't seem to be part of the phottab
    * anymore. MRD 4/4/2011 */
 //  tabinfo.parnames = (char **)calloc(tabinfo.parnum+1, sizeof(char *));
@@ -475,7 +474,6 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
       /* concatentate the '#'  back to the end of the parname */
       strcat(obs->parnames[i],"#");
     }
-    
     /* Now build up the new obsmode string for comparison with the 
      reference IMPHTTAB table obsmode */
     /* 
@@ -505,12 +503,15 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
       strcat(obs->obsmode,obsnames[i]);
       if (i < obselems-1)strcat(obs->obsmode,",");
     }
+    
+    /* Free memory */ 
+    for (i=0;i<obselems;i++)
+        free(obsnames[i]);
+    free(obsnames);
+    
   } else {
     strcpy(obs->obsmode, photmode);
   }   
-  /* Free memory */ 
-  for (i=0;i<obselems;i++) free(obsnames[i]);
-  free(obsnames);
   
   return(PHOT_OK);
 }
