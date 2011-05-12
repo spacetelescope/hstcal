@@ -72,6 +72,12 @@
 ** M. Droettboom, January 2010:
 ** Change to use CFITSIO rather than IRAF IMIO routines.
 **
+** Phil Hodge, May 2011:
+** In putHeader, check status after calling fits_update_key or fits_delete_key.
+** For fits_update_key, if status is non-zero return -1.  For fits_delete_key,
+** however, if status is KEY_NO_EXIST, clear the error messages and set status
+** to 0.
+**
 ** Table of Contents
 **
 ** Section 1.
@@ -2067,18 +2073,46 @@ int putHeader(IODescPtr iodesc_) {
 
             /* set the pixel type */
             fits_update_key(iodesc->ff, TINT, "BITPIX", &(iodesc->type), "", &status);
+            if (status) {
+                ioerr(BADWRITE, iodesc, status);
+                return -1;
+            }
             if (iodesc->dims[0] == 0 && iodesc->dims[1] == 0) {
                 tmp = 0;
                 fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, "", &status);
+                if (status) {
+                    ioerr(BADWRITE, iodesc, status);
+                    return -1;
+                }
                 fits_delete_key(iodesc->ff, "NAXIS1", &status);
+                if (status == KEY_NO_EXIST) {
+                    fits_clear_errmsg();
+                    status = 0;
+                }
                 fits_delete_key(iodesc->ff, "NAXIS2", &status);
+                if (status == KEY_NO_EXIST) {
+                    fits_clear_errmsg();
+                    status = 0;
+                }
             } else if (iodesc->dims[0] != 0 && iodesc->dims[1] == 0) {
                 /* set the number of dimensions */
                 tmp = 1;
                 fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, "", &status);
+                if (status) {
+                    ioerr(BADWRITE, iodesc, status);
+                    return -1;
+                }
                 /* set dim1 */
                 fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], "", &status);
+                if (status) {
+                    ioerr(BADWRITE, iodesc, status);
+                    return -1;
+                }
                 fits_delete_key(iodesc->ff, "NAXIS2", &status);
+                if (status == KEY_NO_EXIST) {
+                    fits_clear_errmsg();
+                    status = 0;
+                }
             } else {
                 /* set the number of dimensions */
                 tmp = 2;
