@@ -5,41 +5,50 @@
 
 import glob
 import os
+import shutil
 
 def configure(ctx):
     ctx.find_program('make')
 
-    ctx.start_msg('Configuring cfitsio')
-    ctx.exec_command('cd cfitsio; ./configure; cd ..')
+    src_path = os.path.abspath('cfitsio')
+    platform_path = os.path.join(ctx.bldnode.abspath(), 'cfitsio')
+
+    ctx.start_msg('Copying cfitsio')
+    if os.path.exists(platform_path):
+        shutil.rmtree(platform_path)
+    shutil.copytree(src_path, platform_path)
     ctx.end_msg('done', 'GREEN')
 
-    ctx.env.LIBPATH_CFITSIO = [os.path.abspath('cfitsio')]
-    ctx.env.INCLUDES_CFITSIO = [os.path.abspath('cfitsio')]
+    ctx.start_msg('Configuring cfitsio')
+    pwd = os.getcwd()
+    ctx.exec_command('cd %s; ./configure; cd %s' % (platform_path, pwd))
+    ctx.end_msg('done', 'GREEN')
+
+    ctx.env.LIBPATH_CFITSIO = [platform_path]
+    ctx.env.INCLUDES_CFITSIO = [src_path]
     ctx.env.STLIB_CFITSIO = ['cfitsio']
 
 def build(ctx):
     if ctx.cmd == 'clean':
         return clean(ctx)
 
+    platform_path = ctx.env.LIBPATH_CFITSIO[0]
+
+
     def run_makefile(task):
         # cd into the cfitsio directory, run 'make', step back out
         pwd = os.getcwd()
-        cwd = os.path.join(ctx.srcnode.abspath(), 'cfitsio')
+        cwd = platform_path
         task.exec_command('cd %s; make; cd %s' % (cwd, pwd))
-
-        # copy the .a file to waf's build heirarchy so it knows
-        # the build product has been created
-        src = os.path.join(cwd, 'libcfitsio.a')
-        dst = os.path.join(ctx.bldnode.abspath(), 'cfitsio')
-        task.exec_command('cp %s %s' % (src, dst))
 
     # Just assume all .c and .h files in the cfitsio directory
     # contribute to libcfitsio.a.  The CFITSIO Makefile itself will
     # worry about the details
     sources = [
         os.path.basename(x) for x in
-        glob.glob('cfitsio/*.c') + glob.glob('cfitsio/*.h')] + \
-        ['configure']
+        glob.glob(os.path.join(platform_path, '*.c')) +
+        glob.glob(os.path.join(platform_path, '*.h')) +
+        [os.path.join(platform_path, 'configure')]]
 
     ctx(
         name='cfitsio',
