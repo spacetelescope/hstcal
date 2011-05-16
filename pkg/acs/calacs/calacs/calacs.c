@@ -41,7 +41,9 @@
         Fix involved using subprod.mtype instead of prod.mtype.     
     WJH, 2005 Feb 14:
         Removed any reference to updateAsnStat, since only OPUS should
-        update the ASN_STAT keyword in the ASN table header. 
+        update the ASN_STAT keyword in the ASN table header.
+    MRD, 2011 May 16:
+        Updated CopyFFile so that it updates the FILENAME header keyword on copy
 */
 
 
@@ -991,6 +993,11 @@ char *outfile   i: name of output file
 	void *buf;		/* buffer for copying blocks */
 	int nin, nout;		/* number read and written */
 	int done;
+  IODescPtr im;
+  Hdr phdr;
+  
+  /* from calacs/lib */
+  void UFilename (char *filename, Hdr *phdr);
 
 	if ((buf = calloc (FITS_BUFSIZE, sizeof(char))) == NULL)
 	    return (status = OUT_OF_MEMORY);
@@ -1040,6 +1047,16 @@ char *outfile   i: name of output file
 	fclose (ofp);
 	fclose (ifp);
 	free (buf);
+  
+  /* Update the FILENAME keyword in the primary header of the  
+   * output file. */ 
+ 	initHdr (&phdr); 
+ 	im = openUpdateImage (outfile, "", 0, &phdr); 
+ 	UFilename (outfile, &phdr); 
+ 	putHeader (im); 
+ 	
+ 	closeImage (im); 
+ 	freeHdr (&phdr); 
 
 	return (status);
 }
