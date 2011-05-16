@@ -156,61 +156,6 @@ int extver       i: "imset" number, the current set of extensions
 	if( FindOverscan (acs, x.sci.data.nx, x.sci.data.ny, &overscan))
         return (status);
 
-	/* Fill in the error array, if it initially contains all zeros. */
-	if (acs->noisecorr == PERFORM) {
-	    if (doNoise (acs, &x, &done))
-		return (status);
-	    if (done) {
-		if (extver == 1) {
-		    if (noiseHistory (x.globalhdr))
-			return (status);
-		}
-		trlmessage ("    Uncertainty array initialized,");
-		buff[0] = '\0';
-		
-		sprintf(MsgText, "    readnoise =");
-		for (i=0; i < NAMPS-1; i++) {
-			if (acs->readnoise[i] > 0) {
-				sprintf (buff, "%.5g,",acs->readnoise[i]);
-				strcat (MsgText, buff);
-			}
-		}
-		if (acs->readnoise[NAMPS-1] > 0) {
-			sprintf(buff, "%.5g",acs->readnoise[NAMPS-1]);
-			strcat (MsgText, buff);
-		}
-		trlmessage (MsgText);
-
-		sprintf(MsgText, "    gain =");
-		for (i=0; i < NAMPS-1; i++) {
-			if (acs->atodgain[i] > 0) { 
-				sprintf(buff, "%.5g,",acs->atodgain[i]);
-				strcat (MsgText, buff);
-			}
-		}
-		if (acs->atodgain[NAMPS-1] > 0) { 
-			sprintf(buff, "%.5g",acs->atodgain[NAMPS-1]);
-			strcat (MsgText, buff);
-		}
-		trlmessage (MsgText);
-		sprintf(MsgText, "   default bias levels =");
-		for (i=0; i < NAMPS-1; i++) {
-			if (acs->ccdbias[i] > 0) { 
-				sprintf(buff, "%.5g,",acs->ccdbias[i]);
-				strcat (MsgText, buff);
-			}
-		}
-		if (acs->ccdbias[NAMPS-1] > 0) { 
-			sprintf(buff, "%.5g",acs->ccdbias[NAMPS-1]);
-			strcat (MsgText, buff);
-		}
-		trlmessage (MsgText);
-				
-		if (acs->printtime)
-		    TimeStamp ("Uncertainty array initialized", acs->rootname);
-		}
-	}
-
 	/* Data quality initialization and (for the CCDs) check saturation. */
 	dqiMsg (acs, extver);
 	if (acs->dqicorr == PERFORM || acs->dqicorr == DUMMY) {
@@ -286,9 +231,64 @@ int extver       i: "imset" number, the current set of extensions
 		TimeStamp ("BLEVCORR complete", acs->rootname);
 	}
 	if (extver == 1 && !OmitStep (acs->blevcorr))
-	    if (blevHistory (acs, x.globalhdr, done, driftcorr))
-		return (status);
+    if (blevHistory (acs, x.globalhdr, done, driftcorr))
+      return (status);
 
+  /* Fill in the error array, if it initially contains all zeros. */
+	if (acs->noisecorr == PERFORM) {
+    if (doNoise (acs, &x, &done))
+      return (status);
+    if (done) {
+      if (extver == 1) {
+		    if (noiseHistory (x.globalhdr))
+          return (status);
+      }
+      trlmessage ("    Uncertainty array initialized,");
+      buff[0] = '\0';
+      
+      sprintf(MsgText, "    readnoise =");
+      for (i=0; i < NAMPS-1; i++) {
+        if (acs->readnoise[i] > 0) {
+          sprintf (buff, "%.5g,",acs->readnoise[i]);
+          strcat (MsgText, buff);
+        }
+      }
+      if (acs->readnoise[NAMPS-1] > 0) {
+        sprintf(buff, "%.5g",acs->readnoise[NAMPS-1]);
+        strcat (MsgText, buff);
+      }
+      trlmessage (MsgText);
+      
+      sprintf(MsgText, "    gain =");
+      for (i=0; i < NAMPS-1; i++) {
+        if (acs->atodgain[i] > 0) { 
+          sprintf(buff, "%.5g,",acs->atodgain[i]);
+          strcat (MsgText, buff);
+        }
+      }
+      if (acs->atodgain[NAMPS-1] > 0) { 
+        sprintf(buff, "%.5g",acs->atodgain[NAMPS-1]);
+        strcat (MsgText, buff);
+      }
+      trlmessage (MsgText);
+      sprintf(MsgText, "   default bias levels =");
+      for (i=0; i < NAMPS-1; i++) {
+        if (acs->ccdbias[i] > 0) { 
+          sprintf(buff, "%.5g,",acs->ccdbias[i]);
+          strcat (MsgText, buff);
+        }
+      }
+      if (acs->ccdbias[NAMPS-1] > 0) { 
+        sprintf(buff, "%.5g",acs->ccdbias[NAMPS-1]);
+        strcat (MsgText, buff);
+      }
+      trlmessage (MsgText);
+      
+      if (acs->printtime)
+		    TimeStamp ("Uncertainty array initialized", acs->rootname);
+		}
+	}
+  
 	/* Subtract bias image. */
 	BiasMsg (acs, extver);
 	if (acs->biascorr == PERFORM) {
