@@ -56,12 +56,12 @@ static int UpdateHdr (char *);
 **	name or a single image.  Then call GetAsnTable accordingly.
 */
 int	LoadAsn (AsnInfo *asn) {
-
-/* Arguments:
-**	input		 i: Name of input file or image
-**  asn			io: Association info structure
-*/
-
+  
+  /* Arguments:
+   **	input		 i: Name of input file or image
+   **  asn			io: Association info structure
+   */
+  
 	extern int status;
 	void printInfo (AsnInfo *);
 	int SetInput (AsnInfo *);
@@ -69,10 +69,10 @@ int	LoadAsn (AsnInfo *asn) {
 	int GetAsnTable (AsnInfo *);
 	int GetGlobalInfo (AsnInfo *);
 	
-		
+  
 	/* Determine whether input is a single file, an association table,
-	**	or an entry from an association table...
-	*/
+   **	or an entry from an association table...
+   */
 	if (SetInput (asn))
 		return (status);
 	
@@ -85,6 +85,12 @@ int	LoadAsn (AsnInfo *asn) {
 	}
 	trlmessage (MsgText);
 	
+  /* Read in global info from ASN table's primary header */	
+	if (GetGlobalInfo (asn)) {
+		trlerror (" Problem getting primary header information.");
+		return (status);
+	}
+  
 	/* Read in ASN table, and load appropriate members info into memory */
 	if (asn->process == SINGLE) {
 		/* Set ASN structure values to process a single exposure */
@@ -94,22 +100,16 @@ int	LoadAsn (AsnInfo *asn) {
 		if (GetAsnTable (asn))
 			return (status);
 	}
-
+  
 	if (asn->debug) { 
 		sprintf (MsgText, "LoadAsn:  Read in ASN table %s ", asn->asn_table);
 		trlmessage (MsgText);
 	}
-	
-	/* Read in global info from ASN table's primary header */	
-	if (GetGlobalInfo (asn)) {
-		trlerror (" Problem getting primary header information.");
-		return (status);
-	}
-		
+  
 	/* Print a summary of information about the association */
 	if (asn->verbose)
 		printInfo (asn);
-
+  
 	return (status);
 }
 
@@ -851,11 +851,13 @@ int GetAsnTable (AsnInfo *asn) {
 					    spname_ext[0] = '\0';
 					    /* Create full file name for this image for 
 						    DTHCORR or RPTSUM input */
-					    if (asn->crcorr) {
-						    strcpy (spname_ext, "_crj");
-					    } else {
-						    strcpy (spname_ext, "_sfl");
-					    }
+              if ( (asn->crcorr) ||
+                  (asn->rptcorr && asn->detector == WFC_CCD_DETECTOR) ||
+                  (asn->rptcorr && asn->detector == HRC_CCD_DETECTOR) ) {
+                strcpy (spname_ext, "_crj");
+              } else if (asn->rptcorr && asn->detector == MAMA_DETECTOR) {
+                strcpy (spname_ext, "_sfl");
+              }
 
 					    if (MkName (exp[row].memname, "_raw", spname_ext, "",
 					    asn->product[prodid].subprod[posid].spname,
