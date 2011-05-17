@@ -550,12 +550,15 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
           trlmessage (MsgText);
         }
         
+        /* Commented out, not sure why these need to be reset.
+         * Everything should have correct settings after ACSCCD.
+         * MRD 17-May-2011 */
         /* Copy switch values for ACSCCD and ACS2D argument lists. */
-        SetACSSw (&sci_sw, &acsccd_sci_sw, &acs2d_sci_sw);	
+        /* SetACSSw (&sci_sw, &acsccd_sci_sw, &acs2d_sci_sw);	*/
         
         /* Reset DQICORR, since it will already have been done...
          WJH  23-Apr-2002 */
-        acs2d_sci_sw.dqicorr = COMPLETE;
+        /* acs2d_sci_sw.dqicorr = COMPLETE; */
         
         if (asn->debug){
           sprintf(MsgText,"Input to ACSREJ is:");
