@@ -8,7 +8,7 @@ bzip2 -d < /eng/ssb/src/waf-1.6.4.tar.bz2 | tar xf -
 
 cp g77.py   waf-1.6.4/waflib/Tools/g77.py
 
-patch -p0 < patch-compiler_fc.py
+patch -p0 < patch-compiler_fc.py.patch
 
 cd waf-1.6.4
 
