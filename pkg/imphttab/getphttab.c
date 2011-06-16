@@ -815,7 +815,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     out = (double *)calloc(nx, sizeof(double));
     for (n=0; n<nx;n++) out[n] = n;
     value = linterp(tabrow->parvals[p], nx, out, obsvals[p]);
-    if (value == '\0') {
+    if (value == -99) {
       return('\0');
     }
     obsindx[p] = value;  /* Index into dimension p */
@@ -894,7 +894,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
          Update intermediate arrays with results in 
          preparation for the next iteration 
          */
-        if (rinterp == '\0') return(rinterp);
+        if (rinterp == -99) return('/0');
         /* Determine where the result of this interpolation should go */
         x = floor((p-1)/2);
         xdim = floor(x/2);
@@ -951,7 +951,7 @@ double linterp(double *x, int nx, double *fx, double xpos) {
   computebounds(x, nx, xpos, &i0, &i1);
   if ((x[i1] - x[i0]) == 0){
     printf("==>ERROR: Linear interpolation reached singularity...\n");
-    return('\0');
+    return(-99);
   }
   /* Now, compute interpolated value */
   value = fx[i0] + (xpos - x[i0])*(fx[i1] - fx[i0])/(x[i1]-x[i0]);
