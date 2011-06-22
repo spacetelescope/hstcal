@@ -78,8 +78,8 @@ typedef struct {
     int vy[2];          /* Coordinates of virtual overscan region to use */
     int biassecta[2];   /* Columns to use for leading overscan region */
     int biassectb[2];   /* Columns to use for trailing overscan region */
-	float flashdur; 	/* duration of post-flash (in seconds) */
-	char flashstatus[ACS_CBUF+1];		/* status of post-flash exposure */
+    float flashdur; 	/* duration of post-flash (in seconds) */
+    char flashstatus[ACS_CBUF+1];		/* status of post-flash exposure */
 
     /* calibration flags (switches) for ACSCCD*/
     int dqicorr;        /* data quality initialization */
@@ -88,6 +88,7 @@ typedef struct {
     int biascorr;       /* subtract bias image */
     int flashcorr;      /* subtract post-flash image */
     int noisecorr;      /* initialize error array? (yes) */
+    int pctecorr;       /* perform pixel CTE correction */
 
     /* calibration flags (switches) for ACS2D*/
     int glincorr;       /* global nonlinearity correction */
@@ -110,9 +111,11 @@ typedef struct {
     RefTab oscn;        /* Overscan parameters table */
     RefTab atod;        /* analog to digital correction table */
     RefTab spot;        /* Spotflat offset table */
+    RefTab pcte;        /* Pixel CTE parameters table */
 
     /* calibration images and tables for ACS2D*/
     RefImage dark;      /* dark image */
+    RefImage darkcte;   /* cte corrected dark */
     RefImage pflt;      /* pixel-to-pixel flat field */
     RefImage dflt;      /* delta flat */
     RefImage lflt;      /* low-order flat */

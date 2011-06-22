@@ -50,6 +50,30 @@ int atodHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
+int pcteHistory (ACSInfo *acs, Hdr *phdr) {
+  
+	extern int status;
+  
+	int logit;			/* true if we should log file name */
+	int OmitStep (int);
+	int TabHistory (RefTab *, Hdr *);
+	int UpdateSwitch (char *, int, Hdr *, int *);
+  
+	if (OmitStep (acs->pctecorr))		/* nothing to do */
+    return (status);
+  
+	if (UpdateSwitch ("PCTECORR", acs->pctecorr, phdr, &logit))
+    return (status);
+  
+	/* Write history records for the PCTE table. */
+	if (logit) {
+    if (TabHistory (&acs->pcte, phdr))
+      return (status);
+	}
+  
+	return (status);
+}
+
 int biasHistory (ACSInfo *acs, Hdr *phdr) {
   
 	extern int status;
@@ -218,7 +242,10 @@ int darkHistory (ACSInfo *acs, Hdr *phdr) {
 	if (UpdateSwitch ("DARKCORR", acs->darkcorr, phdr, &logit))
     return (status);
   
-	if (logit) {
+	if (logit && acs->pctecorr == PERFORM) {
+    if (ImgHistory (&acs->darkcte, phdr))
+      return (status);
+  } else if (logit) {
     if (ImgHistory (&acs->dark, phdr))
       return (status);
 	}

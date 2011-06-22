@@ -8,6 +8,7 @@
 
 static int checkCCD (Hdr *, ACSInfo *, int *);
 static int checkDark (Hdr *, ACSInfo *, int *, int *);
+static int checkDarkCTE (Hdr *, ACSInfo *, int *, int *);
 static int checkDQI (Hdr *, ACSInfo *, int *, int *);
 static int checkFlat (Hdr *, ACSInfo *, int *, int *);
 static int checkNonLin (Hdr *, ACSInfo *, int *, int *);
@@ -45,6 +46,9 @@ int Get2dFlags (ACSInfo *acs2d, Hdr *phdr) {
     return (status);
   
 	if (checkDark (phdr, acs2d, &missing, &nsteps))
+    return (status);
+  
+  if (checkDarkCTE (phdr, acs2d, &missing, &nsteps))
     return (status);
   
 	if (checkFlat (phdr, acs2d, &missing, &nsteps))
@@ -145,6 +149,48 @@ static int checkDark (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
       return (status);
     if (acs2d->dark.exists != EXISTS_YES)
       MissingFile ("DARKFILE", acs2d->dark.name, missing);
+    
+    if (acs2d->darkcorr == PERFORM)
+      (*nsteps)++;
+	}
+  
+	return (status);
+}
+
+/* If this step is to be performed, check for the existence of the
+ dark file.  If it exists, get the pedigree and descrip keyword values.
+ */
+
+static int checkDarkCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+  
+  /* arguments:
+   Hdr *phdr        i: primary header
+   ACSInfo *acs2d   i: switches, file names, etc
+   int *missing     io: incremented if the file is missing
+   int *nsteps      io: incremented if this step can be performed
+   */
+  
+	extern int status;
+  
+	int calswitch;
+	int GetSwitch (Hdr *, char *, int *);
+	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+	void MissingFile (char *, char *, int *);
+  
+	if (acs2d->darkcorr == PERFORM) {
+    
+    if (GetSwitch (phdr, "DARKCORR", &calswitch))
+      return (status);
+    if (calswitch == COMPLETE) {
+      acs2d->darkcorr = OMIT;
+      return (status);
+    }
+    
+    if (GetImageRef (acs2d->refnames, phdr,
+                     "CDRKFILE", &acs2d->darkcte, &acs2d->darkcorr))
+      return (status);
+    if (acs2d->dark.exists != EXISTS_YES)
+      MissingFile ("CDRKFILE", acs2d->darkcte.name, missing);
     
     if (acs2d->darkcorr == PERFORM)
       (*nsteps)++;

@@ -50,6 +50,10 @@ Hdr *phdr       i: primary header
 	    return (status);
 	if (GetSw (phdr, "FLATCORR", &sw->flatcorr))
 	    return (status);
+//if (GetSw (phdr, "PCTECORR", &sw->pctecorr))
+//    return (status);
+  if (GetSw (phdr, "PCTECORR", &sw->pctecorr) == HEADER_PROBLEM)
+      sw->pctecorr == OMIT;
         
     
     sprintf(flashkey,"FLSHCORR");

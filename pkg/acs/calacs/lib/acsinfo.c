@@ -105,6 +105,7 @@ void ACSInit (ACSInfo *acs) {
     acs->darkcorr = OMIT;
     acs->flatcorr = OMIT;
     acs->flashcorr = OMIT;
+    acs->pctecorr = OMIT;
     acs->pfltcorr = OMIT;
     acs->dfltcorr = OMIT;
     acs->lfltcorr = OMIT;
@@ -118,9 +119,11 @@ void ACSInit (ACSInfo *acs) {
 	InitRefTab (&(acs->ccdpar));
 	InitRefTab (&(acs->oscn));
 	InitRefTab (&(acs->atod));
+  InitRefTab (&(acs->pcte));
 
 	/* Initialize reference images and tables for ACS2D */
 	InitRefImg (&(acs->dark));
+  InitRefImg (&(acs->darkcte));
 	InitRefImg (&(acs->pflt));
 	InitRefImg (&(acs->dflt));
 	InitRefImg (&(acs->lflt));
@@ -237,6 +240,7 @@ void initSwitch (CalSwitch *sw) {
 	sw->dqicorr = OMIT;
 	sw->flatcorr = OMIT;
 	sw->flashcorr = OMIT;
+  sw->pctecorr = OMIT;
 	sw->glincorr = OMIT;
 	sw->lflgcorr = OMIT;
 	sw->photcorr = OMIT;

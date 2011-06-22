@@ -1,3 +1,40 @@
+Update for version 7.0.0 - 21-Jun-11 (MRD)
+    include/acscorr.h
+        Added CTE correction flag.
+    calacs/acsasn.h
+        Added structure members to track temporary CTE corrected products.
+    calacs/calacs.h
+        Added structure members for the names of CTE corrected products.
+    include/acsinfo.h
+        Added structure members for CTE correction flag and CTE related
+        reference files.
+    acsccd/
+        Copied entirely from IRAF CALACS to implement CTE and stripe corrections.
+    calacs/acsdth.c
+        Updated with new file suffixes for CTE corrected products.
+    calacs/acsinit.c
+        Initialization for new CTE corrected file names and file suffixes.
+    acs2d/dodark.c
+        Updated to handle CTE corrected darks.
+    acs2d/acs2d.c
+        Updated to handle CTE corrected darks.
+    acs2d/do2d.c
+        Updated to handle CTE corrected darks.
+    acs2d/get2dflags.c
+        Updated to handle CTE corrected darks.
+    acsrej/acsrej.c
+        Updated to handle CTE corrected products.
+    calacs/calacs.c
+        Copied from IRAF CALACS to process CTE corrected products.
+    lib/acshist.c
+        Added history for CTE corrections and CTE corrected darks.
+    lib/acsinfo.c
+        Added initialization of stuff added to acsinfo.h.
+    calacs/getflags.c
+        Updated to check for CTE correction flag.
+    calacs/sciflags.c
+        Updated to check CTE params and CTE dark files.
+
 Update for version 6.0.0 - 05-Apr-11 (MRD)
     include/acsinfo.h
         added RefTab phot to ACSInfo struct
