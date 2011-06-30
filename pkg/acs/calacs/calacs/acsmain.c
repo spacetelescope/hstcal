@@ -4,6 +4,7 @@
 
 # include "acs.h"
 # include "acserr.h"
+# include "acsversion.h"
 
 /* CALACS driver: retrieves input table name and calls pipeline
 */
@@ -36,27 +37,34 @@ int main(int argc, char **argv) {
 	c_irafinit(argc, argv);
 
 	/* Command line arguments: 
-	**         1. input file name
+	**       0. Check for --version option
+  **
+  **       1. input file name
 	**		   2. print time?
 	**		   3. save intermediate files?
 	**		   4. verbose?
 	*/
 	for (i = 1;  i < argc;  i++) {
+    if (!(strcmp(argv[i],"--version"))) {
+      printf("%s\n",ACS_CAL_VER_NUM);
+      exit(0);
+    }
+    
 		if (argv[i][0] == '-') {
 		  for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
-				printtime = YES;
+          printtime = YES;
 		    } else if (argv[i][j] == 's') {
-				save_tmp = YES;
+          save_tmp = YES;
 		    } else if (argv[i][j] == 'v') {
-				verbose = YES;
+          verbose = YES;
 		    } else if (argv[i][j] == 'd') {
-				debug = YES;
+          debug = YES;
 		    } else if (argv[i][j] == 'q') {
-				quiet = YES;
+          quiet = YES;
 		    } else {
-				printf ("Unrecognized option %s\n", argv[i]);
-				exit (ERROR_RETURN);
+          printf ("Unrecognized option %s\n", argv[i]);
+          exit (ERROR_RETURN);
 		    }
 		  }
 	    } else if (input[0] == '\0') {
@@ -105,5 +113,5 @@ int main(int argc, char **argv) {
 	CloseTrlBuf ();
 	
 	/* Exit the program */
-	exit (0);
+	exit(0);
 }
