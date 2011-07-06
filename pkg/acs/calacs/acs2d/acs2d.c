@@ -15,6 +15,7 @@
 # include "acserr.h"
 # include "acscorr.h"		/* calibration switch names for calacs */
 
+void Init2DTrl (char *, char *);
 
 /* Do basic 2-D calibration.
 
@@ -82,6 +83,7 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	acs2d.shadcorr = acs2d_sw->shadcorr;
 	acs2d.photcorr = acs2d_sw->photcorr;
 	acs2d.expscorr = acs2d_sw->expscorr;
+  acs2d.pctecorr = acs2d_sw->pctecorr;
 	acs2d.noisecorr = PERFORM;
 	acs2d.printtime = printtime;
 	acs2d.verbose = verbose;
@@ -179,11 +181,11 @@ void Init2DTrl (char *input, char *output) {
 	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
-	char *isuffix[] = {"_raw", "_blv_tmp", "_crj_tmp"};
-	char *osuffix[] = {"_flt", "_flt",     "_crj"};
-	char *trlsuffix[] = {"", "", ""};
+	char *isuffix[] = {"_raw", "_blv_tmp", "_blc_tmp", "_crj_tmp", "_crc_tmp"};
+	char *osuffix[] = {"_flt", "_flt",     "_flc",     "_crj",     "_crc"};
+	char *trlsuffix[] = {"_flt", "_flt",   "_flc",     "_crj",     "_crc"};
 
-	int nsuffix = 3;
+	int nsuffix = 5;
 	
 	/* Initialize internal variables */
 	trl_in[0] = '\0';

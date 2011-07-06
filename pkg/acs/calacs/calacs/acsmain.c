@@ -45,12 +45,12 @@ int main(int argc, char **argv) {
 	**		   4. verbose?
 	*/
 	for (i = 1;  i < argc;  i++) {
-    if (!(strcmp(argv[i],"--version"))) {
+		if (!(strcmp(argv[i],"--version"))) {
       printf("%s\n",ACS_CAL_VER_NUM);
       exit(0);
     }
     
-		if (argv[i][0] == '-') {
+    if (argv[i][0] == '-') {
 		  for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
           printtime = YES;

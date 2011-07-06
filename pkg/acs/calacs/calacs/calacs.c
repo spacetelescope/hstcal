@@ -1,8 +1,8 @@
 # include <stdio.h>
 # include <stdlib.h>	/* calloc */
 # include <string.h>
-# include "xtables.h"   /* for IRAFPointer definition */
 
+# include "xtables.h"   /* for IRAFPointer definition */
 # include "hstio.h"
 
 # include "acs.h"
@@ -15,38 +15,36 @@
 
 
 /* calacs -- integrated calacs processing
-
-   Warren J. Hack, 1998 May 28:
-	Initial version.
-	
-   Warren J. Hack, 1999 Jan 7:
-   	Added support for EXPSCORR to control 'save_tmp', if set to PERFORM.
-   Warren J. Hack, 2002 Feb 1:
-    Changed so that when no calibration switches are set to PERFORM, it 
-        only WARNs the user, not provide ERROR messages.
-    WJH, 2002 Apr 17:   
-        Removed all references to 'statcorr'. Perform 'doStat' all the time.
-    WJH, 2002 Apr 18:
-        Added check against 'RPTCORR' to be consistent with 'CRCORR' check
-            for determining whether any calibration switches are set to 
-            'PERFORM'.  If only RPTCORR is on, then it will not stop but 
-            copy raw files and sum them with ACSSUM.	
-    WJH, 2002 Apr 23:
-        Update DQICORR for CRJ product so that doDQI is not run again in ACS2D.
-    WJH, 2002 July 26:
-        Corrected memory usage error in BuildSumInput. 
-    WJH, 2002 Aug 19:
-        Corrected a bug where RPT-OBS sub-products MTYPE was getting overwritten
-        by the PROD-DTH MTYPE in dithered RPT-OBS associations.
-        Fix involved using subprod.mtype instead of prod.mtype.     
-    WJH, 2005 Feb 14:
-        Removed any reference to updateAsnStat, since only OPUS should
-        update the ASN_STAT keyword in the ASN table header.
-    MRD, 2011 May 16:
-        Updated CopyFFile so that it updates the FILENAME header keyword on copy
-        Moved ACSSUM processing into ProcessMAMA and changed rpt-corr processing
-        to be the same as cr-split.
-*/
+ 
+ Warren J. Hack, 1998 May 28:
+ Initial version.
+ 
+ Warren J. Hack, 1999 Jan 7:
+ Added support for EXPSCORR to control 'save_tmp', if set to PERFORM.
+ Warren J. Hack, 2002 Feb 1:
+ Changed so that when no calibration switches are set to PERFORM, it 
+ only WARNs the user, not provide ERROR messages.
+ WJH, 2002 Apr 17:   
+ Removed all references to 'statcorr'. Perform 'doStat' all the time.
+ WJH, 2002 Apr 18:
+ Added check against 'RPTCORR' to be consistent with 'CRCORR' check
+ for determining whether any calibration switches are set to 
+ 'PERFORM'.  If only RPTCORR is on, then it will not stop but 
+ copy raw files and sum them with ACSSUM.	
+ WJH, 2002 Apr 23:
+ Update DQICORR for CRJ product so that doDQI is not run again in ACS2D.
+ WJH, 2002 July 26:
+ Corrected memory usage error in BuildSumInput. 
+ WJH, 2002 Aug 19:
+ Corrected a bug where RPT-OBS sub-products MTYPE was getting overwritten
+ by the PROD-DTH MTYPE in dithered RPT-OBS associations.
+ Fix involved using subprod.mtype instead of prod.mtype.     
+ WJH, 2005 Feb 14:
+ Removed any reference to updateAsnStat, since only OPUS should
+ update the ASN_STAT keyword in the ASN table header.
+ MRD, 2011 Mar 21:
+ Updated CopyFFile so that it updates the FILENAME header keyword
+ */
 
 
 static int ACSRej_0 (char *, char *, char *, int, int, int);
@@ -255,83 +253,83 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug)
 
 
 char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
-
+  
 	int nchars;
-    int acssum_len;
+  int acssum_len;
 	int i;
 	char *acssum_input;
 	char tmpexp[ACS_LINE];
 	char tmpflt[ACS_LINE];
 	int MkName (char *, char *, char *, char *, char *, int);
-
+  
 	/* Determine how long this string needs to be... */
 	/*nchars = asn->spmems[posid] * ACS_FNAME; */
-    nchars = 1;
-    
-    /* Keep track of individual filename lengths and total length*/
-    acssum_len = 0;
+  nchars = 1;
+  
+  /* Keep track of individual filename lengths and total length*/
+  acssum_len = 0;
 	/* Now, lets search the association table for all inputs... */
 	for (i=1; i <= asn->spmems[posid]; i++) {
 		strcpy(tmpexp, asn->product[prod].subprod[posid].exp[i].expname);
-                
+    
 		if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, ACS_LINE)) {
 			strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);  
-	    	strcat (tmpflt, "_flt.fits");
+      strcat (tmpflt, "_flt.fits");
 		}
 		/* Sum together lengths of all filenames 
-            to be used as input to ACSSUM.
-        */
-        acssum_len += strlen(tmpflt)+1;
+     to be used as input to ACSSUM.
+     */
+    acssum_len += strlen(tmpflt)+1;
 	}
-
-    /* Now that we know how long it will be, 
-        allocate space for input string. 
-    */
+  
+  /* Now that we know how long it will be, 
+   allocate space for input string. 
+   */
 	acssum_input = (char *) calloc(acssum_len + 1, sizeof(char));
-
+  
 	/* Go back through the association table to string all inputs together... */
 	for (i=1; i <= asn->spmems[posid]; i++) {
 		strcpy(tmpexp, asn->product[prod].subprod[posid].exp[i].expname);
-
+    
 		if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, ACS_LINE)) {
 			strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);  
-	    	strcat (tmpflt, "_flt.fits");
+      strcat (tmpflt, "_flt.fits");
 		}
-
+    
 		strcat(acssum_input, tmpflt);
 		if (i < (asn->spmems[posid])) {
 			/* Don't add a comma to the end of the last filename*/
 			strcat(acssum_input, ",");						
 		}
 	}
-    strcat(acssum_input,"\0");
-    
+  strcat(acssum_input,"\0");
+  
 	return(acssum_input);
 }
 char *BuildDthInput (AsnInfo *asn, int prod) {
-
+  
 	int nchars;
 	int i;
 	char *acsdth_input;
 	char tmpexp[ACS_LINE];
 	char tmpflt[ACS_LINE];
 	int MkName (char *, char *, char *, char *, char *, int);
-
+  
 	/* Determine how long this string needs to be... */
 	nchars = asn->numsp * ACS_FNAME;
 	acsdth_input = (char *) calloc( nchars + 1, sizeof(char));
 	/* Initialize this string to NULL */
 	acsdth_input[0] = '\0';
-
+  
 	/* Now, lets search the association table for all inputs... */
 	for (i=1; i <= asn->numsp; i++) {
 		strcpy(tmpexp, asn->product[prod].subprod[i].spname);
-
+    
 		/*if (MkName (tmpexp, "_crj_tmp", "_crj", "", tmpflt, ACS_LINE)) {
-			strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);  
-	    	strcat (tmpflt, "_crj.fits");
-		}
-		*/
+     strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);  
+     strcat (tmpflt, "_crj.fits");
+     }
+     */
 		strcat(acsdth_input, tmpexp);
 		if (i < (asn->numsp)) {
 			/* Don't add a comma to the end of the last filename*/
@@ -359,7 +357,9 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
                            all remaining trailer files */
 	
 	char *acsrej_input; /* list of input names for ACSREJ */
+  char *acsrejc_input; /* list of CTE corrected input names for ACSREJ */
   char *acsrej_msgtext;       /* string for list of input filenames */
+  char *acsrejc_msgtext;      /* string for list of CTE corrected input filenames */
 	int	nchars;			/* Number of chars for input string to ACSREJ */
 	
 	void ACSDefaults (ACSInfo *);	
@@ -373,7 +373,6 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
 	int CheckCorr (AsnInfo *, ACSInfo *);
 	int InsertACSSuffix (ACSInfo *);
 	void updateAsnTable (AsnInfo *, int, int);
-  int UpdateSwitch (char *, int, Hdr *, int *);
   
 	save_crj = *save_tmp;		/* initial value; */	
 	
@@ -400,6 +399,10 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
 				acsrej_input = (char *) calloc( nchars + 1, sizeof(char));
 				/* Initialize this string to NULL */
 				acsrej_input[0] = '\0';
+        
+        acsrejc_input = (char *) calloc( nchars + 1, sizeof(char));
+				/* Initialize this string to NULL */
+				acsrejc_input[0] = '\0';
 			}
 			
       /* Run ACSCCD on individual EXPosures. */
@@ -511,9 +514,25 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
           
 					SetTrlPrefaceMode (YES);
           
-          if (ACSccd (acshdr->rawfile, acshdr->blv_tmp,
-                      &acsccd_sci_sw, &sciref, printtime, asn->verbose)) 		
-						return (status);
+          if (acsccd_sci_sw.pctecorr == PERFORM) {
+            if (ACSccd(acshdr->rawfile, acshdr->blc_tmp,
+                       &acsccd_sci_sw, &sciref, printtime, asn->verbose)) {
+              return (status);
+            }
+            
+            /* temporarily set pctecorr to omit so CTE correcion isn't
+             * performed this time. */
+            acsccd_sci_sw.pctecorr = OMIT;
+            if (ACSccd(acshdr->rawfile, acshdr->blv_tmp,
+                       &acsccd_sci_sw, &sciref, printtime, asn->verbose)) {
+              return (status);
+            }
+            acsccd_sci_sw.pctecorr = PERFORM;
+          } else if (acsccd_sci_sw.pctecorr == OMIT){          
+            if (ACSccd (acshdr->rawfile, acshdr->blv_tmp,
+                        &acsccd_sci_sw, &sciref, printtime, asn->verbose)) 		
+              return (status);
+          }
           
 					/* Reset switches */
           ResetACSSw (&acsccd_sci_sw, &acs2d_sci_sw);
@@ -539,6 +558,18 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
 					/* Also, add blv_tmp to list of files to be deleted */
 					strcpy(asn->product[prod].subprod[posid].exp[expid].blv_tmp,
                  acshdr->blv_tmp);
+          
+          /* do this again for CTE corrected exposures */
+          if (acsccd_sci_sw.pctecorr == PERFORM) {
+            strcat(acsrejc_input, acshdr->blc_tmp);
+            if (expid < asn->spmems[posid]) {
+              /* Don't add a comma to the end of the last filename*/
+              strcat(acsrejc_input, ",");					
+            }
+            /* Also, add blc_tmp to list of files to be deleted */
+            strcpy(asn->product[prod].subprod[posid].exp[expid].blc_tmp,
+                   acshdr->blc_tmp);
+          }
 				}
       } /* end loop of individual EXPosures for running ACSCCD */
       
@@ -549,7 +580,7 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
                    posid, prod);
           trlmessage (MsgText);
         }
-        
+       
         /* Commented out, not sure why these need to be reset.
          * Everything should have correct settings after ACSCCD.
          * MRD 17-May-2011 */
@@ -561,7 +592,7 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
         /* acs2d_sci_sw.dqicorr = COMPLETE; */
         
         if (asn->debug){
-          sprintf(MsgText,"Input to ACSREJ is:");
+          sprintf(MsgText,"Non-CTE corrected Input to ACSREJ is:");
           trlmessage(MsgText);
           
           /* 
@@ -574,8 +605,26 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
           trlmessage(acsrej_msgtext);
           free(acsrej_msgtext);
           
-          sprintf(MsgText,"Output to ACSREJ is: %s", acshdr->crj_tmp);
+          sprintf(MsgText,"Non-CTE corrected Output to ACSREJ is: %s", acshdr->crj_tmp);
           trlmessage(MsgText);
+          
+          if (acsccd_sci_sw.pctecorr == PERFORM) {
+            sprintf(MsgText,"CTE corrected Input to ACSREJ is:");
+            trlmessage(MsgText);
+            
+            /* 
+             Need to allocate memory for a separate string to be long
+             enough to hold all the input names when printing it
+             out.  Caused pipeline problems otherwise. WJH 19-Mar-04
+             */
+            acsrejc_msgtext = calloc(strlen(acsrejc_input)+25, sizeof(char));
+            sprintf (acsrejc_msgtext, "%s",acsrejc_input);
+            trlmessage(acsrejc_msgtext);
+            free(acsrejc_msgtext);
+            
+            sprintf(MsgText,"CTE corrected Output to ACSREJ is: %s", acshdr->crc_tmp);
+            trlmessage(MsgText);
+          }
         }
         
         /* Set up the correct value of ASN_MTYP for ACSREJ output image. */                
@@ -628,6 +677,52 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
         if (save_crj != YES)
           remove (asn->product[prod].subprod[posid].crj_tmp);
         
+        /* now repeat the same thing with CTE corrected products */
+        if (acsccd_sci_sw.pctecorr == PERFORM) {
+          /* Reject cosmic rays. */
+          if (ACSRej_0 (acsrejc_input, acshdr->crc_tmp, acshdr->mtype, acshdr->newbias, printtime, asn->verbose)){ 
+            if (status == NO_GOOD_DATA){
+              /* Turn off further processing... */
+              acshdr->sci_basic_2d = SKIPPED;
+              /* Reset STATUS to good now that we have dealt with
+               this condition. */
+              status = ACS_OK;
+            } else {
+              return (status); 
+            }
+          }
+          
+          /* commenting this out. will CRC products be a separate entry
+           in association tables? MRD 10 Mar 2011
+           updateAsnTable (asn, prod, posid); */
+          
+          /* Free up memory used by acsrejc_input for this subproduct */
+          free(acsrejc_input); 
+          
+          if (acshdr->sci_basic_2d == PERFORM) {
+            /* Flat field the summed, cosmic ray rejected image. */
+            if (ACS2d (acshdr->crc_tmp, acshdr->crcfile,
+                       &acs2d_sci_sw, &sciref, printtime, asn->verbose))
+              return (status);							
+            
+          } else {
+            
+            /* Remember CR-combined image as final output name, since 
+             **	ACS2D was not run. */
+            if (CopyFFile (acshdr->crc_tmp, acshdr->crcfile))
+              return (status);
+            /*	strcpy (acshdr->crj_tmp, acshdr->crjfile);
+             save_crj = YES;                         */
+          }
+          
+          /* Remember what crc_tmp files to delete */
+          strcpy (asn->product[prod].subprod[posid].crc_tmp, acshdr->crc_tmp);
+          
+          /* Done with CRCORR processing so delete _crc_tmp file. */
+          if (save_crj != YES)
+            remove (asn->product[prod].subprod[posid].crc_tmp);
+        }
+        
       } /* End of CRCORR processing */
       
       if (asn->debug){
@@ -671,9 +766,22 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
             }
             
             /* Basic 2-D processing (flat field, etc). */
-            if (ACS2d (acshdr->blv_tmp, acshdr->fltfile, 
-                       &acs2d_sci_sw, &sciref, printtime, asn->verbose)) 
-              return (status);				
+            /* temporarily set acs2d_sci_sw.pctecorr to omit so the correct
+             * acs2d processing is done */
+            if (acs2d_sci_sw.pctecorr == PERFORM) {
+              acs2d_sci_sw.pctecorr = OMIT;
+            
+              if (ACS2d (acshdr->blv_tmp, acshdr->fltfile, 
+                         &acs2d_sci_sw, &sciref, printtime, asn->verbose)) 
+                return (status);
+              
+              acs2d_sci_sw.pctecorr = PERFORM;
+            } else {
+              if (ACS2d (acshdr->blv_tmp, acshdr->fltfile, 
+                         &acs2d_sci_sw, &sciref, printtime, asn->verbose)) 
+                return (status);
+            }
+
 					} else {
             /* If we are not performing CRCORR, then copy
              blv_tmp file into a final _flt file.
@@ -684,11 +792,37 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
             }
           }
           
+          /* now repeat ACS2D processing for CTE products */
+          if (acshdr->sci_basic_2d == PERFORM && acsccd_sci_sw.pctecorr == PERFORM) {
+            if (asn->copy_input == PERFORM) {
+              if (CopyFFile (acshdr->flcfile, acshdr->blc_tmp))
+                return (status);
+              remove (acshdr->flcfile);
+            }
+            
+            /* Basic 2-D processing (flat field, etc). */
+            if (ACS2d (acshdr->blc_tmp, acshdr->flcfile, 
+                       &acs2d_sci_sw, &sciref, printtime, asn->verbose)) 
+              return (status);	
+          } else if (acsccd_sci_sw.pctecorr == PERFORM) {
+            /* If we are not performing CRCORR, then copy
+             blv_tmp file into a final _flt file.
+             */
+            if (acshdr->sci_crcorr != PERFORM || acshdr->sci_rptcorr != PERFORM) {
+              if (CopyFFile (acshdr->blc_tmp, acshdr->flcfile))
+                return (status);
+            }
+          }
+          
         } /* Finished processing blv_tmp file through ACS2D */
         
         /* Now, delete _blv_tmp files */
-        if (*save_tmp != YES)
+        if (*save_tmp != YES) {
           remove (acshdr->blv_tmp);
+          if (acsccd_sci_sw.pctecorr == PERFORM) {
+            remove (acshdr->blc_tmp);
+          }
+        }
         
       } /* End loop over individual EXPosures for making _flt files. */
 			
@@ -915,26 +1049,27 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
 
 
 /* This routine copies switch values from sci_sw to
-   acsccd_sci_sw and acs2d_sci_sw.
-*/
+ acsccd_sci_sw and acs2d_sci_sw.
+ */
 
 static void SetACSSw (CalSwitch *sci_sw, CalSwitch *acsccd_sci_sw, CalSwitch *acs2d_sci_sw) {
-
-/* arguments:
-CalSwitch *sci_sw             i: all calibration switches for science file
-CalSwitch *acsccd_sci_sw     o: acsccd switches for science file
-CalSwitch *acs2d_sci_sw      o: acs2d switches for science file
-*/
-
+  
+  /* arguments:
+   CalSwitch *sci_sw             i: all calibration switches for science file
+   CalSwitch *acsccd_sci_sw     o: acsccd switches for science file
+   CalSwitch *acs2d_sci_sw      o: acs2d switches for science file
+   */
+  
 	/* These are the switches for calacs prior to running acsrej
-	   (cosmic-ray rejection).
-	*/	
+   (cosmic-ray rejection).
+   */	
 	acsccd_sci_sw->crcorr = sci_sw->crcorr;
 	acsccd_sci_sw->dqicorr = sci_sw->dqicorr;
 	acsccd_sci_sw->atodcorr = sci_sw->atodcorr;
 	acsccd_sci_sw->blevcorr = sci_sw->blevcorr;
 	acsccd_sci_sw->biascorr = sci_sw->biascorr;
 	acsccd_sci_sw->flashcorr = sci_sw->flashcorr;
+  acsccd_sci_sw->pctecorr = sci_sw->pctecorr;
 	acsccd_sci_sw->glincorr = OMIT;
 	acsccd_sci_sw->lflgcorr = OMIT;
 	acsccd_sci_sw->darkcorr = OMIT;
@@ -942,8 +1077,8 @@ CalSwitch *acs2d_sci_sw      o: acs2d switches for science file
 	acsccd_sci_sw->shadcorr = OMIT;
 	acsccd_sci_sw->photcorr = OMIT;
 	acsccd_sci_sw->rptcorr = OMIT;
-    acsccd_sci_sw->expscorr = sci_sw->expscorr;	
-
+  acsccd_sci_sw->expscorr = sci_sw->expscorr;	
+  
 	/* These are the switches for acs2d for the science file. */
 	acs2d_sci_sw->dqicorr = sci_sw->dqicorr;
 	acs2d_sci_sw->atodcorr = sci_sw->atodcorr;
@@ -952,44 +1087,45 @@ CalSwitch *acs2d_sci_sw      o: acs2d switches for science file
 	acs2d_sci_sw->lflgcorr = sci_sw->lflgcorr;
 	acs2d_sci_sw->biascorr = sci_sw->biascorr;
 	acs2d_sci_sw->flashcorr = sci_sw->flashcorr;
+  acs2d_sci_sw->pctecorr = sci_sw->pctecorr;
 	acs2d_sci_sw->darkcorr = sci_sw->darkcorr;
 	acs2d_sci_sw->flatcorr = sci_sw->flatcorr;
 	acs2d_sci_sw->shadcorr = sci_sw->shadcorr;
 	acs2d_sci_sw->photcorr = sci_sw->photcorr;
 	acs2d_sci_sw->rptcorr = sci_sw->rptcorr;
 	acs2d_sci_sw->crcorr = sci_sw->crcorr;
-    acs2d_sci_sw->expscorr = sci_sw->expscorr;	
+  acs2d_sci_sw->expscorr = sci_sw->expscorr;	
 	
 }
 
 /* This routine resets dqicorr, atodcorr, and blevcorr for acs2d.
-   These steps are done prior to cosmic ray rejection, then the
-   steps for acs2d are done.  It isn't essential to reset these
-   switches, since acs2d will recognize that blevcorr has already
-   been done and will turn off that switch locally, but dqicorr will be
-   done a second time, so it's a good idea to explicitly turn that off.
-*/
+ These steps are done prior to cosmic ray rejection, then the
+ steps for acs2d are done.  It isn't essential to reset these
+ switches, since acs2d will recognize that blevcorr has already
+ been done and will turn off that switch locally, but dqicorr will be
+ done a second time, so it's a good idea to explicitly turn that off.
+ */
 
 static void ResetACSSw (CalSwitch *acsccd_sci_sw, CalSwitch *acs2d_sci_sw) {
-
-/* arguments:
-CalSwitch *acsccd_sci_sw     i: acsccd switches for science file
-CalSwitch *acs2d_sci_sw      o: acs2d switches for science file
-*/
-
+  
+  /* arguments:
+   CalSwitch *acsccd_sci_sw     i: acsccd switches for science file
+   CalSwitch *acs2d_sci_sw      o: acs2d switches for science file
+   */
+  
 	/* These are the switches performed by acsccd prior to running
-	   acsrej (cosmic-ray rejection).
-	*/
+   acsrej (cosmic-ray rejection).
+   */
 	if (acsccd_sci_sw->dqicorr == PERFORM)
-	    acs2d_sci_sw->dqicorr = OMIT;
+    acs2d_sci_sw->dqicorr = OMIT;
 	if (acsccd_sci_sw->atodcorr == PERFORM)
-	    acs2d_sci_sw->atodcorr = OMIT;
+    acs2d_sci_sw->atodcorr = OMIT;
 	if (acsccd_sci_sw->blevcorr == PERFORM)
-	    acs2d_sci_sw->blevcorr = OMIT;
+    acs2d_sci_sw->blevcorr = OMIT;
 	if (acsccd_sci_sw->biascorr == PERFORM)
-	    acs2d_sci_sw->biascorr = OMIT;
+    acs2d_sci_sw->biascorr = OMIT;
 	if (acsccd_sci_sw->flashcorr == PERFORM)
-	    acs2d_sci_sw->flashcorr = OMIT;
+    acs2d_sci_sw->flashcorr = OMIT;
 }
 
 # define FITS_BUFSIZE  2880	/* size of a FITS block */
@@ -997,14 +1133,14 @@ CalSwitch *acs2d_sci_sw      o: acs2d switches for science file
 /* This routine copies a FITS file. */
 
 static int CopyFFile (char *infile, char *outfile) {
-
-/* arguments:
-char *infile    i: name of input file
-char *outfile   i: name of output file
-*/
-
+  
+  /* arguments:
+   char *infile    i: name of input file
+   char *outfile   i: name of output file
+   */
+  
 	extern int status;
-
+  
 	FILE *ifp, *ofp;	/* for input and output files */
 	void *buf;		/* buffer for copying blocks */
 	int nin, nout;		/* number read and written */
@@ -1012,54 +1148,54 @@ char *outfile   i: name of output file
   IODescPtr im;
   Hdr phdr;
   
-  /* from calacs/lib */
-  void UFilename (char *filename, Hdr *phdr);
-
+  /* function from lib */
+  void UFilename (char *, Hdr *);
+  
 	if ((buf = calloc (FITS_BUFSIZE, sizeof(char))) == NULL)
-	    return (status = OUT_OF_MEMORY);
-
+    return (status = OUT_OF_MEMORY);
+  
 	if ((ofp = fopen (outfile, "wb")) == NULL) {
-	    sprintf (MsgText,"Can't create temporary file %s.", outfile);
-	    trlerror(MsgText);
+    sprintf (MsgText,"Can't create temporary file %s.", outfile);
+    trlerror(MsgText);
 		free (buf);
-	    return (status = INVALID_TEMP_FILE);
+    return (status = INVALID_TEMP_FILE);
 	}
-
+  
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-	    sprintf ("Can't open %s.", infile);
-	    trlerror (MsgText);
+    sprintf ("Can't open %s.", infile);
+    trlerror (MsgText);
 		fclose (ofp);
-	    remove (outfile);
-	    free (buf);
-	    return (status = OPEN_FAILED);
+    remove (outfile);
+    free (buf);
+    return (status = OPEN_FAILED);
 	}
-
+  
 	done = 0;
 	while (!done) {
-	    nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
-	    if (ferror (ifp)) {
-		sprintf (MsgText, "Can't read from %s (copying to %s).",
-				infile, outfile);
-		trlerror (MsgText);
-		fclose (ofp);
-		fclose (ifp);
-		free (buf);
-		return (status = FILE_NOT_READABLE);
-	    }
-	    if (feof (ifp))
-		done = 1;
-
-	    nout = fwrite (buf, sizeof(char), nin, ofp);
-	    if (nout < nin) {
-		sprintf (MsgText, "Can't copy %s to %s.", infile, outfile);
-		trlerror (MsgText);
-		fclose (ofp);
-		fclose (ifp);
-		free (buf);
-		return (status = COPY_NOT_POSSIBLE);
-	    }
+    nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
+    if (ferror (ifp)) {
+      sprintf (MsgText, "Can't read from %s (copying to %s).",
+               infile, outfile);
+      trlerror (MsgText);
+      fclose (ofp);
+      fclose (ifp);
+      free (buf);
+      return (status = FILE_NOT_READABLE);
+    }
+    if (feof (ifp))
+      done = 1;
+    
+    nout = fwrite (buf, sizeof(char), nin, ofp);
+    if (nout < nin) {
+      sprintf (MsgText, "Can't copy %s to %s.", infile, outfile);
+      trlerror (MsgText);
+      fclose (ofp);
+      fclose (ifp);
+      free (buf);
+      return (status = COPY_NOT_POSSIBLE);
+    }
 	}
-
+  
 	fclose (ofp);
 	fclose (ifp);
 	free (buf);
@@ -1073,31 +1209,31 @@ char *outfile   i: name of output file
  	
  	closeImage (im); 
  	freeHdr (&phdr); 
-
+  
 	return (status);
 }
 
 /* This function is an interface for calling ACSRej.  It sets up the
-   default parameters, copies printtime and verbose into the par structure,
-   and calls ACSRej.
-*/
+ default parameters, copies printtime and verbose into the par structure,
+ and calls ACSRej.
+ */
 
 # include "acsrej.h"
 
 static int ACSRej_0 (char *input, char *output, char *mtype, int newbias, int printtime, int verbose) {
-
+  
 	extern int status;
 	clpar 	par;			/* parameters used */
 	int 	newpar[MAX_PAR+1];	/* user specifiable parameters */
-
+  
 	void rej_reset (clpar *, int []);
 	int AcsRej (char *, char *, char *, clpar *, int []);
-
+  
 	rej_reset (&par, newpar);
 	par.printtime = printtime;
 	par.verbose = verbose;
-    par.newbias = newbias;
-
+  par.newbias = newbias;
+  
 	
 	status = AcsRej (input, output, mtype, &par, newpar);
 	
@@ -1106,14 +1242,14 @@ static int ACSRej_0 (char *input, char *output, char *mtype, int newbias, int pr
 
 
 /* This function compares the values of CRCORR and RPTCORR from
-     the image header with those deduced from the ASN table. */
+ the image header with those deduced from the ASN table. */
 int CheckCorr (AsnInfo *asn, ACSInfo *acshdr) {
-    
-    extern int status;
-    
-    if ( (asn->crcorr != acshdr->sci_crcorr) || (asn->rptcorr != acshdr->sci_rptcorr)) {
-        trlerror ("CRCORR and/or RPTCORR values not consistent with ASN table!");
-        return (status = ERROR_RETURN);
-    }
-    return (status);
+  
+  extern int status;
+  
+  if ( (asn->crcorr != acshdr->sci_crcorr) || (asn->rptcorr != acshdr->sci_rptcorr)) {
+    trlerror ("CRCORR and/or RPTCORR values not consistent with ASN table!");
+    return (status = ERROR_RETURN);
+  }
+  return (status);
 }

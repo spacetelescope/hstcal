@@ -1,5 +1,5 @@
 # include <stdio.h>
-# include "hstio.h"
+# include <hstio.h>
 
 # include "xtables.h"
 # include "acs.h"
