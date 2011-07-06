@@ -2,3 +2,4 @@
 
 
 # define ACS_CAL_VER "7.0.0 (21-Jun-2011)"
+# define ACS_CAL_VER_NUM "7.0.0"
