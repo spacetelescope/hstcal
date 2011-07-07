@@ -31,7 +31,8 @@ def build(bld):
             ../acsccd/doatod.c   ../acsccd/dobias.c ../acsccd/doblev.c
             ../acsccd/doccd.c   ../acsccd/doflash.c ../acsccd/findblev.c
             ../acsccd/findover.c ../acsccd/getacsflag.c
-            ../acsccd/getccdsw.c
+            ../acsccd/getccdsw.c ../acsccd/destripe.c
+            ../acsccd/dopcte.c ../acsccd/pcte_fixycte.c ../acsccd/pcte_funcs.c
 
             ../acsrej/acsrej.c ../acsrej/acsrej_check.c
             ../acsrej/acsrej_do.c ../acsrej/acsrej_init.c
