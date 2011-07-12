@@ -3,6 +3,7 @@
 import os, platform, shutil, sys
 
 import Configure
+from waflib import Errors
 import Logs
 import Options
 import Scripting
@@ -33,20 +34,36 @@ Scripting.g_gz = 'gz'
 
 option_parser = None
 def options(opt):
-    # Normally, custom options would be set here.  We don't really
-    # have any, but we want to store the option parser object so we
-    # can use it later (during the configuration phase) to parse
-    # options stored in a file.
+    # We want to store
+    # the option parser object so we can use it later (during the
+    # configuration phase) to parse options stored in a file.
     global option_parser
+    option_parser = opt.parser
 
     opt.load('compiler_c')
     opt.load('compiler_fc')
 
-    # Store the option_parser so we can use it to parse options from a
-    # file
-    option_parser = opt.parser
+    opt.add_option(
+        '--disable-openmp', action='store_true',
+        help="Disable OpenMP")
 
-def configure(conf):
+def _setup_openmp(conf):
+    conf.start_msg('Checking for OpenMP')
+    
+    if conf.options.disable_openmp:
+        conf.end_msg('OpenMP disabled.', 'YELLOW')
+        return
+    
+    try:
+        conf.check_cc(
+            header_name="omp.h", lib="gomp", cflags="-fopenmp",
+            uselib_store="OPENMP")
+    except Errors.ConfigurationError:
+        conf.end_msg("OpenMP not found.", 'YELLOW')
+    else:
+        conf.end_msg("OpenMP found.", 'GREEN')
+    
+def _determine_mac_osx_fortran_flags(conf):
     # On Mac OS-X, we need to know the specific version in order to
     # send some compile flags to the Fortran compiler.
     import platform
@@ -86,7 +103,11 @@ def configure(conf):
             conf.end_msg(
                 "Do not recognize this Mac OS only know 10.5-10.7",
                 'YELLOW')
-
+    
+    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion') :
+        conf.env.append_value('FCFLAGS', '-m64')
+            
+def configure(conf):
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
 
@@ -103,10 +124,11 @@ def configure(conf):
                     Options.options.__dict__[key] = val
         fd.close()
 
+    # Load C compiler support
     conf.load('compiler_c')
-    conf.load('compiler_fc')
 
     # Check for the existence of a Fortran compiler
+    conf.load('compiler_fc')
     conf.check_fortran()
 
     # Set the location of the hstcal include directory
@@ -126,9 +148,10 @@ def configure(conf):
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = []
 
-    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion') :
-        conf.env.append_value('FCFLAGS', '-m64')
+    _setup_openmp(conf)
 
+    _determine_mac_osx_fortran_flags(conf)
+    
     # The configuration related to cfitsio is stored in
     # cfitsio/wscript
     conf.recurse('cfitsio')
