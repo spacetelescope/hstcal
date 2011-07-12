@@ -23,6 +23,7 @@ typedef struct {
     /* command-line flags */
     int printtime;                  /* print time after each step? */
     int verbose;                    /* print additional info? */
+    int onecpu;                     /* turn off OpenMP usage if True */
 
     /* keywords and file names for reference files */
     RefFileInfo *refnames;

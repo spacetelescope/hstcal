@@ -201,7 +201,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     /* perform CTE correction */
     if (FixYCte(amp_arr1, amp_arr2, amp_sig_arr, amp_cor_arr, cte_frac,
                 pars.sim_nit, pars.shft_nit, pars.levels, dpde_l, tail_len,
-                chg_leak_lt, chg_open_lt)) {
+                chg_leak_lt, chg_open_lt, acs->onecpu)) {
       return (status);
     }
     

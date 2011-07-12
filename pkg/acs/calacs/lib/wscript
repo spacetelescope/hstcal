@@ -51,9 +51,9 @@ def build(bld):
             """,
         target = 'calacs',
         install_path = '${PREFIX}/lib',
-        use = ['CFITSIO'],
+        use = ['CFITSIO', 'OPENMP'],
         includes = ['../include'],
-        export_includes = ['../include']
+        export_includes = ['../include'],
         )
 
 

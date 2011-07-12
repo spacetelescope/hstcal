@@ -29,7 +29,7 @@ void InitCCDTrl (char *, char *, int);
  **		followed in CALSTIS1...
  **
  */
-int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames, int printtime, int verbose) {
+int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
   
 	extern int status;
   
@@ -76,7 +76,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   
 	/* Initialize structure containing calacs information. */
 	ACSInit (&acs);
-  
+    
 	/* Copy command-line arguments into acs. */
 	/* Start by making sure input name is a full filename... */
 	if (MkName (input, "_raw", "_raw", "", acs.input, ACS_LINE) ) {
@@ -93,7 +93,8 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   acs.pctecorr = ccd_sw->pctecorr;
 	acs.noisecorr = PERFORM;
 	acs.printtime = printtime;
-	acs.verbose = verbose;
+	acs.verbose = verbose;    
+    acs.onecpu = onecpu; 
   
   /* For debugging...
    acs.dqicorr  = PERFORM;

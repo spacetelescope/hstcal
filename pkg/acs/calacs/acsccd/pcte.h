@@ -52,4 +52,4 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             const int shft_nit, const int levels[NUM_LEV],
             const double dpde_l[NUM_LEV], const int tail_len[NUM_LEV],
             const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
-            const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV]);
+            const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV], int onecpu);

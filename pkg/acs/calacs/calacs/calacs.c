@@ -54,7 +54,7 @@ static int CopyFFile (char *, char *);
 static void SetACSSw (CalSwitch *, CalSwitch *, CalSwitch *);
 static void ResetACSSw (CalSwitch *, CalSwitch *);
 
-int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug) {
+int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug, int onecpu) {
   
   /* arguments:
    char *input	 i: name of the FITS file/table to be processed
@@ -62,6 +62,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug)
    int *save_tmp     i: true --> save temporary files
    int verbose      i: true --> print info during processing
    int debug 	     i: true --> print debugging info during processing
+   int onecpu 	     i: true --> turn off use of OpenMP during processing
    */
   
   
@@ -85,7 +86,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug)
 	void initAsnInfo (AsnInfo *);
 	void freeAsnInfo (AsnInfo *);
 	int LoadAsn (AsnInfo *);
-	int ProcessCCD (AsnInfo *, ACSInfo *, int *, int);
+	int ProcessCCD (AsnInfo *, ACSInfo *, int *, int, int);
 	int ProcessMAMA (AsnInfo *, ACSInfo *, int);	
 	int AcsDth (char *, char *, int, int, int);
 	char *BuildDthInput (AsnInfo *, int);
@@ -154,7 +155,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug)
 		if (asn.verbose) {
 			trlmessage ("CALACS: processing a CCD product");
 		}
-		if (ProcessCCD(&asn, &acshdr, &save_tmp, printtime)) { 
+		if (ProcessCCD(&asn, &acshdr, &save_tmp, printtime, onecpu)) { 
 			if (status == NOTHING_TO_DO) {
         trlwarn ("No processing desired for CCD data.");            
       } else {
@@ -339,7 +340,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 	return(acsdth_input);
 }
 
-int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
+int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, int onecpu) {
   
 	extern int status; 
 	
@@ -366,7 +367,7 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
 	void InitRefFile (RefFileInfo *);
 	void FreeRefFile (RefFileInfo *);
 	int ACSRefInit (ACSInfo *, CalSwitch *, RefFileInfo *);
-	int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int);
+	int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int, int);
 	int ACS2d (char *, char *,CalSwitch *, RefFileInfo *, int, int);
 	int GetAsnMember (AsnInfo *, int, int, int, ACSInfo *);
 	int GetSingle (AsnInfo *, ACSInfo *);
@@ -516,7 +517,7 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
           
           if (acsccd_sci_sw.pctecorr == PERFORM) {
             if (ACSccd(acshdr->rawfile, acshdr->blc_tmp,
-                       &acsccd_sci_sw, &sciref, printtime, asn->verbose)) {
+                       &acsccd_sci_sw, &sciref, printtime, asn->verbose, onecpu)) {
               return (status);
             }
             
@@ -524,13 +525,13 @@ int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime) {
              * performed this time. */
             acsccd_sci_sw.pctecorr = OMIT;
             if (ACSccd(acshdr->rawfile, acshdr->blv_tmp,
-                       &acsccd_sci_sw, &sciref, printtime, asn->verbose)) {
+                       &acsccd_sci_sw, &sciref, printtime, asn->verbose, onecpu)) {
               return (status);
             }
             acsccd_sci_sw.pctecorr = PERFORM;
           } else if (acsccd_sci_sw.pctecorr == OMIT){          
             if (ACSccd (acshdr->rawfile, acshdr->blv_tmp,
-                        &acsccd_sci_sw, &sciref, printtime, asn->verbose)) 		
+                        &acsccd_sci_sw, &sciref, printtime, asn->verbose, onecpu)) 		
               return (status);
           }
           

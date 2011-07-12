@@ -34,6 +34,7 @@ int main (int argc, char **argv) {
 	int printtime = NO;	/* print time after each step? */
 	int verbose = NO;	/* print additional info? */
 	int quiet = NO;	/* print additional info? */
+    int onecpu = NO; /* Use OpenMP (multi vs single CPU mode), if available? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */
 	int k;
@@ -58,7 +59,7 @@ int main (int argc, char **argv) {
 	void FreeRefFile (RefFileInfo *);
 	void initSwitch (CalSwitch *);
   
-	int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int);
+	int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int, int);
 	int DefSwitch (char *);
 	int MkName (char *, char *, char *, char *, char *, int);
 	void WhichError (int);
@@ -114,6 +115,8 @@ int main (int argc, char **argv) {
           verbose = YES;
 		    } else if (argv[i][j] == 'q') {
           quiet = YES;
+		    } else if (argv[i][j] == '1') {
+          onecpu = YES;
 		    } else {
           printf (MsgText, "Unrecognized option %s\n", argv[i]);
 			    FreeNames (inlist, outlist, input, output);
@@ -129,7 +132,7 @@ int main (int argc, char **argv) {
     }
 	}
 	if (inlist[0] == '\0' || too_many) {
-    printf ("syntax:  acsccd [-t] [-v] [-q] input output\n");
+    printf ("syntax:  acsccd [-t] [-v] [-q] [-1] input output\n");
     printf ("  command-line switches:\n");
     printf ("       -dqi  -atod -blev -bias\n");
     FreeNames (inlist, outlist, input, output);
@@ -183,7 +186,7 @@ int main (int argc, char **argv) {
     }
     
     /* Calibrate the current input file. */
-    if (ACSccd (input, output, &ccd_sw, &refnames, printtime, verbose)) {
+    if (ACSccd (input, output, &ccd_sw, &refnames, printtime, verbose, onecpu)) {
 			sprintf (MsgText, "Error processing %s.", input);
 			trlerror (MsgText);
 			WhichError (status);

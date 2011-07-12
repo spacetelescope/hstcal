@@ -126,7 +126,7 @@ def configure(conf):
 
     # Load C compiler support
     conf.load('compiler_c')
-
+    
     # Check for the existence of a Fortran compiler
     conf.load('compiler_fc')
     conf.check_fortran()

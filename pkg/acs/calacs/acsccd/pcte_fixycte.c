@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <math.h>
 
+# ifdef _OPENMP
+#include <omp.h>
+# endif
+
 #include "pcte.h"
+#include "acs.h"
 
 /* function prototypes */
 int sim_readout(const int arrx, double pix_cur[arrx], double pix_read[arrx],
@@ -21,7 +26,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             const int shft_nit, const int levels[NUM_LEV],
             const double dpde_l[NUM_LEV], const int tail_len[NUM_LEV],
             const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
-            const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV]) {
+            const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV], int onecpu) {
   
   /* status variable for return */
   extern int status;
@@ -33,34 +38,75 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
   double pix_obs[arrx];
   double pix_cur[arrx];
   double pix_read[arrx];
-  
-  /* loop over columns. columns are independent of each other. */
-  for (i = 0; i < arry; i++) {    
-    /* copy column data */
-    for (j = 0; j < arrx; j++) {
-      pix_obs[j] = sig_cte[j*arry + i];
-      pix_cur[j] = pix_obs[j];
-      pix_read[j] = 0.0;
-    }
     
-    for (n = 0; n < sim_nit; n++) {
-      status = sim_readout_nit(arrx, pix_cur, pix_read, cte_frac, shft_nit,
-                               levels, dpde_l, tail_len, chg_leak_lt, chg_open_lt);
-      if (status != 0) {
-        return status;
-      }
-      
-      for (j = 0; j < arrx; j++) {
-        pix_cur[j] += pix_obs[j] - pix_read[j];
-      }
-    }
-    
-    /* copy fixed column to output */
-    for (j = 0; j < arrx; j++) {
-      sig_cor[j*arry + i] = pix_cur[j];
-    }
-  } /* end loop over columns */
-  
+  /* Only use OpenMP, if specified by user and OpenMP was available for compilation */
+  if (onecpu == 1) {
+
+      trlmessage("Using single-CPU processing for YCTE correction.\n");
+      /* loop over columns. columns are independent of each other. */
+      for (i = 0; i < arry; i++) {    
+        /* copy column data */
+        for (j = 0; j < arrx; j++) {
+          pix_obs[j] = sig_cte[j*arry + i];
+          pix_cur[j] = pix_obs[j];
+          pix_read[j] = 0.0;
+        }
+
+        for (n = 0; n < sim_nit; n++) {
+          status = sim_readout_nit(arrx, pix_cur, pix_read, cte_frac, shft_nit,
+                                   levels, dpde_l, tail_len, chg_leak_lt, chg_open_lt);
+          if (status == 0) {
+
+              for (j = 0; j < arrx; j++) {
+                pix_cur[j] += pix_obs[j] - pix_read[j];
+              }
+          } /* Only do this if sim_readout_nit() succeeded */
+
+        }
+        if (status == 0){
+            /* copy fixed column to output */
+            for (j = 0; j < arrx; j++) {
+              sig_cor[j*arry + i] = pix_cur[j];
+            }
+        } /* Only do this if sim_readout_nit() succeeded */
+      } /* end loop over columns */
+  } else {
+    /* Use OpenMP for parallel processing, if specified by user */
+# ifdef _OPENMP
+  trlmessage("Using parallel processing provided by OpenMP for YCTE correction.\n");
+# endif
+# ifndef _OPENMP
+  trlmessage("Parallel processing for YCTE correction not used... OpenMP missing.\n"); 
+# endif
+#pragma omp parallel for private(i,j,n)
+      /* loop over columns. columns are independent of each other. */
+      for (i = 0; i < arry; i++) {    
+        /* copy column data */
+        for (j = 0; j < arrx; j++) {
+          pix_obs[j] = sig_cte[j*arry + i];
+          pix_cur[j] = pix_obs[j];
+          pix_read[j] = 0.0;
+        }
+
+        for (n = 0; n < sim_nit; n++) {
+          status = sim_readout_nit(arrx, pix_cur, pix_read, cte_frac, shft_nit,
+                                   levels, dpde_l, tail_len, chg_leak_lt, chg_open_lt);
+          if (status == 0) {
+
+              for (j = 0; j < arrx; j++) {
+                pix_cur[j] += pix_obs[j] - pix_read[j];
+              }
+          } /* Only do this if sim_readout_nit() succeeded */
+
+        }
+        if (status == 0){
+            /* copy fixed column to output */
+            for (j = 0; j < arrx; j++) {
+              sig_cor[j*arry + i] = pix_cur[j];
+            }
+        } /* Only do this if sim_readout_nit() succeeded */
+      } /* end loop over columns */
+  }  
   return status;
 }
 
