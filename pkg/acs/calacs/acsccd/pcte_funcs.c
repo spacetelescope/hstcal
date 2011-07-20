@@ -445,15 +445,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
 
 /*
  * CalcCteFrac calculates the multiplicative factor that accounts for the
- * worsening of CTE over time. This is currently a linear function valid over
- * the whole life of ACS/WFC, but this will change soon. Jay Anderson has
- * discovered that the slope of the CTE scaling is not constant so the function
- * for CTE frac will be different depending on the obs. start time. The plan
- * is to add the CTE frac parameterization to the CTE params reference file
- * once Jay has them nailed down.
- * - MRD 18 Feb. 2011
- *
- * Constants for instrument names are defined in PixCteCorr.h.
+ * worsening of CTE over time.
  */
 double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
                    const double scaleval[NUM_SCALE]) {
