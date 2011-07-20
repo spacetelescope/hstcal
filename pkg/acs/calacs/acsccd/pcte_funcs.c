@@ -17,7 +17,7 @@
  * develops and as new instruments are added.
  * - MRD 18 Feb. 2011
  */
-int PixCteParams (const char *filename, CTEParams *pars) {
+int PixCteParams (const char *filename, const double expstart, CTEParams *pars) {
   
   extern int status; /* variable for return status */
   
@@ -32,6 +32,8 @@ int PixCteParams (const char *filename, CTEParams *pars) {
   IRAFPointer col_ptr_dtde;   /* xtables column pointer for dtde */
   IRAFPointer col_ptr_qdtde;  /* xtables column pointer for q_dtde */
   IRAFPointer col_ptr_levs;   /* xtables column pointer for levels */
+  IRAFPointer col_ptr_mjd;    /* xtables column pointer for mjd */
+  IRAFPointer col_ptr_scale;  /* xtables column pointer for scale */
   
   /* names of data columns we want from the file */
   const char dtde[] = "DTDE";
@@ -39,13 +41,24 @@ int PixCteParams (const char *filename, CTEParams *pars) {
   const char node[] = "NODE";
   const char *logq_keys[NUM_LOGQ] = {"LOG_Q_1","LOG_Q_2","LOG_Q_3","LOG_Q_4"};
   const char level[] = "LEVEL";
+  const char mjdstr[] = "MJD";
+  const char scalestr[] = "SCALE";
   
-  /* variable for filename + extension number. 
-   * not sure it's cool to use strlen here but it works for now */
+  /* variable for filename + extension number. */
   char filename_wext[strlen(filename) + 4];
   
   /* iteration variable */
-  int j, k;
+  int j, k, l;
+  
+  /* number of CHG_LEAK# extensions in the file */
+  int nchg_leak;
+  
+  /* arrays to hold CTE scaling data */
+  double scalemjd[NUM_SCALE];
+  double scaleval[NUM_SCALE];
+  
+  /* MJD values from CHG_LEAK extension headers */
+  double chg_mjd1, chg_mjd2;
   
   /* functions from calacs/lib */
   int LoadHdr (char *input, Hdr *phdr);
@@ -77,6 +90,14 @@ int PixCteParams (const char *filename, CTEParams *pars) {
   /* read SHFT_NIT keyword from primary header */
   if (GetKeyInt(&hdr_ptr, "SHFT_NIT", NO_DEFAULT, -999, &pars->shft_nit)) {
     trlerror("(pctecorr) Error reading SHFT_NIT keyword from PCTETAB");
+    status = KEYWORD_MISSING;
+    return status;
+  }
+  
+  /* read NCHGLEAK keyword from primary header.
+   * descripes number of CHG_LEAK# extensions in the file */
+  if (GetKeyInt(&hdr_ptr, "NCHGLEAK", NO_DEFAULT, -999, &nchg_leak)) {
+    trlerror("(pctecorr) Error reading NCHGLEAK keyword from PCTETAB");
     status = KEYWORD_MISSING;
     return status;
   }
@@ -144,72 +165,9 @@ int PixCteParams (const char *filename, CTEParams *pars) {
   /****************************************************************************/
   
   /****************************************************************************/
-  /* read NODE/LOG_Q_# data from second table extension */
-  /* make filename + ext number 1 */
-  sprintf(filename_wext, "%s[%i]", filename, 2);
-  
-  /* open CTE parameters file to extension number 2 */
-  tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
-  if (c_iraferr()) {
-    sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-    trlerror(MsgText);
-    status = OPEN_FAILED;
-    return status;
-  }
-  
-  /* read data from table */
-  /* get column pointer for the psi nodes */
-  c_tbcfnd1(tbl_ptr, node, &col_ptr_psin);
-  if (c_iraferr() || col_ptr_psin == 0) {
-    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",node);
-    trlerror(MsgText);
-    status = COLUMN_NOT_FOUND;
-    return status;
-  }
-  
-  /* iterate over table rows */
-  for (j = 0; j < NUM_PSI; j++) {
-    /* get the psi node number */
-    c_tbegti(tbl_ptr, col_ptr_psin, j+1, &pars->psi_node[j]);
-    if (c_iraferr()) {
-      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, node);
-      trlerror(MsgText);
-      status = TABLE_ERROR;
-      return status;
-    }
-    
-    /* loop over table columns to read log q values */
-    for (k = 0; k < NUM_LOGQ; k++) {
-      /* get column pointer for this log q */
-      c_tbcfnd1(tbl_ptr, logq_keys[k], &col_ptr_logq);
-      if (c_iraferr() || col_ptr_logq == 0) {
-        sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",logq_keys[k]);
-        trlerror(MsgText);
-        status = COLUMN_NOT_FOUND;
-        return status;
-      }
-      
-      /* read this log q value */
-      c_tbegtd(tbl_ptr, col_ptr_logq, j+1, &pars->chg_leak[j*NUM_LOGQ + k]);
-      if (c_iraferr()) {
-        sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",
-                j+1, logq_keys[k]);
-        trlerror(MsgText);
-        status = TABLE_ERROR;
-        return status;
-      }
-    }
-  }
-  
-  /* close CTE parameters file for extension 2
-   * end of reading NODE/LOG_Q_# data */
-  c_tbtclo(tbl_ptr);
-  /****************************************************************************/
-  
-  /****************************************************************************/
   /* read LEVEL data from third table extensions */
-  /* make filename + ext number 3 */
-  sprintf(filename_wext, "%s[%i]", filename, 3);
+  /* make filename + ext number 2 */
+  sprintf(filename_wext, "%s[%i]", filename, 2);
   
   /* open CTE parameters file to extension number 3 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
@@ -242,9 +200,152 @@ int PixCteParams (const char *filename, CTEParams *pars) {
     }
   }
   
-  /* close CTE parameters file for extension 3
+  /* close CTE parameters file for extension 2
    * end of reading LEVEL data */
   c_tbtclo(tbl_ptr);
+  /****************************************************************************/
+  
+  /****************************************************************************/
+  /* read MJD/SCALE data from third table extension */
+  /* make filename + ext number 3 */
+  sprintf(filename_wext, "%s[%i]", filename, 3);
+  
+  /* open CTE parameters file to extension number 2 */
+  tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
+  if (c_iraferr()) {
+    sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
+    trlerror(MsgText);
+    status = OPEN_FAILED;
+    return status;
+  }
+  
+  /* read data from table */
+  /* get column pointer for the MJD points */
+  c_tbcfnd1(tbl_ptr, mjdstr, &col_ptr_psin);
+  if (c_iraferr() || col_ptr_psin == 0) {
+    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",mjdstr);
+    trlerror(MsgText);
+    status = COLUMN_NOT_FOUND;
+    return status;
+  }
+  
+  /* get column pointer for CTE scale */
+  c_tbcfnd1(tbl_ptr, scalestr, &col_ptr_logq);
+  if (c_iraferr() || col_ptr_logq == 0) {
+    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",scalestr);
+    trlerror(MsgText);
+    status = COLUMN_NOT_FOUND;
+    return status;
+  }
+  
+  /* iterate over table rows */
+  for (j = 0; j < NUM_SCALE; j++) {
+    /* get the MJD value */
+    c_tbegtd(tbl_ptr, col_ptr_psin, j+1, &scalemjd[j]);
+    if (c_iraferr()) {
+      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, mjdstr);
+      trlerror(MsgText);
+      status = TABLE_ERROR;
+      return status;
+    }
+      
+    /* read this scale value */
+    c_tbegtd(tbl_ptr, col_ptr_logq, j+1, &scaleval[j]);
+    if (c_iraferr()) {
+      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",
+              j+1, scalestr);
+      trlerror(MsgText);
+      status = TABLE_ERROR;
+      return status;
+    }
+  }
+  
+  /* close CTE parameters file for extension 3
+   * end of reading MJD/SCALE data */
+  c_tbtclo(tbl_ptr);
+  
+  /* calculate cte_frac */
+  pars->cte_frac = CalcCteFrac(expstart, scalemjd, scaleval);
+  /****************************************************************************/
+  
+  /****************************************************************************/
+  /* read NODE/LOG_Q_# data from fourth+ table extension
+   * there may be multiple CHG_LEAK extensions based on the time dependence
+   * of the CTE trail profiles. we need to open them up until we find the one
+   * that matches the time of observation and return that data.
+   */
+  
+  for (l = 0; l < nchg_leak; l++) {
+    /* make filename + ext number 4 */
+    sprintf(filename_wext, "%s[%i]", filename, l+4);
+    
+    /* open CTE parameters file to extension number 4 */
+    tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
+    if (c_iraferr()) {
+      sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
+      trlerror(MsgText);
+      status = OPEN_FAILED;
+      return status;
+    }
+    
+    chg_mjd1 = c_tbhgtr(tbl_ptr, "MJD1");
+    chg_mjd2 = c_tbhgtr(tbl_ptr, "MJD2");
+    
+    /* check if we're in the date range for this table */
+    if (chg_mjd1 <= expstart && chg_mjd2 > expstart) {    
+      /* read data from table */
+      /* get column pointer for the psi nodes */
+      c_tbcfnd1(tbl_ptr, node, &col_ptr_psin);
+      if (c_iraferr() || col_ptr_psin == 0) {
+        sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",node);
+        trlerror(MsgText);
+        status = COLUMN_NOT_FOUND;
+        return status;
+      }
+      
+      /* iterate over table rows */
+      for (j = 0; j < NUM_PSI; j++) {
+        /* get the psi node number */
+        c_tbegti(tbl_ptr, col_ptr_psin, j+1, &pars->psi_node[j]);
+        if (c_iraferr()) {
+          sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, node);
+          trlerror(MsgText);
+          status = TABLE_ERROR;
+          return status;
+        }
+        
+        /* loop over table columns to read log q values */
+        for (k = 0; k < NUM_LOGQ; k++) {
+          /* get column pointer for this log q */
+          c_tbcfnd1(tbl_ptr, logq_keys[k], &col_ptr_logq);
+          if (c_iraferr() || col_ptr_logq == 0) {
+            sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",logq_keys[k]);
+            trlerror(MsgText);
+            status = COLUMN_NOT_FOUND;
+            return status;
+          }
+          
+          /* read this log q value */
+          c_tbegtd(tbl_ptr, col_ptr_logq, j+1, &pars->chg_leak[j*NUM_LOGQ + k]);
+          if (c_iraferr()) {
+            sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",
+                    j+1, logq_keys[k]);
+            trlerror(MsgText);
+            status = TABLE_ERROR;
+            return status;
+          }
+        } /* end loop over columns */
+      } /* end iterating over table rows */
+    
+      /* close CTE parameters file for extension */
+      c_tbtclo(tbl_ptr);
+      break;
+    } else {
+      /* close CTE parameters file for extension */
+      c_tbtclo(tbl_ptr);
+    }
+  }
+  /* end of reading NODE/LOG_Q_# data */
   /****************************************************************************/
   
   return status;
@@ -354,25 +455,43 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
  *
  * Constants for instrument names are defined in PixCteCorr.h.
  */
-double CalcCteFrac(const double mjd, const int instrument) {
+double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
+                   const double scaleval[NUM_SCALE]) {
+  
+  /* iteration variables */
+  int i;
   
   /* variables used to calculate the CTE scaling slope */
-  double mjd_pt1, mjd_pt2; /* the MJD points at which the scaling is defined */
+  double mjd_pt1 = 0;
+  double mjd_pt2 = 0;      /* the MJD points at which the scaling is defined */
   double cte_pt1, cte_pt2; /* the CTE frac points at which the scaling is defined */
   
-  double cte_frac;         /* return value */
+  /* return value */
+  double cte_frac;
   
-  if (instrument == ACSWFC) {
-    cte_pt1 = 0.0;
-    cte_pt2 = 1.0;
-    mjd_pt1 = 52335.0;  /* March 2, 2002 */
-    mjd_pt2 = 55263.0;  /* March 8, 2010 */
-  } else {
-    printf("Instrument not found: %i\n",instrument);
-    return -9999.0;
+  /* find the values that bound this exposure */
+  for (i = 0; i < NUM_SCALE-1; i++) {
+    if (expstart >= scalemjd[i] && expstart < scalemjd[i+1]) {
+      mjd_pt1 = scalemjd[i];
+      mjd_pt2 = scalemjd[i+1];
+      cte_pt1 = scaleval[i];
+      cte_pt2 = scaleval[i+1];
+      break;
+    }
   }
   
-  cte_frac = ((cte_pt2 - cte_pt1) / (mjd_pt2 - mjd_pt1)) * (mjd - mjd_pt1);
+  /* it's possible this exposure is not bounded by any of defining points,
+   * in that case we're extrapolating based on the last two points. */
+  if (expstart >= scalemjd[NUM_SCALE-1] && mjd_pt1 == 0 && mjd_pt2 == 0) {
+    mjd_pt1 = scalemjd[NUM_SCALE-2];
+    mjd_pt2 = scalemjd[NUM_SCALE-1];
+    cte_pt1 = scaleval[NUM_SCALE-2];
+    cte_pt2 = scaleval[NUM_SCALE-1];
+  } else if (mjd_pt1 == 0 && mjd_pt2 == 0) {
+    trlerror("(pctecorr) No suitable CTE scaling data found in PCTETAB");
+  }
+  
+  cte_frac = ((cte_pt2 - cte_pt1) / (mjd_pt2 - mjd_pt1)) * (expstart - mjd_pt1) + cte_pt1;
   
   return cte_frac;
 }

@@ -46,9 +46,6 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
   
 	extern int status;
   
-  /* cte scaling factor */
-  double cte_frac;
-  
   /* interpolated cte profile shape parameters */
   double chg_leak[MAX_TAIL_LEN*NUM_LOGQ];
   double chg_open[MAX_TAIL_LEN*NUM_LOGQ];
@@ -106,7 +103,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
   }
   
   /****************** read and calculate parameters of CTE model **************/
-  if (PixCteParams(acs->pcte.name, &pars)) {
+  if (PixCteParams(acs->pcte.name, acs->expstart, &pars)) {
     return (status);
   }
   
@@ -120,13 +117,12 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
   sprintf(MsgText,"(pctecorr) Number of readout shifts PCTESHFT: %i",pars.shft_nit);
   trlmessage(MsgText);
   
-  cte_frac = CalcCteFrac(acs->expstart, acs->detector);
-  sprintf(MsgText,"(pctecorr) CTE_FRAC: %f",cte_frac);
+  sprintf(MsgText,"(pctecorr) CTE_FRAC: %f",pars.cte_frac);
   trlmessage(MsgText);
   
   /* also add cte_frac as header keyword */
   if (acs->chip == 2) {
-    if (PutKeyDbl(x->globalhdr,"PCTEFRAC",cte_frac,"CTE scaling factor")) {
+    if (PutKeyDbl(x->globalhdr,"PCTEFRAC",pars.cte_frac,"CTE scaling factor")) {
       trlerror("(pctecorr) Error writing PCTEFRAC to image header");
       return (status = HEADER_PROBLEM);
     }
@@ -199,7 +195,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     }
     
     /* perform CTE correction */
-    if (FixYCte(amp_arr1, amp_arr2, amp_sig_arr, amp_cor_arr, cte_frac,
+    if (FixYCte(amp_arr1, amp_arr2, amp_sig_arr, amp_cor_arr, pars.cte_frac,
                 pars.sim_nit, pars.shft_nit, pars.levels, dpde_l, tail_len,
                 chg_leak_lt, chg_open_lt, acs->onecpu)) {
       return (status);
