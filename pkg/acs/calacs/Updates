@@ -1,3 +1,14 @@
+Update for version 7.1.1 - 19-Jul-11 (MRD)
+    acsccd/dopcte.c
+    acsccd/pcte.h
+    acsccd/pcte_funcs.c
+        Updated to be compatible with new PCTETAB containing time dependent
+        CTE characterization.
+
+Update for version 7.1.0 - 13-Jul-11 (WJH)
+    acsccd/pcte_fixycte.c
+        Added parallel processing via OpenMP.
+
 Update for version 7.0.0 - 21-Jun-11 (MRD)
     include/acscorr.h
         Added CTE correction flag.
