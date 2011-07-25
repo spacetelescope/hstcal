@@ -487,10 +487,8 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    printf ("\n");
 	    PrSwitch ("photcorr", sts->photcorr);
 	    if (sts->photcorr == PERFORM) {
-                printf ("debug:  about to call doPhot\n");
 		if (status = doPhot (sts, x))
 		    return (status);
-                printf ("debug:  doPhot called\n");
 		PhotMsg (sts);
 		PrSwitch ("photcorr", COMPLETE);
 		if (sts->printtime)
