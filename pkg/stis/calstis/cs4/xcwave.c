@@ -68,6 +68,10 @@ static double max_pixel = 2048.;	/* image pixel units */
 	convert pixel coordinate to a wavelength.  Both these changes
 	were added to support non-linear wavelengths (e.g. prism data).
 	Remove normalization of template spectrum in SumSpec.
+
+   Phil Hodge, 2010 July 29:
+	In PixToWl, call prismDisp instead of explicitly evaluating the
+	prism dispersion relation.
 */
 
 int XCWave (StisInfo4 *sts, double wl[], double flux[], int nelem,
@@ -315,8 +319,7 @@ double ltm, ltv     i: for converting from image to reference pixels
 double pixel        i: X coordinate, zero-indexed image pixel units
 */
 
-	double x_ref;	/* pixel converted to reference coordinates */
-	double x;	/* pixel number - first coefficient (prism only) */
+	double x_ref0;	/* pixel converted to reference coordinates */
 	double wl;	/* value to be returned */
 
 	if (disp_type == RECTIFIED) {
@@ -332,16 +335,10 @@ double pixel        i: X coordinate, zero-indexed image pixel units
 
 	    } else {
 
-		/* Convert to reference coords and add one for one-indexing. */
-		x_ref = (pixel - ltv) / ltm + 1.;
+		/* Convert to reference coords, but leave as zero-indexed. */
+		x_ref0 = (pixel - ltv) / ltm;
 
-		x = x_ref - coeff[0];
-
-		wl = coeff[5] / x;
-		wl = (coeff[4] + wl) / x;
-		wl = (coeff[3] + wl) / x;
-		wl = (coeff[2] + wl) / x;
-		wl += coeff[1];
+		wl = prismDisp (coeff, x_ref0);
 
 		if (wl > MAX_PRISM_WAVELENGTH)
 		    wl = MAX_PRISM_WAVELENGTH;

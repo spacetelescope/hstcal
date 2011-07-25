@@ -19,6 +19,7 @@ static int getArgT (char **, int, int *, char *);
    Revision history:
    ----------------
    20 Oct 97  -  Adapted from cs6 commline.c (JC Hsu)
+   06 Jul 11  -  Add command-line option --version (Phil Hodge)
 */
 
 int cs2_command (int argc, char **argv, char *input, char *output,
@@ -40,6 +41,13 @@ int newpar;		o: parameter been set by the user?
 	/* reset the parameters */
 	cs2_reset (par, newpar); 
 
+	for (ctoken = 1;  ctoken < argc;  ctoken++) {
+	    if (strcmp (argv[ctoken], "--version") == 0) {
+		PrVersion();
+		exit (0);
+	    }
+	}
+
 	/* not enough arguments */
 	if (argc < 3)
 	    return (syntax_error ("cs2 input output"));
@@ -47,6 +55,7 @@ int newpar;		o: parameter been set by the user?
 	/* Get names of input and output files. These are mandatory. */
 	strcpy (input,  argv[1]);
 	strcpy (output, argv[2]);
+
 
 	/* Scan remaining parameters. */
 	if (argc > 3) {

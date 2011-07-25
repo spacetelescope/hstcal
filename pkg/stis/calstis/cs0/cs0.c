@@ -19,6 +19,9 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
    Phil Hodge, 1998 Jan 21:
 	Accept lists of input and outroot file names, and loop over
 	individual file names.
+
+   Phil Hodge, 2011 July 6:
+	Include command-line option '--version'.
 */
 
 int main (int argc, char **argv) {
@@ -71,6 +74,10 @@ int main (int argc, char **argv) {
 		strcpy (wavlist, argv[i]);
 		wavecal_next = 0;
 	    } else if (argv[i][0] == '-') {
+		if (strcmp (argv[i], "--version") == 0) {
+		    PrVersion();
+		    exit (0);
+		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;

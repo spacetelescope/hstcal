@@ -16,6 +16,9 @@
 	whether opt_elem begins with "MIR".  The opt_elem value will be
 	appended to the photmode string unless opt_elem is any of the
 	mirror names.
+
+   Phil Hodge, 2011 May 5:
+	Also include MJD#<date> to the photmode string.
 */
 
 int PhotMode (StisInfo1 *sts, SingleGroup *x) {
@@ -74,6 +77,10 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 		strcat (photstr, scratch);
 	    }
 	}
+
+	/* Add 'mjd#' to PHOTMODE string. */
+	sprintf (scratch, " MJD#%0.4f", sts->expstart);
+	strcat (photstr, scratch);
 
 	/* Update PHOTMODE in the primary header. */
 	if (status = Put_KeyS (x->globalhdr, "PHOTMODE", photstr,

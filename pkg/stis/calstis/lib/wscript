@@ -8,6 +8,7 @@ def build(bld):
         source = """
             add2d.c addk2d.c bin2d.c bincoords.c binupdate.c
             blazecorr.c checkimsetok.c defswitch.c div2d.c dostat.c
+            evaldisp.c 
             extrap1d.c fileexists.c getcorner.c getdettemp.c getlt0.c
             getlt.c getmoc.c getrefname.c getswitch.c gettds.c
             gotfilename.c imghistory.c imgpedigree.c initreftab.c
@@ -31,10 +32,10 @@ def build(bld):
             ../cs1/donoise.c ../cs1/dononlin.c ../cs1/dophot.c
             ../cs1/doppconv.c ../cs1/doshad.c ../cs1/findbin.c
             ../cs1/findblev.c ../cs1/findover.c ../cs1/flagfilter.c
-            ../cs1/getapthr1.c ../cs1/getccdtab.c ../cs1/getepctab1.c
+            ../cs1/getccdtab.c ../cs1/getepctab1.c
             ../cs1/getflags1.c ../cs1/getgrpinfo1.c
-            ../cs1/getkeyinfo1.c ../cs1/getlintab.c ../cs1/getphot1.c
-            ../cs1/gettdccorr.c ../cs1/gettds1.c ../cs1/history1.c
+            ../cs1/getkeyinfo1.c ../cs1/getlintab.c
+            ../cs1/gettdccorr.c ../cs1/history1.c
             ../cs1/makedopp.c ../cs1/photmode.c ../cs1/sanity1.c
 
             ../cs2/calstis2.c ../cs2/cr_history.c ../cs2/cr_mode.c
@@ -60,7 +61,7 @@ def build(bld):
             ../cs6/buildoptprof.c ../cs6/buildprof.c ../cs6/calstis6.c
             ../cs6/calstis6std.c ../cs6/checkoptimal.c
             ../cs6/commline.c ../cs6/crosscor.c ../cs6/defineback.c
-            ../cs6/do1dx.c ../cs6/evaldisp6.c ../cs6/findlya.c
+            ../cs6/do1dx.c ../cs6/findlya.c
             ../cs6/gcrosscor.c ../cs6/getabsphot6.c ../cs6/getapdes6.c
             ../cs6/getapoffset6.c ../cs6/getapthr6.c
             ../cs6/getccdtab6.c ../cs6/getcheckref.c ../cs6/getdisp6.c
@@ -81,7 +82,7 @@ def build(bld):
             ../cs6/idtalg/xc6.c
 
             ../cs7/absflux.c ../cs7/adjustdisp.c ../cs7/calstis7.c
-            ../cs7/datamasked.c ../cs7/do2dx.c ../cs7/evaldisp.c
+            ../cs7/datamasked.c ../cs7/do2dx.c ../cs7/evaldisp7.c 
             ../cs7/geocorr7.c ../cs7/getabsphot.c ../cs7/getapdes7.c
             ../cs7/getapoffset.c ../cs7/getapthr.c ../cs7/getdisp.c
             ../cs7/getflags7.c ../cs7/getgrpinfo7.c ../cs7/getidc.c
@@ -108,5 +109,3 @@ def build(bld):
         includes = ['../include'],
         export_includes = ['../include']
         )
-
-

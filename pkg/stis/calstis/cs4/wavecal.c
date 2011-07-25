@@ -17,7 +17,7 @@
 
 static void ScaleTrim (StisInfo4 *);
 static void ScaleOne (int, double, int, int []);
-static int MOCAdjustDisp (StisInfo4 *, SpTrace *, DispRelation *);
+static void SaveDispCoeff (DispRelation *);
 static void PrintWCP (StisInfo4 *);
 static void PrintSection (StisInfo4 *);
 static void PrintRefMsg (StisInfo4 *);
@@ -75,6 +75,12 @@ static void FreeLampSpec (LampInfo *);
 
    Phil Hodge, 2008 Nov 3:
 	Delete function getMinMax, and use sts->imset_ok.
+
+   Phil Hodge, 2011 Jan 5:
+	Add function SaveDispCoeff.  Move clamp from this function to EchShift.
+
+   Phil Hodge, 2011 Feb 2:
+        Initialize disp.ncoeff to 0.
 */
 
 int WaveCal (StisInfo4 *sts) {
@@ -93,7 +99,6 @@ StisInfo4 *sts    i: calibration switches and info
 	LampInfo lamp;		/* reference spectrum of cal lamp */
 	ApInfo slit;		/* description of slit */
 	DispRelation disp;	/* dispersion relation */
-	CmplxArray clamp;	/* template lamp image (complex array) */
 	char ref_aper[STIS_CBUF+1];	/* name of reference aperture */
 	double angle;		/* incidence angle */
 	double w_shift, s_shift; /* shifts in wavelength and slit direction */
@@ -116,7 +121,7 @@ StisInfo4 *sts    i: calibration switches and info
 	int History4 (StisInfo4 *, Hdr *);
 	int EchShift (StisInfo4 *, SingleGroup *,
 		LampInfo *, DispRelation *, SpTrace *,
-		CmplxArray *, double *, double *);
+		double *, double *);
 	void ScaleRef (StisInfo4 *, double *, double *);
 	int SpatialShift (StisInfo4 *, ApInfo *, SpTrace *,
 		SingleGroup *, double *, double *);
@@ -130,7 +135,9 @@ StisInfo4 *sts    i: calibration switches and info
 	/* memory not allocated yet */
 	lamp.allocated = 0;
 	trace = NULL;
-	InitCmplxArray (&clamp);	/* this sets clamp.allocated = 0 */
+
+        /* the dispersion relation is not used for first-order data */
+        disp.ncoeff = 0;
 
 	/* Get parameters that control wavecal processing. */
 	if (sts->wcptab.exists == EXISTS_YES) {
@@ -160,6 +167,8 @@ StisInfo4 *sts    i: calibration switches and info
 	    if (status = GetInang4 (sts, &disp, angle))
 		return (status);
 	}
+
+	SaveDispCoeff (&disp);		/* copy coeff to coeff_save */
 
 	if (sts->disp_type != ECHELLE_DISP) {
 
@@ -201,18 +210,6 @@ StisInfo4 *sts    i: calibration switches and info
 		}
 	    }
 
-	    /* This has to be done inside the loop over imsets because it
-		uses ltm2_2, which is an extension header keyword.  It must
-		be done only once, because it modifies the disp coefficients.
-	    */
-	    if (extver == 1) {
-		if (sts->disp_type == ECHELLE_DISP) {
-		    /* Adjust dispersion coefficients to account for offset. */
-		    if (MOCAdjustDisp (sts, trace, &disp))
-			return (status);
-		}
-	    }
-
 	    if (sts->imset_ok) {
 
 		/* Get the image sections to use when finding the shifts. */
@@ -242,7 +239,7 @@ StisInfo4 *sts    i: calibration switches and info
 
 		    if (status = EchShift (sts, &in,
 				&lamp, &disp, trace,
-				&clamp, &w_shift, &s_shift))
+				&w_shift, &s_shift))
 			return (status);
 
 		} else {	/* first order data */
@@ -333,9 +330,6 @@ StisInfo4 *sts    i: calibration switches and info
 
 	FreeLampSpec (&lamp);			/* free memory */
 
-	/* Free memory for the template image. */
-	FreeCmplxArray (&clamp);
-
 	return (0);
 }
 
@@ -395,70 +389,17 @@ static void ScaleOne (int trim, double scale, int npix, int section[]) {
 	}
 }
 
-/* This routine modifies the dispersion coefficients in-place to account
-   for the displacement of the image on the detector from the location
-   that was used for measuring the coefficients.
-   This only needs to be applied for echelle data.
+/* This copies the dispersion coefficients from coeff to coeff_save. */
 
-   Note:  This uses sts->ltm[1], which is in an extension header, so this
-   should be called within the loop over imsets.  However, it should only
-   be called once, because it modifies the coefficients in-place.
-*/
+static void SaveDispCoeff (DispRelation *disp) {
 
-static int MOCAdjustDisp (StisInfo4 *sts, SpTrace *trace, DispRelation *disp) {
+	int i;
 
-	int mref;		/* spectral order number of reference order */
-	double yref;		/* Y location of reference order */
-	double a4corr;		/* correction factor */
-	double ydiff;		/* Y position offset */
-	SpTrace *trace_o;	/* spectral trace for current spectral order */
-	double a2center;	/* from the trace for order mref */
-	double r_moffset2;	/* moffset2 converted to reference pixel size */
-	int foundit;		/* true if we have found mref in trace */
-	int status;
+	for (i = 0;  i < disp->ncoeff;  i++)
+	    disp->coeff_save[i] = disp->coeff[i];
 
-	/* Get parameters from the MAMA offsets table. */
-	if (status = GetMOC (&sts->disptab, sts->opt_elem, sts->cenwave,
-			&mref, &yref, &a4corr))
-	    return (status);
-	if (a4corr == 0.)
-	    return (0);		/* nothing further to do */
-
-	/* Find the trace for spectral order mref, and its a2center. */
-	trace_o = trace;
-	foundit = 0;
-	while (trace_o != NULL) {
-	    if (trace_o->sporder == mref) {
-		foundit = 1;
-		a2center = trace_o->a2center;
-	    }
-	    trace_o = trace_o->next;
-	}
-
-	if (!foundit) {
-	    printf (
-	"Warning  Order %d not found in list of spectral traces; \\\n", mref);
-	    printf ("Warning  no MAMA offset correction will be applied.\n");
-	    return (0);
-	}
-
-	/* ydiff is only approximate, because we don't know shifta2 yet;
-	   we'll use moffset2 as an approximation to shifta2.
-
-	   Here's what we're doing:
-		ydiff = ypos - yref
-		shifta2 = ypos - a2center
-	   so:
-		ydiff = shifta2 + a2center - yref
-	*/
-	r_moffset2 = sts->moffset2 / sts->ltm[1];	/* reference pixels */
-	ydiff = r_moffset2 + a2center - yref;
-
-	/* Adjust dispersion coefficients using a4corr. */
-	disp->coeff[0] -= ydiff * sts->cenwave * a4corr;
-	disp->coeff[4] += ydiff * a4corr;
-
-	return (0);
+	for (i = disp->ncoeff;  i < MAX_DISP_COEFF;  i++)
+	    disp->coeff_save[i] = 0.;
 }
 
 /* This routine prints values read from the wavecal parameters table. */

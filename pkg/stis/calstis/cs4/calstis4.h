@@ -37,6 +37,9 @@
 
    Phil Hodge, 2008 Nov 3:
 	Add imset_ok.
+
+   Phil Hodge, 2011 Jan 5:
+	Add coeff_save, mref, yref, a4corr to DispRelation.  Delete moffset2.
 */
 
 /* Codes for slit types. */
@@ -103,7 +106,6 @@ typedef struct {
 	double ltv[2];		/* linear part */
 	int nimsets;		/* number of image sets in file */
 	int nx, ny;		/* size of input image */
-	int moffset2;		/* used with a4corr for echelle data */
 
 	/* we get the exposure time just to verify that it's > 0 */
         /* exposure start time is needed for trace rotation */
@@ -193,7 +195,11 @@ typedef struct {
 typedef struct {
 	int ncoeff;		/* number of coefficients */
 	double coeff[MAX_DISP_COEFF];	/* array of coefficients */
-		/* reference aperture for dispersion relation */
+	double coeff_save[MAX_DISP_COEFF];	/* coeff. without a4corr */
+	/* the following three are for the a4corr correction */
+	int mref;
+	double yref;
+	double a4corr;
 } DispRelation;
 
 /* Spectrum trace info, the displacement in the cross-dispersion

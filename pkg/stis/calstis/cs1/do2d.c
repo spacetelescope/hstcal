@@ -78,6 +78,11 @@
 	bias images) or the data values are constant, and write the imset
 	but without doing any calibration.  Use extver instead of
 	*output_extver in most places.
+
+   Phil Hodge, 2011 May 9:
+	Move the call to PhotMode to a point just before the call to doPhot.
+	In PhotMsg, change keyword phottab to imphttab, and don't print info
+	about apertab or tdstab.
 */
 
 # include <math.h>	/* for fabs and sqrt */
@@ -475,11 +480,17 @@ int ngood_extver   io: incremented unless the current imset has zero
 	   because we're updating keywords in the primary header.
 	*/
 	if (*ngood_extver == 1) {
+	    /* Update the PHOTMODE keyword regardless of PHOTCORR. */
+	    if (status = PhotMode (sts, x))
+		return (status);
+
 	    printf ("\n");
 	    PrSwitch ("photcorr", sts->photcorr);
 	    if (sts->photcorr == PERFORM) {
+                printf ("debug:  about to call doPhot\n");
 		if (status = doPhot (sts, x))
 		    return (status);
+                printf ("debug:  doPhot called\n");
 		PhotMsg (sts);
 		PrSwitch ("photcorr", COMPLETE);
 		if (sts->printtime)
@@ -488,10 +499,6 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    if (!OmitStep (sts->photcorr))
 		if (status = photHistory (sts, x->globalhdr))
 		    return (status);
-
-	    /* Update the PHOTMODE keyword regardless of PHOTCORR. */
-	    if (status = PhotMode (sts, x))
-		return (status);
 	}
 
 	if (sts->detector != CCD_DETECTOR) {
@@ -700,23 +707,8 @@ static void PhotMsg (StisInfo1 *sts) {
 
 	if (!OmitStep (sts->photcorr)) {
 
-	    PrRefInfo ("phottab", sts->phot.name, sts->phot.pedigree,
+	    PrRefInfo ("imphttab", sts->phot.name, sts->phot.pedigree,
 			sts->phot.descrip, sts->phot.descrip2);
-
-	    if (sts->filtcorr == PERFORM) {
-		PrRefInfo ("apertab", sts->apertab.name, sts->apertab.pedigree,
-			sts->apertab.descrip, sts->apertab.descrip2);
-	    } else {
-		printf("Warning  Filter throughput was not included "
-                       "with PHOTCORR.\n");
-	    }
-	    if (sts->tdscorr == PERFORM) {
-		PrRefInfo ("tdstab", sts->tdstab.name, sts->tdstab.pedigree,
-			sts->tdstab.descrip, sts->tdstab.descrip2);
-	    } else {
-		printf("Warning  Time-dependent sensitivity was not included "
-                       "with PHOTCORR.\n");
-	    }
 	}
 }
 

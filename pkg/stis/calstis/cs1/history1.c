@@ -36,6 +36,9 @@ static int UpdateSwitch (char *, int, Hdr *, int *);
 
    Paul Barrett, 2003 Sep 25:
         Added TDSTAB to photHistory.
+
+   Phil Hodge, 2011 May 9:
+	In photHistory, don't check filtcorr or tdscorr.
 */
 
 int atodHistory (StisInfo1 *sts, Hdr *phdr) {
@@ -306,21 +309,6 @@ int photHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (logit) {
 	    if (status = TabHistory (&sts->phot, phdr))
 		return (status);
-	    if (sts->filtcorr == PERFORM) {
-		if (status = TabHistory (&sts->apertab, phdr))
-		    return (status);
-	    } else {
-		addHistoryKw (phdr,
-		"  Note:  Filter throughput was not included with PHOTCORR");
-	    }
-	    if (sts->tdscorr == PERFORM) {
-		if (status = TabHistory (&sts->tdstab, phdr))
-		    return (status);
-	    } else {
-		addHistoryKw (phdr,
-		"  Note:  Time-dependent sensitivity was not included "
-                              "with PHOTCORR");
-	    }
 	}
 
 	return (0);

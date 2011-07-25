@@ -50,6 +50,10 @@
 
    Phil Hodge, 2007 May 9:
 	Add bias_exposure, to be set to 1 (true) if the observation is a bias.
+
+   Phil Hodge, 2011 May 9:
+	Remove filtcorr, tdscorr, apertab, and tdstab from StisInfo1.  The
+        PhotInfo struct was deleted.
 */
 
 # define	MAX_IMSET	100
@@ -153,12 +157,8 @@ typedef struct {
 	int lfltcorr;			/* apply low-order flat */
 	int shadcorr;		/* correct short exposures for shutter time */
 	int photcorr;		/* add photometry header keyword values */
-	/* filtcorr is not a switch; it's associated with photcorr */
-	int filtcorr;		/* include filter throughput */
 	int noisecorr;		/* initialize error array? */
 	int statcorr;		/* compute statistics? */
-        /* tdscorr is not a switch, it indicates if the TDSTAB exists */
-        int tdscorr;            /* time-dependent sensitivity correction */
         /* crcorr is not a switch, it indicates if the CRCORR is complete */
         int crcorr;             /* cosmic-ray rejection */
 
@@ -175,23 +175,5 @@ typedef struct {
 	RefTab mlin;		/* MAMA nonlinearity info table */
 	RefTab atod;		/* analog to digital correction table */
 	RefTab phot;		/* photometric throughput table */
-	RefTab apertab;		/* aperture (filter) throughput table */
 	RefTab tdctab;		/* NUV dark time-dependent correction table */
-        RefTab tdstab;          /* Time-dependent sensitivity table */
 } StisInfo1;
-
-/* This contains the throughput curve (from _pht table) and the aperture
-   (filter) throughput curve (from _apt table), which we use for computing
-   PHOTFLAM, etc.
-*/
-
-typedef struct {
-	/* The first three are from the phottab (_pht). */
-	int p_nelem;		/* size of arrays */
-	float *p_wl;		/* array of wavelengths from _pht */
-	float *p_thru;		/* array of throughputs (QE) */
-	/* These three are from the apertab (_apt), for filter throughput. */
-	int f_nelem;		/* size of arrays */
-	double *f_wl;		/* array of wavelengths from _apt */
-	double *f_thru;		/* array of filter throughputs */
-} PhotInfo;

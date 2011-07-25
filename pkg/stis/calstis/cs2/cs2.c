@@ -23,7 +23,9 @@ int main (int argc, char **argv) {
 	c_irafinit (argc, argv);
 
 	/* Get input and output file names and switches in the command line. */
-	cs2_command (argc, argv, input, output, &par, newpar);
+	status = cs2_command (argc, argv, input, output, &par, newpar);
+	if (status != 0)
+	    exit (status);
 
 	/* Reject cosmic rays. */
 	if (status = CalStis2 (input, output, &par, newpar)) {

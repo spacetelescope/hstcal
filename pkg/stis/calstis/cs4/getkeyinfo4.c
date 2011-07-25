@@ -25,6 +25,9 @@
    Phil Hodge, 2001 May 3:
 	Get cenwave as an integer, rather than as a double.
 	Get moffset2 for echelle data.
+
+   Phil Hodge, 2011 Jan 5:
+	Delete moffset2.
 */
 
 int GetKeyInfo4 (StisInfo4 *sts, Hdr *phdr) {
@@ -107,17 +110,6 @@ Hdr *phdr       i: primary header
 	    if (status = Get_KeyS (phdr, "SCLAMP",
 			no_def, "", sts->sclamp, STIS_CBUF))
 		return (status);
-	}
-
-	/* Get moffset2 if we have echelle data, for making a correction
-	   to the dispersion relation.
-	*/
-	if (sts->disp_type == ECHELLE_DISP) {
-	    if (status = Get_KeyI (phdr, "MOFFSET2",
-			use_def, 0, &sts->moffset2))
-		return (status);
-	} else {
-	    sts->moffset2 = 0;
 	}
 
 	/* Current used for calibration lamp. */

@@ -52,6 +52,10 @@ static void MissingFile (char *, char *, int *);
 	In checkDark, there was an "} else" that apparently should have
 	been "} else {" with a closing brace later, based on the indentation.  
 	This actually did the right thing, but fix it anyway.
+
+  Phil Hodge, 2011 May 9:
+	Modify checkPhot to replace keyword name PHOTTAB with IMPHTTAB;
+	don't get APERTAB or TDSTAB; don't set sts->filtcorr or sts->tdscorr.
 */
 
 int GetFlags1 (StisInfo1 *sts, Hdr *phdr) {
@@ -545,40 +549,17 @@ int *nsteps      io: incremented if this step can be performed
 
 	    if (strcmp (sts->obstype, "IMAGING") != 0) {
 		sts->photcorr = OMIT;
-		sts->filtcorr = OMIT;
-                sts->tdscorr  = OMIT;
 		return (0);
 	    }
 
 	    /* Get the name of the _pht throughput table. */
 	    if (status = GetTabRef (sts->refnames, phdr,
-			"PHOTTAB", &sts->phot, &sts->photcorr))
+			"IMPHTTAB", &sts->phot, &sts->photcorr))
 		return (status);
 	    if (sts->phot.exists != EXISTS_YES) {
-		MissingFile ("PHOTTAB", sts->phot.name, missing);
-		sts->filtcorr = OMIT;	/* photcorr already turned off */
+		MissingFile ("IMPHTTAB", sts->phot.name, missing);
+		sts->photcorr = OMIT;
 	    }
-
-	    /* Get the name of the _apt filter throughput table. */
-	    if (status = GetTabRef (sts->refnames, phdr,
-			"APERTAB", &sts->apertab, &sts->filtcorr))
-		return (status);
-	    if (sts->apertab.exists != EXISTS_YES) {
-		/* Only print an error message if a name was specified. */
-		if (GotFileName (sts->apertab.name))
-		    MissingFile ("APERTAB", sts->apertab.name, missing);
-		sts->filtcorr = OMIT;
-	    }
-
-            /* Get the name of the _tds sensitivity table */
-            if (status = GetTabRef(sts->refnames, phdr, "TDSTAB",
-                                   &sts->tdstab, &sts->tdscorr))
-                return (status);
-            if (sts->tdstab.exists != EXISTS_YES) {
-		if (GotFileName (sts->tdstab.name))
-                    MissingFile("TDSTAB", sts->tdstab.name, missing);
-                sts->tdscorr = OMIT;
-            }
 
 	    if (sts->photcorr == PERFORM)
 		(*nsteps)++;

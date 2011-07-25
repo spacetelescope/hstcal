@@ -31,6 +31,9 @@ static void FreeNames (char *, char *, char *, char *);
 
    Phil Hodge, 2004 July 23:
 	Get slit angle, and add it to the calling sequence of CalStis4.
+
+   Phil Hodge, 2011 July 6:
+	Include command-line option '--version'.
 */
 
 int main (int argc, char **argv) {
@@ -85,6 +88,10 @@ int main (int argc, char **argv) {
 		slit_angle = atof (argv[i]);
 		angle_next = 0;
 	    } else if (argv[i][0] == '-') {
+		if (strcmp (argv[i], "--version") == 0) {
+		    PrVersion();
+		    exit (0);
+		}
 		if (strcmp (argv[i]+1, "angle") == 0) {
 		    /* next argument must be slit angle */
 		    angle_next = 1;

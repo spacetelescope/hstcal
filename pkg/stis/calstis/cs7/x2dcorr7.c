@@ -11,8 +11,8 @@
 # include <stdio.h>
 # include <string.h>
 
-# include "c_iraf.h"
-# include "hstio.h"
+# include <c_iraf.h>
+# include <hstio.h>
 
 # include "stis.h"
 # include "calstis7.h"
@@ -83,6 +83,9 @@ static int warn1, warn2;
 
    Phil Hodge, 2006 Feb 7:
 	Add err_algorithm to the calling sequence of Interp2D.
+
+   Phil Hodge, 2010 July 30:
+	Change the name of EvalDisp to EvalDisp7.
 */
 
 int X2DCorr7 (StisInfo7 *sts,
@@ -140,7 +143,7 @@ SingleGroup *out           o: output data
 
 	int DataMasked (StisInfo7 *, CoordInfo *, ApInfo *, SingleGroup *);
 
-	void EvalDisp (DispRelation *, int, double, int, double *, double *);
+	void EvalDisp7 (DispRelation *, int, double, int, double *, double *);
 
 	disp_y = NULL;
 
@@ -242,7 +245,7 @@ SingleGroup *out           o: output data
 		   coordinates by evaluating the dispersion coefficients
 		   and the spectrum trace; also get the derivatives.
 		*/
-		EvalDisp (disp_y, coord_o->sporder, wl, disp_type,
+		EvalDisp7 (disp_y, coord_o->sporder, wl, disp_type,
 			&ix_r, &dix_r);
 
 		/* ix_r --> ydispl and derivative */

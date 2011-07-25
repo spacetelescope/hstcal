@@ -43,6 +43,9 @@ static void MAMASanity (int, char *);
 
    Phil Hodge, 2000 Aug 9:
 	Remove test for MOFFTAB.
+
+   Phil Hodge, 2011 July 19:
+	Replace PHOTTAB with IMPHTTAB (but irrelevant for a wavecal).
 */
 
 int WavFlags (StisInfo *sts, CalSwitch *wav_sw, Hdr *phdr,
@@ -147,7 +150,7 @@ RefFileInfo wavref  io: list of keyword,filename pairs
 	    if (sts->obstype != IMAGING_TYPE)
 		printf (
 "Warning  PHOTCORR = PERFORM in wavecal, but OBSTYPE is not IMAGING.\n");
-	    if (status = GetNewRef (phdr, "PHOTTAB", wavref))
+	    if (status = GetNewRef (phdr, "IMPHTTAB", wavref))
 		return (status);
 	    if (status = GetNewRef (phdr, "APERTAB", wavref))
 		return (status);

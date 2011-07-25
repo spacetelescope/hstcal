@@ -56,6 +56,9 @@ static void MAMASanity (int, char *);
 
    Phil Hodge, 2004 Mar 1:
 	Silently reset ctecorr if the detector is not the CCD.
+
+   Phil Hodge, 2011 July 19:
+	Replace PHOTTAB with IMPHTTAB.
 */
 
 int SciFlags (StisInfo *sts, CalSwitch *sci_sw, Hdr *phdr,
@@ -211,7 +214,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	    if (sts->obstype != IMAGING_TYPE)
 		printf (
 	"Warning  PHOTCORR = PERFORM, but OBSTYPE is not IMAGING.\n");
-	    if (status = GetNewRef (phdr, "PHOTTAB", sciref))
+	    if (status = GetNewRef (phdr, "IMPHTTAB", sciref))
 		return (status);
 	    if (status = GetNewRef (phdr, "APERTAB", sciref))
 		return (status);
