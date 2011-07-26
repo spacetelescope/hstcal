@@ -130,6 +130,10 @@ def configure(conf):
     # Check for the existence of a Fortran compiler
     conf.load('compiler_fc')
     conf.check_fortran()
+    
+    # check whether the compiler supports -02 and add it to CFLAGS if it does
+    if conf.check_cc(cflags='-O2'):
+        conf.env.append_value('CFLAGS','-O2')
 
     # Set the location of the hstcal include directory
     conf.env.INCLUDES = os.path.abspath('include') # the hstcal include directory
