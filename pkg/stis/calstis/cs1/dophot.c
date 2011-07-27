@@ -30,6 +30,9 @@ static void Phot2Obs (char *, char *);
    Phil Hodge, 2011 May 5:
 	Rewrite to use the functions to read and interpret the imphttab.
 	This was based on dophot.c in calacs/acs2d/.
+
+   Phil Hodge, 2011 July 26:
+	Print warning messages if phot parameters appear to be garbage.
 */
 
 int doPhot (StisInfo1 *sts, SingleGroup *x) {
@@ -59,7 +62,19 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 	/* Get the photometry values. */
 	if ((status = GetPhotTab (&obs, obsmode)) != 0) {
-	    return status;
+	    printf ("Warning  photmode '%s' not found.\n", photmode);
+	    FreePhotPar (&obs);
+	    return 0;
+	}
+	if (obs.photbw < 0. || obs.photbw > 1.e5) {
+	    printf ("Warning  For photmode '%s', values are strange:\n",
+		photmode);
+	    printf ("         photflam = %g\n", obs.photflam);
+	    printf ("         photplam = %g\n", obs.photplam);
+	    printf ("         photbw   = %g\n", obs.photbw);
+	    printf ("         photzpt  = %g\n", obs.photzpt);
+	    FreePhotPar (&obs);
+	    return 0;
 	}
 
 	/* Update the photometry keyword values in the primary header. */
