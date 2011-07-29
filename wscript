@@ -12,7 +12,7 @@ import Utils
 import TaskGen
 
 APPNAME = 'hstcal'
-VERSION = '0.1'
+VERSION = '0.1.1'
 
 top = '.'
 out = 'build.' + platform.platform()

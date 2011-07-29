@@ -225,6 +225,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
         printf("*** Error in ReadPhotTab\n");
         return (status);
       }
+      
       if (CompareObsModes(tabrow.obsmode, obs->obsmode) == PHOT_OK) {
         foundit = 1;
         if (PhotRowPedigree (obs, row,
@@ -788,16 +789,37 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
         break;
       }
     }
+    
     if (obsvals[p] == 0.0) {
       printf("ERROR: No obsmode value found for %s\n",tabrow->parnames[p]);
+      
       free(obsindx);
       free(obsvals);
-      free (ndpos);
-      free (ndposd);
-      for (p=0;p<ndim;p++)free(bounds[p]);
+      free(ndpos);
+      free(ndposd);
+      for (p=0;p<ndim;p++) free(bounds[p]);
       free(bounds);
       
-      return('\0');
+      return ('\0');
+    }
+    
+    /* check whether we're going beyond the data in the table (extrapolation) */
+    /* if we are, return -9999 */
+    nx = tabrow->nelem[p+1];
+    
+    if ((obsvals[p] < tabrow->parvals[p][0]) ||
+        (obsvals[p] > tabrow->parvals[p][nx-1])) {
+      printf("WARNING: Parameter value %s%f is outside table data bounds.\n",
+             tabrow->parnames[p],obsvals[p]);
+      
+      free(obsindx);
+      free(obsvals);
+      free(ndpos);
+      free(ndposd);
+      for (p=0;p<ndim;p++) free(bounds[p]);
+      free(bounds);
+      
+      return -9999.0;
     }
   }
   
@@ -812,18 +834,26 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
    */
   for (p=0;p<ndim;p++){    
     nx = tabrow->nelem[p+1];
-    out = (double *)calloc(nx, sizeof(double));
+    
+    out = (double *) calloc(nx, sizeof(double));
+    
     for (n=0; n<nx;n++) out[n] = n;
-    value = linterp(tabrow->parvals[p], nx, out, obsvals[p]);
+    
+    value = linterp(tabrow->parvals[p], nx, out, obsvals[p]);    
     if (value == -99) {
+      free(obsindx);
+      free(obsvals);
+      free(ndpos);
+      free(ndposd);
+      for (p=0;p<ndim;p++) free(bounds[p]);
+      free(bounds);
+      free(out);
       return('\0');
     }
+    
     obsindx[p] = value;  /* Index into dimension p */
     computebounds(out, nx, (double)floor(value), &b0, &b1);
-    /* remember the bounding values for this position 
-     bounds[p][0] = tabrow->parvals[p][b0];
-     bounds[p][1] = tabrow->parvals[p][b1];
-     */
+    
     bounds[p][0] = b0;
     bounds[p][1] = b1;
     /* Free memory so we can use this array for the next variable*/
