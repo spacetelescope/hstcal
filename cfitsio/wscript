@@ -14,6 +14,9 @@ def configure(ctx):
     src_path = os.path.abspath('cfitsio')
     platform_path = os.path.join(ctx.bldnode.abspath(), 'cfitsio')
 
+    # Copy the cfitsio tree into the build tree.  If we don't, the .o
+    # files live in the source tree and the same checkout can not be
+    # used to build for multiple platforms.
     ctx.start_msg('Copying cfitsio')
     if os.path.exists(platform_path):
         shutil.rmtree(platform_path)
