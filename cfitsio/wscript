@@ -3,6 +3,7 @@
 # This wscript file merely calls out to the standard CFITSIO Makefile
 # to build libcfitsio.a
 
+from distutils import dir_util
 import glob
 import os
 import shutil
@@ -16,7 +17,7 @@ def configure(ctx):
     ctx.start_msg('Copying cfitsio')
     if os.path.exists(platform_path):
         shutil.rmtree(platform_path)
-    shutil.copytree(src_path, platform_path)
+    dir_util.copy_tree(src_path, platform_path)
     ctx.end_msg('done', 'GREEN')
 
     ctx.start_msg('Configuring cfitsio')
@@ -32,14 +33,16 @@ def build(ctx):
     if ctx.cmd == 'clean':
         return clean(ctx)
 
+    src_path = os.path.abspath('cfitsio')
     platform_path = ctx.env.LIBPATH_CFITSIO[0]
-
-
+    dir_util.copy_tree(src_path, platform_path, update=True)
+    
     def run_makefile(task):
         # cd into the cfitsio directory, run 'make', step back out
         pwd = os.getcwd()
         cwd = platform_path
-        task.exec_command('cd %s; make; cd %s' % (cwd, pwd))
+        jobs = ctx.options.jobs
+        task.exec_command('cd %s; make -j %d; cd %s' % (cwd, jobs, pwd))
 
     # Just assume all .c and .h files in the cfitsio directory
     # contribute to libcfitsio.a.  The CFITSIO Makefile itself will
