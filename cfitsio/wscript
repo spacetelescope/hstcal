@@ -12,7 +12,7 @@ def configure(ctx):
     ctx.find_program('make')
 
     src_path = os.path.abspath('cfitsio')
-    platform_path = os.path.join(ctx.bldnode.abspath(), 'cfitsio')
+    platform_path = os.path.join(ctx.bldnode.abspath(), 'lock_cfitsio')
 
     # Copy the cfitsio tree into the build tree.  If we don't, the .o
     # files live in the source tree and the same checkout can not be
@@ -59,7 +59,7 @@ def build(ctx):
     ctx(
         name='cfitsio',
         source=sources,
-        target='libcfitsio.a',
+        target='../lock_cfitsio/libcfitsio.a',
         rule=run_makefile)
 
     # CFITSIO should be built before everything else.  This ensures
@@ -68,5 +68,5 @@ def build(ctx):
 
 def clean(ctx):
     pwd = os.getcwd()
-    cwd = os.path.join(ctx.srcnode.abspath(), 'cfitsio')
+    cwd = platform_path = ctx.env.LIBPATH_CFITSIO[0]
     ctx.exec_command('cd %s; make clean; cd %s' % (cwd, pwd))
