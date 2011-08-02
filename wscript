@@ -47,6 +47,8 @@ def options(opt):
         '--disable-openmp', action='store_true',
         help="Disable OpenMP")
 
+    opt.recurse('cfitsio')
+
 def _setup_openmp(conf):
     conf.start_msg('Checking for OpenMP')
     
