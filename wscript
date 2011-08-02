@@ -110,7 +110,7 @@ def _determine_mac_osx_fortran_flags(conf):
         conf.env.append_value('FCFLAGS', '-m64')
 
 def _determine_sizeof_int(conf):
-    print "conf.check", conf.check(
+    conf.check(
         fragment='#include <stdio.h>\nint main() { printf("%d", sizeof(int)); return 0; }\n',
         define_name="SIZEOF_INT",
         define_ret=True,
