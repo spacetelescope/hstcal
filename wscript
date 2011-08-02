@@ -108,7 +108,16 @@ def _determine_mac_osx_fortran_flags(conf):
     
     if conf.env.MAC_OS_NAME in ('snowleopard', 'lion') :
         conf.env.append_value('FCFLAGS', '-m64')
-            
+
+def _determine_sizeof_int(conf):
+    print "conf.check", conf.check(
+        fragment='#include <stdio.h>\nint main() { printf("%d", sizeof(int)); return 0; }\n',
+        define_name="SIZEOF_INT",
+        define_ret=True,
+        quote=False,
+        execute=True,
+        msg='Checking for sizeof(int)')
+        
 def configure(conf):
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
@@ -157,6 +166,8 @@ def configure(conf):
     _setup_openmp(conf)
 
     _determine_mac_osx_fortran_flags(conf)
+
+    _determine_sizeof_int(conf)
     
     # The configuration related to cfitsio is stored in
     # cfitsio/wscript
