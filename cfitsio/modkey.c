@@ -680,9 +680,11 @@ int ffmkls( fitsfile *fptr,     /* I - FITS file pointer        */
         /* the right keyword in case there are more than one keyword */
         /* with this same name. */
         ffgrec(fptr, keypos - 1, card, status); 
+    } else {
+        /* copy the input comment string */
+        strncpy(comm, incomm, FLEN_COMMENT-1);
+        comm[FLEN_COMMENT-1] = '\0';
     }
-    else
-        strcpy(comm, incomm);  /* copy the input comment string */
 
     /* delete the old keyword */
     if (ffdkey(fptr, keyname, status) > 0)
@@ -1506,6 +1508,11 @@ int ffikey(fitsfile *fptr,    /* I - FITS file pointer  */
     buff2[80] = '\0';
 
     len = strlen(buff2);
+
+    /* silently replace any illegal characters with a space */
+    for (ii=0; ii < len; ii++)   
+        if (buff2[ii] < ' ' || buff2[ii] > 126) buff2[ii] = ' ';
+
     for (ii=len; ii < 80; ii++)   /* fill buffer with spaces if necessary */
         buff2[ii] = ' ';
 
@@ -1513,7 +1520,9 @@ int ffikey(fitsfile *fptr,    /* I - FITS file pointer  */
         buff2[ii] = toupper(buff2[ii]);
 
     fftkey(buff2, status);        /* test keyword name contains legal chars */
-    fftrec(buff2, status);        /* test rest of keyword for legal chars   */
+
+/*  no need to do this any more, since any illegal characters have been removed
+    fftrec(buff2, status);  */      /* test rest of keyword for legal chars   */
 
     inbuff = buff1;
     outbuff = buff2;
@@ -1588,6 +1597,51 @@ int ffdkey(fitsfile *fptr,    /* I - FITS file pointer  */
     return(*status);
 }
 /*--------------------------------------------------------------------------*/
+int ffdstr(fitsfile *fptr,    /* I - FITS file pointer  */
+           const char *string,     /* I - keyword name       */
+           int *status)       /* IO - error status      */
+/*
+  delete a specified header keyword containing the input string
+*/
+{
+    int keypos, len;
+    char valstring[FLEN_VALUE], comm[FLEN_COMMENT], value[FLEN_VALUE];
+    char card[FLEN_CARD], message[FLEN_ERRMSG];
+
+    if (*status > 0)           /* inherit input status value if > 0 */
+        return(*status);
+
+    if (ffgstr(fptr, string, card, status) > 0) /* read keyword */
+    {
+        sprintf(message, "Could not find the %s keyword to delete (ffdkey)",
+                string);
+        ffpmsg(message);
+        return(*status);
+    }
+
+    /* calc position of keyword in header */
+    keypos = (int) ((((fptr->Fptr)->nextkey) - ((fptr->Fptr)->headstart[(fptr->Fptr)->curhdu])) / 80);
+
+    ffdrec(fptr, keypos, status);  /* delete the keyword */
+
+        /* check for string value which may be continued over multiple keywords */
+    ffpsvc(card, valstring, comm, status);
+    ffc2s(valstring, value, status);   /* remove quotes and trailing spaces */
+    len = strlen(value);
+
+    while (len && value[len - 1] == '&')  /* ampersand used as continuation char */
+    {
+        ffgcnt(fptr, value, status);
+        if (*value)
+        {
+            ffdrec(fptr, keypos, status);  /* delete the keyword */
+            len = strlen(value);
+        }
+        else   /* a null valstring indicates no continuation */
+            len = 0;
+    }
+    return(*status);
+}/*--------------------------------------------------------------------------*/
 int ffdrec(fitsfile *fptr,   /* I - FITS file pointer  */
            int keypos,       /* I - position in header of keyword to delete */
            int *status)      /* IO - error status      */

@@ -1,5 +1,200 @@
                    Log of Changes Made to CFITSIO
 
+Version 3.28 - 12 May 2011
+
+   - added an enhancement to the tiled-image compression method when compressing
+     floating-point image using the standard (lossy) quantization method.  In 
+     cases where an image tile cannot be quantized,  The floating-point pixel values
+     will be losslessly compressed with gzip before writing them to the tile-
+     compressed file.  Previously, the uncompressed pixel values would have
+     been written to the file, which obviously requires more disk space. 
+
+   - made significant internal changes to the structure of the tile compression
+     and uncompression routines in imcompress.c to make them more modular and
+     easier to maintain.
+
+   - modified configure.in and configure to force it to build a Universal 
+     binary on Mac OS X.
+
+   - modified the ffiter function in putcol.c to properly clean up allocated
+     memory if an error occurs.
+     
+   - in quantize.c, when searching for the min and max values in a float array,
+     initialize the max value to -FLT_MAX instead of FLT_MIN (and similarly
+     for double array). 
+
+Version 3.27 - 3 March 2011
+
+  Enhancements
+
+    - added new routines fits_read_str and fits_delete_str which read or
+      delete, respectively, a header keyword record that contains a specified 
+      character string.
+
+    - added a new routine called fits_free_memory which frees the memory
+      that fits_read_key_longstr allocated for the long string keyword value.
+
+    - enhanced the ffmkky routine in fitscore.c to not put a space before the
+      equals sign when writing long string-valued keywords using the ESO
+      HIERARCH keyword convension, if that extra character is needed to
+      fit the length of the keyword name + value string within the 80-character
+      FITS keyword record.
+
+    - made small change to fits_translate_keyword to support translation of
+      blank keywords (where the name = 8 blank chracters)
+
+    - modified fpack so that it uses the minimum of the 2nd, 3rd, and 5th order
+      MAD noise values when quantizing and compressing a floating point image.
+      This is more conservative than just using the 3rd order MAD value alone.
+
+    - added new routine imcomp_copy_prime2img to imcompress.c that is used by
+      funpack to copy any keywords that may have been added to the primary
+      array of the compressed image file (a null image) back into the header of 
+      the uncompressed image.
+
+    - enhanced the fits_quantize_float and fits_quantize_double routines in
+      quantize.c to also compress the tile if it is completely filled with
+      null values.  Previously, this type of tile would have been written 
+      to the output compressed image without any compression.
+
+    - enhanced imcomp_decompress_tile to support implicit datatype conversion
+      when reading a losslessly compressed (with gzip) real*4 image into an
+      array of real*8 values.  
+
+    - in imcompress.c, removed possible attempt to free memory that had not 
+      been allocated.
+
+
+Version 3.26 - 30 December 2010
+
+  Enhancements
+
+   - defined 2 new macros in fitsio.h:  
+       #define CFITSIO_MAJOR 3
+       #define CFITSIO_MINOR 26
+     These may be used within other macros to detect the CFITSIO
+     version number at compile time.
+     
+   - modified group.c to initialize the output URL to a null string in 
+     fits_url2relurl.  Also added more robust tests to see if 2 file
+     pointers point to the same file.
+
+   - enhanced the template keyword parsing code in grparser.c to support
+     the 'D' exponent character in the ASCII representation of floating
+     point keyword values (as in TVAL = 1.23D03).  Previously, the parser
+     would have writen this keyword with a string value (TVAL = '1.23D03').
+
+   - modified the low-level routines that write a keyword record to a FITS 
+     header so that they silently replace any illegal characters (ASCII 
+     values less than 32 or greater than 126) with an ASCII space character.
+     Previously, these routines would have returned with an error when
+     encountering these illegal characters in the keyword record (most commonly 
+     tab, carriage return, and line feed characters).
+
+   - made substantial internal changes to imcompress.c in preparation for
+     possible future support for compression methods for FITS tables analogous
+     to the tiled image compression method.
+
+   - replaced all the source code in CFITSIO that was distributed under the
+     GNU General Public License with freely available code.  In particular,
+     the  gzip file compression and uncompression code was replaced by the
+     zlib compression library.  Thus, beginning with this version 3.26 of CFITSIO,
+     other software applications may freely use CFITSIO without necessarily
+     incurring any GNU licensing requirement.  See the License.txt file for
+     the CFITSIO licensing requirements.
+
+   - added support for using cfitsio in different 'locales' which use a
+     comma, not a period, as the decimal point character in ASCII 
+     representation of a floating point number (e.g., France).  This
+     affects how floating point keyword values and floating point numbers
+     in ASCII tables are read and written with the 'printf' and 'strtod'
+     functions.
+
+   - added a new utility routine called fits_copy_rows/ffcprw that copies
+     a specified range of rows from one table to another.
+
+   - enhanced the test for illegal ASCII characters in a header (fftrec) to
+     print out the name of the offending character (e.g TAB or Line Feed) as
+     well as the Hex value of the chracter.
+     
+   - modified ffgtbc (in fitscore.c) to support nonstandard vector variable
+     length array columns in binary tables (e.g. with TFORMn = 2000PE(500)').
+     
+   - modified the configure file to add "-lm" when linking CFITSIO on
+     Solaris machines.
+     
+   - added new routine, fits_get_inttype, to parse an integer keyword value
+     string and return the minimum integer datatype (TBYTE, TSHORT, TLONG, 
+     TLONGLONG) required to store the integer value.
+
+   - added new routine, fits_convert_hdr2str, which is similar to fits_hdr2str
+     except that if the input HDU is a tile compressed image (stored 
+     in a binary table) then it will first convert that header back to 
+     that of a normal uncompressed FITS image before concatenating the header
+     keyword records.
+
+   - modified the file template reading routine (ngp_line_from_file in 
+     grparser.c) so that it ignores any carriage return characters (\r)
+     in the line, that might be present, e.g. if the file was created on a 
+     Windows machine that uses \r\n as end of line characters.
+
+   - modified the ffoptplt routine in cfileio.c to check if the PCOUNT
+     keyword in the template file has a non-zero value, and if so, resets
+     it to zero in the newly created file.
+
+   Bug Fixes
+   
+   - fixed a bug when uncompressing floating-point images that contain Nan
+     values on some 64-bit platforms.
+     
+   - fixed a bug when updating the value of the CRPIXn world coordinate 
+     system keywords when extracting a subimage from larger FITS image, using the
+     extended CFITSIO syntax (e.g.  myimage[1:500:2, 1:500:2]).  This bug only 
+     affects casee where the pixel increment value is not equal to 1, and caused
+     the coordinate grid to be shifted by between 0.25 pixels (in the case of
+     a pixel increment of 2) and 0.5 pixels (for large pixel increment values).
+
+   - fixed a potential string buffer overflow error in the ffmkls routine
+     that modifies the value and comment strings in a keyword that uses
+     the HEASARC long string keyword convention. 
+
+   - fixed a bug in imcompress.c that could cause programs to abort on 64-bit 
+     machines when using gzip to tile-compress images.  Changed the declaration
+     of clen in imcomp_compress_tile from int to size_t.
+
+Version 3.25 - 9 June 2010
+
+   - fixed bug that was introduced in version 3.13 that broke the ability
+     to reverse an image section along the y-axis with an image section
+     specifier like this: myimage.fits[*,-*].  This bug caused the output
+     image to be filled with zeros.
+
+   - fixed typo in the definition of the ftgprh Fortran wrapper routine
+     in f77_wrap3.c.
+
+   - modified the cfitsio.pc.in configuration file to make the lib path
+     a variable instead of hard coding the path.   The provides more
+     flexibility for projects such as suse and fedora when building CFITSIO.
+
+   - fixed bug in imcomp_compress_tile in imcompress.c which caused
+     null pixel values to be written incorrectly in the rare case where 
+     the floating-point tile of pixels could not be quantized into integers.
+
+   - modified imcompress.c to add a new specialized routine to uncompress
+     an input image and then write it to a output image on a tile by tile basis.
+     This appears to be faster than the old method of uncompressing the
+     whole image into memory before writing it out.  It also supports
+     large images with more than 2**31 pixels.
+
+   - made trivial changes to 2 statements in drvrfile.c to suppress 
+     nuisance compiler warnings.
+
+   - some compilers define CLOCKS_PER_SEC as a double instead of an integer,
+     so added an explicted integer type conversion to 2 statements in
+     imcompress.c that used this macro.
+     
+   - removed debugging printf statements in drvrnet.c (15 July)
+
 Version 3.24 - 26 January 2010
 
    - modified fits_translate_keywords so that it silently ignores any

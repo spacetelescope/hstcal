@@ -463,7 +463,7 @@ int ffgcrd( fitsfile *fptr,     /* I - FITS file pointer        */
             int  *status)       /* IO - error status            */
 /*
   Read (get) the named keyword, returning the entire keyword card up to
-  80 characters long.  The first keyword in the header has nrec = 1, not 0.
+  80 characters long.  
   The returned card value is null terminated with any trailing blank 
   characters removed.
 
@@ -610,6 +610,48 @@ int ffgcrd( fitsfile *fptr,     /* I - FITS file pointer        */
 
       if (wild || jj == 1)
             break;  /* stop at end of header if template contains wildcards */
+
+      ffmaky(fptr, 1, status);  /* reset pointer to beginning of header */
+      ntodo = nextkey - 1;      /* number of keyword to read */ 
+    }
+
+    return(*status = KEY_NO_EXIST);  /* couldn't find the keyword */
+}
+/*--------------------------------------------------------------------------*/
+int ffgstr( fitsfile *fptr,     /* I - FITS file pointer        */
+            const char *string, /* I - string to match  */
+            char *card,         /* O - keyword card             */
+            int  *status)       /* IO - error status            */
+/*
+  Read (get) the next keyword record that contains the input character string,
+  returning the entire keyword card up to 80 characters long.
+  The returned card value is null terminated with any trailing blank 
+  characters removed.
+*/
+{
+    int nkeys, nextkey, ntodo, stringlen;
+    int jj, kk;
+
+    if (*status > 0)
+        return(*status);
+
+    stringlen = strlen(string);
+    if (stringlen > 80) {
+        return(*status = KEY_NO_EXIST);  /* matching string is too long to exist */
+    }
+
+    ffghps(fptr, &nkeys, &nextkey, status); /* get no. keywords and position */
+    ntodo = nkeys - nextkey + 1;  /* first, read from next keyword to end */
+
+    for (jj=0; jj < 2; jj++)
+    {
+      for (kk = 0; kk < ntodo; kk++)
+      {
+        ffgnky(fptr, card, status);     /* get next keyword */
+        if (strstr(card, string) != 0) {
+            return(*status);   /* found the matching string */
+        }
+      }
 
       ffmaky(fptr, 1, status);  /* reset pointer to beginning of header */
       ntodo = nextkey - 1;      /* number of keyword to read */ 
@@ -815,6 +857,21 @@ int ffgkls( fitsfile *fptr,     /* I - FITS file pointer         */
     return(*status);
 }
 /*--------------------------------------------------------------------------*/
+int fffree( char *value,       /* I - pointer to keyword value  */
+            int  *status)      /* IO - error status             */
+/*
+  Free the memory that was allocated by ffgkls for the long string keyword value.
+*/
+{
+    if (*status > 0)
+        return(*status);
+
+    if (value)
+        free(value);
+
+    return(*status);
+}
+ /*--------------------------------------------------------------------------*/
 int ffgcnt( fitsfile *fptr,     /* I - FITS file pointer         */
             char *value,        /* O - continued string value    */
             int  *status)       /* IO - error status             */
@@ -3132,6 +3189,48 @@ int ffhdr2str( fitsfile *fptr,  /* I - FITS file pointer                    */
     *headptr = '\0';   /* terminate the header string */
     /* minimize the allocated memory */
     *header = (char *) realloc(*header, (*nkeys *80) + 1);  
+
+    return(*status);
+}
+/*--------------------------------------------------------------------------*/
+int ffcnvthdr2str( fitsfile *fptr,  /* I - FITS file pointer                    */
+            int exclude_comm,   /* I - if TRUE, exclude commentary keywords */
+            char **exclist,     /* I - list of excluded keyword names       */
+            int nexc,           /* I - number of names in exclist           */
+            char **header,      /* O - returned header string               */
+            int *nkeys,         /* O - returned number of 80-char keywords  */
+            int  *status)       /* IO - error status                        */
+/*
+  Same as ffhdr2str, except that if the input HDU is a tile compressed image
+  (stored in a binary table) then it will first convert that header back
+  to that of a normal uncompressed FITS image before concatenating the header
+  keyword records.
+*/
+{
+    fitsfile *tempfptr;
+    
+    if (*status > 0)
+        return(*status);
+
+    if (fits_is_compressed_image(fptr, status) )
+    {
+        /* this is a tile compressed image, so need to make an uncompressed */
+	/* copy of the image header in memory before concatenating the keywords */
+        if (fits_create_file(&tempfptr, "mem://", status) > 0) {
+	    return(*status);
+	}
+
+	if (fits_img_decompress_header(fptr, tempfptr, status) > 0) {
+	    fits_delete_file(tempfptr, status);
+	    return(*status);
+	}
+
+	ffhdr2str(tempfptr, exclude_comm, exclist, nexc, header, nkeys, status);
+	fits_close_file(tempfptr, status);
+
+    } else {
+        ffhdr2str(fptr, exclude_comm, exclist, nexc, header, nkeys, status);
+    }
 
     return(*status);
 }

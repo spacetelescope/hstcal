@@ -34,7 +34,9 @@ SERVICES PROVIDED HEREUNDER."
 #ifndef _FITSIO_H
 #define _FITSIO_H
 
-#define CFITSIO_VERSION 3.24
+#define CFITSIO_VERSION 3.28
+#define CFITSIO_MINOR 28
+#define CFITSIO_MAJOR 3
 
 #include <stdio.h>
 
@@ -251,11 +253,12 @@ SERVICES PROVIDED HEREUNDER."
 #define FLOATNULLVALUE -9.11912E-36F
 #define DOUBLENULLVALUE -9.1191291391491E-36
  
-/* Image compression algorithm types */
+/* compression algorithm type codes */
 #define SUBTRACTIVE_DITHER_1 1
 #define MAX_COMPRESS_DIM     6
 #define RICE_1      11
 #define GZIP_1      21
+#define GZIP_2      22
 #define PLIO_1      31
 #define HCOMPRESS_1 41
 #define BZIP2_1     51  /* not publicly supported; only for test purposes */
@@ -358,6 +361,7 @@ typedef struct      /* structure used to store basic FITS file information */
     int request_quantize_dither ; /* requested dithering mode when quantizing */
                                   /* floating point images to integer */
     int request_dither_offset;    /* starting offset into the array of random dithering */
+    int request_lossy_int_compress;  /* lossy compress integer image as if float image? */
 
     int compressimg; /* 1 if HDU contains a compressed image, else 0 */
     int quantize_dither;   /* floating point pixel quantization algorithm */
@@ -368,10 +372,11 @@ typedef struct      /* structure used to store basic FITS file information */
     long znaxis[MAX_COMPRESS_DIM];  /* length of each axis */
     long tilesize[MAX_COMPRESS_DIM]; /* size of compression tiles */
     long maxtilelen;        /* max number of pixels in each image tile */
-    long maxelem;		/* maximum length of variable length arrays */
+    long maxelem;	    /* maximum byte length of tile compressed arrays */
 
     int cn_compressed;	    /* column number for COMPRESSED_DATA column */
     int cn_uncompressed;    /* column number for UNCOMPRESSED_DATA column */
+    int cn_gzip_data;       /* column number for GZIP2 lossless compressed data */
     int cn_zscale;	    /* column number for ZSCALE column */
     int cn_zzero;	    /* column number for ZZERO column */
     int cn_zblank;          /* column number for the ZBLANK column */
@@ -755,6 +760,7 @@ int ffkeyn(const char *keyroot, int value, char *keyname, int *status);
 int ffnkey(int value, char *keyroot, char *keyname, int *status);
 int ffgkcl(char *card);
 int ffdtyp(char *cval, char *dtype, int *status);
+int ffinttyp(char *cval, int *datatype, int *negative, int *status);
 int ffpsvc(char *card, char *value, char *comm, int *status);
 int ffgknm(char *card, char *name, int *length, int *status);
 int ffgthd(char *tmplt, char *card, int *hdtype, int *status);
@@ -869,6 +875,7 @@ int ffgnxk(fitsfile *fptr, char **inclist, int ninc, char **exclist,
            int nexc, char *card, int  *status);
 int ffgrec(fitsfile *fptr, int nrec,      char *card, int *status);
 int ffgcrd(fitsfile *fptr, const char *keyname, char *card, int *status);
+int ffgstr(fitsfile *fptr, const char *string, char *card, int *status);
 int ffgunt(fitsfile *fptr, const char *keyname, char *unit, int  *status);
 int ffgkyn(fitsfile *fptr, int nkey, char *keyname, char *keyval, char *comm,
            int *status);
@@ -878,8 +885,8 @@ int ffgkey(fitsfile *fptr, const char *keyname, char *keyval, char *comm,
 int ffgky( fitsfile *fptr, int datatype, const char *keyname, void *value,
            char *comm, int *status);
 int ffgkys(fitsfile *fptr, const char *keyname, char *value, char *comm, int *status);
-int ffgkls(fitsfile *fptr, const char *keyname, char **value, char *comm, int *status)
-;
+int ffgkls(fitsfile *fptr, const char *keyname, char **value, char *comm, int *status);
+int fffkls(char *value, int *status);
 int ffgkyl(fitsfile *fptr, const char *keyname, int *value, char *comm, int *status);
 int ffgkyj(fitsfile *fptr, const char *keyname, long *value, char *comm, int *status);
 int ffgkyjj(fitsfile *fptr, const char *keyname, LONGLONG *value, char *comm, int *status);
@@ -913,6 +920,8 @@ int ffgknd(fitsfile *fptr, const char *keyname, int nstart, int nmax, double *va
            int *nfound, int *status);
 int ffh2st(fitsfile *fptr, char **header, int  *status);
 int ffhdr2str( fitsfile *fptr,  int exclude_comm, char **exclist,
+   int nexc, char **header, int *nkeys, int  *status);
+int ffcnvthdr2str( fitsfile *fptr,  int exclude_comm, char **exclist,
    int nexc, char **header, int *nkeys, int  *status);
 
 /*----------------- read required header keywords --------------*/
@@ -1019,6 +1028,7 @@ int ffikfm(fitsfile *fptr, const char *keyname, double *value, int decim, char *
 
 /*--------------------- delete keywords ---------------*/
 int ffdkey(fitsfile *fptr, const char *keyname, int *status);
+int ffdstr(fitsfile *fptr, const char *string, int *status);
 int ffdrec(fitsfile *fptr, int keypos, int *status);
  
 /*--------------------- get HDU information -------------*/
@@ -1713,6 +1723,8 @@ int ffmvec(fitsfile *fptr, int colnum, LONGLONG newveclen, int *status);
 int ffdcol(fitsfile *fptr, int numcol, int *status);
 int ffcpcl(fitsfile *infptr, fitsfile *outfptr, int incol, int outcol, 
            int create_col, int *status);
+int ffcprw(fitsfile *infptr, fitsfile *outfptr, LONGLONG firstrow, 
+           LONGLONG nrows, int *status);
 
 /*--------------------- WCS Utilities ------------------*/
 int ffgics(fitsfile *fptr, double *xrval, double *yrval, double *xrpix,
@@ -1848,13 +1860,13 @@ int	fits_execute_template(fitsfile *ff, char *ngp_template, int *status);
 
 int fits_img_stats_short(short *array,long nx, long ny, int nullcheck,   
     short nullvalue,long *ngoodpix, short *minvalue, short *maxvalue, double *mean,  
-    double *sigma, double *noise1, double *noise3, int *status);
+    double *sigma, double *noise1, double *noise2, double *noise3, double *noise5, int *status);
 int fits_img_stats_int(int *array,long nx, long ny, int nullcheck,   
     int nullvalue,long *ngoodpix, int *minvalue, int *maxvalue, double *mean,  
-    double *sigma, double *noise1, double *noise3, int *status);
+    double *sigma, double *noise1, double *noise2, double *noise3, double *noise5, int *status);
 int fits_img_stats_float(float *array, long nx, long ny, int nullcheck,   
     float nullvalue,long *ngoodpix, float *minvalue, float *maxvalue, double *mean,  
-    double *sigma, double *noise1, double *noise3, int *status);
+    double *sigma, double *noise1, double *noise2, double *noise3, double *noise5, int *status);
 
 /*--------------------- image compression routines ------------------*/
 
@@ -1866,6 +1878,7 @@ int fits_set_hcomp_scale(fitsfile *fptr, float scale, int *status);
 int fits_set_hcomp_smooth(fitsfile *fptr, int smooth, int *status);
 int fits_set_quantize_dither(fitsfile *fptr, int dither, int *status);
 int fits_set_dither_offset(fitsfile *fptr, int offset, int *status);
+int fits_set_lossy_int(fitsfile *fptr, int lossy_int, int *status);
 
 int fits_get_compression_type(fitsfile *fptr, int *ctype, int *status);
 int fits_get_tile_dim(fitsfile *fptr, int ndim, long *dims, int *status);
@@ -1880,6 +1893,7 @@ int fits_compress_img(fitsfile *infptr, fitsfile *outfptr, int compress_type,
          long *tilesize, int parm1, int parm2, int *status);
 int fits_is_compressed_image(fitsfile *fptr, int *status);
 int fits_decompress_img (fitsfile *infptr, fitsfile *outfptr, int *status);
+int fits_img_decompress_header(fitsfile *infptr, fitsfile *outfptr, int *status);
 int fits_img_decompress (fitsfile *infptr, fitsfile *outfptr, int *status);
 
 /* H-compress routines */
@@ -1891,7 +1905,14 @@ int fits_hdecompress(unsigned char *input, int smooth, int *a, int *nx,
        int *ny, int *scale, int *status);
 int fits_hdecompress64(unsigned char *input, int smooth, LONGLONG *a, int *nx, 
        int *ny, int *scale, int *status);
- 
+
+int fits_transpose_table(fitsfile *infptr, fitsfile *outfptr, int *status);
+int fits_compress_table_fast(fitsfile *infptr, fitsfile *outfptr, int *status);
+int fits_compress_table_best(fitsfile *infptr, fitsfile *outfptr, int *status);
+int fits_compress_table_rice(fitsfile *infptr, fitsfile *outfptr, int *status);
+int fits_uncompress_table(fitsfile *infptr, fitsfile *outfptr, int *status);
+int fits_gzip_datablocks(fitsfile *fptr, size_t *size, int *status);
+
 /*  The following exclusion if __CINT__ is defined is needed for ROOT */
 #ifndef __CINT__
 #ifdef __cplusplus
