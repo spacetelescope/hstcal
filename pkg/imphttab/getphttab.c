@@ -924,7 +924,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
          Update intermediate arrays with results in 
          preparation for the next iteration 
          */
-        if (rinterp == -99) return('/0');
+        if (rinterp == -99) return('\0');
         /* Determine where the result of this interpolation should go */
         x = floor((p-1)/2);
         xdim = floor(x/2);
