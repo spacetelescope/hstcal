@@ -127,22 +127,9 @@ int SciFlags (ACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
       return (status);
 	}
   
-  if (sci_sw->pctecorr == PERFORM) {
-    acs->sci_basic_ccd = PERFORM;   refimage_used = 1;
-    CCDSanity (acs->detector, "PCTECORR");
-    if (GetNewRef (phdr, "PCTETAB", sciref))
-      return (status);
-	}
-  
 	if (sci_sw->darkcorr == PERFORM) {
     acs->sci_basic_2d = PERFORM;   refimage_used = 1;
     if (GetNewRef (phdr, "DARKFILE", sciref))
-      return (status);
-	}
-  
-  if (sci_sw->darkcorr == PERFORM && sci_sw->pctecorr == PERFORM) {
-    acs->sci_basic_2d = PERFORM;   refimage_used = 1;
-    if (GetNewRef (phdr, "CDRKFILE", sciref))
       return (status);
 	}
   

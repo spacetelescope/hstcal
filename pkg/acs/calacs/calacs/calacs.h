@@ -13,15 +13,11 @@ typedef struct {
 	char rawfile[ACS_LINE];	/* uncalibrated science data */
 	char outroot[ACS_LINE];	/* file name _raw for output product */
 	char crjfile[ACS_LINE];	/* CR rejected, flat fielded science */
-  char crcfile[ACS_LINE]; /* crjfile + CTE correction */
 	char fltfile[ACS_LINE];	/* flat fielded science */
-  char flcfile[ACS_LINE]; /* fltfile + CTE correction */
 	char blv_tmp[ACS_LINE];	/* blevcorr, then CR flagged */
-  char blc_tmp[ACS_LINE]; /* blv_tmp + CTE correction */
 	char crj_tmp[ACS_LINE];	/* CR rejected, summed */
-  char crc_tmp[ACS_LINE]; /* crj_tmp + CTE correction */
 	char dthfile[ACS_LINE];	/* dither combined science data */	
-  char mtype[SZ_STRKWVAL+1];      /* Role of exposure in association */
+    char mtype[SZ_STRKWVAL+1];      /* Role of exposure in association */
 
 	char rootname[ACS_LINE];	/* root name for set of obs */
 
@@ -35,7 +31,7 @@ typedef struct {
 	int scibin[2];			/* binning factors */
 	int scigain;			/* ccdgain values */
 	int samebin;
-  int newbias;
+    int newbias;
 
 	/* calibration switches */
 	int sci_basic_ccd;	/* do acsccd? (dqicorr or blevcorr) */

@@ -193,16 +193,16 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	*/
 	dqval = 0;
 	for (j = 0;  j < x->sci.data.ny;  j++) {
-    for (i = 0;  i < x->sci.data.nx;  i++) {
-      ival = (int) Pix (x->sci.data, i, j);
-      if (ival >= tabarray.nelem) {
+	    for (i = 0;  i < x->sci.data.nx;  i++) {
+		ival = (int) Pix (x->sci.data, i, j);
+		if (ival >= tabarray.nelem) {
 		    Pix (x->sci.data, i, j) = tabarray.atod[tabarray.nelem-1];
-        dqval = SATPIXEL | DQPix (x->dq.data, i, j);
+			dqval = SATPIXEL | DQPix (x->dq.data, i, j);
 		    DQSetPix (x->dq.data, i, j, dqval);	/* saturated */
-      } else if (ival >= 0) {
+		} else if (ival >= 0) {
 		    Pix (x->sci.data, i, j) = tabarray.atod[ival];
-      }		/* else if ival < 0, no change */
-    }
+		}		/* else if ival < 0, no change */
+	    }
 	}
 
 	free (tabarray.atod);

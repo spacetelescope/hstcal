@@ -81,8 +81,6 @@ void errchk ();                 /* HSTIO error check */
 # define        AMP_D           3
 
 # define       DEFAULT_OFFSET   3
-
-# define        SM4MJD          54967
  
 /* A reference image. */
 typedef struct {

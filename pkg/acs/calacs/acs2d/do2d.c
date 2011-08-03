@@ -28,7 +28,7 @@
 # include "acsinfo.h"
 # include "acserr.h"
 
-static void DarkMsg (ACSInfo *, int, int);
+static void DarkMsg (ACSInfo *, int);
 static void dqiMsg (ACSInfo *, int);
 static void NonLinMsg (ACSInfo *, int);
 static void PhotMsg (ACSInfo *);
@@ -230,7 +230,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	}
   
 	/* Subtract dark image. */
-	DarkMsg (acs2d, extver, acs2d->pctecorr);
+	DarkMsg (acs2d, extver);
 	if (acs2d->darkcorr == PERFORM) {
     if (doDark (acs2d, &x, &meandark))
 			return (status);
@@ -342,7 +342,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	return (status);
 }
 
-static void DarkMsg (ACSInfo *acs2d, int extver, int pctecorr) {
+static void DarkMsg (ACSInfo *acs2d, int extver) {
   
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -353,13 +353,8 @@ static void DarkMsg (ACSInfo *acs2d, int extver, int pctecorr) {
   
 	if (extver == 1 && !OmitStep (acs2d->darkcorr)) {
     
-    if (pctecorr == PERFORM) {
-      PrRefInfo ("darkfile", acs2d->darkcte.name, acs2d->darkcte.pedigree,
-                 acs2d->darkcte.descrip, "");
-    } else {
-      PrRefInfo ("darkfile", acs2d->dark.name, acs2d->dark.pedigree,
-                 acs2d->dark.descrip, "");
-    }
+    PrRefInfo ("darkfile", acs2d->dark.name, acs2d->dark.pedigree,
+               acs2d->dark.descrip, "");
 	}
 }
 

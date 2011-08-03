@@ -60,29 +60,29 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 float *meandark    o: mean of dark image values subtracted
 */
 
-  extern int status;
+    extern int status;
 
-  SingleGroupLine y, z;	/* y and z are scratch space */
-  int extver = 1;		/* get this imset from dark image */
-  int rx, ry;		/* for binning dark down to size of x */
-  int x0, y0;		/* offsets of sci image */
-  int same_size;		/* true if no binning of ref image required */
-  int avg = 0;		/* bin2d should sum values within each bin */
-  int scilines; 			/* number of lines in science image */
-  int i, j;
-  float mean, dark;
-  float weight, wdark;    /* weights for line averages */
-  int update;
-  float gain[NAMPS];
-  float rn2[NAMPS];       /* only need this to call get_nsegn */
+    SingleGroupLine y, z;	/* y and z are scratch space */
+    int extver = 1;		/* get this imset from dark image */
+    int rx, ry;		/* for binning dark down to size of x */
+    int x0, y0;		/* offsets of sci image */
+    int same_size;		/* true if no binning of ref image required */
+    int avg = 0;		/* bin2d should sum values within each bin */
+    int scilines; 			/* number of lines in science image */
+    int i, j;
+    float mean, dark;
+    float weight, wdark;    /* weights for line averages */
+    int update;
+    float gain[NAMPS];
+    float rn2[NAMPS];       /* only need this to call get_nsegn */
 
-  int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
-  int sub1d (SingleGroup *, int, SingleGroupLine *);
-  int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-  int DetCCDChip (char *, int, int, int *);
-  void get_nsegn (int, int, int, int, float *, float*, float *, float *);
-  void AvgSciValLine (SingleGroupLine *, short, float *, float *);
-  void multgn1d (SingleGroupLine *, int, int, int, float *, float);
+    int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
+    int sub1d (SingleGroup *, int, SingleGroupLine *);
+    int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
+    int DetCCDChip (char *, int, int, int *);
+    void get_nsegn (int, int, int, int, float *, float*, float *, float *);
+	void AvgSciValLine (SingleGroupLine *, short, float *, float *);
+	void multgn1d (SingleGroupLine *, int, int, int, float *, float);
 
 
 	initSingleGroupLine (&y);
@@ -92,13 +92,8 @@ float *meandark    o: mean of dark image values subtracted
 	/* Compute correct extension version number to extract from
 		reference image to correspond to CHIP in science data.
 	*/
-	if (acs2d->pctecorr == PERFORM) {
-    if (DetCCDChip (acs2d->darkcte.name, acs2d->chip, acs2d->nimsets, &extver) )
-      return (status);
-  } else {
-    if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) )
-      return (status);
-  }
+	if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) )
+		return (status);	
 	
 	if (acs2d->verbose) {
 		sprintf(MsgText,"Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
@@ -106,11 +101,7 @@ float *meandark    o: mean of dark image values subtracted
 	}
 
 	/* Get the dark image data. */
-  if (acs2d->pctecorr == PERFORM) {
-    openSingleGroupLine (acs2d->darkcte.name, extver, &y);
-  } else {
-    openSingleGroupLine (acs2d->dark.name, extver, &y);
-  }
+	openSingleGroupLine (acs2d->dark.name, extver, &y);
 	if (hstio_err())
 	    return (status = OPEN_FAILED);
 
@@ -154,11 +145,7 @@ float *meandark    o: mean of dark image values subtracted
 	/* We are working with a sub-array and need to apply the
 		proper section from the reference image to the science image.
 	*/
-		if (acs2d->pctecorr == PERFORM) {
-      getSingleGroupLine (acs2d->darkcte.name, j, &y);
-    } else {
-      getSingleGroupLine (acs2d->dark.name, j, &y);
-    }
+		getSingleGroupLine (acs2d->dark.name, j, &y);
 
         /*
 		rx = 1;

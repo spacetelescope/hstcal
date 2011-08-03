@@ -6,7 +6,6 @@ typedef struct {
 	int blevcorr;
 	int biascorr;
 	int flashcorr;
-  int pctecorr;
 } acsccd_switch;
 
 typedef struct {
@@ -31,7 +30,6 @@ typedef struct {
 	int dqicorr;
 	int flatcorr;
 	int flashcorr;
-  int pctecorr;
 	int glincorr;
 	int lflgcorr;
 	int photcorr;

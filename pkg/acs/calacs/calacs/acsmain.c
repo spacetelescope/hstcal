@@ -20,13 +20,12 @@ int main(int argc, char **argv) {
 	int verbose = NO;	/* print info during processing? */
 	int debug = NO;		/* print debug statements during processing? */
 	int quiet = NO;		/* suppress STDOUT messages? */
-	int onecpu = NO;		/* suppress OpenMP usage? */
 	int too_many = NO;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */
 
 	/* Function definitions */
 	void c_irafinit (int, char **);
-	int CalAcsRun (char *, int, int, int, int, int);
+	int CalAcsRun (char *, int, int, int, int);
     void WhichError (int);
     
 	/* Initialize status to OK and MsgText to null */
@@ -46,12 +45,12 @@ int main(int argc, char **argv) {
 	**		   4. verbose?
 	*/
 	for (i = 1;  i < argc;  i++) {
-		if (!(strcmp(argv[i],"--version"))) {
+    if (!(strcmp(argv[i],"--version"))) {
       printf("%s\n",ACS_CAL_VER_NUM);
       exit(0);
     }
     
-    if (argv[i][0] == '-') {
+		if (argv[i][0] == '-') {
 		  for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
           printtime = YES;
@@ -63,8 +62,6 @@ int main(int argc, char **argv) {
           debug = YES;
 		    } else if (argv[i][j] == 'q') {
           quiet = YES;
-		    } else if (argv[i][j] == '1') {
-          onecpu = YES;
 		    } else {
           printf ("Unrecognized option %s\n", argv[i]);
           exit (ERROR_RETURN);
@@ -78,8 +75,7 @@ int main(int argc, char **argv) {
 	}
 	
 	if (input[0] == '\0' || too_many) {
-        printf ("CALACS Version %s\n",ACS_CAL_VER_NUM);
-	    printf ("syntax:  calacs.e [-t] [-s] [-v] [-q] [-1] input \n");
+	    printf ("syntax:  calacs.e [-t] [-s] [-v] [-q] input \n");
 	    exit (ERROR_RETURN);
 	}
 
@@ -90,7 +86,7 @@ int main(int argc, char **argv) {
 	SetTrlQuietMode(quiet);
 	
 	/* Call the CALACS main program */
-	if (CalAcsRun (input, printtime, save_tmp, verbose, debug, onecpu)) {
+	if (CalAcsRun (input, printtime, save_tmp, verbose, debug)) {
 
         if (status == NOTHING_TO_DO){
             /* If there is just nothing to do, 

@@ -622,7 +622,7 @@ void InitSumTrl (char *input, char *output) {
 	
 	char *isuffix[] = {"_crj", "_flt"};
 	char *osuffix[] = {"_sfl", "_sfl"};
-	char *trlsuffix[] = {"_sfl", "_sfl"};
+	char *trlsuffix[] = {"", ""};
 	int nsuffix = 2;
 	
 	int MkOutName (char *, char **, char **, int, char *, int);
