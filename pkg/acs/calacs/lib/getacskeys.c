@@ -32,6 +32,7 @@ Hdr *phdr        i: primary header
 
 	int nextend;			/* number of FITS extensions */
 	int i;
+	Bool subarray;
 
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
@@ -91,6 +92,13 @@ Hdr *phdr        i: primary header
 	    trlerror (MsgText);
 		return (status = INVALID_VALUE);
 	}
+
+	if (GetKeyBool (phdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
+	  return (status);
+	if (subarray)
+	  acs->subarray = YES;
+	else
+	  acs->subarray = NO;
 
 	/* Get CCD-specific parameters. */
 
