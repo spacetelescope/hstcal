@@ -102,6 +102,13 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
   
   FreePhotPar(&obs);
   
+  /* check whether GetPhotTab returned -9999, which means it was asked
+   to do extrapolation */
+  if (obs.photflam == -9999) {
+    trlwarn("IMPHTTAB extrapolation not supported, PHOTCORR skipped.");
+    return (status = CAL_STEP_NOT_DONE);
+  }
+  
   return (status);
 }
 

@@ -296,15 +296,22 @@ int Do2D (ACSInfo *acs2d, int extver) {
   
   /* Calculate the photometry keyword values if set to PERFORM... */
 	if (acs2d->photcorr == PERFORM) {
-    if (doPhot (acs2d, &x))
-      return (status);
-    PhotMsg (acs2d);
-    PrSwitch ("photcorr", COMPLETE);
-    if (acs2d->printtime)
-      TimeStamp ("PHOTCORR complete", acs2d->rootname);
+    status = doPhot (acs2d, &x);
+    if (status == ACS_OK) {
+      PhotMsg (acs2d);
+      PrSwitch ("photcorr", COMPLETE);
+      if (acs2d->printtime)
+        TimeStamp ("PHOTCORR complete", acs2d->rootname);
+    } else if (status == CAL_STEP_NOT_DONE) {
+      acs2d->photcorr = IGNORED;
+      PrSwitch("photcorr", SKIPPED);
+    } else {
+      return status;
+    }
 	}
+  
 	if (extver == 1 && !OmitStep (acs2d->photcorr))
-		if (photHistory (acs2d, x.globalhdr))
+    if (photHistory (acs2d, x.globalhdr))
       return (status);
   
 	/* Compute min, max, mean, etc. of good science data. */
