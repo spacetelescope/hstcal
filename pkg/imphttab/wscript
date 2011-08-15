@@ -1,6 +1,8 @@
 # vim: set syntax=python:
 
 def build(bld):
+    """ 
+    #Only need to build the libraries, not the test program...
     t = bld.program(
         source = ['test_getphttab.c', 'getphttab.c'],
         target = 'testphot.e',
@@ -10,7 +12,7 @@ def build(bld):
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'
         )
-
+    """
     t2 = bld.stlib(
         source = ['test_getphttab.c', 'getphttab.c'],
         target = 'imphttab',
