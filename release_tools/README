@@ -1,0 +1,65 @@
+set repo=https://svn.stsci.edu/svn/ssb/stsci_python/hstcal
+
+set branch=release_2011_08
+
+set VER=1.0
+
+
+How to make the release branch
+--
+
+svn checkout $repo/trunk hstcal
+
+cd hstcal
+
+sendto $branch
+
+
+
+how to make the source distribution
+--
+
+svn checkout $repo/branches/$branch hstcal-$VER
+
+cd hstcal-$VER
+
+vi ...
+	fix whatever...
+
+cd ..
+
+find hstcal-$VER -name .svn -exec rm -rf {} ';'
+
+tar zcf  /eng/ssb/dist/$branch/hstcal-$VER.tar.gz hstcal-$VER
+
+
+how to make the binary distribution
+--
+
+# do this on herbert and bond, to get a 32 bit linux and mac distribution
+
+irafdev
+
+tar zxf /eng/ssb/dist/$branch/hstcal-$VER.tar.gz hstcal-$VER
+
+mv hstcal-$VER hstcal-$VER.src
+
+mkdir hstcal-$VER
+
+set d=$cwd
+
+cd hstcal-$VER.src
+
+./waf configure --prefix $d/hstcal-$VER
+
+./waf build
+
+./waf install
+
+cd ..
+
+rm -rf hstcal-$VER/bin/test
+
+tar zcf /eng/ssb/dist/$branch/hstcal-$VER.linux.tar.gz	hstcal-$VER
+tar zcf /eng/ssb/dist/$branch/hstcal-$VER.mac.tar.gz 	hstcal-$VER
+

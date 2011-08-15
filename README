@@ -1,3 +1,12 @@
+HSTCAL 1.0
+
+To install from source, see the file INSTALL
+
+To install a binary, see the file INSTALL.BINARY
+
+
+--
+
 C/              C interface for tables, using CFITSIO directly
 Cmod/           don't use this copy of C
 calstis/        copy of calstis for testing the C interface

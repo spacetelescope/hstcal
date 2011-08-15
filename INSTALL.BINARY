@@ -1,0 +1,22 @@
+Installing HSTCAL binary distributions
+--
+
+hstcal binaries are distributed as a tar file containing a bin/
+directory.  To install, find a place to extract the tar file
+and enter the command
+
+	tar xf hstcal-1.0.linux.tar.gz
+
+
+To use the hstcal programs, you will want them to be on your search
+path.
+
+For csh:
+
+	set path = ( $cwd/hstcal-1.0/bin $path )
+
+For sh or bash:
+
+	PATH=`pwd`/hstcal-1.0/bin:$PATH
+	export PATH
+
