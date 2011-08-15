@@ -1,0 +1,49 @@
+HSTCAL Version 1.0 Release Notes
+
+August 2011
+
+This package provides for the first time ever a version of the
+ACS calibration software, CALACS, compiled without any dependence on
+IRAF. The HSTCAL package defines a CFITSIO-based replacement for IRAF's
+image and table I/O C-API that can be used to compile IRAF tasks written
+in C without actually using IRAF.  
+
+Platform Support
+================
+This package has been compiled and tested on both Linux RedHat 32-bit and 64-bit environments, as well as Mac OS X 10.5(Leopard) and OS X 10.6(Snow Leopard).  
+
+pkg/imphttab
+=============
+This library provides a common interface for reading and extracting 
+photometry keyword values from the new IMPHTTAB photometry reference file.
+The use of the IMPHTTAB reference table will replace calls to IRAF/STSDAS
+synphot C functions for computing photometry keyword values during calibration.
+This library gets linked into the new version of CALACS in the 'acs' package.
+ 
+
+pkg/acs
+========
+CALACS Version 6.1.0 (16-May-2011) contains several updates to better
+support post-SM4 data and to calibrate CR-SPLIT and NREPEAT > 1 CCD
+data the same and to replace calls to synphot with use of a new photmetry reference file (IMPHTTAB). These changes include:
+
+    - Replaces calls to IRAF/STSDAS synphot C functions (in
+    acs2d/dophot.c) with use of the imphttab library to populate the
+    photmetry keywords with values derived from the new photometry
+    reference file IMPHTTAB.
+
+    - All CCD data taken as either CR-SPLIT or REPEAT-OBS associations
+    will be calibrated and combined as CR-SPLIT data. This will eliminate
+    the generation of _sfl.fits files for ALL ACS CCD data in the pipeline
+    and only produce _crj.fits files (along with the currently generated
+    _flt.fits files for each input exposure). This change will NOT affect
+    how ACS/SBC (MAMA) data gets processed, only ACS CCD observations.
+
+    - The logic implemented in CALACS to correctly propogate the
+    cosmic-ray DQ flags to the final FLT images was fixed.
+
+    - The initialization of the ERR array values for ACS (post-SM4) did
+    not match the expected ERR values given the inputs provided by the
+    reference files. CALACS was refactored to perform BLEVCORR prior to
+    doNoise, then changed to not use the bias value in initializing the
+    ERR array values.
