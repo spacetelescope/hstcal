@@ -1,24 +1,7 @@
-HSTCAL 1.0
-
-To install from source, see the file INSTALL
-
-To install a binary, see the file INSTALL.BINARY
-
-
---
-
-C/              C interface for tables, using CFITSIO directly
-Cmod/           don't use this copy of C
-calstis/        copy of calstis for testing the C interface
+applib/         Generic numerical routines
 cfitsio/        CFITSIO, compiled on herbert
-cvos/           copied from Mike's directory and modified to remove iraf
-hstio/          copied from Mike's directory and modified to remove iraf
-stisdata/       directory containing a stis exposure for testing
-waf_patches/	local patches to waf; see waf_patches/README
-
-c_iraf.h
-hstio.h
-libcvos.a       built from cvos/
-libhstio.a      built from hstio/
-
-Notes
+cvos/           Generic routines to handle IRAF-isms, such as filename globbing
+hstio/          A wrapper to provide the old HSTIO interface to FITS files
+pkg/            Instrument-specific packages
+tables/         Code to handle FITS tables
+waf_patches/    Patches to stock WAF
