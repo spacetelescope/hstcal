@@ -208,11 +208,11 @@ int DoCCD (ACSInfo *acs, int extver) {
 			trlmessage ("Bias level from overscan has been subtracted;");
       
       if (PutKeyFlt (&x.sci.hdr, "MEANBLEV", meanblev,
-                     "mean of bias levels subtracted")) {
+                     "mean of bias levels subtracted in DN")) {
         return (status);
       }
       
-			sprintf (MsgText, "     mean of bias levels subtracted was %.6g.",
+			sprintf (MsgText, "     mean of bias levels subtracted was %.6g DN.",
                meanblev);
 			trlmessage (MsgText);
 	    
@@ -225,7 +225,7 @@ int DoCCD (ACSInfo *acs, int extver) {
      */
     for (i = 0; i < 4; i++){
       if (acs->blev[i] != 0.) {
-        sprintf (MsgText, "     bias level of %.6g was subtracted for AMP %c.", acs->blev[i], AMPSORDER[i]);
+        sprintf (MsgText, "     bias level of %.6g DN was subtracted for AMP %c.", acs->blev[i], AMPSORDER[i]);
         trlmessage (MsgText); 
       }
     }
