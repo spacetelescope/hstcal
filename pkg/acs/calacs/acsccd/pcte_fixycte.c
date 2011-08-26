@@ -78,7 +78,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
 #   ifndef _OPENMP
       trlmessage("Parallel processing for YCTE correction not used... OpenMP missing.\n"); 
 #   endif
-#   pragma omp parallel for private(i,j,n)
+#   pragma omp parallel for schedule(dynamic) private(i,j,n,status,pix_obs,pix_cur,pix_read) shared(sig_cte,sig_cor)
     /* loop over columns. columns are independent of each other. */
     for (i = 0; i < arry; i++) {
       /* copy column data */
@@ -92,18 +92,17 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
         status = sim_readout_nit(arrx, pix_cur, pix_read, cte_frac, shft_nit,
                                  levels, dpde_l, tail_len, chg_leak_lt, chg_open_lt);
         if (status == 0) {
-
-            for (j = 0; j < arrx; j++) {
-              pix_cur[j] += pix_obs[j] - pix_read[j];
-            }
+          for (j = 0; j < arrx; j++) {
+            pix_cur[j] += pix_obs[j] - pix_read[j];
+          }
         } /* Only do this if sim_readout_nit() succeeded */
       }
       
       if (status == 0){
-          /* copy fixed column to output */
-          for (j = 0; j < arrx; j++) {
-            sig_cor[j*arry + i] = pix_cur[j];
-          }
+        /* copy fixed column to output */
+        for (j = 0; j < arrx; j++) {          
+          sig_cor[j*arry + i] = pix_cur[j];
+        }
       } /* Only do this if sim_readout_nit() succeeded */
     } /* end loop over columns */
   }  
