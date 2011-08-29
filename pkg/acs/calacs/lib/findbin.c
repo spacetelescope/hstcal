@@ -27,8 +27,8 @@
    data.
 */
 
-/* 
-** Developed to support line-by-line operations within CALACS.  
+/*
+** Developed to support line-by-line operations within CALACS.
 ** Based on FindBin but operates on 1 line of reference data at a time.
 */
 int FindLine (SingleGroup *x, SingleGroupLine *y,
@@ -86,7 +86,7 @@ int *x0, *y0      o: location of start of subimage in ref image
 	    *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
 	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 	    *same_size = 0;
-		
+
 	} else {
         /* For subarray input images, whether they are binned or not... */
 	    *same_size = 0;
@@ -122,7 +122,7 @@ int *x0, *y0      o: location of start of subimage in ref image
 /* This function contains the basic algorithms and logic for determining
     the size and position of the input image relative to the reference
     image.  Callable by both FindLineHdr and FindLine.
-    
+
     *** It still needs to be cleaned up ***
     WJH 30 July 1999
 */
@@ -133,7 +133,7 @@ static int getBin (int *sci_corner, int *ref_corner, int *sci_bin, int
 	int cshift[2];			/* shift of sci relative to ref */
 	int ratiox, ratioy;		/* local variables for rx, ry */
 	int xzero, yzero;		/* local variables for x0, y0 */
-    
+
 
 	if (sci_corner[0] == ref_corner[0] &&
 	    sci_corner[1] == ref_corner[1] &&
@@ -160,7 +160,7 @@ static int getBin (int *sci_corner, int *ref_corner, int *sci_bin, int
 	    *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
 	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 	    *same_size = 0;
-		
+
 	} else {
 
 	    /* We must bin, extract subset, or both. */
@@ -191,11 +191,11 @@ static int getBin (int *sci_corner, int *ref_corner, int *sci_bin, int
 	    *y0 = yzero;
 	}
 
-
+        return 0;
 }
 
-/* 
-** Developed to support line-by-line operations within CALACS.  
+/*
+** Developed to support line-by-line operations within CALACS.
 ** Based on FindBin but operates on 1 line of reference data at a time.
 */
 int FindLineHdr (Hdr *scihdr, Hdr *refhdr, int dimx, int refx,
@@ -255,7 +255,7 @@ int *x0, *y0      o: location of start of subimage in ref image
 	    *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
 	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 	    *same_size = 0;
-		
+
 	} else {
 
 	    /* We must bin, extract subset, or both. */

@@ -214,7 +214,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    "Warning  %simset %d flagged as bad because all values = %.6g\n",
 				wavecal_str, extver, maxval);
 		}
-		printf (msg1);
+		printf ("%s", msg1);
 		if ((status = Put_KeyB (&x->sci.hdr, "IMSET_OK", 0,
 				"is the current imset good?")) != 0)
 		    return (status);

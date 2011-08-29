@@ -32,7 +32,7 @@ typedef struct {
 } CTEParams;
 
 /* function prototypes */
-int PixCteParams (const char *filename, const double expstart, CTEParams * pars);
+int PixCteParams (char *filename, const double expstart, CTEParams * pars);
 int CompareCteParams(SingleGroup *x, CTEParams *pars);
 double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
                    const double scaleval[NUM_SCALE]);

@@ -206,7 +206,7 @@ StisInfo4 *sts    i: calibration switches and info
 		    return (status);
 		if (sts->verbose && sts->trace_rotation != 0.) {
 		  printf ("         trace was rotated by = %.6g degree.\n",
-                       sts->trace_rotation); 
+                       sts->trace_rotation);
 		}
 	    }
 
@@ -284,11 +284,11 @@ StisInfo4 *sts    i: calibration switches and info
 		    "wavecal imset %d skipped (IMSET_OK = F)\n", extver);
 		strcpy (msg1, "Warning  ");
 		strcat (msg1, msg2);
-		printf (msg1);
+		printf ("%s", msg1);
 		if (sts->dbg != NULL) {
 		    strcpy (msg1, "# Warning:  ");
 		    strcat (msg1, msg2);
-		    fprintf (sts->dbg, msg1);
+		    fprintf (sts->dbg, "%s", msg1);
 		}
 		w_shift = UNDEFINED_SHIFT;
 		s_shift = UNDEFINED_SHIFT;

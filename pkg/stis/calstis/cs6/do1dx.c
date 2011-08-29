@@ -189,7 +189,7 @@ StisInfo6 *sts    i: calibration switches and info
 	double bksize[2];       /* sizes of background boxes */
 	double bkoffset[2];     /* offsets of background boxes */
 	double avcrscroff;	/* average cross correlation offset */
-	double delta = 0.0;	/* X offset (arcsec) from slit used to measure	
+	double delta = 0.0;	/* X offset (arcsec) from slit used to measure
 				   dispersion coefficients */
 	double cl_a2center;	/* read from command line (for local use) */
 	int norder;		/* index into croscor arrays */
@@ -551,7 +551,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    FreeXtract (&extract_a);
             /* Ignore small blemish (dust mote) - 16/2/01 IB */
 	    if (sts->optimal || sts->do_profile)
-	        sts->sdqflags = sts->sdqflags_orig && ~(SMALLBLEM);
+	        sts->sdqflags = sts->sdqflags_orig & ~(SMALLBLEM);
 	    else
 	        sts->sdqflags = 0;
 
@@ -1177,7 +1177,7 @@ StisInfo6 *sts    i: calibration switches and info
                        in the image header (SDQFLAGS keyword).
                     */
 	            /* Ignore small blemish (dust mote) - 16/2/01 IB */
-	            sts->sdqflags = sts->sdqflags_orig && ~(SMALLBLEM);
+	            sts->sdqflags = sts->sdqflags_orig & ~(SMALLBLEM);
 
 	        } else {
 
@@ -1186,7 +1186,7 @@ StisInfo6 *sts    i: calibration switches and info
                     */
 	            /* Ignore small blemish (dust mote) - 16/2/01 IB */
 	            if (sts->do_profile)
-	                sts->sdqflags = sts->sdqflags_orig && ~(SMALLBLEM);
+	                sts->sdqflags = sts->sdqflags_orig & ~(SMALLBLEM);
 	            else
 	                sts->sdqflags = 0;
 	        }

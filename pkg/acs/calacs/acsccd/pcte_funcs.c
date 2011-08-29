@@ -17,14 +17,14 @@
  * develops and as new instruments are added.
  * - MRD 18 Feb. 2011
  */
-int PixCteParams (const char *filename, const double expstart, CTEParams *pars) {
-  
+int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
+
   extern int status; /* variable for return status */
-  
+
   /* local variables */
   /* hstio variables */
-  Hdr hdr_ptr;  
-  
+  Hdr hdr_ptr;
+
   /* xtables variables */
   IRAFPointer tbl_ptr;        /* xtables table pointer */
   IRAFPointer col_ptr_psin;   /* xtables column pointer for psi nodes */
@@ -34,7 +34,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
   IRAFPointer col_ptr_levs;   /* xtables column pointer for levels */
   IRAFPointer col_ptr_mjd;    /* xtables column pointer for mjd */
   IRAFPointer col_ptr_scale;  /* xtables column pointer for scale */
-  
+
   /* names of data columns we want from the file */
   const char dtde[] = "DTDE";
   const char qdtde[] = "Q";
@@ -43,23 +43,23 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
   const char level[] = "LEVEL";
   const char mjdstr[] = "MJD";
   const char scalestr[] = "SCALE";
-  
+
   /* variable for filename + extension number. */
   char filename_wext[strlen(filename) + 4];
-  
+
   /* iteration variable */
   int j, k, l;
-  
+
   /* number of CHG_LEAK# extensions in the file */
   int nchg_leak;
-  
+
   /* arrays to hold CTE scaling data */
   double scalemjd[NUM_SCALE];
   double scaleval[NUM_SCALE];
-  
+
   /* MJD values from CHG_LEAK extension headers */
   double chg_mjd1, chg_mjd2;
-  
+
   /* functions from calacs/lib */
   int LoadHdr (char *input, Hdr *phdr);
   int GetKeyInt (Hdr *hd, char *keyword, int use_def, int def, int *value);
@@ -72,28 +72,28 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = OPEN_FAILED;
     return status;
   }
-  
+
   /* read RN2_NIT keyword from primary header */
   if (GetKeyDbl(&hdr_ptr, "RN_CLIP", NO_DEFAULT, -999, &pars->rn_clip)) {
     trlerror("(pctecorr) Error reading RN_CLIP keyword from PCTETAB");
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* read SIM_NIT keyword from primary header */
   if (GetKeyInt(&hdr_ptr, "SIM_NIT", NO_DEFAULT, -999, &pars->sim_nit)) {
     trlerror("(pctecorr) Error reading SIM_NIT keyword from PCTETAB");
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* read SHFT_NIT keyword from primary header */
   if (GetKeyInt(&hdr_ptr, "SHFT_NIT", NO_DEFAULT, -999, &pars->shft_nit)) {
     trlerror("(pctecorr) Error reading SHFT_NIT keyword from PCTETAB");
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* read NCHGLEAK keyword from primary header.
    * descripes number of CHG_LEAK# extensions in the file */
   if (GetKeyInt(&hdr_ptr, "NCHGLEAK", NO_DEFAULT, -999, &nchg_leak)) {
@@ -101,15 +101,15 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* done reading stuff from the primary header */
   freeHdr(&hdr_ptr);
-  
+
   /****************************************************************************/
   /* read DTDE/Q data from first table extensions */
   /* make filename + ext number 1 */
   sprintf(filename_wext, "%s[%i]", filename, 1);
-  
+
   /* open CTE parameters file to extension number 1 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
   if (c_iraferr()) {
@@ -118,7 +118,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = OPEN_FAILED;
     return status;
   }
-  
+
   /* read data from table */
   /* get column pointer for dtde */
   c_tbcfnd1(tbl_ptr, dtde, &col_ptr_dtde);
@@ -128,7 +128,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = COLUMN_NOT_FOUND;
     return status;
   }
-  
+
   /* get column pointer for q_dtde */
   c_tbcfnd1(tbl_ptr, qdtde, &col_ptr_qdtde);
   if (c_iraferr() || col_ptr_qdtde == 0) {
@@ -137,7 +137,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = COLUMN_NOT_FOUND;
     return status;
   }
-  
+
   /* loop over table rows */
   for (j = 0; j < NUM_PHI; j++) {
     /* get dtde from this row */
@@ -148,7 +148,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
       status = TABLE_ERROR;
       return status;
     }
-    
+
     /* get q_dtde from this row */
     c_tbegti(tbl_ptr, col_ptr_qdtde, j+1, &pars->q_dtde[j]);
     if (c_iraferr()) {
@@ -158,17 +158,17 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
       return status;
     }
   }
-  
+
   /* close CTE parameters file for extension 1
    * end of reading DTDE/Q data */
   c_tbtclo(tbl_ptr);
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* read LEVEL data from third table extensions */
   /* make filename + ext number 2 */
   sprintf(filename_wext, "%s[%i]", filename, 2);
-  
+
   /* open CTE parameters file to extension number 3 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
   if (c_iraferr()) {
@@ -177,7 +177,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = OPEN_FAILED;
     return status;
   }
-  
+
   /* read data from table */
   /* get column pointer for level */
   c_tbcfnd1(tbl_ptr, level, &col_ptr_levs);
@@ -187,7 +187,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = COLUMN_NOT_FOUND;
     return status;
   }
-  
+
   /* loop over table rows */
   for (j = 0; j < NUM_LEV; j++) {
     /* get level from this row */
@@ -199,17 +199,17 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
       return status;
     }
   }
-  
+
   /* close CTE parameters file for extension 2
    * end of reading LEVEL data */
   c_tbtclo(tbl_ptr);
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* read MJD/SCALE data from third table extension */
   /* make filename + ext number 3 */
   sprintf(filename_wext, "%s[%i]", filename, 3);
-  
+
   /* open CTE parameters file to extension number 2 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
   if (c_iraferr()) {
@@ -218,7 +218,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = OPEN_FAILED;
     return status;
   }
-  
+
   /* read data from table */
   /* get column pointer for the MJD points */
   c_tbcfnd1(tbl_ptr, mjdstr, &col_ptr_psin);
@@ -228,7 +228,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = COLUMN_NOT_FOUND;
     return status;
   }
-  
+
   /* get column pointer for CTE scale */
   c_tbcfnd1(tbl_ptr, scalestr, &col_ptr_logq);
   if (c_iraferr() || col_ptr_logq == 0) {
@@ -237,7 +237,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
     status = COLUMN_NOT_FOUND;
     return status;
   }
-  
+
   /* iterate over table rows */
   for (j = 0; j < NUM_SCALE; j++) {
     /* get the MJD value */
@@ -248,7 +248,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
       status = TABLE_ERROR;
       return status;
     }
-      
+
     /* read this scale value */
     c_tbegtd(tbl_ptr, col_ptr_logq, j+1, &scaleval[j]);
     if (c_iraferr()) {
@@ -259,26 +259,26 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
       return status;
     }
   }
-  
+
   /* close CTE parameters file for extension 3
    * end of reading MJD/SCALE data */
   c_tbtclo(tbl_ptr);
-  
+
   /* calculate cte_frac */
   pars->cte_frac = CalcCteFrac(expstart, scalemjd, scaleval);
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* read NODE/LOG_Q_# data from fourth+ table extension
    * there may be multiple CHG_LEAK extensions based on the time dependence
    * of the CTE trail profiles. we need to open them up until we find the one
    * that matches the time of observation and return that data.
    */
-  
+
   for (l = 0; l < nchg_leak; l++) {
     /* make filename + ext number 4 */
     sprintf(filename_wext, "%s[%i]", filename, l+4);
-    
+
     /* open CTE parameters file to extension number 4 */
     tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
@@ -287,12 +287,12 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
       status = OPEN_FAILED;
       return status;
     }
-    
+
     chg_mjd1 = c_tbhgtr(tbl_ptr, "MJD1");
     chg_mjd2 = c_tbhgtr(tbl_ptr, "MJD2");
-    
+
     /* check if we're in the date range for this table */
-    if (chg_mjd1 <= expstart && chg_mjd2 > expstart) {    
+    if (chg_mjd1 <= expstart && chg_mjd2 > expstart) {
       /* read data from table */
       /* get column pointer for the psi nodes */
       c_tbcfnd1(tbl_ptr, node, &col_ptr_psin);
@@ -302,7 +302,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
         status = COLUMN_NOT_FOUND;
         return status;
       }
-      
+
       /* iterate over table rows */
       for (j = 0; j < NUM_PSI; j++) {
         /* get the psi node number */
@@ -313,7 +313,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
           status = TABLE_ERROR;
           return status;
         }
-        
+
         /* loop over table columns to read log q values */
         for (k = 0; k < NUM_LOGQ; k++) {
           /* get column pointer for this log q */
@@ -324,7 +324,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
             status = COLUMN_NOT_FOUND;
             return status;
           }
-          
+
           /* read this log q value */
           c_tbegtd(tbl_ptr, col_ptr_logq, j+1, &pars->chg_leak[j*NUM_LOGQ + k]);
           if (c_iraferr()) {
@@ -336,7 +336,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
           }
         } /* end loop over columns */
       } /* end iterating over table rows */
-    
+
       /* close CTE parameters file for extension */
       c_tbtclo(tbl_ptr);
       break;
@@ -347,7 +347,7 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
   }
   /* end of reading NODE/LOG_Q_# data */
   /****************************************************************************/
-  
+
   return status;
 }
 
@@ -364,22 +364,22 @@ int PixCteParams (const char *filename, const double expstart, CTEParams *pars) 
  * MRD 17 Mar. 2011
  */
 int CompareCteParams(SingleGroup *x, CTEParams *pars) {
-  
+
   extern int status;
-  
+
   /* functions from calacs/lib/key.c */
   int GetKeyInt (Hdr *hd, char *keyword, int use_def, int def, int *value);
   int GetKeyDbl (Hdr *hd, char *keyword, int use_def, double def, double *value);
   int PutKeyInt (Hdr *hd, char *keyword, int value, char *comment);
   int PutKeyDbl (Hdr *hd, char *keyword, double value, char *comment);
-  
+
   int def_value = -99;
   double def_value_dbl = -99.0;
-  
+
   double rn_clip;
   int sim_nit;
   int shft_nit;
-  
+
   /****************************************************************************/
   /* get value and perform check for read noise iterations */
   if (GetKeyDbl(x->globalhdr, "PCTERNCL", USE_DEFAULT, def_value_dbl, &rn_clip)) {
@@ -387,7 +387,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* if the keyword value is not there or set to zero, update it with the value
    * read from the PCTETAB, otherwise use the read value in the CTE correction. */
   if (rn_clip == def_value || rn_clip == 0) {
@@ -399,7 +399,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     pars->rn_clip = rn_clip;
   }
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* get value and perform check for readout simulation iterations */
   if (GetKeyInt(x->globalhdr, "PCTESMIT", USE_DEFAULT, def_value, &sim_nit)) {
@@ -407,7 +407,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* if the keyword value is not there or set to zero, update it with the value
    * read from the PCTETAB, otherwise use the read value in the CTE correction. */
   if (sim_nit == def_value || sim_nit == 0) {
@@ -419,7 +419,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     pars->sim_nit = sim_nit;
   }
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* get value and perform check for readout shift iterations */
   if (GetKeyInt(x->globalhdr, "PCTESHFT", USE_DEFAULT, def_value, &shft_nit)) {
@@ -427,7 +427,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* if the keyword value is not there or set to zero, update it with the value
    * read from the PCTETAB, otherwise use the read value in the CTE correction. */
   if (shft_nit == def_value || shft_nit == 0) {
@@ -439,7 +439,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     pars->shft_nit = shft_nit;
   }
   /****************************************************************************/
-  
+
   return status;
 }
 
@@ -449,18 +449,18 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
  */
 double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
                    const double scaleval[NUM_SCALE]) {
-  
+
   /* iteration variables */
   int i;
-  
+
   /* variables used to calculate the CTE scaling slope */
   double mjd_pt1 = 0;
   double mjd_pt2 = 0;      /* the MJD points at which the scaling is defined */
   double cte_pt1, cte_pt2; /* the CTE frac points at which the scaling is defined */
-  
+
   /* return value */
   double cte_frac;
-  
+
   /* find the values that bound this exposure */
   for (i = 0; i < NUM_SCALE-1; i++) {
     if (expstart >= scalemjd[i] && expstart < scalemjd[i+1]) {
@@ -471,7 +471,7 @@ double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
       break;
     }
   }
-  
+
   /* it's possible this exposure is not bounded by any of defining points,
    * in that case we're extrapolating based on the last two points. */
   if (expstart >= scalemjd[NUM_SCALE-1] && mjd_pt1 == 0 && mjd_pt2 == 0) {
@@ -482,9 +482,9 @@ double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
   } else if (mjd_pt1 == 0 && mjd_pt2 == 0) {
     trlerror("(pctecorr) No suitable CTE scaling data found in PCTETAB");
   }
-  
+
   cte_frac = ((cte_pt2 - cte_pt1) / (mjd_pt2 - mjd_pt1)) * (expstart - mjd_pt1) + cte_pt1;
-  
+
   return cte_frac;
 }
 
@@ -501,42 +501,42 @@ double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
 int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ], const int psi_node[NUM_PSI],
                    double chg_leak_interp[MAX_TAIL_LEN*NUM_LOGQ],
                    double chg_open_interp[MAX_TAIL_LEN*NUM_LOGQ]) {
-  
+
   /* status variable for return */
   extern int status;
-  
+
   /* index variables for tracking where we are in psi_node/chg_leak.
    * these will always be one apart. so we don't really need two, but
    * I like it for cleanliness. */
   int pn_i1 = 0;
   int pn_i2 = 1;
-  
+
   double interp_frac; /* the fraction of the distance between psi_node1 and
                        * psi_node2 are we interpolating at */
-  
+
   double sum_rel;     /* total probability of release */
   double sum_cum;     /* running total probability of release */
-  
+
   /* iteration variables */
   int i, j;
-  
+
   /* loop over all pixels in the trail and calculate the profile at each q
    * if it isn't already in chg_leak */
-  for (i = 0; i < MAX_TAIL_LEN; i++) { 
+  for (i = 0; i < MAX_TAIL_LEN; i++) {
     /* do we match an existing chg_leak row? */
     if (i+1 == psi_node[pn_i1]) {
       /* if so, copy it over */
       for (j = 0; j < NUM_LOGQ; j++) {
         chg_leak_interp[i*NUM_LOGQ + j] = chg_leak[pn_i1*NUM_LOGQ + j];
-      }      
+      }
     } else {
       /* no match, need to interpolate */
-      interp_frac = ((double) (i+1 - psi_node[pn_i1])) / 
+      interp_frac = ((double) (i+1 - psi_node[pn_i1])) /
       ((double) (psi_node[pn_i2] - psi_node[pn_i1]));
       /* loop over each q column */
       for (j = 0; j < NUM_LOGQ; j++) {
-        chg_leak_interp[i*NUM_LOGQ + j] = chg_leak[pn_i1*NUM_LOGQ + j] + 
-        (interp_frac * 
+        chg_leak_interp[i*NUM_LOGQ + j] = chg_leak[pn_i1*NUM_LOGQ + j] +
+        (interp_frac *
          (chg_leak[pn_i2*NUM_LOGQ + j] - chg_leak[pn_i1*NUM_LOGQ + j]));
       }
     }
@@ -547,30 +547,30 @@ int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ], const int psi_node[N
       pn_i2++;
     }
   }
-  
+
   /* perform tail normalization and cumulative release probability calculation */
   for (i = 0; i < NUM_LOGQ; i++) {
     sum_rel = 0.0;
-    
+
     /* get total in this Q column */
     for (j = 0; j < MAX_TAIL_LEN; j++) {
       sum_rel += chg_leak_interp[j*NUM_LOGQ + i];
     }
-    
+
     /* normalize chg_leak_interp by total */
     for (j = 0; j < MAX_TAIL_LEN; j++) {
       chg_leak_interp[j*NUM_LOGQ + i] = chg_leak_interp[j*NUM_LOGQ + i]/sum_rel;
     }
-    
+
     /* calculate cumulative probability of release */
     sum_cum = 0.0;
-    
+
     for (j = 0; j < MAX_TAIL_LEN; j++) {
       sum_cum += chg_leak_interp[j*NUM_LOGQ + i];
       chg_open_interp[j*NUM_LOGQ + i] = 1.0 - sum_cum;
     }
   }
-  
+
   return status;
 }
 
@@ -586,45 +586,45 @@ int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ], const int psi_node[N
  */
 int InterpolatePhi(const double dtde_l[NUM_PHI], const int q_dtde[NUM_PHI],
                    const int shft_nit, double dtde_q[MAX_PHI]) {
-  
+
   /* status variable for return */
   extern int status;
-  
+
   int p; /* iteration variable over phi nodes in reference file */
   int q; /* iteration variable over single phi values between nodes in ref file */
-  
+
   /* interpolation calculation variables */
   double interp_pt;   /* point at which we're interpolating data */
   double interp_dist; /* difference between interp_pt and low_node */
   double interp_val;  /* interpolated value */
-  
+
   /* upper and lower bounds of interpolation range */
   double log_qa, log_qb;
   double log_da, log_db;
-  
+
   /* something for holding intermediate calculation results */
   double qtmp;
-  
+
   for (p = 0; p < NUM_PHI-1; p++) {
     log_qa = log10((double) q_dtde[p]);
     log_qb = log10((double) q_dtde[p+1]);
     log_da = log10(dtde_l[p]);
     log_db = log10(dtde_l[p+1]);
-    
+
     for (q = q_dtde[p]; q < q_dtde[p+1]; q++) {
       interp_pt = log10((double) q);
       interp_dist = (interp_pt - log_qa) / (log_qb - log_qa);
       interp_val = log_da + (interp_dist * (log_db - log_da));
-      
+
       qtmp = pow(10, interp_val)/(double) CTE_REF_ROW;
       qtmp = pow((1.0 - qtmp), (double) CTE_REF_ROW/ (double) shft_nit);
       dtde_q[q-1] = 1.0 - qtmp;
     }
   }
-  
+
   qtmp = pow((1.0 - (dtde_l[NUM_PHI-1]/CTE_REF_ROW)),CTE_REF_ROW/shft_nit);
   dtde_q[MAX_PHI-1] = 1.0 - qtmp;
-  
+
   return status;
 }
 
@@ -638,43 +638,43 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
                     double chg_open_lt[MAX_TAIL_LEN*NUM_LEV],
                     double dpde_l[NUM_LEV],
                     int tail_len[NUM_LEV]) {
-  
+
   /* status variable for return */
   extern int status;
-  
+
   int l,t;  /* iteration variables for tail and levels */
   int q;    /* iteration variable for q levels in between those specified in levels */
-  
+
   /* container for cumulative dtde_q */
   double cpde_l[NUM_LEV];
-  
+
   /* variable for running sum of dtde_q */
   double sum = 0.0;
-  
+
   int logq_ind; /* index of lower logq used for interpolation */
-  
+
   double logq;           /* log of charge level */
   double logq_min = 1.0; /* min value for logq */
   double logq_max = 3.999; /* max value for logq */
-  
+
   double interp_dist; /* difference between logp and lower logq */
-  
+
   dpde_l[0] = 0.0;
   cpde_l[0] = 0.0;
-  
+
   for (t = 0; t < MAX_TAIL_LEN; t++) {
     chg_leak_lt[t*NUM_LEV] = chg_leak_kt[t*NUM_LOGQ];
     chg_open_lt[t*NUM_LEV] = chg_open_kt[t*NUM_LOGQ];
   }
-  
+
   for (l = 1; l < NUM_LEV; l++) {
     for (q = levels[l-1]; q < levels[l]; q++) {
       sum += dtde_q[q];
     }
-    
+
     cpde_l[l] = sum;
     dpde_l[l] = cpde_l[l] - cpde_l[l-1];
-    
+
     /* calculate logq with min/max clipping */
     logq = log10((double) q);
     if (logq < logq_min) {
@@ -682,7 +682,7 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
     } else if (logq > logq_max) {
       logq = logq_max;
     }
-    
+
     /* set logq_ind for this logq */
     if (logq < 2) {
       logq_ind = 0;
@@ -691,9 +691,9 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
     } else {
       logq_ind = 2;
     }
-    
+
     interp_dist = logq - floor(logq);
-    
+
     for (t = 0; t < MAX_TAIL_LEN; t++) {
       chg_leak_lt[t*NUM_LEV + l] = ((1.0 - interp_dist) * chg_leak_kt[t*NUM_LOGQ + logq_ind]) +
       (interp_dist * chg_leak_kt[t*NUM_LOGQ + logq_ind+1]);
@@ -701,11 +701,11 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
       (interp_dist * chg_open_kt[t*NUM_LOGQ + logq_ind+1]);
     }
   }
-  
+
   /* calculate max tail lengths for each level */
   for (l = 0; l < NUM_LEV; l++) {
     tail_len[l] = MAX_TAIL_LEN;
-    
+
     for (t = MAX_TAIL_LEN-1; t >= 0; t--) {
       if (chg_leak_lt[t*NUM_LEV + l] == 0) {
         tail_len[l] = t+1;
@@ -714,7 +714,7 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
       }
     }
   }
-  
+
   return status;
 }
 
@@ -727,31 +727,31 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
  */
 int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
                 const double pclip, double sig_arr[arrx*arry], double noise_arr[arrx*arry]) {
-  
+
   /* status variable for return */
   extern int status;
-  
+
   /* iteration variables */
   int i, j;
-  
+
   /* array to hold pixel means from 20 surrounding pixels */
   double * means;
-  
+
   /* array to hold clipped difference between data and means */
   double * diffs;
   double diff;
-  
+
   /* array to hold smoothed diffs */
   double * sm_diffs;
-  
+
   /* index variables */
   int iind, jind;
-  
+
   /* get space for arrays */
   means = (double *) malloc(arrx * arry * sizeof(double));
   diffs = (double *) malloc(arrx * arry * sizeof(double));
   sm_diffs = (double *) malloc(arrx * arry * sizeof(double));
-  
+
   /* calculate means array as average of 20 surrounding pixel, not including
    * central pixel. */
   for (i = 0; i < arrx; i++) {
@@ -770,35 +770,35 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
       } else if (jind >= arry-2) {
         jind = arry - 3;
       }
-      
-      means[i*arry + j] = (data[(iind+0)*arry + jind+1] + 
-                           data[(iind+0)*arry + jind-1] + 
-                           data[(iind+1)*arry + jind+0] + 
-                           data[(iind-1)*arry + jind-0] + 
-                           data[(iind-1)*arry + jind+1] + 
-                           data[(iind-1)*arry + jind+1] + 
-                           data[(iind-1)*arry + jind-1] + 
-                           data[(iind-1)*arry + jind-1] + 
-                           data[(iind+0)*arry + jind+2] + 
-                           data[(iind-0)*arry + jind-2] + 
-                           data[(iind+2)*arry + jind+0] + 
-                           data[(iind-2)*arry + jind-0] + 
-                           data[(iind+1)*arry + jind+2] + 
-                           data[(iind-1)*arry + jind+2] + 
-                           data[(iind+1)*arry + jind-2] + 
-                           data[(iind-1)*arry + jind-2] + 
-                           data[(iind+2)*arry + jind+1] + 
-                           data[(iind+2)*arry + jind+1] + 
-                           data[(iind-2)*arry + jind-1] + 
+
+      means[i*arry + j] = (data[(iind+0)*arry + jind+1] +
+                           data[(iind+0)*arry + jind-1] +
+                           data[(iind+1)*arry + jind+0] +
+                           data[(iind-1)*arry + jind-0] +
+                           data[(iind-1)*arry + jind+1] +
+                           data[(iind-1)*arry + jind+1] +
+                           data[(iind-1)*arry + jind-1] +
+                           data[(iind-1)*arry + jind-1] +
+                           data[(iind+0)*arry + jind+2] +
+                           data[(iind-0)*arry + jind-2] +
+                           data[(iind+2)*arry + jind+0] +
+                           data[(iind-2)*arry + jind-0] +
+                           data[(iind+1)*arry + jind+2] +
+                           data[(iind-1)*arry + jind+2] +
+                           data[(iind+1)*arry + jind-2] +
+                           data[(iind-1)*arry + jind-2] +
+                           data[(iind+2)*arry + jind+1] +
+                           data[(iind+2)*arry + jind+1] +
+                           data[(iind-2)*arry + jind-1] +
                            data[(iind-2)*arry + jind-1])/20.0;
     }
   }
-  
+
   /* calculate clipped differences array */
   for (i = 0; i < arrx; i++) {
     for (j = 0; j < arry; j++) {
       diff = data[i*arry + j] - means[i*arry + j];
-      
+
       if (diff < -pclip) {
         diffs[i*arry + j] = -pclip;
       } else if (diff > pclip) {
@@ -808,7 +808,7 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
       }
     }
   }
-  
+
   /* to avoid systematic reduction of sources we insist that the average
    * clipping within any 5-pixel vertical window is zero. */
   for (i = 0; i < arrx; i++) {
@@ -819,15 +819,15 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
       } else if (iind >= arrx-2) {
         iind = arrx - 3;
       }
-      
-      sm_diffs[i*arry + j] = (diffs[(iind-2)*arry + j] + 
-                              diffs[(iind-1)*arry + j] + 
-                              diffs[(iind-0)*arry + j] + 
-                              diffs[(iind+1)*arry + j] + 
+
+      sm_diffs[i*arry + j] = (diffs[(iind-2)*arry + j] +
+                              diffs[(iind-1)*arry + j] +
+                              diffs[(iind-0)*arry + j] +
+                              diffs[(iind+1)*arry + j] +
                               diffs[(iind+2)*arry + j])/5.0;
-      
+
       diff = diffs[i*arry + j] - sm_diffs[i*arry + j];
-      
+
       if (diff < -pclip) {
         noise_arr[i*arry + j] = -pclip;
       } else if (diff > pclip) {
@@ -835,14 +835,14 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
       } else {
         noise_arr[i*arry + j] = diff;
       }
-      
+
       sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
     }
   }
-  
+
   free(means);
   free(diffs);
   free(sm_diffs);
-  
+
   return status;
 }

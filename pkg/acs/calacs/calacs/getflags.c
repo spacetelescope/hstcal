@@ -14,7 +14,7 @@ returned by this function.  Missing switches will be set to OMIT.  The
 switch will be set to PERFORM only if the calibration switch value in
 the header exists and is "PERFORM".
 
-5 Mar 99 WJH - Revised to produce error when both RPTCORR and CRCORR 
+5 Mar 99 WJH - Revised to produce error when both RPTCORR and CRCORR
                 are set to PERFORM.
 11 Sept 2000  WJH - Revised to add POSTFLASH processing keyword.
 23 Apr 2001   WJH - Revised to support both 'POSTFLSH' and 'FLSHCORR'
@@ -33,7 +33,7 @@ Hdr *phdr       i: primary header
 	extern int status;
 	FitsKw key;		/* keyword location in header */
     char flashkey[ACS_CBUF];
-    
+
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 
 	if (GetSw (phdr, "ATODCORR", &sw->atodcorr))
@@ -53,19 +53,19 @@ Hdr *phdr       i: primary header
 //if (GetSw (phdr, "PCTECORR", &sw->pctecorr))
 //    return (status);
   if (GetSw (phdr, "PCTECORR", &sw->pctecorr) == HEADER_PROBLEM)
-      sw->pctecorr == OMIT;
-        
-    
+      sw->pctecorr = OMIT;
+
+
     sprintf(flashkey,"FLSHCORR");
 	key = findKw (phdr, flashkey);
 	if (key == NotFound) {
         sprintf(MsgText,"FLSHCORR keyword not found...");
         trlwarn(MsgText);
-        
+
 	    key = findKw (phdr, "POSTFLSH");
         if (key != NotFound) {
             sprintf(flashkey,"POSTFLSH");
-            
+
             /* Now warn the user to change keyword name to FLSHCORR. */
             sprintf(MsgText,"Using old keyword POSTFLSH!");
             trlwarn(MsgText);
@@ -74,22 +74,22 @@ Hdr *phdr       i: primary header
         }
 	}
 
-	if (GetSw (phdr, flashkey, &sw->flashcorr)) 
-        return(status);    
+	if (GetSw (phdr, flashkey, &sw->flashcorr))
+        return(status);
 
 	if (GetSw (phdr, "GLINCORR", &sw->glincorr))
 	    return (status);
 	if (GetSw (phdr, "LFLGCORR", &sw->lflgcorr))
 	    return (status);
 	if (GetSw (phdr, "PHOTCORR", &sw->photcorr))
-	    return (status);    
+	    return (status);
 	if (GetSw (phdr, "RPTCORR",  &sw->rptcorr))
 	    return (status);
 	if (GetSw (phdr, "SHADCORR", &sw->shadcorr))
 	    return (status);
 	if (GetSw (phdr, "EXPSCORR", &sw->expscorr))
 	    return (status);
-	
+
     /* Check to insure that only one of these switches are
         set, since they are exclusive options.
     */
@@ -97,7 +97,7 @@ Hdr *phdr       i: primary header
             trlerror("RPTCORR and CRCORR both set to PERFORM!");
             trlerror("    One switch needs to be set to OMIT!");
             status = HEADER_PROBLEM;
-            return (status);  
+            return (status);
     }
 	return (status);
 }
