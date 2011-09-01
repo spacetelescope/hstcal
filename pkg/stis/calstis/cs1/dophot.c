@@ -32,8 +32,11 @@ static void Phot2Obs (char *, char *);
 	Rewrite to use the functions to read and interpret the imphttab.
 	This was based on dophot.c in calacs/acs2d/.
 
-   Phil Hodge, 2011 July 26:
+   Phil Hodge, 2011 Aug 31:
 	Print warning messages if phot parameters appear to be garbage.
+	Set photcorr to IGNORED (which results in PHOTCORR = "SKIPPED" in
+	the output header) if photmode not found or parameters are garbage.
+	Also set photcorr to IGNORED if the parameters are -9999.
 */
 
 int doPhot (StisInfo1 *sts, SingleGroup *x) {
@@ -65,6 +68,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	if ((status = GetPhotTab (&obs, obsmode)) != 0) {
 	    printf ("Warning  photmode '%s' not found.\n", photmode);
 	    FreePhotPar (&obs);
+	    sts->photcorr = IGNORED;
 	    return 0;
 	}
 	if (obs.photbw < 0. || obs.photbw > 1.e5) {
@@ -75,7 +79,21 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	    printf ("         photbw   = %g\n", obs.photbw);
 	    printf ("         photzpt  = %g\n", obs.photzpt);
 	    FreePhotPar (&obs);
+	    sts->photcorr = IGNORED;
 	    return 0;
+	}
+
+	/* The flag value that indicates that the time of observation is
+	   outside the range of times in the imphttab is actually -9999.,
+	   but test on -9990. to avoid roundoff problems.
+	   Extrapolation is not supported, so the values were not computed.
+	   Set photcorr to IGNORED (which results in SKIPPED), but set
+	   the keywords to -9999. anyway.
+	*/
+	if (obs.photflam < -9990. &&
+	    obs.photplam < -9990. &&
+	    obs.photbw < -9990.) {
+	    sts->photcorr = IGNORED;
 	}
 
 	/* Update the photometry keyword values in the primary header. */

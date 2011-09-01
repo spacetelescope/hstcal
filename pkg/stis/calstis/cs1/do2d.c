@@ -83,6 +83,9 @@
 	Move the call to PhotMode to a point just before the call to doPhot.
 	In PhotMsg, change keyword phottab to imphttab, and don't print info
 	about apertab or tdstab.
+
+   Phil Hodge, 2011 July 27:
+	After calling doPhot, check sts->photcorr (may be SKIPPED).
 */
 
 # include <math.h>	/* for fabs and sqrt */
@@ -490,9 +493,15 @@ int ngood_extver   io: incremented unless the current imset has zero
 		if (status = doPhot (sts, x))
 		    return (status);
 		PhotMsg (sts);
-		PrSwitch ("photcorr", COMPLETE);
-		if (sts->printtime)
-		    TimeStamp ("PHOTCORR complete", sts->rootname);
+		if (sts->photcorr == PERFORM || sts->photcorr == COMPLETE) {
+		    PrSwitch ("photcorr", COMPLETE);
+		    if (sts->printtime)
+			TimeStamp ("PHOTCORR complete", sts->rootname);
+		} else {
+		    PrSwitch ("photcorr", SKIPPED);
+		    if (sts->printtime)
+			TimeStamp ("PHOTCORR skipped", sts->rootname);
+		}
 	    }
 	    if (!OmitStep (sts->photcorr))
 		if (status = photHistory (sts, x->globalhdr))

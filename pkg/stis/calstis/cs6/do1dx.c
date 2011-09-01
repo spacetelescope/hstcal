@@ -122,6 +122,8 @@ static int MOCAdjustDisp (StisInfo6 *, DispRelation *);
     3 Nov 08  -  Call checkImsetOK to get imset_ok, and skip imset if F;
                  pass extver instead of o_ext to CreaTable, since it's really
                  the input imset, not the output.
+   31 Aug 11  -  Set the output flux to zero if the relevant row in the phottab
+		 has pedigree = DUMMY (PEH)
 */
 
 int Do1Dx (StisInfo6 *sts, Hdr *phdr) {
@@ -1449,6 +1451,9 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
                         */
 	                if (sts->x1d_o == DUMMY) {
 	                    warnDummy ("PHOTTAB", row_contents.sporder, 0);
+			    for (i = 0; i < row_contents.npts; i++) {
+				row_contents.flux[i]  = 0.0F;
+			    }
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
 	                        PrSwitch6 (sts, "fluxcorr", OMIT);
 	                        printf ("\n");
