@@ -163,7 +163,7 @@ int sim_readout(const int arrx, double pix_cur[arrx], double pix_read[arrx],
   int tmax;
   
   /* holds some trap info, I guess */
-  double ftrap_lj[arrx*NUM_LEV];
+  double * ftrap_lj;
   
   double pix0;    /* current pixel container */
   double fpix;    /* fraction of this pixel involved */
@@ -171,14 +171,12 @@ int sim_readout(const int arrx, double pix_cur[arrx], double pix_read[arrx],
   double ffil;    /* fraction of this trap that gets filled */
   double dpix;    /* amount of charge that gets transferred */
   
+  /* calloc initializes array members to zero */
+  ftrap_lj = calloc(arrx*NUM_LEV, sizeof(double));
+  
   /* copy input to output */
   for (i = 0; i < arrx; i++) {
     pix_read[i] = pix_cur[i];
-    
-    /* initialize trap array to zeros */
-    for (l = 0; l < NUM_LEV; l++) {
-      ftrap_lj[i*NUM_LEV + l] = 0.0;
-    }
   }
   
   /* iterate over every pixel in the column */
@@ -223,6 +221,8 @@ int sim_readout(const int arrx, double pix_cur[arrx], double pix_read[arrx],
       }
     }
   }
+  
+  free(ftrap_lj);
   
   return status;
 }
