@@ -83,6 +83,7 @@ int DoCCD (ACSInfo *acs, int extver) {
   void PrRefInfo (char *, char *, char *, char *, char *);
   void TimeStamp (char *, char *);
   void UCalVer (Hdr *);
+  void UCteVer(Hdr *);
   void UFilename (char *, Hdr *);
   int FindOverscan (ACSInfo *, int, int, int *);
   int GetCCDTab (ACSInfo *, int, int);
@@ -360,6 +361,7 @@ int DoCCD (ACSInfo *acs, int extver) {
   if (extver == 1 && !OmitStep (acs->pctecorr)) {
     if (pcteHistory (acs, x.globalhdr))
 			return (status);
+    UCteVer(x.globalhdr);
   } else if ((extver == 1) && (acs->pctecorr == OMIT)) {
     /* this is just to make sure that the PCTECORR flag is set to OMIT in the
      * output image because it's possible that this is the no-CTE correction
