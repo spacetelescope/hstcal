@@ -212,7 +212,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     strcpy(pname,photnames[extn]);
     /* Open the photometry parameters table and find columns. */
     if (OpenPhotTab (obs->name, pname, &tabinfo)) {
-      printf("*** Error in OpenPhotTab\n",status);
+      printf("*** Error in OpenPhotTab %d\n",status);
       return (status);
     }
     /* Check each row for a match with obsmode, 
