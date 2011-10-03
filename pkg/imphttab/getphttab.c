@@ -13,7 +13,7 @@
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */
 	IRAFPointer cp_obsmode;		/* column descriptors */
-	IRAFPointer cp_datacol;
+	IRAFPointer cp_datacol;	
 	IRAFPointer cp_result[MAXPARS+1];
 	IRAFPointer cp_nelem[MAXPARS];
   IRAFPointer cp_parnames[MAXPARS];
@@ -39,7 +39,7 @@ typedef struct {
 
 typedef struct {
   int    ndim;   /* number of dimensions for each position */
-  double *index; /* array index along each axis,
+  double *index; /* array index along each axis, 
                   used to determine which axis is being interpolated */
   double *pos;   /* value of each axis at position given by index */
   double value;  /* value at position */
@@ -59,7 +59,7 @@ static void ClosePhotRow (PhtRow *);
 
 /* This routine gets the gain, bias and readnoise for the CCD from
  the CCD parameters table (keyword name CCDTAB).
-
+ 
  The CCD parameters table should contain the following:
  header parameters:
  none needed
@@ -68,39 +68,39 @@ static void ClosePhotRow (PhtRow *);
  DATACOL:  name of column which tneeds to be read to get result
  NELEM<n>: number of elements for parameter <n>
  PAR<n>VALUES: values for parameterized variable
- <result>: column with single result value
+ <result>: column with single result value 
  <result><n>: column with result based on parameterized variable <n>
  DESCRIP:  description of the source of the values
  PEDIGREE: description of the pedigree of the values
-
+ 
  The table is read to find the row for which the OBSMODE matches the
  generated PHOTMODE string (from the image header). There will be one
- table extension for each photometry <result>:
+ table extension for each photometry <result>: 
  PHOTFLAM, PHOTPLAM, and PHOTBW.
  */
 
 int GetPhotTab (PhotPar *obs, char *photmode) {
-
+  
   /* arguments:
    RefTab  *obs     io: name and pedigree values
    char    *photmode  i: photmode from science header for row selection
-
+   
    Calling routine will need to initialize and free PhotPar object using:
-
+   
    RefTab *ref;
    PhotPar *obs;
    InitPhotPar(obs, ref->name, ref->pedigree);
-
+   
    FreePhotPar(obs);
-
+   
    where ref is the information about the reference file from the header
    */
-
+  
 	extern int status;
-
+  
 	PhtCols tabinfo;	/* pointer to table descriptor, etc */
 	PhtRow tabrow;		/* values read from a table row */
-
+  
 	int row;		/* loop index */
 	int i;
   int extn;
@@ -114,17 +114,19 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
   int npar;
   int plen, n;
   int numkeys;
-
+	
   int foundit;		/* has the correct row been found? */
   int PhotRowPedigree (PhotPar *, int, IRAFPointer, IRAFPointer, IRAFPointer);
   int SameInt (int, int);
   int SameFlt (float, float);
   int streq_ic (char *, char *);
   double ComputeValue(PhtRow *, PhotPar *);
-
-  extern int status;
+  
   extern char *photnames[];
-
+  
+  /* initialize status for this run */
+  status = 0;
+  
   /* Interpret OBSMODE string from science file header for
    comparison with obsmode values in reference table
    primarily by stripping out any parameterized values */
@@ -134,11 +136,11 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     printf("*** Error in InterpretPhotmode\n");
     return(status=ERROR_RETURN);
   }
-
+  
   /* Create name of table to access PRIMARY header keywords */
   strcpy(phdrname, obs->name);
   /*strcat(phdrname,"[0]"); */
-
+  
   /* Open PRIMARY header for reading keywords */
   initHdr (&tphdr);
   /* Open the primary header of the reference file. */
@@ -164,7 +166,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
 	} else {
     tabinfo.parnum = getIntKw(key);
 	}
-
+  
   /* commented out because this keyword doesn't seem to be part of the phottab
    * anymore. MRD 4/4/2011 */
 //  tabinfo.parnames = (char **)calloc(tabinfo.parnum+1, sizeof(char *));
@@ -173,7 +175,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
 //  }
 //	if (tabinfo.parnames == NULL)
 //    return (OUT_OF_MEMORY);
-//
+//  
 //  /* For each parameterized value that went into this obsmode,
 //   read in the column name for that value */
 //  for (parnum = 1; parnum <= tabinfo.parnum; parnum++){
@@ -181,7 +183,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
 //    key = findKw (&tphdr, pname);
 //    getStringKw (key, tabinfo.parnames[parnum], SZ_COLNAME);
 //  }
-
+  
   /* Read in PHOTZPT keyword value from Primary header */
 	key = findKw (&tphdr, "PHOTZPT");
   obs->photzpt = getDoubleKw (key);
@@ -197,80 +199,80 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     closeImage(im);
     return (status = KEYWORD_MISSING);
   }
-
+  
   /* Close PRIMARY header of reference table */
   closeImage(im);
 	freeHdr (&tphdr);
-
-  /* Now step through each of the extensions to compute the
+  
+  /* Now step through each of the extensions to compute the 
    difference photometry keyword values, one from each
    extension.
    */
-  for (extn = 1; extn <= numkeys; extn++){
+  for (extn = 1; extn <= numkeys; extn++){ 
     strcpy(pname,photnames[extn]);
     /* Open the photometry parameters table and find columns. */
     if (OpenPhotTab (obs->name, pname, &tabinfo)) {
-      printf("*** Error in OpenPhotTab %d\n",status);
+      printf("*** Error in OpenPhotTab\n",status);
       return (status);
     }
-    /* Check each row for a match with obsmode,
+    /* Check each row for a match with obsmode, 
      and get info from the matching row.
      */
-
+    
     foundit = 0;
     for (row = 1;  row <= tabinfo.nrows;  row++) {
-
+      
       /* Read the current row into tabrow. */
       if (ReadPhotTab (&tabinfo, row, &tabrow)) {
         printf("*** Error in ReadPhotTab\n");
         return (status);
       }
-
+      
       if (CompareObsModes(tabrow.obsmode, obs->obsmode) == PHOT_OK) {
         foundit = 1;
         if (PhotRowPedigree (obs, row,
                              tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
           return (status);
-
+        
         if (obs->goodPedigree == DUMMY_PEDIGREE) {
           printf ("==>Warning: Row %d of IMPHTTAB is DUMMY.\n", row);
           /* trlwarn (MsgText); */
         }
-//        printf("\n%s\n%s\n\n",tabrow.obsmode, obs->obsmode);
+        
         /* Read in photometry values from table row */
         if (status = ReadPhotArray(&tabinfo, row, &tabrow)) {
           printf("*** Error in ReadPhotArray\n");
           return (status);
         }
-
+        
         /* interpret values to compute return value */
         value = ComputeValue (&tabrow, obs);
         if (value == '\0'){
           return(status=INTERNAL_ERROR);
         }
         printf("==> Value of %s = %0.8g\n",photnames[extn], value);
-
+        
         /* Free memory used to read in this row */
         ClosePhotRow(&tabrow);
-
+        
         break;
       } /* End of if CompareObsModes() */
     } /* End of loop over table rows */
-
+    
     if (foundit == 0) {
       printf ("\n==>ERROR: Matching row not found in IMPHTTAB `%s'.\n", obs->obsmode);
       /*trlerror (MsgText); */
       printf ("\n==>ERROR: OBSMODE %s\n",	obs->obsmode);
       /*trlerror (MsgText); */
-
+      
       ClosePhotTab (&tabinfo);
       return (status = TABLE_ERROR);
     }
-
+    
     if (ClosePhotTab (&tabinfo))		/* close the table */
       return (status);
-
-    /* Store computed value for keyword as appropriate member in
+    
+    /* Store computed value for keyword as appropriate member in 
      PhotPar struct */
     if (strncmp(pname,"PHOTFLAM",8) == 0) {
       obs->photflam = value;
@@ -279,32 +281,32 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     } else {
       obs->photbw = value;
     }
-
+    
   } /* End of loop over photometry keyword names */
-
+  
 	return (status);
 }
 
 /* This routine opens the CCD parameters table, finds the columns that we
- need, and gets the total number of rows in the table.  The columns are
+ need, and gets the total number of rows in the table.  The columns are 
  CCDAMP, CCDGAIN, CCDBIAS, and READNSE.
  */
 
 static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
-
+  
 	extern int status;
-
+  
   int colnum, datatype, lendata, lenfmt;
-  char tname[SZ_FNAME];
+  char tname[SZ_FNAME];    
   char **colnames, **ecolnames, **pncolnames, **pvcolnames;
-
+  
 	int *nocol;
 	int i, j, missing;
   int parnum;
-
+  
 	int PrintMissingCols_IMPHTTAB (int, int, int *, char **, char *, IRAFPointer);
   int buildTabName (char *, char *, char *);
-
+  
   /* allocate space for column names to be read from this table */
   colnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
   ecolnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
@@ -323,31 +325,31 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     sprintf(ecolnames[parnum],"NELEM%i",parnum);
     sprintf(pncolnames[parnum],"PAR%iNAMES",parnum);
     sprintf(pvcolnames[parnum],"PAR%iVALUES",parnum);
-  }
-
+  }    
+  
   /* Create name of table with extension to be opened */
   sprintf(tname,"%s[%s]",tabname,photvar);
-
+  
   /* keep track of what extension we are processing here */
   strcpy(tabinfo->photvar, photvar);
-
+  
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
     printf ("\n==>ERROR: IMPHTTAB extension`%s' not found.\n", tname);
     /*trlerror (MsgText); */
 		return (status = OPEN_FAILED);
 	}
-
+  
   /* Start getting info on this table */
 	tabinfo->nrows = c_tbpsta (tabinfo->tp, TBL_NROWS);
   tabinfo->ncols = c_tbpsta (tabinfo->tp, TBL_NCOLS);
-
+  
   /* Initialize missing column array */
   nocol = (int *)calloc(tabinfo->ncols+1,sizeof(int));
 	for (j = 0; j < tabinfo->ncols; j++){
 		nocol[j] = NO;
   }
-
+  
 	/* Find the columns. */
 	c_tbcfnd1 (tabinfo->tp, "OBSMODE", &tabinfo->cp_obsmode);
 	c_tbcfnd1 (tabinfo->tp, "DATACOL", &tabinfo->cp_datacol);
@@ -355,51 +357,51 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 	missing = 0;
 	i=0;
   for (parnum = 1;parnum <= tabinfo->parnum; parnum++){
-    /*
-     Read in NELEM<parnum> columns
+    /* 
+     Read in NELEM<parnum> columns 
      */
     c_tbcfnd1 (tabinfo->tp, ecolnames[parnum], &tabinfo->cp_nelem[parnum]);
-    /*
-     Read in PAR<parnum>NAMES columns
+    /* 
+     Read in PAR<parnum>NAMES columns 
      */
     c_tbcfnd1 (tabinfo->tp, pncolnames[parnum], &tabinfo->cp_parnames[parnum]);
-    /*
-     Read in PAR<parnum>VALUES columns
+    /* 
+     Read in PAR<parnum>VALUES columns 
      */
     c_tbcfnd1 (tabinfo->tp, pvcolnames[parnum], &tabinfo->cp_parvalues[parnum]);
-    /*
-     Read in the PHOT*<parnum> columns
+    /* 
+     Read in the PHOT*<parnum> columns 
      */
     c_tbcfnd1 (tabinfo->tp, colnames[parnum], &tabinfo->cp_result[parnum]);
     if (tabinfo->cp_result[parnum] == 0 ) { missing++; nocol[i] = YES;} i++;
-  }
+  }	
 	/* Initialize counters here... */
-
+  
   /* Increment i for every column, mark only missing columns in
    nocol as YES.  WJH 27 July 1999
    */
 	if (tabinfo->cp_obsmode == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_datacol == 0 ) { missing++; nocol[i] = YES;} i++;
-
-	if (PrintMissingCols_IMPHTTAB(missing, tabinfo->ncols, nocol, colnames,
+	
+	if (PrintMissingCols_IMPHTTAB(missing, tabinfo->ncols, nocol, colnames, 
                                 "IMPHTTAB", tabinfo->tp) )
 		return(status);
-
+  
 	/* Pedigree and descrip are optional columns. */
 	c_tbcfnd1 (tabinfo->tp, "PEDIGREE", &tabinfo->cp_pedigree);
 	c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
-
-
+  
+  
 	return (status);
 }
 
 static int InterpretPhotmode(char *photmode, PhotPar *obs){
   /* Interprets PHOTMODE string (as a comma-separated, all-lowercase string)
-   from the science image header into obsmode for comparison with
+   from the science image header into obsmode for comparison with 
    obsmode column values in IMPHTTAB while also recording the parameterized
    variable values from the PHOTMODE string as outputs parnames, parvalues.
    */
-
+  
   int i,j;
   int numpar, n;
   int tok;
@@ -408,14 +410,14 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
   char *chtok,*chval;
   char **obsnames;
   int obselems;
-
+  
 	extern int status;
-
+  
   /* Temporary string for parameterized variable value from photmode */
   char tempmode[SZ_FITS_REC];
-
+  
   int AllocPhotPar(PhotPar *, int);
-
+  
   numpar = 0;
   /* scan entire photmode string and count how many # symbols are found */
   obselems = 0;
@@ -437,17 +439,17 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
     n = numpar;
   }
   printf("NUMPAR = %d, N=%d\n",numpar,n);
-  /* set up output arrays for all the parameterized variables
+  /* set up output arrays for all the parameterized variables 
    found in input photmode string
    */
   status = AllocPhotPar(obs,n);
-
+  
   if (status > PHOT_OK){
     printf("\n==>ERROR: Problems allocating memory for ObsmodeVars.\n");
     return(status);
   }
   strcpy(obs->photmode,photmode);
-
+  
   if (numpar > 0){
     /* Start extracting values from photmode string */
     tok = 0;
@@ -475,10 +477,10 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
       /* concatentate the '#'  back to the end of the parname */
       strcat(obs->parnames[i],"#");
     }
-    /* Now build up the new obsmode string for comparison with the
+    /* Now build up the new obsmode string for comparison with the 
      reference IMPHTTAB table obsmode */
-    /*
-     Initialize intermediate variable
+    /* 
+     Initialize intermediate variable 
      */
     obsnames = (char **)calloc(obselems,sizeof(char *));
     for (i=0;i<obselems;i++) obsnames[i]=(char *) calloc(SZ_COLNAME,sizeof(char));
@@ -491,7 +493,7 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
       loc = strchr(chtok,'#');
       if (loc == NULL) {
         strcpy(obsnames[tok],chtok);
-      } else {
+      } else {    
         indx = loc - chtok + 1;
         strncpy(obsnames[tok],chtok,indx);
       }
@@ -504,16 +506,16 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
       strcat(obs->obsmode,obsnames[i]);
       if (i < obselems-1)strcat(obs->obsmode,",");
     }
-
-    /* Free memory */
+    
+    /* Free memory */ 
     for (i=0;i<obselems;i++)
         free(obsnames[i]);
     free(obsnames);
-
+    
   } else {
     strcpy(obs->obsmode, photmode);
-  }
-
+  }   
+  
   return(PHOT_OK);
 }
 
@@ -522,40 +524,40 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
  * MRD 4 Apr. 2011
  */
 static int CompareObsModes(char *obsmode1, char *obsmode2) {
-
+  
   char temp1[SZ_FITS_REC], temp2[SZ_FITS_REC];
-
+  
   char * chtok;
-
+  
   int i;
-
+  
   /* regardless of order or case they should be the same length */
   if (strlen(obsmode1) != strlen(obsmode2))
     return 1;
-
+  
   /* convert them both to all lowercase */
   strcpy(temp1, obsmode1);
   strcpy(temp2, obsmode2);
-
+  
   for (i = 0; obsmode1[i]; i++) {
     temp1[i] = tolower(obsmode1[i]);
     temp2[i] = tolower(obsmode2[i]);
   }
-
+  
   chtok = strtok(temp1, ",");
   while (chtok != NULL) {
     if (strstr(temp2, chtok) == NULL)
       return 1;
-
+    
     chtok = strtok(NULL, ",");
   }
-
+  
   return PHOT_OK;
 }
 
-int PrintMissingCols_IMPHTTAB (int missing, int numcols, int *nocol,
+int PrintMissingCols_IMPHTTAB (int missing, int numcols, int *nocol, 
                                char *cnames[], char *tabname, IRAFPointer tp) {
-
+  
   /* Parameters:
    int missing			i: number of missing columns
    int numcols			i: number of columns expected in table
@@ -564,14 +566,14 @@ int PrintMissingCols_IMPHTTAB (int missing, int numcols, int *nocol,
    char *tabname		i: name of table columns were read from
    IRAFPointer tp		i: pointer to table, close it if necessary
    */
-
+  
 	extern int status;
 	int j;
 	/* If any columns are missing... */
 	if (missing) {
     printf ("\n==>ERROR: %d columns not found in %s.\n", missing, tabname);
 		/*trlerror (MsgText); */
-
+    
 		for (j=0; j< numcols; j++) {
 			/* Recall which ones were marked missing... */
 			if (nocol[j]) {
@@ -585,18 +587,18 @@ int PrintMissingCols_IMPHTTAB (int missing, int numcols, int *nocol,
 	}
 	return(status);
 }
-/* This routine reads the relevant data from one row.
+/* This routine reads the relevant data from one row.  
  */
 
 static int ReadPhotTab (PhtCols *tabinfo, int row, PhtRow *tabrow) {
-
+  
 	extern int status;
-
+  
 	c_tbegtt (tabinfo->tp, tabinfo->cp_obsmode, row,
             tabrow->obsmode, SZ_FITS_REC-1);
 	if (c_iraferr())
     return (status = TABLE_ERROR);
-
+  
 	return (status);
 }
 /* This routine reads the array data from one row.  The number of elements
@@ -605,7 +607,7 @@ static int ReadPhotTab (PhtCols *tabinfo, int row, PhtRow *tabrow) {
  */
 
 static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
-
+  
 	int nwl, nthru;		/* number of elements actually read */
   int len_datacol, len_photvar;
   char col_nelem[SZ_COLNAME];
@@ -613,28 +615,28 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
   int nret;
   int parnum;
   int n, col, i;
-
+  
 	extern int status;
-
+  
 	c_tbegtt (tabinfo->tp, tabinfo->cp_datacol, row,
             tabrow->datacol, SZ_COLNAME-1);
 	if (c_iraferr())
     return (status = TABLE_ERROR);
-
+  
   /* interpret the last character of 'datacol' as int for parameterized row */
 	/* Find out how many elements there are in the throughput arrays,
    and allocate space for the arrays to be read from the table.
    */
-  len_datacol = strlen(tabrow->datacol);
+  len_datacol = strlen(tabrow->datacol); 
   len_photvar = strlen(tabinfo->photvar);
   if (len_datacol > len_photvar) {
     tabrow->parnum = (int)strtol(&tabrow->datacol[len_photvar],(char **)NULL, 10);
   } else {
     tabrow->parnum = 0;
   }
-
+  
   tabrow->telem = 1;
-
+  
   if (tabrow->parnum == 0){
     tabrow->parvals = (double **) malloc(sizeof(double *));
     tabrow->parnames = (char **) malloc(sizeof(char *));
@@ -644,21 +646,21 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
     if (c_iraferr())
       return (status = TABLE_ERROR);
   } else {
-    /*
-     We are working with a paramterized obsmode/row
+    /* 
+     We are working with a paramterized obsmode/row 
      */
-    /* Initialize NELEM arrays based on number of parameterized values
+    /* Initialize NELEM arrays based on number of parameterized values 
      that need to be interpreted for this obsmode */
     tabrow->nelem = (int *) malloc((tabrow->parnum+1) * sizeof(int));
     tabrow->parvals = (double **) malloc(tabrow->parnum * sizeof(double *));
     tabrow->parnames = (char **) malloc(tabrow->parnum * sizeof(char *));
     for (i=0,n=1; i<tabrow->parnum; i++,n++){
       tabrow->parnames[i] = (char *) malloc (SZ_COLNAME * sizeof(char));
-      /*
-       Copy name of parameterized value as defined in PRIMARY header
+      /* 
+       Copy name of parameterized value as defined in PRIMARY header 
        into this row's structure for matching with obsmode later
        tabrow->parnames indexing starts at 0 to match obsmode parsing
-       tabinfo->parnames indexing starts at 1 to match index in name
+       tabinfo->parnames indexing starts at 1 to match index in name 
        */
 //      strcpy(tabrow->parnames[i],tabinfo->parnames[n]);
       c_tbegtt(tabinfo->tp, tabinfo->cp_parnames[n], row,
@@ -668,13 +670,13 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
     }
     if (tabrow->nelem == NULL || tabrow->parvals == NULL || tabrow->parnames == NULL)
       return (OUT_OF_MEMORY);
-
+    
     for (n=1,col=0; n<=tabrow->parnum; n++,col++){
-      /* Build up names of columns for parameterized values
+      /* Build up names of columns for parameterized values 
        which need to be read in */
       sprintf(col_nelem,"NELEM%d",n);    /* col name: NELEMn */
       sprintf(col_parval,"PAR%dVALUES",n); /* col name: PARnVALUES */
-
+      
       /* Read in number of elements for this parameterized variable */
       c_tbegti (tabinfo->tp, tabinfo->cp_nelem[n], row, &tabrow->nelem[n]);
       if (c_iraferr())
@@ -682,50 +684,50 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
       /* Now that we have found how many elements are in this paramaters
        array, we can use that to allocate memory for the values */
       tabrow->parvals[col] = (double *) malloc (tabrow->nelem[n] * sizeof(double));
-
+      
       /* Read in parameterized values for this variable */
       c_tbagtd (tabinfo->tp, tabinfo->cp_parvalues[n], row, tabrow->parvals[col], 1, tabrow->nelem[n]);
       if (c_iraferr())
-        return (status = TABLE_ERROR);
+        return (status = TABLE_ERROR);        
       /* Keep track of the number of elements in the results column */
       tabrow->telem *= tabrow->nelem[n];
-
+      
     } /* End of loop over parameterized variables columns: n[parnum] */
-
-
+    
+    
     /* Now that we have read in all the parameterized variable values,
      we know how many elements will be read in for the results */
     tabrow->results = (double *) malloc(tabrow->telem * sizeof(double));
-
-    /* Start by reading in the full set of results from the
+    
+    /* Start by reading in the full set of results from the 
      specified results column */
     nret = c_tbagtd (tabinfo->tp, tabinfo->cp_result[tabrow->parnum], row, tabrow->results,1,tabrow->telem);
     if (c_iraferr() || nret < tabrow->telem)
       return (status = TABLE_ERROR);
   } /* End else statement */
-
+  
 	return (0);
 }
 
 /* Perform interpolation, if necessary, to derive the final
- output value for this obsmode from the appropriate row.
+ output value for this obsmode from the appropriate row. 
  */
 static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
   /* Parameters:
    PhtRow  *tabrow:    values read from matching row of table
-   char   *obsmode:    full obsmode string from header
-
-   obsmode string needs to contain values of parameterized values
+   char   *obsmode:    full obsmode string from header 
+   
+   obsmode string needs to contain values of parameterized values 
    appropriate for this observation.
    */
-
+  
   double value;
   int parnum;
   int n,p, nx, ndim;
   double *out;
-  double *obsindx; /* index of each obsmode par value in tabrow->parvals */
+  double *obsindx; /* index of each obsmode par value in tabrow->parvals */ 
   double *obsvals; /* value for each obsmode par in the same order as tabrow */
-
+  
   int *ndpos;
   int **bounds; /* [ndim,2] array for bounds around obsvals values */
   double resvals[2]; /* Values from tabrow->results for interpolation */
@@ -733,8 +735,8 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
   int posindx;      /* N dimensional array of indices for a position */
   int indx,pdim,ppos,xdim,xpos;
   int tabparlen;
-  /*
-   intermediate products used in iterating over dims
+  /* 
+   intermediate products used in iterating over dims 
    */
   int iter, x;
   int dimpow,iterpow;
@@ -744,41 +746,41 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
   double bindx[2],bvals[2]; /* indices into results array for bounding values */
   double rinterp;          /* placeholder for interpolated result */
   BoundingPoint **points;   /* array of bounding points defining the area of interpolation */
-
-  /* Define functions called in this functions */
+  
+  /* Define functions called in this functions */ 
   double linterp(double *, int, double *, double);
   void byteconvert(int, int *, int);
-  int computedeltadim(BoundingPoint *, BoundingPoint *);
-  long computeindex(int *, double *, int);
-  void computebounds(double *, int, double, int *, int*);
+  int computedeltadim(BoundingPoint *, BoundingPoint *);  
+  long computeindex(int *, double *, int);  
+  void computebounds(double *, int, double, int *, int*);  
   int strneq_ic(char *, char*, int);
   BoundingPoint **InitBoundingPointArray(int, int);
   void FreeBoundingPointArray(BoundingPoint **, int);
-
-  /* Initialize variables and allocate memory */
+  
+  /* Initialize variables and allocate memory */  
   value = 0.0;
   ndim = tabrow->parnum;
   if (ndim == 0) {
     /* No parameterized values, so simply return value
      stored in 1-element array results */
     return(tabrow->results[0]);
-  }
+  } 
   dimpow = pow(2,ndim);
-
+  
   obsindx = (double *)calloc(ndim, sizeof(double));
   obsvals = (double *)calloc(ndim, sizeof(double)); /* Final answer */
   ndpos = (int *)calloc(ndim, sizeof(int));
   ndposd = (double *)calloc(ndim, sizeof(double));
   bounds = (int **) calloc(ndim, sizeof(int *));
-  for (p=0;p<ndim;p++) bounds[p] = (int *) calloc(2, sizeof(int));
-
-  /* We have parameterized values, so linear interpolation
+  for (p=0;p<ndim;p++) bounds[p] = (int *) calloc(2, sizeof(int));    
+  
+  /* We have parameterized values, so linear interpolation 
    will be needed in all dimensions to get correct value.
-   Start by getting the floating-point indices for each
+   Start by getting the floating-point indices for each 
    parameterized value
    */
-  /*
-   Start by matching up the obsmode parameters with those in the table row
+  /* 
+   Start by matching up the obsmode parameters with those in the table row 
    These are the values along each dimension of the interpolation
    */
   for (p=0;p<ndim;p++){
@@ -789,57 +791,57 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
         break;
       }
     }
-
+    
     if (obsvals[p] == 0.0) {
       printf("ERROR: No obsmode value found for %s\n",tabrow->parnames[p]);
-
+      
       free(obsindx);
       free(obsvals);
       free(ndpos);
       free(ndposd);
       for (p=0;p<ndim;p++) free(bounds[p]);
       free(bounds);
-
+      
       return ('\0');
     }
-
+    
     /* check whether we're going beyond the data in the table (extrapolation) */
     /* if we are, return -9999 */
     nx = tabrow->nelem[p+1];
-
+    
     if ((obsvals[p] < tabrow->parvals[p][0]) ||
         (obsvals[p] > tabrow->parvals[p][nx-1])) {
       printf("WARNING: Parameter value %s%f is outside table data bounds.\n",
              tabrow->parnames[p],obsvals[p]);
-
+      
       free(obsindx);
       free(obsvals);
       free(ndpos);
       free(ndposd);
       for (p=0;p<ndim;p++) free(bounds[p]);
       free(bounds);
-
+      
       return -9999.0;
     }
   }
-
+  
   /* Set up array of BoundingPoint objects to keep track of information needed
-   for the interpolation
+   for the interpolation 
    */
   points = InitBoundingPointArray(dimpow,ndim);
-
+  
   /* Now find the index of the obsmode parameterized value
    into each parameterized value array
    Equivalent to getting positions in each dimension (x,y,...).
    */
-  for (p=0;p<ndim;p++){
+  for (p=0;p<ndim;p++){    
     nx = tabrow->nelem[p+1];
-
+    
     out = (double *) calloc(nx, sizeof(double));
-
+    
     for (n=0; n<nx;n++) out[n] = n;
-
-    value = linterp(tabrow->parvals[p], nx, out, obsvals[p]);
+    
+    value = linterp(tabrow->parvals[p], nx, out, obsvals[p]);    
     if (value == -99) {
       free(obsindx);
       free(obsvals);
@@ -850,19 +852,19 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
       free(out);
       return('\0');
     }
-
+    
     obsindx[p] = value;  /* Index into dimension p */
     computebounds(out, nx, (double)floor(value), &b0, &b1);
-
+    
     bounds[p][0] = b0;
     bounds[p][1] = b1;
     /* Free memory so we can use this array for the next variable*/
     free(out);
   } /* End loop over each parameterized value */
-
-  /*
+  
+  /* 
    Loop over each axis and perform interpolation to find final result
-
+   
    For each axis, interpolate between all pairs of positions along the same axis
    An example with 3 parameters/dimensions for a point with array index (2.2, 4.7, 1.3):
    Iteration 1: for all z and y positions , interpolate between pairs in x
@@ -871,16 +873,16 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
    (2.2, 4,1)vs(2.2, 5, 1) and (2.2, 4, 2)vs(2.2, 5, 2)
    Iteration 3: interpolate between pairs from iteration 2 in z
    (2.2, 4.7, 1) vs (2.2, 4.7, 2) ==> final answer
-   */
+   */ 
   for (iter=ndim; iter >0; iter--) {
     iterpow = pow(2,iter);
     for (p=0;p < iterpow;p++){
       pdim = floor(p/2);
       ppos = p%2;
-
+      
       if (iter == ndim) {
-        /* Initialize all intermediate products and perform first
-         set of interpolations over the first dimension
+        /* Initialize all intermediate products and perform first 
+         set of interpolations over the first dimension 
          */
         /* Create a bitmask for each dimension for each position */
         byteconvert(p,ndpos,ndim);
@@ -889,17 +891,17 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
           points[pdim][ppos].index[n] = (double)pindx;
           points[pdim][ppos].pos[n] = tabrow->parvals[n][pindx];
         }
-
-        /* Determine values from tables which correspond to
+        
+        /* Determine values from tables which correspond to 
          bounding positions to be interpolated */
         indx = computeindex(tabrow->nelem, points[pdim][ppos].index, ndim);
         points[pdim][ppos].value = tabrow->results[indx];
-
-      } /* End if(iter==ndim) */
-
+        
+      } /* End if(iter==ndim) */ 
+      
       if (ppos == 1) {
-        /* Determine which axis is varying, so we know which
-         input value from the obsmode string
+        /* Determine which axis is varying, so we know which 
+         input value from the obsmode string 
          we need to use for the interpolation */
         deltadim = computedeltadim(&points[pdim][0],&points[pdim][1]);
         if (deltadim < 0 || deltadim >= ndim) {
@@ -910,19 +912,19 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
           free (ndposd);
           for (p=0;p<ndim;p++)free(bounds[p]);
           free(bounds);
-
+          
           return('\0');
         }
         bindx[0] = points[pdim][0].pos[deltadim];
         bindx[1] = points[pdim][1].pos[deltadim];
         bvals[0] = points[pdim][0].value;
-        bvals[1] = points[pdim][1].value;
+        bvals[1] = points[pdim][1].value;      
         /*Perform interpolation now and record the results */
         rinterp = linterp(bindx, 2, bvals,obsvals[deltadim]);
-
-        /*
-         Update intermediate arrays with results in
-         preparation for the next iteration
+        
+        /* 
+         Update intermediate arrays with results in 
+         preparation for the next iteration 
          */
         if (rinterp == -99) return('\0');
         /* Determine where the result of this interpolation should go */
@@ -938,16 +940,16 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
         }
         points[xdim][xpos].index[deltadim] = obsindx[deltadim];
         points[xdim][xpos].pos[deltadim] = obsvals[deltadim];
-
+        
       } /* Finished with this pair of positions (end if(ppos==1)) */
-
+      
     } /* End loop over p, data stored for interpolation in changing dimension */
-
+    
   } /* End loop over axes(iterations), iter, for interpolation */
-
+  
   /* Record result */
   value = points[0][0].value;
-
+  
   /* clean up memory allocated within this function */
   free(obsindx);
   free(obsvals);
@@ -955,7 +957,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
   free (ndposd);
   for (p=0;p<tabrow->parnum;p++)free(bounds[p]);
   free(bounds);
-
+  
   FreeBoundingPointArray(points,dimpow);
   return (value);
 }
@@ -966,15 +968,15 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
  to the input position xpos, where f(x) is sampled at positions x.
  */
 double linterp(double *x, int nx, double *fx, double xpos) {
-
+  
   int i0, i1;  /* x values that straddle xpos */
-
+  
   int n;
   double value;
-
+  
   void computebounds (double *, int, double , int *, int *);
-
-  /* interpolation calculated as:
+  
+  /* interpolation calculated as: 
    yi + (xpos - xi)*(yi1 - yi)/(xi1-xi)
    */
   /* Start by finding which elements in x array straddle xpos value */
@@ -985,17 +987,17 @@ double linterp(double *x, int nx, double *fx, double xpos) {
   }
   /* Now, compute interpolated value */
   value = fx[i0] + (xpos - x[i0])*(fx[i1] - fx[i0])/(x[i1]-x[i0]);
-
+  
   return(value);
-}
+} 
 
-/* Compute index into x array of val and returns
- the indices for the bounding values, taking into account
- boundary conditions.
+/* Compute index into x array of val and returns 
+ the indices for the bounding values, taking into account 
+ boundary conditions. 
  */
 void computebounds (double *x, int nx, double val, int *i0, int *i1) {
   int n;
-
+  
   /* first test for whether we've got an end case here */
   if (x[nx-1] == val) {
     *i0 = nx-2;
@@ -1020,21 +1022,21 @@ void computebounds (double *x, int nx, double val, int *i0, int *i1) {
   }
 }
 
-/* Compute the 1-D index of a n-D (ndim) position given by the array
- of values in pos[]
+/* Compute the 1-D index of a n-D (ndim) position given by the array 
+ of values in pos[] 
  */
 long computeindex(int *nelem, double *pos, int ndim) {
-  int n, szaxis;
+  int n, szaxis;    
   long indx;
-
+  
   indx = 0;
   szaxis = 1;
   for (n=0;n<ndim;n++) {
     indx += szaxis*pos[n];
     szaxis *= nelem[n+1];
   }
-  return(indx);
-
+  return(indx); 
+  
 }
 
 /* Convert an int value into an array of 0,1 values to represent
@@ -1044,7 +1046,7 @@ long computeindex(int *nelem, double *pos, int ndim) {
  */
 void byteconvert(int val, int *result, int ndim) {
   int i,bval;
-
+  
   bval = 1;
   for (i=0;i<ndim;i++){
     if ((val & bval) > 0){
@@ -1057,17 +1059,17 @@ void byteconvert(int val, int *result, int ndim) {
 }
 
 /*
- Given 2 N dimensional sets of array indices, determine which dimension
- changes from one set to the other.
-
- NOTE:
- This assumes that the positions only change in 1 dimension at a time.
+ Given 2 N dimensional sets of array indices, determine which dimension 
+ changes from one set to the other.  
+ 
+ NOTE: 
+ This assumes that the positions only change in 1 dimension at a time. 
  */
 int computedeltadim(BoundingPoint *pos1, BoundingPoint *pos2){
   int p;
   int xdim;
   double diff;
-
+  
   for (p=0;p<pos1->ndim;p++){
     diff = pos2->index[p] - pos1->index[p];
     if ( diff != 0) {
@@ -1078,33 +1080,33 @@ int computedeltadim(BoundingPoint *pos1, BoundingPoint *pos2){
   return(xdim);
 }
 /* This routine frees memory allocated to a row's entries,
- so that the next call to 'ReadPhotTab' will have an empty
- structure to use for the storing the rows values.
+ so that the next call to 'ReadPhotTab' will have an empty 
+ structure to use for the storing the rows values. 
  */
 static void ClosePhotRow (PhtRow *tabrow) {
-
+  
   int i;
-
+  
   for (i=0; i<tabrow->parnum; i++){
     free(tabrow->parvals[i]);
     free(tabrow->parnames[i]);
   }
   free(tabrow->parvals);
   free(tabrow->parnames);
-
+  
   free(tabrow->nelem);
   free(tabrow->results);
 }
 
 /* This routine closes the imphttab table. */
 static int ClosePhotTab (PhtCols *tabinfo){
-
+  
 	extern int status;
-
+  
 	c_tbtclo (tabinfo->tp);
 	if (c_iraferr())
     return (status = TABLE_ERROR);
-
+  
 	return (status);
 }
 
@@ -1113,8 +1115,8 @@ BoundingPoint **InitBoundingPointArray(int npoints, int ndim){
   int i,j;
   int pdim;
   void InitBoundingPoint(BoundingPoint *, int);
-  BoundingPoint **points;
-
+  BoundingPoint **points; 
+  
   pdim = npoints/2;
   points = (BoundingPoint **)calloc(pdim,sizeof(BoundingPoint *));
   for (i=0;i<pdim;i++) {
@@ -1122,15 +1124,15 @@ BoundingPoint **InitBoundingPointArray(int npoints, int ndim){
     InitBoundingPoint(&points[i][0],ndim);
     InitBoundingPoint(&points[i][1],ndim);
   }
-  return(points);
+  return(points);   
 }
 void InitBoundingPoint(BoundingPoint *point, int ndim){
-
+  
   point->index = (double *)calloc(ndim, sizeof(double));
   point->pos = (double *)calloc(ndim, sizeof(double));
   point->ndim = ndim;
   point->value=0.0;
-
+  
 }
 /* Free the memory allocated to an array of BoundingPoint objects */
 void FreeBoundingPointArray(BoundingPoint **points, int npoints){
@@ -1138,7 +1140,7 @@ void FreeBoundingPointArray(BoundingPoint **points, int npoints){
   int pdim;
   void FreeBoundingPoint(BoundingPoint *);
   pdim = npoints/2;
-
+  
   for (i=0;i<pdim;i++) {
     FreeBoundingPoint(&points[i][0]);
     FreeBoundingPoint(&points[i][1]);
@@ -1152,18 +1154,18 @@ void FreeBoundingPoint(BoundingPoint *point){
   free(point->pos);
 }
 /* This routine gets pedigree and descrip from the current table row.
-
+ 
  The pedigree and descrip columns need not be defined.  If not, this
  is flagged by their column pointers being zero, in which case no change
  will be made to the ref struct for this table.
-
+ 
  If the pedigree column is present, the value in the current row
  will replace any value previously gotten from the header.  As with
  the value from the header, if the first five letters of pedigree are
  DUMMY, then goodPedigree will be set to DUMMY_PEDIGREE; if not,
  goodPedigree will not be changed from its previous value (either as
  initialized or as gotten from the header).
-
+ 
  If the descrip column is present, the value is assigned to a second
  string, descrip2, rather than overwriting the one from the header.
  If the column is not found, descrip2 will be set to null.
@@ -1171,9 +1173,9 @@ void FreeBoundingPoint(BoundingPoint *point){
 
 static int PhotRowPedigree (PhotPar *obs, int row,
                             IRAFPointer tp, IRAFPointer cp_pedigree, IRAFPointer cp_descrip) {
-
+  
 	extern int status;
-
+  
 	/* Get pedigree and descrip.  If either or both are missing,
    that's not an error in this case.
    */
@@ -1187,7 +1189,7 @@ static int PhotRowPedigree (PhotPar *obs, int row,
     else
       obs->goodPedigree = GOOD_PEDIGREE;
 	}
-
+  
 	if (cp_descrip > 0) {
     c_tbegtt (tp, cp_descrip, row, obs->descrip2, SZ_FITS_REC);
     if (c_iraferr())
@@ -1195,15 +1197,15 @@ static int PhotRowPedigree (PhotPar *obs, int row,
 	} else {
     obs->descrip2[0] = '\0';
 	}
-
-
+  
+  
 	return (status);
 }
 
 void InitPhotPar(PhotPar *obs, char *name, char *pedigree) {
   /* Initializes the PhotPar structure for use in this routine.
-
-   This routine should be called by the user's code, and is not
+   
+   This routine should be called by the user's code, and is not 
    explicitly called within this library.
    The parameter's 'name' and 'pedigree' should come from RefTab.
    */
@@ -1212,33 +1214,33 @@ void InitPhotPar(PhotPar *obs, char *name, char *pedigree) {
   /* Start by copying in required values from input table RefTab */
 	strcpy(obs->name, name);
 	strcpy(obs->pedigree, pedigree);
-
+  
   /* Initialize remainder of fields to be used as output in this code */
 	obs->descrip2[0] = '\0';
 	obs->goodPedigree = PEDIGREE_UNKNOWN;
-
+  
   obs->obsmode[0] = '\0';     /* obsmode of science data */
   obs->photmode[0] = '\0'; /* obsmode used for comparison with IMPHTTAB */
-
+  
   /* parsed out value of any parameterized values */
   /* tab->obspars=NULL; */
   obs->npar = 0;
-
+  
   /* Output values derived from table */
   obs->photflam = 0;
   obs->photplam = 0;
   obs->photbw = 0;
   obs->photzpt = 0;
-
+  
 }
 
 int AllocPhotPar(PhotPar *obs, int npar){
   extern int status;
-
+  
   int i;
-
+  
   obs->npar = npar;
-
+  
   obs->parnames = (char **)calloc(npar, sizeof(char *));
   printf("Allocated %d parnames\n",npar);
   for (i=0;i<npar;i++) {
@@ -1249,13 +1251,13 @@ int AllocPhotPar(PhotPar *obs, int npar){
   if (obs->parnames == NULL || obs->parvalues == NULL) {
     return(status=OUT_OF_MEMORY);
   }
-
+  
   return(status);
-
+  
 }
 void FreePhotPar(PhotPar *obs){
   int n;
-
+  
   for (n=0;n<obs->npar;n++){
     free(obs->parnames[n]);
   }
@@ -1266,19 +1268,19 @@ void FreePhotPar(PhotPar *obs){
 
 /* This function compares two strings without regard to case, returning
  one if the strings are equal.
-
+ 
  Phil Hodge, 1997 Dec 12:
  Function created.
  */
 
 int streq_ic_IMPHTTAB (char *s1, char *s2) {
-
+  
 	int c1, c2;
 	int i;
-
+  
 	c1 = 1;
 	for (i = 0;  c1 != 0;  i++) {
-
+    
     c1 = s1[i];
     c2 = s2[i];
     if (isupper(c1))
@@ -1292,16 +1294,16 @@ int streq_ic_IMPHTTAB (char *s1, char *s2) {
 }
 
 int strneq_ic (char *s1, char *s2, int n) {
-
+  
 	int c1, c2;
 	int i;
-
+  
   if (n == 0)
     return 0;
-
+  
 	c1 = 1;
 	for (i = 0;  i < n;  i++) {
-
+    
     c1 = s1[i];
     c2 = s2[i];
     if (isupper(c1))
