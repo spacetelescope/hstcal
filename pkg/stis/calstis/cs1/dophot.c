@@ -39,11 +39,11 @@ static int removeA2D (char *, char *);
 	the output header) if photmode not found or parameters are garbage.
 	Also set photcorr to IGNORED if the parameters are -9999.
 
-   Phil Hodge, 2011 Nov 7:
-	Add function removeA2D to look for "A2D" in the photmode string
-	and, if found, remove it when copying to a temporary photmode.
-	If "A2D" was found in photmode, multiply photflam by atodgain,
-	rather than letting the imphttab handle this factor.
+   Phil Hodge, 2011 Nov 8:
+	Add function removeA2D to look for "A2D<gain>" in the photmode string
+	and, if found, remove it when copying to a temporary photmode.  If
+	"A2D" was found in photmode, multiply photflam by atodgain, rather
+	than letting the imphttab handle this factor.
 */
 
 int doPhot (StisInfo1 *sts, SingleGroup *x) {
@@ -76,18 +76,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 	/* Get the photometry values. */
 	if ((status = GetPhotTab (&obs, obsmode)) != 0) {
-	    printf ("Warning  photmode '%s' not found.\n", photmode);
-	    FreePhotPar (&obs);
-	    sts->photcorr = IGNORED;
-	    return 0;
-	}
-	if (obs.photbw < 0. || obs.photbw > 1.e5) {
-	    printf ("Warning  For photmode '%s', values are strange:\n",
-		photmode);
-	    printf ("         photflam = %g\n", obs.photflam);
-	    printf ("         photplam = %g\n", obs.photplam);
-	    printf ("         photbw   = %g\n", obs.photbw);
-	    printf ("         photzpt  = %g\n", obs.photzpt);
+	    printf ("Warning  photmode '%s' not found.\n", obsmode);
 	    FreePhotPar (&obs);
 	    sts->photcorr = IGNORED;
 	    return 0;
@@ -108,7 +97,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 	/* Update the photometry keyword values in the primary header. */
 
-	if (found_a2d)
+	if (found_a2d && sts->photcorr == PERFORM)
 	    obs.photflam *= sts->atodgain;
 	if ((status = Put_KeyF (x->globalhdr, "PHOTFLAM", obs.photflam,
 			"inverse sensitivity")) != 0)
