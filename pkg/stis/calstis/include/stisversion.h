@@ -1,3 +1,3 @@
 /* This string is written to the output primary header as CAL_VER. */
 
-# define STIS_CAL_VER "3.0 (21-October-2011)"
+# define STIS_CAL_VER "3.0 (08-November-2011)"
