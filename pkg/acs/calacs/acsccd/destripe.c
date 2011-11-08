@@ -26,7 +26,8 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
                               const double * array, const char * good_rows,
                               double * mean, double * std, int * pix_used);
 static int remove_stripes(const int arr_rows, const int arr_cols,
-                          char * good_rows[NAMPS], double * ampdata[NAMPS]);
+                          char * good_rows[NAMPS], double * ampdata[NAMPS],
+                          int * num_fixed, int * num_skipped);
 static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
                           int amp, double * array, float gain);
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
@@ -82,6 +83,13 @@ static int destripe(ACSInfo * acs) {
 
   /* array of number of good rows for each amp */
   int num_good_rows[NAMPS];
+  
+  /* number of rows ultimately worked on and fixed */
+  int rows_fixed;
+  int rows_skipped;
+  
+  /* character array for holding history messages */
+  char history[ACS_LINE];
 
   /* bias pixel mean, standard deviation, and number of good pixels */
   double bias_mean, bias_std;
@@ -93,7 +101,7 @@ static int destripe(ACSInfo * acs) {
 
   /* output filename. will become the new acs->input for the next steps */
   char outname[ACS_LINE+1];
-
+  
   int PutKeyFlt(Hdr *, char *, float, char *);
   int blevHistory(ACSInfo *, Hdr *, int, int);
   int MkName (char *, char *, char *, char *, char *, int);
@@ -186,8 +194,21 @@ static int destripe(ACSInfo * acs) {
   }
 
   /* remove stripes */
-  if (remove_stripes(arr_rows,arr_cols,good_rows,ampdata)) {
+  if (remove_stripes(arr_rows, arr_cols, good_rows, ampdata, &rows_fixed, &rows_skipped)) {
     return status;
+  }
+  
+  /* add history keywords about rows fixed and rows skipped */
+  sprintf(history, "number of rows fixed per amp: %i", rows_fixed);
+  addHistoryKw(chip2.globalhdr, history);
+  if (hstio_err()) {
+    return (status = HEADER_PROBLEM);
+  }
+  
+  sprintf(history, "number of rows skipped per amp: %i", rows_skipped);
+  addHistoryKw(chip2.globalhdr, history);
+  if (hstio_err()) {
+    return (status = HEADER_PROBLEM);
   }
 
   /* copy modified data back to SingleGroup structs */
@@ -231,15 +252,12 @@ static int destripe(ACSInfo * acs) {
 
 /* calculate stripe corrections and remove stripes */
 static int remove_stripes(const int arr_rows, const int arr_cols,
-                          char * good_rows[NAMPS], double * ampdata[NAMPS]) {
+                          char * good_rows[NAMPS], double * ampdata[NAMPS],
+                          int * num_fixed, int * num_skipped) {
   extern int status;
 
   /* iteration variables */
   int i,j,k;
-
-  /* number of rows skipped and fixed */
-  int num_skipped = 0;
-  int num_fixed = 0;
 
   /* summation holders */
   double sum_mean;
@@ -258,6 +276,9 @@ static int remove_stripes(const int arr_rows, const int arr_cols,
   int interp_lower;
   double interp_dist;
   double interp_mean;
+  
+  *num_fixed = 0;
+  *num_skipped = 0;
 
   /* allocate arrays as necessary */
   rowmeans = malloc(arr_rows * sizeof(double));
@@ -306,9 +327,9 @@ static int remove_stripes(const int arr_rows, const int arr_cols,
     if (sum_num >= 2) {
       rowmeans[i] = sum_mean / (double) sum_num;
 
-      num_fixed++;
+      (*num_fixed)++;
     } else {
-      num_skipped++;
+      (*num_skipped)++;
     }
   }
 
