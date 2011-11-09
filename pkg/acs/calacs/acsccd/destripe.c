@@ -199,13 +199,13 @@ static int destripe(ACSInfo * acs) {
   }
   
   /* add history keywords about rows fixed and rows skipped */
-  sprintf(history, "number of rows fixed per amp: %i", rows_fixed);
+  sprintf(history, "DESTRIPE: number of rows fixed per amp: %i", rows_fixed);
   addHistoryKw(chip2.globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
   }
   
-  sprintf(history, "number of rows skipped per amp: %i", rows_skipped);
+  sprintf(history, "DESTRIPE: number of rows skipped per amp: %i", rows_skipped);
   addHistoryKw(chip2.globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
