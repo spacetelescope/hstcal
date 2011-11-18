@@ -206,7 +206,7 @@ int offsetx, offsety  i: Trim values from LTV1,2
                     acs->biassecta[0] = 0;
                     acs->biassecta[1] = 0;
                     acs->biassectb[0] = nx - (tx1 - cx1);
-                    acs->biassectb[1] = nx;
+                    acs->biassectb[1] = nx - 1;
                      
                 } else {
                     /* Subarray doesn't overlap either physical overscan region */
