@@ -12,6 +12,9 @@
 /* number of bias cols */
 #define NBIAS_COLS 24
 
+/* number of overscan rows */
+#define NOSCN_ROWS 20
+
 /* prototypes for functions in this file */
 static int destripe(ACSInfo * acs);
 static int calc_mean_std(const int len, const double array[], const double sig,
@@ -177,7 +180,7 @@ static int destripe(ACSInfo * acs) {
     }
 
     /* report bias level subtracted to user */
-    sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", bias_mean, AMPSORDER[i]);
+    sprintf(MsgText, "     bias level of %.6g DN was subtracted for AMP %c.", bias_mean, AMPSORDER[i]);
     trlmessage(MsgText);
 
     bias_mean_arr[i] = bias_mean;
@@ -185,11 +188,11 @@ static int destripe(ACSInfo * acs) {
 
   /* add MEANBLEV keyword to science extension headers */
   if (PutKeyFlt (&chip1.sci.hdr, "MEANBLEV", (bias_mean_arr[0] + bias_mean_arr[1])/2.,
-                 "mean of bias levels subtracted in electrons")) {
+                 "mean of bias levels subtracted in DN")) {
     return (status);
   }
   if (PutKeyFlt (&chip2.sci.hdr, "MEANBLEV", (bias_mean_arr[2] + bias_mean_arr[3])/2.,
-                 "mean of bias levels subtracted in electrons")) {
+                 "mean of bias levels subtracted in DN")) {
     return (status);
   }
 
@@ -420,7 +423,11 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
       }
     }
 
-    temp_mean = sum_mean / (double) ntot1;
+    if (ntot1 != 0) {
+      temp_mean = sum_mean / (double) ntot1;
+    } else {
+      temp_mean = 0;
+    }
 
     /* calculate absolute deviation */
     sum_std = 0.0;
@@ -432,7 +439,11 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
       }
     }
 
-    temp_std = sum_std/(double) ntot1;
+    if (ntot1 != 0) {
+      temp_std = sum_std/(double) ntot1;
+    } else {
+      temp_std = 0;
+    }
 
     ntot1 = 0;
 
@@ -459,7 +470,11 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
     }
   }
 
-  temp_mean = sum_mean / (double) ntot1;
+  if (ntot1 != 0) {
+    temp_mean = sum_mean / (double) ntot1;
+  } else {
+    temp_mean = 0;
+  }
 
   sum_std = 0.0;
   for (j = 0; j < NBIAS_COLS; j++) {
@@ -470,7 +485,11 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
     }
   }
 
-  temp_std = sqrt(sum_std / (double) ntot1);
+  if (ntot1 != 0) {
+    temp_std = sum_std/(double) ntot1;
+  } else {
+    temp_std = 0;
+  }
 
   *mean = temp_mean;
   *std = temp_std;
@@ -488,6 +507,12 @@ static int find_good_rows(const int arr_rows, const int arr_cols, const double *
 
   /* iteration variables */
   int i,j;
+  
+  /* mean of the bias region */
+  double bias_mean;
+  
+  /* overall mean of science area of amp */
+  double amp_mean;
 
   /* means of data rows - row_ref for that row */
   double row_means[arr_rows];
@@ -496,6 +521,28 @@ static int find_good_rows(const int arr_rows, const int arr_cols, const double *
   double row_ref[arr_rows];
 
   double sum;
+  
+  /* calculate the bias mean */
+  sum = 0.0;
+  
+  for (i = 0; i < arr_rows-NOSCN_ROWS; i++) {
+    for (j = 0; j < NBIAS_COLS; j++) {
+      sum += array[arr_cols*i + j];
+    }
+  }
+  
+  bias_mean = sum / (double) ((arr_rows - NOSCN_ROWS) * NBIAS_COLS);
+  
+  /* calculate the science area mean */
+  sum = 0.0;
+  
+  for (i = 0; i < arr_rows-NOSCN_ROWS; i++) {
+    for (j = NBIAS_COLS; j < arr_cols; j++) {
+      sum += (array[arr_cols*i + j] - bias_mean);
+    }
+  }
+  
+  amp_mean = sum / (double) ((arr_cols - NBIAS_COLS) * (arr_rows - NOSCN_ROWS));
 
   /* never use the first row */
   good_rows[0] = 0;
@@ -529,26 +576,28 @@ static int find_good_rows(const int arr_rows, const int arr_cols, const double *
 
     row_means[i] = sum / (double) (arr_cols - NBIAS_COLS);
 
-    if (row_means[i] > 50) {
+    if (abs(row_means[i] - amp_mean) > 50) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 25] > 25000) {
+    } else if (array[arr_cols*i + 24] > 35000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 26] > 25000) {
+    } else if (array[arr_cols*i + 25] > 35000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 27] > 25000) {
+    } else if (array[arr_cols*i + 26] > 35000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 28] > 25000) {
+    } else if (array[arr_cols*i + 27] > 35000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 29] > 25000) {
+    } else if (array[arr_cols*i + 28] > 35000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 30] > 25000) {
+    } else if (array[arr_cols*i + 29] > 35000) {
       good_rows[i] = 0;
     } else {
       good_rows[i] = 1;
       (*num_good_rows)++;
     }
   }
-
+  
+  //printf("%i   %i   %8.2f   %8.2f\n",*num_good_rows,2068-*num_good_rows,bias_mean,amp_mean);
+  
   return status;
 }
 
@@ -694,11 +743,11 @@ static int sub_bias_col_means(const int arr_rows, const int arr_cols, const int 
     }
   }
 
-  for (j = bias_cols; j < arr_cols; j++) {
-    for (i = 0; i < arr_rows; i++) {
-      array[arr_cols*i + j] = array[arr_cols*i + j];
-    }
-  }
+//  for (j = bias_cols; j < arr_cols; j++) {
+//    for (i = 0; i < arr_rows; i++) {
+//      array[arr_cols*i + j] = array[arr_cols*i + j];
+//    }
+//  }
 
   return status;
 }
@@ -740,7 +789,7 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *i
         return status;
       }
 
-      array[i*arr_cols + j] = Pix(im->sci.data, c, r) * gain;
+      array[i*arr_cols + j] = Pix(im->sci.data, c, r); // * gain;
     }
   }
 
@@ -783,7 +832,7 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
         return status;
       }
 
-      Pix(im->sci.data, c, r) = (float) array[i*arr_cols + j] / gain;
+      Pix(im->sci.data, c, r) = (float) array[i*arr_cols + j]; // / gain;
     }
   }
 
