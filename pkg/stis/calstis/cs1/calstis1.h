@@ -54,6 +54,9 @@
    Phil Hodge, 2011 May 9:
 	Remove filtcorr, tdscorr, apertab, and tdstab from StisInfo1.  The
         PhotInfo struct was deleted.
+
+   Phil Hodge, 2011 Nov 17:
+	Put tdscorr and tdstab back into StisInfo1.
 */
 
 # define	MAX_IMSET	100
@@ -159,6 +162,8 @@ typedef struct {
 	int photcorr;		/* add photometry header keyword values */
 	int noisecorr;		/* initialize error array? */
 	int statcorr;		/* compute statistics? */
+	/* tdscorr is not a switch, it indicates whether the TDSTAB exists */
+	int tdscorr;		/* time-dependent (actually temperature) corr */
         /* crcorr is not a switch, it indicates if the CRCORR is complete */
         int crcorr;             /* cosmic-ray rejection */
 
@@ -175,5 +180,6 @@ typedef struct {
 	RefTab mlin;		/* MAMA nonlinearity info table */
 	RefTab atod;		/* analog to digital correction table */
 	RefTab phot;		/* photometric throughput table */
-	RefTab tdctab;		/* NUV dark time-dependent correction table */
+	RefTab tdctab;		/* NUV dark temp-dependent correction table */
+	RefTab tdstab;		/* Time-dependent corr. table (for temp.) */
 } StisInfo1;

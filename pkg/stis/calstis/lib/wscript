@@ -35,7 +35,7 @@ def build(bld):
             ../cs1/getccdtab.c ../cs1/getepctab1.c
             ../cs1/getflags1.c ../cs1/getgrpinfo1.c
             ../cs1/getkeyinfo1.c ../cs1/getlintab.c
-            ../cs1/gettdccorr.c ../cs1/history1.c
+            ../cs1/gettdccorr.c ../cs1/gettds1.c ../cs1/history1.c
             ../cs1/makedopp.c ../cs1/photmode.c ../cs1/sanity1.c
 
             ../cs2/calstis2.c ../cs2/cr_history.c ../cs2/cr_mode.c

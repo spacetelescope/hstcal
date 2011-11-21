@@ -56,6 +56,9 @@ static void MissingFile (char *, char *, int *);
   Phil Hodge, 2011 May 9:
 	Modify checkPhot to replace keyword name PHOTTAB with IMPHTTAB;
 	don't get APERTAB or TDSTAB; don't set sts->filtcorr or sts->tdscorr.
+
+  Phil Hodge, 2011 Nov 17:
+	Modify checkPhot to include the TDSTAB.
 */
 
 int GetFlags1 (StisInfo1 *sts, Hdr *phdr) {
@@ -559,6 +562,16 @@ int *nsteps      io: incremented if this step can be performed
 	    if (sts->phot.exists != EXISTS_YES) {
 		MissingFile ("IMPHTTAB", sts->phot.name, missing);
 		sts->photcorr = OMIT;
+	    }
+
+	    /* Get the name of the _tds sensitivity table */
+	    if (status = GetTabRef(sts->refnames, phdr, "TDSTAB",
+				   &sts->tdstab, &sts->tdscorr))
+		return (status);
+	    if (sts->tdstab.exists != EXISTS_YES) {
+		if (GotFileName (sts->tdstab.name))
+		    MissingFile("TDSTAB", sts->tdstab.name, missing);
+		sts->tdscorr = OMIT;
 	    }
 
 	    if (sts->photcorr == PERFORM)

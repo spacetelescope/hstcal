@@ -9,9 +9,11 @@
 # include "calstis1.h"
 # include "stiserr.h"
 # include "stisdef.h"
+# include "stistds.h"
 
 static void Phot2Obs (char *, char *);
 static int removeA2D (char *, char *);
+static double tempFactor (TdsInfo *, double, double);
 
 /* This routine reads the photmode string from the primary header (which
    must therefore have already been updated) and calls a function that reads
@@ -44,6 +46,10 @@ static int removeA2D (char *, char *);
 	and, if found, remove it when copying to a temporary photmode.  If
 	"A2D" was found in photmode, multiply photflam by atodgain, rather
 	than letting the imphttab handle this factor.
+
+   Phil Hodge, 2011 Nov 17:
+	Add function tempFactor to interpolate the temperature dependence
+	at the pivot wavelength.  Divide photflam by the returned factor.
 */
 
 int doPhot (StisInfo1 *sts, SingleGroup *x) {
@@ -62,6 +68,10 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	char obsmode[STIS_LINE+1];	/* based on the photmode string */
 	int use_default = 1;	/* use default value if keyword is missing */
 	int found_a2d = 0;	/* true if there's a CCD A2D component */
+	TdsInfo tds;		/* time-dep, but use only temperature corr */
+
+	int GetTds1 (char *, char *, TdsInfo *);
+	void FreeTds1 (TdsInfo *);
 
 	/* Get PHOTMODE from the primary header. */
 	if ((status = Get_KeyS (x->globalhdr, "PHOTMODE",
@@ -95,10 +105,21 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	    sts->photcorr = IGNORED;
 	}
 
-	/* Update the photometry keyword values in the primary header. */
+	/* Make further changes to photflam. */
 
 	if (found_a2d && sts->photcorr == PERFORM)
 	    obs.photflam *= sts->atodgain;
+
+	/* Get values from the TDS table */
+	if (sts->tdscorr == PERFORM && sts->photcorr == PERFORM) {
+	    if (status = GetTds1(sts->tdstab.name, sts->opt_elem, &tds))
+		return (status);
+	    obs.photflam /= tempFactor(&tds, obs.photplam, sts->detector_temp);
+	    FreeTds1 (&tds);
+	}
+
+	/* Update the photometry keyword values in the primary header. */
+
 	if ((status = Put_KeyF (x->globalhdr, "PHOTFLAM", obs.photflam,
 			"inverse sensitivity")) != 0)
 	    return (status);
@@ -171,6 +192,32 @@ static int removeA2D (char *photmode, char *tempphot) {
 	tempphot[i] = '\0';
 
 	return foundit;
+}
+
+static double tempFactor(TdsInfo *tds, double photplam, double temperature) {
+
+/* arguments:
+TdsInfo *tds         i: temperature-dependent sensitivity info
+double photplam      i: pivot wavelength (Angstroms)
+double temperature   i: detector temperature (degrees Celsius)
+   function value:
+factor                  divide photflam by this factor
+*/
+
+	double sensitivity, factor;
+	int starti;
+	int i;
+
+	if (temperature >= 0.) {
+	    starti = 0;
+	    sensitivity = interp1d (photplam, tds->wl, tds->temp_sens,
+				    tds->nwl, &starti);
+	    factor = 1. + sensitivity * (temperature - tds->ref_temp);
+	} else {
+	    factor = 1.;
+	}
+
+	return factor;
 }
 
 /* This function converts the photmode string into an obsmode string
