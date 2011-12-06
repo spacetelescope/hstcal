@@ -149,6 +149,13 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 	void MissingFile (char *, char *, int *);
 
+  if (GetImageRef (acs->refnames, phdr,
+                     "BIASFILE", &acs->bias, &acs->biascorr))
+      return (status);
+      
+  if (acs->bias.exists != EXISTS_YES)
+      MissingFile ("BIASFILE", acs->bias.name, missing);
+
 	/* Are we supposed to do this step? */
 	if (acs->biascorr == PERFORM) {
 
@@ -158,12 +165,6 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
       acs->biascorr = OMIT;
       return (status);
     }
-
-    if (GetImageRef (acs->refnames, phdr,
-                     "BIASFILE", &acs->bias, &acs->biascorr))
-      return (status);
-    if (acs->bias.exists != EXISTS_YES)
-      MissingFile ("BIASFILE", acs->bias.name, missing);
 
     if (acs->biascorr == PERFORM)
       (*nsteps)++;
