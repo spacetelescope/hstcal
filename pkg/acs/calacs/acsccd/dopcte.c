@@ -57,7 +57,6 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
   double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV];
   double chg_open_lt[MAX_TAIL_LEN*NUM_LEV];
   double dpde_l[NUM_LEV];
-  int tail_len[NUM_LEV];
   
   /* structure to hold CTE parameters from file */
   CTEParams pars;
@@ -86,6 +85,10 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
   double * amp_nse_arr; /* decomposed readout error */
   double * amp_cor_arr; /* cte corrected data */
   
+  /* in this algorithm each pixel has it's own CTE scaling,
+   * so we need an array for that. */
+  double * cte_frac_arr;
+  
   /* functions from calacs/lib */
   void parseWFCamps (char *acsamps, int chip, char *ccdamp);
   void TimeStamp (char *message, char *rootname);
@@ -110,7 +113,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
   if (CompareCteParams(x, &pars)) {
     return (status);
   }
-  sprintf(MsgText,"(pctecorr) Max read noise amplitude PCTERNCL: %f",pars.rn_clip);
+  sprintf(MsgText,"(pctecorr) Read noise level PCTERNCL: %f",pars.rn_clip);
   trlmessage(MsgText);
   sprintf(MsgText,"(pctecorr) Readout simulation iterations PCTESMIT: %i",pars.sim_nit);
   trlmessage(MsgText);
@@ -137,7 +140,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
   }
   
   if (FillLevelArrays(chg_leak, chg_open, dtde_q, pars.levels, chg_leak_lt,
-                      chg_open_lt, dpde_l, tail_len)) {
+                      chg_open_lt, dpde_l)) {
     return (status);
   }
   /*********** done reading and calculating CTE model parameters **************/
@@ -172,6 +175,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     amp_sig_arr = (double *) malloc(amp_arr1 * amp_arr2 * sizeof(double));
     amp_nse_arr = (double *) malloc(amp_arr1 * amp_arr2 * sizeof(double));
     amp_cor_arr = (double *) malloc(amp_arr1 * amp_arr2 * sizeof(double));
+    cte_frac_arr = (double *) malloc(amp_arr1 * amp_arr2 * sizeof(double));
     
     /* read data from the SingleGroup into an array containing data from
      * just one amp */
@@ -181,9 +185,14 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     }
     
     /* convert data from DN to electrons */
+    /* fill cte_frac_arr */
     for (k = 0; k < amp_arr1; k++) {
       for (m = 0; m < amp_arr2; m++) {
         amp_sci_arr[k*amp_arr2 + m] *= (double) acs->atodgain[amp];
+        
+        cte_frac_arr[k*amp_arr2 + m] = pars.cte_frac *
+                                        pars.col_scale[m*NAMPS + amp] * 
+                                        (double) k / CTE_REF_ROW;
       }
     }
     
@@ -195,8 +204,8 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     }
     
     /* perform CTE correction */
-    if (FixYCte(amp_arr1, amp_arr2, amp_sig_arr, amp_cor_arr, pars.cte_frac,
-                pars.sim_nit, pars.shft_nit, pars.levels, dpde_l, tail_len,
+    if (FixYCte(amp_arr1, amp_arr2, amp_sig_arr, amp_cor_arr, pars.sim_nit, 
+                pars.shft_nit, cte_frac_arr, pars.levels, dpde_l,
                 chg_leak_lt, chg_open_lt, acs->onecpu)) {
       return (status);
     }
@@ -225,6 +234,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     free(amp_sig_arr);
     free(amp_nse_arr);
     free(amp_cor_arr);
+    free(cte_frac_arr);
   }
   
   if (acs->printtime) {

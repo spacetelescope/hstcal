@@ -1,10 +1,10 @@
 #include "hstio.h"
 
 /* constants describing the CTE parameters reference file */
-#define NUM_PHI 9  /* number of phi values in cte params file */
+#define NUM_PHI 11  /* number of phi values in cte params file */
 #define NUM_PSI 16  /* number of psi nodes in cte params file (also # of rows in table) */
 #define NUM_LOGQ 4  /* number of log q columns in psi array */
-#define NUM_LEV 107 /* number of specified Q levels */
+#define NUM_LEV 298 /* number of specified Q levels */
 #define NUM_SCALE 3 /* number of time dependant CTE scale points */
 
 /* constants describing the CTE characterization */
@@ -18,6 +18,9 @@
 /* parameters of readout noise decomposition routines */
 #define NOISE_MODEL 1
 
+#define NAMPS 4
+#define AMP_COLS 2072
+
 /* structure to hold CTE parameters from reference file */
 typedef struct {
   double cte_frac;
@@ -29,6 +32,7 @@ typedef struct {
   int psi_node[NUM_PSI];
   double chg_leak[NUM_PSI * NUM_LOGQ];
   int levels[NUM_LEV];
+  double col_scale[AMP_COLS * NAMPS];
 } CTEParams;
 
 /* function prototypes */
@@ -46,13 +50,12 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
                     const double dtde_q[MAX_PHI], const int levels[NUM_LEV],
                     double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
                     double chg_open_lt[MAX_TAIL_LEN*NUM_LEV],
-                    double dpde_l[NUM_LEV],
-                    int tail_len[NUM_LEV]);
+                    double dpde_l[NUM_LEV]);
 int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
                 const double pclip, double sig_arr[arrx*arry], double noise_arr[arrx*arry]);
 int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
-            double sig_cor[arrx*arry], const double cte_frac, const int sim_nit,
-            const int shft_nit, const int levels[NUM_LEV],
-            const double dpde_l[NUM_LEV], const int tail_len[NUM_LEV],
+            double sig_cor[arrx*arry], const int sim_nit, const int shft_nit,
+            double cte_frac[arrx*arry], const int levels[NUM_LEV],
+            const double dpde_l[NUM_LEV],
             const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
             const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV], int onecpu);
