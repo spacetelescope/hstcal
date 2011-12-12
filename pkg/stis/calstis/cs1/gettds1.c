@@ -38,9 +38,9 @@ static int CloseTdsTab1 (TblInfo *);
    and saves it in the time-dependent sensitivity information structure.
 
    The time-dependent sensitivity table should contain the following:
-	header parameters:
-		none needed
-	columns:
+        header parameters:
+          none needed
+        columns:
           OPT_ELEM:   Grating name.
           WAVELENGTH: Array of wavelengths (Angstroms) for correction factors.
           NWL:        Number of wavelengths in wavelength array.
@@ -56,6 +56,8 @@ static int CloseTdsTab1 (TblInfo *);
    ----------------
    2011 Nov 17  -  Copied from ../lib/gettds.c, modified to compute just
 		   the temperature correction, not time-dependent corr.
+   2011 Dec 12  -  In GetTds1 and ReadTdsArray1, set status (but ignore it)
+		   from the value returned by CloseTdsTab1.
 */
 
 int GetTds1 (char *tabname, char *opt_elem, TdsInfo *tds) {
@@ -98,7 +100,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
 		    return (status);
 		if (tempreftab.goodPedigree == DUMMY_PEDIGREE) {
-		    CloseTdsTab1 (&tabinfo);
+		    status = CloseTdsTab1 (&tabinfo);
 		    return (DUMMY);
 		}
 
@@ -186,6 +188,7 @@ static int ReadTdsTab1 (TblInfo *tabinfo, int row, TblRow *tabrow) {
 static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
 	int nwl, nt, ns, ntemp, dim[2], ini, ndim, i;
+	int status = 0;
 
 	/* Find out how many elements there are in the arrays. */
 
@@ -198,7 +201,7 @@ static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	tds->wl        = (double *) calloc (tds->nwl, sizeof(double));
 	tds->temp_sens = (double *) calloc (tds->nwl, sizeof(double));
 	if (tds->temp_sens == NULL || tds->wl == NULL) {
-	    CloseTdsTab1 (tabinfo);
+	    status = CloseTdsTab1 (tabinfo);
 	    return (OUT_OF_MEMORY);
 	}
 	tds->format = COS_TDS_FORMAT;		/* this is not relevant */

@@ -43,22 +43,22 @@ static int CloseTdsTab (TblInfo *);
 
    The time-dependent sensitivity table should contain the following:
 	header parameters:
-		none needed
+          REF_TIME    reference time, for COS-like TDS table
 	columns:
-          OPT_ELEM:   Grating name.
-          WAWELENGTH: Array of wavelengths (Angstroms) for correction factors.
-          TIME:       Times (Modified Julian Date) at endpoints of linear
+          OPT_ELEM    Grating name.
+          WAVELENGTH  Array of wavelengths (Angstroms) for correction factors.
+          TIME        Times (Modified Julian Date) at endpoints of linear
                       segments (last segment doesn't have a right endpoint).
-          SLOPE:      Slope in correction factor within linear segments;
+          SLOPE       Slope in correction factor within linear segments;
                       this is a 2-D array of size nwl by nt, with the index
                       over wavelength the more rapidly varying.
-          INTERCEPT:  Intercept for correction factor within linear segments;
+          INTERCEPT   Intercept for correction factor within linear segments;
                       this is a 2-D array of size nwl by nt, with the index
                       over wavelength the more rapidly varying.
-          NWL:        Number of wavelengths in wl and slope arrays.
-          NT:         Number of times (equal to the number of linear segments).
-          REFTEMP:    Reference temperature.
-          TEMPSENS:   Array (NWL) of temperature sensitivity factors.
+          NWL         Number of wavelengths in wl and slope arrays.
+          NT          Number of times (equal to the number of linear segments).
+          REFTEMP     Reference temperature.
+          TEMPSENS    Array (NWL) of temperature sensitivity factors.
 
    Rows are selected on OPT_ELEM. If a matching row is found, the array sizes
    are gotten, memory is allocated, and the arrays are read from the table.
@@ -72,6 +72,8 @@ static int CloseTdsTab (TblInfo *);
    19 Mar 07  -  Remove the definition of c_tbciga from this file (Phil Hodge)
    19 Sep 11  -  Add support for COS-like TDS table format; change calling
 		 sequence of OpenTdsTab (Phil Hodge)
+   12 Dec 11  -  In GetTds and ReadTdsArray, set status (but ignore it) from
+		 the value returned by CloseTdsTab.
 */
 
 int GetTds (char *tabname, char *opt_elem, TdsInfo *tds) {
@@ -117,7 +119,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
 		    return (status);
 		if (tempreftab.goodPedigree == DUMMY_PEDIGREE) {
-		    CloseTdsTab (&tabinfo);
+		    status = CloseTdsTab (&tabinfo);
 		    return (DUMMY);
 		}
 
@@ -230,13 +232,12 @@ static int ReadTdsTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	return (0);
 }
 
-
-
 /* This routine reads array data from one row. */
 
 static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
 	int nwl, nt, ns, ntemp, dim[2], ini, ndim, i;
+	int status = 0;
 
 	/* Find out how many elements there are in the arrays. */
 
@@ -256,7 +257,7 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	tds->intercept = (double **) calloc (tds->nt, sizeof(double *));
 	if (tds->temp_sens == NULL || tds->wl == NULL || tds->time == NULL ||
 	    tds->slope == NULL || tds->intercept == NULL) {
-	    CloseTdsTab (tabinfo);
+	    status = CloseTdsTab (tabinfo);
 	    return (OUT_OF_MEMORY);
 	}
 	for (i = 0; i < tds->nt; i++) {
