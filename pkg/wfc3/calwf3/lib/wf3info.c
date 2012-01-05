@@ -50,6 +50,10 @@
    H.Bushouse, 2009 Oct 21:
 	Added initialization of new 'mean_gain' parameter in WF3Init.
 
+   H.Bushouse, 2011 Jul 29: 
+	 Fixed the logic in the CheckGain routine so that the ref image gets 
+	 closed before returning when keyval=-1. (PR68983; Trac 745). 
+
    H.Bushouse, 2011 Sep 7:
 	Modified WF3Init to initialize new phot tab instead of graph and
 	comp tabs.

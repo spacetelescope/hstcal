@@ -40,7 +40,17 @@ Updates for version 3.0
 	Increased MAX_FILES from 120 to 300. (PR 63555)
     wf3rej/rej.h:
 	Increased MAX_FILES from 120 to 300. (PR 63555)
-
+Updates for version 2.4.1 - 02-Aug-2011 (HAB): 
+ 	 calwf3.cl: 
+ 		 Increment version to "02Aug2011". 
+ 	 wf3version.h: 
+ 		 Increment version to 2.4.1 and date to 02-Aug-2011. 
+ 	 lib/wf3info.c: 
+ 		 Fixed the logic in the CheckGain routine so that the ref image gets 
+ 		 closed before returning when keyval=-1. (PR 68983; Trac #745) 
+ 	 wf3ir/cridcalc.c: 
+ 		 Updated crrej to free memory for tot_ADUs before returning. 
+ 		 (PR 68993; Trac #748) 
 Updates for version 2.4 - 17-Jun-2011 (HAB):
     calwf3.cl:
 	Increment version to "17Jun2011".

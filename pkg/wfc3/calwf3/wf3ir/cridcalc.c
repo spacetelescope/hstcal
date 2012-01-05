@@ -174,6 +174,13 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
 ** H.Bushouse	Changed crrej to always call EstimateDarkandGlow, regardless of
 ** 21-Oct-2010	darkcorr switch setting, because for WFC3 we use a static dark
 **		value and therefore don't need access to the darkfile.
+** 
+** H.Bushouse   Updated crrej to free memory for tot_ADUs before returning. 
+** 01-Aug-2011  (PR 68993; Trac #748) 
+** 
+** H.Bushouse   Fixed fitsamps routine to correctly accumulate int_time when 
+** 31-Aug-2011  first valid interval contains a single sample or starts in 
+** 			 something other than the first read. (PR 69230; Trac #770) 
 */
 
 int crrej (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
@@ -916,12 +923,21 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
   sumwts = 0;
   sum = 0;
   if (found_error == 0 && no_samples == 0) {
-    for (idx=0; idx<=interval; idx++) {
-      if (idx==0) int_time += ttime[idx][0]; /* account for zeroth read */
+    /* Loop over all intervals */ 
+	for (idx=0; idx<=interval; idx++) {
+    /* If there's more than 1 data point in the interval, do a slope fit */ 
       if (tcount[idx] > 1) {
-	/* Compute mean countrate using linear fit,
-	   with optimum weighting this time to best estimate of the slope*/
-	linfit (optimum_weight, ttime[idx], tsci[idx], terr[idx], 
+
+    /* Initialize integration time counter with delta time 
+ 			of first valid sample in first interval */ 
+ 		 if (idx==0) { 
+ 			 k = tlookup[idx][0]; 
+ 			 int_time += time[k] - time[k-1]; 
+ 		 } 
+
+ 		 /* Compute mean countrate using linear fit, with optimum weighting  
+ 			this time to get best estimate of the slope */ 
+		linfit (optimum_weight, ttime[idx], tsci[idx], terr[idx], 
 		tdarkandglow[idx],tcount[idx], gain, flat_uncertainty, 
 		&a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
         if (nsflag == 1) {
@@ -958,7 +974,7 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
           }
 	}
       }
-    }  /*end for loop over idx*/
+    }  /*end of loop over intervals*/
   }    /*end test against found_error*/
 
   /*----------------------------------------------------------------
@@ -967,6 +983,7 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
 
   /* Set output SCI and ERR values */
   if (no_samples == 0) {
+    /* Good sums to work with ... */ 
     if ((found_error == 0) && (sumwts > 0.0)) {
       *(out_sci) = sum/sumwts;
       *(out_err) = sqrt(1/sumwts);
@@ -979,13 +996,14 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
 	   if (idx==0) {
 	       /* Add 1 to the number of samps in the first interval, because
 	          it doesn't take into account the zeroth read sample. */
-	       (*out_samp) += tcount[idx]+1;
+	       (*out_samp) += tcount[idx] + 1;
 	   } else {
 	       /* Subtract 1 from the number of samps in all remaining intervals
 		  to avoid double counting the end points that are shared. */
-	       (*out_samp)+=tcount[idx]-1;
+	       (*out_samp) += tcount[idx] - 1;
 	   }
       }
+    /* No good sums to work with ... */ 
     } else {
       /*Set the flux and errors to the last good read*/
       firstgood = 0;

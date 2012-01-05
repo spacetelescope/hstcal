@@ -1,3 +1,8 @@
+02-Aug-2011: CALWF3 2.4.1: Implemented the following PRs: 
+    68983/745: Modified CheckGain in lib/wf3info.c so that it always closes the 
+               ref image before returning. 
+    68993/748: Updated the cridcalc.c crrej routine to free memory for the 
+                tot_ADUs array before returning. 			   
  12-Sep-2011: CALWF3 3.0: Implemented the following PRs:
   69278/774: Port calwf3 to hstcal environment to remove IRAF dependencies
         775: Upgrade calwf3 to use new IMPHTTAB and remove synphot calls
