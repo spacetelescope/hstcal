@@ -59,6 +59,9 @@ int DoCCD (ACSInfo *acs, int extver) {
   char buff[ACS_FITS_REC+1];
   Bool subarray;
   
+  char targname[ACS_LINE];
+  
+  int to_electrons(ACSInfo *, SingleGroup *);
   int doAtoD (ACSInfo *, SingleGroup *);
   int atodHistory (ACSInfo *, Hdr *);
   int doBias (ACSInfo *, SingleGroup *);
@@ -79,6 +82,7 @@ int DoCCD (ACSInfo *acs, int extver) {
   int PutKeyFlt (Hdr *, char *, float, char *);
   int PutKeyInt (Hdr *, char *, int, char *);
   int PutKeyStr (Hdr *, char *, char *, char *);
+  int GetKeyStr (Hdr *, char *, int, char *, char *, int);
   void PrSwitch (char *, int);
   void PrRefInfo (char *, char *, char *, char *, char *);
   void TimeStamp (char *, char *);
@@ -128,7 +132,7 @@ int DoCCD (ACSInfo *acs, int extver) {
    */
 	/* Get values from tables, using same function used in ACSCCD. */
 	if (GetCCDTab (acs, x.sci.data.nx, x.sci.data.ny)) {
-    freeSingleGroup (&x);
+    freeSingleGroup(&x);
 		return (status);
   }
   
@@ -347,6 +351,30 @@ int DoCCD (ACSInfo *acs, int extver) {
     if (flashHistory (acs, x.globalhdr))
 			return (status);
 	}
+  
+  /* convert data to electrons. the data will stay this way hereafter. 
+   * unless it's a bias. */
+  if (GetKeyStr(x.globalhdr, "TARGNAME",
+                USE_DEFAULT, "", targname, ACS_LINE)) {
+    freeSingleGroup(&x);
+    return (status);
+  }
+   
+  if (strncmp(targname, "BIAS", 4) != 0) {
+    if (to_electrons(acs, &x)) {
+      freeSingleGroup(&x);
+      return (status);
+    }
+    
+    if (PutKeyStr (&x.sci.hdr, "BUNIT", "ELECTRONS", "")) {
+      freeSingleGroup(&x);
+      return (status);
+    }
+    if (PutKeyStr (&x.err.hdr, "BUNIT", "ELECTRONS", "")) {
+      freeSingleGroup(&x);
+      return (status);
+    }
+  }
   
   /* perform CTE correction */
   PCTEMsg(acs, extver);

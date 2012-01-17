@@ -173,35 +173,6 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
 	if (acs.printtime)
     TimeStamp ("Begin processing", acs.rootname);
   
-  /****************************************************************/
-  /* this is a bodge to get the CCD gain values before destriping.
-   * eventually replace this by just reading in all the necessary single
-   * groups here and passing them to doCCD instead of filenames and
-   * extension numbers.
-   */
-  initSingleGroup(&sg);
-  
-  getSingleGroup(acs.input, 1, &sg);
-  if (hstio_err())
-    return (status = OPEN_FAILED);
-  
-  /* Get header info that varies from imset to imset necessary
-   **	for reading CCDTAB. 
-   */
-	if (GetACSGrp(&acs, &sg.sci.hdr)) {
-		freeSingleGroup(&sg);
-		return (status);
-	}
-  
-  if (GetCCDTab(&acs, sg.sci.data.nx, sg.sci.data.ny)) {
-    freeSingleGroup(&sg);
-		return (status);
-  }
-  
-  freeSingleGroup(&sg);
-  /* end of bodge */
-  /****************************************************************/
-  
   /* perform destriping if this observation was taken after SM4
    * and it's WFC */
   if (acs.expstart > SM4MJD && 

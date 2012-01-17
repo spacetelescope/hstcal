@@ -32,9 +32,9 @@ static int remove_stripes(const int arr_rows, const int arr_cols,
                           char * good_rows[NAMPS], double * ampdata[NAMPS],
                           int * num_fixed, int * num_skipped);
 static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
-                          int amp, double * array, float gain);
+                          int amp, double * array);
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
-                            int amp, double * array, float gain);
+                            int amp, double * array);
 
 int doDestripe(ACSInfo * acs) {
   extern int status;
@@ -139,9 +139,9 @@ static int destripe(ACSInfo * acs) {
   /* copy data from SingleGroup structs to amp arrays */
   for (i = 0; i < NAMPS; i++) {
     if (i < 2) {
-      make_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i], acs->atodgain[i]);
+      make_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i]);
     } else {
-      make_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i], acs->atodgain[i]);
+      make_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i]);
     }
   }
 
@@ -217,9 +217,9 @@ static int destripe(ACSInfo * acs) {
   /* copy modified data back to SingleGroup structs */
   for (i = 0; i < NAMPS; i++) {
     if (i < 2) {
-      unmake_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i], acs->atodgain[i]);
+      unmake_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i]);
     } else {
-      unmake_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i], acs->atodgain[i]);
+      unmake_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i]);
     }
   }
 
@@ -755,11 +755,10 @@ static int sub_bias_col_means(const int arr_rows, const int arr_cols, const int 
 /*
  * make_amp_array returns an array view of the data readout through the
  * specified amp in which the amp is at the lower left hand corner.
- * also converts from DN to electrons by multiplying by the a-to-d gain.
  * based on make_amp_array from dopcte.c.
  */
 static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *im,
-                          int amp, double * array, float gain) {
+                          int amp, double * array) {
 
   extern int status;
 
@@ -789,7 +788,7 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *i
         return status;
       }
 
-      array[i*arr_cols + j] = Pix(im->sci.data, c, r); // * gain;
+      array[i*arr_cols + j] = Pix(im->sci.data, c, r);
     }
   }
 
@@ -799,10 +798,9 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *i
 /*
  * unmake_amp_array does the opposite of make_amp_array, it takes amp array
  * views and puts them back into the single group in the right order.
- * also converts from electrons to DN by dividing by the a-to-d gain.
  */
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup *im,
-                            int amp, double * array, float gain) {
+                            int amp, double * array) {
 
   extern int status;
 
@@ -832,7 +830,7 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
         return status;
       }
 
-      Pix(im->sci.data, c, r) = (float) array[i*arr_cols + j]; // / gain;
+      Pix(im->sci.data, c, r) = (float) array[i*arr_cols + j];
     }
   }
 

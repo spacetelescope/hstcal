@@ -121,7 +121,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
     y0 = 0;
     same_size = 1;
 
-    if (date > date_limit && strncmp(targname,"BIAS",4) != 0){
+    if (date > date_limit && strncmp(targname,"BIAS",4) != 0) {
       use_bias = 1;
 
       /* Post-SM4 case: We are not processing a BIAS exposure, so

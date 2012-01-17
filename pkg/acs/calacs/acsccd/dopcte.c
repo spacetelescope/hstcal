@@ -184,12 +184,9 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
       return (status);
     }
     
-    /* convert data from DN to electrons */
     /* fill cte_frac_arr */
     for (k = 0; k < amp_arr1; k++) {
       for (m = 0; m < amp_arr2; m++) {
-        amp_sci_arr[k*amp_arr2 + m] *= (double) acs->atodgain[amp];
-        
         cte_frac_arr[k*amp_arr2 + m] = pars.cte_frac *
                                         pars.col_scale[m*NAMPS + amp] * 
                                         (double) k / CTE_REF_ROW;
@@ -210,14 +207,13 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
       return (status);
     }
     
-    /* add readout noise back and convert corrected data back to DN.
-     * add 10% correction to error in quadrature. */
+    /* add readout noise back and add 10% correction to error in quadrature. */
     for (k = 0; k < amp_arr1; k++) {
       for (m = 0; m < amp_arr2; m++) {
-        amp_cor_arr[k*amp_arr2 + m] = (amp_cor_arr[k*amp_arr2 + m] 
-        + amp_nse_arr[k*amp_arr2 + m]) / acs->atodgain[amp];
+        amp_cor_arr[k*amp_arr2 + m] = amp_cor_arr[k*amp_arr2 + m] 
+        + amp_nse_arr[k*amp_arr2 + m];
         
-        temp_err = 0.1 * fabs(amp_cor_arr[k*amp_arr2 + m] - (amp_sci_arr[k*amp_arr2 + m]/acs->atodgain[amp]));
+        temp_err = 0.1 * fabs(amp_cor_arr[k*amp_arr2 + m] - amp_sci_arr[k*amp_arr2 + m]);
         amp_err_arr[k*amp_arr2 + m] = sqrt(pow(amp_err_arr[k*amp_arr2 + m],2) + pow(temp_err,2));
       }
     }
