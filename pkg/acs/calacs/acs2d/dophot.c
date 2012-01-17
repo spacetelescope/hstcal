@@ -1,3 +1,4 @@
+# include <ctype.h>
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
 # include <string.h>    /* strchr */
@@ -22,10 +23,10 @@ static void Phot2Obs (char *, char *);
  to determine the inverse sensitivity, reference magnitude (actually a
  constant), pivot wavelength, and RMS bandwidth.  These are written to
  keywords in the primary header.
- 
+
  Warren Hack, 1998 June 12:
-  Initial ACS version.  
-  Changes were made only to GetPhot, except for include file and 
+  Initial ACS version.
+  Changes were made only to GetPhot, except for include file and
     variable names (sts -> acs2d, StisInfo1 -> ACSInfo).
  Warren Hack, 2002 Jan 30:
   Removed gain normalization of PHOTFLAM keyword value to be consistent
@@ -39,29 +40,29 @@ static void Phot2Obs (char *, char *);
  */
 
 int doPhot (ACSInfo *acs2d, SingleGroup *x) {
-  
+
   /* arguments:
    ACSInfo *acs2d     i: calibration switches, etc
    SingleGroup *x    io: image to be calibrated; primary header is modified
    */
-  
+
   extern int status;
-  
+
   PhotPar obs;
-  
+
   char photmode[ACS_LINE],obsmode[ACS_LINE];
-  
+
   /* function prototypes from lib */
   int GetKeyStr (Hdr *, char *, int, char *, char *, int);
   int PutKeyFlt (Hdr *, char *, float, char *);
-  
+
   if (acs2d->photcorr == DUMMY)
     return (status);
-  
-  /* Extract photmode from sci extension header*/ 
+
+  /* Extract photmode from sci extension header*/
   if (GetKeyStr(&x->sci.hdr,"PHOTMODE",USE_DEFAULT,"",photmode, ACS_LINE))
     return (status);
-  
+
   /* Add commas to PHOTMODE string and change all strings to
    lower case for use in synphot. */
   Phot2Obs(photmode,obsmode);
@@ -69,39 +70,46 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
     sprintf(MsgText,"Created SYNPHOT obsmode of: %s",obsmode);
     trlmessage(MsgText);
   }
-  
+
   /* Initialize PhotPar struct */
   InitPhotPar(&obs, acs2d->phot.name, acs2d->phot.pedigree);
-  
+
   /* get phot values */
   if (GetPhotTab(&obs,obsmode)) {
     trlerror("Error return from GetPhotTab.");
     return status;
   }
-  
+
   if (acs2d->verbose){
     sprintf(MsgText,"Computed PHOTFLAM value of %g",obs.photflam);
     trlmessage(MsgText);
   }
-  
-  /* Update the photometry keyword values in the SCI header. 
+
+  /* Update the photometry keyword values in the SCI header.
    Revised 10 March 1999 WJH
    */
-  
+
   if (PutKeyFlt (&x->sci.hdr, "PHOTFLAM", obs.photflam, "inverse sensitivity"))
     return (status);
-  
+
   if (PutKeyFlt (&x->sci.hdr, "PHOTZPT", obs.photzpt, "zero point"))
     return (status);
-  
+
   if (PutKeyFlt (&x->sci.hdr, "PHOTPLAM", obs.photplam, "pivot wavelength"))
     return (status);
-  
+
   if (PutKeyFlt (&x->sci.hdr, "PHOTBW", obs.photbw, "RMS bandwidth"))
     return (status);
-  
+
   FreePhotPar(&obs);
-  
+
+  /* check whether GetPhotTab returned -9999, which means it was asked
+   to do extrapolation */
+  if (obs.photflam == -9999) {
+    trlwarn("IMPHTTAB extrapolation not supported, PHOTCORR skipped.");
+    return (status = CAL_STEP_NOT_DONE);
+  }
+
   return (status);
 }
 
@@ -116,14 +124,14 @@ static void Phot2Obs(char *photmode, char *obsmode)
 {
   char blank = 32, comma = 44;
   int i, len, c1;
-  
+
   len = strlen(photmode);
-  
+
   for (i=0; i < len; i++) {
     c1 = photmode[i];
     if (c1 == blank) {
       obsmode[i] = comma;
-    } else 
+    } else
       obsmode[i] = tolower(c1);
   }
   obsmode[len] = '\0';

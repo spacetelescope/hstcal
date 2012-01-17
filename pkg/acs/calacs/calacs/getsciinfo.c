@@ -33,11 +33,12 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
     time_t date,date_limit;
     char dateobs[ACS_CBUF],targname[ACS_LINE];
 
-    int GetKeyStr (Hdr *, char *, int, char *, char *, int);    
+    int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetFlags (CalSwitch *, Hdr *);
 	int SciFlags (ACSInfo *, CalSwitch *, Hdr *, RefFileInfo *);
-	
+        int parseObsDateVal (char *dateobs, time_t *date);
+
 	/* Read primary header of rawfile into phdr. */
 	initHdr (&phdr);
 	im = openInputImage (acs->rawfile, "", 0);
@@ -49,11 +50,11 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	getHeader (im, &phdr);		/* get primary header */
 	if (hstio_err()) {
 		sprintf (MsgText, "Could not open PRIMARY header for \"%s\" ", acs->rawfile);
-		trlerror (MsgText);	    
+		trlerror (MsgText);
         return (status = OPEN_FAILED);
     }
 	closeImage (im);
-	
+
 	/* Get generic parameters. */
 
 	/* Find out how many extensions there are in this file. */
@@ -78,7 +79,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
     parseObsDateVal(dateobs, &date);
     /* Parse date used to check whether ACS HRC/WFC data was
        pre-SM4 or post-SM4 and turn into a float for comparison
-       with exposure's date-obs 
+       with exposure's date-obs
     */
     parseObsDateVal("2009-01-01", &date_limit);
     if (GetKeyStr (&phdr, "TARGNAME", USE_DEFAULT, "", targname, ACS_LINE))

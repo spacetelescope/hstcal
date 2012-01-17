@@ -1,3 +1,4 @@
+# include <ctype.h>
 # include <stdio.h>
 # include <string.h>
 # include "xtables.h"
@@ -7,27 +8,27 @@
 # include "acs.h"
 # include "acserr.h"
 
-/* mkNewSpt -- Create a new SPT file for the output file. 
+/* mkNewSpt -- Create a new SPT file for the output file.
 
   Description:
   ------------
-    New file will be based on primary header of first input file 
+    New file will be based on primary header of first input file
     given and will not have any extensions.
 
   Date          Author      Description
   ----          ------      -----------
-  11-10-1999    W.J. Hack   Initial version 
+  11-10-1999    W.J. Hack   Initial version
                             based on InitRejTrl and n_mkSPT from CALNICB
 
 */
 
 int mkNewSpt (char *in_list, char *mtype, char *output) {
 
-/* 
+/*
     arguments:
     char    *in_list            i: input filename/list to copy SPT data
-    char    *mtype              i: type of exposure in association 
-    char    *output             o: rootname of output SPT file 
+    char    *mtype              i: type of exposure in association
+    char    *output             o: rootname of output SPT file
 */
 
     extern int  status;
@@ -46,11 +47,11 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
     int         nimgs, i;
     int         nx, ny;
 	int 		extnum,nextn;
-	
+
 
     char        *isuffix[] = {"_blv_tmp","_crj_tmp","_flt","_crj","_dth","_sfl"};
     char        *osuffix[] = { "_spt","_spt","_spt","_spt","_spt","_spt"};
-    
+
     int         nsuffix = 6;                /* How many suffixes to check */
 
     int         MkOutName (char *, char **, char **, int, char *, int);
@@ -65,7 +66,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 /* ----------------------------- Begin ------------------------------*/
 
     out_spt[0] = '\0';
-    /* 
+    /*
         Create output SPT filename from output data filename.
     */
     if(MkOutName (output, isuffix, osuffix, nsuffix, out_spt, ACS_FNAME)){
@@ -74,20 +75,20 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
         WhichError (status);
         return (status);
     }
-    
+
     /* See if an output SPT file already exists */
     if (FileExists (out_spt)) {
         return (status);
     }
-    
-    /* 
+
+    /*
         Now, let's get the data to be copied into this new SPT file.
     */
     /* open the input file template */
     tpin = c_imtopen (in_list);
     nimgs = c_imtlen(tpin);
-    
-    /* Loop over all images in input list, and append them to output 
+
+    /* Loop over all images in input list, and append them to output
         SPT file.
     */
 	extnum = 0;
@@ -95,7 +96,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
         /* Get first name from input (list?) */
         in_name[0] = '\0';
         c_imtgetim (tpin, in_name, ACS_FNAME);
-		
+
         in_spt[0] = '\0';
         /* Create input SPT filename to look for */
         if (MkOutName (in_name, isuffix, osuffix, nsuffix, in_spt, ACS_FNAME)) {
@@ -109,7 +110,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	        sprintf (MsgText, "Can't find input file \"%s\"", in_spt);
 	        trlwarn  (MsgText);
             status = ACS_OK;        /* don't abort */
-	        continue;				/* try the rest of the images in list */   
+	        continue;				/* try the rest of the images in list */
 	    } else
 	        fclose (fp);
 
@@ -135,7 +136,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 		        sprintf(MsgText, "Created output SPT rootname %s...\n",out_spt);
                 trlmessage (MsgText);
 		    }
-			
+
 	        /* Update the FILENAME header keyword */
 	        if (PutKeyStr (&header, "FILENAME", out_spt, ""))
 	            return (status = 1);
@@ -160,10 +161,10 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
             */
 	        if (PutKeyInt (&header, "NEXTEND", nimgs, ""))
 	            return (status = 1);
-		    
+
             sprintf(MsgText,"Updated output SPT file to reflect %d extensions...\n",nimgs);
             trlmessage(MsgText);
-            
+
 	        /* Write the new SPT file */
             /* Open the image; this also writes the header */
             im = openOutputImage (out_spt, "", 0, &header, 0, 0, FITSBYTE);
@@ -174,7 +175,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
             /* Close the image */
             closeImage (im);
         }
-        
+
         /* Uncomment this section to copy input SPT files into output
             when HSTIO is fixed to work with 1-D data... */
 		for (nx = 0; nx < nextn; nx++){
@@ -182,9 +183,9 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
         	initShortHdrData(&stmp);
         	getShortHD(in_spt, "UDL", (nx+1), &stmp);
         	putShortHD (out_spt, "UDL", extnum, &stmp, 0);
-        	freeShortHdrData(&stmp);      
+        	freeShortHdrData(&stmp);
         }
-        
+
 	    /* Close the header here... */
         freeHdr (&header);
     }

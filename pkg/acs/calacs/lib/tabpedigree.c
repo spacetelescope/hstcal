@@ -63,7 +63,7 @@ int TabPedigree (RefTab *ref) {
 
 	c_tbhgtt (tp, "DESCRIP", ref->descrip, ACS_FITS_REC);
     trlmessage("DESCRIP read in as: ");
-    sprintf(MsgText,ref->descrip);
+    sprintf(MsgText, "%s", ref->descrip);
     trlmessage(MsgText);
 	if (status = c_iraferr()) {
 	    ref->descrip[0] = '\0';

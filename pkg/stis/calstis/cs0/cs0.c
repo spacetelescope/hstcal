@@ -19,6 +19,12 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
    Phil Hodge, 1998 Jan 21:
 	Accept lists of input and outroot file names, and loop over
 	individual file names.
+
+   Phil Hodge, 2011 July 6:
+	Include command-line option '--version'.
+
+   Phil Hodge, 2011 July 26:
+	Add a check that n_raw > 0 after calling c_imtopen.
 */
 
 int main (int argc, char **argv) {
@@ -71,6 +77,10 @@ int main (int argc, char **argv) {
 		strcpy (wavlist, argv[i]);
 		wavecal_next = 0;
 	    } else if (argv[i][0] == '-') {
+		if (strcmp (argv[i], "--version") == 0) {
+		    PrVersion();
+		    exit (0);
+		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;
@@ -164,6 +174,11 @@ int main (int argc, char **argv) {
 	    } else {
 		outroot[0] = '\0';
 	    }
+	}
+	if (n_raw < 1) {
+	    printf ("File not found.\n");
+	    FreeNames (rawlist, wavlist, outlist, rawfile, wavfile, outroot);
+	    exit (ERROR_RETURN);
 	}
 
 	/* Loop over the list of input files. */

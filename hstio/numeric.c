@@ -98,7 +98,7 @@ static const int maxexpdig = 3; /* max digits in an exponent */
 extern "C" {
 # endif
 
-# if defined(__DU)
+# if SIZEOF_INT == 4
      const int minLong = INT_MIN;
      const int maxLong = INT_MAX;
 # else

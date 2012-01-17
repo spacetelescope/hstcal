@@ -13,7 +13,7 @@
 
    Warren Hack, 1998 June 8:
     Original ACS version based on Phil Hodge's CALSTIS routine...
-	
+
 	24-Sep-1998 WJH - Removed BIAS_REJ as a keyword
 	17-Nov-1998 WJH - Revised to support trailer files
     11-Feb-1999 WJH - Read EXPTIME from Primary header instead of SCI hdr
@@ -32,11 +32,14 @@ Hdr *phdr        i: primary header
 
 	int nextend;			/* number of FITS extensions */
 	int i;
+	Bool subarray;
 
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int GetKeyFlt (Hdr *, char *, int, float, float *);
-	
+        int GetKeyDbl (Hdr *, char *, int, double, double *);
+        int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
+
 	/* Get generic parameters. */
 
 	if (GetKeyStr (phdr, "ROOTNAME", NO_DEFAULT, "",
@@ -61,7 +64,7 @@ Hdr *phdr        i: primary header
 	    trlerror (MsgText);
 		return (status = HEADER_PROBLEM);
 	}
-	
+
     /* Grating or mirror name. */
     if (GetKeyStr (phdr, "FILTER1", USE_DEFAULT, "", acs->filter1, ACS_CBUF))
         return (status);
@@ -83,7 +86,7 @@ Hdr *phdr        i: primary header
 	/* Find out how many extensions there are in this file. */
 	if (GetKeyInt (phdr, "NEXTEND", USE_DEFAULT, EXT_PER_GROUP, &nextend))
 	    return (status);
-	
+
 	/* Convert number of extensions to number of SingleGroups. */
 	acs->nimsets = nextend / EXT_PER_GROUP;
 	if (acs->nimsets < 1) {
@@ -91,6 +94,13 @@ Hdr *phdr        i: primary header
 	    trlerror (MsgText);
 		return (status = INVALID_VALUE);
 	}
+
+	if (GetKeyBool (phdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
+	  return (status);
+	if (subarray)
+	  acs->subarray = YES;
+	else
+	  acs->subarray = NO;
 
 	/* Get CCD-specific parameters. */
 
@@ -104,7 +114,7 @@ Hdr *phdr        i: primary header
 			/* Convert each letter in CCDAMP to upper-case. */
 	    	if (islower (acs->ccdamp[i]))
 				acs->ccdamp[i] = toupper (acs->ccdamp[i]);
-		
+
 			/* Verify that only the letters 'ABCD' are in the string. */
 	    	if (strchr ("ABCD", acs->ccdamp[i]) == NULL) {
 				sprintf (MsgText, "CCDAMP = `%s' is invalid.", acs->ccdamp);
@@ -139,7 +149,7 @@ Hdr *phdr        i: primary header
         return (status);
 	    if (GetKeyStr (phdr, "FLASHSTA", NO_DEFAULT, "",acs->flashstatus, ACS_CBUF))
 		return (status);
-		
+
 	}
 
 	return (status);

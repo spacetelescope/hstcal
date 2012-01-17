@@ -3,7 +3,7 @@ CFLAGS = -I ../../
 
 OBJECTS := absflux6.o addoffsets6.o adjustdisp6.o background.o \
 buildoptprof.o buildprof.o calstis6.o calstis6std.o checkoptimal.o \
-commline.o crosscor.o defineback.o do1dx.o evaldisp6.o findlya.o \
+commline.o crosscor.o defineback.o do1dx.o findlya.o \
 gcrosscor.o getabsphot6.o getapdes6.o getapoffset6.o getapthr6.o \
 getccdtab6.o getcheckref.o getdisp6.o getextract.o getflags6.o \
 getgac6.o getgrpinfo6.o getinang6.o getintens.o getkeyinfo6.o \

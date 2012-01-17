@@ -26,6 +26,9 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
 
    Phil Hodge, 1998 Oct 5:
 	Change status value 1 to ERROR_RETURN.
+
+   Phil Hodge, 2011 July 6:
+	Include command-line option '--version'.
 */
 
 int main (int argc, char **argv) {
@@ -67,6 +70,10 @@ int main (int argc, char **argv) {
 
 	/* Get names of input and output files. */
 	for (i = 1;  i < argc;  i++) {
+	    if (strcmp (argv[i], "--version") == 0) {
+		PrVersion();
+		exit (0);
+	    }
 	    if (argv[i][0] == '-') {
 		for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {

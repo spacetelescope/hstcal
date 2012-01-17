@@ -18,7 +18,7 @@ static int divFlat (SingleGroup *, char *, ACSInfo *, int);
    Warren Hack, 1998 June 12:
    	Initial ACS version.
     WJH, 2001 Oct 17: Fixed a major problem with applying reference
-        data to sub-arrays; the indexing for the loop in divFlat was 
+        data to sub-arrays; the indexing for the loop in divFlat was
         made consistent with the code in doDark.
     WJH, 2002 Jan 29: Revised divFlat to divide the PFLTFILE by gain
         before dividing the data by the flat-field.  This converts
@@ -52,8 +52,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	int update = NO;	/* Flag to determine whether hdr info needs to be updated*/
 	int scilines;
     int applygain;    /* Flag to determine whether to apply the gain to ref file */
-    
-	int FindLine (SingleGroup *, SingleGroupLine *, int *, 
+
+	int FindLine (SingleGroup *, SingleGroupLine *, int *,
 					int *, int *, int *, int *);
 	int div1d (SingleGroup *, int, SingleGroupLine *);
 	int allocACSsect (ACSsect *, int, int);
@@ -64,7 +64,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	void getACSsect (char *, SingleGroupLine *, int, int, ACSsect *);
 	int unbinsect (ACSsect *, int, ACSsect *);
 	int DetCCDChip (char *, int, int, int *);
-	
+
     /* set the initial value to turn on applying the gain. */
 	applygain = 1;
 	/* apply pixel-to-pixel flat, if set to PERFORM */
@@ -74,12 +74,12 @@ SingleGroup *x    io: image to be calibrated; written to in-place
             trlerror(MsgText);
             return(status);
         }
-        /* if pfltfile already applied, set switch to 0 so it does not 
+        /* if pfltfile already applied, set switch to 0 so it does not
         get applied again. */
         applygain = 0;
 	}
 
-    
+
 	/* apply delta flat, if set to PERFORM */
 	if (acs2d->dfltcorr == PERFORM) {
         if (divFlat (x, acs2d->dflt.name, acs2d, applygain) ){
@@ -89,7 +89,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
         }
         applygain = 0;
 	}
-	
+
 	lf = 0;
 	initHdr (&phdr);
 
@@ -107,7 +107,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		chipext = extver;
 		if (DetCCDChip (acs2d->lflt.name, acs2d->chip, acs2d->nimsets, &chipext) )
 			return (status);
-			
+
 		/* Get the low-order flat field image data. */
 		openSingleGroupLine (acs2d->lflt.name, chipext, &w);
 		if (hstio_err())
@@ -147,56 +147,56 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 		initSingleGroupLine (&ztrim);
 	    allocSingleGroupLine (&ztrim, x->sci.data.nx);
-	
-		xline = 0;	
+
+		xline = 0;
         scilines = x->sci.data.ny;
-        	
+
 		while (xline <= scilines) {
 
 			/* Read in lfltfile and apply to input image here */
 			getACSsect (acs2d->lflt.name, &w, lf, SECTLINES, &lfsect);
 
 			/* Increment row counter for reference image */
-			lf += 1;			
+			lf += 1;
 
-			/* Expand binned reference data	
+			/* Expand binned reference data
 				accounting for offsets of subarrays */
 
 			unbinsect (&lfsect, update, &elfsect);
 
-			/* For each line in expanded section, copy out a 
+			/* For each line in expanded section, copy out a
 				SingleGroupLine and apply it to the science image. */
 			for (zline=0; zline < ry; zline++) {
 
-				/* Copy out individual averaged, expanded lines from 
+				/* Copy out individual averaged, expanded lines from
                     reference data. */
-				copySectLine (&elfsect, zline, &zl); 
-                
-				/* We now have 1 expanded low-order flat line to apply 
+				copySectLine (&elfsect, zline, &zl);
+
+				/* We now have 1 expanded low-order flat line to apply
 					Let's check to see if we have any other flat-fields to
 					apply...
 				*/
-				
+
 				/* Now, apply flat-field */
 				div1d (x, xline, &ztrim);
 				xline++;
-				
+
 			} /* End loop over expanded lflt lines, zline loop */
-			
+
 		} /* End loop over input image lines, xline loop */
 		/* Clean up scratch areas that were used... */
 			closeACSsect (&lfsect);
 			freeACSsect (&lfsect);
 			/*closeACSsect (&elfsect); */
-			freeACSsect (&elfsect);	
+			freeACSsect (&elfsect);
 			closeSingleGroupLine (&w);
 			freeSingleGroupLine (&w);
 			freeSingleGroupLine (&zl);
 			freeSingleGroupLine (&ztrim);
-									
+
     /* End if (lfltcorr) */
     }
-		
+
 	return (status);
 }
 
@@ -221,8 +221,8 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d, int applygai
     SingleGroupLine spotline, strim;
     float shiftx, shifty;
     time_t date;
-   
-	int FindLine (SingleGroup *, SingleGroupLine *, int *, 
+
+	int FindLine (SingleGroup *, SingleGroupLine *, int *,
 					int *, int *, int *, int *);
 	int DetCCDChip (char *, int, int, int *);
 	int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
@@ -234,14 +234,16 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d, int applygai
     int shiftSpot(SingleGroup *, float, float, SingleGroup *);
     int readSpotImage(char *, SingleGroup *, SingleGroupLine *);
     void copySpotLine(SingleGroup *, int, SingleGroupLine *);
-    
+    int parseObsDate (Hdr *, time_t *);
+    int multlines (SingleGroupLine *, SingleGroupLine *);
+
 	initSingleGroupLine (&y);
 
     /* Compute correct extension version number to extract from
 	    reference image to correspond to CHIP in science data.
     */
     if (DetCCDChip (flatname, acs2d->chip, acs2d->nimsets, &pchipext) )
-	    return (status);	
+	    return (status);
 
     openSingleGroupLine (flatname, pchipext, &y);
     if (hstio_err())
@@ -253,7 +255,7 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d, int applygai
 	    sprintf(MsgText,"ratio of flat/input = %d,%d offset by %d,%d",y_rx,y_ry,y_x0,y_y0);
 	    trlmessage(MsgText);
     }
-    
+
     /* Perform one pointer operation here, instead of one for each line
         in the image...
     */
@@ -263,36 +265,36 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d, int applygai
 	/* Divide the reference image by the calibrated gain value
 	   atodgain, and divide the flat into x.
 	*/
-        
+
     for (i = 0; i < NAMPS; i++) {
         gain[i] = 0.;
         rn2[i] = 0.;
     }
     get_nsegn (acs2d->detector, acs2d->chip, acs2d->ampx, acs2d->ampy, acs2d->atodgain, acs2d->readnoise, gain, rn2);
     gnscale = 1.0;
-    
+
     /* Check for existence of SPOTFLAT file... */
 	if (acs2d->cfltcorr == PERFORM) {
-                
+
         status = readSpotImage(acs2d->cflt.name, &inspot, &spotline);
-        
+
         /* Initialize shifted spot arrays */
         initSingleGroup(&outspot);
         allocSingleGroup(&outspot, inspot.sci.data.nx, inspot.sci.data.ny);
-        
+
         parseObsDate(x->globalhdr, &date);
         status = GetSpotTab(acs2d->spot.name, date, &shiftx, &shifty);
-        
+
         sprintf(MsgText,"SPOTTAB:  Using spot shift of: %0.2g  %0.2g",shiftx,shifty);
         trlmessage(MsgText);
-        
-        /* Shift input spot flat 
+
+        /* Shift input spot flat
             Multiply PFLT with this shifted spot, outspot, when
-            applying it to the data (line-by-line)... 
+            applying it to the data (line-by-line)...
         */
         status = shiftSpot(&inspot, shiftx, shifty, &outspot);
-        
-    }    
+
+    }
     /* For the sake of run-time speed, the loop over lines
         is performed differently and separately depending on
         whether it is the same size or not...
@@ -315,11 +317,11 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d, int applygai
 
         } /* End loop over input image lines, xline loop */
 
-    } else {    
+    } else {
         /* We are working with a sub-array image and need to trim
             down the flat field lines
-        
-            So, we need a buffer for these flat-field lines... 
+
+            So, we need a buffer for these flat-field lines...
         */
         initSingleGroupLine (&ytrim);
         allocSingleGroupLine (&ytrim, x->sci.data.nx);
@@ -348,20 +350,20 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d, int applygai
 		    div1d (x, i, &ytrim);
 
         } /* End loop over input image lines, xline loop */
-        
+
         /* Clean up buffers... */
-	    freeSingleGroupLine (&ytrim); 
+	    freeSingleGroupLine (&ytrim);
         if (acs2d->cfltcorr == PERFORM) {
             freeSingleGroupLine (&ytrim);
-        }       
+        }
     }
-    
+
 	if (acs2d->cfltcorr == PERFORM) {
         freeSingleGroup(&inspot);
         freeSingleGroupLine(&spotline);
         freeSingleGroup(&outspot);
     }
-    
+
 	closeSingleGroupLine (&y);
 	freeSingleGroupLine (&y);
 

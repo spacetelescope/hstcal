@@ -167,13 +167,9 @@ SpTrace **trace   o: size and coordinate info for output
 
 static int OpenTraceTab (char *tname, TblInfo *tabinfo) {
 
-/* xxx test debug ...
         clear_cvoserr();
-... xxx */
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-            printf ("debug:  failed to open %s, status = %d\n",
-                        tname, c_iraferr()); fflush (stdout);   /* debug */
 	    printf ("ERROR    SPTRCTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}

@@ -1,3 +1,9 @@
+### 19-Jul-2011 - MRD -- Version 7.1.1
+    Added support for a new PCTETAB that contains time dependent CTE information.
+
+### 13-Jul-2011 - WJH -- Version 7.1.0
+    Added parallelization of CTE processing via OpenMP.
+
 ### 21-Jun-2011 - MRD -- Version 7.0.0
     Bring WFC CTE and stripe corrections from IRAF CALACS.
 

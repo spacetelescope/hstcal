@@ -4,9 +4,8 @@ def build(bld):
     t = bld.program(
         source = 'cs0.c',
         target = 'cs0.e',
-        use = ['calstis'] + bld.env.LOCAL_LIBS,
+        use = ['calstis', 'imphttab'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'
         )
-

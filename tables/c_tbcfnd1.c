@@ -4,7 +4,7 @@
 # include <fitsio.h>
 # include "ctables.h"
 
-void c_tbcfnd1 (IRAFPointer tp, char *colname, IRAFPointer *cp) {
+void c_tbcfnd1 (IRAFPointer tp, const char *colname, IRAFPointer *cp) {
 
 /* Find the column pointer for the column with the specified name.
 arguments:

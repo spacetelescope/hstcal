@@ -83,6 +83,7 @@ int DoCCD (ACSInfo *acs, int extver) {
   void PrRefInfo (char *, char *, char *, char *, char *);
   void TimeStamp (char *, char *);
   void UCalVer (Hdr *);
+  void UCteVer(Hdr *);
   void UFilename (char *, Hdr *);
   int FindOverscan (ACSInfo *, int, int, int *);
   int GetCCDTab (ACSInfo *, int, int);
@@ -208,11 +209,11 @@ int DoCCD (ACSInfo *acs, int extver) {
 			trlmessage ("Bias level from overscan has been subtracted;");
       
       if (PutKeyFlt (&x.sci.hdr, "MEANBLEV", meanblev,
-                     "mean of bias levels subtracted")) {
+                     "mean of bias levels subtracted in DN")) {
         return (status);
       }
       
-			sprintf (MsgText, "     mean of bias levels subtracted was %.6g.",
+			sprintf (MsgText, "     mean of bias levels subtracted was %.6g DN.",
                meanblev);
 			trlmessage (MsgText);
 	    
@@ -225,7 +226,7 @@ int DoCCD (ACSInfo *acs, int extver) {
      */
     for (i = 0; i < 4; i++){
       if (acs->blev[i] != 0.) {
-        sprintf (MsgText, "     bias level of %.6g was subtracted for AMP %c.", acs->blev[i], AMPSORDER[i]);
+        sprintf (MsgText, "     bias level of %.6g DN was subtracted for AMP %c.", acs->blev[i], AMPSORDER[i]);
         trlmessage (MsgText); 
       }
     }
@@ -360,6 +361,7 @@ int DoCCD (ACSInfo *acs, int extver) {
   if (extver == 1 && !OmitStep (acs->pctecorr)) {
     if (pcteHistory (acs, x.globalhdr))
 			return (status);
+    UCteVer(x.globalhdr);
   } else if ((extver == 1) && (acs->pctecorr == OMIT)) {
     /* this is just to make sure that the PCTECORR flag is set to OMIT in the
      * output image because it's possible that this is the no-CTE correction

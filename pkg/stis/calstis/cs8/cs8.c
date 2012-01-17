@@ -15,6 +15,9 @@
 
    Phil Hodge, 1998 Apr 10:
 	Change _s2d to _sx2 when calling MkName (this was just a typo).
+
+   Phil Hodge, 2011 July 6:
+	Include command-line option '--version'.
 */
 
 int main (int argc, char **argv) {
@@ -38,6 +41,10 @@ int main (int argc, char **argv) {
 	/* Get names of input and output files. */
 	for (i = 1;  i < argc;  i++) {
 	    if (argv[i][0] == '-') {
+		if (strcmp (argv[i], "--version") == 0) {
+		    PrVersion();
+		    exit (0);
+		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;

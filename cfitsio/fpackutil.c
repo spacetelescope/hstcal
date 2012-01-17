@@ -5,7 +5,13 @@
 #include <time.h>
 #include <float.h>
 #include <signal.h>
+
+/* #include  "bzlib.h"  only for experimental purposes */
+
+#if defined(unix) || defined(__unix__)  || defined(__unix)
 #include <sys/time.h>
+#endif
+
 #include <math.h>
 #include "fitsio.h"
 #include "fpack.h"
@@ -33,8 +39,6 @@ int startmilli;  /* start of elapsed time interval */
 #define CLOCKTICKS 1000000
 #endif
 
-/* structure to hold image statistics (defined in fpack.h) */
-imgstats imagestats;
 FILE *outreport;
 
 /* dimension of central image area to be sampled for test statistics */
@@ -53,6 +57,31 @@ int fp_noop (void)
         return(0);
 }
 /*--------------------------------------------------------------------------*/
+void fp_abort_output (fitsfile *infptr, fitsfile *outfptr, int stat)
+{
+	int status = 0, hdunum;
+	char  msg[SZ_STR];
+
+	fits_file_name(infptr, tempfilename, &status);
+	fits_get_hdu_num(infptr, &hdunum);
+	
+        fits_close_file (infptr, &status);
+
+	sprintf(msg, "Error processing file: %s\n", tempfilename);
+	fp_msg (msg);
+	sprintf(msg, "  in HDU number %d\n", hdunum);
+	fp_msg (msg);
+
+	fits_report_error (stderr, stat);
+
+	if (outfptr) {
+	    fits_delete_file(outfptr, &status);
+	    fp_msg ("Input file is unchanged.\n");
+	}
+
+	exit (stat); 
+}
+/*--------------------------------------------------------------------------*/
 int fp_version (void)
 {
         float version;
@@ -63,6 +92,7 @@ int fp_version (void)
         sprintf(cfitsioversion, " CFITSIO version %5.3f", version);
         fp_msg(cfitsioversion);
         fp_msg ("\n");
+        return(0);
 }
 /*--------------------------------------------------------------------------*/
 int fp_access (char *filename)
@@ -119,6 +149,12 @@ int fp_init (fpstate *fpptr)
 	fpptr->quantize_level = DEF_QLEVEL;
         fpptr->no_dither = 0;
         fpptr->dither_offset = 0;
+        fpptr->int_to_float = 0;
+
+	/* thresholds when using the -i2f flag */
+        fpptr->n3ratio = 1.20;  /* minimum ratio of image noise sigma / q */
+        fpptr->n3min = 6.;     /* minimum noise sigma. */
+
 	fpptr->scale = DEF_HCOMP_SCALE;
 	fpptr->smooth = DEF_HCOMP_SMOOTH;
 	fpptr->rescale_noise = DEF_RESCALE_NOISE;
@@ -134,13 +170,15 @@ int fp_init (fpstate *fpptr)
 	fpptr->do_not_prompt = 0;
 	fpptr->do_checksums = 1;
 	fpptr->do_gzip_file = 0;
+	fpptr->do_tables = 0;  /* this is for beta testing purposes only */
+	fpptr->do_fast = 0;  /* this is for beta testing purposes only */
 	fpptr->test_all = 0;
 	fpptr->verbose = 0;
 
-	fpptr->prefix[0] = (char) NULL;
-	fpptr->extname[0] = (char) NULL;
+	fpptr->prefix[0] = 0;
+	fpptr->extname[0] = 0;
 	fpptr->delete_suffix = 0;
-	fpptr->outfile[0] = (char) NULL;
+	fpptr->outfile[0] = 0;
 
 	fpptr->firstfile = 1;
 
@@ -182,7 +220,11 @@ int fp_list (int argc, char *argv[], fpstate fpvar)
 	    fits_get_num_hdus (infptr, &hdunum, &stat);
 	    fits_movabs_hdu (infptr, hdunum, NULL, &stat);
 	    fits_get_hduaddrll(infptr, NULL, NULL, &sizell, &stat);
-	    if (stat) { fits_report_error (stderr, stat); exit (stat); }
+
+
+	    if (stat) { 
+	        fp_abort_output(infptr, NULL, stat);
+	    }
 
             sprintf (msg, "# %s (", infits); fp_msg (msg);
 
@@ -210,11 +252,15 @@ int fp_info_hdu (fitsfile *infptr)
         unsigned long   datasum, hdusum;
 
 	fits_movabs_hdu (infptr, 1, NULL, &stat);
-	if (stat) { fits_report_error (stderr, stat); exit (stat); }
+	if (stat) { 
+	    fp_abort_output(infptr, NULL, stat);
+	}
 
 	for (hdupos=1; ! stat; hdupos++) {
 	    fits_get_hdu_type (infptr, &hdutype, &stat);
-	    if (stat) { fits_report_error (stderr, stat); exit (stat); }
+	    if (stat) { 
+	        fp_abort_output(infptr, NULL, stat);
+	    }
 
 	    /* fits_get_hdu_type calls unknown extensions "IMAGE_HDU"
 	     * so consult XTENSION keyword itself
@@ -225,7 +271,7 @@ int fp_info_hdu (fitsfile *infptr)
 		stat=0; /* clear for later error handling */
 
 	    } else if (stat) {
-		fits_report_error (stderr, stat); exit (stat);
+	        fp_abort_output(infptr, NULL, stat);
 
 	    } else if (hdutype == IMAGE_HDU) {
 		/* that is, if XTENSION != "IMAGE" AND != "BINTABLE" */
@@ -241,7 +287,7 @@ int fp_info_hdu (fitsfile *infptr)
 
 	    if (hdutype == IMAGE_HDU) {
 		sprintf (msg, "  %d IMAGE", hdupos); fp_msg (msg);
-                sprintf (msg, " SUMS=%u/%u", ~hdusum, datasum); fp_msg (msg);
+                sprintf (msg, " SUMS=%lu/%lu", ~((int) hdusum), datasum); fp_msg (msg);
 
 		fits_get_img_param (infptr, 9, &bitpix, &naxis, naxes, &stat);
 
@@ -250,11 +296,11 @@ int fp_info_hdu (fitsfile *infptr)
 		if (naxis == 0) {
                     sprintf (msg, " [no_pixels]"); fp_msg (msg);
 		} else if (naxis == 1) {
-		    sprintf (msg, " [%d]", naxes[1]); fp_msg (msg);
+		    sprintf (msg, " [%ld]", naxes[1]); fp_msg (msg);
 		} else {
-		    sprintf (msg, " [%d", naxes[0]); fp_msg (msg);
+		    sprintf (msg, " [%ld", naxes[0]); fp_msg (msg);
 		    for (ii=1; ii < naxis; ii++) {
-			sprintf (msg, "x%d", naxes[ii]); fp_msg (msg);
+			sprintf (msg, "x%ld", naxes[ii]); fp_msg (msg);
 		    }
 		    fp_msg ("]");
 		}
@@ -266,7 +312,9 @@ int fp_info_hdu (fitsfile *infptr)
                     if (! strncmp (val+1, "RICE_1", 6))
                         fp_msg (" tiled_rice\n");
                     else if (! strncmp (val+1, "GZIP_1", 6))
-                        fp_msg (" tiled_gzip\n");
+                        fp_msg (" tiled_gzip_1\n");
+                    else if (! strncmp (val+1, "GZIP_2", 6))
+                        fp_msg (" tiled_gzip_2\n");
                     else if (! strncmp (val+1, "PLIO_1", 6))
                         fp_msg (" tiled_plio\n");
                     else if (! strncmp (val+1, "HCOMPRESS_1", 11))
@@ -279,15 +327,15 @@ int fp_info_hdu (fitsfile *infptr)
 
             } else if (hdutype == ASCII_TBL) {
                 sprintf (msg, "  %d ASCII_TBL", hdupos); fp_msg (msg);
-                sprintf (msg, " SUMS=%u/%u\n", ~hdusum, datasum); fp_msg (msg);
+                sprintf (msg, " SUMS=%lu/%lu\n", ~((int) hdusum), datasum); fp_msg (msg);
 
             } else if (hdutype == BINARY_TBL) {
                 sprintf (msg, "  %d BINARY_TBL", hdupos); fp_msg (msg);
-                sprintf (msg, " SUMS=%u/%u\n", ~hdusum, datasum); fp_msg (msg);
+                sprintf (msg, " SUMS=%lu/%lu\n", ~((int) hdusum), datasum); fp_msg (msg);
 
             } else {
                 sprintf (msg, "  %d OTHER", hdupos); fp_msg (msg);
-                sprintf (msg, " SUMS=%u/%u", ~hdusum, datasum); fp_msg (msg);
+                sprintf (msg, " SUMS=%lu/%lu", ~((int) hdusum), datasum); fp_msg (msg);
                 sprintf (msg, " %s\n", val); fp_msg (msg);
             }
 
@@ -509,7 +557,7 @@ int fp_loop (int argc, char *argv[], int unpack, fpstate fpvar)
 
 	if (fpvar.test_all && fpvar.outfile[0]) {
 	    outreport = fopen(fpvar.outfile, "w");
-		fprintf(outreport," Filename Extension BITPIX NAXIS1 NAXIS2 Size N_nulls Minval Maxval Mean Sigm Noise1 Noise3 T_whole T_rowbyrow ");
+		fprintf(outreport," Filename Extension BITPIX NAXIS1 NAXIS2 Size N_nulls Minval Maxval Mean Sigm Noise1 Noise2 Noise3 Noise5 T_whole T_rowbyrow ");
 		fprintf(outreport,"[Comp_ratio, Pack_cpu, Unpack_cpu, Lossless readtimes] (repeated for Rice, Hcompress, and GZIP)\n");
 	}
 
@@ -662,7 +710,6 @@ int fp_loop (int argc, char *argv[], int unpack, fpstate fpvar)
                 continue;
 
 	    } else if (unpack) {
-
 		if (fpvar.to_stdout) {
 			/* unpack the input file to the stdout stream */
 			fp_unpack (infits, outfits, fpvar);
@@ -789,11 +836,15 @@ int fp_pack (char *infits, char *outfits, fpstate fpvar, int *islossless)
 	int	stat=0;
 
 	fits_open_file (&infptr, infits, READONLY, &stat);
-	fits_create_file (&outfptr, outfits, &stat);
-
 	if (stat) { fits_report_error (stderr, stat); exit (stat); }
 
+	fits_create_file (&outfptr, outfits, &stat);
+	if (stat) { 
+	    fp_abort_output(infptr, NULL, stat);
+	}
+
 	fits_set_compression_type (outfptr, fpvar.comptype, &stat);
+	fits_set_lossy_int (outfptr, fpvar.int_to_float, &stat);
 
 	if (fpvar.no_dither)
 	    fits_set_quantize_dither(outfptr, -1, &stat);
@@ -804,9 +855,15 @@ int fp_pack (char *infits, char *outfits, fpstate fpvar, int *islossless)
 	fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
 	fits_set_dither_offset(outfptr, fpvar.dither_offset, &stat);
 
-	if (stat) { fits_report_error (stderr, stat); exit (stat); }
+	if (stat) { 
+	    fp_abort_output(infptr, outfptr, stat);
+	}
+
 	
 	while (! stat) {
+
+	    /* the lossy_int value may have changed, so reset it for each HDU */
+	    fits_set_lossy_int (outfptr, fpvar.int_to_float, &stat);
 
 	    fp_pack_hdu (infptr, outfptr, fpvar, islossless, &stat);
 
@@ -826,10 +883,13 @@ int fp_pack (char *infits, char *outfits, fpstate fpvar, int *islossless)
 	    fits_write_chksum (outfptr, &stat);
 	}
 
+	if (stat) { 
+	    fp_abort_output(infptr, outfptr, stat);
+	}
+
 	fits_close_file (outfptr, &stat);
 	fits_close_file (infptr, &stat);
 
-	if (stat) { fits_report_error (stderr, stat); exit (stat); }
 	return(0);
 }
 
@@ -885,12 +945,12 @@ int fp_unpack (char *infits, char *outfits, fpstate fpvar)
 	        fits_movnam_hdu(infptr, hdutype, hduname, 0, &stat);
             }
         }
+
         if (stat) {
 	  fp_msg ("Unable to find and move to extension '");
           fp_msg(hduname);
 	  fp_msg("'\n");
-	  fits_report_error (stderr, stat); 
-	  exit (stat);
+	  fp_abort_output(infptr, outfptr, stat);
         }
 
         while (! stat) {
@@ -898,7 +958,7 @@ int fp_unpack (char *infits, char *outfits, fpstate fpvar)
 	    if (single)
 	        stat = -1;  /* special status flag to force output primary array */
 
-            fp_unpack_hdu (infptr, outfptr, &stat);
+            fp_unpack_hdu (infptr, outfptr, fpvar, &stat);
 
 	    if (fpvar.do_checksums) {
 	        fits_write_chksum (outfptr, &stat);
@@ -965,10 +1025,14 @@ int fp_unpack (char *infits, char *outfits, fpstate fpvar)
 	    fits_write_chksum (outfptr, &stat);
 	}
 
-        fits_close_file (outfptr, &stat);
-        fits_close_file (infptr, &stat);
 
-        if (stat) { fits_report_error (stderr, stat); exit (stat); }
+	if (stat) { 
+	    fp_abort_output(infptr, outfptr, stat);
+	}
+
+	fits_close_file (outfptr, &stat);
+	fits_close_file (infptr, &stat);
+
 	return(0);
 }
 
@@ -984,10 +1048,12 @@ int fp_test (char *infits, char *outfits, char *outfits2, fpstate fpvar)
 	int	stat=0, totpix=0, naxis=0, ii, hdutype, bitpix, extnum = 0, len;
 	int     tstatus = 0, hdunum, rescale_flag, bpix;
 	char	dtype[8], dimen[100];
-	double  bscale, rescale;
+	double  bscale, rescale, noisemin;
 	long headstart, datastart, dataend;
 	float origdata = 0., whole_cpu, whole_elapse, row_elapse, row_cpu, xbits;
 	FILE	*diskfile;
+	/* structure to hold image statistics (defined in fpack.h) */
+	imgstats imagestats;
 
 	fits_open_file (&inputfptr, infits, READONLY, &stat);
 	fits_create_file (&outfptr, outfits, &stat);
@@ -1028,11 +1094,16 @@ int fp_test (char *infits, char *outfits, char *outfits2, fpstate fpvar)
 		   if (tstatus == 0 && bscale != 1.0) {  /* image must be scaled */
 
 			if (bitpix == LONG_IMG)
-			  fp_i4stat(inputfptr, naxis, naxes, &stat);
+			  fp_i4stat(inputfptr, naxis, naxes, &imagestats, &stat);
 			else
-			  fp_i2stat(inputfptr, naxis, naxes, &stat);
+			  fp_i2stat(inputfptr, naxis, naxes, &imagestats, &stat);
 
-			rescale = imagestats.noise3 / fpvar.rescale_noise;
+			/* use the minimum of the MAD 2nd, 3rd, and 5th order noise estimates */
+			noisemin = imagestats.noise3;
+			if (imagestats.noise2 != 0. && imagestats.noise2 < noisemin) noisemin = imagestats.noise2;
+			if (imagestats.noise5 != 0. && imagestats.noise5 < noisemin) noisemin = imagestats.noise5;
+
+			rescale = noisemin / fpvar.rescale_noise;
 			if (rescale > 1.0) {
 			  
 			  /* all the criteria are met, so create a temporary file that */
@@ -1079,38 +1150,43 @@ int fp_test (char *infits, char *outfits, char *outfits2, fpstate fpvar)
                 if (bitpix == BYTE_IMG) {
 		   bpix = 8;
 		   strcpy(dtype, "8  ");
-		   fp_i2stat(infptr, naxis, naxes, &stat);
+		   fp_i2stat(infptr, naxis, naxes, &imagestats, &stat);
 		} else if (bitpix == SHORT_IMG) {
 		   bpix = 16;
 		   strcpy(dtype, "16 ");
-		   fp_i2stat(infptr, naxis, naxes, &stat);
+		   fp_i2stat(infptr, naxis, naxes, &imagestats, &stat);
 		} else if (bitpix == LONG_IMG) {
 		   bpix = 32;
 		   strcpy(dtype, "32 ");
-		   fp_i4stat(infptr, naxis, naxes, &stat);
+		   fp_i4stat(infptr, naxis, naxes, &imagestats, &stat);
 		} else if (bitpix == LONGLONG_IMG) {
 		   bpix = 64;
 		   strcpy(dtype, "64 ");
 		} else if (bitpix == FLOAT_IMG)   {
 		   bpix = 32;
 		   strcpy(dtype, "-32");
-		   fp_r4stat(infptr, naxis, naxes, &stat);
+		   fp_r4stat(infptr, naxis, naxes, &imagestats, &stat);
 		} else if (bitpix == DOUBLE_IMG)  {
 		   bpix = 64;
 		   strcpy(dtype, "-64");
-		   fp_r4stat(infptr, naxis, naxes, &stat);
+		   fp_r4stat(infptr, naxis, naxes, &imagestats, &stat);
 		}
 
-                xbits = log10(imagestats.noise3)/.301 + 1.792;
+		/* use the minimum of the MAD 2nd, 3rd, and 5th order noise estimates */
+		noisemin = imagestats.noise3;
+		if (imagestats.noise2 != 0. && imagestats.noise2 < noisemin) noisemin = imagestats.noise2;
+		if (imagestats.noise5 != 0. && imagestats.noise5 < noisemin) noisemin = imagestats.noise5;
+
+                xbits = log10(noisemin)/.301 + 1.792;
 
 		printf("\n File: %s\n", infits);
-		printf("  Ext BITPIX Dimens.   Nulls    Min    Max     Mean    Sigma  Noise3 Nbits   MaxR\n");
+		printf("  Ext BITPIX Dimens.   Nulls    Min    Max     Mean    Sigma  Noise2  Noise3  Noise5  Nbits   MaxR\n");
 
 		printf("  %3d  %s", extnum, dtype);
-		sprintf(dimen," (%d", naxes[0]);
+		sprintf(dimen," (%ld", naxes[0]);
 		len =strlen(dimen);
 		for (ii = 1; ii < naxis; ii++) {
-		    sprintf(dimen+len,",%d", naxes[ii]);
+		    sprintf(dimen+len,",%ld", naxes[ii]);
 		    len =strlen(dimen);
 		}
 		strcat(dimen, ")");
@@ -1123,10 +1199,10 @@ int fp_test (char *infits, char *outfits, char *outfits2, fpstate fpvar)
 		fits_read_image_speed (infptr, &whole_elapse, &whole_cpu,
 		               &row_elapse, &row_cpu, &stat);
 
-		printf(" %5d %6.0f %6.0f %8.1f %#8.2g %#7.3g %#5.1f %#6.2f\n",
+		printf(" %5d %6.0f %6.0f %8.1f %#8.2g %#7.3g %#7.3g %#7.3g %#5.1f %#6.2f\n",
 		        imagestats.n_nulls, imagestats.minval, imagestats.maxval, 
 		      imagestats.mean, imagestats.sigma, 
-		      imagestats.noise3, xbits, bpix/xbits);
+		      imagestats.noise2, imagestats.noise3, imagestats.noise5, xbits, bpix/xbits);
 
 		printf("\n       Type   Ratio       Size (MB)     Pk (Sec) UnPk Exact ElpN CPUN  Elp1  CPU1\n");
 
@@ -1135,23 +1211,45 @@ int fp_test (char *infits, char *outfits, char *outfits2, fpstate fpvar)
 
 		if (fpvar.outfile[0]) {
 		    fprintf(outreport,
-	" %s  %d %d %d %d %#10.4g %d %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g",
+	" %s  %d %d %ld %ld %#10.4g %d %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g %#10.4g",
 		      infits, extnum, bitpix, naxes[0], naxes[1], origdata, imagestats.n_nulls, imagestats.minval, 
 		      imagestats.maxval, imagestats.mean, imagestats.sigma, 
-		      imagestats.noise1, imagestats.noise3, whole_elapse, whole_cpu, row_elapse, row_cpu);
+		      imagestats.noise1, imagestats.noise2, imagestats.noise3, imagestats.noise5, whole_elapse, whole_cpu, row_elapse, row_cpu);
 		}
 
+		fits_set_lossy_int (outfptr, fpvar.int_to_float, &stat);
+		if ( (bitpix > 0) && (fpvar.int_to_float != 0) ) {
+
+			if ( (noisemin < (fpvar.n3ratio * fpvar.quantize_level) ) ||
+			    (noisemin < fpvar.n3min)) {
+			
+			    /* image contains too little noise to quantize effectively */
+			    fits_set_lossy_int (outfptr, 0, &stat);
+			    fits_get_hdu_num(infptr, &hdunum);
+
+printf("    HDU %d does not meet noise criteria to be quantized, so losslessly compressed.\n", hdunum);
+			} 
+		}
 
 		/* test compression ratio and speed for each algorithm */
-		fits_set_compression_type (outfptr, RICE_1, &stat);
-		fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
-		fp_test_hdu(infptr, outfptr, outfptr2, fpvar, &stat);
 
-  		fits_set_compression_type (outfptr, HCOMPRESS_1, &stat);
-		fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
-		fp_test_hdu(infptr, outfptr, outfptr2, fpvar, &stat);
+		if (fpvar.quantize_level != 0) {
+		  fits_set_compression_type (outfptr, RICE_1, &stat);
+		  fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
+		  fp_test_hdu(infptr, outfptr, outfptr2, fpvar, &stat);
+		}
 
-		fits_set_compression_type (outfptr, GZIP_1, &stat);
+		if (fpvar.quantize_level != 0) {
+  		  fits_set_compression_type (outfptr, HCOMPRESS_1, &stat);
+		  fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
+		  fp_test_hdu(infptr, outfptr, outfptr2, fpvar, &stat);
+		}
+
+		if (fpvar.comptype == GZIP_2) {
+		    fits_set_compression_type (outfptr, GZIP_2, &stat);
+		} else {
+		    fits_set_compression_type (outfptr, GZIP_1, &stat);
+		}
 		fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
 		fp_test_hdu(infptr, outfptr, outfptr2, fpvar, &stat);
 
@@ -1165,12 +1263,13 @@ int fp_test (char *infits, char *outfits, char *outfits2, fpstate fpvar)
 		fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
 		fp_test_hdu(infptr, outfptr, outfptr2, fpvar, &stat);
 */
+/*
                 if (bitpix == SHORT_IMG || bitpix == LONG_IMG) {
 		  fits_set_compression_type (outfptr, NOCOMPRESS, &stat);
 		  fits_set_tile_dim (outfptr, 6, fpvar.ntile, &stat);
 		  fp_test_hdu(infptr, outfptr, outfptr2, fpvar, &stat);	  
 		}
-
+*/
 		if (fpvar.outfile[0])
 		    fprintf(outreport,"\n");
 
@@ -1179,6 +1278,11 @@ int fp_test (char *infits, char *outfits, char *outfits2, fpstate fpvar)
 		    fits_delete_file (infptr, &stat);
 		    tempfilename3[0] = '\0';   /* clear the temp filename */ 
                 }
+	    } else if ( (hdutype == BINARY_TBL) && fpvar.do_tables) {
+
+		printf("\n File: %s\n", infits);
+		fp_test_table(inputfptr, outfptr, outfptr2, fpvar, &stat);	  
+
 	    } else {
 		fits_copy_hdu (inputfptr, outfptr, 0, &stat);
 		fits_copy_hdu (inputfptr, outfptr2, 0, &stat);
@@ -1211,6 +1315,10 @@ int fp_pack_hdu (fitsfile *infptr, fitsfile *outfptr, fpstate fpvar,
 	double  bscale, rescale;
 	FILE	*diskfile;
 	char	outfits[SZ_STR];
+	long 	headstart, datastart, dataend, datasize;
+	double  noisemin;
+	/* structure to hold image statistics (defined in fpack.h) */
+	imgstats imagestats;
 
 	if (*status) return(0);
 
@@ -1221,14 +1329,38 @@ int fp_pack_hdu (fitsfile *infptr, fitsfile *outfptr, fpstate fpvar,
 	    for (totpix=1, ii=0; ii < 9; ii++) totpix *= naxes[ii];
 	}
 
+        /* =============================================================== */
+        /* This block is only for beta testing of binary table compression */
+	if (hdutype == BINARY_TBL && fpvar.do_tables) { 
+
+	    fits_get_hduaddr(infptr, &headstart, &datastart, &dataend, status); 
+	    datasize = dataend - datastart;
+
+	    if (datasize <= 2880) {
+		/* data is less than 1 FITS block in size, so don't compress */
+	        fits_copy_hdu (infptr, outfptr, 0, &stat);
+	    } else {
+
+	        /* transpose the table and compress each column */
+		if (fpvar.do_fast) {
+		    fits_compress_table_fast (infptr, outfptr, &stat);
+		} else {
+		    fits_compress_table_best (infptr, outfptr, &stat);
+		}
+	    }
+
+	    return(0);
+	}
+        /* =============================================================== */
+
+        /* If this is not a non-null image HDU, just copy it verbatim */
 	if (fits_is_compressed_image (infptr,  &stat) ||
 	    hdutype != IMAGE_HDU || naxis == 0 || totpix == 0) {
-
 	    fits_copy_hdu (infptr, outfptr, 0, &stat);
 
-	} else {
+	} else {  /* remaining code deals only with IMAGE HDUs */
 
-		/* rescale a scaled integer image to reduce noise? */
+		/* special case: rescale a scaled integer image to reduce noise? */
 		if (fpvar.rescale_noise != 0. && bitpix > 0 && bitpix < LONGLONG_IMG) {
 
 		   tstatus = 0;
@@ -1236,11 +1368,16 @@ int fp_pack_hdu (fitsfile *infptr, fitsfile *outfptr, fpstate fpvar,
 		   if (tstatus == 0 && bscale != 1.0) {  /* image must be scaled */
 
 			if (bitpix == LONG_IMG)
-			  fp_i4stat(infptr, naxis, naxes, &stat);
+			  fp_i4stat(infptr, naxis, naxes, &imagestats, &stat);
 			else
-			  fp_i2stat(infptr, naxis, naxes, &stat);
+			  fp_i2stat(infptr, naxis, naxes, &imagestats, &stat);
 
-			rescale = imagestats.noise3 / fpvar.rescale_noise;
+			/* use the minimum of the MAD 2nd, 3rd, and 5th order noise estimates */
+			noisemin = imagestats.noise3;
+			if (imagestats.noise2 != 0. && imagestats.noise2 < noisemin) noisemin = imagestats.noise2;
+			if (imagestats.noise5 != 0. && imagestats.noise5 < noisemin) noisemin = imagestats.noise5;
+
+			rescale = noisemin / fpvar.rescale_noise;
 			if (rescale > 1.0) {
 			  
 			  /* all the criteria are met, so create a temporary file that */
@@ -1267,6 +1404,7 @@ int fp_pack_hdu (fitsfile *infptr, fitsfile *outfptr, fpstate fpvar,
 			  else
 			    fp_i2rescale(infptr, naxis, naxes, rescale, tempfile, &stat);
 
+
 			  /* scale the BSCALE keyword by the inverse factor */
 
 			  bscale = bscale * rescale;  
@@ -1275,20 +1413,51 @@ int fp_pack_hdu (fitsfile *infptr, fitsfile *outfptr, fpstate fpvar,
 			  /* rescan the header, to reset the actual scaling parameters */
 			  fits_set_hdustruc(tempfile, &stat);
 
-			  rescale_flag = 1;
+		          fits_img_compress (tempfile, outfptr, &stat);
+		          fits_delete_file  (tempfile, &stat);
+		          tempfilename3[0] = '\0';   /* clear the temp filename */
+		          *islossless = 0;  /* used a lossy compression method */
+
+	                  *status = stat;
+	                  return(0);
 			}
 		   }
 		}
 
-		if (rescale_flag) {
-		    fits_img_compress (tempfile, outfptr, &stat);
-		    fits_delete_file  (tempfile, &stat);
-		    tempfilename3[0] = '\0';   /* clear the temp filename */
-		} else {
-		    fits_img_compress (infptr, outfptr, &stat);
+		/* if requested to do lossy compression of integer images (by */
+		/* converting to float), then check if this HDU qualifies */
+		if ( (bitpix > 0) && (fpvar.int_to_float != 0) ) {
+		    
+			if (bitpix >= LONG_IMG)
+			  fp_i4stat(infptr, naxis, naxes, &imagestats, &stat);
+			else
+			  fp_i2stat(infptr, naxis, naxes, &imagestats, &stat);
+
+			/* use the minimum of the MAD 2nd, 3rd, and 5th order noise estimates */
+			noisemin = imagestats.noise3;
+			if (imagestats.noise2 != 0. && imagestats.noise2 < noisemin) noisemin = imagestats.noise2;
+			if (imagestats.noise5 != 0. && imagestats.noise5 < noisemin) noisemin = imagestats.noise5;
+
+			if ( (noisemin < (fpvar.n3ratio * fpvar.quantize_level) ) ||
+			    (imagestats.noise3 < fpvar.n3min)) {
+			
+			    /* image contains too little noise to quantize effectively */
+			    fits_set_lossy_int (outfptr, 0, &stat);
+
+			    fits_get_hdu_num(infptr, &hdunum);
+
+printf("    HDU %d does not meet noise criteria to be quantized, so losslessly compressed.\n", hdunum);
+
+			} else {
+			    /* compressed image is not identical to original */
+			    *islossless = 0;
+			}  
 		}
 
-		if (bitpix < 0 || rescale_flag || 
+                /* finally, do the actual image compression */
+		fits_img_compress (infptr, outfptr, &stat);
+
+		if (bitpix < 0 || 
 		    (fpvar.comptype == HCOMPRESS_1 && fpvar.scale != 0.)) {
 
 		    /* compressed image is not identical to original */
@@ -1301,14 +1470,40 @@ int fp_pack_hdu (fitsfile *infptr, fitsfile *outfptr, fpstate fpvar,
 }
 
 /*--------------------------------------------------------------------------*/
-int fp_unpack_hdu (fitsfile *infptr, fitsfile *outfptr, int *status)
+int fp_unpack_hdu (fitsfile *infptr, fitsfile *outfptr, fpstate fpvar, int *status)
 {
+	int hdutype, lval;
+
         if (*status > 0) return(0);
 
-        if (fits_is_compressed_image (infptr,  status))
+	fits_get_hdu_type (infptr, &hdutype, status);
+
+        /* =============================================================== */
+        /* This block is only for beta testing of binary table compression */
+	if (hdutype == BINARY_TBL) { 
+
+	    fits_read_key(infptr, TLOGICAL, "ZTABLE", &lval, NULL, status);
+	    
+	    if (*status == 0 && lval != 0) {
+	        /*  uncompress the table */
+	        fits_uncompress_table (infptr, outfptr, status);
+
+	    } else {
+	        if (*status == KEY_NO_EXIST)  /* table is not compressed */
+		    *status = 0;
+                fits_copy_hdu (infptr, outfptr, 0, status);
+            }
+
+	    return(0);
+        /* =============================================================== */
+
+	} else if (fits_is_compressed_image (infptr,  status)) {
+            /* uncompress the compressed image HDU */
             fits_img_decompress (infptr, outfptr, status);
-        else
+        } else {
+            /* not a compressed image HDU, so just copy it to the output */
             fits_copy_hdu (infptr, outfptr, 0, status);
+        }
 
 	return(0);
 }
@@ -1487,6 +1682,8 @@ int fits_read_image_speed (fitsfile *infptr, float *whole_elapse,
 int fp_test_hdu (fitsfile *infptr, fitsfile *outfptr, fitsfile *outfptr2, 
 	fpstate fpvar, int *status)
 {
+   /*   This routine is only used for performance testing of image HDUs. */
+   /*   Use fp_test_table for testing binary table HDUs.    */
 
 	int stat = 0, hdutype, comptype, noloss = 0;
         char ctype[20], lossless[4];
@@ -1507,8 +1704,9 @@ int fp_test_hdu (fitsfile *infptr, fitsfile *outfptr, fitsfile *outfptr2,
 	if (comptype == RICE_1)
 		strcpy(ctype, "RICE");
 	else if (comptype == GZIP_1)
-		strcpy(ctype, "GZIP");
-/*
+		strcpy(ctype, "GZIP1");
+	else if (comptype == GZIP_2)
+		strcpy(ctype, "GZIP2");/*
 	else if (comptype == BZIP2_1)
 		strcpy(ctype, "BZIP2");
 */
@@ -1614,10 +1812,149 @@ int fp_test_hdu (fitsfile *infptr, fitsfile *outfptr, fitsfile *outfptr2,
 	*status = stat;
         return(0);
 }
+/*--------------------------------------------------------------------------*/
+int fp_test_table (fitsfile *infptr, fitsfile *outfptr, fitsfile *outfptr2, 
+	fpstate fpvar, int *status)
+{
+/* this routine is for performance testing of the beta table compression methods */
 
+	int stat = 0, hdutype, comptype, noloss = 0, ii;
+	unsigned int idatasize;
+        char ctype[20], lossless[4];
+	LONGLONG headstart, datastart, dataend, datasize;
+	float origdata = 0., compressdata = 0.;
+	float compratio = 0., packcpu = 0., unpackcpu = 0., readcpu;
+	float elapse, whole_elapse, row_elapse, whole_cpu, row_cpu;
+	float gratio, tratio, sratio, pratio, bratio;
+	float grate, trate, srate, prate, brate, filesize;
+	float rratio, rrate;
+	size_t headsize, hlen, dlen;
+	LONGLONG indatasize, outdatasize;
+	char *ptr, *cptr, *iptr, *cbuff;
+
+	if (*status) return(0);
+
+        fits_get_hduaddrll(infptr, &headstart, &datastart, &dataend, status); 
+	datasize = dataend - datastart;
+
+	/* can't compress small tables with less than 2880 bytes of data */
+        if (datasize <= 2880) {
+		return(0);
+	}
+
+     /* 1  gzip  raw table **********************************  */
+ 	marktime(&stat);
+	
+ 	/* get compressed size of the data blocks */
+	fits_gzip_datablocks(infptr, &dlen, &stat);
+
+	/* get elapsped times */
+	gettime(&elapse, &packcpu, &stat);
+
+        fits_get_hduaddrll(infptr, &headstart, &datastart, &dataend, status); 
+	indatasize = dataend - datastart;
+
+	outdatasize = dlen;
+
+	gratio = (float) indatasize / (float) outdatasize;
+	grate = packcpu;
+	
+	fits_delete_hdu(outfptr, &hdutype, &stat);
+
+     /* 2  transposed table and compress each column with gzip ***********  */
+
+ 	marktime(&stat);
+	fits_transpose_table (infptr, outfptr,  &stat);
+
+	/* get elapsped times */
+	gettime(&elapse, &packcpu, &stat);
+
+        fits_get_hduaddrll(infptr, &headstart, &datastart, &dataend, status); 
+	indatasize = dataend - datastart;
+	filesize = (float) dataend / 1000000.;
+	
+        fits_get_hduaddrll(outfptr, &headstart, &datastart, &dataend, status); 
+	outdatasize = dataend - datastart;
+
+	sratio = (float) indatasize / (float) outdatasize;
+	srate = packcpu;
+
+	fits_delete_hdu(outfptr, &hdutype, &stat);
+
+     /* 3  transpose table, shuffle numeric columns, and compress each column with gzip */
+
+ 	marktime(&stat);
+	fits_compress_table_fast (infptr, outfptr, &stat);
+
+	/* get elapsped times */
+	gettime(&elapse, &packcpu, &stat);
+
+        fits_get_hduaddrll(infptr, &headstart, &datastart, &dataend, status); 
+	indatasize = dataend - datastart;
+	filesize = (float) dataend / 1000000.;
+	
+        fits_get_hduaddrll(outfptr, &headstart, &datastart, &dataend, status); 
+	outdatasize = dataend - datastart;
+
+	pratio = (float) indatasize / (float) outdatasize;
+	prate = packcpu;
+
+	fits_delete_hdu(outfptr, &hdutype, &stat);
+
+     /* 4  transposed, use Rice for integer columns, shuffled gzip for others  */
+
+ 	marktime(&stat);
+	fits_compress_table_rice (infptr, outfptr, &stat);
+
+	/* get elapsped times */
+	gettime(&elapse, &packcpu, &stat);
+
+        fits_get_hduaddrll(infptr, &headstart, &datastart, &dataend, status); 
+	indatasize = dataend - datastart;
+	filesize = (float) dataend / 1000000.;
+	
+        fits_get_hduaddrll(outfptr, &headstart, &datastart, &dataend, status); 
+	outdatasize = dataend - datastart;
+
+	rratio = (float) indatasize / (float) outdatasize;
+	rrate = packcpu;
+
+	fits_delete_hdu(outfptr, &hdutype, &stat);
+
+
+     /* 5  best  */
+
+ 	marktime(&stat);
+	fits_compress_table_best (infptr, outfptr, &stat);
+
+	/* get elapsped times */
+	gettime(&elapse, &packcpu, &stat);
+
+        fits_get_hduaddrll(infptr, &headstart, &datastart, &dataend, status); 
+	indatasize = dataend - datastart;
+	filesize = (float) dataend / 1000000.;
+	
+        fits_get_hduaddrll(outfptr, &headstart, &datastart, &dataend, status); 
+	outdatasize = dataend - datastart;
+
+	bratio = (float) indatasize / (float) outdatasize;
+	brate = packcpu;
+
+	fits_delete_hdu(outfptr, &hdutype, &stat);
+
+	printf("\n  Size       Raw        Transposed     Shuffled        Rice        Best\n");     
+	printf(" %5.2fMB %5.2f (%4.2fs) %5.2f (%4.2fs) %5.2f (%4.2fs) %5.2f (%4.2fs)  %5.2f (%4.2fs)\n",
+	    filesize, gratio, grate, sratio, srate, pratio, prate, rratio, rrate, bratio, brate);
+	printf(" Disk savings ratio:    %5.2f         %5.2f      %5.2f\n",
+	 (1. - 1./sratio) / (1. - 1./gratio), (1. - 1./pratio) / (1. - 1./gratio), (1. - 1./bratio) / (1. - 1./gratio));
+
+
+        return(0);
+}
 /*--------------------------------------------------------------------------*/
 int marktime(int *status)
 {
+#if defined(unix) || defined(__unix__)  || defined(__unix)
         struct  timeval tv;
 /*        struct  timezone tz; */
 
@@ -1628,12 +1965,19 @@ int marktime(int *status)
         startmilli = tv.tv_usec/1000;
 
         scpu = clock();
+#else
+/* don't support high timing precision on Windows machines */
+     	startsec = 0.;
+        startmilli = 0.;
 
+        scpu = clock();
+#endif
 	return( *status );
 }
 /*--------------------------------------------------------------------------*/
 int gettime(float *elapse, float *elapscpu, int *status)
 {
+#if defined(unix) || defined(__unix__)  || defined(__unix)
         struct  timeval tv;
 /*        struct  timezone tz; */
 	int stopmilli;
@@ -1652,10 +1996,15 @@ int gettime(float *elapse, float *elapscpu, int *status)
 printf(" (start: %ld + %d), stop: (%ld + %d) elapse: %f\n ",
 startsec,startmilli,stopsec, stopmilli, *elapse);
 */
+#else
+/* set the elapsed time the same as the CPU time on Windows machines */
+	*elapscpu = (ecpu - scpu) * 1.0 / CLOCKTICKS;
+	*elapse = *elapscpu;  
+#endif
 	return( *status );
 }
 /*--------------------------------------------------------------------------*/
-int fp_i2stat(fitsfile *infptr, int naxis, long *naxes, int *status)
+int fp_i2stat(fitsfile *infptr, int naxis, long *naxes, imgstats *imagestats, int *status)
 {
 /*
     read the central XSAMPLE by YSAMPLE region of pixels in the int*2 image, 
@@ -1668,7 +2017,7 @@ int fp_i2stat(fitsfile *infptr, int naxis, long *naxes, int *status)
 	long i1, i2, npix, ii, ngood, nx, ny;
 	short *intarray, minvalue, maxvalue, nullvalue;
 	int anynul, tstatus, checknull = 1;
-	double mean, sigma, noise1, noise3;
+	double mean, sigma, noise1, noise2, noise3, noise5;
 	
          /* select the middle XSAMPLE by YSAMPLE area of the image */
 	i1 = naxes[0]/2 - (XSAMPLE/2 - 1);
@@ -1720,21 +2069,23 @@ int fp_i2stat(fitsfile *infptr, int naxis, long *naxes, int *status)
 	/* compute statistics of the image */
 
         fits_img_stats_short(intarray, nx, ny, checknull, nullvalue, 
-	&ngood, &minvalue, &maxvalue, &mean, &sigma, &noise1, &noise3, status);
+	&ngood, &minvalue, &maxvalue, &mean, &sigma, &noise1, &noise2, &noise3, &noise5, status);
 
-	imagestats.n_nulls = npix - ngood;
-	imagestats.minval = minvalue;
-	imagestats.maxval = maxvalue; 
-	imagestats.mean = mean; 
-	imagestats.sigma = sigma; 
-	imagestats.noise1 = noise1; 
-	imagestats.noise3 = noise3; 
+	imagestats->n_nulls = npix - ngood;
+	imagestats->minval = minvalue;
+	imagestats->maxval = maxvalue; 
+	imagestats->mean = mean; 
+	imagestats->sigma = sigma; 
+	imagestats->noise1 = noise1; 
+	imagestats->noise2 = noise2; 
+	imagestats->noise3 = noise3; 
+	imagestats->noise5 = noise5; 
     
 	free(intarray);
 	return(*status);
 }
 /*--------------------------------------------------------------------------*/
-int fp_i4stat(fitsfile *infptr, int naxis, long *naxes, int *status)
+int fp_i4stat(fitsfile *infptr, int naxis, long *naxes, imgstats *imagestats, int *status)
 {
 /*
     read the central XSAMPLE by YSAMPLE region of pixels in the int*2 image, 
@@ -1747,7 +2098,7 @@ int fp_i4stat(fitsfile *infptr, int naxis, long *naxes, int *status)
 	long i1, i2, npix, ii, ngood, nx, ny;
 	int *intarray, minvalue, maxvalue, nullvalue;
 	int anynul, tstatus, checknull = 1;
-	double mean, sigma, noise1, noise3;
+	double mean, sigma, noise1, noise2, noise3, noise5;
 	
          /* select the middle XSAMPLE by YSAMPLE area of the image */
 	i1 = naxes[0]/2 - (XSAMPLE/2 - 1);
@@ -1799,21 +2150,23 @@ int fp_i4stat(fitsfile *infptr, int naxis, long *naxes, int *status)
 	/* compute statistics of the image */
 
         fits_img_stats_int(intarray, nx, ny, checknull, nullvalue, 
-	&ngood, &minvalue, &maxvalue, &mean, &sigma, &noise1, &noise3, status);
+	&ngood, &minvalue, &maxvalue, &mean, &sigma, &noise1, &noise2, &noise3, &noise5, status);
 
-	imagestats.n_nulls = npix - ngood;
-	imagestats.minval = minvalue;
-	imagestats.maxval = maxvalue; 
-	imagestats.mean = mean; 
-	imagestats.sigma = sigma; 
-	imagestats.noise1 = noise1; 
-	imagestats.noise3 = noise3; 
+	imagestats->n_nulls = npix - ngood;
+	imagestats->minval = minvalue;
+	imagestats->maxval = maxvalue; 
+	imagestats->mean = mean; 
+	imagestats->sigma = sigma; 
+	imagestats->noise1 = noise1; 
+	imagestats->noise2 = noise2; 
+	imagestats->noise3 = noise3; 
+	imagestats->noise5 = noise5; 
     
 	free(intarray);
 	return(*status);
 }
 /*--------------------------------------------------------------------------*/
-int fp_r4stat(fitsfile *infptr, int naxis, long *naxes, int *status)
+int fp_r4stat(fitsfile *infptr, int naxis, long *naxes, imgstats *imagestats, int *status)
 {
 /*
     read the central XSAMPLE by YSAMPLE region of pixels in the int*2 image, 
@@ -1826,7 +2179,7 @@ int fp_r4stat(fitsfile *infptr, int naxis, long *naxes, int *status)
 	long i1, i2, npix, ii, ngood, nx, ny;
 	float *array, minvalue, maxvalue, nullvalue = FLOATNULLVALUE;
 	int anynul,checknull = 1;
-	double mean, sigma, noise1, noise3;
+	double mean, sigma, noise1, noise2, noise3, noise5;
 	
          /* select the middle XSAMPLE by YSAMPLE area of the image */
 	i1 = naxes[0]/2 - (XSAMPLE/2 - 1);
@@ -1873,15 +2226,17 @@ int fp_r4stat(fitsfile *infptr, int naxis, long *naxes, int *status)
 	/* compute statistics of the image */
 
         fits_img_stats_float(array, nx, ny, checknull, nullvalue, 
-	&ngood, &minvalue, &maxvalue, &mean, &sigma, &noise1, &noise3, status);
+	&ngood, &minvalue, &maxvalue, &mean, &sigma, &noise1, &noise2, &noise3, &noise5, status);
 
-	imagestats.n_nulls = npix - ngood;
-	imagestats.minval = minvalue;
-	imagestats.maxval = maxvalue; 
-	imagestats.mean = mean; 
-	imagestats.sigma = sigma; 
-	imagestats.noise1 = noise1; 
-	imagestats.noise3 = noise3; 
+	imagestats->n_nulls = npix - ngood;
+	imagestats->minval = minvalue;
+	imagestats->maxval = maxvalue; 
+	imagestats->mean = mean; 
+	imagestats->sigma = sigma; 
+	imagestats->noise1 = noise1; 
+	imagestats->noise2 = noise2; 
+	imagestats->noise3 = noise3; 
+	imagestats->noise5 = noise5; 
     
 	free(array);
 	return(*status);

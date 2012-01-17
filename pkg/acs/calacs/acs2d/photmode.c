@@ -7,11 +7,11 @@
 # include "acsinfo.h"
 # include "acserr.h"
 
-/* 
+/*
 	This function builds the PHOTMODE string for the image header.
 	The string will be used as input to 'synphot' for determining
 	the values of the photometric keywords.
-	
+
 */
 
 int PhotMode (ACSInfo *acs2d, SingleGroup *x) {
@@ -36,7 +36,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	    return (status = OUT_OF_MEMORY);
 
 	strcpy (photstr, "ACS");
-    
+
 	/* Add detector type and chip number for WFC*/
 	if (acs2d->detector == MAMA_DETECTOR)
 	    strcat (photstr, " SBC");
@@ -45,12 +45,12 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	else if (acs2d->detector == WFC_CCD_DETECTOR) {
 	    strcat (photstr, " WFC1");
     }
-    
+
     /* Check to see if HRC Coronographic mode was used */
     if (strncmp ("CORON",acs2d->obstype,5) == 0) {
 	    strcat (photstr, " CORON");
     }
-        
+
 	if (GetKeyFlt (x->globalhdr, "LRFWAVE", USE_DEFAULT, -1.0, &cenwave))
 	    return (status);
 
@@ -64,8 +64,8 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
                     sprintf(scratch,"POL_V");
                 }
             } else {
-                sprintf(scratch,acs2d->filter1);
-            }              
+                sprintf(scratch, "%s", acs2d->filter1);
+            }
 	        strcat (photstr, " ");
 	        strcat (photstr, scratch);
 
@@ -76,7 +76,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	            strcat (photstr, scratch);
             }
 	    }
-    }    
+    }
     if (strncmp("N/A",acs2d->filter2,3) != 0) {
 	    if (strncmp ("CLEAR", acs2d->filter2,5) != 0) {
             if (strncmp("POL", acs2d->filter2, 3) == 0){
@@ -86,8 +86,8 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
                     sprintf(scratch,"POL_V");
                 }
             } else {
-                sprintf(scratch,acs2d->filter2);
-            }              
+                sprintf(scratch, "%s", acs2d->filter2);
+            }
 	        strcat (photstr, " ");
 	        strcat (photstr, scratch);
 
@@ -96,7 +96,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
             if (strncmp("FR", acs2d->filter2, 2) == 0){
 	            sprintf (scratch, "#%0.4g", cenwave);
 	            strcat (photstr, scratch);
-            }               
+            }
 	    }
     }
     /* Add 'mjd#' keyword to PHOTMODE string, but only for WFC and HRC */
@@ -104,7 +104,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
         sprintf (scratch, " MJD#%0.4f", acs2d->expstart);
         strcat (photstr,scratch);
     }
-    
+
     if (acs2d->verbose){
         sprintf(MsgText,"Keyword PHOTMODE built as: %s",photstr);
         trlmessage(MsgText);

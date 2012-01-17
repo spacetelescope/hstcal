@@ -37,6 +37,9 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
 
    Ivo Busko, 2002 Mar 19:
 	Add support for darkscale command line parameter.
+
+   Phil Hodge, 2011 July 6:
+	Include command-line option '--version'.
 */
 
 int main (int argc, char **argv) {
@@ -108,6 +111,10 @@ int main (int argc, char **argv) {
 
 	for (i = 1;  i < argc;  i++) {
 
+	    if (strcmp (argv[i], "--version") == 0) {
+		PrVersion();
+		exit (0);
+	    }
 	    if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */
 		cs1_sw.dqicorr = PERFORM;
 		switch_on = 1;

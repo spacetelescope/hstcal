@@ -23,6 +23,13 @@
 
    Phil Hodge, 2008 Dec 12:
 	Function created.
+
+   Phil Hodge, 2010 Mar 9:
+	Calls to c_tbtclo were added.
+
+   Phil Hodge, 2011 Apr 12:
+	Delete one of the calls to c_tbtclo, the one in the section for
+	when c_iraferr() was non-zero after calling c_tbtopn().
 */
 
 int checkImsetOK (char *input, int extver, int *imset_ok) {
@@ -54,8 +61,6 @@ int *imset_ok    o: value of IMSET_OK keyword
 	if (c_iraferr()) {
 	    *imset_ok = 0;	/* image set is missing, so not OK */
 	    clear_cvoserr();
-	    if (tp != NULL)
-		c_tbtclo (tp);
 	    return -1;
 	}
 	c_tbtclo (tp);

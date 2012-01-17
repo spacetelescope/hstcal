@@ -122,8 +122,10 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
   int streq_ic (char *, char *);
   double ComputeValue(PhtRow *, PhotPar *);
   
-  extern int status;
   extern char *photnames[];
+  
+  /* initialize status for this run */
+  status = 0;
   
   /* Interpret OBSMODE string from science file header for
    comparison with obsmode values in reference table
@@ -210,7 +212,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     strcpy(pname,photnames[extn]);
     /* Open the photometry parameters table and find columns. */
     if (OpenPhotTab (obs->name, pname, &tabinfo)) {
-      printf("*** Error in OpenPhotTab\n",status);
+      printf("*** Error in OpenPhotTab %d\n",status);
       return (status);
     }
     /* Check each row for a match with obsmode, 
@@ -225,6 +227,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
         printf("*** Error in ReadPhotTab\n");
         return (status);
       }
+      
       if (CompareObsModes(tabrow.obsmode, obs->obsmode) == PHOT_OK) {
         foundit = 1;
         if (PhotRowPedigree (obs, row,
@@ -235,7 +238,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
           printf ("==>Warning: Row %d of IMPHTTAB is DUMMY.\n", row);
           /* trlwarn (MsgText); */
         }
-//        printf("\n%s\n%s\n\n",tabrow.obsmode, obs->obsmode);
+        
         /* Read in photometry values from table row */
         if (status = ReadPhotArray(&tabinfo, row, &tabrow)) {
           printf("*** Error in ReadPhotArray\n");
@@ -788,16 +791,37 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
         break;
       }
     }
+    
     if (obsvals[p] == 0.0) {
       printf("ERROR: No obsmode value found for %s\n",tabrow->parnames[p]);
+      
       free(obsindx);
       free(obsvals);
-      free (ndpos);
-      free (ndposd);
-      for (p=0;p<ndim;p++)free(bounds[p]);
+      free(ndpos);
+      free(ndposd);
+      for (p=0;p<ndim;p++) free(bounds[p]);
       free(bounds);
       
-      return('\0');
+      return ('\0');
+    }
+    
+    /* check whether we're going beyond the data in the table (extrapolation) */
+    /* if we are, return -9999 */
+    nx = tabrow->nelem[p+1];
+    
+    if ((obsvals[p] < tabrow->parvals[p][0]) ||
+        (obsvals[p] > tabrow->parvals[p][nx-1])) {
+      printf("WARNING: Parameter value %s%f is outside table data bounds.\n",
+             tabrow->parnames[p],obsvals[p]);
+      
+      free(obsindx);
+      free(obsvals);
+      free(ndpos);
+      free(ndposd);
+      for (p=0;p<ndim;p++) free(bounds[p]);
+      free(bounds);
+      
+      return -9999.0;
     }
   }
   
@@ -812,18 +836,26 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
    */
   for (p=0;p<ndim;p++){    
     nx = tabrow->nelem[p+1];
-    out = (double *)calloc(nx, sizeof(double));
+    
+    out = (double *) calloc(nx, sizeof(double));
+    
     for (n=0; n<nx;n++) out[n] = n;
-    value = linterp(tabrow->parvals[p], nx, out, obsvals[p]);
+    
+    value = linterp(tabrow->parvals[p], nx, out, obsvals[p]);    
     if (value == -99) {
+      free(obsindx);
+      free(obsvals);
+      free(ndpos);
+      free(ndposd);
+      for (p=0;p<ndim;p++) free(bounds[p]);
+      free(bounds);
+      free(out);
       return('\0');
     }
+    
     obsindx[p] = value;  /* Index into dimension p */
     computebounds(out, nx, (double)floor(value), &b0, &b1);
-    /* remember the bounding values for this position 
-     bounds[p][0] = tabrow->parvals[p][b0];
-     bounds[p][1] = tabrow->parvals[p][b1];
-     */
+    
     bounds[p][0] = b0;
     bounds[p][1] = b1;
     /* Free memory so we can use this array for the next variable*/
@@ -894,7 +926,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
          Update intermediate arrays with results in 
          preparation for the next iteration 
          */
-        if (rinterp == -99) return('/0');
+        if (rinterp == -99) return('\0');
         /* Determine where the result of this interpolation should go */
         x = floor((p-1)/2);
         xdim = floor(x/2);

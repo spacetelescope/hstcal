@@ -42,6 +42,7 @@ SERVICES PROVIDED HEREUNDER."
 #include <errno.h>
 /* stddef.h is apparently needed to define size_t with some compilers ?? */
 #include <stddef.h>
+#include <locale.h>
 #include "fitsio2.h"
 
 #define errmsgsiz 25
@@ -64,17 +65,23 @@ int Fitsio_Pthread_Status = 0;
 #endif
 
 int STREAM_DRIVER = 0;
+struct lconv *lcxxx;
+
 /*--------------------------------------------------------------------------*/
 float ffvers(float *version)  /* IO - version number */
 /*
   return the current version number of the FITSIO software
 */
 {
-      *version = (float) 3.24;
+      *version = (float) 3.28;
 
-/*      26 Jan 2010
+/*       12 May 2011
 
    Previous releases:
+      *version = 3.27     3 Mar 2011
+      *version = 3.26    30 Dec 2010
+      *version = 3.25    9 June 2010
+      *version = 3.24    26 Jan 2010
       *version = 3.23     7 Jan 2010
       *version = 3.22    28 Oct 2009
       *version = 3.21    24 Sep 2009
@@ -952,6 +959,24 @@ int fftrec(char *card,       /* I -  keyword card to test */
             sprintf(msg, 
            "Character %d in this keyword is illegal. Hex Value = %X",
               (int) (ii+1), (int) card[ii] );
+
+            if (card[ii] == 0)
+	        strcat(msg, " (NULL char.)");
+            else if (card[ii] == 9)
+	        strcat(msg, " (TAB char.)");
+            else if (card[ii] == 10)
+	        strcat(msg, " (Line Feed char.)");
+            else if (card[ii] == 11)
+	        strcat(msg, " (Vertical Tab)");
+            else if (card[ii] == 12)
+	        strcat(msg, " (Form Feed char.)");
+            else if (card[ii] == 13)
+	        strcat(msg, " (Carriage Return)");
+            else if (card[ii] == 27)
+	        strcat(msg, " (Escape char.)");
+            else if (card[ii] == 127)
+	        strcat(msg, " (Delete char.)");
+
             ffpmsg(msg);
 
             strncpy(msg, card, 80);
@@ -1001,7 +1026,9 @@ int ffmkky(const char *keyname,   /* I - keyword name    */
 
     strncat(tmpname, keyname + nblank, FLEN_KEYWORD - 1);
 
+    len = strlen(value);        
     namelen = strlen(tmpname);
+
     if (namelen)
     {
         cptr = tmpname + namelen - 1;
@@ -1048,11 +1075,17 @@ int ffmkky(const char *keyname,   /* I - keyword name    */
             namelen -= 9;  /* deleted the string 'HIERARCH ' */
 
         strcat(card, tmpname);
-        strcat(card, " = ");
-        namelen += 12;
+
+        if (namelen + 12 + len > 80) {
+            /* save 1 char by not putting a space before the equals sign */
+            strcat(card, "= ");
+            namelen += 11;
+        } else {
+            strcat(card, " = ");
+            namelen += 12;
+        }
     }
 
-    len = strlen(value);        
     if (len > 0)
     {
         if (value[0] == '\'')  /* is this a quoted string value? */
@@ -1153,6 +1186,11 @@ int ffmkey(fitsfile *fptr,    /* I - FITS file pointer  */
     tcard[80] = '\0';
 
     len = strlen(tcard);
+
+    /* silently replace any illegal characters with a space */
+    for (ii=0; ii < len; ii++)  
+        if (tcard[ii] < ' ' || tcard[ii] > 126) tcard[ii] = ' ';
+
     for (ii=len; ii < 80; ii++)    /* fill card with spaces if necessary */
         tcard[ii] = ' ';
 
@@ -1160,7 +1198,9 @@ int ffmkey(fitsfile *fptr,    /* I - FITS file pointer  */
         tcard[ii] = toupper(tcard[ii]);
 
     fftkey(tcard, status);        /* test keyword name contains legal chars */
-    fftrec(tcard, status);        /* test rest of keyword for legal chars   */
+
+/*  no need to do this any more, since any illegal characters have been removed
+    fftrec(tcard, status);   */     /* test rest of keyword for legal chars   */
 
     /* move position of keyword to be over written */
     ffmbyt(fptr, ((fptr->Fptr)->nextkey) - 80, REPORT_EOF, status); 
@@ -1629,20 +1669,20 @@ int ffgthd(char *tmplt, /* I - input header template string */
                 /* value not recognized as a number; might be because it */
                 /* contains a 'd' or 'D' exponent character  */ 
                 strcpy(tvalue, value);
-                loc = strchr(tvalue, 'D');
-                if (loc)
+                if ((loc = strchr(tvalue, 'D')))
                 {          
                     *loc = 'E'; /*  replace D's with E's. */ 
                     dval = strtod(tvalue, &suffix); /* read value again */
                 }
-                else
+                else if ((loc = strchr(tvalue, 'd')))
                 {
-                    loc = strchr(tvalue, 'd');
-                    if (loc)
-                    {          
-                        *loc = 'E'; /*  replace d's with E's. */ 
-                        dval = strtod(tvalue, &suffix); /* read value again */
-                    }
+                    *loc = 'E'; /*  replace d's with E's. */ 
+                    dval = strtod(tvalue, &suffix); /* read value again */
+                }
+                else if ((loc = strchr(tvalue, '.')))
+                {
+                    *loc = ','; /*  replace period with a comma */ 
+                    dval = strtod(tvalue, &suffix); /* read value again */
                 }
             }
    
@@ -1789,15 +1829,15 @@ then values of 'n' less than or equal to n_value will match.
 /*
     if (*inrec == '\0') return 0;
 */
-    if (*inrec == '\0')
-       strcpy(inrec, " ");
+
+    if (*inrec == '\0')    /* expand to full 8 char blank keyword name */
+       strcpy(inrec, "        ");
        
     oldp = '\0';
     firstfail = 0;
 
     /* ===== Pattern match stage */
     for (pat=0; pat < npat; pat++) {
-
       spat = patterns[pat][0];
       
       i1 = 0; j1 = 0; m1 = -1; n1 = -1; a = ' ';  /* Initialize the place-holders */
@@ -1825,7 +1865,7 @@ then values of 'n' less than or equal to n_value will match.
 	   ip++, ic++, firstfail=0) {
 	c = inrec[ic];
 	s = spat[ip];
-	
+
 	if (s == 'i') {
 	  /* Special pattern: 'i' placeholder */
 	  if (isdigit(c)) { i1 = c - '0'; pass = 1;}
@@ -1876,15 +1916,12 @@ then values of 'n' less than or equal to n_value will match.
 	  /* FAIL */
 	  pass = 0;
 	}
-	
 	if (!pass) break;
       }
       
-
       /* Must pass to the end of the keyword.  No partial matches allowed */
       if (pass && (ic >= 8 || inrec[ic] == ' ')) break;
     }
-
 
     /* Transfer the pattern-matched numbers to the output parameters */
     if (i) { *i = i1; }
@@ -1998,7 +2035,7 @@ int fits_translate_keywords(
         if (rec[ii] < 32 || rec[ii] > 126)
           rec[ii] = ' ';
       }
-
+      
       fits_translate_keyword(rec, outrec, patterns, npat, 
 			     n_value, n_offset, n_range, 
 			     &pat_num, &i, &j, &m, &n, status);
@@ -2646,7 +2683,7 @@ int ffbnfm(char *tform,     /* I - format code from the TFORMn keyword */
     if (form[0] == 'P' || form[0] == 'Q')
     {
         variable = 1;  /* this is a variable length column */
-        repeat = 1;   /* disregard any other repeat value */
+/*        repeat = 1;  */ /* disregard any other repeat value */
         form++;        /* move to the next data type code char */
     }
     else
@@ -2801,7 +2838,7 @@ int ffbnfmll(char *tform,     /* I - format code from the TFORMn keyword */
 
     if (ii == nchar)
     {
-        ffpmsg("Error: binary table TFORM code is blank (ffbnfm).");
+        ffpmsg("Error: binary table TFORM code is blank (ffbnfmll).");
         return(*status = BAD_TFORM);
     }
 
@@ -2837,7 +2874,7 @@ int ffbnfmll(char *tform,     /* I - format code from the TFORMn keyword */
     if (form[0] == 'P' || form[0] == 'Q')
     {
         variable = 1;  /* this is a variable length column */
-        repeat = 1;   /* disregard any other repeat value */
+/*        repeat = 1;  */  /* disregard any other repeat value */
         form++;        /* move to the next data type code char */
     }
     else
@@ -4865,6 +4902,7 @@ int ffgtbc(fitsfile *fptr,    /* I - FITS file pointer          */
     int tfields, ii;
     LONGLONG nbytes;
     tcolumn *colptr;
+    char message[FLEN_ERRMSG], *cptr;
 
     if (*status > 0)
         return(*status);
@@ -4897,14 +4935,28 @@ int ffgtbc(fitsfile *fptr,    /* I - FITS file pointer          */
         {
             nbytes =  colptr->trepeat * (colptr->tdatatype / 10);
         }
-        else  if ((colptr->tform[0] == 'P') || (colptr->tform[1] == 'P')) 
+        else  {
+	
+	  cptr = colptr->tform;
+	  while (isdigit(*cptr)) cptr++;
+	
+	  if (*cptr == 'P')  
 	   /* this is a 'P' variable length descriptor (neg. tdatatype) */
-            nbytes = 8;
-	else
+            nbytes = colptr->trepeat * 8;
+	  else if (*cptr == 'Q') 
 	   /* this is a 'Q' variable length descriptor (neg. tdatatype) */
-            nbytes = 16;
+            nbytes = colptr->trepeat * 16;
 
-        *totalwidth = *totalwidth + nbytes;
+	  else {
+		sprintf(message,
+		"unknown binary table column type: %s", colptr->tform);
+		ffpmsg(message);
+		*status = BAD_TFORM;
+		return(*status);
+	  }
+ 	}
+
+       *totalwidth = *totalwidth + nbytes;
     }
     return(*status);
 }
@@ -8446,6 +8498,129 @@ int ffdtyp(char *cval,  /* I - formatted string representation of the value */
     return(*status);
 }
 /*--------------------------------------------------------------------------*/
+int ffinttyp(char *cval,  /* I - formatted string representation of the integer */
+           int *dtype, /* O - datatype code: TBYTE, TSHORT, TUSHORT, etc */
+           int *negative, /* O - is cval negative? */
+           int *status)  /* IO - error status */
+/*
+  determine implicit datatype of input integer string.
+  This assumes that the string conforms to the FITS standard
+  for integer keyword value, so may not detect all invalid formats.
+*/
+{
+    int ii, len;
+    char *p;
+
+    if (*status > 0)           /* inherit input status value if > 0 */
+        return(*status);
+
+    *dtype = 0;  /* initialize to NULL */
+    p = cval;
+
+    if (*p == '+') {
+        p++;   /* ignore leading + sign */
+    } else if (*p == '-') {
+        p++;
+	*negative = 1;   /* this is a negative number */
+    }
+
+    if (*p == '0') {
+        while (*p == '0') p++;  /* skip leading zeros */
+
+        if (*p == 0) {  /* the value is a string of 1 or more zeros */
+           *dtype  = TSBYTE;
+	   return(*status);
+        }
+    }
+
+    len = strlen(p);
+    for (ii = 0; ii < len; ii++)  {
+        if (!isdigit(*(p+ii))) {
+	    *status = BAD_INTKEY;
+	    return(*status);
+	}
+    }
+
+    /* check for unambiguous cases, based on length of the string */
+    if (len == 0) {
+        *status = VALUE_UNDEFINED;
+    } else if (len < 3) {
+        *dtype = TSBYTE;
+    } else if (len == 4) {
+	*dtype = TSHORT;
+    } else if (len > 5 && len < 10) {
+        *dtype = TINT;
+    } else if (len > 10 && len < 19) {
+        *dtype = TLONGLONG;
+    } else if (len > 19) {
+	*status = BAD_INTKEY;
+    } else {
+    
+      if (!(*negative)) {  /* positive integers */
+	if (len == 3) {
+	    if (strcmp(p,"127") <= 0 ) {
+	        *dtype = TSBYTE;
+	    } else if (strcmp(p,"255") <= 0 ) {
+	        *dtype = TBYTE;
+	    } else {
+	        *dtype = TSHORT;
+	    }
+	} else if (len == 5) {
+ 	    if (strcmp(p,"32767") <= 0 ) {
+	        *dtype = TSHORT;
+ 	    } else if (strcmp(p,"65535") <= 0 ) {
+	        *dtype = TUSHORT;
+	    } else {
+	        *dtype = TINT;
+	    }
+	} else if (len == 10) {
+	    if (strcmp(p,"2147483647") <= 0 ) {
+	        *dtype = TINT;
+	    } else if (strcmp(p,"4294967295") <= 0 ) {
+	        *dtype = TUINT;
+	    } else {
+	        *dtype = TLONGLONG;
+	    }
+	} else if (len == 19) {
+	    if (strcmp(p,"9223372036854775807") <= 0 ) {
+	        *dtype = TLONGLONG;
+	    } else {
+		*status = BAD_INTKEY;
+	    }
+	}
+
+      } else {  /* negative integers */
+	if (len == 3) {
+	    if (strcmp(p,"128") <= 0 ) {
+	        *dtype = TSBYTE;
+	    } else {
+	        *dtype = TSHORT;
+	    }
+	} else if (len == 5) {
+ 	    if (strcmp(p,"32768") <= 0 ) {
+	        *dtype = TSHORT;
+	    } else {
+	        *dtype = TINT;
+	    }
+	} else if (len == 10) {
+	    if (strcmp(p,"2147483648") <= 0 ) {
+	        *dtype = TINT;
+	    } else {
+	        *dtype = TLONGLONG;
+	    }
+	} else if (len == 19) {
+	    if (strcmp(p,"9223372036854775808") <= 0 ) {
+	        *dtype = TLONGLONG;
+	    } else {
+		*status = BAD_INTKEY;
+	    }
+	}
+      }
+    }
+
+    return(*status);
+}
+/*--------------------------------------------------------------------------*/
 int ffc2x(char *cval,   /* I - formatted string representation of the value */
           char *dtype,  /* O - datatype code: C, L, F, I or X  */
 
@@ -8933,14 +9108,37 @@ int ffc2rr(char *cval,   /* I - string representation of the value */
   convert null-terminated formatted string to a float value
 */
 {
-    char *loc, msg[81];
+    char *loc, msg[81], tval[73];
+    struct lconv *lcc = 0;
+    static char decimalpt = 0;
 
     if (*status > 0)           /* inherit input status value if > 0 */
         return(*status);
 
+    if (!decimalpt) { /* only do this once for efficiency */
+       lcc = localeconv();   /* set structure containing local decimal point symbol */
+       decimalpt = *(lcc->decimal_point);
+    }
+
     errno = 0;
     *fval = 0.;
-    *fval = (float) strtod(cval, &loc);  /* read the string as an float */
+
+    if (strchr(cval, 'D') || decimalpt == ',')  {
+        /* strtod expects a comma, not a period, as the decimal point */
+        strcpy(tval, cval);
+
+        /*  The C language does not support a 'D'; replace with 'E' */
+        if (loc = strchr(tval, 'D')) *loc = 'E';
+
+        if (decimalpt == ',')  {
+            /* strtod expects a comma, not a period, as the decimal point */
+            if (loc = strchr(tval, '.'))  *loc = ',';   
+        }
+
+        *fval = (float) strtod(tval, &loc);  /* read the string as an float */
+    } else {
+        *fval = (float) strtod(cval, &loc);
+    }
 
     /* check for read error, or junk following the value */
     if (*loc != '\0' && *loc != ' ' )
@@ -8972,20 +9170,36 @@ int ffc2dd(char *cval,   /* I - string representation of the value */
   convert null-terminated formatted string to a double value
 */
 {
-    char msg[81], tval[73], *loc;
+    char *loc, msg[81], tval[73];
+    struct lconv *lcc = 0;
+    static char decimalpt = 0;
 
     if (*status > 0)           /* inherit input status value if > 0 */
         return(*status);
 
-
-    strcpy(tval, cval);
-    loc = strchr(tval, 'D');
-
-    if (loc)            /*  The C language does not support a 'D' */
-       *loc = 'E';      /*  exponent so replace any D's with E's. */               
+    if (!decimalpt) { /* only do this once for efficiency */
+       lcc = localeconv();   /* set structure containing local decimal point symbol */
+       decimalpt = *(lcc->decimal_point);
+    }
+   
     errno = 0;
     *dval = 0.;
-    *dval = strtod(tval, &loc);  /* read the string as an double */
+
+    if (strchr(cval, 'D') || decimalpt == ',') {
+        /* need to modify a temporary copy of the string before parsing it */
+        strcpy(tval, cval);
+        /*  The C language does not support a 'D'; replace with 'E' */
+        if (loc = strchr(tval, 'D')) *loc = 'E';
+
+        if (decimalpt == ',')  {
+            /* strtod expects a comma, not a period, as the decimal point */
+            if (loc = strchr(tval, '.'))  *loc = ',';   
+        }
+    
+        *dval = strtod(tval, &loc);  /* read the string as an double */
+    } else {
+        *dval = strtod(cval, &loc);
+    }
 
     /* check for read error, or junk following the value */
     if (*loc != '\0' && *loc != ' ' )
@@ -9009,4 +9223,3 @@ int ffc2dd(char *cval,   /* I - string representation of the value */
 
     return(*status);
 }
-

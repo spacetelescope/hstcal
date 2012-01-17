@@ -29,7 +29,7 @@ void InitCCDTrl (char *, char *, int);
  **		followed in CALSTIS1...
  **
  */
-int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames, int printtime, int verbose) {
+int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
   
 	extern int status;
   
@@ -41,6 +41,8 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   /* variables for taking care of the temporary file created during destriping */
   int destripe_done = NO;
   char destripe_name[ACS_LINE+1];
+  
+  SingleGroup sg;
   
 	int DoCCD (ACSInfo *, int);
   int doDestripe (ACSInfo *);
@@ -57,6 +59,9 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
 	int LoadHdr (char *, Hdr *);
  	void ACSInit (ACSInfo *);
 	int MkName (char *, char *, char *, char *, char *, int);
+  
+  int GetACSGrp (ACSInfo *, Hdr *);
+  int GetCCDTab (ACSInfo *, int, int);
 	
   /* ----------------------- Start Code --------------------------------*/
   
@@ -76,7 +81,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   
 	/* Initialize structure containing calacs information. */
 	ACSInit (&acs);
-  
+    
 	/* Copy command-line arguments into acs. */
 	/* Start by making sure input name is a full filename... */
 	if (MkName (input, "_raw", "_raw", "", acs.input, ACS_LINE) ) {
@@ -93,7 +98,8 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   acs.pctecorr = ccd_sw->pctecorr;
 	acs.noisecorr = PERFORM;
 	acs.printtime = printtime;
-	acs.verbose = verbose;
+	acs.verbose = verbose;    
+  acs.onecpu = onecpu; 
   
   /* For debugging...
    acs.dqicorr  = PERFORM;
@@ -166,6 +172,35 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   
 	if (acs.printtime)
     TimeStamp ("Begin processing", acs.rootname);
+  
+  /****************************************************************/
+  /* this is a bodge to get the CCD gain values before destriping.
+   * eventually replace this by just reading in all the necessary single
+   * groups here and passing them to doCCD instead of filenames and
+   * extension numbers.
+   */
+  initSingleGroup(&sg);
+  
+  getSingleGroup(acs.input, 1, &sg);
+  if (hstio_err())
+    return (status = OPEN_FAILED);
+  
+  /* Get header info that varies from imset to imset necessary
+   **	for reading CCDTAB. 
+   */
+	if (GetACSGrp(&acs, &sg.sci.hdr)) {
+		freeSingleGroup(&sg);
+		return (status);
+	}
+  
+  if (GetCCDTab(&acs, sg.sci.data.nx, sg.sci.data.ny)) {
+    freeSingleGroup(&sg);
+		return (status);
+  }
+  
+  freeSingleGroup(&sg);
+  /* end of bodge */
+  /****************************************************************/
   
   /* perform destriping if this observation was taken after SM4
    * and it's WFC */

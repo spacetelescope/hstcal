@@ -8,14 +8,16 @@
 # include "calstis4.h"
 # include "stiserr.h"
 
+# define TOLERANCE (1.e-6)      /* for inverting the dispersion relation */
+
 static int AddTrace (StisInfo4 *, LampInfo *, DispRelation *,
 		SpTrace *, double [], CmplxArray *);
 static void ReadWidth (StisInfo4 *, double []);
 static void debugimg (char *, CmplxArray *);
 static int ESumSpec (double [], double [], int,
 		DispRelation *, int, double, double,
-		double [], int);
-static double PixToWl (DispRelation *, int, double, double, double);
+		int, double [], int);
+static double PixToWl (DispRelation *, double, double, double, double, double);
 
 /* This routine reads the 1-D trace table (spectral trace, 1dt) and
    uses it to fill in the data for a template lamp image.
@@ -24,14 +26,30 @@ static double PixToWl (DispRelation *, int, double, double, double);
 
    Phil Hodge, 2000 July 21:
 	cmplx.h is now in ../
+
    Phil Hodge, 2004 July 23:
 	Add to template in-place, rather than assigning values, because
 	the latter does not work properly for slits that are not small
 	compared with the spacing between orders.  Use slit_angle.
+
+   Phil Hodge, 2010 July 30:
+	Change the calling sequence of PixToWl, and in that function call
+	evalInvDisp.  In ESumSpec, delete a test that the number of
+	coefficients in the dispersion relation is no greater than seven.
+
+   Phil Hodge, 2010 November 5:
+	In ReadWidth, slitwidth was being divided by cdelt[1] but also
+	multiplied by ltm[0] or ltm[1]; multiplication by ltm was redundant
+	and has been deleted.
+	The warning message in PixToWl has been expanded to give further
+	information.
+
+   Phil Hodge, 2011 January 5:
+	Add a new writedebug argument to MakeTemplate.
 */
 
 int MakeTemplate (StisInfo4 *sts, LampInfo *lamp, DispRelation *disp,
-		SpTrace *trace, CmplxArray *clamp) {
+		SpTrace *trace, CmplxArray *clamp, int writedebug) {
 
 /* arguments:
 StisInfo4 *sts      i: info
@@ -39,6 +57,7 @@ LampInfo *lamp      i: template lamp spectrum
 DispRelation *disp  i: dispersion relation
 SpTrace *trace      i: list of 1-D spectral traces
 CmplxArray *clamp   o: 2-D complex array, values will be assigned
+int writedebug      i: if true, a debug image could be written
 */
 
 	SpTrace *trace_o;	/* spectral trace for current spectral order */
@@ -66,8 +85,10 @@ CmplxArray *clamp   o: 2-D complex array, values will be assigned
 	    trace_o = trace_o->next;
 	}
 
-	if (sts->dbgfile[0] != '\0')
-	    debugimg (sts->dbgfile, clamp);	/* copy clamp to an image */
+	if (writedebug) {
+	    if (sts->dbgfile[0] != '\0')
+		debugimg (sts->dbgfile, clamp);	/* copy clamp to an image */
+	}
 
 	return (0);
 }
@@ -116,7 +137,7 @@ CmplxArray *clamp   o: 2-D complex array, values will be assigned
 	*/
 	if (status = ESumSpec (lamp->wl, lamp->flux, lamp->nelem,
 		disp, trace->sporder,
-		sts->ltm[0], sts->ltv[0], tspec, sts->nx))
+		sts->ltm[0], sts->ltv[0], sts->cenwave, tspec, sts->nx))
 	    return (status);
 
 	/* Convolve the integrated lamp spectrum with the slit width. */
@@ -199,8 +220,8 @@ double slitwidth[]  o: slit width and height, in image pixels
 	}
 
 	/* 3600 converts cdelt from degrees per pixel to arcsec per pixel. */
-	slitwidth[0] = xwidth / (3600. * sts->cdelt[1]) * sts->ltm[0];
-	slitwidth[1] = ywidth / (3600. * sts->cdelt[1]) * sts->ltm[1];
+	slitwidth[0] = xwidth / (3600. * sts->cdelt[1]);
+	slitwidth[1] = ywidth / (3600. * sts->cdelt[1]);
 }
 
 static void debugimg (char *dbgfile, CmplxArray *z) {
@@ -233,7 +254,7 @@ static void debugimg (char *dbgfile, CmplxArray *z) {
 
 static int ESumSpec (double wl[], double flux[], int nelem,
 		DispRelation *disp, int sporder, double ltm, double ltv,
-		double tspec[], int nwl) {
+		int cenwave, double tspec[], int nwl) {
 
 /* arguments:
 double wl[nelem+1]  i: wavelengths for the template spectrum (edges of pixels)
@@ -246,6 +267,9 @@ double tspec[nwl]   o: template spectrum, integrated over image pixels
 int nwl             i: size of tspec array
 */
 
+	static double wl_estimate;	/* initial estimate of wavelength */
+	double m;			/* spectral order */
+
 	/* wavelengths at edges of a pixel in the integrated template */
 	double wl_left, wl_right;
 
@@ -256,13 +280,12 @@ int nwl             i: size of tspec array
 	int i, j;
 	void FindWL (double, double [], int, int *);
 
-	if (disp->ncoeff > 7) {
-	    printf ("ERROR   Too many dispersion coefficients\n");
-	    return (INTERNAL_ERROR);
-	}
+	m = (double)sporder;
+	wl_estimate = (double)cenwave;		/* updated below */
 
 	/* -0.5 is the pixel coordinate at the left edge of the first pixel */
-	wl_left = PixToWl (disp, sporder, -0.5, ltm, ltv);
+	wl_left = PixToWl (disp, m, -0.5, wl_estimate, ltm, ltv);
+	wl_estimate = wl_left;
 
 	/* Find jl, the element in template spectrum containing wl_left. */
 	jl = -1;				/* initial value */
@@ -271,7 +294,8 @@ int nwl             i: size of tspec array
 
 	for (i = 0;  i < nwl;  i++) {
 
-	    wl_right = PixToWl (disp, sporder, i + 0.5, ltm, ltv);
+	    wl_right = PixToWl (disp, m, i + 0.5, wl_estimate, ltm, ltv);
+	    wl_estimate = wl_right;
 
 	    FindWL (wl_right, wl, nelem, &jr);		/* update jr */
 
@@ -302,55 +326,32 @@ int nwl             i: size of tspec array
    wavelength corresponding to an input image pixel coordinate.
 */
 
-static double PixToWl (DispRelation *disp, int sporder, double pixel,
-		double ltm, double ltv) {
+static double PixToWl (DispRelation *disp, double m, double pixel,
+		double wl_estimate, double ltm, double ltv) {
 
 /* arguments:
 DispRelation *disp  i: dispersion relation
-int sporder         i: spectral order
+double m            i: spectral order
 double pixel        i: X coordinate, zero-indexed image pixel units
+double wl_estimate  i: an estimate of the wavelength (e.g. CENWAVE)
 double ltm, ltv     i: for converting from image to reference pixels
 */
 
-	double m;	/* =sporder */
-	double x_ref;	/* pixel converted to reference coordinates */
-	double a, b, c;	/* coefficients:  a*x**2 + b*x + c = 0 */
-	double discr;	/* discriminant of quadratic; scratch */
-	double wl1, wl2;	/* two solutions of quadratic */
+	double x_ref0;	/* pixel converted to reference coordinates */
+	double wl;	/* wavelength corresponding to pixel x_ref0 */
+	int status;	/* 0 is OK */
 
-	m = (double)sporder;
+	/* Convert to reference coords, but leave as zero-indexed. */
+	x_ref0 = (pixel - ltv) / ltm;
 
-	/* Convert to reference coords and add one for one-indexing. */
-	x_ref = (pixel - ltv) / ltm + 1.;
+	status = evalInvDisp (disp->coeff, disp->ncoeff, m, x_ref0,
+		wl_estimate, TOLERANCE, &wl);
 
-	a = disp->coeff[2] * m * m + disp->coeff[6] * m;
-	b = disp->coeff[1] * m + disp->coeff[4] + disp->coeff[5] * m * m;
-	c = disp->coeff[0] + disp->coeff[3] * m - x_ref;
-
-	discr = b * b - 4. * a * c;
-	if (discr < 0.)
-	    return (0.);
-	discr = sqrt (discr);
-	wl1 = (-b + discr) / (2. * a);
-	wl2 = (-b - discr) / (2. * a);
-
-	if (wl1 > 0. && wl2 > 0.) {
-
-	    if (wl1 > wl2)		/* this is an arbitrary choice */
-		return (wl1);
-	    else
-		return (wl2);
-
-	} else if (wl1 <= 0. && wl2 <= 0.) {
-
-	    return (0.);
-
-	} else if (wl1 > 0.) {
-
-	    return (wl1);
-
-	} else {
-
-	    return (wl2);
+	if (status != 0) {
+	    printf ("Warning  PixToWl status = %d from evalInvDisp\n", status);
+	    printf ("    order %g, wl_estimate = %g, wl = %g\n",
+		m, wl_estimate, wl);
 	}
+
+	return wl;
 }

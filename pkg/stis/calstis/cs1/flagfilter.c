@@ -88,7 +88,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	if (ywidth == 0.) {
 	    printf ("Warning  Can't interpret APER_FOV = `%s'; \\\n",
 		sts->aper_fov);
-	    printf (noflag);
+	    printf ("%s", noflag);
 	    return;
 	}
 	wx++;				/* skip over the "X" */
@@ -96,7 +96,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	if (xwidth == 0.) {
 	    printf ("Warning  Can't interpret APER_FOV = `%s'; \\\n",
 		sts->aper_fov);
-	    printf (noflag);
+	    printf ("%s", noflag);
 	    return;
 	}
 	if (ywidth < SHORT_SLIT || ywidth > LONG_SLIT)
@@ -104,7 +104,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 
 	/* This is a comment on the notation.
 
-	   Because of overscan, binning, and subarray, we need to map the 
+	   Because of overscan, binning, and subarray, we need to map the
 	   limits of the illuminated portion of the detector to image pixel
 	   coordinates, and map the limits of the aperture (filter) to image
 	   pixels.  We'll flag the region outside the aperture but within the
@@ -178,7 +178,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	if (peculiar) {
 	    printf (
 	"Warning  The input image appears to be outside the aperture; \\\n");
-	    printf (noflag);
+	    printf ("%s", noflag);
 	    return;
 	}
 

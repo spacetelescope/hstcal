@@ -15,7 +15,7 @@
 
 /* This routine subtracts the post-flash image from x (in-place).
    For CCD data, the post-flash image is multiplied by the exposure time and
-   divided by the gain before subtracting.  The flash time is given by 
+   divided by the gain before subtracting.  The flash time is given by
    the keyword FLASHDUR, and may represent an interrupted exposure indicated
    by the keyword FLASHSTA.
 
@@ -24,11 +24,11 @@
 	assume ratio of bin factors to be 1.
 
     The value of MEANFLSH is calculated based on the weighted average
-    of each lines' post-flash value.  The weighting is based on the percent of 
+    of each lines' post-flash value.  The weighting is based on the percent of
     good pixels in each line, so only pixels not flagged BAD (in some way)
-    will contribute to the average, and each line will contribute only 
-    as much as the line has good pixels. 
-    
+    will contribute to the average, and each line will contribute only
+    as much as the line has good pixels.
+
    Warren Hack, 2000 Sept 12:
    	Initial ACS Version.
    Warren Hack, 2000 Nov 10:
@@ -74,21 +74,21 @@ float *meanflash    o: mean of post-flash image values subtracted
     void get_nsegn (int, int, int, int, float *, float*, float *, float *);
 	void AvgSciValLine (SingleGroupLine *, short, float *, float *);
 	void multgn1d (SingleGroupLine *, int, int, int, float *, float);
+        int streq_ic (char *, char *);
 
-
-	/* Check to see whether we need to do any processing 
+	/* Check to see whether we need to do any processing
 		at all...  */
 	if (acsccd->flashdur <= 0.) {
 		sprintf(MsgText,"Post-flash exposure was 0 seconds. FLSHCORR not performed.");
 		trlwarn(MsgText);
 		addHistoryKw (x->globalhdr, MsgText);
 		acsccd->flashcorr = IGNORED;
-	
+
 		/* This is not an error condition, so continue with the remainder
 			of the calibrations... */
 		return (status);
-	} 
-	
+	}
+
 	/* Flag an aborted Post-Flash exposure in the trailer file comments. */
 	if (streq_ic(acsccd->flashstatus,"ABORTED")){
 		sprintf (MsgText,"Post-flash STATUS was ABORTED. Post-flash may be compromised.");
@@ -96,18 +96,18 @@ float *meanflash    o: mean of post-flash image values subtracted
 		/* Add this message to the image header as well... */
 		addHistoryKw (x->globalhdr, MsgText);
 	}
-	
+
 	/* Start with the actual post-flash subtraction now... */
 	initSingleGroupLine (&y);
-	
+
 	scilines = x->sci.data.ny;
 
 	/* Compute correct extension version number to extract from
 		reference image to correspond to CHIP in science data.
 	*/
 	if (DetCCDChip (acsccd->flash.name, acsccd->chip, acsccd->nimsets, &extver) )
-		return (status);	
-	
+		return (status);
+
 	if (acsccd->verbose) {
 		sprintf(MsgText,"Performing post-flash subtraction on chip %d in imset %d",acsccd->chip, extver);
 		trlmessage(MsgText);
@@ -124,7 +124,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	*/
 	if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
 	    return (status);
-    
+
     if (rx != 1 || ry != 1) {
 		sprintf(MsgText,"Reference image and input are not binned to the same pixel size!");
 		trlmessage(MsgText);
@@ -134,8 +134,8 @@ float *meanflash    o: mean of post-flash image values subtracted
 		trlmessage(MsgText);
 	}
 
-    /* 
-		AMPX,AMPY initialization 
+    /*
+		AMPX,AMPY initialization
 	*/
     dimx = x->sci.data.nx;
     dimy = x->sci.data.ny;
@@ -147,7 +147,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	ampx = ((acsccd->ampx == 0) ? 0 : (int)(acsccd->ampx + offsetx) );
 	ampy = ((acsccd->ampy == 0) ? 0 : (int)(acsccd->ampy + offsety) );
 	/* Bounds checking to make sure we don't try to apply gain
-		and noise outside the bounds of the image. 
+		and noise outside the bounds of the image.
 	*/
 	if (ampx >= (dimx - acsccd->offsetx) || ampx > dimx ) ampx = dimx;
 	if (ampy >= (dimy - acsccd->offsety) || ampy > dimy ) ampy = dimy;
@@ -156,11 +156,11 @@ float *meanflash    o: mean of post-flash image values subtracted
 	acsccd->ampy = ampy;
 	mean = 0.0;
     weight = 0.0;
-    
+
 	/* Multiply the post-flash image by the exposure time and divide by the
 	   atodgain, and subtract it from x.
 	*/
-    
+
     for (i = 0; i < NAMPS; i++) {
         gain[i] = 0.;
         rn2[i] = 0.;
@@ -171,7 +171,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 
 	initSingleGroupLine (&z);
 	allocSingleGroupLine (&z, x->sci.data.nx);
-	for (i=0, j=y0; i < scilines; i++,j++) { 
+	for (i=0, j=y0; i < scilines; i++,j++) {
 
 	/* We are working with a sub-array and need to apply the
 		proper section from the reference image to the science image.
@@ -188,10 +188,10 @@ float *meanflash    o: mean of post-flash image values subtracted
 			return (status);
 	    }
 
-	    multgn1d (&z, j, acsccd->ampx, acsccd->ampy, gain, acsccd->flashdur);        
+	    multgn1d (&z, j, acsccd->ampx, acsccd->ampy, gain, acsccd->flashdur);
 
 	    AvgSciValLine (&z, acsccd->sdqflags, &flash, &wflash);
-		/* Sum the contribution from each line */			
+		/* Sum the contribution from each line */
 		mean += flash * wflash;
 		weight += wflash;
 
@@ -205,12 +205,12 @@ float *meanflash    o: mean of post-flash image values subtracted
 
 	closeSingleGroupLine (&y);
 	freeSingleGroupLine (&y);
-    
-	/* Compute the mean for the entire image */	
-	if (scilines > 0) 
-		*meanflash = mean / weight; 
-	else 
+
+	/* Compute the mean for the entire image */
+	if (scilines > 0)
+		*meanflash = mean / weight;
+	else
 		*meanflash = 0.;
-	
+
 	return (status);
 }

@@ -23,6 +23,9 @@ static void FindOffset (CmplxArray *, int, int, double *, double *);
    Phil Hodge, 2004 July 23:
 	Replace TOO_FAR = 64 with too_far = z->nx / 2, because for wavecals
 	taken with 6X0.2 the cross correlation can be broad.
+   Phil Hodge, 2011 Jan 5:
+	Change XCWavecal so it leaves cwave unchanged, putting the cross
+	correlation in a new argument, crosscorr.
 */
 
 int ReadRealImage (SingleGroup *in, int x_sect[], int y_sect[],
@@ -58,24 +61,24 @@ CmplxArray *z     o: complex data, copied from input
 /* This multiplies the complex conjugate of clamp by cwave (to take
    the cross correlation between them), then takes the inverse Fourier
    transform of the product, leaving the resulting cross correlation
-   in cwave.
+   in crosscorr.
 */
 
-int XCWavecal (CmplxArray *clamp, CmplxArray *cwave,
+int XCWavecal (CmplxArray *clamp, CmplxArray *cwave, CmplxArray *crosscorr,
 		double *shiftx, double *shifty) {
 
 /* arguments:
    On input, clamp and cwave should contain the Fourier transforms of
    the 2-D image data.
-   On output, cwave will contain the cross correlation of the input
-   cwave and clamp.  clamp will not be modified.
+   On output, crosscorr will contain the cross correlation of the input
+   cwave and clamp.  Neither clamp nor cwave will be modified.
 
 CmplxArray *clamp        i: FT of template wavecal, created from lamp spectrum
-CmplxArray *cwave       io: FT of wavecal data (SCI extension)
+CmplxArray *cwave        i: FT of wavecal data (SCI extension)
+CmplxArray *crosscorr    o: cross correlation of clamp and cwave
 double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 */
 
-	float temp;
 	int i, j;		/* loop indexes */
 	int nx, ny;		/* image size */
 	float max;		/* maximum value in cross correlation */
@@ -89,34 +92,34 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 	/* Multiply the complex conjugate of the first by the second. */
 	for (j = 0;  j < ny;  j++) {
 	    for (i = 0;  i < nx;  i++) {
-		temp =	RPIX2D (clamp, i, j) * RPIX2D (cwave, i, j) +
+		RPIX2D (crosscorr, i, j) =
+			RPIX2D (clamp, i, j) * RPIX2D (cwave, i, j) +
 			IPIX2D (clamp, i, j) * IPIX2D (cwave, i, j);
-		IPIX2D (cwave, i, j) =
+		IPIX2D (crosscorr, i, j) =
 			RPIX2D (clamp, i, j) * IPIX2D (cwave, i, j) -
 			IPIX2D (clamp, i, j) * RPIX2D (cwave, i, j);
-		RPIX2D (cwave, i, j) = temp;
 	    }
 	}
 
 	/* Take the inverse Fourier transform of the product. */
-	if (status = ifft2d (cwave))
+	if (status = ifft2d (crosscorr))
 	    return (status);
 
 	/* Find the peak. */
-	max = RPIX2D (cwave, 0, 0);		/* initial values */
+	max = RPIX2D (crosscorr, 0, 0);		/* initial values */
 	lmaxx = 0;
 	lmaxy = 0;
 	for (j = 0;  j < ny;  j++) {
 	    for (i = 0;  i < nx;  i++) {
-		if (max < RPIX2D (cwave, i, j)) {
-		    max = RPIX2D (cwave, i, j);
+		if (max < RPIX2D (crosscorr, i, j)) {
+		    max = RPIX2D (crosscorr, i, j);
 		    lmaxx = i;
 		    lmaxy = j;
 		}
 	    }
 	}
 
-	FindOffset (cwave, lmaxx, lmaxy, &offsetx, &offsety);
+	FindOffset (crosscorr, lmaxx, lmaxy, &offsetx, &offsety);
 
 	if (lmaxx < nx / 2)
 	    *shiftx = lmaxx + offsetx;

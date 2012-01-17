@@ -43,11 +43,6 @@ function value          o: file name template descriptor
         ImtDescr *imt_descr;
         IRAFPointer imt;
 
-        if (strlen (pattern) > SZ_FNAME) {
-            setError (1, "c_imtopen:  file name is too long");
-            return NULL;
-        }
-
         imt_descr = (ImtDescr *)calloc (1, sizeof(ImtDescr));
         imt_descr->pattern = (char *)calloc (strlen(pattern)+1, sizeof(char));
         strcpy (imt_descr->pattern, pattern);

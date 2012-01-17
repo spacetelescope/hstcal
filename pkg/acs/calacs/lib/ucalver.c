@@ -18,3 +18,14 @@ Hdr *phdr       io: pointer to header; CAL_VER will be updated
 
 	PutKeyStr (phdr, "CAL_VER", ACS_CAL_VER, "version number and date");
 }
+
+
+/* This adds the version number of the CTE algorithm to the image header.
+ * MRD 29 Sept 2011 */
+
+void UCteVer(Hdr *phdr) {
+  int PutKeyStr (Hdr *, char *, char *, char *);
+  
+  PutKeyStr(phdr, "CTE_NAME", ACS_CTE_NAME, "name of CTE algorithm");
+  PutKeyStr(phdr, "CTE_VER", ACS_CTE_VER, "version of CTE algorithm");
+}

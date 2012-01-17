@@ -55,6 +55,7 @@ static int isInvalid (char *);
     3 Nov 08  -  Change the description for extnum in CreaTable; extnum is
                  the image set in the input file, not the extension in the
                  output table (PEH)
+   21 Oct 11  -  New column NET_ERROR was added (PEH)
 */
 
 
@@ -98,6 +99,8 @@ TblDesc   *table    o: table descriptor
         else
             c_tbcdef1 (table->tp, &(table->error), "ERROR",
                       "Counts/s","",IRAF_REAL, table->array_size);
+	c_tbcdef1 (table->tp, &(table->net_error), "NET_ERROR",
+		"Counts/s", "", IRAF_REAL, table->array_size);
 
         c_tbcdef1 (table->tp, &(table->dq),      "DQ", "","",
                    IRAF_SHORT, table->array_size);
@@ -239,6 +242,8 @@ int *row_number         io: row where to write in output table
         c_tbaptr (table->tp, table->flux,  *row_number, row->flux,  1,
                   (int)row->npts);
         c_tbaptr (table->tp, table->error, *row_number, row->error, 1,
+                  (int)row->npts);
+	c_tbaptr (table->tp, table->net_error, *row_number, row->net_error, 1,
                   (int)row->npts);
         c_tbapts (table->tp, table->dq, *row_number, row->dq,       1,
                   (int)row->npts);

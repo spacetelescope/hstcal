@@ -23,6 +23,10 @@ typedef struct {
 	IRAFPointer cp_coeff;
 	IRAFPointer cp_ref_aper;
 
+	IRAFPointer cp_mref;
+	IRAFPointer cp_yref;
+	IRAFPointer cp_a4corr;
+
 	IRAFPointer cp_pedigree;
 	IRAFPointer cp_descrip;
 	int nrows;			/* number of rows in table */
@@ -53,6 +57,9 @@ static int CloseDSPTab (TblInfo *);
 		A2CENTER:  Y location on detector
 		NCOEFF:  size of COEFF array (int)
 		COEFF:  array (max 10) of dispersion coefficients (double)
+		MREF:  spectral order number of reference order (int)
+		YREF:  Y location of spectral order MREF (double)
+		A4CORR:  correction factor (double)
 
    The table is read to find the row for which the values of OPT_ELEM
    and CENWAVE are the same as in the input image header.  If more than
@@ -67,6 +74,10 @@ static int CloseDSPTab (TblInfo *);
 
    Phil Hodge, 2001 Feb 23:
 	Select the row with a2center closest to 512.
+
+   Phil Hodge, 2011 Jan 5:
+	Copy code from ../lib/getmoc.c to here, to populate mref, yref and
+	a4corr in the DispRelation struct.
 */
 
 int GetDisp4 (StisInfo4 *sts, DispRelation *disp, char *ref_aper) {
@@ -163,6 +174,11 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "COEFF", &tabinfo->cp_coeff);
 	c_tbcfnd1 (tabinfo->tp, "REF_APER", &tabinfo->cp_ref_aper);
 
+	/* for the a4corr for echelle data */
+	c_tbcfnd1 (tabinfo->tp, "MREF", &tabinfo->cp_mref);
+	c_tbcfnd1 (tabinfo->tp, "YREF", &tabinfo->cp_yref);
+	c_tbcfnd1 (tabinfo->tp, "A4CORR", &tabinfo->cp_a4corr);
+
 	if (tabinfo->cp_opt_elem == 0 || tabinfo->cp_cenwave == 0 ||
 	    tabinfo->cp_a2center == 0 ||
 	    tabinfo->cp_ncoeff == 0   || tabinfo->cp_coeff == 0 ||
@@ -176,6 +192,12 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 	/* Pedigree and descrip are optional columns. */
 	c_tbcfnd1 (tabinfo->tp, "PEDIGREE", &tabinfo->cp_pedigree);
 	c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
+
+	if (tabinfo->cp_mref == 0 || tabinfo->cp_yref == 0 ||
+	    tabinfo->cp_a4corr == 0) {
+	    printf ("Warning  A4CORR not found.\n");
+	    tabinfo->cp_a4corr = 0;	/* so we can test on just one value */
+	}
 
 	return (0);
 }
@@ -236,6 +258,29 @@ static int ReadDSPArray (TblInfo *tabinfo, int row,
 	    c_tbtclo (tabinfo->tp);
 	    printf ("Not all coefficients were read from DISPTAB.\n");
 	    return (TABLE_ERROR);
+	}
+
+	/* Get the a4corr info. */
+	if (tabinfo->cp_a4corr == 0) {
+	    disp->mref = 0;
+	    disp->yref = 0.;
+	    disp->a4corr = 0.;
+	} else {
+	    double yref;
+
+	    c_tbegti (tabinfo->tp, tabinfo->cp_mref, row, &disp->mref);
+	    if (c_iraferr())
+		return (TABLE_ERROR);
+
+	    c_tbegtd (tabinfo->tp, tabinfo->cp_yref, row, &yref);
+	    if (c_iraferr())
+		return (TABLE_ERROR);
+	    /* convert to zero-indexing */
+	    disp->yref = yref - 1.;
+
+	    c_tbegtd (tabinfo->tp, tabinfo->cp_a4corr, row, &disp->a4corr);
+	    if (c_iraferr())
+		return (TABLE_ERROR);
 	}
 
 	return (0);

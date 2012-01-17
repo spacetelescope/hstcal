@@ -15,7 +15,8 @@
 # include "stistemperature.h"	/* defines DARKRATE */
 # include "stisdef.h"
 
-static double CCDFactor (double);
+static int getDarkParam (Hdr *, double *, double *);
+static double CCDFactor (double, double, double);
 static int MedSciVal (SingleGroup *, float *);
 static void OverrideFactor (StisInfo1 *, int, double *, int *);
 
@@ -71,6 +72,11 @@ static void OverrideFactor (StisInfo1 *, int, double *, int *);
 
    Phil Hodge, 2004 Dec 27:
 	Use detector_temp instead of temperature or ccd_temperature.
+
+   Phil Hodge, 2010 May 6:
+	Add function getDarkParam to read reference temperature and slope
+	from the dark file primary header.  Add these arguments to the
+	calling sequence of CCDFactor.
 */
 
 int doDark (StisInfo1 *sts, SingleGroup *x, float *meandark, int sci_extver) {
@@ -86,6 +92,8 @@ int sci_extver     i: IMSET number in input (science) file
 
 	SingleGroup y, z;	/* y and z are scratch space */
 	float *ds;		/* Doppler smearing array */
+	double ref_temp;	/* reference temperature for CCD dark */
+	double drk_vs_t;	/* slope of dark vs temperature */
 	double factor;		/* scale factor, depending on temperature */
 	int nds, d0;		/* size of ds, index of zero point */
 	int extver = 1;		/* get this imset from dark image */
@@ -166,7 +174,10 @@ int sci_extver     i: IMSET number in input (science) file
 	        return (status);
 	}
         else if (sts->detector == CCD_DETECTOR) {
-            factor *= CCDFactor (sts->detector_temp);
+	    if ((status = getDarkParam (y.globalhdr,
+				&ref_temp, &drk_vs_t)) != 0)
+		return (status);
+            factor *= CCDFactor (sts->detector_temp, ref_temp, drk_vs_t);
         }
 
 	/* Override it by optional command line argument. */
@@ -220,6 +231,34 @@ int sci_extver     i: IMSET number in input (science) file
 	return (0);
 }
 
+/* This function reads the primary header of the dark reference file to
+   get the reference temperature (default 18 C) and the slope of the dark
+   vs temperature (default 0.07).
+*/
+
+static int getDarkParam (Hdr *phdr, double *ref_temp, double *drk_vs_t) {
+
+/* arguments:
+Hdr phdr            i: primary header of dark reference file
+double ref_temp     o: reference temperature
+double drk_vs_t     o: slope of dark vs temperature
+The function value is the status (0 is OK).
+*/
+
+	int use_def = 1;		/* use default if missing keyword */
+	int status = 0;
+
+	if ((status = Get_KeyD (phdr, "REF_TEMP", use_def, CCD_REF_TEMP,
+				ref_temp)) != 0)
+	    return (status);
+
+	if ((status = Get_KeyD (phdr, "DRK_VS_T", use_def, 0.07,
+				drk_vs_t)) != 0)
+	    return (status);
+
+	return (0);
+}
+
 
 /* The dark count rate for the side 2 CCD varies with temperature. For this
    detector, sts->detector_temp was gotten earlier from a header keyword.  In
@@ -229,11 +268,16 @@ int sci_extver     i: IMSET number in input (science) file
    flagged by a value of temperature less than or equal to zero.
 */
 
-static double CCDFactor (double temperature) {
+static double CCDFactor (double temperature,
+			double ref_temp, double drk_vs_t) {
 
-/* argument:
+/* arguments:
 double temperature  i: from header keyword, in degrees Celsius
-the function value is the factor by which the dark image should be multiplied
+double ref_temp     i: reference temperature, read from primary header of
+                        dark file
+double drk_vs_t     i: slope of dark vs temperature, read from primary header
+                        of dark file
+The function value is the factor by which the dark image should be multiplied.
 */
 
 	double factor;
@@ -241,7 +285,7 @@ the function value is the factor by which the dark image should be multiplied
 	if (temperature <= 0.)
 	    factor = 1.;
 	else
-	    factor = 1.0 + 0.07 * (temperature - CCD_REF_TEMP);
+	    factor = 1.0 + drk_vs_t * (temperature - ref_temp);
 
 	return (factor);
 }
@@ -249,7 +293,7 @@ the function value is the factor by which the dark image should be multiplied
 
 /*  Overrides darkscale factor with command line value. */
 
-static void OverrideFactor (StisInfo1 *sts, int extver, double *factor, 
+static void OverrideFactor (StisInfo1 *sts, int extver, double *factor,
                             int *override){
 	int i;
 

@@ -219,6 +219,16 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
       biassect[3] = 0;
     }
     
+    /* make sure that the biassect doesn't go beyond the edge of the chip */
+    if (biassect[0] < 0)
+      biassect[0] = 0;
+    if (biassect[2] < 0)
+      biassect[2] = 0;
+    if (biassect[1] >= x->sci.data.nx)
+      biassect[1] = x->sci.data.nx - 1;
+    if (biassect[3] >= x->sci.data.nx)
+      biassect[3] = x->sci.data.nx - 1;
+    
     /* Compute range of pixels affected by each amp */	
     begx = trimx1 + acs->ampx * bias_ampx;
     endx = (bias_ampx == 0 && acs->ampx != 0) ? acs->ampx + trimx1 : x->sci.data.nx - trimx2;

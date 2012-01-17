@@ -48,6 +48,8 @@ static int getArgD (char **, int, int *, double *);
    21 Apr 05  -  Rename variable stpos to xoffset (PEH)
    06 Feb 06  -  Change the default bks_mode (background smoothing mode)
 		from BKS_OFF to BKS_MEDIAN, consistent with calstis0 (PEH)
+   27 May 11  -  Add new command line option -bn for bks_mode=off (PEH)
+   06 Jul 11  -  Add new command line option --version (PEH)
 */
 
 int CommLine (int argc, char **argv, char *input, char *output,
@@ -186,6 +188,13 @@ double *xoffset;	o: offset in dispersion direction for slitless data
         cte  = 0;
 	switches = 0;
 
+	for (ctoken = 1;  ctoken < argc;  ctoken++) {
+	    if (strcmp (argv[ctoken], "--version") == 0) {
+		PrVersion();
+		exit (0);
+	    }
+	}
+
 	if (argc == 1) {
 printf ("cs6 input [output] [-t] [-v] [-e] [-back] [-disp] [-flux] [-hel]\n");
 printf ("    [-cte] [-idt] [-g] [-c a2center] [-r maxsearch] [-p ccthresold]\n");
@@ -194,7 +203,7 @@ printf ("    [-b1 bk1size] [-b2 bk2size] [-o1 bk1offset] [-o2 bk2offset]\n");
 printf ("    [-k bktilt] [-n bkord] [-s sporder] [-a xtracalg]\n");
 printf ("    [-bk backval] [-be backerr] [-sp sclip] [-l lfiltersize]\n");
 printf ("    [-pf profilefile] [-px fluxfile] [-pa] [-wf weightsfile]\n");
-printf ("    [-va] [-bb|-bm] [-bo bsorder] [-st xoffset]\n");
+printf ("    [-va] [-bb|-bm|-bn] [-bo bsorder] [-st xoffset]\n");
 printf ("    Box sizes and offsets are in REFERENCE pixel units, \n");
 printf ("    extraction postion a2center is in IMAGE pixel units. \n");
 	    return (0);
@@ -333,6 +342,11 @@ printf ("    extraction postion a2center is in IMAGE pixel units. \n");
 	        } else if (argv[ctoken][1] == 'b' &&
 	                   argv[ctoken][2] == 'm') {
 	            *bks_mode = BKS_MEDIAN;
+	            ctoken++;
+
+	        } else if (argv[ctoken][1] == 'b' &&
+	                   argv[ctoken][2] == 'n') {
+	            *bks_mode = BKS_OFF;
 	            ctoken++;
 
 	        } else if (argv[ctoken][1] == 'p' &&

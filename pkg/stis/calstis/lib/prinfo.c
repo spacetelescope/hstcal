@@ -1,6 +1,7 @@
 /* This file contains:
 	PrBegin (csnumber)
 	PrEnd (csnumber)
+	PrVersion()
 	PrFileName (label, filename)
 	PrHdrInfo (obsmode, aperture, opt_elem, detector)
 	PrSwitch (keyword, value)
@@ -25,11 +26,13 @@ int   n           imset or spectral order number (ignored if <= 0)
 */
 
 # include <stdio.h>
+# include <stdlib.h>
 # include <ctype.h>
 # include <string.h>
 # include <time.h>
 
 # include "stis.h"
+# include "stiserr.h"
 # include "stisversion.h"		/* STIS_CAL_VER */
 
 /* The beginning string will be padded to this many characters, plus one
@@ -72,6 +75,28 @@ void PrEnd (int csnumber) {
 	printf ("*** CALSTIS-%d complete ***\n", csnumber);
 
 	fflush (stdout);
+}
+
+void PrVersion (void) {
+
+	int i;
+	int len;
+	char *vstring;
+
+	len = strlen (STIS_CAL_VER);
+	vstring = (char *) calloc (len + 1, sizeof(char));
+	if (vstring == NULL)
+	    exit (OUT_OF_MEMORY);
+	for (i = 0;  i <= len;  i++) {
+	    if (STIS_CAL_VER[i] == ' ') {
+		vstring[i] = '\0';
+		break;
+	    }
+	    vstring[i] = STIS_CAL_VER[i];
+	}
+	printf ("%s\n", vstring);
+	fflush (stdout);
+	free (vstring);
 }
 
 /* Print input or output file name. */

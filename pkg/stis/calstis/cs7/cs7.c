@@ -43,6 +43,9 @@ static void FreeNames (char *, char *, char *, char *);
 
    Phil Hodge, 2006 Feb 7:
 	Add -wgt_err command line argument and err_algorithm CalStis7 argument.
+
+   Phil Hodge, 2011 July 6:
+	Include command-line option '--version'.
 */
 
 int main (int argc, char **argv) {
@@ -111,6 +114,10 @@ int main (int argc, char **argv) {
 	    } else if (strcmp (argv[i], "-wgt_err") == 0) {
 		err_algorithm = WGT_ERROR;
 	    } else if (argv[i][0] == '-') {
+		if (strcmp (argv[i], "--version") == 0) {
+		    PrVersion();
+		    exit (0);
+		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;

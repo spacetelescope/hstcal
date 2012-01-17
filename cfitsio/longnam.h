@@ -55,6 +55,7 @@
 #define fits_make_nkey      ffnkey
 #define fits_get_keyclass   ffgkcl
 #define fits_get_keytype    ffdtyp
+#define fits_get_inttype    ffinttyp
 #define fits_parse_value    ffpsvc
 #define fits_get_keyname    ffgknm
 #define fits_parse_template ffgthd
@@ -119,6 +120,7 @@
 
 #define fits_read_record       ffgrec
 #define fits_read_card         ffgcrd
+#define fits_read_str          ffgstr
 #define fits_read_key_unit     ffgunt
 #define fits_read_keyn         ffgkyn
 #define fits_read_key          ffgky
@@ -133,6 +135,7 @@
 #define fits_read_key_dblcmp   ffgkym
 #define fits_read_key_triple   ffgkyt
 #define fits_read_key_longstr  ffgkls
+#define fits_free_memory       fffree
 #define fits_read_tdim         ffgtdm
 #define fits_read_tdimll       ffgtdmll
 #define fits_decode_tdim       ffdtdm
@@ -150,6 +153,7 @@
 #define fits_read_atblhdrll    ffghtbll
 #define fits_read_btblhdrll    ffghbnll
 #define fits_hdr2str           ffhdr2str
+#define fits_convert_hdr2str   ffcnvthdr2str
 
 #define fits_update_card       ffucrd
 #define fits_update_key        ffuky
@@ -202,6 +206,7 @@
 #define fits_insert_key_dblcmp ffikym
 
 #define fits_delete_key     ffdkey
+#define fits_delete_str     ffdstr
 #define fits_delete_record  ffdrec
 #define fits_get_hdu_num    ffghdn
 #define fits_get_hdu_type   ffghdt
@@ -545,6 +550,7 @@
 #define fits_insert_cols  fficls
 #define fits_delete_col   ffdcol
 #define fits_copy_col     ffcpcl
+#define fits_copy_rows    ffcprw
 #define fits_modify_vector_len  ffmvec
 
 #define fits_read_img_coord ffgics

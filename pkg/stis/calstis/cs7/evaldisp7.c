@@ -5,7 +5,6 @@
 
 # define PIXEL_TOLERANCE  (0.01)	/* for solving disp rel for prism */
 
-static double PrismDisp (DispRelation *, double);
 static double SolveDisp (DispRelation *, double, double);
 
 
@@ -35,9 +34,12 @@ static double SolveDisp (DispRelation *, double, double);
    Ivo Busko, 2002 Mar 6:
    	Add GetWavelength function.
 
+   Phil Hodge, 2010 July 30:
+	Rename EvalDisp to EvalDisp7, and change the file name to evaldisp7.c.
+	Delete PrismDisp; call evalDisp or prismDisp.
 */
 
-void EvalDisp (DispRelation *disp_y, int sporder, double wl, int disp_type,
+void EvalDisp7 (DispRelation *disp_y, int sporder, double wl, int disp_type,
                double *ix_r, double *dix_r) {
 
 	double m;		/* spectral order number */
@@ -46,21 +48,12 @@ void EvalDisp (DispRelation *disp_y, int sporder, double wl, int disp_type,
 
 	    m = (double) sporder;
 
-	    *ix_r = disp_y->coeff[0] +
-		    disp_y->coeff[1] * m * wl +
-		    disp_y->coeff[2] * m * m * wl * wl +
-		    disp_y->coeff[3] * m +
-		    disp_y->coeff[4] * wl +
-		    disp_y->coeff[5] * m * m * wl +
-		    disp_y->coeff[6] * m * wl * wl +
-		    disp_y->coeff[7] * m * m * m * wl * wl * wl;
+	    *ix_r = evalDisp (disp_y->coeff, disp_y->ncoeff, m, wl);
 
 	} else if (disp_type == PRISM_DISP) {
 
 	    *ix_r = SolveDisp (disp_y, wl, PIXEL_TOLERANCE);
 	}
-
-	(*ix_r)--;		/* convert to zero indexing */
 
 	*dix_r = 1.;		/* stub */
 }
@@ -79,16 +72,18 @@ double GetWavelength (DispRelation *disp, int sporder, double ix,
 
 	double wl_high, wl_low, wl_test, x_test;
 	double dummy;
+	double m;
 
 	if (disp_type == GRATING_DISP) {
 
+	    m = (double)sporder;
 	    wl_low  = low;
 	    wl_high = high;
 
 	    while (wl_high - wl_low > 1.E-5) {
 
 	        wl_test = (wl_low + wl_high) / 2.;
-	        EvalDisp (disp, sporder, wl_test, disp_type, &x_test, &dummy);
+		x_test = evalDisp (disp->coeff, disp->ncoeff, m, wl_test);
 
 	        if (ix < x_test)
 		    wl_high = wl_test;
@@ -100,35 +95,12 @@ double GetWavelength (DispRelation *disp, int sporder, double ix,
 
 	} else if (disp_type == PRISM_DISP) {
 
-	    wl_test = PrismDisp (disp, ix);
+	    wl_test = prismDisp (disp->coeff, ix);
 
 	}
 
 	return (wl_test);
 }
-
-
-/* This function evaluates the dispersion relation for the prism.
-   The input is pixel number (reference pixel units), and the function
-   value is the corresponding wavelength in Angstroms.
-*/
-
-static double PrismDisp (DispRelation *disp_y, double ix_r) {
-
-	double x;	/* pixel number - first coefficient */
-	double wl;	/* wavelength */
-
-	x = ix_r - disp_y->coeff[0];
-
-	wl = disp_y->coeff[5] / x;
-	wl = (disp_y->coeff[4] + wl) / x;
-	wl = (disp_y->coeff[3] + wl) / x;
-	wl = (disp_y->coeff[2] + wl) / x;
-	wl += disp_y->coeff[1];
-
-	return (wl);
-}
-
 
 /* This function solves the dispersion relation for a prism using a binary
    search.  The function value is the reference pixel number corresponding
@@ -148,7 +120,7 @@ static double SolveDisp (DispRelation *disp_y, double wl, double tol) {
 	x_low = 0.;
 	x_high = 1023.;
 
-	if (wl < PrismDisp (disp_y, x_low))
+	if (wl < prismDisp (disp_y->coeff, x_low))
 	    return (x_low - 100.);		/* out of bounds */
 
 	if (wl > MAX_PRISM_WAVELENGTH)
@@ -157,7 +129,7 @@ static double SolveDisp (DispRelation *disp_y, double wl, double tol) {
 	while (x_high - x_low > tol) {
 
 	    x_test = (x_low + x_high) / 2.;
-	    wl_test = PrismDisp (disp_y, x_test);
+	    wl_test = prismDisp (disp_y->coeff, x_test);
 
 	    if (wl < wl_test)
 		x_high = x_test;
@@ -169,4 +141,3 @@ static double SolveDisp (DispRelation *disp_y, double wl, double tol) {
 
 	return (x_test);
 }
-

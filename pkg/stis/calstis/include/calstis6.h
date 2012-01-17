@@ -61,10 +61,10 @@
 
 # define	BACKP	7
 
-/* Safety margin for profile builder in optimal extraction. This constant 
+/* Safety margin for profile builder in optimal extraction. This constant
    is used by both the profile builder and the optimal extractor, thus it
    creates a cross dependency between the two tasks. Profile reference
-   files must always be created and used under the same version of the 
+   files must always be created and used under the same version of the
    code.
 */
 
@@ -254,7 +254,7 @@ typedef struct {
 	int pctcorr;		/* include PCT correction with fluxcorr? */
 	int gaccorr;		/* include grating-aperture correction? */
 	int tdscorr;		/* include TDS correction with fluxcorr? */
-        int wecfcorr;           /* use the stis echelle model? */ 
+        int wecfcorr;           /* use the stis echelle model? */
 
 	/* control flag for skipping dummy reference entries */
 	int x1d_o;
@@ -310,8 +310,8 @@ typedef struct {
    on the calstis7 output images. Thus we need to store, for each spectral
    order, the number of pixels in the A2 direction spanned by each
    rectified image.
-*/ 
- 
+*/
+
 typedef struct coo *CoordPtr;
 
 typedef struct coo {
@@ -321,7 +321,7 @@ typedef struct coo {
 	int npix;		/* size of rctified image in A2 direction */
         CoordPtr next;          /* pointer to next struct in list */
 } CoordInfo;                    /* for info from SDC */
- 
+
 
 
 /* XtractInfo stores extraction parameters, read from the _1dx table. */
@@ -475,7 +475,7 @@ typedef struct {
 
 
 
-/* This stores the table descriptors for the main cs6 output table, 
+/* This stores the table descriptors for the main cs6 output table,
    including the main table pointer and pointers to each column
    descriptor.
 */
@@ -492,6 +492,7 @@ typedef struct {
 	IRAFPointer net;
 	IRAFPointer flux;
 	IRAFPointer error;
+	IRAFPointer net_error;	/* this was added 21Oct11 */
 	IRAFPointer dq;
         IRAFPointer a2center;   /* these were added in 10Apr98 */
 	IRAFPointer extrsize;
@@ -507,7 +508,7 @@ typedef struct {
 
 
 /* This stores the table descriptors for the profile generator output
-   table, including the main table pointer and pointers to each column 
+   table, including the main table pointer and pointers to each column
    descriptor.
 */
 
@@ -533,7 +534,7 @@ typedef struct {
 
 
 /* This stores the output row contents that go into each row of the
-   output table, that is, the actual product of calstis6. 
+   output table, that is, the actual product of calstis6.
 
    The same structure is used by the IDT algorithm.
 */
@@ -541,15 +542,16 @@ typedef struct {
 typedef struct {
 	short	sporder;
 	short	npts;
-	double	scale;        /* used by idt algorithm */
+	double	scale;		/* used by idt algorithm */
 	double	*wave;
 	float	*gross;
 	float	*back;
 	float	*net;
 	float	*flux;
 	float	*error;
+	float   *net_error;	/* this was added 21Oct11 */
 	short	*dq;
-        float	a2center;     /* these were added 10Apr98 */
+        float	a2center;	/* these were added 10Apr98 */
 	float	extrsize;
 	float	bk1size;
 	float	bk2size;
@@ -557,5 +559,5 @@ typedef struct {
 	float	bk2offset;	
 	short	maxsearch;
 	float	*extrlocy;
-	float	cc_offset;   /* this was added 23Jun98 */
+	float	cc_offset;	/* this was added 23Jun98 */
 } RowContents;

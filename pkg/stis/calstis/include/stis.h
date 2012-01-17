@@ -218,6 +218,12 @@ int checkImsetOK (char *input, int extver, int *imset_ok);
 
 int DefSwitch (char *keyword);
 
+double evalDisp (double coeff[], int ncoeff, double m, double wl);
+double prismDisp (double coeff[], double ix_r);
+double evalDerivDisp (double coeff[], int ncoeff, double m, double wl);
+int evalInvDisp (double coeff[], int ncoeff, double m, double pixel,
+		double wl_estimate, double tolerance, double *wl);
+
 int FileExists (char *fname);
 
 int GotFileName (char *filename);
@@ -243,6 +249,7 @@ double orbitalDopp (double t1, double t2,
 
 void PrBegin (int csnumber);
 void PrEnd (int csnumber);
+void PrVersion (void);
 void PrFileName (char *label, char *filename);
 void PrHdrInfo (char *obsmode, char *aperture, char *opt_elem, char *detector);
 void PrSwitch (char *keyword, int value);
