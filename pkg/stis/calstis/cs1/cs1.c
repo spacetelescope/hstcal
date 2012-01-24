@@ -40,6 +40,10 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
 
    Phil Hodge, 2011 July 6:
 	Include command-line option '--version'.
+
+   Phil Hodge. 2012 Jan 23:
+	Allocate memory for inlist, outlist, blevlist based on the size
+	of the string on the command line, rather than using a fixed size.
 */
 
 int main (int argc, char **argv) {
@@ -77,9 +81,9 @@ int main (int argc, char **argv) {
 	c_irafinit (argc, argv);
 
 	/* Allocate space for file names. */
-	inlist = calloc (STIS_LINE+1, sizeof (char));
-	outlist = calloc (STIS_LINE+1, sizeof (char));
-	blevlist = calloc (STIS_LINE+1, sizeof (char));
+	inlist = calloc (1, sizeof (char));	/* allocated later */
+	outlist = calloc (1, sizeof (char));
+	blevlist = calloc (1, sizeof (char));
 	input = calloc (STIS_LINE+1, sizeof (char));
 	output = calloc (STIS_LINE+1, sizeof (char));
 	outblev = calloc (STIS_LINE+1, sizeof (char));
@@ -170,10 +174,28 @@ int main (int argc, char **argv) {
 		    }
 		}
 	    } else if (inlist[0] == '\0') {
+		free (inlist);
+		if ((inlist = calloc (strlen(argv[i])+1, sizeof(char)))
+			== NULL) {
+		    printf ("ERROR:  Out of memory.\n");
+		    exit (ERROR_RETURN);
+		}
 		strcpy (inlist, argv[i]);
 	    } else if (outlist[0] == '\0') {
+		free (outlist);
+		if ((outlist = calloc (strlen(argv[i])+1, sizeof(char)))
+			== NULL) {
+		    printf ("ERROR:  Out of memory.\n");
+		    exit (ERROR_RETURN);
+		}
 		strcpy (outlist, argv[i]);
 	    } else if (blevlist[0] == '\0') {
+		free (blevlist);
+		if ((blevlist = calloc (strlen(argv[i])+1, sizeof(char)))
+			== NULL) {
+		    printf ("ERROR:  Out of memory.\n");
+		    exit (ERROR_RETURN);
+		}
 		strcpy (blevlist, argv[i]);
 	    } else {
 		too_many = 1;
@@ -292,10 +314,16 @@ static int CompareNumbers (int n_in, int n_out, char *str_out) {
 static void FreeNames (char *inlist, char *outlist, char *blevlist,
 		char *input, char *output, char *outblev) {
 
-	free (outblev);
-	free (output);
-	free (input);
-	free (blevlist);
-	free (outlist);
-	free (inlist);
+	if (outblev != NULL)
+	    free (outblev);
+	if (output != NULL)
+	    free (output);
+	if (input != NULL)
+	    free (input);
+	if (blevlist != NULL)
+	    free (blevlist);
+	if (outlist != NULL)
+	    free (outlist);
+	if (inlist != NULL)
+	    free (inlist);
 }

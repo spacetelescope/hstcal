@@ -159,7 +159,6 @@ static void findFiles (ImtDescr *imt_descr) {
 
 /* Allocate and populate the list of file names. */
 
-        FILE *fd;               /* for testing whether a file exists */
         char *filename;         /* a name from the list */
         char *fullname;         /* name with environment variable resolved */
         int nfiles;             /* allocated size of file list */
@@ -269,18 +268,9 @@ static void findFiles (ImtDescr *imt_descr) {
                 free (fullname);
                 return;
             }
-            /* chop off any expression in brackets */
-            for (j = 0;  fullname[j] != '\0';  j++) {
-                if (fullname[j] == '[') {
-                    fullname[j] = '\0';
-                    break;
-                }
-            }
 
-            /* if the file can be opened, add it to the list */
-            fd = fopen (fullname, "r");
-            if (fd != NULL) {
-                fclose (fd);
+            /* if a file name was specified, add it to the list */
+            if (fullname[0] != '\0' && fullname[0] != ' ') {
                 imt_descr->files[n] = (char *)calloc (SZ_FNAME+1, sizeof(char));
                 strcpy (imt_descr->files[n], fullname);
                 n++;

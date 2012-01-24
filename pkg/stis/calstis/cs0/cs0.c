@@ -25,6 +25,10 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
 
    Phil Hodge, 2011 July 26:
 	Add a check that n_raw > 0 after calling c_imtopen.
+
+   Phil Hodge. 2012 Jan 23:
+	Allocate memory for rawlist, wavlist, outlist based on the size
+	of the string on the command line, rather than using a fixed size.
 */
 
 int main (int argc, char **argv) {
@@ -53,9 +57,9 @@ int main (int argc, char **argv) {
 	c_irafinit (argc, argv);
 
 	/* Allocate space for file names. */
-	rawlist = calloc (STIS_LINE+1, sizeof (char));
-	wavlist = calloc (STIS_LINE+1, sizeof (char));
-	outlist = calloc (STIS_LINE+1, sizeof (char));
+	rawlist = calloc (1, sizeof (char));    /* allocated later */
+	wavlist = calloc (1, sizeof (char));
+	outlist = calloc (1, sizeof (char));
 	rawfile = calloc (STIS_LINE+1, sizeof (char));
 	wavfile = calloc (STIS_LINE+1, sizeof (char));
 	outroot = calloc (STIS_LINE+1, sizeof (char));
@@ -72,6 +76,12 @@ int main (int argc, char **argv) {
 	"`%s' encountered when wavecal file name was expected\n", argv[i]);
 		    FreeNames (rawlist, wavlist, outlist,
 				rawfile, wavfile, outroot);
+		    exit (ERROR_RETURN);
+		}
+		free (wavlist);
+		if ((wavlist = calloc (strlen(argv[i])+1, sizeof(char)))
+			== NULL) {
+		    printf ("ERROR:  Out of memory.\n");
 		    exit (ERROR_RETURN);
 		}
 		strcpy (wavlist, argv[i]);
@@ -99,8 +109,20 @@ int main (int argc, char **argv) {
 		    }
 		}
 	    } else if (rawlist[0] == '\0') {
+		free (rawlist);
+		if ((rawlist = calloc (strlen(argv[i])+1, sizeof(char)))
+			== NULL) {
+		    printf ("ERROR:  Out of memory.\n");
+		    exit (ERROR_RETURN);
+		}
 		strcpy (rawlist, argv[i]);
 	    } else if (outlist[0] == '\0') {
+		free (outlist);
+		if ((outlist = calloc (strlen(argv[i])+1, sizeof(char)))
+			== NULL) {
+		    printf ("ERROR:  Out of memory.\n");
+		    exit (ERROR_RETURN);
+		}
 		strcpy (outlist, argv[i]);
 	    } else {
 		too_many = 1;
@@ -217,10 +239,16 @@ int main (int argc, char **argv) {
 static void FreeNames (char *rawlist, char *wavlist, char *outlist,
 		char *rawfile, char *wavfile, char *outroot) {
 
-	free (outroot);
-	free (wavfile);
-	free (rawfile);
-	free (outlist);
-	free (wavlist);
-	free (rawlist);
+        if (outroot != NULL)
+            free (outroot);
+        if (wavfile != NULL)
+            free (wavfile);
+        if (rawfile != NULL)
+            free (rawfile);
+        if (outlist != NULL)
+            free (outlist);
+        if (wavlist != NULL)
+            free (wavlist);
+        if (rawlist != NULL)
+            free (rawlist);
 }
