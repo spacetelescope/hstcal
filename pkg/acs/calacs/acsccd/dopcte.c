@@ -280,10 +280,10 @@ static int get_amp_array_size(const ACSInfo *acs, SingleGroup *x,
     bias_ampy = bias_ordery[bias_loc];
     
     /* Compute range of pixels affected by each amp */	
-    *xbeg = trimx1 + acs->ampx * bias_ampx;
-    *xend = (bias_ampx == 0 && acs->ampx != 0) ? acs->ampx + trimx1 : x->sci.data.nx - trimx2;
-    *ybeg = trimy1 + acs->ampy* bias_ampy;
-    *yend = (bias_ampy == 0 && acs->ampy != 0) ? acs->ampy +trimy1 : x->sci.data.ny - trimy2; 
+    *xbeg = (trimx1 + acs->ampx) * bias_ampx;
+    *xend = (bias_ampx == 0 && acs->ampx != 0) ? acs->ampx + trimx1 : x->sci.data.nx;
+    *ybeg = (trimy1 + acs->ampy) * bias_ampy;
+    *yend = (bias_ampy == 0 && acs->ampy != 0) ? acs->ampy + trimy1 : x->sci.data.ny;
     
     /* Make sure that xend and yend do not extend beyond the bounds of the
      image... WJH 8 Sept 2000
