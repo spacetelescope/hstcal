@@ -2,12 +2,12 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
-# include "hstio.h"
+# include <hstio.h>
 
-# include "wf3.h"
+# include "../wf3.h"
 # include "calwf3.h"
-# include "wf3err.h"
-# include "wf3corr.h"
+# include "../wf3err.h"
+# include "../wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
 
 /* ProcessIR: This routine controls the overall flow of processing
@@ -17,6 +17,17 @@
 	Added logic and supporting functionality for calling WF3Rej_0 to
 	combine Repeat-Obs exposures into a crj product.
 
+   H.Bushouse, 2011 Nov 23:
+	Modified the logic used to call wf3rej for rptcorr processing to use
+	wf3ir_sci_sw.rptcorr instead of wf3hdr->sci_rptcorr, because the
+	former is based on the setting of the RPTCORR header keyword.
+	(PR 69952; Trac 807)
+
+   M.Sosey, 2012 Jan 24:
+   Updated to check for number of images in the wf3header as a check against
+   observations which were marked as RPTCORR with NRPT but are not associations
+   They were causing a segfault because the code when on to try wf3rej them.
+   the update was checked in under r14469
 */
 
 int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
@@ -117,6 +128,10 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 			       trlmessage 
 				    ("CALWF3: Got reference file information");
 			   }
+			   
+			   if(sci_sw.rptcorr == PERFORM && wf3hdr->nimages < 2) {
+			       sci_sw.rptcorr = OMIT;
+               }
 
 			   /* Store the trailer file comments into preface */
 			   newpreface = YES;
@@ -198,7 +213,8 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 		  }    /* Finished processing EXP images */
 
                   /* Do RPTCORR processing */
-                  if (wf3hdr->sci_rptcorr == PERFORM) {
+                  /* if (wf3hdr->sci_rptcorr == PERFORM) { */
+                  if (wf3ir_sci_sw.rptcorr == PERFORM) {
 
                       if (asn->verbose) {
                           sprintf (MsgText,

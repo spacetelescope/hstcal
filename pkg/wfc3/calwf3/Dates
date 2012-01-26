@@ -1,13 +1,25 @@
-02-Aug-2011: CALWF3 2.4.1: Implemented the following PRs: 
-    68983/745: Modified CheckGain in lib/wf3info.c so that it always closes the 
-               ref image before returning. 
-    68993/748: Updated the cridcalc.c crrej routine to free memory for the 
-                tot_ADUs array before returning. 			   
- 12-Sep-2011: CALWF3 3.0: Implemented the following PRs:
-  69278/774: Port calwf3 to hstcal environment to remove IRAF dependencies
-        775: Upgrade calwf3 to use new IMPHTTAB and remove synphot calls
-  63555    : Increase wf3rej image combination limit from 120 to 300
-        734: Implement new "--version" command-line argument for calwf3
+24-Jan-2012: CALWF3 2.6.1: Updated procir.c to check for the number of images again
+             There were singletons coming through the archive that were
+	          marked as RPTCORR with NRPTEXP < 2 which were not associated
+             so they were failing when calwf3 tried to process them further.
+15-Dec-2011: CALWF3 2.6: Implemented the following PRs:
+             69969/814: Updgraded wf3rej to properly handle input data that are in units of count rates.
+
+09-Dec-2011: CALWF3 2.5.1: Implemented the following PRs:
+  69952/807: Modified the high-level IR processing logic so that rptcorr
+             processing is only applied when RPTCORR=PERFORM in the header.
+
+ 01-Oct-2011: CALWF3 2.5: Implemented the following PRs:
+  63555    : Increased the maximum number of images to be combined in wf3rej
+             from 120 to 250.
+  69230/770: Fixed the cridcalc step to correctly accumulate total integration
+	     time of valid samples in some unusual circumstances.
+
+ 02-Aug-2011: CALWF3 2.4.1: Implemented the following PRs:
+  68983/745: Modified CheckGain in lib/wf3info.c so that it always closes the
+             ref image before returning.
+  68993/748: Updated the cridcalc.c crrej routine to free memory for the
+             tot_ADUs array before returning.
 
  17-Jun-2011: CALWF3 2.4: Implemented the following PRs:
   68593/722: Modified the error handling logic in calwf3 and wf3rej so that

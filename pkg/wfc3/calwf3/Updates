@@ -1,56 +1,65 @@
-Updates for version 3.0
-    calwf3/getreffiles.c:
-	Updated GetCCDRef and GetIRRef to use new IMPHTTAB instead of synphot
-	GRAPHTAB and COMPTAB. (Trac #775)
-    include/wf3info.h:
-	Replaced graphtab and comptab RefTab entries with new phot in WF3info
-	struct. (Trac #775)
-    include/wf3version.h:
-	Increment version to 3.0 and date to 12-Sep-2011. Also added new
-	WF3_CAL_VER_NUM macro to suport "--version" command line argument.
-	(Trac #734)
-    lib/wf3hist.c:
-	Replaced graph and comp tab entries with new phot tab in photHistory.
-	(Trac #775)
-    lib/wf3info.c:
-	Modified WF3Init to initialize new phot tab instead of graph and comp
-	tabs. (Trac #775)
-    wf32d/do2d.c:
-	Modified PhotMsg routine to work with new phot table instead of graph
-	and comp tabs. (Trac #775)
-    wf32d/dophot.c:
-	Removed calls to synphot functions and replaced with interface to new
-	IMPHTTAB ref table. (Trac #775)
-    wf32d/get2dflags.c:
-	Modified checkPhot to work with new IMPHTTAB instead of graph and comp
-	tabs. (Trac #775)
-    wf3ir/doir.c:
-	Modified photMsg to work with new imphttab instead of graph and comp
-	tabs. (Trac #775)
-    wf3ir/getirflags.c:
-	Modified checkPhot to work with new imphttab instead of graph and comp
-	tabs. (Trac #775)
-    wf3ir/irhist.c:
-	Modified photIRHistory to work with new phot table instead of graph
-	and comp tabs. (Trac #775)
-    wf3ir/photcalc.c:
-	Removed calls to synphot functions and replaced with interface to new
-	IMPHTTAB ref table. (Trac #775)
+Updates for version 2.6.1 24-Jan-2012 (MLS):
+     procir.c:added a couple lines to check for multiple images so that
+	       singletons with RPTCORR and NRPTEXP > 1 would not go through
+		   CR rejection if TRANS didn't associate them
+		   
+Updates for version 2.6 - 15-Dec-2011 (HAB):
+
+	calwf3.cl: Increment version to "15Dec2011".
+    wf3version.h: Increment version to 2.6 and date to 15-Dec-2011.
+	wf3rej/cr_scaling.c: Upgraded to read BUNIT keyword value from 
+	        first SCI extension header of each input image. (PR 69969; Trac #814)
+	wf3rej/rej_do.c: Upgraded to pass new bunit array to and from all 
+	        functions that need it, in order to handle input data that are 
+			in count rates. (PR 69969; Trac #814) 
+	wf3rej/rej_init.c: Upgraded to rescale input data that are in units of count rates.
+	        (PR 69969; Trac #814)
+	wf3rej/rej_loop.c: Upgraded to rescale input data that are in units of count rates.
+	        (PR 69969; Trac #814)
+    wf3rej/rej_sky.c: Upgraded to rescale input data that are in units of count rates.
+	        (PR 69969; Trac #814)
+
+
+Updates for version 2.5.1 - 09-Dec-2011 (HAB):
+    calwf3.cl:
+	Increment version to "09Dec2011".
+    wf3version.h:
+	Increment version to 2.5.1 and date to 09-Dec-2011.
+    calwf3/procir.c:
+	Modified the logic that controls the rptcorr processing so that it's
+	based on the setting of the RPTCORR header keyword switch, instead of
+	just always applying it to every repeat-obs association.
+	(PR 69952; Trac #807)
+
+        -modified again to account for images which have RPTCORR=PERFORM and
+         NRPTEXPT > 1, but no TRANS association, so they failed further processing.
+
+
+Updates for version 2.5 - 01-Oct-2011 (HAB):
+    calwf3.cl:
+	Increment version to "01Oct2011".
+    wf3version.h:
+	Increment version to 2.5 and date to 01-Oct-2011.
+    wf3ir/cridcalc.c:
+	Fixed fitsamps routine to correctly accumulate int_time in odd cases
+	where the 1st or 2nd read is bad. (PR 69230; Trac #770)
     wf3ir/rej.h:
-	Increased MAX_FILES from 120 to 300. (PR 63555)
+	Increase MAX_FILES from 120 to 250. (PR 63555)
     wf3rej/rej.h:
-	Increased MAX_FILES from 120 to 300. (PR 63555)
-Updates for version 2.4.1 - 02-Aug-2011 (HAB): 
- 	 calwf3.cl: 
- 		 Increment version to "02Aug2011". 
- 	 wf3version.h: 
- 		 Increment version to 2.4.1 and date to 02-Aug-2011. 
- 	 lib/wf3info.c: 
- 		 Fixed the logic in the CheckGain routine so that the ref image gets 
- 		 closed before returning when keyval=-1. (PR 68983; Trac #745) 
- 	 wf3ir/cridcalc.c: 
- 		 Updated crrej to free memory for tot_ADUs before returning. 
- 		 (PR 68993; Trac #748) 
+	Increased MAX_FILES from 120 to 250. (PR 63555)
+
+Updates for version 2.4.1 - 02-Aug-2011 (HAB):
+    calwf3.cl:
+	Increment version to "02Aug2011".
+    wf3version.h:
+	Increment version to 2.4.1 and date to 02-Aug-2011.
+    lib/wf3info.c:
+	Fixed the logic in the CheckGain routine so that the ref image gets
+	closed before returning when keyval=-1. (PR 68983; Trac #745)
+    wf3ir/cridcalc.c:
+	Updated crrej to free memory for tot_ADUs before returning.
+	(PR 68993; Trac #748)
+
 Updates for version 2.4 - 17-Jun-2011 (HAB):
     calwf3.cl:
 	Increment version to "17Jun2011".

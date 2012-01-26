@@ -1,15 +1,27 @@
-### 5 Jan 2012 - MLS - I updated several files to be inline with the current stsdas versions of the code
-### 12 Sep 2011 - HAB -- Version 3.0
-    - Ported calwf3 to hstcal environment. This allows for increasing the
-      wf3rej image combination limit from 120 to 300, and for removing synphot
-      dependencies in photcorr steps and using new IMPHTTAB reference table
-      instead.
-### 02 Aug 2011 - HAB -- Version 2.4.1 
-	   - Updated lib/wf3info.c to have CheckGain always close the ref image before 
-		 returning. 
-	   - Updated wf3ir/cridcalc.c to have crrej free memory for tot_ADUs array 
-		 before returning. 
-	
+### 23 Jan 2012 - MLS -- Version 2.6.1: 
+    - Modified procir.c to check for the number of images again, to account
+      for singletons going through the pipeline with RPTCORR=PERFORM and
+      NRPTEXP > 1 that weren't associated by TRANS and going to the next
+      processing step and failing
+	  
+### 15 Dec 2011 - HAB -- Version 2.6:
+    - Upgraded wf3rej to properly handle input data that are in units of count rates.
+
+### 09 Dec 2011 - HAB -- Version 2.5.1
+    - Modified the high-level IR processing logic so that rptcorr processing
+      is only applied when RPTCORR=PERFORM in the image header.
+
+### 01 Oct 2011 - HAB -- Version 2.5
+    - Fixed the cridcalc step to correctly accumulate the total integration
+      time of the valid samples for each pixel in some unusual cases.
+    - Increased max image combine limit in wf3rej from 120 to 250.
+
+### 02 Aug 2011 - HAB -- Version 2.4.1
+    - Updated lib/wf3info.c to have CheckGain always close the ref image before
+      returning.
+    - Updated wf3ir/cridcalc.c to have crrej free memory for tot_ADUs array
+      before returning.
+
 ### 17 Jun 2011 - HAB -- Version 2.4
     - Updated wf3rej/wf3rej.c and calwf3/procccd.c so that they handle error
       returns from wf3rej in a way that allows for EXPSCORR processing of
