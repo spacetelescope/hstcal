@@ -2,12 +2,11 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
-# include <hstio.h>
-
-# include "../wf3.h"
+# include "hstio.h"
+# include "wf3.h"
 # include "calwf3.h"
-# include "../wf3err.h"
-# include "../wf3corr.h"
+# include "wf3err.h"
+# include "wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
 
 /* ProcessIR: This routine controls the overall flow of processing
@@ -203,12 +202,12 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 		       /* We now are working with flt here... */
 		       /* Copy (cat) flt name to wf3rej_input string */
 		       if (wf3hdr->sci_rptcorr == PERFORM) {
-			   strcat (wf3rej_input, wf3hdr->fltfile);
-			   if (expid < asn->spmems[posid]) {
-			       /* Don't add a comma to the end of the last
-			       ** filename */
-			       strcat(wf3rej_input, ",");
-			   }
+			       strcat (wf3rej_input, wf3hdr->fltfile);
+			       if (expid < asn->spmems[posid]) {
+			           /* Don't add a comma to the end of the last
+			           ** filename */
+			           strcat(wf3rej_input, ",");
+			       }
 		       }
 		  }    /* Finished processing EXP images */
 
