@@ -199,14 +199,15 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     /* do some smoothing on the data so we don't amplify the read noise. 
      * data should be in electrons. */
     if (DecomposeRN(amp_arr1, amp_arr2, amp_sci_arr,
-                    pars.rn_clip, amp_sig_arr, amp_nse_arr)) {
+                    pars.rn_clip, pars.noise_model, 
+                    amp_sig_arr, amp_nse_arr)) {
       return (status);
     }
     
     /* perform CTE correction */
     if (FixYCte(amp_arr1, amp_arr2, amp_sig_arr, amp_cor_arr, pars.sim_nit, 
-                pars.shft_nit, cte_frac_arr, pars.levels, dpde_l,
-                chg_leak_lt, chg_open_lt, acs->onecpu)) {
+                pars.shft_nit, pars.sub_thresh, cte_frac_arr, pars.levels,
+                dpde_l, chg_leak_lt, chg_open_lt, acs->onecpu)) {
       return (status);
     }
     
@@ -280,10 +281,10 @@ static int get_amp_array_size(const ACSInfo *acs, SingleGroup *x,
     bias_ampy = bias_ordery[bias_loc];
     
     /* Compute range of pixels affected by each amp */	
-    *xbeg = (trimx1 + acs->ampx) * bias_ampx;
-    *xend = (bias_ampx == 0 && acs->ampx != 0) ? acs->ampx + trimx1 : x->sci.data.nx;
-    *ybeg = (trimy1 + acs->ampy) * bias_ampy;
-    *yend = (bias_ampy == 0 && acs->ampy != 0) ? acs->ampy + trimy1 : x->sci.data.ny;
+    *xbeg = trimx1 + acs->ampx * bias_ampx;
+    *xend = (bias_ampx == 0 && acs->ampx != 0) ? acs->ampx + trimx1 : x->sci.data.nx - trimx2;
+    *ybeg = trimy1 + acs->ampy* bias_ampy;
+    *yend = (bias_ampy == 0 && acs->ampy != 0) ? acs->ampy +trimy1 : x->sci.data.ny - trimy2; 
     
     /* Make sure that xend and yend do not extend beyond the bounds of the
      image... WJH 8 Sept 2000

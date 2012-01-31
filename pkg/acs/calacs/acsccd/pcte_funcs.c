@@ -75,9 +75,16 @@ int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
     return status;
   }
 
-  /* read RN2_NIT keyword from primary header */
+  /* read RN_CLIP keyword from primary header */
   if (GetKeyDbl(&hdr_ptr, "RN_CLIP", NO_DEFAULT, -999, &pars->rn_clip)) {
     trlerror("(pctecorr) Error reading RN_CLIP keyword from PCTETAB");
+    status = KEYWORD_MISSING;
+    return status;
+  }
+  
+  /* read NSEMODEL keyword from primary header */
+  if (GetKeyInt(&hdr_ptr, "NSEMODEL", NO_DEFAULT, -999, &pars->noise_model)) {
+    trlerror("(pctecorr) Error reading NSEMODEL keyword from PCTETAB");
     status = KEYWORD_MISSING;
     return status;
   }
@@ -92,6 +99,13 @@ int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
   /* read SHFT_NIT keyword from primary header */
   if (GetKeyInt(&hdr_ptr, "SHFT_NIT", NO_DEFAULT, -999, &pars->shft_nit)) {
     trlerror("(pctecorr) Error reading SHFT_NIT keyword from PCTETAB");
+    status = KEYWORD_MISSING;
+    return status;
+  }
+  
+  /* read SUBTHRSH keyword from primary header */
+  if (GetKeyDbl(&hdr_ptr, "SUBTHRSH", NO_DEFAULT, -999, &pars->sub_thresh)) {
+    trlerror("(pctecorr) Error reading SUBTHRSH keyword from PCTETAB");
     status = KEYWORD_MISSING;
     return status;
   }
@@ -423,6 +437,8 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
   double def_value_dbl = -99.0;
 
   double rn_clip;
+  int noise_model;
+  double sub_thresh;
   int sim_nit;
   int shft_nit;
 
@@ -443,6 +459,46 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     }
   } else {
     pars->rn_clip = rn_clip;
+  }
+  /****************************************************************************/
+  
+  /****************************************************************************/
+  /* get value and perform check for read noise smoothing algorithm */
+  if (GetKeyInt(x->globalhdr, "PCTENSMD", USE_DEFAULT, def_value, &noise_model)) {
+    trlerror("(pctecorr) Error reading PCTENSMD keyword from image header");
+    status = KEYWORD_MISSING;
+    return status;
+  }
+
+  /* if the keyword value is not there or set to zero, update it with the value
+   * read from the PCTETAB, otherwise use the read value in the CTE correction. */
+  if (noise_model == def_value || noise_model == 0) {
+    if (PutKeyInt(x->globalhdr, "PCTENSMD", pars->noise_model, "PCTE read noise smoothing algorithm")) {
+      trlerror("(pctecorr) Error updating PCTENSMD keyword in image header");
+      return (status = HEADER_PROBLEM);
+    }
+  } else {
+    pars->noise_model = noise_model;
+  }
+  /****************************************************************************/
+  
+  /****************************************************************************/
+  /* get value and perform check for over-subtraction threshold */
+  if (GetKeyDbl(x->globalhdr, "PCTETRSH", USE_DEFAULT, def_value_dbl, &sub_thresh)) {
+    trlerror("(pctecorr) Error reading PCTETRSH keyword from image header");
+    status = KEYWORD_MISSING;
+    return status;
+  }
+
+  /* if the keyword value is not there or set to zero, update it with the value
+   * read from the PCTETAB, otherwise use the read value in the CTE correction. */
+  if (sub_thresh == def_value || sub_thresh == 0) {
+    if (PutKeyDbl(x->globalhdr, "PCTETRSH", pars->sub_thresh, "PCTE over subtraction threshold")) {
+      trlerror("(pctecorr) Error updating PCTETRSH keyword in image header");
+      return (status = HEADER_PROBLEM);
+    }
+  } else {
+    pars->sub_thresh = sub_thresh;
   }
   /****************************************************************************/
 
@@ -756,373 +812,186 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
  * readout noise is added to the signal.
  *
  * The clipping parameter read_noise controls the maximum amount by which a pixel
- * will be modified, or the maximum amplitude of the read noise.
+ * will be modified in each iteration. The noise_model parameter controls
+ * which read noise smoothing algorithm is used, should be 0, 1, or 2.
+ *
  */
 int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
-                const double read_noise, double sig_arr[arrx*arry], 
-                double noise_arr[arrx*arry]) {
+                const double read_noise, const int noise_model,
+                double sig_arr[arrx*arry], double noise_arr[arrx*arry]) {
   
   /* status variable for return */
   extern int status;
   
   /* iteration variables */
-  int i, j, i2, j2, k;
+  int i, j, i2, j2, it_count;
   
-  /* maximum number of smoothing iterations */
-  int max_nits = 20;
+  int max_it1 = 25;
+  int max_it2 = 30;
   
-  /* pixel mask. mask = 0 means don't modify this pixel */
-  char * mask;
-  
-  /* number of pixels modified in a smoothing iteration */
-  int num_mod;
-  
-  /* generic containers for adding things up */
+  /* accumulation variables */
   double sum;
   int num;
   
-  double mean;
-  double diff;
+  double d1, d2, d3;
   
-  /* function prototypes */
-  int mask_stars(const int arrx, const int arry, const double data[arrx*arry],
-                 char mask[arrx*arry], const double read_noise);
+  double rms;
   
-  /* allocate pixel mask */
-  mask = (char *) malloc(arrx * arry * sizeof(char));
+  double * local_sigma;
+  double * local_weight;
+  char * local_mask;
   
-  /* flag high signal pixels that we shouldn't modify with 0 */
-  mask_stars(arrx, arry, data, mask, read_noise);
+  /* check for valid noise_model */
+  if (noise_model != 0 && noise_model != 1 && noise_model != 2) {
+    return (status = ERROR_RETURN);
+  }
   
-  /* initialize signal and noise arrays */
   for (i = 0; i < arrx; i++) {
     for (j = 0; j < arry; j++) {
       sig_arr[i*arry + j] = data[i*arry + j];
-      noise_arr[i*arry + j] = 0;
+      noise_arr[i*arry + j] = 0.0;
     }
   }
   
-  /* if the read_noise is 0 we shouldn't do anything, just return with
-   * signal = data, noise = 0. */
-  if (read_noise == 0) {
+  /* no smoothing */
+  if (noise_model == 0) {
     return status;
   }
   
-  /* now perform the actual smoothing adjustments */
-  for (k = 0; k < max_nits; k++) {
-    num_mod = 0;
-    
-    for (i = 2; i < arrx-2; i++) {
-      for (j = 2; j < arry-2; j++) {
-        if (mask[i*arry + j] == 0) {
-          continue;
-        }
-        
-        sum = 0.0;
-        num = 0;
-        
-        /* calculate local mean of non-maxima pixels */
-        for (i2 = i-1; i2 <= i+1; i2++) {
-          for (j2 = j-1; j2 <= j+1; j2++) {
-            if (mask[i2*arry + j2] == 1) {
-              sum += sig_arr[i2*arry + j2];
-              num++;
-            }
-          }
-        }
-        
-        /* if we have enough local non-maxima pixels calculate a readnoise
-         * correction that brings this pixel closer to the mean */
-        if (num >= 4) {
-          mean = sum / (double) num;
-          
-          diff = sig_arr[i*arry + j] - mean;
-          
-          /* clip the diff so we don't modify this pixel too much */
-          if (diff > 0.1*read_noise) {
-            diff = 0.1*read_noise;
-          } else if (diff < -0.1*read_noise) {
-            diff = -0.1*read_noise;
-          }
-          
-          if (diff != 0) {
-            num_mod++;
-          }
-          
-          noise_arr[i*arry + j] += diff * pow((double) num/9.0, 2);
-        }
-      }
-    }
-    
-    /* calculate the smoothing correction and the rms of the read noise image */
+  /* adjust each pixel to be more similar to the three pixels below it */
+  it_count = 0;
+  
+  do {
     sum = 0.0;
+    num = 0;
     
-    for (i = 2; i < arrx-2; i++) {
-      for (j = 2; j < arry-2; j++) {
-        sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
+    for (i = 3; i < arrx; i++) {
+      for (j = 0; j < arry; j++) {
+        d1 = sig_arr[i*arry + j] - sig_arr[(i-1)*arry + j];
+        
+        if (d1 > 0.1*read_noise) {
+          d1 = 0.1*read_noise;
+        } else if (d1 < -0.1*read_noise) {
+          d1 = -0.1*read_noise;
+        }
+        
+        d2 = sig_arr[i*arry + j] - sig_arr[(i-2)*arry + j];
+        
+        if (d2 > 0.1*read_noise) {
+          d2 = 0.1*read_noise;
+        } else if (d2 < -0.1*read_noise) {
+          d2 = -0.1*read_noise;
+        }
+        
+        d3 = sig_arr[i*arry + j] - sig_arr[(i-3)*arry + j];
+        
+        if (d3 > 0.1*read_noise) {
+          d3 = 0.1*read_noise;
+        } else if (d3 < -0.1*read_noise) {
+          d3 = -0.1*read_noise;
+        }
+        
+        noise_arr[i*arry + j] += (d1 + d2 + d3) / 3.0;
         
         sum += pow(noise_arr[i*arry + j], 2);
+        num++;
       }
     }
     
-    /* if the rms of the noise is greater than the max read noise, we're done */
-    if (sqrt(sum / (double) num_mod) > read_noise) {
-      break;
+    for (i = 0; i < arrx; i++) {
+      for (j = 0; j < arry; j++) {
+        sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
+      }
     }
-  }
+    
+    rms = sqrt(sum / (double) num);
+    
+    it_count++;
+    
+  } while (it_count < 25 || (it_count < 30 && rms < 1.25*read_noise));
   
-  free(mask);
+  /* allocate sigma, weight, and mask arrays */
+  local_sigma = (double *) malloc(arrx * arry * sizeof(double));
+  local_weight = (double *) malloc(arrx * arry * sizeof(double));
+  local_mask = (char *) malloc(arrx * arry * sizeof(char));
   
-  return status;
-}
-
-
-/*
- * Mask high signal pixels so they aren't clipped by the readnoise
- * decomposition.
- */
-int mask_stars(const int arrx, const int arry, const double data[arrx*arry],
-               char mask[arrx*arry], const double read_noise) {
-  
-  extern int status;
-  
-  /* iteration variables */
-  int i, j, i2, j2, i2_start, i3, j3;
-  
-  /* need a second copy of the mask array so one can stay static while
-   * the other is modified */
-  char * mask_copy;
-  
-  /* a mask of warm columns */
-  char * warm_mask;
-  
-  int high_count;
-  
-  /* flag for breaking out of loops */
-  short int break_out;
-  
-  /* holder values for mean of pixels surrounding a maximum and the
-   * difference between the pixel and the mean */
-  double surr_mean;
-  double smean_diff1, smean_diff2, smean_diff2_temp, smean_diff3;
-  
-  double dist1, dist2;
-  
-  /* allocate arrays */
-  mask_copy = (char *) malloc(arrx * arry * sizeof(char));
-  warm_mask = (char *) malloc(arrx * arry * sizeof(char));
-  
-  /* initialize arrays */
+  /* calculate local sigma, initialize weights and mask */
   for (i = 0; i < arrx; i++) {
     for (j = 0; j < arry; j++) {
-      mask_copy[i*arry + j] = 1;
-      warm_mask[i*arry + j] = 0;
-    }
-  }
-  
-  /* set edges to no modification */
-  for (i = 0; i < arrx; i++) {
-    mask_copy[i*arry + 0] = 0;
-    mask_copy[i*arry + 1] = 0;
-    mask_copy[i*arry + (arry-1)] = 0;
-    mask_copy[i*arry + (arry-2)] = 0;
-  }
-  for (j = 0; j < arry; j++) {
-    mask_copy[0*arry + j] = 0;
-    mask_copy[1*arry + j] = 0;
-    mask_copy[(arrx-1)*arry + j] = 0;
-    mask_copy[(arrx-2)*arry + j] = 0;
-  }
-  
-  /* identify warm columns */
-  for (j = 2; j < arry-2; j++) {
-    for (i = 2; i < arrx-2; i++) {
-      high_count = 0;
+      sum = 0.0;
       
-      i2_start = (int) fminl(i+1, arrx-101);
-      
-      for (i2 = i2_start; i2 <= i2_start+100; i2++) {
-        if (data[i2*arry + j] > data[i2*arry + (j-1)] &&
-            data[i2*arry + j] > data[i2*arry + (j+1)]) {
-          high_count++;
+      /* add up local pixels to calculate sigma */
+      for (i2 = fmaxl(0, i-1); i2 <= fminl(i+1, arrx-1); i2++) {
+        for (j2 = fmaxl(0, j-1); j2 <= fminl(j+1, arry-1); j2++) {
+          sum += pow(noise_arr[i2*arry + j2], 2);
         }
       }
       
-      if (high_count > 90) {
-        warm_mask[i*arry + j] = 1;
+      local_sigma[i*arry + j] = sqrt(sum / 9.0);
+      
+      if (local_sigma[i*arry + j] > 1.72*read_noise) {
+        local_weight[i*arry + j] = 1.72 * read_noise / local_sigma[i*arry + j];
+        
+        local_mask[i*arry + j] = 0;
+        
+      } else {
+        local_weight[i*arry + j] = 1.0;
+        
+        local_mask[i*arry + j] = 1;
       }
     }
   }
   
-  /* find local maxima */
-  for (i = 2; i < arrx-2; i++) {
-    for (j = 2; j < arry-2; j++) {
-      /* compare this pixel to its neighbors, if it's lower than any of
-       * them then move on to the next pixel */
-      break_out = 0;
-      
-      for (i2 = i-1; i2 <= i+1; i2++) {
-        for (j2 = j-1; j2 <= j+1; j2++) {
-          if (data[i*arry + j] < data[i2*arry + j2]) {
-            break_out = 1;
-            break;
+  if (noise_model == 1) {
+    /* downweight pixels with locally high noise */
+    for (i = 1; i < arrx-1; i++) {
+      for (j = 1; j < arry-1; j++) {
+        num = 0;
+        
+        for (i2 = i-1; i2 <= i+1; i2++) {
+          for (j2 = j-1; j2 <= j+1; j2++) {
+            num += (int) local_mask[i2*arry + j2];
           }
         }
         
-        if (break_out) {
-          break;
-        }
-      }
-      
-      if (break_out) {
-        continue;
-      }
-      
-      /* find the difference between this pixel and the mean of its neighbors
-       * for a one pixel aperture, then for two and three pixel apertures */
-      surr_mean = data[(i-1)*arry + (j+1)] + data[(i+0)*arry + (j+1)] +
-                  data[(i+1)*arry + (j+1)] + data[(i-1)*arry + (j+0)] +
-                  data[(i+1)*arry + (j+0)] + data[(i-1)*arry + (j-1)] +
-                  data[(i+0)*arry + (j-1)] + data[(i+1)*arry + (j-1)];
-      surr_mean /= 8.0;
-      
-      smean_diff1 = data[i*arry + j] - surr_mean;
-      
-      /* two pixel aperture */
-      smean_diff2 = 0.0;
-      
-      for (i2 = i-1; i2 <= i; i2++) {
-        for (j2 = j-1; j2 <= j; j2++) {
-          surr_mean = data[(i2-1)*arry + (j2-1)] + data[(i2-1)*arry + (j2+0)] +
-                      data[(i2-1)*arry + (j2+1)] + data[(i2-1)*arry + (j2+2)] +
-                      data[(i2+0)*arry + (j2+2)] + data[(i2+1)*arry + (j2+2)] +
-                      data[(i2+2)*arry + (j2+2)] + data[(i2+2)*arry + (j2+1)] +
-                      data[(i2+2)*arry + (j2+0)] + data[(i2+2)*arry + (j2-1)] +
-                      data[(i2+1)*arry + (j2-1)] + data[(i2+0)*arry + (j2-1)];
-          surr_mean /= 12.0;
-          
-          smean_diff2_temp = data[(i2+0)*arry + (j2+0)] + data[(i2+1)*arry + (j2+0)] +
-                             data[(i2+0)*arry + (j2+1)] + data[(i2+1)*arry + (j2+1)];
-          smean_diff2_temp -= (4.0 * surr_mean);
-          
-          smean_diff2 = fmax(smean_diff2, smean_diff2_temp);
-        }
-      }
-      
-      /* three pixle aperture */
-      surr_mean = data[(i-2)*arry + (j-2)] + data[(i-2)*arry + (j-1)] +
-                  data[(i-2)*arry + (j+0)] + data[(i-2)*arry + (j+1)] +
-                  data[(i-2)*arry + (j+2)] + data[(i-1)*arry + (j+2)] +
-                  data[(i+0)*arry + (j+2)] + data[(i+1)*arry + (j+2)] +
-                  data[(i+2)*arry + (j-2)] + data[(i+2)*arry + (j-1)] +
-                  data[(i+2)*arry + (j+0)] + data[(i+2)*arry + (j+1)] +
-                  data[(i+2)*arry + (j+2)] + data[(i+1)*arry + (j-2)] +
-                  data[(i+0)*arry + (j-2)] + data[(i-1)*arry + (j-2)];
-      surr_mean /= 16.0;
-      
-      smean_diff3 = data[(i-1)*arry + (j+1)] + data[(i+0)*arry + (j+1)] +
-                    data[(i+1)*arry + (j+1)] + data[(i-1)*arry + (j+0)] +
-                    data[(i+0)*arry + (j+0)] + data[(i+1)*arry + (j+0)] +
-                    data[(i-1)*arry + (j-1)] + data[(i+0)*arry + (j-1)] +
-                    data[(i+1)*arry + (j-1)];
-      smean_diff3 -= (9.0 * surr_mean);
-      
-      if (smean_diff1 > 5.0  * read_noise * (1+warm_mask[i*arry + j]) ||
-          smean_diff2 > 7.5  * read_noise * (1+warm_mask[i*arry + j]) ||
-          smean_diff3 > 10.0 * read_noise * (1+warm_mask[i*arry + j])) {
-        mask_copy[i*arry + j] = 0;
+        noise_arr[i*arry + j] *= (double) num / 9.0;
       }
     }
-  }
-  
-  /* copy the mask_copy to the mask */
-  for (i = 0; i < arrx; i++) {
-    for (j = 0; j < arry; j++) {
-      mask[i*arry + j] = mask_copy[i*arry + j];
-    }
-  }
-  
-  /* having found maxima, identify pixels associated with those maxima */
-  for (i = 2; i < arrx-2; i++) {
-    for (j = 2; j < arry-2; j++) {
-      if (mask_copy[i*arry + j] == 1) {
-        continue;
+    
+    for (i = 0; i < arrx; i++) {
+      for (j = 0; j < arry; j++) {
+        sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
       }
-      
-      high_count = 0;
-      
-      for (i2 = i-5; i2 <= i+5; i2++) {
-        for (j2 = j-5; j2 <= j+5; j2++) {
-          /* don't go outside the array */
-          if (i2 < 0 || i2 >= arrx) {
-            break;
-          } else if (j2 < 0 || j2 >= arry) {
-            continue;
-          }
-          
-          dist1 = sqrt(pow(i2-i,2) + pow(j2-j,2));
-          
-          if (mask[i2*arry + j2] == 1 && dist1 <= 5.5) {
-            for (i3 = i2-1; i3 <= i2+1; i3++) {
-              for (j3 = j2-1; j3 <= j2+1; j3++) {
-                break_out = 0;
-                
-                /* don't go outside the array */
-                if (i3 < 0 || i3 >= arrx || j3 < 0 || j3 >= arry) {
-                  break_out = 1;
-                  break;
-                }
-                
-                dist2 = sqrt(pow(i3-i,2) + pow(j3-j,2));
-                
-                if (dist2 < dist1 && mask[i3*arry + j3] == 1) {
-                  break_out = 1;
-                  break;
-                } else if (dist2 < dist1-0.5 && 
-                           data[i3*arry + j3] < data[i2*arry + j2]) {
-                  break_out = 1;
-                  break;
-                } else if (dist2 > dist1+0.5 &&
-                           data[i3*arry + j3] > data[i2*arry + j2]) {
-                  break_out = 1;
-                  break;
-                }
-              }
-              
-              if (break_out) {
-                break;
-              }
-            }
-            
-            if (break_out) {
-              continue;
-            }
-            
-            mask[i2*arry + j2] = 0;
-            high_count++;
+    }
+    
+  } else if (noise_model == 2) {
+    /* downweight pixels with locally high noise, but less so than under
+     * noise_model == 1.
+     */
+    for (i = 1; i < arrx-1; i++) {
+      for (j = 1; j < arry-1; j++) {
+        sum = 0.0;
+        
+        for (i2 = i-1; i2 <= i+1; i2++) {
+          for (j2 = j-1; j2 <= j+1; j2++) {
+            sum += local_weight[i2*arry + j2];
           }
         }
+        
+        noise_arr[i*arry + j] *= sum / 9.0;
       }
-      
-      /* if more than 1 pixel has had its mask modified repeat the loop
-       * for this pixel */
-      if (high_count > 1) {
-        j--;
+    }
+    
+    for (i = 0; i < arrx; i++) {
+      for (j = 0; j < arry; j++) {
+        sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
       }
     }
   }
   
-  /* now make sure warm columns are masked out */
-  for (i = 2; i < arrx-2; i++) {
-    for (j = 2; j < arry-2; j++) {
-      if (warm_mask[i*arry + j] == 1) {
-        mask[i*arry + j] = 0;
-      }
-    }
-  }
-  
-  free(mask_copy);
-  free(warm_mask);
-  
+  free(local_sigma);
+  free(local_weight);
+  free(local_mask);
+    
   return status;
 }
