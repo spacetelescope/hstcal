@@ -1,0 +1,200 @@
+
+v 1.1:
+-----
+
+- This version contains the basic spectrum and background extraction, plus 
+  wavelenght scale computation, heliocentric correction and flux calibration.
+
+- Missing features in this version:
+  - Background extraction pixels are not tilted.
+  - No MOFFTAB table is being read.
+  - Echelle tilt table ESPTAB is not being read.
+  - No small-scale geometric distortion correction implemented.
+  - No BACKORD keyword is being written to any output header.
+
+- Equation 1 (p. 4) of the ISR is implemented with one additional term,
+  OFFSET2 from table _apd.
+
+- The SDQFLAGS keyword value is used as a mask against each pixel's DQ
+  flag (as in calstis7) despite the fact that this is not explicited in
+  the ISR.
+
+- Besides the command-line parameters described in the ISR, there are two
+  more: -s sporder, and -d debug_file. The first allows selection of a 
+  specific spectral order. The second enables debug information to be sent 
+  to a text file for analysis. At this time the information written into 
+  this file are the X,Y centers of the three extraction boxes (spectrum and 
+  background) after all corrections are applied. The coordinates are written 
+  in physical image pixels, so they can be directly plotted on top of the 
+  image display to aid in checking for the correctenes of the extraction. 
+
+
+
+v 1.2:
+-----
+
+- The CRSCROFF output header keyword stores the *average* cross-correlation
+  shift found in all extracted orders in the corresponding IMSET.
+
+- Includes changes from code review.
+
+- Includes OPRs 33785, 33787, 33790, 33792 and 33789. Note that now calstis6 
+  *is* generating DQ flags of its own, which demands a ISR revision (p. 12).
+
+- Bug fixes: 
+  - the background boxes were being scanned in reference pixels instead of
+    physical pixels.
+
+- When fitting the background, the code limits the number of sigma-clipping 
+  iterations to a maximum of 5, despite this not being said in OPR 33789.
+
+- The maximum number of allowed coefficients for both background and spectrum
+  extraction box tilt is 5. Spectrum extraction box tilt is not implemented.
+  It seems to violate the basic assumption behind calstis6 existence, which
+  is "do not interpolate in the dispersion direction". Since the exact
+  polynomial form is not specified yet, this version assumes the box tilt
+  to be expressed as 
+
+       tilt_angle = Sum (coefficient(i) * pixel ^ i)
+
+  where "pixel" is the current 1-indexed pixel index in the A1 direction in 
+  *reference* pixel scale units.
+
+- Column name changed from MAXSEARCH to MAXSRCH in _1DX reference table.
+
+- Column names changed in output table: NELEM, WAVELENGTH, BACKGROUND.
+
+- Removed any references to ESPTAB (incidence angle correction table).
+
+- New routine GetMAMAOff6 was created by slightly modifying GetInang6
+  to read NCOEFF column instead of NCOEFF1 and NCOEFF2. 
+
+- Code for skipping the output of empty extracted spectra (all pixels are 
+  zero) is in place but NOT activated at this time (output.c).
+
+- Writes the version number in the output table's primary header.
+
+- Skips spectral orders which have DUMMY reference rows.
+
+- Warns if output table is empty. Do not output anything if all output
+  tables are empty.
+
+- Warns if both A2CENTER and SPORDER are set from the command line and
+  the entered A2CENTER is too far from the table value for the entered
+  SPORDER. By "too far" we mean "if the difference between the entered 
+  A2CENTER value and the A2 value of the entered SPORDER is greater than 
+  the separation between the A2 values of the nearest orders to SPORDER"
+  (J. Walsh's words). 
+
+- _trl output conforms to paper products ISR requirements. 
+
+- Calibration switches are input from the command line when in standalone
+  mode (the ones from the image header are ignored).
+
+- A2CENTER entered from the command line is assumed to be in physical
+  (image) coordinates, not reference coordinates.
+
+- SHIFTA2 and MOFFSET2 are not added to A2CENTER when this is read from
+  the command line.
+
+- Report heliocentric correction in HISTORY keyword.
+
+- Fix BACKGROUND output from c/s/pixel to c/s.
+
+- Removed weighted sum from cross-correlation routine.
+
+- Skip order if row in reference table not found.
+
+- Temporarily turned off DQ flag handling. All pixels in the input
+  image are used for both extraction and background, regardless of
+  their DQ values.
+
+- Use ATODGAIN keyword value when flux-calibrating CCD data.
+
+
+
+v 1.6:
+-----
+
+- 1-indexed A2CENTER from the command line.
+
+- Crosscor routine interpolates in trace table to take care of long-slit
+  extractions.
+   
+- Update switch values with 'COMPLETE' in output header, but only if
+  they exist with value 'PERFORM' in input file.
+
+- Replaced DATAMASKED by DETECTORPROB flag.
+
+- Support for POSTARG corrections (disabled).
+
+
+
+
+v 1.7:
+-----
+
+- Report extraction position in _trl file.
+
+- Expand file lists/templates.
+
+- Include extraction box height photometric correction from PCTAB. 
+  Interpolation in PCTAB for non-matching extraction sizes is just a
+  nearest-neighbor algorithm.
+
+
+
+v 1.8:
+-----
+
+- Non-mandatory output file name.
+
+- Getgrpinfo6.c was modified to remove the section where the MOFFSETi
+  keywords were gotten.  There are in the primary header, and they have
+  already been gotten by getkeyinfo6, so getgrpinfo6 should not have been
+  trying to get them again.
+
+- Warning messages were changed in do1dx.c, getpct6.c, and an error
+  message was changed in newtrace6.c.
+
+- Debug file was replaced by extra columns in output table. The -d
+  command line flag was replaced by -e
+  Modified files: background.c, calstis6.c, commline.c, cs6.c, do1dx.c,
+  init.c, memory.c, output.c, x1dspec.c
+
+- Flux calibration can be performed in non-background-subtracted data.
+
+- Global peak-find mode.
+
+- Add capabilities to build PSF profile files.
+
+- Optimal extraction.
+
+- Writes XTRACALG in output primary header. 
+
+- Selects XTRACALG from first matching row in XTRACTAB.
+
+- SDQFLAGS checking was turned back on, but just for the optimal
+  extraction algorithm. 
+
+- Background (value and error) for optimal extraction can be entered
+  from command line.
+
+- Optimal extraction weights/variances output image.
+
+- Detects and avoids geocoronal Lya when searching for the spectrum
+  using the cross-correlation algorithm (1st order only).
+
+- Uses FLUX array from fflux file in optimal extraction algorithm.
+
+- Reject deviant pixels in cprofile and optimal extraction, add flags
+  to DQ extension in weights image.
+
+- Scattered light correction algorithm.
+
+- IDT algorithm.
+
+- Drizzling in optimal profile builder.
+
+- New dispersion relation.
+
