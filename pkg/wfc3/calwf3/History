@@ -1,3 +1,6 @@
+### 27 Jan 2012 - MLS -- Version 2.6.2:
+    - Reduced the number of images to allow in wf3rej to 120 because the archive
+      was anable to handle 250. 
 ### 23 Jan 2012 - MLS -- Version 2.6.1: 
     - Modified procir.c to check for the number of images again, to account
       for singletons going through the pipeline with RPTCORR=PERFORM and

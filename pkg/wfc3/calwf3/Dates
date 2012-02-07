@@ -1,3 +1,6 @@
+27-Jan-2012: CALWF3 2.6.2: Updated the max files to go through wf3rej in IR to 120
+             because the archive wasn't able to handle 250. We are looking for what
+	     is causing the limitation and what the real image limit should be.
 24-Jan-2012: CALWF3 2.6.1: Updated procir.c to check for the number of images again
              There were singletons coming through the archive that were
 	          marked as RPTCORR with NRPTEXP < 2 which were not associated

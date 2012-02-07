@@ -1,3 +1,6 @@
+Updates for version 2.6.2 27-Jan-2012 (MLS): reduced the number of allowed images into wf3rej to 120
+     because the archive was unable to handle 250
+     rej.h: in wf3ir and wf3rj MAX_FILES updated to 120 from 304 
 Updates for version 2.6.1 24-Jan-2012 (MLS):
      procir.c:added a couple lines to check for multiple images so that
 	       singletons with RPTCORR and NRPTEXP > 1 would not go through
