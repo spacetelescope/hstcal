@@ -44,6 +44,9 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
    Phil Hodge. 2012 Jan 23:
 	Allocate memory for inlist, outlist, blevlist based on the size
 	of the string on the command line, rather than using a fixed size.
+
+   Phil Hodge, 2012 Feb 10:
+	Include command-line option '-r'.
 */
 
 int main (int argc, char **argv) {
@@ -117,6 +120,10 @@ int main (int argc, char **argv) {
 
 	    if (strcmp (argv[i], "--version") == 0) {
 		PrVersion();
+		exit (0);
+	    }
+	    if (strcmp (argv[i], "-r") == 0) {
+		PrFullVersion();
 		exit (0);
 	    }
 	    if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */

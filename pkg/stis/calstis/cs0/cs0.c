@@ -26,9 +26,12 @@ static void FreeNames (char *, char *, char *, char *, char *, char *);
    Phil Hodge, 2011 July 26:
 	Add a check that n_raw > 0 after calling c_imtopen.
 
-   Phil Hodge. 2012 Jan 23:
+   Phil Hodge, 2012 Jan 23:
 	Allocate memory for rawlist, wavlist, outlist based on the size
 	of the string on the command line, rather than using a fixed size.
+
+   Phil Hodge, 2012 Feb 10:
+	Include command-line option '-r'.
 */
 
 int main (int argc, char **argv) {
@@ -57,7 +60,7 @@ int main (int argc, char **argv) {
 	c_irafinit (argc, argv);
 
 	/* Allocate space for file names. */
-	rawlist = calloc (1, sizeof (char));    /* allocated later */
+	rawlist = calloc (1, sizeof (char));	/* allocated later */
 	wavlist = calloc (1, sizeof (char));
 	outlist = calloc (1, sizeof (char));
 	rawfile = calloc (STIS_LINE+1, sizeof (char));
@@ -89,6 +92,10 @@ int main (int argc, char **argv) {
 	    } else if (argv[i][0] == '-') {
 		if (strcmp (argv[i], "--version") == 0) {
 		    PrVersion();
+		    exit (0);
+		}
+		if (strcmp (argv[i], "-r") == 0) {
+		    PrFullVersion();
 		    exit (0);
 		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {
@@ -239,16 +246,16 @@ int main (int argc, char **argv) {
 static void FreeNames (char *rawlist, char *wavlist, char *outlist,
 		char *rawfile, char *wavfile, char *outroot) {
 
-        if (outroot != NULL)
-            free (outroot);
-        if (wavfile != NULL)
-            free (wavfile);
-        if (rawfile != NULL)
-            free (rawfile);
-        if (outlist != NULL)
-            free (outlist);
-        if (wavlist != NULL)
-            free (wavlist);
-        if (rawlist != NULL)
-            free (rawlist);
+	if (outroot != NULL)
+	    free (outroot);
+	if (wavfile != NULL)
+	    free (wavfile);
+	if (rawfile != NULL)
+	    free (rawfile);
+	if (outlist != NULL)
+	    free (outlist);
+	if (wavlist != NULL)
+	    free (wavlist);
+	if (rawlist != NULL)
+	    free (rawlist);
 }

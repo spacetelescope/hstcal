@@ -249,6 +249,7 @@ double orbitalDopp (double t1, double t2,
 
 void PrBegin (int csnumber);
 void PrEnd (int csnumber);
+void PrFullVersion (void);
 void PrVersion (void);
 void PrFileName (char *label, char *filename);
 void PrHdrInfo (char *obsmode, char *aperture, char *opt_elem, char *detector);

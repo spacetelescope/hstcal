@@ -20,6 +20,7 @@ static int getArgT (char **, int, int *, char *);
    ----------------
    20 Oct 97  -  Adapted from cs6 commline.c (JC Hsu)
    06 Jul 11  -  Add command-line option --version (Phil Hodge)
+   10 Feb 12  -  Add command-line option -r (Phil Hodge)
 */
 
 int cs2_command (int argc, char **argv, char *input, char *output,
@@ -44,6 +45,10 @@ int newpar;		o: parameter been set by the user?
 	for (ctoken = 1;  ctoken < argc;  ctoken++) {
 	    if (strcmp (argv[ctoken], "--version") == 0) {
 		PrVersion();
+		exit (0);
+	    }
+	    if (strcmp (argv[ctoken], "-r") == 0) {
+		PrFullVersion();
 		exit (0);
 	    }
 	}

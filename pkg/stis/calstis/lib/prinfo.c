@@ -1,6 +1,7 @@
 /* This file contains:
 	PrBegin (csnumber)
 	PrEnd (csnumber)
+	PrFullVersion()
 	PrVersion()
 	PrFileName (label, filename)
 	PrHdrInfo (obsmode, aperture, opt_elem, detector)
@@ -74,6 +75,12 @@ void PrEnd (int csnumber) {
 	printf ("\n");
 	printf ("*** CALSTIS-%d complete ***\n", csnumber);
 
+	fflush (stdout);
+}
+
+void PrFullVersion (void) {
+
+	printf ("%s\n", STIS_CAL_VER);
 	fflush (stdout);
 }
 
