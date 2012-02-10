@@ -50,6 +50,8 @@ static int getArgD (char **, int, int *, double *);
 		from BKS_OFF to BKS_MEDIAN, consistent with calstis0 (PEH)
    27 May 11  -  Add new command line option -bn for bks_mode=off (PEH)
    06 Jul 11  -  Add new command line option --version (PEH)
+   10 Feb 12  -  If -r is the first word on the command line (following cs6.e),
+		print the full version string and exit 0 (PEH)
 */
 
 int CommLine (int argc, char **argv, char *input, char *output,
@@ -188,6 +190,10 @@ double *xoffset;	o: offset in dispersion direction for slitless data
         cte  = 0;
 	switches = 0;
 
+	if (argc > 1 && strcmp (argv[1], "-r") == 0) {
+	    PrFullVersion();
+	    exit (0);
+	}
 	for (ctoken = 1;  ctoken < argc;  ctoken++) {
 	    if (strcmp (argv[ctoken], "--version") == 0) {
 		PrVersion();
