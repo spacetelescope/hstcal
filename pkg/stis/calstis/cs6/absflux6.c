@@ -69,6 +69,7 @@ double interp1d (double, double *, double *, int, int *);
    20 Apr 06  -  For pct_factor, use wavelengths that have not been
                  modified for the blaze shift.
                  In getHalo, return if ctecorr is not PERFORM (PEH).
+   10 Feb 12  -  Apply the Q factor to the NET_ERROR column (PEH).
 */
 
 int AbsFlux6 (StisInfo6 *sts, RowContents *out,
@@ -263,6 +264,7 @@ int AbsFlux6 (StisInfo6 *sts, RowContents *out,
                 } else {
                     out->flux[i] = net * correction;
                     out->error[i] *= ecorrection * qfactor;
+                    out->net_error[i] *= qfactor;
                 }
             }
         }
