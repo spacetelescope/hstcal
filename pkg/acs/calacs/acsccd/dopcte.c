@@ -196,18 +196,20 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     /* do some smoothing on the data so we don't amplify the read noise. 
      * data should be in electrons. */
     if (DecomposeRN(amp_arr1, amp_arr2, amp_sci_arr,
-                    pars.rn_clip, amp_sig_arr, amp_nse_arr)) {
+                    pars.rn_clip, pars.noise_model, 
+                    amp_sig_arr, amp_nse_arr)) {
       return (status);
     }
     
     /* perform CTE correction */
     if (FixYCte(amp_arr1, amp_arr2, amp_sig_arr, amp_cor_arr, pars.sim_nit, 
-                pars.shft_nit, cte_frac_arr, pars.levels, dpde_l,
-                chg_leak_lt, chg_open_lt, acs->onecpu)) {
+                pars.shft_nit, pars.sub_thresh, cte_frac_arr, pars.levels,
+                dpde_l, chg_leak_lt, chg_open_lt, acs->onecpu)) {
       return (status);
     }
     
-    /* add readout noise back and add 10% correction to error in quadrature. */
+    /* add readout noise back and convert corrected data back to DN.
+     * add 10% correction to error in quadrature. */
     for (k = 0; k < amp_arr1; k++) {
       for (m = 0; m < amp_arr2; m++) {
         amp_cor_arr[k*amp_arr2 + m] = amp_cor_arr[k*amp_arr2 + m] 

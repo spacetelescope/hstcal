@@ -16,7 +16,6 @@
 #define NOSCN_ROWS 20
 
 /* prototypes for functions in this file */
-static int destripe(ACSInfo * acs);
 static int calc_mean_std(const int len, const double array[], const double sig,
                          double *mean, double *std);
 static int bias_col_mean_std(const int arr_rows, const int arr_cols, const double array[],
@@ -36,40 +35,12 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup * 
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
                             int amp, double * array);
 
-int doDestripe(ACSInfo * acs) {
-  extern int status;
 
-  Hdr phdr;		/* primary header for input image */
-
-  /* functions from lib */
-  int LoadHdr (char *, Hdr *);
-  void PrSwitch (char *, int);
-  void TimeStamp (char *, char *);
-
-  PrSwitch("blevcorr", PERFORM);
-  trlmessage("Performing stripe removal and bias level subtraction.");
-
-  if (destripe(acs)) {
-    return status;
-  }
-
-  PrSwitch("blevcorr", COMPLETE);
-
-  if (acs->printtime) {
-    TimeStamp("BLEVCORR complete", acs->rootname);
-  }
-
-  return status;
-}
-
-static int destripe(ACSInfo * acs) {
+int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   extern int status;
 
   /* iteration variables */
   int i,j,k;
-
-  /* structures to hold data for both chips */
-  SingleGroup chip2, chip1;
 
   /* amp array size variables */
   int arr_rows, arr_cols;
@@ -101,34 +72,15 @@ static int destripe(ACSInfo * acs) {
   /* holder of bias means from each amp, saved here so I can put the
    * MEANBLEV keyword in the science extension headers */
   double bias_mean_arr[NAMPS];
-
-  /* output filename. will become the new acs->input for the next steps */
-  char outname[ACS_LINE+1];
   
   int PutKeyFlt(Hdr *, char *, float, char *);
   int blevHistory(ACSInfo *, Hdr *, int, int);
   int MkName (char *, char *, char *, char *, char *, int);
 
-  /* get data and put it into individual amp arrays, with the amp in the
-   * lower left corner */
-  initSingleGroup(&chip2);
-  initSingleGroup(&chip1);
-
-  getSingleGroup(acs->input, 1, &chip2);
-  if (hstio_err()) {
-    return (status = OPEN_FAILED);
-  }
-
-  getSingleGroup(acs->input, 2, &chip1);
-  if (hstio_err()) {
-    freeSingleGroup(&chip2);
-    return (status = OPEN_FAILED);
-  }
-
   /* figure out the size of individual amp arrays
    * should be 2068 rows by 2072 columns */
-  arr_rows = chip2.sci.data.ny;
-  arr_cols = chip2.sci.data.nx/2;
+  arr_rows = chip2->sci.data.ny;
+  arr_cols = chip2->sci.data.nx/2;
 
   /* allocate space for the amp arrays */
   for (i = 0; i < NAMPS; i++) {
@@ -139,9 +91,9 @@ static int destripe(ACSInfo * acs) {
   /* copy data from SingleGroup structs to amp arrays */
   for (i = 0; i < NAMPS; i++) {
     if (i < 2) {
-      make_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i]);
+      make_amp_array(arr_rows, arr_cols, chip1, i, ampdata[i]);
     } else {
-      make_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i]);
+      make_amp_array(arr_rows, arr_cols, chip2, i, ampdata[i]);
     }
   }
 
@@ -180,19 +132,21 @@ static int destripe(ACSInfo * acs) {
     }
 
     /* report bias level subtracted to user */
-    sprintf(MsgText, "     bias level of %.6g DN was subtracted for AMP %c.", bias_mean, AMPSORDER[i]);
+    sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.",
+            bias_mean, AMPSORDER[i]);
     trlmessage(MsgText);
 
+    acs->blev[i] = bias_mean;
     bias_mean_arr[i] = bias_mean;
   }
 
   /* add MEANBLEV keyword to science extension headers */
-  if (PutKeyFlt (&chip1.sci.hdr, "MEANBLEV", (bias_mean_arr[0] + bias_mean_arr[1])/2.,
-                 "mean of bias levels subtracted in DN")) {
+  if (PutKeyFlt (&chip1->sci.hdr, "MEANBLEV", (bias_mean_arr[0] + bias_mean_arr[1])/2.,
+                 "mean of bias levels subtracted in electrons")) {
     return (status);
   }
-  if (PutKeyFlt (&chip2.sci.hdr, "MEANBLEV", (bias_mean_arr[2] + bias_mean_arr[3])/2.,
-                 "mean of bias levels subtracted in DN")) {
+  if (PutKeyFlt (&chip2->sci.hdr, "MEANBLEV", (bias_mean_arr[2] + bias_mean_arr[3])/2.,
+                 "mean of bias levels subtracted in electrons")) {
     return (status);
   }
 
@@ -203,13 +157,13 @@ static int destripe(ACSInfo * acs) {
   
   /* add history keywords about rows fixed and rows skipped */
   sprintf(history, "DESTRIPE: number of rows fixed per amp: %i", rows_fixed);
-  addHistoryKw(chip2.globalhdr, history);
+  addHistoryKw(chip2->globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
   }
   
   sprintf(history, "DESTRIPE: number of rows skipped per amp: %i", rows_skipped);
-  addHistoryKw(chip2.globalhdr, history);
+  addHistoryKw(chip2->globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
   }
@@ -217,38 +171,17 @@ static int destripe(ACSInfo * acs) {
   /* copy modified data back to SingleGroup structs */
   for (i = 0; i < NAMPS; i++) {
     if (i < 2) {
-      unmake_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i]);
+      unmake_amp_array(arr_rows, arr_cols, chip1, i, ampdata[i]);
     } else {
-      unmake_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i]);
+      unmake_amp_array(arr_rows, arr_cols, chip2, i, ampdata[i]);
     }
   }
-
-  /* save new file */
-  /* make output file name */
-  if (MkName(acs->input, "_raw", "_strp_tmp", "", outname, ACS_LINE)) {
-    return status;
-  }
-
-  /* copy outname to acs->input */
-  strcpy(acs->input, outname);
-
-  /* update header history and keywords */
-  if (blevHistory(acs, chip2.globalhdr, YES, NO)) {
-    return status;
-  }
-
-  /* output destriped data to temp file */
-  putSingleGroup(outname, 1, &chip2, 0);
-  putSingleGroup(outname, 2, &chip1, 0);
 
   /* free allocated arrays */
   for (i = 0; i < NAMPS; i++) {
     free(ampdata[i]);
     free(good_rows[i]);
   }
-
-  freeSingleGroup(&chip2);
-  freeSingleGroup(&chip1);
 
   return status;
 }
@@ -309,7 +242,7 @@ static int remove_stripes(const int arr_rows, const int arr_cols,
 
     /* check whether this row meets usability standards */
     for (k = 0; k < NAMPS; k++) {
-      if (ampstds[k] >= 7.5) {
+      if (ampstds[k] >= 15) {
         good_rows[k][i] = 0;
       }
     }
@@ -576,19 +509,17 @@ static int find_good_rows(const int arr_rows, const int arr_cols, const double *
 
     row_means[i] = sum / (double) (arr_cols - NBIAS_COLS);
 
-    if (abs(row_means[i] - amp_mean) > 50) {
+    if (array[arr_cols*i + 24] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 24] > 35000) {
+    } else if (array[arr_cols*i + 25] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 25] > 35000) {
+    } else if (array[arr_cols*i + 26] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 26] > 35000) {
+    } else if (array[arr_cols*i + 27] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 27] > 35000) {
+    } else if (array[arr_cols*i + 28] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 28] > 35000) {
-      good_rows[i] = 0;
-    } else if (array[arr_cols*i + 29] > 35000) {
+    } else if (array[arr_cols*i + 29] > 70000) {
       good_rows[i] = 0;
     } else {
       good_rows[i] = 1;
@@ -652,12 +583,12 @@ static int bias_col_mean_std(const int arr_rows, const int arr_cols, const doubl
     not_skipped = 0;
 
     for (i = 0; i < arr_rows; i++) {
-      if ((array[arr_cols*i + 24] < 25000) &&
-          (array[arr_cols*i + 25] < 25000) &&
-          (array[arr_cols*i + 26] < 25000) &&
-          (array[arr_cols*i + 27] < 25000) &&
-          (array[arr_cols*i + 28] < 25000) &&
-          (array[arr_cols*i + 29] < 25000)) {
+      if ((array[arr_cols*i + 24] < 50000) &&
+          (array[arr_cols*i + 25] < 50000) &&
+          (array[arr_cols*i + 26] < 50000) &&
+          (array[arr_cols*i + 27] < 50000) &&
+          (array[arr_cols*i + 28] < 50000) &&
+          (array[arr_cols*i + 29] < 50000)) {
         bias_col[not_skipped] = minus_row_mean[NBIAS_COLS*i + j];
         not_skipped ++;
       }

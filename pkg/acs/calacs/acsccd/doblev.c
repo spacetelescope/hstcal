@@ -129,7 +129,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   if (strlen(acs->ccdamp) > 1){
     if (acs->detector == WFC_CCD_DETECTOR && acs->chip == 2) biasnum += 2;
   }
-  ccdbias = acs->ccdbias[biasnum];
+  ccdbias = acs->ccdbias[biasnum] * acs->atodgain[biasnum];
   
   if (*overscan != YES) {
     /* If no overscan region, subtract default BIAS level
@@ -271,10 +271,9 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
      in x, and fit to these values as a function of line number in
      the output image.
      The readnoise which gets used here needs to be specific to the amp
-     used for the readout region, and scaled by the gain since the overscan
-     data is in units of DN. (H. Bushouse, 28 July 2006).
+     used for the readout region. (H. Bushouse, 28 July 2006).
      */
-    rn = acs->readnoise[amp_indx]/acs->atodgain[amp_indx];
+    rn = acs->readnoise[amp_indx];
     FitToOverscan (x, sizey, trimy1, biassect, ccdbias, acs->sdqflags, rn);
     
     /* Report the slope and intercept from the BLEV fit here. */

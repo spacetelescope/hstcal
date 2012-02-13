@@ -38,14 +38,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   
 	Hdr phdr;		/* primary header for input image */
   
-  /* variables for taking care of the temporary file created during destriping */
-  int destripe_done = NO;
-  char destripe_name[ACS_LINE+1];
-  
-  SingleGroup sg;
-  
-	int DoCCD (ACSInfo *, int);
-  int doDestripe (ACSInfo *);
+	int DoCCD (ACSInfo *);
 	int FileExists (char *);
 	int GetACSFlags (ACSInfo *, Hdr *);
 	int GetACSKeys (ACSInfo *, Hdr *);
@@ -148,11 +141,11 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
    in the header is COMPLETE.
    */
 	if (GetACSFlags (&acs, &phdr)) {
-		freeHdr (&phdr);
+		freeHdr(&phdr);
     return (status);
 	}
   
-  freeHdr (&phdr);
+  freeHdr(&phdr);
   
   /* If ccd_sw->pctecorr is set to OMIT but acs.pctecorr is now set to PERFORM
    * then this is a case where we are performing the no-CTE half of the processing
@@ -170,35 +163,12 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
   
 	/* Do basic CCD image reduction. */
   
-	if (acs.printtime)
-    TimeStamp ("Begin processing", acs.rootname);
-  
-  /* perform destriping if this observation was taken after SM4
-   * and it's WFC */
-  if (acs.expstart > SM4MJD && 
-      acs.blevcorr == PERFORM &&
-      acs.detector == WFC_CCD_DETECTOR &&
-      acs.subarray == NO) {
-    if (doDestripe(&acs)) {
-      return status;
-    }
-    acs.blevcorr = COMPLETE;
-    
-    destripe_done = YES;
-    strcpy(destripe_name,acs.input);
+	if (acs.printtime) {
+    TimeStamp("Begin processing", acs.rootname);
   }
   
-	for (extver = 1;  extver <= acs.nimsets;  extver++) {
-    trlmessage ("\n");
-    PrGrpBegin ("imset", extver);
-    if (DoCCD (&acs, extver))
-      return (status);
-    PrGrpEnd ("imset", extver);
-	}
-  
-  /* remove destriping temp file if it has been made */
-  if (destripe_done == YES) {
-    remove(destripe_name);
+  if (DoCCD(&acs)) {
+    return (status);
   }
   
   /*  Commented out until the new keywords can be populated in the headers
@@ -213,11 +183,12 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
    */
   BiasKeywords (&acs);
   
-	trlmessage ("\n");
-	PrEnd ("ACSCCD");
+	trlmessage("\n");
+	PrEnd("ACSCCD");
   
-	if (acs.printtime)
-    TimeStamp ("ACSCCD completed", acs.rootname);
+	if (acs.printtime) {
+    TimeStamp("ACSCCD completed", acs.rootname);
+  }
   
 	/* Write out temp trailer file to final file */
 	WriteTrlFile ();

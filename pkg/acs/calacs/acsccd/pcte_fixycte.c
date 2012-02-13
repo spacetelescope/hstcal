@@ -23,8 +23,8 @@ int sim_readout_nit(const int arrx, double pix_cur[arrx], double pix_read[arrx],
 
 int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             double sig_cor[arrx*arry], const int sim_nit, const int shft_nit,
-            double cte_frac[arrx*arry], const int levels[NUM_LEV],
-            const double dpde_l[NUM_LEV],
+            const double too_low, double cte_frac[arrx*arry],
+            const int levels[NUM_LEV], const double dpde_l[NUM_LEV],
             const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
             const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV], int onecpu) {
   
@@ -44,10 +44,6 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
   
   /* recalculated CTE scale, only needed in cases of over subtraction */
   double new_cte_frac, ncf_top, ncf_bot;
-  
-  /* value which is so low that a trail has been over subtracted
-   * and we need to fix something */
-  double too_low = -10.0;
   
   /* flag for whether we've found a pixel with added charge */
   short int high_found;

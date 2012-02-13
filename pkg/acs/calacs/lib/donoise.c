@@ -49,115 +49,38 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
 	extern int status;
 
 	float rn[NAMPS],rn2[NAMPS]; /* square of noise values for observation */
-  float gain[NAMPS];		    /* gain values for observation */
-	float value;		/* dn * gain (i.e. signal in el) */
+  float gain[NAMPS];          /* gain values for observation */
+	float value;                /* signal in e- */
+  float err_val;              /* error value in e- */
 	int i, j;
 	int ampx;		/* border column for 2amp readout regions */
 	int ampy;		/* Boundary values corrected for trim regions */
   int dimx, dimy;
   int offsetx, offsety;
   float val;
+  
+  char targname[ACS_LINE];
 
-  time_t date,date_limit;
-  char dateobs[ACS_CBUF],targname[ACS_LINE];
-
-	SingleGroupLine y;	/* y is scratch space for bias image line */
-	SingleGroup b;	/* b is space for bias image group */
-	int extver = 1;		/* get this imset from bias image */
-	int rx, ry;					/* for binning bias image down to size of x */
-	int x0, y0;				/* offsets of sci image */
-	int same_size;			/* true if no binning of ref image required */
-  int use_bias;    /* true if using bias image to init err array */
-
-	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
-	int DetCCDChip (char *, int, int, int *);
-  int GetKeyStr (Hdr *, char *, int, char *, char *, int);
-  int GetKeyDbl (Hdr *, char *, int, double, double *);
-  void get_nsegn (int, int, int, int, float *, float*, float *, float *);
-  int parseObsDateVal (char *dateobs, time_t *date);
+	int FindLine(SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
+	int DetCCDChip(char *, int, int, int *);
+  int GetKeyStr(Hdr *, char *, int, char *, char *, int);
+  int GetKeyDbl(Hdr *, char *, int, double, double *);
+  void get_nsegn(int, int, int, int, float *, float*, float *, float *);
 
 	*done = 0;				/* initial value */
 
-	/* First check for a dummy error array.  If it's not dummy,
-   we just return without doing anything.
-   */
   dimx = x->err.data.nx;
   dimy = x->err.data.ny;
-	for (j = 0;  j < dimy;  j++) {
-    for (i = 0;  i < dimx;  i++) {
-      if (Pix (x->err.data, i, j) != 0.) {
-        return (status);	/* not a dummy error array */
-      }
-    }
-	}
 
-  if (acs->detector != MAMA_DETECTOR){
+  if (acs->detector != MAMA_DETECTOR) {
     /*
      CCD initialization
      */
     offsetx = (int)(acs->offsetx > 0) ? acs->offsetx : 0;
     offsety = (int)(acs->offsety > 0) ? acs->offsety : 0;
 
-    /* Get and parse DATE-OBS into a floating point value*/
-    if (GetKeyStr (x->globalhdr, "DATE-OBS", USE_DEFAULT, "", dateobs, ACS_CBUF))
+    if (GetKeyStr(x->globalhdr, "TARGNAME", USE_DEFAULT, "", targname, ACS_LINE))
       return (status);
-
-    parseObsDateVal(dateobs, &date);
-
-    /* Parse date used to check whether ACS HRC/WFC data was
-     pre-SM4 or post-SM4 and turn into a float for comparison
-     with exposure's date-obs
-     */
-    parseObsDateVal("2009-01-01", &date_limit);
-    if (GetKeyStr (x->globalhdr, "TARGNAME", USE_DEFAULT, "", targname, ACS_LINE))
-      return (status);
-
-    use_bias = 0;
-
-    /* Initialize local variables */
-    rx = 1;
-    ry = 1;
-    x0 = 0;
-    y0 = 0;
-    same_size = 1;
-
-    if (date > date_limit && strncmp(targname,"BIAS",4) != 0) {
-      use_bias = 1;
-
-      /* Post-SM4 case: We are not processing a BIAS exposure, so
-       Initialize bias reference file for use */
-      /* Start by getting the BIASFILE line for this computation */
-      initSingleGroupLine (&y);
-
-      /* Get the first line of bias image data. */
-      if (DetCCDChip (acs->bias.name, acs->chip, acs->nimsets, &extver) )
-        return (status);
-
-      openSingleGroupLine (acs->bias.name, extver, &y);
-      if (hstio_err())
-        return (status = OPEN_FAILED);
-
-      /*
-       Reference image should already be selected to have the
-       same binning factor as the science image.  All we need to
-       make sure of is whether the science array is a sub-array of
-       the bias image.
-
-       x0,y0 is the location of the start of the
-       subimage in the reference image; i.e.,
-       offsets into bias image compared to (0,0) of exposure
-       */
-      if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
-        return (status);
-
-      /* Clean up */
-      closeSingleGroupLine (&y);
-      freeSingleGroupLine (&y);
-
-      /* Now read in BIASFILE array for use */
-      initSingleGroup (&b);
-      getSingleGroup (acs->bias.name, extver, &b);
-    }
 
     /* Correct the AMP readout boundaries for this offset */
     ampx = ((acs->ampx == 0) ? 0 : (int)(acs->ampx + offsetx) );
@@ -205,34 +128,25 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       /* Let's make sure we actually found a value for the gain
        **	and readnoise...
        */
-      if (ampx > 0 && (gain[AMP_C] == 0. || rn[AMP_C] == 0.) ){
-        trlerror ("No valid GAIN or READNOISE values to initialize ERR data.");
+      if (ampx > 0 && rn[AMP_C] == 0.) {
+        trlerror ("No valid READNOISE values to initialize ERR data.");
         return (status = ERROR_RETURN);
       }
 
       for (i = 0;  i < ampx;  i++) {
-        if (use_bias) {
-          /* Post-SM4 case: new algorithm */
-          /* subtract bias image then convert to electrons */
-          value = (Pix (x->sci.data, i, j) - Pix(b.sci.data, i+x0, j+y0)) * gain[AMP_C];
-        } else {
-          /* Pre-SM4 case: no change */
-          /* convert to electrons */
-          value = Pix (x->sci.data, i, j) * gain[AMP_C];
-        }
+        value = Pix(x->sci.data, i, j);
+        err_val = Pix(x->err.data, i, j);
 
         if (value < 0.)
           value = 0.;			/* sigma = 0 if signal = 0 */
 
-        if (strncmp(targname,"BIAS",4) != 0 || date < date_limit){
+        if (strncmp(targname,"BIAS",4) != 0) {
           /* include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = sqrt (value + rn2[AMP_C]) / gain[AMP_C];
+          Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_C] + err_val*err_val);
         } else {
-          /* BIAS exposure being processed: only set to RN/GAIN
-             include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = rn[AMP_C] / gain[AMP_C];
+          /* BIAS exposure being processed: only set to RN */
+          Pix(x->err.data, i, j) = rn[AMP_C];
         }
-
       } /* End of loop over X for AMP_C */
 
       /*
@@ -243,30 +157,24 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       /* Let's make sure we actually found a value for the gain
        **	and readnoise...
        */
-      if (ampx == 0 && (gain[AMP_D] == 0. || rn[AMP_D] == 0.) ){
-        trlerror ("No valid GAIN or READNOISE values to initialize ERR data.");
+      if (ampx == 0 && rn[AMP_D] == 0.) {
+        trlerror ("No valid READNOISE values to initialize ERR data.");
         return (status = ERROR_RETURN);
       }
 
       for (i = ampx;  i < dimx;  i++) {
-        if (use_bias) {
-          /* Post-SM4 case: new algorithm */
-          /* subtract bias image then convert to electrons */
-          value = (Pix (x->sci.data, i, j) - Pix(b.sci.data, i+x0, j+y0)) * gain[AMP_D];
-        } else {
-          /* Pre-SM4 case: no change */
-          /* convert to electrons */
-          value = (Pix (x->sci.data, i, j)) * gain[AMP_D];
-        }
+        value = Pix(x->sci.data, i, j);
+        err_val = Pix(x->err.data, i, j);
+        
         if (value < 0.)
           value = 0.;			/* sigma = 0 if signal = 0 */
-        if (strncmp(targname,"BIAS",4) != 0 || date < date_limit){
+        
+        if (strncmp(targname,"BIAS",4) != 0) {
           /* include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = sqrt (value + rn2[AMP_D]) / gain[AMP_D];
+          Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_D] + err_val*err_val);
         } else {
-          /* BIAS exposure being processed: only set to RN/GAIN
-             include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = rn[AMP_D] / gain[AMP_D];
+          /* BIAS exposure being processed: only set to RN */
+          Pix(x->err.data, i, j) = rn[AMP_D];
         }
       }
     }
@@ -280,33 +188,26 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       /* Let's make sure we actually found a value for the gain
        **	and readnoise...
        */
-      if (ampx > 0 && (gain[AMP_A] == 0. || rn[AMP_A] == 0.)) {
-        trlerror ("No valid GAIN or READNOISE values to initialize ERR data.");
+      if (ampx > 0 && rn[AMP_A] == 0.) {
+        trlerror ("No valid READNOISE values to initialize ERR data.");
         return (status = ERROR_RETURN);
       }
 
       /* Only execute this loop for AMP > 0 (multi-amp for line) */
       for (i = 0;  i < ampx;  i++) {
-        if (use_bias) {
-          /* Post-SM4 case: new algorithm */
-          /* subtract bias image then convert to electrons */
-          value = (Pix (x->sci.data, i, j) - Pix(b.sci.data, i+x0, j+y0)) * gain[AMP_A];
-        } else {
-          /* Pre-SM4 case: no change */
-          /* convert to electrons */
-          value = (Pix (x->sci.data, i, j)) * gain[AMP_A];
-        }
+        value = Pix(x->sci.data, i, j);
+        err_val = Pix(x->err.data, i, j);
+        
         if (value < 0.)
           value = 0.;			/* sigma = 0 if signal = 0 */
-        if (strncmp(targname,"BIAS",4) != 0 || date < date_limit){
+        
+        if (strncmp(targname,"BIAS",4) != 0) {
           /* include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = sqrt (value + rn2[AMP_A]) / gain[AMP_A];
+          Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_A] + err_val*err_val);
         } else {
-          /* BIAS exposure being processed: only set to RN/GAIN
-             include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = rn[AMP_A] / gain[AMP_A];
+          /* BIAS exposure being processed: only set to RN */
+          Pix(x->err.data, i, j) = rn[AMP_A];
         }
-
       }
 
       /*
@@ -318,43 +219,29 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       /* Let's make sure we actually found a value for the gain
        **	and readnoise...
        */
-      if (ampx == 0 && (gain[AMP_B] == 0. || rn[AMP_B] == 0.) ){
-        trlerror ("No valid GAIN or READNOISE values to initialize ERR data.");
+      if (ampx == 0 && rn[AMP_B] == 0.){
+        trlerror ("No valid READNOISE values to initialize ERR data.");
         return (status = ERROR_RETURN);
       }
 
       for (i = ampx;  i < dimx;  i++) {
-
-        if (use_bias) {
-          /* Post-SM4 case: new algorithm */
-          /* subtract bias image then convert to electrons */
-          value = (Pix (x->sci.data, i, j) - Pix(b.sci.data, i+x0, j+y0)) * gain[AMP_B];
-        } else {
-          /* Pre-SM4 case: no change */
-          /* convert to electrons */
-          value = (Pix (x->sci.data, i, j)) * gain[AMP_B];
-        }
+        value = Pix(x->sci.data, i, j);
+        err_val = Pix(x->err.data, i, j);
+        
         if (value < 0.)
           value = 0.;			/* sigma = 0 if signal = 0 */
 
-        if (strncmp(targname,"BIAS",4) != 0 || date < date_limit){
+        if (strncmp(targname,"BIAS",4) != 0) {
           /* include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = sqrt (value + rn2[AMP_B]) / gain[AMP_B];
+          Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_B] + err_val*err_val);
         } else {
-          /* BIAS exposure being processed: only set to RN/GAIN
-             include readout noise and convert back to dn */
-          Pix (x->err.data, i, j) = rn[AMP_B] / gain[AMP_B];
+          /* BIAS exposure being processed: only set to RN */
+          Pix(x->err.data, i, j) = rn[AMP_B];
         }
       }
     }
-
-    if (use_bias) {
-      /* Clean up */
-      /* Free b, which still has memory allocated. */
-      freeSingleGroup (&b);
-    }
-
     /* End of CCD initialization */
+    
   } else {
     /* MAMA initialization */
     /* Set error to max of 1 or sqrt(counts) */
@@ -375,3 +262,26 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
 	*done = 1;
 	return (status);
 }
+
+
+/* check whether the SingleGroup error arrays is all zeros. returns YES
+ * if that's the case, NO otherwise. */
+int check_zero_noise(SingleGroup *x) {
+  int all_zeros = YES;
+  
+  int i, j, dimx, dimy;
+  
+  dimx = x->err.data.nx;
+  dimy = x->err.data.ny;
+  
+  for (i = 0; i < dimx; i++) {
+    for (j = 0; j < dimy; j++) {
+      if (Pix(x->err.data, i, j) != 0.) {
+        all_zeros = NO;
+        return all_zeros;
+        }
+      }
+    }
+  
+  return all_zeros;
+  }

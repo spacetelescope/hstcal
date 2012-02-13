@@ -15,9 +15,6 @@
 /* constants for different instrument names */
 #define ACSWFC 1
 
-/* parameters of readout noise decomposition routines */
-#define NOISE_MODEL 1
-
 #define NAMPS 4
 #define AMP_COLS 2072
 
@@ -25,8 +22,10 @@
 typedef struct {
   double cte_frac;
   double rn_clip;
+  int noise_model;
   int sim_nit;
   int shft_nit;
+  double sub_thresh;
   double dtde_l[NUM_PHI];
   int q_dtde[NUM_PHI];
   int psi_node[NUM_PSI];
@@ -52,10 +51,11 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
                     double chg_open_lt[MAX_TAIL_LEN*NUM_LEV],
                     double dpde_l[NUM_LEV]);
 int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
-                const double pclip, double sig_arr[arrx*arry], double noise_arr[arrx*arry]);
+                const double read_noise, const int noise_model,
+                double sig_arr[arrx*arry], double noise_arr[arrx*arry]);
 int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             double sig_cor[arrx*arry], const int sim_nit, const int shft_nit,
-            double cte_frac[arrx*arry], const int levels[NUM_LEV],
-            const double dpde_l[NUM_LEV],
+            const double too_low, double cte_frac[arrx*arry],
+            const int levels[NUM_LEV], const double dpde_l[NUM_LEV],
             const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
             const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV], int onecpu);

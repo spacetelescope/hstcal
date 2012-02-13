@@ -191,8 +191,30 @@ int Do2D (ACSInfo *acs2d, int extver) {
 		    return (status);
 	}
   
+  /* if the data aren't already in electrons, do it here. */
+  if (GetKeyStr(&x.sci.hdr, "BUNIT", USE_DEFAULT, "", units, ACS_LINE)) {
+    freeSingleGroup(&x);
+    return status;
+  }
+  
+  if (strncmp(units, "ELECTRONS", 6) != 0) {
+    if (to_electrons(acs2d, &x)) {
+      freeSingleGroup(&x);
+      return (status);
+    }
+    
+    if (PutKeyStr (&x.sci.hdr, "BUNIT", "ELECTRONS", "")) {
+      freeSingleGroup(&x);
+      return (status);
+    }
+    if (PutKeyStr (&x.err.hdr, "BUNIT", "ELECTRONS", "")) {
+      freeSingleGroup(&x);
+      return (status);
+    }
+  }
+  
   /* Fill in the error array, if it initially contains all zeros. */
-	if (acs2d->noisecorr == PERFORM) {
+	if (acs2d->noisecorr == PERFORM && check_zero_noise(&x) == YES) {
     if (doNoise (acs2d, &x, &done))
       return (status);
     
@@ -243,37 +265,6 @@ int Do2D (ACSInfo *acs2d, int extver) {
 		    TimeStamp ("Uncertainty array initialized", acs2d->rootname);
     }
 	}
-  
-  /* if the data aren't already in electrons, do it here. */
-  if (GetKeyStr(&x.sci.hdr, "BUNIT", USE_DEFAULT, "", units, ACS_LINE)) {
-    freeSingleGroup(&x);
-    return status;
-  }
-  
-  if (strncmp(units, "ELECTRONS", 6) != 0) {
-    /* don't convert biases */
-    if (GetKeyStr(x.globalhdr, "TARGNAME",
-                  USE_DEFAULT, "", targname, ACS_LINE)) {
-      freeSingleGroup(&x);
-      return (status);
-    }
-    
-    if (strncmp(targname, "BIAS", 4) != 0) {
-      if (to_electrons(acs2d, &x)) {
-        freeSingleGroup(&x);
-        return (status);
-      }
-      
-      if (PutKeyStr (&x.sci.hdr, "BUNIT", "ELECTRONS", "")) {
-        freeSingleGroup(&x);
-        return (status);
-      }
-      if (PutKeyStr (&x.err.hdr, "BUNIT", "ELECTRONS", "")) {
-        freeSingleGroup(&x);
-        return (status);
-      }
-    }
-  }
 
 	/* Subtract dark image. */
 	DarkMsg (acs2d, extver, acs2d->pctecorr);
