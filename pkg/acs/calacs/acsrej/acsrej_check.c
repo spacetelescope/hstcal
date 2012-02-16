@@ -198,7 +198,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
         if (gn.val[i] == 0. ) {
 	        noise->val[i] = 0.;
         } else {
-	        noise->val[i] = ron.val[i]/gn.val[i];
+	        noise->val[i] = ron.val[i];
         }
         gain->val[i]  = gn.val[i];
     }

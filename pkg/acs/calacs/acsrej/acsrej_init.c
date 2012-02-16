@@ -149,7 +149,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                 raw0 = Pix(sg->sci.data,i,j);
                 exp2n = (expn > 0.) ? expn : 1.; 
                 if (newbias == 0) {
-                    Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2n;
+                    Pix(sg->err.data,i,j) = (nse[0]+ raw0 + SQ(scale*raw0)) / exp2n;
                 } else {
                     Pix(sg->err.data,i,j) = (nse[0]) / exp2n;
                 }
@@ -175,7 +175,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                 raw0 = Pix(sg->sci.data,i,j);
                 exp2n = (expn > 0.) ? expn : 1.; 
                 if (newbias == 0){
-                    Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*raw0)) / exp2n;
+                    Pix(sg->err.data,i,j) = (nse[1]+ raw0 + SQ(scale*raw0)) / exp2n;
                 } else {
                     Pix(sg->err.data,i,j) = (nse[1]) / exp2n;
                 }
@@ -227,7 +227,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                             Pix(sg->sci.data,i,j) = val;
                             /*Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2[n];*/
                             if (newbias == 0){
-                                Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*signal0)) / exp2[n];
+                                Pix(sg->err.data,i,j) = (nse[0]+ raw0 + SQ(scale*signal0)) / exp2[n];
                             } else {
                                 Pix(sg->err.data,i,j) = (nse[0]) / exp2[n];
                             }
@@ -252,7 +252,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                         Pix(sg->sci.data,i,j) = val;
                         if (efac[n] > 0.) {
                             if (newbias == 0){
-                                Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*signal0)) / exp2[n];
+                                Pix(sg->err.data,i,j) = (nse[1]+ raw0 + SQ(scale*signal0)) / exp2[n];
                             } else {
                                 Pix(sg->err.data,i,j) = (nse[1]) / exp2[n];
                             }
