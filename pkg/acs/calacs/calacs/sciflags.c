@@ -142,7 +142,7 @@ int SciFlags (ACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
   
   if (sci_sw->darkcorr == PERFORM && sci_sw->pctecorr == PERFORM) {
     acs->sci_basic_2d = PERFORM;   refimage_used = 1;
-    if (GetNewRef (phdr, "CDRKFILE", sciref))
+    if (GetNewRef (phdr, "DRKCFILE", sciref))
       return (status);
 	}
   

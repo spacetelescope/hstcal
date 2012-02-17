@@ -187,10 +187,10 @@ static int checkDarkCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
     }
     
     if (GetImageRef (acs2d->refnames, phdr,
-                     "CDRKFILE", &acs2d->darkcte, &acs2d->darkcorr))
+                     "DRKCFILE", &acs2d->darkcte, &acs2d->darkcorr))
       return (status);
     if (acs2d->dark.exists != EXISTS_YES)
-      MissingFile ("CDRKFILE", acs2d->darkcte.name, missing);
+      MissingFile ("DRKCFILE", acs2d->darkcte.name, missing);
     
     if (acs2d->darkcorr == PERFORM)
       (*nsteps)++;
