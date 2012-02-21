@@ -36,11 +36,182 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
                             int amp, double * array);
 
 
+/* remove signal dependent bias stripes from post-SM4 full frame WFC data.
+ * based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1202.pdf
+ * chip2 is amps C & D, chip1 is amps A & B. */
+int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
+  extern int status;
+  
+  int i, j, k;     /* iteration variables */
+  
+  /* array for amp data and amp data + gap pixels */
+  double * ampdata, * ampdata_gap;
+  
+  const double serial_freq = 1000./22.;    /* serial pixel frequency */
+  const double parallel_shift = 3.212;     /* parallel shift time */
+  
+  /* number of virtual pixels at end of each row */
+  const int ngap_pix = (int) serial_freq * parallel_shift + 0.5;
+  
+  const int arr_rows = chip2->sci.data.ny;
+  const int arr_cols = chip2->sci.data.nx/2;
+  
+  /* total number of real and gap pixels per quadrant */
+  const int nquad_pix = (arr_cols + ngap_pix) * arr_rows;
+  
+  /* array of true DC bias levels */
+  double * dc_bias_levels;
+  
+  /* arrays below are in order of amp A, B, C, D */
+  
+  /* time constant of AC high pass filter in external pre-amp. */
+  const double time_const[NAMPS] = {38.00, 36.45, 38.25, 42.00};
+  
+  /* ratio of DC offset shift and pixel signal */
+  const double dc_ratio[NAMPS] = {0.3, 0.3, 0.3, 0.3};
+  
+  /* DSI sensitivity */
+  const double dsi_sens[NAMPS] = {2.8993e-3, 10.7910e-3, 12.4312e-3, 3.82375e-3};
+  
+  /* value of virtual pixels in gap at end of rows */
+  const double gap_value[NAMPS] = {0.0, 0.0, 0.0, 0.0};
+  
+  /* factor combining time constant and clocking frequency */
+  double factor;
+  
+  /* summation variables */
+  double sum;
+  int num;
+  double magic_square_mean;
+  
+  /* allocate space for data arrays */
+  ampdata = malloc(arr_rows * arr_cols * sizeof(double));
+  ampdata_gap = malloc(nquad_pix * sizeof(double));
+  
+  /* allocate space for true DC bias levels array */
+  dc_bias_levels = malloc((nquad_pix + 1) * sizeof(double));
+  
+  for (i = 0; i < NAMPS; i++) {
+    /* put a single amp's data into ampdata */
+    if (i < 2) {
+      make_amp_array(arr_rows, arr_cols, chip1, i, ampdata);
+    } else {
+      make_amp_array(arr_rows, arr_cols, chip2, i, ampdata);
+    }
+    
+    /* make amp + gap array */
+    for (j = 0; j < arr_rows; j++) {
+      for (k = 0; k < (arr_cols + ngap_pix); k++) {
+        if (k < arr_cols) {
+          ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
+        } else {
+          ampdata_gap[(arr_cols + ngap_pix)*j + k] = gap_value[i];
+        }
+      }
+    }
+    
+    /* calculate "magic square mean" */
+    sum = 0.0;
+    num = 0;
+    
+    for (j = 13; j <= 22; j++) {
+      for (k = 2057; k <= 2066; k++) {
+        sum += ampdata[arr_cols*j + k];
+        num++;
+      }
+    }
+    
+    magic_square_mean = sum / (double) num;
+    
+    /* calculate true DC bias levels */
+    factor = 1.0 - exp(-1.0 / (time_const[i] * serial_freq));
+    
+    dc_bias_levels[0] = magic_square_mean * dc_ratio[i];
+    
+    for (j = 1; j < nquad_pix + 1; j++) {
+      dc_bias_levels[j] = ampdata_gap[j-1] * factor * dc_ratio[i] + 
+                            (1.0 - factor) * dc_bias_levels[j-1];
+    }
+    
+    /* calculate correction to data */
+    for (j = 0; j < nquad_pix; j++) {
+      ampdata_gap[j] = (ampdata_gap[j] - dsi_sens[i] * dc_bias_levels[j+1]) -
+                          (10./22.) * (dc_bias_levels[j+1] - dc_bias_levels[j]);
+    }
+    
+    /* copy corrected data back to ampdata */
+    for (j = 0; j < arr_rows; j++) {
+      for (k = 0; k < arr_cols; k++) {
+        ampdata[arr_cols*j + k] = ampdata_gap[(arr_cols + ngap_pix)*j + k];
+      }
+    }
+    
+    /* re-calculate "magic square mean" */
+    sum = 0.0;
+    num = 0;
+    
+    for (j = 13; j <= 22; j++) {
+      for (k = 2057; k <= 2066; k++) {
+        sum += ampdata[arr_cols*j + k];
+        num++;
+      }
+    }
+    
+    magic_square_mean = sum / (double) num;
+    
+    /* subtract "magic square mean" from data*/
+    for (j = 0; j < arr_rows; j++) {
+      for (k = 0; k < arr_cols; k++) {
+        ampdata[arr_cols*j + k] -= magic_square_mean;
+      }
+    }
+    
+    /* copy modified data back to SingleGroup structs */
+    if (i < 2) {
+      unmake_amp_array(arr_rows, arr_cols, chip1, i, ampdata);
+    } else {
+      unmake_amp_array(arr_rows, arr_cols, chip2, i, ampdata);
+    }
+  }
+  
+  free(ampdata);
+  free(ampdata_gap);
+  free(dc_bias_levels);
+  
+  return status;
+}
+
+
+/* remove amplifier cross-talk */
+void cross_talk_corr(ACSInfo *acs, SingleGroup *im) {
+  /* iteration variables */
+  int i, j;
+  
+  /* cross talk scaling constant */
+  double cross_scale = 7.1e-5;
+  
+  double temp;
+  
+  const int arr_rows = im->sci.data.ny;
+  const int arr_cols = im->sci.data.nx;
+  
+  for (i = 0; i < arr_rows; i++) {
+    for (j = 0; j < arr_cols; j++) {
+      temp = Pix(im->sci.data, arr_cols-j-1, i) * cross_scale;
+      
+      Pix(im->sci.data, j, i) += (float) temp;
+    }
+  }
+}
+
+
+/* remove stripes from post-SM4 full frame WFC data using information in
+ * the prescan regions. chip2 is amps C & D, chip1 is amps A & B. */
 int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   extern int status;
 
   /* iteration variables */
-  int i,j,k;
+  int i, j, k;
 
   /* amp array size variables */
   int arr_rows, arr_cols;

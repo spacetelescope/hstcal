@@ -254,6 +254,7 @@ int DoCCD (ACSInfo *acs_info) {
     blevcorr[i] = PERFORM;
   }
 	
+  /* default blev case, do original bias level subtraction */
   if (acs_info->blevcorr == PERFORM && 
       ((acs_info->expstart < SM4MJD && acs_info->detector == WFC_CCD_DETECTOR) ||
        (acs_info->detector == WFC_CCD_DETECTOR && acs_info->subarray == YES) ||
@@ -305,6 +306,7 @@ int DoCCD (ACSInfo *acs_info) {
 		if (acs_info->printtime)
       TimeStamp("BLEVCORR complete", acs_info->rootname);
   
+  /* post SM4, full frame WFC case */
 	} else if (acs_info->blevcorr == PERFORM && acs_info->expstart > SM4MJD &&
              acs_info->detector == WFC_CCD_DETECTOR && acs_info->subarray == NO) {
     
@@ -317,6 +319,21 @@ int DoCCD (ACSInfo *acs_info) {
     
     if (done) {
       PrSwitch("blevcorr", PERFORM);
+      
+      /* only do bias-shift and cross talk corrections of images taken with
+       * gain = 2 and in dual-slope integrator mode. */
+      if (strcmp(acs_info->jwrotype, "DS_int") == 0 && acs_info->ccdgain == 2) {
+        trlmessage("Performing bias-shift and cross talk corrections.");
+        
+        if (bias_shift_corr(acs_info, &x[0], &x[1])) {
+          return status;
+        }
+        
+        for (i = 0; i < acs_info->nimsets; i++) {
+          cross_talk_corr(&acs[i], &x[i]);
+        }
+      }
+      
       trlmessage("Performing stripe removal and bias level subtraction.");
     
       if (doDestripe(acs_info, &x[0], &x[1])) {

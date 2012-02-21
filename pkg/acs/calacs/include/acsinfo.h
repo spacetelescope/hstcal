@@ -34,6 +34,7 @@ typedef struct {
     char filter1[ACS_CBUF+1];       /* name of filter used */
     char filter2[ACS_CBUF+1];       /* name of filter used */
     char obstype[ACS_CBUF+1];   /* e.g. IMAGING, CORONOGRAPHIC, INTERNAL */
+    char jwrotype[ACS_CBUF+1];      /* for WFC: DS_int or CLAMP */
     int detector;                   /* integer code for detector */
     int chip;
     int ncombine;                   /* number previously summed together */

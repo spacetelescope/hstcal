@@ -39,6 +39,7 @@ void ACSInit (ACSInfo *acs) {
 	acs->filter1[0] = '\0';
 	acs->filter2[0] = '\0';
 	acs->obstype[0] = '\0';
+  acs->jwrotype[0] = '\0';
 	acs->detector = UNKNOWN_DETECTOR;
 	acs->chip = 1;
 	acs->ncombine = 1;

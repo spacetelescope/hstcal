@@ -1,7 +1,7 @@
 /* This string is written to the output primary header as CAL_VER. */
 
 
-#define ACS_CAL_VER "8.0.0 (13-Feb-2012)"
+#define ACS_CAL_VER "8.0.0 (21-Feb-2012)"
 #define ACS_CAL_VER_NUM "8.0.0"
 
 
