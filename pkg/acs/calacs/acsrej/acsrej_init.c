@@ -111,11 +111,22 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                 getShortLine (ipdq[n], j, bufdq);
                 freeHdr(&dqhdr);
                 
-                for (i = 0; i < dim_x; i++) {
+                for (i = 0; i < ampx; i++) {
                     if (efac[n] > 0.){
                         /* Only use GOOD pixels to build initial image */
                         if ((bufdq[i] & dqpat) == OK) {
-                            PIX(work,npts[i],i,nimgs) = (buf[i] - skyval[n]) / efac[n];
+                            PIX(work,npts[i],i,nimgs) = (buf[i] - skyval[n]) / efac[n] / gn[0];
+                            npts[i] += 1;
+                        }
+                    } else {
+                        PIX(work,npts[i],i,nimgs) = 0.;            
+                    }
+                }
+                for (i = ampx; i < dim_x; i++) {
+                    if (efac[n] > 0.){
+                        /* Only use GOOD pixels to build initial image */
+                        if ((bufdq[i] & dqpat) == OK) {
+                            PIX(work,npts[i],i,nimgs) = (buf[i] - skyval[n]) / efac[n] / gn[1];
                             npts[i] += 1;
                         }
                     } else {
@@ -149,7 +160,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                 raw0 = Pix(sg->sci.data,i,j);
                 exp2n = (expn > 0.) ? expn : 1.; 
                 if (newbias == 0) {
-                    Pix(sg->err.data,i,j) = (nse[0]+ raw0 + SQ(scale*raw0)) / exp2n;
+                    Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2n;
                 } else {
                     Pix(sg->err.data,i,j) = (nse[0]) / exp2n;
                 }
@@ -175,7 +186,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                 raw0 = Pix(sg->sci.data,i,j);
                 exp2n = (expn > 0.) ? expn : 1.; 
                 if (newbias == 0){
-                    Pix(sg->err.data,i,j) = (nse[1]+ raw0 + SQ(scale*raw0)) / exp2n;
+                    Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*raw0)) / exp2n;
                 } else {
                     Pix(sg->err.data,i,j) = (nse[1]) / exp2n;
                 }
@@ -213,21 +224,22 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                 /* AMPS C and D */
                 for (i = 0; i < ampx; i++) {
 
-                    raw = buf[i];
-                    raw0 = (raw > 0.)? raw : 0.;
-                    signal0 = ((raw - skyval[n]) > 0.) ? (raw - skyval[n]) : 0.;
+                    raw = buf[i] / gn[0];
+                    raw0 = (raw > 0.) ? raw : 0.;
+                    signal0 = ((raw - skyval[n] / gn[0]) > 0.) ? (raw - skyval[n] / gn[0]) : 0.;
                     
                     if (efac[n] > 0.) {
-                        val = (raw - skyval[n]) / efac[n];
+                        val = (raw - skyval[n] / gn[0]) / efac[n];
                     } else {
                         val = 0.;
                     }
+                    
                     if ( (n == 0) || (val < Pix(sg->sci.data,i,j)) ) {
                         if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
                             Pix(sg->sci.data,i,j) = val;
                             /*Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2[n];*/
                             if (newbias == 0){
-                                Pix(sg->err.data,i,j) = (nse[0]+ raw0 + SQ(scale*signal0)) / exp2[n];
+                                Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*signal0)) / exp2[n];
                             } else {
                                 Pix(sg->err.data,i,j) = (nse[0]) / exp2[n];
                             }
@@ -240,19 +252,21 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
 
                 for (i = ampx; i < dim_x; i++) {
 
-                    raw = buf[i];
+                    raw = buf[i] / gn[1];
                     raw0 = (raw > 0.)? raw : 0.;
-                    signal0 = ((raw - skyval[n]) > 0.) ? (raw - skyval[n]) : 0.;
+                    signal0 = ((raw - skyval[n] / gn[1]) > 0.) ? (raw - skyval[n] / gn[1]) : 0.;
+                    
                     if (efac[n] > 0.) {
-                        val = (raw - skyval[n]) / efac[n];
+                        val = (raw - skyval[n] / gn[1]) / efac[n];
                     } else {
                         val = 0.;
                     }
+                    
                     if ( (n == 0) || (val < Pix(sg->sci.data,i,j) && ((bufdq[i] & dqpat) == OK)) ) {
                         Pix(sg->sci.data,i,j) = val;
                         if (efac[n] > 0.) {
                             if (newbias == 0){
-                                Pix(sg->err.data,i,j) = (nse[1]+ raw0 + SQ(scale*signal0)) / exp2[n];
+                                Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*signal0)) / exp2[n];
                             } else {
                                 Pix(sg->err.data,i,j) = (nse[1]) / exp2[n];
                             }
