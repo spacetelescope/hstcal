@@ -415,13 +415,20 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                          /* Scale the input values by the sky and exposure time
                             for comparison to the detection threshhold.
                         */ 
-                        for (i = 0; i < dim_x; i++){
+                        for (i = 0; i < ampx; i++){
                             if (efac[k] > 0.){
-                                buf[i] = (buf[i] - skyval[k]) / efac[k];
+                                buf[i] = (buf[i] - skyval[k]) / efac[k] / gn[0];
                             } else {
                                 buf[i] = 0.;
                             }
-                        }   
+                        }
+                        for (i = ampx; i < dim_x; i++){
+                            if (efac[k] > 0.){
+                                buf[i] = (buf[i] - skyval[k]) / efac[k] / gn[1];
+                            } else {
+                                buf[i] = 0.;
+                            }
+                        }
                     } else {                       
                         memcpy (buf, zerofbuf, dim_x * sizeof(float));
                         memcpy (bufdq, zerosbuf, dim_x * sizeof(short));
@@ -447,9 +454,16 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                     */
                     
                     for (ii = 0; ii < buffheight; ii++){
-                        for (i=0; i < dim_x; i++){
+                        for (i = 0; i < ampx; i++){
                             if (efac[k] > 0.) {
-                                pic[k][ii][i] = (pic[k][ii][i] - skyval[k]) / efac[k];
+                                pic[k][ii][i] = (pic[k][ii][i] - skyval[k]) / efac[k] / gn[0];
+                            } else {
+                                pic[k][ii][i] = 0.;  
+                            }
+                        }
+                        for (i = ampx; i < dim_x; i++){
+                            if (efac[k] > 0.) {
+                                pic[k][ii][i] = (pic[k][ii][i] - skyval[k]) / efac[k] / gn[1];
                             } else {
                                 pic[k][ii][i] = 0.;  
                             }
@@ -487,7 +501,11 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                             shading correction.
                     */
                     if (strncmp(par->initgues, "minimum", 3) == 0 && iter == 0) {
-                        for (i = 0; i < dim_x; i++) {
+                        for (i = 0; i < ampx; i++) {
+	                        thresh[n][width][i] = sig2 * PPix(avevar,i,line);
+	                        spthresh[n][width][i] = sig2 * PPix(avevar,i,line);
+                        }
+                        for (i = ampx; i < dim_x; i++) {
 	                        thresh[n][width][i] = sig2 * PPix(avevar,i,line);
 	                        spthresh[n][width][i] = sig2 * PPix(avevar,i,line);
                         }
@@ -497,12 +515,12 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                                 SHADCORR buffer defaults to ONE if SHADCORR is 
                                 not performed.
                             */
-                            dum = PPix(ave,i,line)*efacn/shadcorr[i] + skyvaln;
+                            dum = PPix(ave,i,line)*efacn/shadcorr[i] + skyvaln / gn[0];
 
                             /* clip the data at zero */
                             val = (dum > 0.) ? dum : 0.;
                             /* compute sky subtracted pixel value for use with SCALENSE */
-                            pixsky = (dum-skyvaln > 0.) ? dum-skyvaln : 0.;
+                            pixsky = (dum - skyvaln / gn[0] > 0.) ? dum - skyvaln / gn[0] : 0.;
 
                             /* Apply noise and gain appropriate for AMP used for this pixel */
                             thresh[n][width][i] = sig2 * ((nse[0] + val/gn[0] +  SQ(scale * pixsky))) / exp2n;
@@ -512,12 +530,12 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         } /* End of loop over first amp used for line */                    
                         for (i = ampx; i < dim_x; i++) {
 
-                            dum = PPix(ave,i,line)*efacn/shadcorr[i] + skyvaln;
+                            dum = PPix(ave,i,line)*efacn/shadcorr[i] + skyvaln / gn[1];
 
                             /* clip the data at zero */
                             val = (dum > 0.) ? dum : 0.;
                             /* compute sky subtracted pixel value for use with SCALENSE */
-                            pixsky = (dum-skyvaln > 0.) ? dum-skyvaln : 0.;
+                            pixsky = (dum - skyvaln / gn[1] > 0.) ? dum - skyvaln / gn[1] : 0.;
 
                             /* Apply noise and gain appropriate for AMP used for this pixel */
                             thresh[n][width][i] = sig2 * ((nse[1] + val/gn[1] + SQ(scale * pixsky))) / exp2n;
@@ -536,7 +554,33 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         }
                     }
 
-                    for (i = 0; i < dim_x; i++){
+                    for (i = 0; i < ampx; i++){
+
+                        /* find the CR by using statistical rejection */
+                        if (SQ(pic[n][width][i]-PPix(ave,i,line)) > 
+                            thresh[n][width][i] && mask[n][width][i] != EXCLUDE) {
+                            mask[n][width][i] = HIT;
+
+                            if (width == 0) continue;
+                            /* mark the surrounding pixels also as CR */
+                            for (jj = 0; jj < buffheight; jj++) {
+                                jndx = line - width + jj;
+                                if (jndx < 0 || jndx >= dim_y) continue;
+
+                                /* Distance from buffer center */
+                                j2 = SQ(width - jj);
+
+                                for (ii = i-width; ii <= i+width; ii++) {
+                                    if ((float)(SQ(ii-i)+j2) > rej2) continue;
+                                    if (ii >= dim_x || ii < 0) continue;
+
+                                    if (SQ(pic[n][jj][ii]-PPix(ave,ii,jndx)) <= psig2*spthresh[n][jj][ii]) continue;
+                                    if (mask[n][jj][ii] != HIT) mask[n][jj][ii] = SPILL;
+                                }
+                            }
+                        }
+                    } /* End of loop over i */
+                    for (i = ampx; i < dim_x; i++){
 
                         /* find the CR by using statistical rejection */
                         if (SQ(pic[n][width][i]-PPix(ave,i,line)) > 
@@ -644,20 +688,36 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 
             pixexp = 0.;
             /* calculate the new average after the rejection */
-            /* Then, on last iteration, calculate final ERROR arrays */
-            for (i = 0; i < dim_x; i++) {
+            /* Then, on last iteration, calculate final ERROR arrays 
+             * and convert back to electrons */
+            for (i = 0; i < ampx; i++) {
                 pixexp = PIX(efacsum,i,line,dim_x);
                 if (pixexp > 0.) {
                     PPix(ave,i,line) = (sum[i] / pixexp)/(1+ shadline[i]/pixexp);
                     if (iter == (niter-1)) 
-                        PPix(avevar,i,line) = sqrt(sumvar[i])/pixexp;
+                        PPix(ave,i,line) = (sum[i] * gn[0] / pixexp)/(1+ shadline[i]/pixexp);
+                        PPix(avevar,i,line) = sqrt(sumvar[i]) * gn[0] / pixexp;
                 } else {
                     if (iter == (niter-1)){
                         PPix(ave,i,line) = par->fillval;
                         PPix(avevar,i,line) = par->fillval;
                     }
                 }
-            } 
+            }
+            for (i = ampx; i < dim_x; i++) {
+                pixexp = PIX(efacsum,i,line,dim_x);
+                if (pixexp > 0.) {
+                    PPix(ave,i,line) = (sum[i] / pixexp)/(1+ shadline[i]/pixexp);
+                    if (iter == (niter-1)) 
+                        PPix(ave,i,line) = (sum[i] * gn[1] / pixexp)/(1+ shadline[i]/pixexp);
+                        PPix(avevar,i,line) = sqrt(sumvar[i]) * gn[1] / pixexp;
+                } else {
+                    if (iter == (niter-1)){
+                        PPix(ave,i,line) = par->fillval;
+                        PPix(avevar,i,line) = par->fillval;
+                    }
+                }
+            }
 
         } /* End of loop over lines */	 
 

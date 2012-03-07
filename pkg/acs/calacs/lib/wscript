@@ -19,7 +19,7 @@ def build(bld):
             prinfo.c   reffiles.c   rowpedigree.c   sameint.c   spline.c
             streqic.c   sub1d.c   tabhistory.c   tabpedigree.c
             timestamp.c   trim.c   trlbuf.c   ucalver.c   ufilename.c
-            unbinline.c   whicherror.c
+            unbinline.c   whicherror.c  toelectrons.c
 
             ../acs2d/acs2d.c   ../acs2d/do2d.c   ../acs2d/dodark.c
             ../acs2d/doflat.c   ../acs2d/dononlin.c ../acs2d/dophot.c
@@ -31,7 +31,7 @@ def build(bld):
             ../acsccd/doatod.c   ../acsccd/dobias.c ../acsccd/doblev.c
             ../acsccd/doccd.c   ../acsccd/doflash.c ../acsccd/findblev.c
             ../acsccd/findover.c ../acsccd/getacsflag.c
-            ../acsccd/getccdsw.c ../acsccd/destripe.c
+            ../acsccd/getccdsw.c ../acsccd/blev_funcs_postsm4.c
             ../acsccd/dopcte.c ../acsccd/pcte_fixycte.c ../acsccd/pcte_funcs.c
 
             ../acsrej/acsrej.c ../acsrej/acsrej_check.c

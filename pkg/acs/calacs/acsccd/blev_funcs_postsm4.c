@@ -16,7 +16,6 @@
 #define NOSCN_ROWS 20
 
 /* prototypes for functions in this file */
-static int destripe(ACSInfo * acs);
 static int calc_mean_std(const int len, const double array[], const double sig,
                          double *mean, double *std);
 static int bias_col_mean_std(const int arr_rows, const int arr_cols, const double array[],
@@ -32,44 +31,187 @@ static int remove_stripes(const int arr_rows, const int arr_cols,
                           char * good_rows[NAMPS], double * ampdata[NAMPS],
                           int * num_fixed, int * num_skipped);
 static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
-                          int amp, double * array, float gain);
+                          int amp, double * array);
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
-                            int amp, double * array, float gain);
+                            int amp, double * array);
 
-int doDestripe(ACSInfo * acs) {
+
+/* remove signal dependent bias shift from post-SM4 full frame WFC data.
+ * based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1202.pdf
+ * chip2 is amps C & D, chip1 is amps A & B. */
+int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   extern int status;
-
-  Hdr phdr;		/* primary header for input image */
-
-  /* functions from lib */
-  int LoadHdr (char *, Hdr *);
-  void PrSwitch (char *, int);
-  void TimeStamp (char *, char *);
-
-  PrSwitch("blevcorr", PERFORM);
-  trlmessage("Performing stripe removal and bias level subtraction.");
-
-  if (destripe(acs)) {
-    return status;
+  
+  int i, j, k;     /* iteration variables */
+  
+  /* array for amp data and amp data + gap pixels */
+  double * ampdata, * ampdata_gap;
+  
+  const double serial_freq = 1000./22.;    /* serial pixel frequency */
+  const double parallel_shift = 3.212;     /* parallel shift time */
+  
+  /* number of virtual pixels at end of each row */
+  const int ngap_pix = (int) serial_freq * parallel_shift + 0.5;
+  
+  const int arr_rows = chip2->sci.data.ny;
+  const int arr_cols = chip2->sci.data.nx/2;
+  
+  /* total number of real and gap pixels per quadrant */
+  const int nquad_pix = (arr_cols + ngap_pix) * arr_rows;
+  
+  /* array of true DC bias levels */
+  double * dc_bias_levels;
+  
+  /* arrays below are in order of amp A, B, C, D */
+  
+  /* time constant of AC high pass filter in external pre-amp. */
+  const double time_const[NAMPS] = {38.00, 36.45, 38.25, 42.00};
+  
+  /* ratio of DC offset shift and pixel signal */
+  const double dc_ratio[NAMPS] = {0.3, 0.3, 0.3, 0.3};
+  
+  /* DSI sensitivity */
+  const double dsi_sens[NAMPS] = {2.89913e-3, 10.7910e-3, 12.4312e-3, 3.82375e-3};
+  
+  /* value of virtual pixels in gap at end of rows */
+  const double gap_value[NAMPS] = {0.0, 0.0, 0.0, 0.0};
+  
+  /* factor combining time constant and clocking frequency */
+  double factor;
+  
+  /* summation variables */
+  double sum;
+  int num;
+  double magic_square_mean;
+  
+  /* allocate space for data arrays */
+  ampdata = malloc(arr_rows * arr_cols * sizeof(double));
+  ampdata_gap = malloc(nquad_pix * sizeof(double));
+  
+  /* allocate space for true DC bias levels array */
+  dc_bias_levels = malloc((nquad_pix + 1) * sizeof(double));
+  
+  for (i = 0; i < NAMPS; i++) {
+    /* put a single amp's data into ampdata */
+    if (i < 2) {
+      make_amp_array(arr_rows, arr_cols, chip1, i, ampdata);
+    } else {
+      make_amp_array(arr_rows, arr_cols, chip2, i, ampdata);
+    }
+    
+    /* make amp + gap array */
+    for (j = 0; j < arr_rows; j++) {
+      for (k = 0; k < (arr_cols + ngap_pix); k++) {
+        if (k < arr_cols) {
+          ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
+        } else {
+          ampdata_gap[(arr_cols + ngap_pix)*j + k] = gap_value[i];
+        }
+      }
+    }
+    
+    /* calculate "magic square mean" */
+    sum = 0.0;
+    num = 0;
+    
+    for (j = 2057; j <= 2066; j++) {
+      for (k = 13; k <= 22; k++) {
+        sum += ampdata[arr_cols*j + k];
+        num++;
+      }
+    }
+    
+    magic_square_mean = sum / (double) num;
+    
+    /* calculate true DC bias levels */
+    factor = 1.0 - exp(-1.0 / (time_const[i] * serial_freq));
+    
+    dc_bias_levels[0] = magic_square_mean * dc_ratio[i];
+    
+    for (j = 1; j < nquad_pix + 1; j++) {
+      dc_bias_levels[j] = ampdata_gap[j-1] * factor * dc_ratio[i] + 
+                            (1.0 - factor) * dc_bias_levels[j-1];
+    }
+    
+    /* calculate correction to data */
+    for (j = 0; j < nquad_pix; j++) {
+      ampdata_gap[j] = (ampdata_gap[j] - dsi_sens[i] * dc_bias_levels[j+1]) -
+                          (10./22.) * (dc_bias_levels[j+1] - dc_bias_levels[j]);
+    }
+    
+    /* copy corrected data back to ampdata */
+    for (j = 0; j < arr_rows; j++) {
+      for (k = 0; k < arr_cols; k++) {
+        ampdata[arr_cols*j + k] = ampdata_gap[(arr_cols + ngap_pix)*j + k];
+      }
+    }
+    
+    /* re-calculate "magic square mean" */
+    sum = 0.0;
+    num = 0;
+    
+    for (j = 2057; j <= 2066; j++) {
+      for (k = 13; k <= 22; k++) {
+        sum += ampdata[arr_cols*j + k];
+        num++;
+      }
+    }
+    
+    magic_square_mean = sum / (double) num;
+    
+    /* subtract "magic square mean" from data*/
+    for (j = 0; j < arr_rows; j++) {
+      for (k = 0; k < arr_cols; k++) {
+        ampdata[arr_cols*j + k] -= magic_square_mean;
+      }
+    }
+    
+    /* copy modified data back to SingleGroup structs */
+    if (i < 2) {
+      unmake_amp_array(arr_rows, arr_cols, chip1, i, ampdata);
+    } else {
+      unmake_amp_array(arr_rows, arr_cols, chip2, i, ampdata);
+    }
   }
-
-  PrSwitch("blevcorr", COMPLETE);
-
-  if (acs->printtime) {
-    TimeStamp("BLEVCORR complete", acs->rootname);
-  }
-
+  
+  free(ampdata);
+  free(ampdata_gap);
+  free(dc_bias_levels);
+  
   return status;
 }
 
-static int destripe(ACSInfo * acs) {
+
+/* remove amplifier cross-talk */
+void cross_talk_corr(ACSInfo *acs, SingleGroup *im) {
+  /* iteration variables */
+  int i, j;
+  
+  /* cross talk scaling constant */
+  double cross_scale = 7.1e-5;
+  
+  double temp;
+  
+  const int arr_rows = im->sci.data.ny;
+  const int arr_cols = im->sci.data.nx;
+  
+  for (i = 0; i < arr_rows; i++) {
+    for (j = 0; j < arr_cols; j++) {
+      temp = Pix(im->sci.data, arr_cols-j-1, i) * cross_scale;
+      
+      Pix(im->sci.data, j, i) += (float) temp;
+    }
+  }
+}
+
+
+/* remove stripes from post-SM4 full frame WFC data using information in
+ * the prescan regions. chip2 is amps C & D, chip1 is amps A & B. */
+int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   extern int status;
 
   /* iteration variables */
-  int i,j,k;
-
-  /* structures to hold data for both chips */
-  SingleGroup chip2, chip1;
+  int i, j, k;
 
   /* amp array size variables */
   int arr_rows, arr_cols;
@@ -101,34 +243,15 @@ static int destripe(ACSInfo * acs) {
   /* holder of bias means from each amp, saved here so I can put the
    * MEANBLEV keyword in the science extension headers */
   double bias_mean_arr[NAMPS];
-
-  /* output filename. will become the new acs->input for the next steps */
-  char outname[ACS_LINE+1];
   
   int PutKeyFlt(Hdr *, char *, float, char *);
   int blevHistory(ACSInfo *, Hdr *, int, int);
   int MkName (char *, char *, char *, char *, char *, int);
 
-  /* get data and put it into individual amp arrays, with the amp in the
-   * lower left corner */
-  initSingleGroup(&chip2);
-  initSingleGroup(&chip1);
-
-  getSingleGroup(acs->input, 1, &chip2);
-  if (hstio_err()) {
-    return (status = OPEN_FAILED);
-  }
-
-  getSingleGroup(acs->input, 2, &chip1);
-  if (hstio_err()) {
-    freeSingleGroup(&chip2);
-    return (status = OPEN_FAILED);
-  }
-
   /* figure out the size of individual amp arrays
    * should be 2068 rows by 2072 columns */
-  arr_rows = chip2.sci.data.ny;
-  arr_cols = chip2.sci.data.nx/2;
+  arr_rows = chip2->sci.data.ny;
+  arr_cols = chip2->sci.data.nx/2;
 
   /* allocate space for the amp arrays */
   for (i = 0; i < NAMPS; i++) {
@@ -139,9 +262,9 @@ static int destripe(ACSInfo * acs) {
   /* copy data from SingleGroup structs to amp arrays */
   for (i = 0; i < NAMPS; i++) {
     if (i < 2) {
-      make_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i], acs->atodgain[i]);
+      make_amp_array(arr_rows, arr_cols, chip1, i, ampdata[i]);
     } else {
-      make_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i], acs->atodgain[i]);
+      make_amp_array(arr_rows, arr_cols, chip2, i, ampdata[i]);
     }
   }
 
@@ -180,19 +303,21 @@ static int destripe(ACSInfo * acs) {
     }
 
     /* report bias level subtracted to user */
-    sprintf(MsgText, "     bias level of %.6g DN was subtracted for AMP %c.", bias_mean, AMPSORDER[i]);
+    sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.",
+            bias_mean, AMPSORDER[i]);
     trlmessage(MsgText);
 
+    acs->blev[i] = bias_mean;
     bias_mean_arr[i] = bias_mean;
   }
 
   /* add MEANBLEV keyword to science extension headers */
-  if (PutKeyFlt (&chip1.sci.hdr, "MEANBLEV", (bias_mean_arr[0] + bias_mean_arr[1])/2.,
-                 "mean of bias levels subtracted in DN")) {
+  if (PutKeyFlt (&chip1->sci.hdr, "MEANBLEV", (bias_mean_arr[0] + bias_mean_arr[1])/2.,
+                 "mean of bias levels subtracted in electrons")) {
     return (status);
   }
-  if (PutKeyFlt (&chip2.sci.hdr, "MEANBLEV", (bias_mean_arr[2] + bias_mean_arr[3])/2.,
-                 "mean of bias levels subtracted in DN")) {
+  if (PutKeyFlt (&chip2->sci.hdr, "MEANBLEV", (bias_mean_arr[2] + bias_mean_arr[3])/2.,
+                 "mean of bias levels subtracted in electrons")) {
     return (status);
   }
 
@@ -203,13 +328,13 @@ static int destripe(ACSInfo * acs) {
   
   /* add history keywords about rows fixed and rows skipped */
   sprintf(history, "DESTRIPE: number of rows fixed per amp: %i", rows_fixed);
-  addHistoryKw(chip2.globalhdr, history);
+  addHistoryKw(chip2->globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
   }
   
   sprintf(history, "DESTRIPE: number of rows skipped per amp: %i", rows_skipped);
-  addHistoryKw(chip2.globalhdr, history);
+  addHistoryKw(chip2->globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
   }
@@ -217,38 +342,17 @@ static int destripe(ACSInfo * acs) {
   /* copy modified data back to SingleGroup structs */
   for (i = 0; i < NAMPS; i++) {
     if (i < 2) {
-      unmake_amp_array(arr_rows, arr_cols, &chip1, i, ampdata[i], acs->atodgain[i]);
+      unmake_amp_array(arr_rows, arr_cols, chip1, i, ampdata[i]);
     } else {
-      unmake_amp_array(arr_rows, arr_cols, &chip2, i, ampdata[i], acs->atodgain[i]);
+      unmake_amp_array(arr_rows, arr_cols, chip2, i, ampdata[i]);
     }
   }
-
-  /* save new file */
-  /* make output file name */
-  if (MkName(acs->input, "_raw", "_strp_tmp", "", outname, ACS_LINE)) {
-    return status;
-  }
-
-  /* copy outname to acs->input */
-  strcpy(acs->input, outname);
-
-  /* update header history and keywords */
-  if (blevHistory(acs, chip2.globalhdr, YES, NO)) {
-    return status;
-  }
-
-  /* output destriped data to temp file */
-  putSingleGroup(outname, 1, &chip2, 0);
-  putSingleGroup(outname, 2, &chip1, 0);
 
   /* free allocated arrays */
   for (i = 0; i < NAMPS; i++) {
     free(ampdata[i]);
     free(good_rows[i]);
   }
-
-  freeSingleGroup(&chip2);
-  freeSingleGroup(&chip1);
 
   return status;
 }
@@ -309,7 +413,7 @@ static int remove_stripes(const int arr_rows, const int arr_cols,
 
     /* check whether this row meets usability standards */
     for (k = 0; k < NAMPS; k++) {
-      if (ampstds[k] >= 7.5) {
+      if (ampstds[k] >= 15) {
         good_rows[k][i] = 0;
       }
     }
@@ -367,7 +471,7 @@ static int remove_stripes(const int arr_rows, const int arr_cols,
 
 /* calculate the mean and standard deviation of all the bias pixels with
  * sigma clipping. clipping is done according to absolute deviation instead
- * of absolute deviation, but the returned std is standard deviation. */
+ * of standard deviation, but the returned std is standard deviation. */
 static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
                               const double * array, const char * good_rows,
                               double * mean, double * std, int * pix_used) {
@@ -486,7 +590,7 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
   }
 
   if (ntot1 != 0) {
-    temp_std = sum_std/(double) ntot1;
+    temp_std = sqrt(sum_std/(double) (ntot1 - 1));
   } else {
     temp_std = 0;
   }
@@ -576,19 +680,19 @@ static int find_good_rows(const int arr_rows, const int arr_cols, const double *
 
     row_means[i] = sum / (double) (arr_cols - NBIAS_COLS);
 
-    if (abs(row_means[i] - amp_mean) > 50) {
+    if (abs(row_means[i] - amp_mean) > 100) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 24] > 35000) {
+    } else if (array[arr_cols*i + 24] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 25] > 35000) {
+    } else if (array[arr_cols*i + 25] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 26] > 35000) {
+    } else if (array[arr_cols*i + 26] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 27] > 35000) {
+    } else if (array[arr_cols*i + 27] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 28] > 35000) {
+    } else if (array[arr_cols*i + 28] > 70000) {
       good_rows[i] = 0;
-    } else if (array[arr_cols*i + 29] > 35000) {
+    } else if (array[arr_cols*i + 29] > 70000) {
       good_rows[i] = 0;
     } else {
       good_rows[i] = 1;
@@ -652,12 +756,12 @@ static int bias_col_mean_std(const int arr_rows, const int arr_cols, const doubl
     not_skipped = 0;
 
     for (i = 0; i < arr_rows; i++) {
-      if ((array[arr_cols*i + 24] < 25000) &&
-          (array[arr_cols*i + 25] < 25000) &&
-          (array[arr_cols*i + 26] < 25000) &&
-          (array[arr_cols*i + 27] < 25000) &&
-          (array[arr_cols*i + 28] < 25000) &&
-          (array[arr_cols*i + 29] < 25000)) {
+      if ((array[arr_cols*i + 24] < 50000) &&
+          (array[arr_cols*i + 25] < 50000) &&
+          (array[arr_cols*i + 26] < 50000) &&
+          (array[arr_cols*i + 27] < 50000) &&
+          (array[arr_cols*i + 28] < 50000) &&
+          (array[arr_cols*i + 29] < 50000)) {
         bias_col[not_skipped] = minus_row_mean[NBIAS_COLS*i + j];
         not_skipped ++;
       }
@@ -743,23 +847,16 @@ static int sub_bias_col_means(const int arr_rows, const int arr_cols, const int 
     }
   }
 
-//  for (j = bias_cols; j < arr_cols; j++) {
-//    for (i = 0; i < arr_rows; i++) {
-//      array[arr_cols*i + j] = array[arr_cols*i + j];
-//    }
-//  }
-
   return status;
 }
 
 /*
  * make_amp_array returns an array view of the data readout through the
  * specified amp in which the amp is at the lower left hand corner.
- * also converts from DN to electrons by multiplying by the a-to-d gain.
  * based on make_amp_array from dopcte.c.
  */
 static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *im,
-                          int amp, double * array, float gain) {
+                          int amp, double * array) {
 
   extern int status;
 
@@ -789,7 +886,7 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *i
         return status;
       }
 
-      array[i*arr_cols + j] = Pix(im->sci.data, c, r); // * gain;
+      array[i*arr_cols + j] = Pix(im->sci.data, c, r);
     }
   }
 
@@ -799,10 +896,9 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *i
 /*
  * unmake_amp_array does the opposite of make_amp_array, it takes amp array
  * views and puts them back into the single group in the right order.
- * also converts from electrons to DN by dividing by the a-to-d gain.
  */
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup *im,
-                            int amp, double * array, float gain) {
+                            int amp, double * array) {
 
   extern int status;
 
@@ -832,7 +928,7 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
         return status;
       }
 
-      Pix(im->sci.data, c, r) = (float) array[i*arr_cols + j]; // / gain;
+      Pix(im->sci.data, c, r) = (float) array[i*arr_cols + j];
     }
   }
 
