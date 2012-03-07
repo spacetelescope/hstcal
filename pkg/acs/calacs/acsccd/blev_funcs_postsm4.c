@@ -511,57 +511,57 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
   }
 
   /* iterate, performing "sigma" clipping at least 5 times but a max of 10 */
-//  do {
-//    ntot2 = ntot1;
-//    ntot1 = 0;
-//    nits++;
-//
-//    /* calculate absolute deviation and current number of good pixels*/
-//    sum_mean = 0.0;
-//    for (j = 0; j < NBIAS_COLS; j++) {
-//      for (i = 0; i < arr_rows; i++) {
-//        if (good_pix[NBIAS_COLS*i +j] == 1) {
-//          sum_mean += array[arr_cols*i + j];
-//          ntot1++;
-//        }
-//      }
-//    }
-//
-//    if (ntot1 != 0) {
-//      temp_mean = sum_mean / (double) ntot1;
-//    } else {
-//      temp_mean = 0;
-//    }
-//
-//    /* calculate absolute deviation */
-//    sum_std = 0.0;
-//    for (j = 0; j < NBIAS_COLS; j++) {
-//      for (i = 0; i < arr_rows; i++) {
-//        if (good_pix[NBIAS_COLS*i +j] == 1) {
-//          sum_std += fabs(array[arr_cols*i + j] - temp_mean);
-//        }
-//      }
-//    }
-//
-//    if (ntot1 != 0) {
-//      temp_std = sum_std/(double) ntot1;
-//    } else {
-//      temp_std = 0;
-//    }
-//
-//    ntot1 = 0;
-//
-//    for (j = 0; j < NBIAS_COLS; j++) {
-//      for (i = 0; i < arr_rows; i++) {
-//        if ((good_pix[NBIAS_COLS*i + j] == 1) &&
-//            (fabs(array[arr_cols*i+j] - temp_mean) > sig_lev*temp_std)) {
-//          good_pix[NBIAS_COLS*i + j] = 0;
-//        } else if (good_pix[NBIAS_COLS*i + j] == 1) {
-//          ntot1++;
-//        }
-//      }
-//    }
-//  } while ((nits <= 5) || (nits <= 10 && ntot1 < ntot2));
+  do {
+    ntot2 = ntot1;
+    ntot1 = 0;
+    nits++;
+
+    /* calculate absolute deviation and current number of good pixels*/
+    sum_mean = 0.0;
+    for (j = 0; j < NBIAS_COLS; j++) {
+      for (i = 0; i < arr_rows; i++) {
+        if (good_pix[NBIAS_COLS*i +j] == 1) {
+          sum_mean += array[arr_cols*i + j];
+          ntot1++;
+        }
+      }
+    }
+
+    if (ntot1 != 0) {
+      temp_mean = sum_mean / (double) ntot1;
+    } else {
+      temp_mean = 0;
+    }
+
+    /* calculate absolute deviation */
+    sum_std = 0.0;
+    for (j = 0; j < NBIAS_COLS; j++) {
+      for (i = 0; i < arr_rows; i++) {
+        if (good_pix[NBIAS_COLS*i +j] == 1) {
+          sum_std += fabs(array[arr_cols*i + j] - temp_mean);
+        }
+      }
+    }
+
+    if (ntot1 != 0) {
+      temp_std = sum_std/(double) ntot1;
+    } else {
+      temp_std = 0;
+    }
+
+    ntot1 = 0;
+
+    for (j = 0; j < NBIAS_COLS; j++) {
+      for (i = 0; i < arr_rows; i++) {
+        if ((good_pix[NBIAS_COLS*i + j] == 1) &&
+            (fabs(array[arr_cols*i+j] - temp_mean) > sig_lev*temp_std)) {
+          good_pix[NBIAS_COLS*i + j] = 0;
+        } else if (good_pix[NBIAS_COLS*i + j] == 1) {
+          ntot1++;
+        }
+      }
+    }
+  } while ((nits <= 5) || (nits <= 10 && ntot1 < ntot2));
 
   /* calculate final mean and standard deviation of good pixels */
   /* calculate absolute deviation and current number of good pixels*/
@@ -590,7 +590,7 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
   }
 
   if (ntot1 != 0) {
-    temp_std = sum_std/(double) ntot1;
+    temp_std = sqrt(sum_std/(double) (ntot1 - 1));
   } else {
     temp_std = 0;
   }
@@ -680,24 +680,24 @@ static int find_good_rows(const int arr_rows, const int arr_cols, const double *
 
     row_means[i] = sum / (double) (arr_cols - NBIAS_COLS);
 
-//    if (abs(row_means[i] - amp_mean) > 100) {
-//      good_rows[i] = 0;
-//    } else if (array[arr_cols*i + 24] > 70000) {
-//      good_rows[i] = 0;
-//    } else if (array[arr_cols*i + 25] > 70000) {
-//      good_rows[i] = 0;
-//    } else if (array[arr_cols*i + 26] > 70000) {
-//      good_rows[i] = 0;
-//    } else if (array[arr_cols*i + 27] > 70000) {
-//      good_rows[i] = 0;
-//    } else if (array[arr_cols*i + 28] > 70000) {
-//      good_rows[i] = 0;
-//    } else if (array[arr_cols*i + 29] > 70000) {
-//      good_rows[i] = 0;
-//    } else {
+    if (abs(row_means[i] - amp_mean) > 100) {
+      good_rows[i] = 0;
+    } else if (array[arr_cols*i + 24] > 70000) {
+      good_rows[i] = 0;
+    } else if (array[arr_cols*i + 25] > 70000) {
+      good_rows[i] = 0;
+    } else if (array[arr_cols*i + 26] > 70000) {
+      good_rows[i] = 0;
+    } else if (array[arr_cols*i + 27] > 70000) {
+      good_rows[i] = 0;
+    } else if (array[arr_cols*i + 28] > 70000) {
+      good_rows[i] = 0;
+    } else if (array[arr_cols*i + 29] > 70000) {
+      good_rows[i] = 0;
+    } else {
       good_rows[i] = 1;
       (*num_good_rows)++;
-//    }
+    }
   }
   
   //printf("%i   %i   %8.2f   %8.2f\n",*num_good_rows,2068-*num_good_rows,bias_mean,amp_mean);
@@ -756,13 +756,12 @@ static int bias_col_mean_std(const int arr_rows, const int arr_cols, const doubl
     not_skipped = 0;
 
     for (i = 0; i < arr_rows; i++) {
-//      if ((array[arr_cols*i + 24] < 50000) &&
-//          (array[arr_cols*i + 25] < 50000) &&
-//          (array[arr_cols*i + 26] < 50000) &&
-//          (array[arr_cols*i + 27] < 50000) &&
-//          (array[arr_cols*i + 28] < 50000) &&
-//          (array[arr_cols*i + 29] < 50000)) {
-      if (1) {
+      if ((array[arr_cols*i + 24] < 50000) &&
+          (array[arr_cols*i + 25] < 50000) &&
+          (array[arr_cols*i + 26] < 50000) &&
+          (array[arr_cols*i + 27] < 50000) &&
+          (array[arr_cols*i + 28] < 50000) &&
+          (array[arr_cols*i + 29] < 50000)) {
         bias_col[not_skipped] = minus_row_mean[NBIAS_COLS*i + j];
         not_skipped ++;
       }
@@ -811,22 +810,22 @@ static int calc_mean_std(const int len, const double array[], const double sig,
   temp_std = sqrt(sum_std / (double) (len - 1));
 
   /* do sigma clipping iterations */
-//  for (j = 0; j < clip_it; j++) {
-//    nused = 0;
-//    sum_mean = 0.0;
-//    sum_std = 0.0;
-//
-//    for (i = 0; i < len; i++) {
-//      if (fabs(array[i] - temp_mean) <= sig*temp_std) {
-//        sum_mean += array[i];
-//        sum_std += pow(array[i] - temp_mean, 2);
-//        nused++;
-//      }
-//    }
-//
-//    temp_mean = sum_mean / (double) nused;
-//    temp_std = sqrt(sum_std / (double) (nused - 1));
-//  }
+  for (j = 0; j < clip_it; j++) {
+    nused = 0;
+    sum_mean = 0.0;
+    sum_std = 0.0;
+
+    for (i = 0; i < len; i++) {
+      if (fabs(array[i] - temp_mean) <= sig*temp_std) {
+        sum_mean += array[i];
+        sum_std += pow(array[i] - temp_mean, 2);
+        nused++;
+      }
+    }
+
+    temp_mean = sum_mean / (double) nused;
+    temp_std = sqrt(sum_std / (double) (nused - 1));
+  }
 
   *mean = temp_mean;
   *std = temp_std;
@@ -847,12 +846,6 @@ static int sub_bias_col_means(const int arr_rows, const int arr_cols, const int 
       array[arr_cols*i + j] = array[arr_cols*i + j] - bias_means[j];
     }
   }
-
-//  for (j = bias_cols; j < arr_cols; j++) {
-//    for (i = 0; i < arr_rows; i++) {
-//      array[arr_cols*i + j] = array[arr_cols*i + j];
-//    }
-//  }
 
   return status;
 }
