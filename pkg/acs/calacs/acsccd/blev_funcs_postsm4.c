@@ -51,7 +51,7 @@ int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   const double parallel_shift = 3.212;     /* parallel shift time */
   
   /* number of virtual pixels at end of each row */
-  const int ngap_pix = (int) serial_freq * parallel_shift + 0.5;
+  const int ngap_pix = (int) (serial_freq * parallel_shift + 0.5);
   
   const int arr_rows = chip2->sci.data.ny;
   const int arr_cols = chip2->sci.data.nx/2;
