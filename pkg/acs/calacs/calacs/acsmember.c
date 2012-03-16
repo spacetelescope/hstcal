@@ -90,7 +90,7 @@ ACSInfo *acs		o: exposure specific flags and info
 */
 	extern int status;
 	char rootname[ACS_FNAME];
-	char outroot[ACS_CBUF];
+	char outroot[ACS_FNAME];
 	void FindAsnRoot (char *, char *);
 	
 	strcpy(outroot, asn->filename);
