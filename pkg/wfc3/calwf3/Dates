@@ -1,12 +1,19 @@
-27-Jan-2012: CALWF3 2.6.2: Updated the max files to go through wf3rej in IR to 120
-             because the archive wasn't able to handle 250. We are looking for what
-	     is causing the limitation and what the real image limit should be.
-24-Jan-2012: CALWF3 2.6.1: Updated procir.c to check for the number of images again
-             There were singletons coming through the archive that were
-	          marked as RPTCORR with NRPTEXP < 2 which were not associated
-             so they were failing when calwf3 tried to process them further.
+23-Mar-2012: CALWF3 2.6.3: Implemented the following PRs:
+  70922/869: Fixed the IR processing flow so that an association-level trailer
+             file can still be created when a CRJ sub-product is not created
+             by wf3rej for a repeat-obs association.
+
+27-Jan-2012: CALWF3 2.6.2: Decreased max number of images to be combined in
+             wf3rej from 250 to 120 because OPUS is still getting errors
+
+24-Jan-2012: CALWF3 2.6.1: Updated procir.c to check for the number of images,
+             because there were singletons coming through OPUS that had
+             RPTCORR=PERFRORM, which were failing when calwf3 tried to
+             apply wf3rej.
+
 15-Dec-2011: CALWF3 2.6: Implemented the following PRs:
-             69969/814: Updgraded wf3rej to properly handle input data that are in units of count rates.
+  69969/814: Updgraded wf3rej to properly handle input data that are in units
+             of count rates.
 
 09-Dec-2011: CALWF3 2.5.1: Implemented the following PRs:
   69952/807: Modified the high-level IR processing logic so that rptcorr

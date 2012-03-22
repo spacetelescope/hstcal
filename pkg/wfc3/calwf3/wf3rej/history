@@ -1,4 +1,3 @@
-27 Jan 2012 (MLS) updated MAX_FILES to 120 because the archive couldn't handle more
 28 Sept 1999 (WJH)
         - Revised the use of multi-amp gain and noise values in
             'acsrej_init.c' to follow what was done in 'acsrej_loop.c'.

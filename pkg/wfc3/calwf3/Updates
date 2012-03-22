@@ -1,42 +1,67 @@
-Updates for version 2.6.2 27-Jan-2012 (MLS): reduced the number of allowed images into wf3rej to 120
-     because the archive was unable to handle 250
-     rej.h: in wf3ir and wf3rj MAX_FILES updated to 120 from 304 
+Updates for version 2.6.3 23-Mar-2012 (HAB):
+    calwf3.cl:
+        Increment version to "23Mar2012".
+    wf3version.h:
+        Increment version to 2.6.3 and date to 23-Mar-2012.
+    calwf3/calwf3.c
+        Upgraded the BuildDthInput function to build file list from names of
+        individual association members when a CRJ sub-product has not been
+        created. (PR 70922; Trac #869)
+    calwf3/procir.c
+        Updated to set CRJ sub-product status to PRESENT after running wf3rej,
+        and report RPTCORR switch status via trlmessage when wf3rej is not run.
+        (PR 70922; Trac #869)
+
+Updates for version 2.6.2 27-Jan-2012 (MLS):
+    calwf3.cl:
+        Increment version to "27Jan2012".
+    wf3version.h:
+        Increment version to 2.6.2 and date to 27-Jan-2012.
+    wf3rej/rej.h:
+        Decreased MAX_FILES from 250 to 120 because OPUS is still getting
+        errors when trying to process this many images.
+
 Updates for version 2.6.1 24-Jan-2012 (MLS):
-     procir.c:added a couple lines to check for multiple images so that
-	       singletons with RPTCORR and NRPTEXP > 1 would not go through
-		   CR rejection if TRANS didn't associate them
-		   
+     calwf3.cl:
+        Increment version to "24Jan2012".
+     wf3version.h:
+        Increment version to 2.6.1 and date to 24-Jan-2012.
+     calwf3/procir.c:
+        Added a check for the number of images present when RPTCORR=PERFORM
+        so that wf3rej is not run for singletons.
+
 Updates for version 2.6 - 15-Dec-2011 (HAB):
-
-	calwf3.cl: Increment version to "15Dec2011".
-    wf3version.h: Increment version to 2.6 and date to 15-Dec-2011.
-	wf3rej/cr_scaling.c: Upgraded to read BUNIT keyword value from 
-	        first SCI extension header of each input image. (PR 69969; Trac #814)
-	wf3rej/rej_do.c: Upgraded to pass new bunit array to and from all 
-	        functions that need it, in order to handle input data that are 
-			in count rates. (PR 69969; Trac #814) 
-	wf3rej/rej_init.c: Upgraded to rescale input data that are in units of count rates.
-	        (PR 69969; Trac #814)
-	wf3rej/rej_loop.c: Upgraded to rescale input data that are in units of count rates.
-	        (PR 69969; Trac #814)
-    wf3rej/rej_sky.c: Upgraded to rescale input data that are in units of count rates.
-	        (PR 69969; Trac #814)
-
+    calwf3.cl:
+        Increment version to "15Dec2011".
+    wf3version.h:
+        Increment version to 2.6 and date to 15-Dec-2011.
+    wf3rej/cr_scaling.c:
+        Upgraded to read BUNIT keyword value from first SCI extension header
+        of each input image. (PR 69969; Trac #814)
+    wf3rej/rej_do.c:
+        Upgraded to pass new bunit array to and from all functions that need
+        it, in order to handle input data that are in count rates.
+        (PR 69969; Trac #814)
+    wf3rej/rej_init.c:
+        Upgraded to rescale input data that are in units of count rates.
+        (PR 69969; Trac #814)
+    wf3rej/rej_loop.c:
+        Upgraded to rescale input data that are in units of count rates.
+        (PR 69969; Trac #814)
+    wf3rej/rej_sky.c:
+        Upgraded to rescale input data that are in units of count rates.
+        (PR 69969; Trac #814)
 
 Updates for version 2.5.1 - 09-Dec-2011 (HAB):
     calwf3.cl:
-	Increment version to "09Dec2011".
+        Increment version to "09Dec2011".
     wf3version.h:
-	Increment version to 2.5.1 and date to 09-Dec-2011.
+        Increment version to 2.5.1 and date to 09-Dec-2011.
     calwf3/procir.c:
-	Modified the logic that controls the rptcorr processing so that it's
-	based on the setting of the RPTCORR header keyword switch, instead of
-	just always applying it to every repeat-obs association.
-	(PR 69952; Trac #807)
-
-        -modified again to account for images which have RPTCORR=PERFORM and
-         NRPTEXPT > 1, but no TRANS association, so they failed further processing.
-
+        Modified the logic that controls the rptcorr processing so that it's
+        based on the setting of the RPTCORR header keyword switch, instead of
+        just always applying it to every repeat-obs association.
+        (PR 69952; Trac #807)
 
 Updates for version 2.5 - 01-Oct-2011 (HAB):
     calwf3.cl:

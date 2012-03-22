@@ -174,13 +174,13 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
 ** H.Bushouse	Changed crrej to always call EstimateDarkandGlow, regardless of
 ** 21-Oct-2010	darkcorr switch setting, because for WFC3 we use a static dark
 **		value and therefore don't need access to the darkfile.
-** 
-** H.Bushouse   Updated crrej to free memory for tot_ADUs before returning. 
-** 01-Aug-2011  (PR 68993; Trac #748) 
-** 
-** H.Bushouse   Fixed fitsamps routine to correctly accumulate int_time when 
-** 31-Aug-2011  first valid interval contains a single sample or starts in 
-** 			 something other than the first read. (PR 69230; Trac #770) 
+**
+** H.Bushouse	Updated crrej to free memory for tot_ADUs before returning.
+** 01-Aug-2011  (PR 68993; Trac #748)
+**
+** H.Bushouse	Fixed fitsamps routine to correctly accumulate int_time when
+** 31-Aug-2011	first valid interval contains a single sample or starts in
+**		something other than the first read. (PR 69230; Trac #770)
 */
 
 int crrej (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
@@ -923,21 +923,23 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
   sumwts = 0;
   sum = 0;
   if (found_error == 0 && no_samples == 0) {
-    /* Loop over all intervals */ 
-	for (idx=0; idx<=interval; idx++) {
-    /* If there's more than 1 data point in the interval, do a slope fit */ 
+
+    /* Loop over all intervals */
+    for (idx=0; idx<=interval; idx++) {
+
+      /* If there's more than 1 data point in the interval, do a slope fit */
       if (tcount[idx] > 1) {
 
-    /* Initialize integration time counter with delta time 
- 			of first valid sample in first interval */ 
- 		 if (idx==0) { 
- 			 k = tlookup[idx][0]; 
- 			 int_time += time[k] - time[k-1]; 
- 		 } 
+	/* Initialize integration time counter with delta time
+	   of first valid sample in first interval */
+	if (idx==0) {
+	    k = tlookup[idx][0];
+	    int_time += time[k] - time[k-1];
+	}
 
- 		 /* Compute mean countrate using linear fit, with optimum weighting  
- 			this time to get best estimate of the slope */ 
-		linfit (optimum_weight, ttime[idx], tsci[idx], terr[idx], 
+	/* Compute mean countrate using linear fit, with optimum weighting 
+	   this time to get best estimate of the slope */
+	linfit (optimum_weight, ttime[idx], tsci[idx], terr[idx], 
 		tdarkandglow[idx],tcount[idx], gain, flat_uncertainty, 
 		&a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
         if (nsflag == 1) {
@@ -946,7 +948,8 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
             printf (" (optimum weight)\n");
           }
         }
-	/*also accumulate the integration time and sums  */
+
+	/* also accumulate the integration time and sums  */
 	int_time += ttime[idx][tcount[idx]-1] - ttime[idx][0];
         sigsquared = sigb[idx]*sigb[idx];
 	if (sigsquared == 0.0) {
@@ -955,7 +958,10 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
 	  sumwts += 1.0/sigsquared;
 	  sum    += b[idx]/sigsquared;
         }
+
+      /* If there's only 1 data point, compute countrate directly */
       } else if (tcount[idx] == 1) {
+
 	if ((tdq[idx][0] & DATAREJECT) == 0) {
           if (ttime[idx][0] == 0.0) {
 	    if (DEBUG2) printf ("Exposure time is zero\n");
@@ -963,6 +969,8 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
 	    b[idx]=tsci[idx][0]/ttime[idx][0];
 	    sigb[idx]=terr[idx][0]/ttime[idx][0];
           }
+
+	  /* accumulate the integration time and sums */
 	  k = tlookup[idx][0];
 	  int_time += time[k] - time[k-1];
           sigsquared = sigb[idx]*sigb[idx];
@@ -974,8 +982,8 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
           }
 	}
       }
-    }  /*end of loop over intervals*/
-  }    /*end test against found_error*/
+    }  /* end of loop over intervals */
+  }    /* end test against found_error */
 
   /*----------------------------------------------------------------
     COMBINE ALL THE FITS TO GET THE FINAL SOLUTION FOR THE PIXEL
@@ -983,7 +991,8 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
 
   /* Set output SCI and ERR values */
   if (no_samples == 0) {
-    /* Good sums to work with ... */ 
+
+    /* Good sums to work with ... */
     if ((found_error == 0) && (sumwts > 0.0)) {
       *(out_sci) = sum/sumwts;
       *(out_err) = sqrt(1/sumwts);
@@ -1003,7 +1012,8 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
 	       (*out_samp) += tcount[idx] - 1;
 	   }
       }
-    /* No good sums to work with ... */ 
+
+    /* No good sums to work with ... */
     } else {
       /*Set the flux and errors to the last good read*/
       firstgood = 0;
@@ -1060,8 +1070,6 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
   }
 
 
-
-
 /* LINFIT: Compute a linear fit of the form y = a + bx to a set of
 ** data points x, y with individual standard deviations sig. Returned
 ** are a, b and their respective probable uncertainties siga and sigb.
@@ -1072,7 +1080,6 @@ static void fitsamps (short nsamp, float *sci, float *err, short *dq,
 ** the fit. Calculation of uncertainty now includes contributions
 ** from Poisson noise (source and dark) and read noise.
 */
-
 
 static void linfit (short weight_type, float *x, float *y, float *sig, 
 		    float *darkandglow, short ndata, 
@@ -1207,7 +1214,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
     if (errterms > 0)
 	*sigb = (sqrt(errterms)/dx)/gain;   
     
-  } else { /*No points had any weight*/
+  } else { /* No points had any weight */
     	*a=0.0;
    	*b=0.0;
    	*sigb=1e9;
@@ -1309,7 +1316,7 @@ static int RejCRs (short *dq, float *diff, short nsamp, float thresh,
 	       if (diff[k]-prev_diff > max_diff) {
 	           max_diff = diff[k]-prev_diff;
 	          (*cr_index) = k;
-	       }
+	       } 
 	       prev_diff = diff[k];
            }
        }

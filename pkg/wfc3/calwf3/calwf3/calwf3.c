@@ -55,6 +55,11 @@
    H.Bushouse, 2011 Jan 14:
 	Updated CopyFFile to update the FILENAME keyword in the output file.
 	(PR 67225, Trac #646)
+   H.Bushouse, 2012 Mar 21:
+	Upgraded BuildDthInput to handle situations where no sub-product
+	(i.e. _crj file) has been produced, which means the trailer file for
+	the final (asn level) product must be built from the trailers of the
+	individual asn members. (PR 70922, Trac #869)
 */
 
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug) {
@@ -320,10 +325,9 @@ char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
 char *BuildDthInput (AsnInfo *asn, int prod) {
 
 	int nchars;
-	int i;
+	int i, j;
 	char *wf3dth_input;
 	char tmpexp[SZ_LINE+1];
-	char tmpflt[SZ_LINE+1];
 	int MkName (char *, char *, char *, char *, char *, int);
 
 	/* Determine how long this string needs to be... */
@@ -338,19 +342,32 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 
 	     /* Skip CR and RPT sub-products that only have 1 member */
 	     if ((asn->crcorr==PERFORM || asn->crcorr==DUMMY ||
-		  asn->rptcorr==PERFORM || asn->rptcorr==DUMMY) && asn->spmems[i] < 2)
+		  asn->rptcorr==PERFORM || asn->rptcorr==DUMMY) && 
+		  asn->spmems[i] < 2)
 		  continue;
 
-	     strcpy(tmpexp, asn->product[prod].subprod[i].spname);
+	     /* Check to see if a sub-product was produced */
+	     if (!asn->product[prod].subprod[i].prsnt) {
 
-	     /*if (MkName (tmpexp, "_crj_tmp", "_crj", "", tmpflt, SZ_LINE)) {
-		 strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);
-		 strcat (tmpflt, "_crj.fits");
-	     }*/
+		 /* If the sub-product wasn't produced, we have to build the
+		 ** list of names from the individual asn members */
+                 for (j=1; j <= asn->spmems[i]; j++) {
+		      strcpy(tmpexp, asn->product[prod].subprod[i].exp[j].name);
+		      strcat(tmpexp,"_flt.fits");
+		      strcat(wf3dth_input, tmpexp);
+		      if (j < asn->spmems[i])
+			  strcat(wf3dth_input, ",");
+		 }
 
-	     strcat(wf3dth_input, tmpexp);
+	     } else {
+
+		 /* Otherwise just use the sub-product name */
+	         strcpy(tmpexp, asn->product[prod].subprod[i].spname);
+	         strcat(wf3dth_input, tmpexp);
+	     }
+
 	     if (i < (asn->numsp)) {
-		 /* Don't add a comma to the end of the last filename*/
+		 /* Add a comma to the end if this is not the last filename*/
 		 strcat(wf3dth_input, ",");
 	     }
 	}

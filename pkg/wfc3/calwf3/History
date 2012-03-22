@@ -1,13 +1,17 @@
-### 27 Jan 2012 - MLS -- Version 2.6.2:
-    - Reduced the number of images to allow in wf3rej to 120 because the archive
-      was anable to handle 250. 
-### 23 Jan 2012 - MLS -- Version 2.6.1: 
-    - Modified procir.c to check for the number of images again, to account
-      for singletons going through the pipeline with RPTCORR=PERFORM and
-      NRPTEXP > 1 that weren't associated by TRANS and going to the next
-      processing step and failing
-	  
-### 15 Dec 2011 - HAB -- Version 2.6:
+### 23 Mar 2012 - HAB -- Version 2.6.3
+    - Fixed the IR processing flow so that an association-level trailer file
+      is created even when a CRJ sub-product is not created by wf3rej.
+
+### 27 Jan 2012 - MLS -- Version 2.6.2
+    - Decreased the max number of images to combine in wf3rej back to 120
+      because OPUS is still getting errors
+
+### 23 Jan 2012 - MLS -- Version 2.6.1
+    - Modified procir.c to check for the number of images, to account
+      for singletons going through the pipeline with RPTCORR=PERFORM, which
+      caused calwf3 to fail when trying to run wf3rej.
+
+### 15 Dec 2011 - HAB -- Version 2.6
     - Upgraded wf3rej to properly handle input data that are in units of count rates.
 
 ### 09 Dec 2011 - HAB -- Version 2.5.1

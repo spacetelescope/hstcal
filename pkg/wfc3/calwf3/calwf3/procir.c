@@ -8,6 +8,7 @@
 # include "wf3err.h"
 # include "wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
+# include "trl.h"
 
 /* ProcessIR: This routine controls the overall flow of processing
    for IR images.
@@ -23,10 +24,16 @@
 	(PR 69952; Trac 807)
 
    M.Sosey, 2012 Jan 24:
-   Updated to check for number of images in the wf3header as a check against
-   observations which were marked as RPTCORR with NRPT but are not associations
-   They were causing a segfault because the code when on to try wf3rej them.
-   the update was checked in under r14469
+	Updated to check for the number of images in wf3hdr as a check
+	against observations that have RPTCORR=PERFORM, but are not in an
+	association. This was causing a crash when attempting to run wf3rej
+	on the non-existent association.
+
+   H.Bushouse, 2012 Mar 21:
+	Updated to set sub-product status to PRESENT after running wf3rej and
+	report RPTCORR processing status via trlmessage when wf3rej is not run.
+	(PR 70922; Trac #869)
+
 */
 
 int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
@@ -62,6 +69,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 	int  WF3ir (char *, char *, IR_Switch *, RefFileInfo *, int, int,
 		    float, float, int);
 	int  updateAsnTable (AsnInfo *, int, int);
+	void PrSwitch (char *, int);
 
 	/* Loop over the products/positions for each
 	** Repeat-Obs or Repeat-Obs/DITHER set.
@@ -127,10 +135,12 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 			       trlmessage 
 				    ("CALWF3: Got reference file information");
 			   }
-			   
-			   if(sci_sw.rptcorr == PERFORM && wf3hdr->nimages < 2) {
+
+			   if (sci_sw.rptcorr == PERFORM && wf3hdr->nimages < 2) {
+			       trlmessage
+				("RPTCORR will be omitted because there's only one image.");
 			       sci_sw.rptcorr = OMIT;
-               }
+			   }
 
 			   /* Store the trailer file comments into preface */
 			   newpreface = YES;
@@ -202,12 +212,12 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 		       /* We now are working with flt here... */
 		       /* Copy (cat) flt name to wf3rej_input string */
 		       if (wf3hdr->sci_rptcorr == PERFORM) {
-			       strcat (wf3rej_input, wf3hdr->fltfile);
-			       if (expid < asn->spmems[posid]) {
-			           /* Don't add a comma to the end of the last
-			           ** filename */
-			           strcat(wf3rej_input, ",");
-			       }
+			   strcat (wf3rej_input, wf3hdr->fltfile);
+			   if (expid < asn->spmems[posid]) {
+			       /* Don't add a comma to the end of the last
+			       ** filename */
+			       strcat(wf3rej_input, ",");
+			   }
 		       }
 		  }    /* Finished processing EXP images */
 
@@ -266,6 +276,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                           }
                       }
 
+		      asn->product[prod].subprod[posid].prsnt = True;
                       if (updateAsnTable (asn, prod, posid))
                           return (status);
 
@@ -273,6 +284,9 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                       ** subproduct */
                       free(wf3rej_input);
 
+		  } else {
+		      trlmessage ("");
+		      PrSwitch ("rptcorr", wf3ir_sci_sw.rptcorr);
                   } /* End RPTCORR processing */
 
 	     }    /* Finished processing this position's sub-product */
