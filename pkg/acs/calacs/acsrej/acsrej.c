@@ -130,8 +130,8 @@ static void InitRejTrl (char *input, char *output) {
   
   char        isuffix[] = "_blv_tmp";
   char        osuffix[] = "_crj_tmp";
-  char        itrlsuffix[] = "_flt";
-  char        otrlsuffix[] = "_crj";
+  char        itrlsuffix[] = "";
+  char        otrlsuffix[] = "";
   
   int MkName (char *, char *, char *, char *, char *, int);
   void WhichError (int);
@@ -141,8 +141,8 @@ static void InitRejTrl (char *input, char *output) {
   if (strstr(input, isuffix) == NULL) {
     strcpy(isuffix, "_blc_tmp");
     strcpy(osuffix, "_crc_tmp");
-    strcpy(itrlsuffix, "_flc");
-    strcpy(otrlsuffix, "_crc");
+  /*  strcpy(itrlsuffix, "_flc");
+    strcpy(otrlsuffix, "_crc");  */
   }
   
   /* ----------------------------- Begin ------------------------------*/

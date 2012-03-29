@@ -208,7 +208,7 @@ void InitCCDTrl (char *input, char *output, int pctecorr) {
 	
 	char isuffix[] = "_raw";
 	char osuffix[] = "_blv_tmp";
-  char trlsuffix[] = "_flt";
+  char trlsuffix[] = "";
 	
 	int MkName (char *, char *, char *, char *, char *, int);
 	void WhichError (int);
@@ -224,7 +224,7 @@ void InitCCDTrl (char *input, char *output, int pctecorr) {
    * and the trlsuffix is _flc */
   if (pctecorr == PERFORM) {
     strcpy(osuffix, "_blc_tmp");
-    strcpy(trlsuffix, "_flc");
+/*    strcpy(trlsuffix, "_flc"); */
   }
 	
 	/* Start by stripping off suffix from input/output filenames */

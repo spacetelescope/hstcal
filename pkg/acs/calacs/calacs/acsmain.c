@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 	*/
 	for (i = 1;  i < argc;  i++) {
 		if (!(strcmp(argv[i],"--version"))) {
-      printf("%s\n",ACS_CAL_VER_NUM);
+      printf("%s\n",ACS_CAL_VER);
       exit(0);
     }
     

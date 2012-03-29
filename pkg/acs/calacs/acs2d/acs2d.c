@@ -183,7 +183,7 @@ void Init2DTrl (char *input, char *output) {
 	/* Input and output suffixes. */
 	char *isuffix[] = {"_raw", "_blv_tmp", "_blc_tmp", "_crj_tmp", "_crc_tmp"};
 	char *osuffix[] = {"_flt", "_flt",     "_flc",     "_crj",     "_crc"};
-	char *trlsuffix[] = {"_flt", "_flt",   "_flc",     "_crj",     "_crc"};
+	char *trlsuffix[] = {"", "", "", "", ""};
 
 	int nsuffix = 5;
 	

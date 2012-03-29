@@ -1,3 +1,8 @@
+### 29-Mar-2012 - WJH -- Version 8.0.1
+    Reverted naming convention for trailer files back to conventions used
+    in V6.0 and earlier in order to maintain compatibility with OPUS
+    requirements. 
+    
 ### 19-Jul-2011 - MRD -- Version 7.1.1
     Added support for a new PCTETAB that contains time dependent CTE information.
 

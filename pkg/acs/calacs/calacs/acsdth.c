@@ -185,7 +185,7 @@ void InitDthTrl (char *inlist, char *output) {
 	
 	char *isuffix[]={"_sfl", "_crj", "_crc", "_flt", "_flc"};
 	char *osuffix[]={"_drz", "_drz", "_drc", "_drz", "_drc"};
-	char *trlsuffix[]={"_sfl", "_crj", "_crc", "_flt", "_flc"};
+	char *trlsuffix[]={"", "", "", "", ""};
 	int nsuffix = 5;
 	
 	int MkOutName (char *, char **, char **, int, char *, int);

@@ -1,3 +1,14 @@
+Update for version 8.0.1 - 29-Mar-12 (WJH)
+    acsccd/acsccd.c
+    acs2d/acs2d.c
+    acsrej/acsrej.c
+    acssum/acssum.c
+    calacs/acsdth.c
+        Reverted naming convention for trailer files back to conventions used
+        in V6.0 and earlier in order to maintain compatibility with OPUS
+        requirements. This required changing all trlsuffix definitions to
+        blank strings.
+
 Update for version 7.1.1 - 19-Jul-11 (MRD)
     acsccd/dopcte.c
     acsccd/pcte.h
