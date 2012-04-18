@@ -75,7 +75,7 @@ int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   
   /* value of virtual pixels in gap at end of rows */
   const double gap_value[NAMPS] = {0.0, 0.0, 0.0, 0.0};
-  
+    
   /* factor combining time constant and clocking frequency */
   double factor;
   
@@ -158,6 +158,13 @@ int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
     }
     
     magic_square_mean = sum / (double) num;
+    /* Keep track of the total bias correction applied to each AMP region */
+    acs->blev[i] += magic_square_mean;
+    /* Report to the user the contribution to the bias level correction 
+       made by this processing step.
+    */
+    sprintf(MsgText, "Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[i], magic_square_mean);
+    trlmessage(MsgText);
     
     /* subtract "magic square mean" from data*/
     for (j = 0; j < arr_rows; j++) {
@@ -307,7 +314,7 @@ int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
             bias_mean, AMPSORDER[i]);
     trlmessage(MsgText);
 
-    acs->blev[i] = bias_mean;
+    acs->blev[i] += bias_mean;
     bias_mean_arr[i] = bias_mean;
   }
 
