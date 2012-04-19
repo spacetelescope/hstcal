@@ -91,6 +91,7 @@
     Revised:         13 Sep 1999, WJH
     Revised:         14 Apr 2000, WJH (removed use of temp file)
     Revised:         26 Aug 2002, WJH (increased buffer size for trldata)
+    Revised:         18 Apr 2012, PLL (fixed InitTrlFile inf loop bug)
 */
 
 # include <stdio.h>
@@ -137,9 +138,10 @@ char *output        i: full filename of output (final) trailer file
     extern int status;
 
     IRAFPointer tpin;
-    FILE *ip;
+    FILE *ip, *tp;
     int n;
     char trldata[ACS_LINE+1];
+    char uniq_outname[L_tmpnam];
 
     void SetTrlOverwriteMode (int);
 
@@ -148,7 +150,6 @@ char *output        i: full filename of output (final) trailer file
     /* Copy name of output file to trlbuf */
     strcpy (trlbuf.trlfile, output);
 
-    
     /*  Open the output file, for concatenating
         exposure trailers or sub-product trailers, or simply for
         appending new comments to end of existing trailer file.
@@ -158,6 +159,7 @@ char *output        i: full filename of output (final) trailer file
         return(status=INVALID_TEMP_FILE);
     }
 
+
     /* open the input file template */
     tpin = c_imtopen (inlist);
 
@@ -166,6 +168,21 @@ char *output        i: full filename of output (final) trailer file
         or append to an input file.
     */
     if (strcmp(inlist, output) != 0) {
+
+        /* Generate temporary output file name.
+           This is to avoid infinite loop when output is
+           accidentally the same as one of the inputs.
+           Not using tmpfile() because it opens binary stream.
+        */
+        if ( tmpnam(uniq_outname) == NULL ) {
+            trlerror("Failed to create temporary file name.");
+            return(status=INVALID_TEMP_FILE);
+        }
+
+        if ( (tp = fopen(uniq_outname,"w")) == NULL) {
+            trlopenerr(uniq_outname);
+            return(status=INVALID_TEMP_FILE);
+        }
 
         /* Since we have determined that we are indeed combining 
             input trailer files to create a new trailer file, ...
@@ -177,7 +194,7 @@ char *output        i: full filename of output (final) trailer file
             c_imtgetim (tpin, trldata, ACS_FNAME);
 
             /* open the file (read-only) and add to temp output file... */
-             if ((ip = fopen (trldata, "r")) == NULL) {
+            if ((ip = fopen (trldata, "r")) == NULL) {
                 /* Report the error, but the processing can continue anyway */
                 trlopenerr(trldata);
             }
@@ -185,29 +202,50 @@ char *output        i: full filename of output (final) trailer file
             /* Do we have an input file to start with? */
             if (ip != NULL) {
                 /* If so, append the input to output */ 
-                CatTrlFile(ip, trlbuf.fp);
+                CatTrlFile(ip, tp);
                 /* Done with this input file... */
                 fclose(ip);
             }
              
         }	 /* End loop over all input files */
+
+        fclose(tp); /* To set feof */
+
+        if ( (tp = fopen(uniq_outname,"r")) == NULL) {
+            trlopenerr(uniq_outname);
+            return(status=INVALID_TEMP_FILE);
+        }
+
+	/* Copy temporary file content to output trailer file */
+	CatTrlFile(tp, trlbuf.fp);
+
+        fclose(tp);
+
+        /* Delete temporary file.
+           Report the error, but the processing can continue anyway */
+	if ( remove( uniq_outname ) != 0 ) {
+            trlerror("Failed to delete temporary file in InitTrlFile.");
+        }
+
         /* Reset overwrite now to NO */
         SetTrlOverwriteMode(NO);
 
         /* End if (strcmp) */
     } else if (trlbuf.overwrite == YES) {
+
         /* We are revising/creating a single trailer file 
            We want to overwrite old CALACS comments with new,
-            so set the file pointer to just before the first line 
-            which starts with TRL_PREFIX...
+           so set the file pointer to just before the first line 
+           which starts with TRL_PREFIX...
         */
         if (AppendTrlFile ())
             return(status); 
                         
         /* We are finished overwriting old comments, so reset this mode. */
         SetTrlOverwriteMode(NO);    		
-    }	
-         	
+
+    }
+	
     c_imtclose(tpin);
 
     return (status);
