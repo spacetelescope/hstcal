@@ -208,7 +208,7 @@ void InitCCDTrl (char *input, char *output, int pctecorr) {
 	
 	char isuffix[] = "_raw";
 	char osuffix[] = "_blv_tmp";
-  char trlsuffix[] = "";
+    char trlsuffix[] = "";
 	
 	int MkName (char *, char *, char *, char *, char *, int);
 	void WhichError (int);
@@ -220,12 +220,11 @@ void InitCCDTrl (char *input, char *output, int pctecorr) {
 	trl_out[0] = '\0';
 	exist = EXISTS_UNKNOWN;
   
-  /* if pctecorr is set to PERFORM then the osuffix is _blc_tmp
-   * and the trlsuffix is _flc */
-  if (pctecorr == PERFORM) {
-    strcpy(osuffix, "_blc_tmp");
-/*    strcpy(trlsuffix, "_flc"); */
-  }
+    /* if pctecorr is set to PERFORM then the osuffix is _blc_tmp
+     * and the trlsuffix is _flc */
+    if (pctecorr == PERFORM) {
+      strcpy(osuffix, "_blc_tmp");
+    }
 	
 	/* Start by stripping off suffix from input/output filenames */
 	if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, ACS_LINE)) {
@@ -238,19 +237,10 @@ void InitCCDTrl (char *input, char *output, int pctecorr) {
 		sprintf (MsgText, "Couldn't create trailer filename for %s", output);
 		trlmessage (MsgText);
 	}
-  
-	/* Test whether the output file already exists */
-	exist = TrlExists(trl_out);
-	if (exist == EXISTS_YES) {
-		/* The output file exists, so we want to overwrite them with
-     the new trailer comments.
-     */
-		SetTrlOverwriteMode (YES);	
-	}
-  
+  	
 	/* Sets up temp trailer file for output and copies input
-   trailer file into it.
-   */
+         trailer file into it.
+    */
 	InitTrlFile (trl_in, trl_out);
 }
 
