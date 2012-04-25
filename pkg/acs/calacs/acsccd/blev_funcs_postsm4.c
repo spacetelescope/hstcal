@@ -65,16 +65,13 @@ int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   /* arrays below are in order of amp A, B, C, D */
   
   /* time constant of AC high pass filter in external pre-amp. */
-  const double time_const[NAMPS] = {38.00, 36.45, 38.25, 42.00};
-  
+  const double time_const[NAMPS] = {37.290251, 36.180001, 37.867770, 42.461249};
+
   /* ratio of DC offset shift and pixel signal */
   const double dc_ratio[NAMPS] = {0.3, 0.3, 0.3, 0.3};
   
   /* DSI sensitivity */
-  const double dsi_sens[NAMPS] = {2.89913e-3, 10.7910e-3, 12.4312e-3, 3.82375e-3};
-  
-  /* value of virtual pixels in gap at end of rows */
-  const double gap_value[NAMPS] = {0.0, 0.0, 0.0, 0.0};
+  const double dsi_sens[NAMPS] = {2.9188919e-3, 10.805754e-3, 12.432145e-3, 3.8596253e-3};
     
   /* factor combining time constant and clocking frequency */
   double factor;
@@ -98,18 +95,7 @@ int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
     } else {
       make_amp_array(arr_rows, arr_cols, chip2, i, ampdata);
     }
-    
-    /* make amp + gap array */
-    for (j = 0; j < arr_rows; j++) {
-      for (k = 0; k < (arr_cols + ngap_pix); k++) {
-        if (k < arr_cols) {
-          ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
-        } else {
-          ampdata_gap[(arr_cols + ngap_pix)*j + k] = gap_value[i];
-        }
-      }
-    }
-    
+       
     /* calculate "magic square mean" */
     sum = 0.0;
     num = 0;
@@ -123,6 +109,17 @@ int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
     
     magic_square_mean = sum / (double) num;
     
+    /* make amp + gap array */
+    for (j = 0; j < arr_rows; j++) {
+      for (k = 0; k < (arr_cols + ngap_pix); k++) {
+        if (k < arr_cols) {
+          ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
+        } else {
+          ampdata_gap[(arr_cols + ngap_pix)*j + k] = magic_square_mean;
+        }
+      }
+    }
+
     /* calculate true DC bias levels */
     factor = 1.0 - exp(-1.0 / (time_const[i] * serial_freq));
     
