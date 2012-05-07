@@ -1,3 +1,6 @@
+### 07-May-2012 - PLL -- Version 8.0.3
+    Crosstalk scaling changed to 9.1e-5 from 7.1e-5 as requested by N. Grogin.
+
 ### 25-Apr-2012 - PLL -- Version 8.0.2
     Updated bias shift coefficients with new values from D. Golimowski.
     See Ticket #883.

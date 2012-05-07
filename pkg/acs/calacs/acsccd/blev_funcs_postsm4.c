@@ -192,13 +192,13 @@ void cross_talk_corr(ACSInfo *acs, SingleGroup *im) {
   int i, j;
   
   /* cross talk scaling constant */
-  double cross_scale = 7.1e-5;
+  double cross_scale = 9.1e-5;
   
   double temp;
   
   const int arr_rows = im->sci.data.ny;
   const int arr_cols = im->sci.data.nx;
-  
+
   for (i = 0; i < arr_rows; i++) {
     for (j = 0; j < arr_cols; j++) {
       temp = Pix(im->sci.data, arr_cols-j-1, i) * cross_scale;
