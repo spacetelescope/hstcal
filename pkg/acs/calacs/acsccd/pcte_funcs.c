@@ -848,6 +848,7 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
   double sum;
   int num;
   
+  double * local_noise;
   double d1, f, rms;
   
   /* check for valid noise_model */
@@ -904,6 +905,9 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
   } while (it_count < max_it1 || (it_count < max_it2 && rms < rms_fac*read_noise));
   
   if (noise_model == 1) {
+    /* allocate local copy of noise */ 
+    local_noise = (double *) malloc(arrx * arry * sizeof(double)); 
+
     /* remove any excessive local corrections
      */
     for (i = 0; i < arrx; i++) {
@@ -928,9 +932,17 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
           }
         }
 
-        noise_arr[i*arry + j] /= f;
+        local_noise[i*arry + j] = noise_arr[i*arry + j] / f;
       } /* end for j */
     } /* end for i */
+
+    /* Copy scaled down noise to output */
+    for (i = 0; i < arrx; i++) {
+      for (j = 0; j < arry; j++) {
+        noise_arr[i*arry + j] = local_noise[i*arry + j];
+      }
+    }
+
   } /* end if noise_model==1 */
 
   /* Calculate noiseless data using final modeled noise.
