@@ -815,31 +815,41 @@ int FillLevelArrays(const double chg_leak_kt[MAX_TAIL_LEN*NUM_LOGQ],
  * will be modified in each iteration. The noise_model parameter controls
  * which read noise smoothing algorithm is used, should be 0, 1, or 2.
  *
+ * 0 = no RN correction
+ * 1 = typical correction
+ * 2 = hyper-conservative ; attribute as much as possible to RN
  */
 int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
                 const double read_noise, const int noise_model,
                 double sig_arr[arrx*arry], double noise_arr[arrx*arry]) {
-  
+  /* arguments:
+     const int arrx                i: Number of rows in input array.
+     const int arry                i: Number of columns in input array.
+     const double data[arrx*arry]  i: Data from one amp.
+     const double read_noise       i: RN_CLIP from PCTETAB (electrons).
+     const int noise_model         i: NSEMODEL from PCTETAB.
+     double sig_arr[arrx*arry]     o: Noiseless data to be corrected.
+     double noise_arr[arrx*arry]   o: Noise to be added back after correction.
+  */
+
   /* status variable for return */
   extern int status;
   
   /* iteration variables */
-  int i, j, i2, j2, it_count;
+  int i, j, it_count;
   
-  int max_it1 = 25;
-  int max_it2 = 30;
+  /* local constants */
+  const int max_it1 = 25;
+  const int max_it2 = 30;
+  const double rms_fac = 1.10;
+  const double f_fac = 1.25;
   
   /* accumulation variables */
   double sum;
   int num;
   
-  double d1, d2, d3;
-  
-  double rms;
-  
-  double * local_sigma;
-  double * local_weight;
-  char * local_mask;
+  double * local_noise;
+  double d1, f, rms;
   
   /* check for valid noise_model */
   if (noise_model != 0 && noise_model != 1 && noise_model != 2) {
@@ -865,7 +875,7 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
     sum = 0.0;
     num = 0;
     
-    for (i = 3; i < arrx; i++) {
+    for (i = 1; i < arrx; i++) {
       for (j = 0; j < arry; j++) {
         d1 = sig_arr[i*arry + j] - sig_arr[(i-1)*arry + j];
         
@@ -874,24 +884,8 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
         } else if (d1 < -0.1*read_noise) {
           d1 = -0.1*read_noise;
         }
-        
-        d2 = sig_arr[i*arry + j] - sig_arr[(i-2)*arry + j];
-        
-        if (d2 > 0.1*read_noise) {
-          d2 = 0.1*read_noise;
-        } else if (d2 < -0.1*read_noise) {
-          d2 = -0.1*read_noise;
-        }
-        
-        d3 = sig_arr[i*arry + j] - sig_arr[(i-3)*arry + j];
-        
-        if (d3 > 0.1*read_noise) {
-          d3 = 0.1*read_noise;
-        } else if (d3 < -0.1*read_noise) {
-          d3 = -0.1*read_noise;
-        }
-        
-        noise_arr[i*arry + j] += (d1 + d2 + d3) / 3.0;
+
+        noise_arr[i*arry + j] += d1;
         
         sum += pow(noise_arr[i*arry + j], 2);
         num++;
@@ -908,90 +902,57 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
     
     it_count++;
     
-  } while (it_count < 25 || (it_count < 30 && rms < 1.25*read_noise));
-  
-  /* allocate sigma, weight, and mask arrays */
-  local_sigma = (double *) malloc(arrx * arry * sizeof(double));
-  local_weight = (double *) malloc(arrx * arry * sizeof(double));
-  local_mask = (char *) malloc(arrx * arry * sizeof(char));
-  
-  /* calculate local sigma, initialize weights and mask */
-  for (i = 0; i < arrx; i++) {
-    for (j = 0; j < arry; j++) {
-      sum = 0.0;
-      
-      /* add up local pixels to calculate sigma */
-      for (i2 = fmaxl(0, i-1); i2 <= fminl(i+1, arrx-1); i2++) {
-        for (j2 = fmaxl(0, j-1); j2 <= fminl(j+1, arry-1); j2++) {
-          sum += pow(noise_arr[i2*arry + j2], 2);
-        }
-      }
-      
-      local_sigma[i*arry + j] = sqrt(sum / 9.0);
-      
-      if (local_sigma[i*arry + j] > 1.72*read_noise) {
-        local_weight[i*arry + j] = 1.72 * read_noise / local_sigma[i*arry + j];
-        
-        local_mask[i*arry + j] = 0;
-        
-      } else {
-        local_weight[i*arry + j] = 1.0;
-        
-        local_mask[i*arry + j] = 1;
-      }
-    }
-  }
+  } while (it_count < max_it1 || (it_count < max_it2 && rms < rms_fac*read_noise));
   
   if (noise_model == 1) {
-    /* downweight pixels with locally high noise */
-    for (i = 1; i < arrx-1; i++) {
-      for (j = 1; j < arry-1; j++) {
-        num = 0;
-        
-        for (i2 = i-1; i2 <= i+1; i2++) {
-          for (j2 = j-1; j2 <= j+1; j2++) {
-            num += (int) local_mask[i2*arry + j2];
-          }
-        }
-        
-        noise_arr[i*arry + j] *= (double) num / 9.0;
-      }
-    }
-    
-    for (i = 0; i < arrx; i++) {
-      for (j = 0; j < arry; j++) {
-        sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
-      }
-    }
-    
-  } else if (noise_model == 2) {
-    /* downweight pixels with locally high noise, but less so than under
-     * noise_model == 1.
+    /* allocate local copy of noise */ 
+    local_noise = (double *) malloc(arrx * arry * sizeof(double)); 
+
+    /* remove any excessive local corrections
      */
-    for (i = 1; i < arrx-1; i++) {
-      for (j = 1; j < arry-1; j++) {
-        sum = 0.0;
-        
-        for (i2 = i-1; i2 <= i+1; i2++) {
-          for (j2 = j-1; j2 <= j+1; j2++) {
-            sum += local_weight[i2*arry + j2];
-          }
-        }
-        
-        noise_arr[i*arry + j] *= sum / 9.0;
-      }
-    }
-    
     for (i = 0; i < arrx; i++) {
       for (j = 0; j < arry; j++) {
-        sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
+        f = 1.0;
+
+        if (i > 1 && i < arrx && j > 0 && j < (arry-1)) {
+          f = pow(noise_arr[(i-1) * arry + (j+1)], 2) +
+              pow(noise_arr[ i    * arry + (j+1)], 2) +
+	      pow(noise_arr[(i+1) * arry + (j+1)], 2) +
+              pow(noise_arr[(i-1) * arry +  j   ], 2) +
+              pow(noise_arr[ i    * arry +  j   ], 2) +
+	      pow(noise_arr[(i+1) * arry +  j   ], 2) +
+              pow(noise_arr[(i-1) * arry + (j-1)], 2) +
+              pow(noise_arr[ i    * arry + (j-1)], 2) +
+              pow(noise_arr[(i+1) * arry + (j-1)], 2);
+   
+          f = sqrt(f/9.0) / (f_fac * read_noise); /* scale-down factor */
+
+          if (f < 1) {
+            f = 1.00;
+          }
+        }
+
+        local_noise[i*arry + j] = noise_arr[i*arry + j] / f;
+      } /* end for j */
+    } /* end for i */
+
+    /* Copy scaled down noise to output */
+    for (i = 0; i < arrx; i++) {
+      for (j = 0; j < arry; j++) {
+        noise_arr[i*arry + j] = local_noise[i*arry + j];
       }
+    }
+
+  } /* end if noise_model==1 */
+
+  /* Calculate noiseless data using final modeled noise.
+     If noise_model==2, there is no source preservation.
+   */
+  for (i = 0; i < arrx; i++) {
+    for (j = 0; j < arry; j++) {
+      sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
     }
   }
-  
-  free(local_sigma);
-  free(local_weight);
-  free(local_mask);
-    
+   
   return status;
 }

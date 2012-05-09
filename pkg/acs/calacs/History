@@ -1,3 +1,7 @@
+### 08-May-2012 - PLL -- Version 8.0.4
+    PCTECORR readnoise mitigation algorithm updated as requested by J. Anderson.
+    CTE correction version updated to 3.2 from 3.1.
+
 ### 07-May-2012 - PLL -- Version 8.0.3
     Crosstalk scaling changed to 9.1e-5 from 7.1e-5 as requested by N. Grogin.
 
