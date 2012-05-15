@@ -943,8 +943,6 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
       }
     }
 
-    free(local_noise);
-
   } /* end if noise_model==1 */
 
   /* Calculate noiseless data using final modeled noise.

@@ -78,9 +78,6 @@ static int ParseDarkscaleString (cs1_switch *, StisInfo1 *);
 	CalStis1 was modified to not set sts.filtcorr or sts.tdscorr.
 	StisInit1 was modified to not call InitRefTab for tdstab or for
 	apertab.
-
-   Phil Hodge, 2011 Nov 17:
-	Include tdscorr and tdstab.
 */
 
 int CalStis1 (char *input, char *output, char *outblev,
@@ -127,7 +124,6 @@ int CalStis1 (char *input, char *output, char *outblev,
 	sts.flatcorr = cs1_sw->flatcorr;
 	sts.shadcorr = cs1_sw->shadcorr;
 	sts.photcorr = cs1_sw->photcorr;
-	sts.tdscorr  = sts.photcorr;		/* not a header switch */
 	sts.statcorr = cs1_sw->statcorr;
 	sts.noisecorr = PERFORM;
 	sts.printtime = printtime;
@@ -295,7 +291,6 @@ static void StisInit1 (StisInfo1 *sts) {
 	InitRefTab (&sts->mlin);
 	InitRefTab (&sts->atod);
 	InitRefTab (&sts->phot);
-	InitRefTab (&sts->tdstab);
 }
 
 /* Initialize the elements of a RefImage structure. */
@@ -328,3 +323,14 @@ static int ParseDarkscaleString (cs1_switch *cs1_sw, StisInfo1 *sts) {
 	else
 	    return (STIS_OK);
 }
+
+
+
+
+
+
+
+
+
+
+

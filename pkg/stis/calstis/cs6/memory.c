@@ -9,7 +9,7 @@
 # include "stispht.h"
 
 
-/*
+/* 
    Routines to manage memory.
 
 
@@ -29,21 +29,20 @@
    06 Dec 99  -  Profile DQ array (IB)
    17 Dec 99  -  Flux normalization factors from profile (IB)
    25 Apr 00  -  Extra room for profile array (IB)
-   16 Jun 00  -  2-D array with profile Y positions (IB)
+   16 Jun 00  -  2-D array with profile Y positions (IB) 
    13 Jul 00  -  Redefined extrsz as double (IB)
    01 Nov 00  -  Profile offset (IB)
    28 Nov 00  -  Subsampling in profile builder (IB)
    30 Jan 01  -  Centroid output (IB)
    08 Apr 05  -  In FreeThroughput6, free memory for GAC info.
-   21 Oct 11  -  Allocate/deallocate memory for new NET_ERROR column (PEH)
 */
 
 
 
 
-/* Routines to handle memory related to the output arrays associated with
-   the row structure. The 'npts' structure member must be set by the caller
-   to the number of elemnents in each array prior to calling the allocation
+/* Routines to handle memory related to the output arrays associated with 
+   the row structure. The 'npts' structure member must be set by the caller 
+   to the number of elemnents in each array prior to calling the allocation 
    function.
 
    calloc is used instead of malloc so arrays that are left empty by ommited
@@ -64,12 +63,9 @@ int AllocOutArrays (RowContents *row) {
 	    return (OUT_OF_MEMORY);
 	if ((row->error = (float *)calloc(row->npts, sizeof (float))) == NULL)
 	    return (OUT_OF_MEMORY);
-	if ((row->net_error = (float *)calloc(row->npts, sizeof (float))) ==
-		NULL)
-	    return (OUT_OF_MEMORY);
 	if ((row->dq = (short *)calloc(row->npts, sizeof (short))) == NULL)
 	    return (OUT_OF_MEMORY);
-	if ((row->extrlocy = (float *)calloc(row->npts, sizeof (float))) ==
+	if ((row->extrlocy = (float *)calloc(row->npts, sizeof (float))) == 
             NULL)
 	    return (OUT_OF_MEMORY);
 	return (STIS_OK);
@@ -96,7 +92,7 @@ int AllocProfile (StisInfo6 *sts, int imxsize, double extrsz) {
            specified size. Once retrieved, the pixels will be sampled
            back into the proper extraction box size.
 
-           This is not necessary anymore since we subsample.
+           This is not necessary anymore since we subsample. 
         */
 	/*
 	if (sts->do_profile)
@@ -118,39 +114,39 @@ int AllocProfile (StisInfo6 *sts, int imxsize, double extrsz) {
              == NULL)
 	    return (OUT_OF_MEMORY);
 
-	if ((sts->subprof = (double **) malloc (imxsize *  sizeof(double)))
+	if ((sts->subprof = (double **) malloc (imxsize *  sizeof(double))) 
              == NULL)
 	    return (OUT_OF_MEMORY);
 
-	if ((sts->profile_rejf = (double *) calloc (imxsize, sizeof(double)))
+	if ((sts->profile_rejf = (double *) calloc (imxsize, sizeof(double))) 
              == NULL)
 	    return (OUT_OF_MEMORY);
 
-	if ((sts->profile_offset = (double *) calloc (imxsize, sizeof(double)))
+	if ((sts->profile_offset = (double *) calloc (imxsize, sizeof(double))) 
              == NULL)
 	    return (OUT_OF_MEMORY);
 
-	if ((sts->profile_centroid = (double *) calloc (imxsize,
+	if ((sts->profile_centroid = (double *) calloc (imxsize, 
                                      sizeof(double))) == NULL)
 	    return (OUT_OF_MEMORY);
 
-	if ((sts->profile_rej = (short *) calloc (imxsize, sizeof(short)))
+	if ((sts->profile_rej = (short *) calloc (imxsize, sizeof(short))) 
              == NULL)
 	    return (OUT_OF_MEMORY);
 
-	/* The PROF_MARGIN additional pixels added to compute the subpixel
-           array size are meant to provide a safety margin to let the
+	/* The PROF_MARGIN additional pixels added to compute the subpixel 
+           array size are meant to provide a safety margin to let the 
            trace wander around a little. An alternate way of fixing this
            would be to find out beforehand the maximum amount of
            trace wandering based on the actual trace file. This would
            require an extra loop over the input array columns, with all
            the trace handling machinery duplicated from somewhere else
-           (actually triplicated by this point...). And it probably would
+           (actually triplicated by this point...). And it probably would 
            still require the addition of a couple pixels anyway.
 
            Also, notice that the definition in here MUST be the same
-           used in Do1Dx to define the table array size. This code
-           duplication cannot be avoided due to the convoluted way the
+           used in Do1Dx to define the table array size. This code 
+           duplication cannot be avoided due to the convoluted way the 
            optimal extraction code was developed.
         */
 	if (sts->do_profile || sts->optimal) {
@@ -211,20 +207,19 @@ void FreeProfile (StisInfo6 *sts, int imxsize) {
 
 void FreeOutArrays (RowContents *row) {
 
-	if (row->wave      != NULL) free (row->wave);
-	if (row->gross     != NULL) free (row->gross);
-	if (row->back      != NULL) free (row->back);
-	if (row->net       != NULL) free (row->net);
-	if (row->flux      != NULL) free (row->flux);
-	if (row->error     != NULL) free (row->error);
-	if (row->net_error != NULL) free (row->net_error);
-	if (row->dq        != NULL) free (row->dq);
-	if (row->extrlocy  != NULL) free (row->extrlocy);
+	if (row->wave     != NULL) free (row->wave);
+	if (row->gross    != NULL) free (row->gross);
+	if (row->back     != NULL) free (row->back);
+	if (row->net      != NULL) free (row->net);
+	if (row->flux     != NULL) free (row->flux);
+	if (row->error    != NULL) free (row->error);
+	if (row->dq       != NULL) free (row->dq);
+	if (row->extrlocy != NULL) free (row->extrlocy);
 }
 
 
 
-/* Free memory related to reference data, if it has been allocated,
+/* Free memory related to reference data, if it has been allocated, 
    and resets the flag to indicate that memory is no longer allocated.
 */
 

@@ -3,8 +3,8 @@
 /* stis.h generic header for calstis */
 
 # define STIS_CBUF      25	/* small buffer for e.g. rootname */
-# define STIS_FNAME   1025
-# define STIS_LINE    1025
+# define STIS_FNAME    129
+# define STIS_LINE     257
 # define STIS_FITS_REC  81
 
 /* This signals that "no value" was passed as input parameter in the 
@@ -249,7 +249,6 @@ double orbitalDopp (double t1, double t2,
 
 void PrBegin (int csnumber);
 void PrEnd (int csnumber);
-void PrFullVersion (void);
 void PrVersion (void);
 void PrFileName (char *label, char *filename);
 void PrHdrInfo (char *obsmode, char *aperture, char *opt_elem, char *detector);

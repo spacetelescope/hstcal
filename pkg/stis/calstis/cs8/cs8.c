@@ -18,9 +18,6 @@
 
    Phil Hodge, 2011 July 6:
 	Include command-line option '--version'.
-
-   Phil Hodge, 2012 Feb 10:
-	Include command-line option '-r'.
 */
 
 int main (int argc, char **argv) {
@@ -46,10 +43,6 @@ int main (int argc, char **argv) {
 	    if (argv[i][0] == '-') {
 		if (strcmp (argv[i], "--version") == 0) {
 		    PrVersion();
-		    exit (0);
-		}
-		if (strcmp (argv[i], "-r") == 0) {
-		    PrFullVersion();
 		    exit (0);
 		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {

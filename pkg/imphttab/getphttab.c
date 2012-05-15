@@ -122,10 +122,8 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
   int streq_ic (char *, char *);
   double ComputeValue(PhtRow *, PhotPar *);
   
+  extern int status;
   extern char *photnames[];
-  
-  /* initialize status for this run */
-  status = 0;
   
   /* Interpret OBSMODE string from science file header for
    comparison with obsmode values in reference table
@@ -212,7 +210,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     strcpy(pname,photnames[extn]);
     /* Open the photometry parameters table and find columns. */
     if (OpenPhotTab (obs->name, pname, &tabinfo)) {
-      printf("*** Error in OpenPhotTab %d\n",status);
+      printf("*** Error in OpenPhotTab\n",status);
       return (status);
     }
     /* Check each row for a match with obsmode, 
@@ -238,7 +236,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
           printf ("==>Warning: Row %d of IMPHTTAB is DUMMY.\n", row);
           /* trlwarn (MsgText); */
         }
-        
+//        printf("\n%s\n%s\n\n",tabrow.obsmode, obs->obsmode);
         /* Read in photometry values from table row */
         if (status = ReadPhotArray(&tabinfo, row, &tabrow)) {
           printf("*** Error in ReadPhotArray\n");

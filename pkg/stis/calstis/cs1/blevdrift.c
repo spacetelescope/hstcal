@@ -102,7 +102,7 @@ int *driftcorr       o: true if correction can be applied
 
 	if (vx[1] <= vx[0] || vy[1] <= vy[0]) {
 	    printf ("Warning  (blevcorr) No virtual overscan region; \\\n");
-	    printf ("%s", nodriftcorr);
+	    printf (nodriftcorr);
 	    DriftSet (0.);
 	    return (0);
 	}
@@ -138,7 +138,7 @@ int *driftcorr       o: true if correction can be applied
 	if (DriftFit()) {
 	    printf (
 	"Warning  (blevcorr) Singular fit to virtual overscan; \\\n");
-	    printf ("%s", nodriftcorr);
+	    printf (nodriftcorr);
 	    DriftSet (0.);
 	} else {
 	    *driftcorr = 1;

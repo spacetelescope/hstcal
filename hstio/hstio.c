@@ -263,7 +263,7 @@ void error(HSTIOError e, char *str) {
 
 static void ioerr(HSTIOError e, IODescPtr x_, int status) {
         IODesc *x;
-        char cfitsio_errmsg[81];
+        char cfitsio_errmsg[80];
         x = (IODesc *)x_;
         sprintf(&error_msg[strlen(error_msg)],
                 "Filename %s EXTNAME %s EXTVER %d CFITSIO status %d\n",
@@ -1518,7 +1518,7 @@ int putMultiNicmosGroup(char *fname, int ever, MultiNicmosGroup *x, int ng,
 
 /*
 ** Section 7.
-**
+** 
 ** High-level functions formerly in hstioirf.c
  */
 
@@ -1684,7 +1684,7 @@ IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
         IODesc *iodesc;
         char *tmp;
         char date[12];
-        char date_card[81];
+        char date_card[80];
         time_t t;
         struct tm *time_tmp;
         FitsKw kw;
@@ -2052,7 +2052,7 @@ int putHeader(IODescPtr iodesc_) {
         int numkeys;
         int found_non_space;
         char *source;
-        char card[81];
+        char card[80];
         int status = 0;
 
         if (iodesc->options == ReadOnly) {
@@ -2160,8 +2160,8 @@ int putHeader(IODescPtr iodesc_) {
         for (i = 0; i < iodesc->hdr->nlines; ++i) {
             source = iodesc->hdr->array[i];
             for (j = 0; j < 80; ++j) {
-                if (source[j] != ' ' &&
-                    source[j] != '\n' &&
+                if (source[j] != ' ' && 
+                    source[j] != '\n' && 
                     source[j] != 0) {
                     found_non_space = 1;
                     break;
@@ -2935,7 +2935,7 @@ int putFloatLine(IODescPtr iodesc_, int line, float *ptr) {
                 dims[0] = getIntKw(kw);
                 delKw(kw);
             }
-
+            
             kw = findKw(iodesc->hdr,"NPIX2");
             if (kw == 0) {
                 ioerr(BADSCIDIMS, iodesc, 0);
@@ -2946,9 +2946,9 @@ int putFloatLine(IODescPtr iodesc_, int line, float *ptr) {
             }
 
             kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS,iodesc,0);
-                return -1;
+            if (kw == 0) { 
+                ioerr(BADSCIDIMS,iodesc,0); 
+                return -1; 
             } else {
                 val = getFloatKw(kw);
                 delKw(kw);
@@ -3062,7 +3062,7 @@ int putShortLine(IODescPtr iodesc_, int line, short *ptr) {
                 dims[0] = getIntKw(kw);
                 delKw(kw);
             }
-
+            
             kw = findKw(iodesc->hdr,"NPIX2");
             if (kw == 0) {
                 ioerr(BADSCIDIMS, iodesc, 0);
@@ -3073,9 +3073,9 @@ int putShortLine(IODescPtr iodesc_, int line, short *ptr) {
             }
 
             kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS,iodesc,0);
-                return -1;
+            if (kw == 0) { 
+                ioerr(BADSCIDIMS,iodesc,0); 
+                return -1; 
             } else {
                 val = getIntKw(kw);
                 delKw(kw);

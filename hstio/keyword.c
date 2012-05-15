@@ -63,7 +63,7 @@ typedef struct {
         char name[12];          /* the keyword name */
         FitsDataType type;      /* the FITS data type of the value */
         Bool bresult;           /* the Bool value, if a FITS LOGICAL */
-        char cresult[81];       /* the string values, if FITS STRING */
+        char cresult[80];       /* the string values, if FITS STRING */
         NumericResult nresult;  /* the numeric value, if numeric */
 } FitsKwInfo;
 /*printf("FitsKwInfo: isparsed = %d index = %d name = %s type = %d \
@@ -961,7 +961,7 @@ int   putDoubleKw(FitsKw kw_, double dval) {
 int   putStringKw(FitsKw kw_, char *txt) {
         FitsKwInfo *kw = (FitsKwInfo *)kw_;
         char *s;
-        char tmp[81];
+        char tmp[80];
         tmp[0] = '\0';
         s = getKwComm(kw_);
         strcpy (tmp, s);

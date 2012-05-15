@@ -43,6 +43,11 @@ function value          o: file name template descriptor
         ImtDescr *imt_descr;
         IRAFPointer imt;
 
+        if (strlen (pattern) > SZ_FNAME) {
+            setError (1, "c_imtopen:  file name is too long");
+            return NULL;
+        }
+
         imt_descr = (ImtDescr *)calloc (1, sizeof(ImtDescr));
         imt_descr->pattern = (char *)calloc (strlen(pattern)+1, sizeof(char));
         strcpy (imt_descr->pattern, pattern);
@@ -159,6 +164,7 @@ static void findFiles (ImtDescr *imt_descr) {
 
 /* Allocate and populate the list of file names. */
 
+        FILE *fd;               /* for testing whether a file exists */
         char *filename;         /* a name from the list */
         char *fullname;         /* name with environment variable resolved */
         int nfiles;             /* allocated size of file list */
@@ -268,9 +274,18 @@ static void findFiles (ImtDescr *imt_descr) {
                 free (fullname);
                 return;
             }
+            /* chop off any expression in brackets */
+            for (j = 0;  fullname[j] != '\0';  j++) {
+                if (fullname[j] == '[') {
+                    fullname[j] = '\0';
+                    break;
+                }
+            }
 
-            /* if a file name was specified, add it to the list */
-            if (fullname[0] != '\0' && fullname[0] != ' ') {
+            /* if the file can be opened, add it to the list */
+            fd = fopen (fullname, "r");
+            if (fd != NULL) {
+                fclose (fd);
                 imt_descr->files[n] = (char *)calloc (SZ_FNAME+1, sizeof(char));
                 strcpy (imt_descr->files[n], fullname);
                 n++;

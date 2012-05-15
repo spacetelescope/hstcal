@@ -1,5 +1,4 @@
 # include <stdio.h>
-# include <stdlib.h>
 # include <string.h>
 
 # include "c_iraf.h"		/* for c_irafinit, IRAFPointer */
@@ -45,7 +44,6 @@
    16 Dec 02  -  reference star A1 position for slitless data (IB)
    18 Jun 03  -  Add CTE correction switch (PB)
     6 Oct 06  -  Rename stpos to xoffset.
-   16 Dec 11  -  Include <stdlib.h> for the declaration of exit().
 */
 
 int main (int argc, char **argv) {

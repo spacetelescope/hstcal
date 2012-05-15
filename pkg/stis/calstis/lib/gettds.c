@@ -17,7 +17,6 @@ typedef struct {
 	IRAFPointer cp_wl;		/* column descriptors */
 	IRAFPointer cp_time;
 	IRAFPointer cp_slope;
-	IRAFPointer cp_intercept;
 	IRAFPointer cp_nwl;
 	IRAFPointer cp_nt;
 	IRAFPointer cp_optelem;
@@ -33,35 +32,32 @@ typedef struct {
 } TblRow;
 
 
-static int OpenTdsTab (char *, TblInfo *, TdsInfo *);
+static int OpenTdsTab (char *, TblInfo *);
 static int ReadTdsTab (TblInfo *, int, TblRow *);
 static int ReadTdsArray (TblInfo *, int, TdsInfo *);
 static int CloseTdsTab (TblInfo *);
 
-/* This routine gets time-dependent sensitivity info from TDSTAB (_tds)
+/* This routine gets time-dependent sensitivity info from TDSTAB (_tds) 
    and saves it in the time-dependent sensitivity information structure.
 
    The time-dependent sensitivity table should contain the following:
 	header parameters:
-          REF_TIME    reference time, for COS-like TDS table
+		none needed
 	columns:
-          OPT_ELEM    Grating name.
-          WAVELENGTH  Array of wavelengths (Angstroms) for correction factors.
-          TIME        Times (Modified Julian Date) at endpoints of linear
+          OPT_ELEM:   Grating name.
+          WAWELENGTH: Array of wavelengths (Angstroms) for correction factors.
+          TIME:       Times (Modified Julian Date) at endpoints of linear 
                       segments (last segment doesn't have a right endpoint).
-          SLOPE       Slope in correction factor within linear segments;
-                      this is a 2-D array of size nwl by nt, with the index
+          SLOPE:      Slope in correction factor within linear segments; 
+                      this is a 2-D array of size nwl by nt, with the index 
                       over wavelength the more rapidly varying.
-          INTERCEPT   Intercept for correction factor within linear segments;
-                      this is a 2-D array of size nwl by nt, with the index
-                      over wavelength the more rapidly varying.
-          NWL         Number of wavelengths in wl and slope arrays.
-          NT          Number of times (equal to the number of linear segments).
-          REFTEMP     Reference temperature.
-          TEMPSENS    Array (NWL) of temperature sensitivity factors.
+          NWL:        Number of wavelengths in wl and slope arrays.  
+          NT:         Number of times (equal to the number of linear segments).
+          REFTEMP:    Reference temperature.
+          TEMPSENS:   Array (NWL) of temperature sensitivity factors.
 
-   Rows are selected on OPT_ELEM. If a matching row is found, the array sizes
-   are gotten, memory is allocated, and the arrays are read from the table.
+   Rows are selected on OPT_ELEM. If a matching row is found, the array 
+   sizes are gotten, memory is allocated, and the arrays are ingested.
 
    When done, the memory should be freed by calling FreeTds.
 
@@ -70,10 +66,6 @@ static int CloseTdsTab (TblInfo *);
    02 Jan 02  -  Adapted from GetApThr6 from cs6 (I.Busko)
    27 Dec 04  -  Also get temperature info, if present (Phil Hodge)
    19 Mar 07  -  Remove the definition of c_tbciga from this file (Phil Hodge)
-   19 Sep 11  -  Add support for COS-like TDS table format; change calling
-		 sequence of OpenTdsTab (Phil Hodge)
-   12 Dec 11  -  In GetTds and ReadTdsArray, set status (but ignore it) from
-		 the value returned by CloseTdsTab.
 */
 
 int GetTds (char *tabname, char *opt_elem, TdsInfo *tds) {
@@ -95,7 +87,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	RefTab tempreftab;	/* holding place for table name */
 
 	/* Open the time-dependent sensitivity table. */
-	if (status = OpenTdsTab (tabname, &tabinfo, tds))
+	if (status = OpenTdsTab (tabname, &tabinfo))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
@@ -110,7 +102,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 
 		/* Get pedigree & descrip from the row. We need to
 		   build a temporary RefTab structure just to hold
-		   the table name, since it is required by the
+		   the table name, since it is required by the 
 		   RowPedigree interface.
 		*/
 	        InitRefTab (&tempreftab);
@@ -119,7 +111,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
 		    return (status);
 		if (tempreftab.goodPedigree == DUMMY_PEDIGREE) {
-		    status = CloseTdsTab (&tabinfo);
+		    CloseTdsTab (&tabinfo);
 		    return (DUMMY);
 		}
 
@@ -144,14 +136,9 @@ TdsInfo *tds     o: time-dependent sensitivity info
 
 /* This routine opens the time-dependent sensitivity table, finds the columns
    that we need, and gets the total number of rows in the table.
-
-   This function reads table header keyword REF_TIME (if present) and
-   looks for the INTERCEPT column.  If these are present, this function
-   also sets a flag in the tds struct indicating that the table has the
-   COS-like TDS format rather than the original STIS format.
 */
 
-static int OpenTdsTab (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
+static int OpenTdsTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
@@ -159,20 +146,7 @@ static int OpenTdsTab (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 	    return (OPEN_FAILED);
 	}
 
-	/* This may be changed depending on what we find in the table. */
-	tds->format = COS_TDS_FORMAT;
-
 	tabinfo->nrows = c_tbpsta (tabinfo->tp, TBL_NROWS);
-
-	/* This table header keyword will be present if the TDS file is
-	   in the COS-like format rather than the original STIS format.
-	*/
-	tds->ref_time = c_tbhgtd (tabinfo->tp, "REF_TIME");
-	if (c_iraferr()) {
-	    tds->format = ORIGINAL_TDS_FORMAT;
-	    tds->ref_time = 0.;
-	    clear_cvoserr();
-	}
 
 	/* Find the columns. */
 	
@@ -208,13 +182,6 @@ static int OpenTdsTab (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 	c_tbcfnd1 (tabinfo->tp, "PEDIGREE", &tabinfo->cp_pedigree);
 	c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
 
-	/* Look for the INTERCEPT column, which we expect for a COS-like tds
-	   table.
-	*/
-	c_tbcfnd1 (tabinfo->tp, "INTERCEPT", &tabinfo->cp_intercept);
-	if (tabinfo->cp_intercept == 0)
-	    tds->format = ORIGINAL_TDS_FORMAT;
-
 	return (0);
 }
 
@@ -232,12 +199,13 @@ static int ReadTdsTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	return (0);
 }
 
+
+
 /* This routine reads array data from one row. */
 
 static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
 	int nwl, nt, ns, ntemp, dim[2], ini, ndim, i;
-	int status = 0;
 
 	/* Find out how many elements there are in the arrays. */
 
@@ -254,16 +222,14 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	tds->temp_sens = (double *) calloc (tds->nwl, sizeof(double));
 	tds->time      = (double *) calloc (tds->nt,  sizeof(double));
 	tds->slope     = (double **) calloc (tds->nt, sizeof(double *));
-	tds->intercept = (double **) calloc (tds->nt, sizeof(double *));
 	if (tds->temp_sens == NULL || tds->wl == NULL || tds->time == NULL ||
-	    tds->slope == NULL || tds->intercept == NULL) {
-	    status = CloseTdsTab (tabinfo);
+		tds->slope == NULL) {
+	    CloseTdsTab (tabinfo);
 	    return (OUT_OF_MEMORY);
 	}
 	for (i = 0; i < tds->nt; i++) {
 	    tds->slope[i] = (double *) calloc (tds->nwl, sizeof(double));
-	    tds->intercept[i] = (double *) calloc (tds->nwl, sizeof(double));
-	    if (tds->slope[i] == NULL || tds->intercept[i] == NULL) {
+	    if (tds->slope[i] == NULL) {
 	        c_tbtclo (tabinfo->tp);
 	        return (OUT_OF_MEMORY);
 	    }
@@ -276,37 +242,25 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	nwl = c_tbagtd (tabinfo->tp, tabinfo->cp_wl, row, tds->wl, 1, tds->nwl);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
-	nt = c_tbagtd (tabinfo->tp, tabinfo->cp_time, row, tds->time,
+	nt = c_tbagtd (tabinfo->tp, tabinfo->cp_time, row, tds->time, 
 	               1, tds->nt);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 
-	/* The slope and intercept arrays are 2-dimensional, so we must get
-	   the stride first.
-	*/
+	/* The slope array is 2-dimensional, so we must get the stride first. */
+	
 	c_tbciga (tabinfo->tp, tabinfo->cp_slope, &ndim, dim, 2);
-	ini = 1;	/* Arrays are 1-indexed in spp */
+	ini = 1;	/* Arrays are 1-indexed in spp ! */
 	for (i = 0; i < tds->nt; i++) {
-	    ns = c_tbagtd (tabinfo->tp, tabinfo->cp_slope, row,
+	    ns = c_tbagtd (tabinfo->tp, tabinfo->cp_slope, row, 
 	                   tds->slope[i], ini, tds->nwl);
 	    if (c_iraferr())
 	        return (TABLE_ERROR);
 
 	    ini += dim[0];
 	}
-	if (tabinfo->cp_intercept != 0) {
-	    ini = 1;
-	    for (i = 0; i < tds->nt; i++) {
-		ns = c_tbagtd (tabinfo->tp, tabinfo->cp_intercept, row,
-			       tds->intercept[i], ini, tds->nwl);
-		if (c_iraferr())
-		    return (TABLE_ERROR);
 
-		ini += dim[0];
-	    }
-	}
-
-	/* Check if all elements that were expected were actually read. */
+	/* Check if ingestion was properly satisfied. */
 
 	if (nwl < tds->nwl || nt < tds->nt) {
 	    c_tbtclo (tabinfo->tp);
@@ -355,7 +309,7 @@ static int CloseTdsTab (TblInfo *tabinfo) {
 /* And this routine frees memory. */
 
 void FreeTds (TdsInfo *tds) {
-
+ 
         int i;
 
         if (tds->allocated) {
@@ -363,9 +317,7 @@ void FreeTds (TdsInfo *tds) {
             free (tds->temp_sens);
             free (tds->time);
             for (i = 0; i < tds->nt; free (tds->slope[i++]));
-            for (i = 0; i < tds->nt; free (tds->intercept[i++]));
             free (tds->slope);
-            free (tds->intercept);
             tds->allocated = 0;
         }
 }

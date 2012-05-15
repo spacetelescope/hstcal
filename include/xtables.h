@@ -67,7 +67,7 @@ int c_tbpsta (IRAFPointer tp, int param);
 
 void c_tbcdef1 (IRAFPointer tp, IRAFPointer *cp,
         char *colname, char *colunits, char *colfmt, int datatype, int nelem);
-void c_tbcfnd1 (IRAFPointer tp, const char *colname, IRAFPointer *cp);
+void c_tbcfnd1 (IRAFPointer tp, char *colname, IRAFPointer *cp);
 IRAFPointer c_tbcnum (IRAFPointer tp, int colnum);
 
 int c_tbcigi (IRAFPointer cp, int param);

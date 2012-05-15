@@ -2,10 +2,7 @@
 
 SUBDIRS = [
     'lib',
-    'cs0',
-    'cs1',
-    'cs2',
-    'cs6'
+    'cs0'
     ]
 
 def build(bld):

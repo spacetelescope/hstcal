@@ -122,8 +122,6 @@ static int MOCAdjustDisp (StisInfo6 *, DispRelation *);
     3 Nov 08  -  Call checkImsetOK to get imset_ok, and skip imset if F;
                  pass extver instead of o_ext to CreaTable, since it's really
                  the input imset, not the output.
-   21 Oct 11  -  Set the output flux and error to zero if the relevant row in
-		 the phottab has pedigree = DUMMY (PEH)
 */
 
 int Do1Dx (StisInfo6 *sts, Hdr *phdr) {
@@ -191,7 +189,7 @@ StisInfo6 *sts    i: calibration switches and info
 	double bksize[2];       /* sizes of background boxes */
 	double bkoffset[2];     /* offsets of background boxes */
 	double avcrscroff;	/* average cross correlation offset */
-	double delta = 0.0;	/* X offset (arcsec) from slit used to measure
+	double delta = 0.0;	/* X offset (arcsec) from slit used to measure	
 				   dispersion coefficients */
 	double cl_a2center;	/* read from command line (for local use) */
 	int norder;		/* index into croscor arrays */
@@ -553,7 +551,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    FreeXtract (&extract_a);
             /* Ignore small blemish (dust mote) - 16/2/01 IB */
 	    if (sts->optimal || sts->do_profile)
-	        sts->sdqflags = sts->sdqflags_orig & ~(SMALLBLEM);
+	        sts->sdqflags = sts->sdqflags_orig && ~(SMALLBLEM);
 	    else
 	        sts->sdqflags = 0;
 
@@ -1179,7 +1177,7 @@ StisInfo6 *sts    i: calibration switches and info
                        in the image header (SDQFLAGS keyword).
                     */
 	            /* Ignore small blemish (dust mote) - 16/2/01 IB */
-	            sts->sdqflags = sts->sdqflags_orig & ~(SMALLBLEM);
+	            sts->sdqflags = sts->sdqflags_orig && ~(SMALLBLEM);
 
 	        } else {
 
@@ -1188,7 +1186,7 @@ StisInfo6 *sts    i: calibration switches and info
                     */
 	            /* Ignore small blemish (dust mote) - 16/2/01 IB */
 	            if (sts->do_profile)
-	                sts->sdqflags = sts->sdqflags_orig & ~(SMALLBLEM);
+	                sts->sdqflags = sts->sdqflags_orig && ~(SMALLBLEM);
 	            else
 	                sts->sdqflags = 0;
 	        }
@@ -1451,10 +1449,6 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
                         */
 	                if (sts->x1d_o == DUMMY) {
 	                    warnDummy ("PHOTTAB", row_contents.sporder, 0);
-			    for (i = 0; i < row_contents.npts; i++) {
-				row_contents.flux[i]  = 0.0F;
-				row_contents.error[i] = 0.0F;
-			    }
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
 	                        PrSwitch6 (sts, "fluxcorr", OMIT);
 	                        printf ("\n");

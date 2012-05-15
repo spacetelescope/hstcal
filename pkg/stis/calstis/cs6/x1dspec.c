@@ -92,7 +92,6 @@ static void UpdateProfile (float, double *, double *,short *, int, int);
    01 Mar 01  -  Turn on background subtraction in profile generator (IB)
    27 Feb 04  -  If background smoothing will be done, set the error
                  contribution of the background to zero (PEH)
-   21 Oct 11  -  Copy ERROR to new column NET_ERROR (PEH)
 
 */
 
@@ -491,15 +490,12 @@ RowContents *row_cont  o:  output row arrays
 	        row_cont->gross[ipix] = gross / sts->exptime;
                 row_cont->back[ipix]  = back / sts->exptime;
                 row_cont->net[ipix]   = net / sts->exptime;
-		/* at this point, both error and net_error are in counts/s */
                 row_cont->error[ipix] = error / sts->exptime;
-                row_cont->net_error[ipix] = error / sts->exptime;
 	    } else {
 	        row_cont->gross[ipix] = 0.0F;
 	        row_cont->back[ipix]  = 0.0F;
 	        row_cont->net[ipix]   = 0.0F;
 	        row_cont->error[ipix] = 0.0F;
-	        row_cont->net_error[ipix] = 0.0F;
 	    }
 
 	    /* Resample and normalize profile. */

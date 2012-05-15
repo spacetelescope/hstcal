@@ -83,9 +83,6 @@
 	Move the call to PhotMode to a point just before the call to doPhot.
 	In PhotMsg, change keyword phottab to imphttab, and don't print info
 	about apertab or tdstab.
-
-   Phil Hodge, 2011 July 27:
-	After calling doPhot, check sts->photcorr (may be SKIPPED).
 */
 
 # include <math.h>	/* for fabs and sqrt */
@@ -217,7 +214,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    "Warning  %simset %d flagged as bad because all values = %.6g\n",
 				wavecal_str, extver, maxval);
 		}
-		printf ("%s", msg1);
+		printf (msg1);
 		if ((status = Put_KeyB (&x->sci.hdr, "IMSET_OK", 0,
 				"is the current imset good?")) != 0)
 		    return (status);
@@ -493,15 +490,9 @@ int ngood_extver   io: incremented unless the current imset has zero
 		if (status = doPhot (sts, x))
 		    return (status);
 		PhotMsg (sts);
-		if (sts->photcorr == PERFORM || sts->photcorr == COMPLETE) {
-		    PrSwitch ("photcorr", COMPLETE);
-		    if (sts->printtime)
-			TimeStamp ("PHOTCORR complete", sts->rootname);
-		} else {
-		    PrSwitch ("photcorr", SKIPPED);
-		    if (sts->printtime)
-			TimeStamp ("PHOTCORR skipped", sts->rootname);
-		}
+		PrSwitch ("photcorr", COMPLETE);
+		if (sts->printtime)
+		    TimeStamp ("PHOTCORR complete", sts->rootname);
 	    }
 	    if (!OmitStep (sts->photcorr))
 		if (status = photHistory (sts, x->globalhdr))
