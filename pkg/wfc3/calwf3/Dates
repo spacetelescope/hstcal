@@ -1,3 +1,11 @@
+07-May-2012: CALWF3 2.6.4: Implemented the following fixes
+        860: negative cr detection, simple fix setting the fabs value
+        876: overloading of bad pixel flag for spikes fixed so that the cr jump
+             detection algorithm doesn't ignore them
+        887: wf3rej routine cared about the case of the bunit keyword values, now
+             is shouldn't
+        854: add "-r" option to calwf3 to report sofware version and exit clean
+              
 23-Mar-2012: CALWF3 2.6.3: Implemented the following PRs:
   70922/869: Fixed the IR processing flow so that an association-level trailer
              file can still be created when a CRJ sub-product is not created

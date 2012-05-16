@@ -1,3 +1,16 @@
+### 08 May 2012 - MLS -- Version 2.6.4
+    - small fix in for the negative cosmic rays
+      modified the cridcalc rejection settings for spike so that those
+      pixels were not excluded from the CR detection algorithm
+      removed the case dependency for the BUNIT keyword
+      changed the BUNIT keyvalue to write ELECTRONS instead of electrons
+      new option added "-r" to calwf3 to print the current verison and exit
+    -changed "electrons" to "ELECTRONS" to be consistent, also there are places
+    in the code that are doing a case sensative check. I'm going to try and make
+    those case insensitive as well
+    -updated the BUNIT keyword code in cr_scaling.c to be case insensitive
+    -added "-r" option to calwf3 to report the software version and exit cleanly
+    
 ### 23 Mar 2012 - HAB -- Version 2.6.3
     - Fixed the IR processing flow so that an association-level trailer file
       is created even when a CRJ sub-product is not created by wf3rej.

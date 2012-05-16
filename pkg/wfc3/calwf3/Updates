@@ -1,3 +1,17 @@
+Updates for version 2.6.4 07-May-2012 (MLS):
+   cridcal.c/wf3dq.h:
+      update to help negative cr detections (fabs the comparison)
+      updated the spike flag to 1024 so that those pixels weren't ignored
+      in the rejection routine
+   do2d.c, cr_scaling.c:
+      update for BUNIT keyword value so it's not case sensitive
+      BUNIT value now stored as ELECTRONS instead of electrons as well
+   wf32d: version update to 07may2012
+   wf3rej.cl: version update to 07may2012
+   wf3version.h: version update to 07may2012
+   wf3main.c: new option r added to print current version and exit
+
+
 Updates for version 2.6.3 23-Mar-2012 (HAB):
     calwf3.cl:
         Increment version to "23Mar2012".

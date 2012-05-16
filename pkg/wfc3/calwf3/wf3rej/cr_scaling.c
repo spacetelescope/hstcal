@@ -1,9 +1,10 @@
 # include   <stdio.h>
+# include   <string.h>
 # include   "hstio.h"
-
 # include   "wf3.h"
 # include   "wf3err.h"
 # include   "rej.h"
+# include   "wf3info.h"
 
 /*  cr_scaling -- Determine the scaling factors according to exposure times or
         other user specified scheme. */
@@ -27,16 +28,20 @@ relative to the max exposure.
 				(following CALACS changes).
     27-Oct-2003     H. Bushouse Upgrades for handling inputs with EXPTIME=0
 				(following CALACS changes).
+    14-Dec-2011     H. Bushouse Upgraded to read BUNIT keyword value from each
+				input image. (PR 69969; Trac #814)
+    07-May-2012 M. Sosey, updated the BUNIT read to be case insensitive
+                (trac #887)
 */
 
 int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
-		double *expend, double *expstart) {
+		double *expend, double *expstart, DataUnits bunit[]) {
 
     extern int status;
 
-    Hdr         prihdr;
+    Hdr         hdr;
     int         nzero, k;
-    char        fdata[SZ_FNAME + 1];
+    char        fdata[SZ_FNAME + 1], units[12];
     IODescPtr   ip;
     int         numimgs;        /* How many good input images are there? */
 
@@ -44,6 +49,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
 
     int         GetKeyFlt (Hdr *, char *, int, float, float *);
     int         GetKeyDbl (Hdr *, char *, int, double, double *);
+    int         streq_ic (char *, char *);/* strings equal? (case insensitive)*/
 
     /* -------------------------------- begin ------------------------------- */
 
@@ -88,24 +94,24 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
             return (status = OPEN_FAILED);
         }
 
-        initHdr (&prihdr);
+        initHdr (&hdr);
 
         /* read in primary header from image */
-        getHeader (ip, &prihdr);
+        getHeader (ip, &hdr);
 
-        if (GetKeyFlt (&prihdr, expname, USE_DEFAULT, 0., &efac[k]) != 0) {
+        if (GetKeyFlt (&hdr, expname, USE_DEFAULT, 0., &efac[k]) != 0) {
             sprintf (MsgText,
 		     "cannot read '%s' from the primary header of '%s'",
 		      expname, fdata);
             trlerror (MsgText);
-            freeHdr (&prihdr);
+            freeHdr (&hdr);
             return(status = KEYWORD_MISSING);
         }
         
         if (efac[k] < 0.) {
             sprintf (MsgText, "exposure time of file '%s' is negative", fdata);
             trlerror (MsgText);
-            freeHdr (&prihdr);
+            freeHdr (&hdr);
             return(status = INVALID_VALUE);
         }
         if (efac[k] == 0.) {
@@ -113,29 +119,64 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
         }
         
         numimgs++;
-        if (GetKeyDbl (&prihdr, "EXPEND", USE_DEFAULT, 0., &keyend) != 0) {
+        if (GetKeyDbl (&hdr, "EXPEND", USE_DEFAULT, 0., &keyend) != 0) {
             sprintf (MsgText,
 		     "cannot read 'EXPEND' from the primary header of '%s'",
 		     fdata);
             trlerror (MsgText);
-            freeHdr (&prihdr);
+            freeHdr (&hdr);
             return(status = KEYWORD_MISSING);
         }
-        if (GetKeyDbl (&prihdr, "EXPSTART", USE_DEFAULT, 0., &keystart) != 0) {
+        if (GetKeyDbl (&hdr, "EXPSTART", USE_DEFAULT, 0., &keystart) != 0) {
             sprintf (MsgText,
 		     "cannot read 'EXPSTART' from the primary header of '%s'",
 		     fdata);
             trlerror (MsgText);
-            freeHdr (&prihdr);
+            freeHdr (&hdr);
             return(status = KEYWORD_MISSING);
         }
         
         end = (keyend > end) ? keyend: end;
 	start = (keystart < start) ? keystart : start;
         closeImage (ip);
-        freeHdr (&prihdr);
-    }
+        freeHdr (&hdr);
 
+	/* Open first SCI extension header to read BUNIT keyword */
+        ip = openInputImage (fdata, "SCI", 1);
+        if (hstio_err()) {
+            sprintf (MsgText, "Cannot open data file '%s'", fdata);
+            trlerror (MsgText);
+            return (status = OPEN_FAILED);
+        }
+
+        initHdr (&hdr);
+
+        /* read in the extension header from image */
+        getHeader (ip, &hdr);
+
+        /* Read the BUNIT keyword */
+        units[0] = '\0';
+        if (getKeyS (&hdr, "BUNIT", units)) {
+            trlkwerr ("BUNIT", fdata);
+            return (status = 1);
+        }
+
+        /* Check the BUNIT keyword value for validity */
+        if (streq_ic (units,"COUNTS/S") || streq_ic (units, "ELECTRONS/S"))
+            bunit[k] = COUNTRATE;
+        else if  (streq_ic (units,"COUNTS") || streq_ic (units, "ELECTRONS"))
+            bunit[k] = COUNTS;
+        else {
+            sprintf (MsgText, "%s value for BUNIT does not match", units);
+            trlerror (MsgText);
+            return (status = INVALID_VALUE);
+        }
+
+
+        closeImage (ip);
+        freeHdr (&hdr);
+    }
+    
     if (nzero > 0 && nzero < *nimgs) {
         trlwarn ("Some (but not all) input imsets have zero exposure time.");
 	trlwarn ("Final product will be compromised!");

@@ -35,7 +35,10 @@
 	than primary header, because that's where phot keywords are.
    H. Bushouse, 2011 Sep 7:
 	Modified PhotMsg to use new phot table instead of graph and comp tabs.
-	
+   M. Sosey, 2012 May 7: 
+    changed "electrons" to "ELECTRONS" to be consistent, also there are places 
+    in the code that are doing a case sensative check. I'm going to try and make 
+    those case insensitive as well          
 */
 
 # include <string.h>
@@ -261,9 +264,9 @@ int extver       i: "imset" number, the current set of extensions
 	    PrSwitch ("flatcorr", COMPLETE);
 	    if (wf32d->printtime)
 		TimeStamp ("FLATCORR complete", wf32d->rootname);
-	    if (PutKeyStr (&x.sci.hdr, "BUNIT", "electrons", ""))
+	    if (PutKeyStr (&x.sci.hdr, "BUNIT", "ELECTRONS", ""))
 		return (status);
-	    if (PutKeyStr (&x.err.hdr, "BUNIT", "electrons", ""))
+	    if (PutKeyStr (&x.err.hdr, "BUNIT", "ELECTRONS", ""))
 		return (status);
 	}
 	if (extver == 1 && !OmitStep (wf32d->flatcorr))
