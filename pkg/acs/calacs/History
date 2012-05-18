@@ -1,3 +1,10 @@
+### 18-May-2012 - WJH -- Version 8.0.5
+    File I/O in acsrej updated to avoid problems with CFITSIO upcasting 
+    file permissions to read/write when not needed. This will allow the
+    hstio code to remove logic that allowed the old code to work but 
+    caused problems for CADC when CFITSIO opened ref files in read/write 
+    mode because of that hstio logic.
+
 ### 08-May-2012 - PLL -- Version 8.0.4
     PCTECORR readnoise mitigation algorithm updated as requested by J. Anderson.
     CTE correction version updated to 3.2 from 3.1.
