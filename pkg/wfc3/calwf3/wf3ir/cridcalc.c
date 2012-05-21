@@ -183,12 +183,13 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
     ** 31-Aug-2011  first valid interval contains a single sample or starts in
     **      something other than the first read. (PR 69230; Trac #770)
     **
-    ** M.Sosey        added code to detect negative cr hits, and set the detected SPIKES to 1024
+    ** M.Sosey      Added code to detect negative cr hits, and set the detected SPIKES to 1024
     ** May 2012     during detection so that the 4 value isn't overloaded and ignored during the fit
-    **                its saved to the output as 4 though. There's probably a lot of diffs from the previous
-    **                version because I re-indented the entire file to help figure out the logic
-    **                
-    ** 
+    **              its saved to the output as 4 though. Also redid the logic for handling
+    **              saturation in zeroth and first reads; they are now treated the same so that
+    **              output pixels are never zeroed out. There's probably a lot of diffs from the previous
+    **              version because I re-indented the entire file to help figure out the logic
+    **              added code leave the saturdated pixel value in place for early  reads instead of zeroing it out                
     */
 
     int crrej (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
@@ -306,34 +307,15 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
                 if (current_dq & ZEROSIG)
                     current_dq -= ZEROSIG;
 
-                /* Check for pixels that are saturated already in zeroth read */
+                /* Check for pixels that are saturated already in first read */
                 if ((wf3->zsigcorr == PERFORM || wf3->zsigcorr == COMPLETE) &&
-                        (current_dq & SATPIXEL)) {
-
-                    /* For these pixels, set the outputs to zero 
-                       This was updated to leave the value of the pixel alone
-                       but still add the flag to the DQ image so that it was marked as
-                       saturate and untrusted. Making it zero in the image leads to problems
-                       later on with code like tweakreg.
-
-                     */
-                    /*Pix(crimage->sci.data,i,j) = 0; */
-                    Pix(crimage->err.data,i,j) = 1e5;
-                    DQSetPix(crimage->dq.data,i,j,current_dq);
-                    /*Pix(crimage->smpl.data,i,j) = 0;
-                      Pix(crimage->intg.data,i,j) = 0;*/
-
-                    continue;
-                }
-
-                /* Check for pixels that are saturated already in first read
-                 ** but have OK data in the zeroth read */
-                if ((wf3->zsigcorr == PERFORM || wf3->zsigcorr == COMPLETE) &&
-                        (DQPix(input->group[k-1].dq.data,i,j) & SATPIXEL) &&
-                        current_dq == 0) {
+                    (DQPix(input->group[k-1].dq.data,i,j) & SATPIXEL)) {
 
                     /* For these pixels, just set the output values equal
-                     ** to what's in the input zeroth-read image */
+                     ** to what's in the input zeroth-read image, regardless
+                     ** of whether the zeroth-read is saturated or not. If it
+                     ** is saturated in the zeroth-read, the DQ flag will get
+                     ** carried over to the output to indicate it's bad. */
                     Pix(crimage->sci.data,i,j) = Pix(input->group[k].sci.data,i,j);
                     Pix(crimage->err.data,i,j) = Pix(input->group[k].err.data,i,j);
                     DQSetPix(crimage->dq.data,i,j,current_dq);
