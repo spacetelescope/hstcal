@@ -1,8 +1,10 @@
-Updates for version 2.6.4 07-May-2012 (MLS):
+Updates for version 2.7 21-May-2012 (MLS):
    cridcal.c/wf3dq.h:
       update to help negative cr detections (fabs the comparison)
       updated the spike flag to 1024 so that those pixels weren't ignored
-      in the rejection routine
+      in the rejection routinea
+      Use zero read pixel value for WF3 IR ramp fitting when saturated
+
    do2d.c, cr_scaling.c:
       update for BUNIT keyword value so it's not case sensitive
       BUNIT value now stored as ELECTRONS instead of electrons as well
