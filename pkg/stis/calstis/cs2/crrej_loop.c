@@ -27,7 +27,7 @@ next to the cosmic ray hit.
 */
 
 int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[], 
-			char imgname[][STIS_FNAME], int grp [], int nimgs, 
+			char *imgname[], int grp [], int nimgs, 
 			clpar *par, int niter, int dim_x, int dim_y, 
 			float sigma[], float noise[], float gain[], 
 			float efac[], float skyval[], FloatTwoDArray *ave, 

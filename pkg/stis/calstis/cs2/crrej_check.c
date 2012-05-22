@@ -23,10 +23,14 @@
 				and replace exit with return.
   13-Aug-2001  Phil Hodge	Check for error after calls to openInputImage.
   24-Oct-2008  Phil Hodge	Add a call to checkImsetOK.
+  22-May-2012  Phil Hodge	Change the declaration of imgname;
+				initialize ipsci[0] and ipdq[0] to NULL;
+				move the call to closeImage to just after the
+				call to getHeader; 
 */
 
 int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],  
-			char imgname[][STIS_FNAME], int grp[], 
+			char *imgname[], int grp[], 
 			IODescPtr ipsci[], IODescPtr ipdq[], 
 			float noise[], float gain[], int *dim_x, int *dim_y, 
 			int *nimgs)
@@ -42,6 +46,12 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 /* -------------------------------- begin ---------------------------------- */
 
 	initHdr (&prihdr);
+
+	/* Initial values, so we can check (in crrej_do) that images
+	   were actually opened.
+	*/
+	ipsci[0] = NULL;
+	ipdq[0] = NULL;
 
 	/* rewind the image template */
 	c_imtrew (tpin);
@@ -63,6 +73,8 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	
 	    /* how many groups in each file */
 	    getHeader (ip, &prihdr);
+	    closeImage (ip);
+
 	    if (getKeyI (&prihdr, "NEXTEND", &nk) != 0)
 		nk = 0;
 	    nk /= EXT_PER_GROUP;
@@ -138,8 +150,6 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    }
 
 	    freeHdr (&prihdr);
-
-	    closeImage (ip);
 	}
 
 	/* make sure there is more than one image */

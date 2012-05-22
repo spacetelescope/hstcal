@@ -3,7 +3,6 @@
 # include <ximio.h>
  
 # define	MAX_ITER	20
-# define	MAX_FILES	120
 
 # define	MAX_NEXP	3
 # define	NONEXIST	-10000.

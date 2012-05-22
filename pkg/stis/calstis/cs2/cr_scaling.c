@@ -21,7 +21,7 @@ relative to the max exposure.
 				and return int instead of void.
 */
 
-int cr_scaling (char *expname, IODescPtr ipsci[], char imgname[][STIS_FNAME], 
+int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[], 
 		int nimgs, float efac[], float tfac[], double exp_range[])
 {
 	Hdr	scihdr;
