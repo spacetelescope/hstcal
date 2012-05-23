@@ -24,6 +24,7 @@ next to the cosmic ray hit.
    7-Oct-2002  Phil Hodge	Copy Warren Hack's changes to acsrej_loop.c
 				to this file, to handle scalense correctly;
 				i.e. subtract the sky before applying scalense.
+  22-May-2012  Phil Hodge	Change the declaration of imgname.
 */
 
 int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[], 

@@ -88,7 +88,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 
 /* -------------------------------- begin ---------------------------------- */
 
-        max_files = countImsets (tpin);
+	max_files = countImsets (tpin);
 	if (max_files < 0)
 	    return 2;
 	printf ("Total number of input image sets = %d\n", max_files);
@@ -171,7 +171,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 	/* use the first input image to set up the data structure */
 	initSingleGroup (&sg);
 
-        /* Close these, because we're about to reopen them. */
+	/* Close these, because we're about to reopen them. */
 	if (ipsci[0] != NULL)
 	    closeImage (ipsci[0]);
 	if (ipdq[0] != NULL)

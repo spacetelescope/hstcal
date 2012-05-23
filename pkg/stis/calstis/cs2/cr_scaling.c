@@ -9,8 +9,8 @@
 /*
 Description:
 ------------
-If using the exposure time, the scaling factors are normalized to ratios 
-relative to the max exposure. 
+If using the exposure time, the scaling factors are normalized to ratios
+relative to the max exposure.
 
   Date		Author		Description
   ----		------		-----------
@@ -19,9 +19,10 @@ relative to the max exposure.
 				and compute its values; replace get_key_f
 				with getKeyF; replace 'exit' with 'return',
 				and return int instead of void.
+  22-May-2012  Phil Hodge	Change the declaration of imgname.
 */
 
-int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[], 
+int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 		int nimgs, float efac[], float tfac[], double exp_range[])
 {
 	Hdr	scihdr;
@@ -29,9 +30,9 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 	double	expstart, expend;	/* MJD of exposure start and stop */
 
 /* -------------------------------- begin ---------------------------------- */
- 
+
         initHdr (&scihdr);
- 
+
 	/* if the parameter scaling is null, all images have equal weight. */
 	if (expname[0] == '\0') {
 	    for (k = 0; k < nimgs; ++k)
@@ -43,7 +44,7 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 	nzero = 0;
 	for (k = 0; k < nimgs; ++k) {
 	    getHeader (ipsci[k], &scihdr);
-	    
+
 	    if (getKeyF(&scihdr, expname, &efac[k]) != 0) {
 		printf ("cannot read the keyword '%s' from the SCI "
 			"extension of '%s'\n", expname, imgname[k]);
