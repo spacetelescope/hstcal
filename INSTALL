@@ -23,6 +23,12 @@ Once built, the unit tests may be run using:
 
   > ./waf test
 
+Debugging symbols
+=================
+
+To build with debugging symbols, run "./configure" with the "--debug"
+option, and then rebuild.
+
 build.cfg file
 ==============
 
