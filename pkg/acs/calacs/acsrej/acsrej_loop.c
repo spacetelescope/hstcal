@@ -758,8 +758,8 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 
         /* Reopen all images in readonly mode. */
         for (n=0; n<nimgs; n++) {
-            ipsci[n] = openInputImage (imgname[n], "sci", n);
-            ipdq[n] = openInputImage (imgname[n], "dq", n);
+            ipsci[n] = openInputImage (imgname[n], "sci", grp[n]);
+            ipdq[n] = openInputImage (imgname[n], "dq", grp[n]);
         }
     } /* End if */
 
