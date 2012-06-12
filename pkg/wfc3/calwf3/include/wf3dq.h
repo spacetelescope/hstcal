@@ -15,10 +15,11 @@
 # define SATPIXEL        256    /* full-well or a-to-d saturated pixel */
 # define BADFLAT         512    /* bad flatfield value */
 # define TRAP           1024    /* UVIS charge trap */
+# define SPIKE          1024    /* CR spike detected during cridcalc IR */ 
 # define ATODSAT        2048    /* a-to-d saturated pixel */
 # define ZEROSIG        2048    /* IR zero-read signal correction */
 /* # define TBD         4096       reserved for Multidrizzle CR rej */
-# define DATAREJECT     8192    /* rejected during image combination */
+# define DATAREJECT     8192    /* rejected during image combination UVIS, IR CR rejection* */
 # define HIGH_CURVATURE 16384   /* pixel has more than max CR's  */
 # define CROSSTALK     16384   /* ghost or crosstalk  */
 # define RESERVED2     32768    /* can't use */

@@ -60,6 +60,8 @@
 	(i.e. _crj file) has been produced, which means the trailer file for
 	the final (asn level) product must be built from the trailers of the
 	individual asn members. (PR 70922, Trac #869)
+   M.Sosey, 2012 May 07:
+     added the option "-r" to print the current version and exit cleanly
 */
 
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug) {

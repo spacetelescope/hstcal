@@ -1,8 +1,8 @@
 /* This string is written to the output primary header as CAL_VER. */
 
 
-#define ACS_CAL_VER "8.0.4 (10-May-2012)"
-#define ACS_CAL_VER_NUM "8.0.4"
+#define ACS_CAL_VER "8.0.5 (18-May-2012)"
+#define ACS_CAL_VER_NUM "8.0.5"
 
 
 /* name and version number of the CTE correction algorithm */

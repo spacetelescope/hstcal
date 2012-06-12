@@ -732,9 +732,15 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
         if par->mask was set...
     */
     if (par->mask) {
+        /* Close all references to the images so we can open the
+           data quality ones as read/write. */
+        for (n=0; n<nimgs; n++) {
+            closeImage (ipsci[n]);
+           closeImage (ipdq[n]);
+        }
+
         for (n=0; n<nimgs; n++) {
             /*  reopen DQ as read/write*/
-            closeImage (ipdq[n]);
 			initHdr (&dqhdr);
             
 			ipdqn = openUpdateImage (imgname[n], "dq", grp[n], &dqhdr);
@@ -748,8 +754,13 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
             /* close images... This should be done by the calling routine! */
             closeImage (ipdqn);
     		freeHdr (&dqhdr);
+        } /* End loop over images */
 
-        } /* End loop over images */			
+        /* Reopen all images in readonly mode. */
+        for (n=0; n<nimgs; n++) {
+            ipsci[n] = openInputImage (imgname[n], "sci", n);
+            ipdq[n] = openInputImage (imgname[n], "dq", n);
+        }
     } /* End if */
 
     /* Use this marker to allow easier clean-up after an error condition 

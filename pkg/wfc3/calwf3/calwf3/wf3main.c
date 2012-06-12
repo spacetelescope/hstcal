@@ -56,6 +56,9 @@ int main (int argc, char **argv) {
 			  printtime = YES;
 		      } else if (argv[i][j] == 's') {
 			  save_tmp = YES;
+              } else if (argv[i][j] == 'r'){
+              printf ("Current version: %s\n", WF3_CAL_VER);
+              exit(0);
 		      } else if (argv[i][j] == 'v') {
 			  verbose = YES;
 		      } else if (argv[i][j] == 'd') {
@@ -75,7 +78,7 @@ int main (int argc, char **argv) {
 	}
 	
 	if (input[0] == '\0' || too_many) {
-	    printf ("syntax:  calwf3.e [-t] [-s] [-v] [-q] input \n");
+	    printf ("syntax:  calwf3.e [-t] [-s] [-v] [-q] [-r] input \n");
 	    exit (ERROR_RETURN);
 	}
 

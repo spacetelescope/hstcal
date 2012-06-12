@@ -233,7 +233,7 @@ int maxch               i: maximum length of output string (not including '\0')
         output[i] = '\0';
 }
 
-void str_lower (char lc_name[], char name[]) {
+void str_lower (char lc_name[], const char name[]) {
 /* Copy name to lc_name, converting to lower case. */
 
         int i;

@@ -1,6 +1,6 @@
 # include 	<stdio.h>
 # include 	<string.h>
-# include 	"hstio.h"      
+# include 	"hstio.h"
 
 # include	"stis.h"
 # include	"cs2.h"
@@ -12,7 +12,7 @@
   ------------
   Open and check input images/masks to have consistent dimensions and number
   of groups.
-  
+
   Date		Author		Description
   ----		------		-----------
   05-May-1996  J.-C. Hsu	Adapt from the SPP code crrej_check.x
@@ -23,12 +23,16 @@
 				and replace exit with return.
   13-Aug-2001  Phil Hodge	Check for error after calls to openInputImage.
   24-Oct-2008  Phil Hodge	Add a call to checkImsetOK.
+  22-May-2012  Phil Hodge	Change the declaration of imgname;
+				initialize ipsci[0] and ipdq[0] to NULL;
+				move the call to closeImage to just after the
+				call to getHeader.
 */
 
-int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],  
-			char imgname[][STIS_FNAME], int grp[], 
-			IODescPtr ipsci[], IODescPtr ipdq[], 
-			float noise[], float gain[], int *dim_x, int *dim_y, 
+int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
+			char *imgname[], int grp[],
+			IODescPtr ipsci[], IODescPtr ipdq[],
+			float noise[], float gain[], int *dim_x, int *dim_y,
 			int *nimgs)
 {
 	IODescPtr	ip;
@@ -42,6 +46,12 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 /* -------------------------------- begin ---------------------------------- */
 
 	initHdr (&prihdr);
+
+	/* Initial values, so we can check (in crrej_do) that images
+	   were actually opened.
+	*/
+	ipsci[0] = NULL;
+	ipdq[0] = NULL;
 
 	/* rewind the image template */
 	c_imtrew (tpin);
@@ -63,11 +73,13 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	
 	    /* how many groups in each file */
 	    getHeader (ip, &prihdr);
+	    closeImage (ip);
+
 	    if (getKeyI (&prihdr, "NEXTEND", &nk) != 0)
 		nk = 0;
 	    nk /= EXT_PER_GROUP;
 
-	    /* read the CRREJ reference table name from the first file, 
+	    /* read the CRREJ reference table name from the first file,
 		if necessary */
 	    if (n == 0) {
 		if (newpar[0] < MAX_PAR && par->tbname[0] == '\0') {
@@ -100,7 +112,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    }
 
 	    /* make sure the same CCDAMP is used */
-	    if (getKeyS (&prihdr, "CCDAMP", ccdamp) != 0) 
+	    if (getKeyS (&prihdr, "CCDAMP", ccdamp) != 0)
 		ccdamp[0] = '\0';
 	    if (n == 0) {
 		strcpy (ccdamp0, ccdamp);
@@ -138,8 +150,6 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    }
 
 	    freeHdr (&prihdr);
-
-	    closeImage (ip);
 	}
 
 	/* make sure there is more than one image */
@@ -150,7 +160,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 		
 	for (k = 0; k < *nimgs; ++k) {
 
-	    /* use the first image's attributes to compare with the rest of 
+	    /* use the first image's attributes to compare with the rest of
 	     the files */
 	    if (k == 0) {
 		*dim_x = getNaxis1(ipsci[k]);

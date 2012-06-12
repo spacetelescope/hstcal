@@ -61,7 +61,7 @@ int checkExists (char *filename);
 void cToFortran (char *c_fmt, char *ftn_fmt);
 void trimString (char *value);
 void copyString (char *output, char *input, int maxch);
-void str_lower (char lc_name[], char name[]);
+void str_lower (char lc_name[], const char name[]);
 
 /* in cerror.c */
 void setError (int status, char *msg);
