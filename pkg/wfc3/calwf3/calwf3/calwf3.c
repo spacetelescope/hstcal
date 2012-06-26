@@ -62,6 +62,13 @@
 	individual asn members. (PR 70922, Trac #869)
    M.Sosey, 2012 May 07:
      added the option "-r" to print the current version and exit cleanly
+   M. Sosey, 2012 June 26:
+    There were some missed updates from the iraf version, namely 
+     H.Bushouse, 2012 Mar 27:
+	   Fixed BuildDthInput to reallocate additional memory for wf3dth_input
+	   when it's necessary to build list from all the asn member names.
+	   (PR 70922, Trac #869)
+         
 */
 
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug) {
@@ -353,10 +360,11 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 
 		 /* If the sub-product wasn't produced, we have to build the
 		 ** list of names from the individual asn members */
-                 for (j=1; j <= asn->spmems[i]; j++) {
-		      strcpy(tmpexp, asn->product[prod].subprod[i].exp[j].name);
-		      strcat(tmpexp,"_flt.fits");
-		      strcat(wf3dth_input, tmpexp);
+              wf3dth_input = realloc(wf3dth_input, asn->spmems[i]*SZ_FNAME);
+              for (j=1; j <= asn->spmems[i]; j++) {
+		         strcpy(tmpexp, asn->product[prod].subprod[i].exp[j].name);
+		         strcat(tmpexp,"_flt.fits");
+		         strcat(wf3dth_input, tmpexp);
 		      if (j < asn->spmems[i])
 			  strcat(wf3dth_input, ",");
 		 }

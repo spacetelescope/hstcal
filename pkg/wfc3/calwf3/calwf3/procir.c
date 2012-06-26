@@ -285,9 +285,13 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                       free(wf3rej_input);
 
 		  } else {
-		      trlmessage ("");
-		      PrSwitch ("rptcorr", wf3ir_sci_sw.rptcorr);
-                  } /* End RPTCORR processing */
+		      if (asn->process == FULL) {
+		          asn->product[prod].subprod[posid].prsnt = False;
+		          trlmessage ("");
+		          PrSwitch ("rptcorr", wf3ir_sci_sw.rptcorr);
+		      }
+          
+          } /* End RPTCORR processing */
 
 	     }    /* Finished processing this position's sub-product */
 	}    /* Finished looping over all the products */
