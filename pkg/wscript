@@ -1,7 +1,7 @@
 # vim: set syntax=python:
 
 INSTRUMENTS = [
-    'stis','imphttab','acs','wfc3'
+    'imphttab','acs',
     ]
 
 def build(bld):
