@@ -31,10 +31,10 @@ CALACS (pkg/acs)
     = CTE correction, with and without parallel processing using OpenMP
         - http://www.stsci.edu/hst/acs/performance/calacs_cte/calacs_cte.html/
     = post-SM4 destriping
-    = post-SM3 bias-shift correction
+    = post-SM4 bias-shift correction
     = post-SM4 electronics cross-talk removal
     = These corrections only get applied to full-frame ACS/WFC exposures.
-    = This version also performs ALL processing in units of electrons
+    = This version also performs ALL processing, except BIASCORR, in units of electrons
         - All temporary files produced by CALACS have units of electrons
 
 Bug fixes include:
