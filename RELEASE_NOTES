@@ -4,17 +4,17 @@ July 2012
 
 The HSTCAL package defines a CFITSIO-based replacement for IRAF's
 image and table I/O C-API that can be used to compile IRAF tasks written
-in C without actually using IRAF.  
+in C without actually using IRAF.
 
-This package provides a version of the ACS calibration software, CALACS, 
-that get compiled without any dependence on IRAF. 
+This package provides a version of the ACS calibration software, CALACS,
+that get compiled without any dependence on IRAF.
 
 
 Platform Support
 ================
-This package has been compiled and tested on both Linux RedHat 32-bit and 64-bit environments, as well as Mac OS X 10.5(Leopard) and OS X 10.6(Snow Leopard).  
+This package has been compiled and tested on both Linux RedHat 32-bit and 64-bit environments, as well as Mac OS X 10.5(Leopard) and OS X 10.6(Snow Leopard).
 
-HSTCAL 
+HSTCAL
 ------
 - Add a check for OpenMP and set up "use" flags for it if it's available. Add a configure-time argument, "--disable-openmp"
 - Add a note as to why the CFITSIO tree is copied
@@ -29,17 +29,19 @@ CALACS (pkg/acs)
 ----------------
 - CALACS v 8.0.5 now performs:
     = CTE correction, with and without parallel processing using OpenMP
+        - http://www.stsci.edu/hst/acs/performance/calacs_cte/calacs_cte.html/
     = post-SM4 destriping
     = post-SM3 bias-shift correction
     = post-SM4 electronics cross-talk removal
-    = These corrections only get applied to full-frame ACS/WFC exposures. 
+    = These corrections only get applied to full-frame ACS/WFC exposures.
     = This version also performs ALL processing in units of electrons
+        - All temporary files produced by CALACS have units of electrons
 
 Bug fixes include:
 - The I/O logic in CALACS was fixed so that CFITSIO no longer gets used to open files in read/write mode when a handle to that same image but different extension was already opened in readonly mode.
 - This version optimized the CTE correction so that it will work best with SUBTHRESH=-10 and RN_CLIP=5.0 as passed in from the PCTETAB.
 - CALACS updated so that when the photometry keywords are not calculated due to extrapolation the photcorr keyword is set to skipped in the output image. A message also shows up in the trailer file.
-- CALACS now reports the ACS_CTE_NAME and ACS_CTE_VER variables to the primary header as the CTE_NAME and CTE_VER keywords after CTE processing. All CTE corrected products should now have these keywords. 
+- CALACS now reports the ACS_CTE_NAME and ACS_CTE_VER variables to the primary header as the CTE_NAME and CTE_VER keywords after CTE processing. All CTE corrected products should now have these keywords.
 - CALACS reports the full computation of the mean bias level in the _flt.fits header. The new value now reports the sum of the mean bias level subtracted by all the bias-level correction steps and prints out a trailer message reporting the values being subtracted by each step.
 
 
