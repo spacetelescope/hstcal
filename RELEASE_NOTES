@@ -42,6 +42,6 @@ Bug fixes include:
 - This version optimized the CTE correction so that it will work best with SUBTHRESH=-10 and RN_CLIP=5.0 as passed in from the PCTETAB.
 - CALACS updated so that when the photometry keywords are not calculated due to extrapolation the photcorr keyword is set to skipped in the output image. A message also shows up in the trailer file.
 - CALACS now reports the ACS_CTE_NAME and ACS_CTE_VER variables to the primary header as the CTE_NAME and CTE_VER keywords after CTE processing. All CTE corrected products should now have these keywords.
-- CALACS reports the full computation of the mean bias level in the _flt.fits header. The new value now reports the sum of the mean bias level subtracted by all the bias-level correction steps and prints out a trailer message reporting the values being subtracted by each step.
+- CALACS reports the full computation of the mean bias level in the _flt.fits header. The header value now reports the sum of the bias levels subtracted by each of the bias-level correction steps and prints out a trailer message reporting the values being subtracted by each step.
 
 
