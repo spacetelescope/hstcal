@@ -47,15 +47,19 @@ def options(opt):
         '--disable-openmp', action='store_true',
         help="Disable OpenMP")
 
+    opt.add_option(
+        '--debug', action='store_true',
+        help="Create a debug build")
+
     opt.recurse('cfitsio')
 
 def _setup_openmp(conf):
     conf.start_msg('Checking for OpenMP')
-    
+
     if conf.options.disable_openmp:
         conf.end_msg('OpenMP disabled.', 'YELLOW')
         return
-    
+
     try:
         conf.check_cc(
             header_name="omp.h", lib="gomp", cflags="-fopenmp",
@@ -64,7 +68,7 @@ def _setup_openmp(conf):
         conf.end_msg("OpenMP not found.", 'YELLOW')
     else:
         conf.end_msg("OpenMP found.", 'GREEN')
-    
+
 def _determine_mac_osx_fortran_flags(conf):
     # On Mac OS-X, we need to know the specific version in order to
     # send some compile flags to the Fortran compiler.
@@ -105,7 +109,7 @@ def _determine_mac_osx_fortran_flags(conf):
             conf.end_msg(
                 "Do not recognize this Mac OS only know 10.5-10.7",
                 'YELLOW')
-    
+
     if conf.env.MAC_OS_NAME in ('snowleopard', 'lion') :
         conf.env.append_value('FCFLAGS', '-m64')
 
@@ -117,7 +121,7 @@ def _determine_sizeof_int(conf):
         quote=False,
         execute=True,
         msg='Checking for sizeof(int)')
-        
+
 def configure(conf):
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
@@ -137,16 +141,12 @@ def configure(conf):
 
     # Load C compiler support
     conf.load('compiler_c')
-    
+
     # Check for the existence of a Fortran compiler
     conf.load('compiler_fc')
     conf.check_fortran()
-    
-    # check whether the compiler supports -02 and add it to CFLAGS if it does
-    if conf.check_cc(cflags='-O2'):
-        conf.env.append_value('CFLAGS','-O2')
 
-    # Set the location of the hstcal include directory
+   # Set the location of the hstcal include directory
     conf.env.INCLUDES = os.path.abspath('include') # the hstcal include directory
 
     # A list of the local (hstcal) libraries that are typically linked
@@ -168,10 +168,20 @@ def configure(conf):
     _determine_mac_osx_fortran_flags(conf)
 
     _determine_sizeof_int(conf)
-    
+
     # The configuration related to cfitsio is stored in
     # cfitsio/wscript
     conf.recurse('cfitsio')
+
+    # check whether the compiler supports -02 and add it to CFLAGS if it does
+    if conf.options.debug:
+        if conf.check_cc(cflags='-g'):
+            conf.env.append_value('CFLAGS', '-g')
+        if conf.check_cc(cflags='-O0'):
+            conf.env.append_value('CFLAGS', '-O0')
+    else:
+        if conf.check_cc(cflags='-O2'):
+            conf.env.append_value('CFLAGS','-O2')
 
 def build(bld):
     # Recurse into all of the libraries
@@ -225,4 +235,3 @@ def test(ctx):
         if library.endswith('test'):
             if os.system('nosetests %s' % library):
                 raise Exception("Tests failed")
-
