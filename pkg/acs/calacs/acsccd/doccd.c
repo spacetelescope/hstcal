@@ -424,46 +424,7 @@ int DoCCD (ACSInfo *acs_info) {
 		}
 	}
   /**************************************************************************/
-  
-  /**************************************************************************/
-	/* Subtract post-flash image. */
-	FlashMsg(&acs[0], 1);
-	
-  if (acs_info->flashcorr == PERFORM) {
-		for (i = 0; i < acs_info->nimsets; i++) {
-      /* Initialize this to a set value... */
-      meanflash = 0.0;
-      
-      if (doFlash(&acs[i], &x[i], &meanflash))
-        return (status);
-      
-      /* Report mean of post-flash image subtracted from science image,
-       if it was performed...*/
-      if (meanflash > 0.){
-        sprintf(MsgText,"Mean of post-flash image (MEANFLSH) = %g",meanflash);
-        trlmessage(MsgText);
-        
-        /* If they want to add this keyword, we can uncomment this code. */
-        if (PutKeyFlt(&x[i].sci.hdr, "MEANFLSH", meanflash,
-                       "mean of post-flash values subtracted"))
-          return (status);	    
-        
-        PrSwitch ("flshcorr", COMPLETE);
-      } else {
-        PrSwitch ("flshcorr", SKIPPED);
-      }
-    }
-    
-    if (acs_info->printtime)
-      TimeStamp("FLSHCORR complete", acs->rootname);
-	}
-	
-  if (!OmitStep(acs_info->flashcorr)) {
-    if (flashHistory(&acs[0], x[0].globalhdr))
-			return (status);
-	}
-  /**************************************************************************/
-  
+
   /**************************************************************************/
   /* perform CTE correction */
   PCTEMsg(&acs[0], 1);
@@ -496,7 +457,46 @@ int DoCCD (ACSInfo *acs_info) {
     PutKeyStr(x[0].globalhdr, "PCTECORR", "OMIT","");
   }
   /**************************************************************************/
-	
+  
+  /**************************************************************************/
+  /* Subtract post-flash image. */
+  FlashMsg(&acs[0], 1);
+
+  if (acs_info->flashcorr == PERFORM) {
+    for (i = 0; i < acs_info->nimsets; i++) {
+      /* Initialize this to a set value... */
+      meanflash = 0.0;
+      
+      if (doFlash(&acs[i], &x[i], &meanflash))
+        return (status);
+      
+      /* Report mean of post-flash image subtracted from science image,
+       if it was performed...*/
+      if (meanflash > 0.){
+        sprintf(MsgText,"Mean of post-flash image (MEANFLSH) = %g",meanflash);
+        trlmessage(MsgText);
+        
+        /* If they want to add this keyword, we can uncomment this code. */
+        if (PutKeyFlt(&x[i].sci.hdr, "MEANFLSH", meanflash,
+                       "mean of post-flash values subtracted"))
+          return (status);	    
+        
+        PrSwitch ("flshcorr", COMPLETE);
+      } else {
+        PrSwitch ("flshcorr", SKIPPED);
+      }
+    }
+    
+    if (acs_info->printtime)
+      TimeStamp("FLSHCORR complete", acs->rootname);
+  }
+
+  if (!OmitStep(acs_info->flashcorr)) {
+    if (flashHistory(&acs[0], x[0].globalhdr))
+      return (status);
+  }
+  /**************************************************************************/
+
 	/* Write this imset to the output file.  The
    CAL_VER and FILENAME keywords will be updated, and the primary
    header will be written.
