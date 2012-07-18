@@ -1,3 +1,6 @@
+### 18-Jul-2012 - PLL -- Version 8.0.6
+    FLSHCORR now happens after PCTECORR.
+
 ### 18-May-2012 - WJH -- Version 8.0.5
     File I/O in acsrej updated to avoid problems with CFITSIO upcasting 
     file permissions to read/write when not needed. This will allow the
