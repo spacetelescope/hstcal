@@ -1,0 +1,9 @@
+# vim: set syntax=python:
+
+LIBRARIES = [
+    'calstis'
+    ]
+
+def build(bld):
+    for library in LIBRARIES:
+        bld.recurse(library)
