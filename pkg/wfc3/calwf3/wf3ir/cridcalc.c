@@ -3,7 +3,7 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include "hstio.h"     /* defines HST I/O functions */
+# include "hstio.h"    /* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"
 # include "wf3dq.h"
@@ -17,10 +17,10 @@
 
 # define DEBUG 0
 # define DEBUG2 0
-# define X1		417-1
-# define Y1		437-1
-# define X2		469-1
-# define Y2		454-1
+# define X1     605-1
+# define Y1     108-1
+# define X2     398-1
+# define Y2     15-1
 
 static short DQIGNORE = SATPIXEL;
 
@@ -189,7 +189,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
     **              saturation in zeroth and first reads; they are now treated the same so that
     **              output pixels are never zeroed out. There's probably a lot of diffs from the previous
     **              version because I re-indented the entire file to help figure out the logic
-    **              added code leave the saturdated pixel value in place for early  reads instead of zeroing it out                
+    **                
     */
 
     int crrej (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {

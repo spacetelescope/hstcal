@@ -1,4 +1,4 @@
-# include "xtables.h"
+# include <xtables.h>
 # include "hstio.h"	/* defines HST I/O functions */
 
 # include "wf3.h"

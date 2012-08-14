@@ -1,10 +1,11 @@
 # include   <stdio.h>
 # include   <string.h>
-# include   "hstio.h"
+# include "hstio.h"
+
 # include   "wf3.h"
 # include   "wf3err.h"
-# include   "rej.h"
 # include   "wf3info.h"
+# include   "rej.h"
 
 /*  cr_scaling -- Determine the scaling factors according to exposure times or
         other user specified scheme. */

@@ -1,12 +1,14 @@
 # include   <stdio.h>
 # include   <string.h>
 # include   <stdlib.h>
-# include   "hstio.h"
 # include   <limits.h>
 # include   <math.h>
 
+# include "hstio.h"
 # include   "wf3.h"    /* for message output */
 # include   "wf3err.h"
+# include   "wf3info.h"
+# include   "rej.h"
 
 # define    MINVAL      -15000
 # define    BIN_WIDTH   1
@@ -17,7 +19,7 @@
 /* rej_sky -- Calculate the sky for an image. */
 
 void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
-	      short badinpdq, float skyval[]) {
+	      short badinpdq, float efac[], DataUnits bunit[], float skyval[]) {
 
 /* Revision history:
 **
@@ -31,6 +33,8 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 **				calculations.
 ** H. Bushouse	08-Oct-2008	Added capabilities for "mean" sky calculation
 **				mode, using resistmean function.
+** H. Bushouse	14-Dec-2011	Upgraded to rescale input data that are in
+**				units of count rates. (PR 69969; Trac #814)
 */
 
     extern int status;
@@ -103,6 +107,13 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 	     /* read the data in */
 	     getFloatLine (ipsci[0], line, a);
 	     getShortLine (ipdq[0], line, b);
+
+	     /* Rescale data to counts, if necessary */
+	     if (bunit[0] == COUNTRATE) {
+		 for (i = 0; i < dimx; ++i) {
+		      a[i] *= efac[0];
+		 }
+	     }
 
 	     for (i = 0; i < dimx; ++i) {
 		  if ( (b[i] & badinpdq) == WF3_OK) {
@@ -179,6 +190,13 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
             /* read the data in */
             getFloatLine (ipsci[k], line, a);
             getShortLine (ipdq[k], line, b);
+
+	    /* Rescale data to counts, if necessary */
+	    if (bunit[k] == COUNTRATE) {
+		for (i = 0; i < dimx; ++i) {
+		     a[i] *= efac[k];
+		}
+	    }
 
             /* construct the histogram for the mode calculation */
 	    if (mode) {

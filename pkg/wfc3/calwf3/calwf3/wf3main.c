@@ -20,7 +20,7 @@ int main (int argc, char **argv) {
 	int printtime = NO;	/* print time after each step? */
 	int save_tmp = DUMMY;	/* save temporary files? */
 	int verbose = NO;	/* print info during processing? */
-	int debug = NO;		/* print debug statements during processing? */
+	int debug = YES;		/* print debug statements during processing? */
 	int quiet = NO;		/* suppress STDOUT messages? */
 	int too_many = NO;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */

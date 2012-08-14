@@ -1,6 +1,7 @@
 # include <stdio.h>
-# include "hstio.h"
 # include <string.h>
+# include "hstio.h"
+
 
 # include "wf3.h"
 # include "wf3rej.h"
@@ -55,6 +56,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
     /* Determine which detector is in use from first input image */
     tpin = c_imtopen (in_list);
     c_imtgetim (tpin, in_name, SZ_FNAME);
+    initHdr (&phdr);
     if (LoadHdr (in_name, &phdr)) {
         sprintf (MsgText, "Could not load header from %s", in_name);
         trlerror (MsgText);
@@ -80,6 +82,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
 
     /* Determine input and output trailer files, then initialize
     ** output file by combining inputs into output file */
+    InitRejTrl(in_list, output, wf3.detector);
 
     /* Quit on error condition */
     if (status)

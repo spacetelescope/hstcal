@@ -1,4 +1,5 @@
 # include <float.h> 
+# include <math.h>
 # include <stdio.h>
 
 # include "hstio.h"	/* defines HST I/O functions */
@@ -7,6 +8,8 @@
 # include "trl.h"
 
 extern int status;
+
+
 
 /* DOBLEV: Apply blevcorr to each readout of a MultiAccum.
 **
