@@ -29,12 +29,15 @@ static int getampxy (Hdr *, int, int, char *, int, int, int *, int *);
                             to read keywords.  
   29-Aug-00 H.A. Bushouse   Revised for WFC3 use.
   24-Jun-09 H. Bushouse     Fixed ampx/ampy values in getampxy for IR subarrays.
+  30-Aug-12 M. Sosey        Checks the value of EXPFLAG in all the input image and if
+                            any one image contains something other than NORMAL, it reports
+                            the value as MIXED in the output crj header. PR #72001
 */
 
 int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 	       int newpar[], char imgname[][SZ_FNAME+1], int grp[],
 	       IODescPtr ipsci[], IODescPtr ipdq[], multiamp *noise,
-	       multiamp *gain, int *dim_x, int *dim_y, int nimgs) {
+	       multiamp *gain, int *dim_x, int *dim_y, int nimgs, char expflagFinal[]) {
 
     extern int status;
 
@@ -45,6 +48,9 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     int         detector;
     multiamp    gn, ron;
     char        ccdamp[NAMPS+1], ccdamp0[NAMPS+1];
+    char        normal[]="NORMAL";
+    char        mixed[]="MIXED";
+    char        expflag[24];
     int         k, n;
     int         i;
     int         chip;
@@ -64,6 +70,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     /* initialize local variables */
     ccdamp[0] = '\0';
     ccdamp0[0] = '\0';
+    expflag[0]='\0';
     chip = 0;
 
     /* loop over all input files */
@@ -85,6 +92,20 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
         /* Get primary header for keyword information */
         getHeader (ip, &prihdr);
+
+    /*Read the EXPFLAG keyword from all images */
+    if (GetKeyStr (&prihdr, "EXPFLAG", NO_DEFAULT, "",expflag, 24)){
+        trlkwerr ("EXPFLAG",fdata);
+        return (status=  KEYWORD_MISSING);
+    }
+    
+    /* compare the expflag values */
+    if (strcmp(expflag,expflagFinal) != 0){ /*they are not the same value*/
+        if(strcmp(expflagFinal,mixed) !=0) {/*the final keyword is not already mixed*/
+            strcpy(expflagFinal,mixed);
+        }
+    }
+    
 
 	/* Read the CCDAMP keyword from all images */
         if (GetKeyStr (&prihdr, "CCDAMP", NO_DEFAULT, "", ccdamp, NAMPS)) {

@@ -48,6 +48,9 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
 				  all functions that need it, in order to
 				  handle input data that are in count rates.
 				  (PR 69969; Trac #814).
+  30-Aug-12       M. Sosey        Checks the value of EXPFLAG in all the input image and if
+                            any one image contains something other than NORMAL, it reports
+                            the value as MIXED in the output crj header. PR #72001
 */
 
 int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
@@ -103,7 +106,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     int     rej_check (IRAFPointer, int, int, clpar *, int [],
 		       char [][SZ_FNAME+1], int [], IODescPtr [], IODescPtr [],
-		       multiamp *, multiamp *, int *, int *, int);
+		       multiamp *, multiamp *, int *, int *, int, char []);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
 			double *, DataUnits []);
     int     rejpar_in (clpar *, int [], int, float,   int *, float []);
@@ -133,6 +136,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     void    PrSwitch (char *, int);
     void    FindAsnRoot (char *, char *);
     void    initmulti (multiamp *);
+    char    expflagFinal[]="NORMAL"; /*24 char keyword max in header */
 
     /* -------------------------------- begin ------------------------------- */
 
@@ -240,7 +244,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
         /* Open input files and temporary files, check the parameters */
         if (rej_check (tpin, extver, numext, par, newpar, imgname, ext,
-            ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs)) {
+            ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs, expflagFinal)) {
             WhichError (status);
             return(status);
         }
@@ -384,6 +388,8 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej/texpt, 
 		   "Cosmic ray impact rate (pixels/sec)");
         PutKeyFlt (sg.globalhdr, "EXPTIME", exptot, "");
+        PutKeyStr (sg.globalhdr, "EXPFLAG", expflagFinal,
+                "Exposure flag for combined dataset");
         if (par->shadcorr) {
             logit = 0;
             if (UpdateSwitch ("SHADCORR", par->shadcorr, sg.globalhdr, &logit))
