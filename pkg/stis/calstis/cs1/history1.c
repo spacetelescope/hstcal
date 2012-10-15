@@ -42,6 +42,9 @@ static int UpdateSwitch (char *, int, Hdr *, int *);
 
    Phil Hodge, 2011 Nov 17:
 	In photHistory, check tdscorr.
+
+   Phil Hodge, 2012 Oct 15:
+	In darkHistory, include history for the tdctab if detector is NUV-MAMA.
 */
 
 int atodHistory (StisInfo1 *sts, Hdr *phdr) {
@@ -145,6 +148,10 @@ int darkHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (logit) {
 	    if (status = ImgHistory (&sts->dark, phdr))
 		return (status);
+	    if (sts->detector == NUV_MAMA_DETECTOR) {
+		if (status = TabHistory (&sts->tdctab, phdr))
+		    return (status);
+	    }
 	}
 
 	return (0);

@@ -18,6 +18,7 @@
 static int getDarkParam (Hdr *, double *, double *);
 static double CCDFactor (double, double, double);
 static int MedSciVal (SingleGroup *, float *);
+static int medianDark (SingleGroup *, float *);
 static void OverrideFactor (StisInfo1 *, int, double *, int *);
 
 
@@ -77,6 +78,10 @@ static void OverrideFactor (StisInfo1 *, int, double *, int *);
 	Add function getDarkParam to read reference temperature and slope
 	from the dark file primary header.  Add these arguments to the
 	calling sequence of CCDFactor.
+
+   Phil Hodge, 2012 July 6:
+	Add function medianDark; include median_dark in the call to
+	GetTdcCorr.
 */
 
 int doDark (StisInfo1 *sts, SingleGroup *x, float *meandark, int sci_extver) {
@@ -106,7 +111,7 @@ int sci_extver     i: IMSET number in input (science) file
 
 	int FindBin (StisInfo1 *, SingleGroup *, SingleGroup *,
 		int *, int *, int *, int *, int *, int *);
-	int GetTdcCorr (StisInfo1 *, double *);
+	int GetTdcCorr (StisInfo1 *, double, double *);
 	int MakeDopp (double, double, double, double, double, int,
 		float *, int *, int *);
 	int DoppConv (SingleGroup *, int, float *, int, int);
@@ -170,7 +175,10 @@ int sci_extver     i: IMSET number in input (science) file
 	factor = 1;
 
 	if (sts->detector == NUV_MAMA_DETECTOR) {
-	    if (status = GetTdcCorr (sts, &factor))
+	    float median_dark;
+	    if (status = medianDark (&y, &median_dark))
+	        return (status);
+	    if (status = GetTdcCorr (sts, (double)median_dark, &factor))
 	        return (status);
 	}
         else if (sts->detector == CCD_DETECTOR) {
@@ -346,4 +354,26 @@ static int MedSciVal (SingleGroup *y, float *meandark) {
 	free (dark);
 
 	return (0);
+}
+
+/* This function calls MedSciVal to get the median of the dark reference
+   image, ignoring bad pixels.  The result is then multiplied by the
+   factor (nominally 4) to account for binning of the dark to a size of
+   1024x1024 pixels.
+
+   This function is only used for NUV-MAMA data.
+*/
+
+static int medianDark (SingleGroup *y, float *median_dark) {
+
+	int status;
+	float median;
+
+	if ((status = MedSciVal (y, &median)) != 0)
+	    return status;
+
+	*median_dark = median * (float)(y->sci.data.nx) / 1024. *
+	                        (float)(y->sci.data.ny) / 1024.;
+
+	return 0;
 }

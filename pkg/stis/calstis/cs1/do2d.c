@@ -86,6 +86,10 @@
 
    Phil Hodge, 2011 July 27:
 	After calling doPhot, check sts->photcorr (may be SKIPPED).
+
+   Phil Hodge, 2012 Oct 15:
+	Add a call to PrRefInfo for the TDCTAB, for detector = NUV-MAMA.
+	Delete function dummyKw, since it should no longer be necessary.
 */
 
 # include <math.h>	/* for fabs and sqrt */
@@ -112,7 +116,6 @@ static void NonLinMsg (StisInfo1 *, int);
 static void PhotMsg (StisInfo1 *);
 static void ShadMsg (StisInfo1 *, int);
 static int UpdatePlateSc (StisInfo1 *, SingleGroup *);
-static int dummyKw (SingleGroup *, char *, int);
 
 int Do2D (StisInfo1 *sts, int extver, int *ngood_extver) {
 
@@ -174,10 +177,6 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    return (OPEN_FAILED);
 	if (sts->printtime)
 	    TimeStamp ("Input read into memory", sts->rootname);
-
-	/* Add dummy keywords to the DQ extension. */
-	if ((status = dummyKw (x, sts->obstype, sts->verbose)) != 0)
-	    return (status);
 
 	/* Get header info that varies from imset to imset. */
 	if (status = GetGrpInfo1 (sts, &x->sci.hdr))
@@ -620,6 +619,10 @@ static void DarkMsg (StisInfo1 *sts, int extver) {
 
 	    PrRefInfo ("darkfile", sts->dark.name, sts->dark.pedigree,
 			sts->dark.descrip, "");
+	    if (sts->detector == NUV_MAMA_DETECTOR) {
+		PrRefInfo ("tdctab", sts->tdctab.name, sts->tdctab.pedigree,
+			    sts->tdctab.descrip, "");
+	    }
 	}
 }
 
@@ -793,46 +796,4 @@ SingleGroup *x   i: image that was binned
 	    return (status);
 
 	return (0);
-}
-
-/* This routine adds three dummy keywords to the DQ header.  This is to
-   work around a bug in the IRAF FITS kernel having to do with adding a
-   new FITS block to a header if there is not enough space in the header
-   for the keywords.  Only DQ headers for OBSTYPE = IMAGING have the
-   number of keywords that confuse the IRAF FITS kernel, so no keywords
-   will be added to other types of DQ headers.
-*/
-
-static int dummyKw (SingleGroup *x, char *obstype, int verbose) {
-
-/* arguments:
-SingleGroup *x   i: input image set
-char obstype     i: if not IMAGING, return without doing anything
-int verbose      i: if true, print a message
-*/
-
-	Hdr hdr;
-	FitsKw kw;
-	int status=0;
-
-	if (strcmp (obstype, "IMAGING") != 0)
-	    return (status);
-
-	hdr = x->dq.hdr;
-	kw = findKw (&hdr, "DUMMY3");
-	if (kw == NotFound) {
-	    if ((status = Put_KeyI (&x->dq.hdr, "DUMMY1", 1,
-				"dummy keyword")) != 0)
-		return (status);
-	    if ((status = Put_KeyI (&x->dq.hdr, "DUMMY2", 2,
-				"dummy keyword")) != 0)
-		return (status);
-	    if ((status = Put_KeyI (&x->dq.hdr, "DUMMY3", 3,
-				"dummy keyword")) != 0)
-		return (status);
-	    if (verbose)
-		printf ("         Dummy keywords were added to DQ extension\n");
-	}
-
-	return (status);
 }

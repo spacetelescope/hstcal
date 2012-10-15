@@ -59,6 +59,9 @@ static void MissingFile (char *, char *, int *);
 
   Phil Hodge, 2011 Nov 17:
 	Modify checkPhot to include the TDSTAB.
+
+   Phil Hodge, 2012 Oct 15:
+	In checkDark, don't allow the TDCTAB to be optional.
 */
 
 int GetFlags1 (StisInfo1 *sts, Hdr *phdr) {
@@ -302,30 +305,21 @@ int *nsteps      io: incremented if this step can be performed
 
             if (sts->detector == NUV_MAMA_DETECTOR) {
 
-                if (status = GetTabRef (sts->refnames, phdr,
-                                "TDCTAB", &sts->tdctab, &calswitch))
-                    return (status);
+		if (status = GetTabRef (sts->refnames, phdr,
+		                        "TDCTAB", &sts->tdctab, &calswitch))
+		    return (status);
 
-                if (sts->tdctab.exists != EXISTS_YES) {
+		if (sts->tdctab.exists != EXISTS_YES) {
 
-	            /* If keyword or table not found, use default tdc coefficients */
-	            if (strlen (sts->tdctab.name) == 0) {
-			printf ("Warning  Keyword TDCTAB not found. "
-				"Using old NUV dark scaling formula.\n");
-	            } else {
-			printf ("Warning  TDCTAB table %s not found. "
-				"Using old NUV dark scaling formula.\n",
-				sts->tdctab.name);
-		    }
-		    strcpy (sts->tdctab.name, DEFAULT_TDC);
+		    MissingFile ("TDCTAB", sts->tdctab.name, missing);
 
-                } else if (sts->tdctab.goodPedigree != GOOD_PEDIGREE) {
+		} else if (sts->tdctab.goodPedigree != GOOD_PEDIGREE) {
 
                     (*missing)++;
                     printf ("ERROR    TDCTAB `%s' is a dummy table.\n", 
                          sts->tdctab.name);
-                }
-            }
+		}
+	    }
 
 	    if (sts->darkcorr == PERFORM)
 		(*nsteps)++;

@@ -57,11 +57,12 @@
 
    Phil Hodge, 2011 Nov 17:
 	Put tdscorr and tdstab back into StisInfo1.
+
+   Phil Hodge, 2012 Oct 15:
+	Remove DEFAULT_TDC.
 */
 
 # define	MAX_IMSET	100
-
-# define  DEFAULT_TDC  "Default TDC"
 
 typedef struct {
 	/* input and output image names */
@@ -163,7 +164,7 @@ typedef struct {
 	int noisecorr;		/* initialize error array? */
 	int statcorr;		/* compute statistics? */
 	/* tdscorr is not a switch, it indicates whether the TDSTAB exists */
-	int tdscorr;		/* time-dependent (actually temperature) corr */
+	int tdscorr;		/* temperature- and time-dependent corr */
         /* crcorr is not a switch, it indicates if the CRCORR is complete */
         int crcorr;             /* cosmic-ray rejection */
 
@@ -180,6 +181,6 @@ typedef struct {
 	RefTab mlin;		/* MAMA nonlinearity info table */
 	RefTab atod;		/* analog to digital correction table */
 	RefTab phot;		/* photometric throughput table */
-	RefTab tdctab;		/* NUV dark temp-dependent correction table */
+	RefTab tdctab;		/* NUV dark temp- and time-dep corr table */
 	RefTab tdstab;		/* Time-dependent corr. table (for temp.) */
 } StisInfo1;
