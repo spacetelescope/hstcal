@@ -29,12 +29,12 @@ static short DQIGNORE = SATPIXEL;
 static int RejSpikes (float *, float *, short *, float *, short, float, int *);
 static int RejFirstRead (short *, float *, short, float);
 static int RejCRs (short *, float *, short, float, int *);
-static void EstimateDarkandGlow(short nsamp,float *time,float,float *tot_ADUs);
+static void EstimateDarkandGlow(const short nsamp,float *time,float,float *tot_ADUs);
 
 extern int status;
 
 static int  crrej (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-static void fitsamps (short, float *, float *, short *,float *, float *, float,
+static void fitsamps (const short, float *, float *, short *,float *, float *, float,
         float *, float *, short *, float *, short, short, float, float);
 static void linfit (short, float *, float *, float *, float *, short, float, 
         float, float *, float *, float *, float *, int, int);
@@ -472,7 +472,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
  ** each sample.
  */
 
-static void fitsamps (short nsamp, float *sci, float *err, short *dq,
+static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
         float *time, float *darkandglow, float thresh, 
         float *out_sci, float *out_err, 
         short *out_samp, float *out_time,
@@ -1377,7 +1377,7 @@ static int RejFirstRead(short *dq, float *diff, short nsamp, float thresh) {
    from an actual dark reference image.
  */  
 
-static void EstimateDarkandGlow (short nsamp, float *time, float gain,
+static void EstimateDarkandGlow (const short nsamp, float *time, float gain,
         float *tot_ADUs) {
 
     int   i;
