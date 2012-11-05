@@ -16,7 +16,7 @@
 
 # define TABLE_ERROR            141
 # define COLUMN_NOT_FOUND       142
-# define ROW_NOT_FOUND		143
+# define ROW_NOT_FOUND		144
 
 # define NO_GOOD_DATA           151
 
