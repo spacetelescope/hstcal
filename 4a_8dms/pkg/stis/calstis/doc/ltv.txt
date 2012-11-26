@@ -1,0 +1,130 @@
+The LTVi and LTMi_j keywords give a linear mapping from a reference
+pixel coordinate system to the current pixel coordinate system of an
+image.  The reference coordinate system is detector pixels for the CCD,
+and it is low-res detector pixels for the MAMA.  In IRAF notation, the
+first pixel is number one, and the pixel number is an integer at the
+center of the pixel.  The first pixel runs from 0.5 to 1.5.  LTMi_i is
+the reference pixel size in units of the current pixel size.  LTVi is
+the location, in the current coordinate system, of pixel zero of the
+reference coordinate system.  Note that "pixel zero" does not mean the
+first pixel using zero indexing; it means the location one pixel to the
+left of (or below) the first pixel in the image.
+
+The situation is straightforward for MAMA data or for unbinned CCD data,
+and the values of LTVi and LTMi_i are given in the following table.  For
+STIS data, LTM1_2 and LTM2_1 are zero (no rotation or skew).
+
+detector  bin    axis lengths   LTV1     LTV2    LTM1_1   LTM2_2
+--------  ---    ------------   ----     ----    ------   ------
+  MAMA    high   2048 x 2048   -0.5     -0.5       2.       2.
+  MAMA    low    1024 x 1024    0.       0.        1.       1.
+  MAMA    2x2     512 x  512    0.25     0.25      0.5      0.5
+  MAMA    4x4     256 x  256    0.375    0.375     0.25     0.25
+  MAMA    8x8     128 x  128    0.4375   0.4375    0.125    0.125
+  CCD     none   1024 x 1024    0.       0.        1.       1.
+
+Reference images can have the above values of LTVi and LTMi_i.  Even in
+the case that binned CCD images are used to create the reference images
+(e.g. bias), it seems reasonable to me to expand the data to 1024 x 1024.
+
+The complication for binned CCD observations is that the physical
+overscan region is 19 pixels, so when binning there is a pixel near each
+end of the line that consists of part overscan and part illuminated.
+This pixel is removed with the overscan when subtracting the bias level,
+so the first pixel in the output image does not begin at the beginning
+of the illuminated portion.  This fractional pixel results in some
+peculiar values of LTVi, which can depend on which amplifier was used
+for readout.
+
+Here are specific values of LTVi and LTMi_i for the CCD detector
+including the overscan:
+
+No binning; axis lengths 1062 x 1044; LTM1_1 = LTM2_2 = 1.;
+the line contains 19 overscan, 1024 illuminated, 19 overscan.
+
+    amp     LTV1     LTV2
+    ---     ----     ----
+     A       19.       0.
+     B       19.       0.
+     C       19.      20.
+     D       19.      20.
+
+Bin 2 x 2; axis lengths 532 x 522; LTM1_1 = LTM2_2 = 0.5; the line
+contains 9 overscan, 1 mixed, 511 illuminated, 1 mixed, 10 overscan pixels.
+
+    amp     LTV1     LTV2
+    ---     ----     ----
+     A      9.75     0.25
+     B     10.75     0.25
+     C      9.75    10.25
+     D     10.75    10.25
+
+Bin 4 x 4; axis lengths 271 x 266; LTM1_1 = LTM2_2 = 0.25; the line
+contains 4 overscan, 1 mixed, 255 illuminated, 1 mixed, 10 overscan pixels.
+
+    amp     LTV1     LTV2
+    ---     ----     ----
+     A      5.125    0.375
+     B     10.625    0.375
+     C      5.125   10.375
+     D     10.625   10.375
+
+Bin 8 x 8; axis lengths 140 x 138; LTM1_1 = LTM2_2 = 0.125; the line
+contains 2 overscan, 1 mixed, 127 illuminated, 1 mixed, 9 overscan pixels.
+
+    amp     LTV1     LTV2
+    ---     ----     ----
+     A     2.8125   0.4375
+     B    10.0625   0.4375
+     C     2.8125  10.4375
+     D    10.0625  10.4375
+
+
+After stripping off the serial and parallel overscans we have:
+
+detector  amp   bin    axis lengths    LTV1     LTV2    LTM1_1   LTM2_2
+--------  ---   ---    ------------    ----     ----    ------   ------
+  CCD     any   none   1024 x 1024    0.       0.        1.       1.
+  CCD     any    2x2    511 x  512   -0.25     0.25      0.5      0.5
+  CCD    A or C  4x4    255 x  256    0.125    0.375     0.25     0.25
+  CCD    B or D  4x4    255 x  256   -0.375    0.375     0.25     0.25
+  CCD    A or C  8x8    127 x  128   -0.1875   0.4375    0.125    0.125
+  CCD    B or D  8x8    127 x  128    0.0625   0.4375    0.125    0.125
+
+As a specific example, consider CCD data binned 4 x 4.  The length of
+the first axis is 1044 / 4 + 10 = 271 pixels, which break down as follows
+for amplifier A:  four overscan pixels, one mixed overscan/illuminated,
+255 illuminated pixels, one mixed, and ten overscan.  Graphically this is
+
+   **** **** **** **** ***0 0000 ... 0000 000* **** **** **** ... **** ****
+     1    2    3    4    5    6       260  261  262  263  264      270  271
+
+where * represents an unbinned overscan pixel, and 0 represents an
+unbinned illuminated pixel.  **** is then a binned pure overscan pixel,
+0000 is a binned illuminated pixel, and ***0 and 000* are the mixed pixels.
+The numbers below the * and 0 are pixel numbers in binned coordinates.
+
+Let's work out the value of LTV1 for amp A.  The first pixel in the
+reference coordinate system is the first unbinned illuminated pixel,
+which is the fourth quarter of the fifth binned pixel:
+
+             pixel 4                 pixel 5
+
+    |                       |                       |
+    |                       |                       |  binned pixels
+    |                       |                       |
+    |     |     |     |     |     |     |     |     |
+    |  *  |  *  |  *  |  *  |  *  |  *  |  *  |  0  |  unbinned pixels
+    |     |     |     |     |     |     |     |     |
+                                           ^
+                                           |
+                                       reference pixel zero
+
+The "*" and "0" symbols are used in the figure above to indicate overscan
+and illuminated (unbinned) pixels.  The "0" flags the first pixel in the
+reference coordinate system.  From the figure it can be seen that pixel
+zero in the reference coordinate system is located 1/8 binned pixel to the
+right of pixel five in binned coordinates; therefore, LTV1 is 5.125.  When
+the overscan is subtracted, five pixels will be removed from the beginning
+of the line (four pure overscan and one mixed), so LTV1 for the output
+image will be 5.125 - 5.0 = 0.125.
