@@ -2,7 +2,11 @@
 
 SUBDIRS = [
     'lib',
-    'calacs'
+    'calacs',
+    'acsrej',
+    'acssum',
+    'acsccd',
+    'acs2d'
     ]
             
 def build(bld):
