@@ -9,7 +9,6 @@
 # include "wf3info.h"
 # include "wf3err.h"
 
-extern int status;
 
 /* PHOTCALC: Store the photometry parameter values in the global header
 ** keywords PHOTMODE, PHOTFLAM, PHOTFNU, PHOTZPT, PHOTPLAM, and PHOTBW.
@@ -30,7 +29,7 @@ extern int status;
 static void Phot2Obs (char *, char *);
 
 int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
-
+    
 /* Arguments:
 **	wf3	 i: WFC3 info structure
 **	input	io: input image
@@ -40,6 +39,7 @@ int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 	PhotPar obs;
 	float photfnu;
 	char  photmode[SZ_LINE+1], obsmode[SZ_LINE+1];
+    int status;
 
 	/* Function definitions */
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
@@ -49,14 +49,14 @@ int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 	if (wf3->photcorr == PERFORM) {
 
 	/* Extract photmode from sci extension header */
-	if (GetKeyStr (input->group[0].globalhdr, "PHOTMODE", USE_DEFAULT, "",
+	if (status=GetKeyStr (input->group[0].globalhdr, "PHOTMODE", USE_DEFAULT, "",
 		       photmode, SZ_LINE))
 	    return (status);
 
 	/* Convert PHOTMODE string into synphot OBSMODE syntax */
 	Phot2Obs (photmode, obsmode);
 	if (wf3->verbose) {
-	    sprintf (MsgText, "Created SYNPHOT obsmode of: %s", obsmode);
+	    sprintf (MsgText, "Created obsmode of: %s", obsmode);
 	    trlmessage (MsgText);
 	}
 

@@ -142,6 +142,8 @@ int debug	i: true --> print debugging info during processing
 	** own output, it will proceed as a 1 element table.	
 	** Based on routines from n_getAsnTable() and n_setup() in CALNICB
 	*/
+    trlmessage("loading asn\n");
+    
 	if (LoadAsn(&asn)) {
 	   freeAsnInfo (&asn);
 	   return (status);
@@ -213,7 +215,9 @@ int debug	i: true --> print debugging info during processing
 		 */
 
 		 wf3dth_input = BuildDthInput (&asn, prod);
-
+         sprintf(MsgText,"dither input %s",wf3dth_input);
+         trlmessage(MsgText);
+         
 		 /* Skip this product if the input list is empty */
 		 if (wf3dth_input == NULL) continue;
 
@@ -277,7 +281,6 @@ int debug	i: true --> print debugging info during processing
 
 char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
 
-	int nchars;
 	int wf3sum_len;
 	int i;
 	char *wf3sum_input;
@@ -286,8 +289,7 @@ char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
 	int MkName (char *, char *, char *, char *, char *, int);
 
 	/* Determine how long this string needs to be... */
-	/*nchars = asn->spmems[posid] * (SZ_FNAME+1);*/
-	nchars = 1;
+	 /*nchars = asn->spmems[posid] * (SZ_FNAME+1);*/
 
 	/* Keep track of individual filename lengths and total length */
 	wf3sum_len = 0;
@@ -339,12 +341,15 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 	char tmpexp[SZ_LINE+1];
 	int MkName (char *, char *, char *, char *, char *, int);
 
-	/* Determine how long this string needs to be... */
-	nchars = asn->numsp * SZ_FNAME;
-	wf3dth_input = (char *) calloc( nchars + 1, sizeof(char));
-
-	/* Initialize this string to NULL */
-	wf3dth_input[0] = '\0';
+	/* 
+	* allocate 1 byte - we will realloc every time we append
+	* to the string.  Note that the reallocs ask for a little
+	* more space than it appears we need -- this is to leave space
+	* for the \0 but also for various places where we might append
+	* commas.  The length of the string is re-adjusted each time
+	* through the loop, so +10 is good enough.
+	*/
+	wf3dth_input = (char *) calloc( 1, 1 );
 
 	/* Now, lets search the association table for all inputs... */
 	for (i=1; i <= asn->numsp; i++) {
@@ -360,20 +365,22 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 
 		 /* If the sub-product wasn't produced, we have to build the
 		 ** list of names from the individual asn members */
-              wf3dth_input = realloc(wf3dth_input, asn->spmems[i]*SZ_FNAME);
-              for (j=1; j <= asn->spmems[i]; j++) {
-		         strcpy(tmpexp, asn->product[prod].subprod[i].exp[j].name);
-		         strcat(tmpexp,"_flt.fits");
-		         strcat(wf3dth_input, tmpexp);
+                 for (j=1; j <= asn->spmems[i]; j++) {
+		      char *t = asn->product[prod].subprod[i].exp[j].name;
+		      static char u[] = "_flt.fits";
+		      /* realloc for the new string length + some extra to avoid counting carefully */
+		      wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + sizeof(u) + 10 ) );
+		      strcat(wf3dth_input, t);
+		      strcat(wf3dth_input, u);
 		      if (j < asn->spmems[i])
 			  strcat(wf3dth_input, ",");
 		 }
 
 	     } else {
-
 		 /* Otherwise just use the sub-product name */
-	         strcpy(tmpexp, asn->product[prod].subprod[i].spname);
-	         strcat(wf3dth_input, tmpexp);
+		 char *t = asn->product[prod].subprod[i].spname;
+	         wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
+	         strcat(wf3dth_input, t);
 	     }
 
 	     if (i < (asn->numsp)) {
@@ -384,6 +391,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 
 	return(wf3dth_input);
 }
+
 
 
 /* This routine copies switch values from sci_sw to

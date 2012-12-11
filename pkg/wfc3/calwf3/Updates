@@ -1,3 +1,8 @@
+Updates 18Oct 2012 - MLS - Version 2.7.1
+        fixed a memory leak in cridcalc that was occuring on linux machines
+             and only affected IR data.
+        version date and number updated
+
 Updates for version 2.7 21-May-2012 (MLS):
    cridcal.c/wf3dq.h:
       update to help negative cr detections (fabs the comparison)

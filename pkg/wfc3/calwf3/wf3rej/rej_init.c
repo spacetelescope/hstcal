@@ -1,12 +1,13 @@
 # include   <stdio.h>
 # include   <string.h>
 # include   <stdlib.h>
-# include   "hstio.h"
+# include "hstio.h"
 
 # include   "wf3.h"
 # include   "rej.h"
 # include   "wf3rej.h"
 # include   "wf3err.h"
+# include   "wf3info.h"
 
 # define    OK          (short)0
 
@@ -35,11 +36,13 @@
 				getShortLine to prevent getShortLine from
 				crashing on null DQ arrays.
   16-Jun-2011	H. Bushouse	Added missing call to free(ipts) at end.
+  14-Dec-2011   H. Bushouse	Upgraded to rescale input data that are in
+				units of count rates. (PR 69969; Trac #814)
 */
 
 int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 	      int dim_x, int dim_y, multiamp noise, multiamp gain, float efac[],
-	      float skyval[], SingleGroup *sg, float *work) {
+	      float skyval[], DataUnits bunit[], SingleGroup *sg, float *work) {
 
     extern int status;
 
@@ -117,6 +120,13 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 getFloatLine (ipsci[n], j, buf);
                 getShortLine (ipdq[n], j, bufdq);
                 freeHdr(&dqhdr);
+
+		/* Rescale SCI data, if necessary */
+		if (bunit[n] == COUNTRATE) {
+		    for (i = 0; i < dim_x; i++) {
+			 buf[i] *= efac[n];
+		    }
+		}
 
                 for (i = 0; i < dim_x; i++) {
 		     if (efac[n] > 0.) {
@@ -220,6 +230,13 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 
                 getFloatLine (ipsci[n], j, buf);
 		getShortLine (ipdq[n],  j, bufdq);
+
+		/* Rescale SCI data, if necessary */
+		if (bunit[n] == COUNTRATE) {
+		    for (i = 0; i < dim_x; i++) {
+			 buf[i] *= efac[n];
+		    }
+		}
 
                 /* AMPS C and D */
                 for (i = 0; i < ampx; i++) {

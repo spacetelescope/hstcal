@@ -6,7 +6,7 @@
 
 # define SZ_LINE      255
 # define SZ_FITS_REC   82
-# define SZ_FNAME      63
+# define SZ_FNAME     255
 
 /* Standard string for use in Error Messages */
 char MsgText[SZ_LINE+1];

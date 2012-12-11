@@ -3,7 +3,7 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include "hstio.h"     /* defines HST I/O functions */
+# include "hstio.h"    /* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"
 # include "wf3dq.h"
@@ -17,10 +17,10 @@
 
 # define DEBUG 0
 # define DEBUG2 0
-# define X1		417-1
-# define Y1		437-1
-# define X2		469-1
-# define Y2		454-1
+# define X1     605-1
+# define Y1     108-1
+# define X2     398-1
+# define Y2     15-1
 
 static short DQIGNORE = SATPIXEL;
 
@@ -29,12 +29,12 @@ static short DQIGNORE = SATPIXEL;
 static int RejSpikes (float *, float *, short *, float *, short, float, int *);
 static int RejFirstRead (short *, float *, short, float);
 static int RejCRs (short *, float *, short, float, int *);
-static void EstimateDarkandGlow(short nsamp,float *time,float,float *tot_ADUs);
+static void EstimateDarkandGlow(const short nsamp,float *time,float,float *tot_ADUs);
 
 extern int status;
 
 static int  crrej (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-static void fitsamps (short, float *, float *, short *,float *, float *, float,
+static void fitsamps (const short, float *, float *, short *,float *, float *, float,
         float *, float *, short *, float *, short, short, float, float);
 static void linfit (short, float *, float *, float *, float *, short, float, 
         float, float *, float *, float *, float *, int, int);
@@ -189,7 +189,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
     **              saturation in zeroth and first reads; they are now treated the same so that
     **              output pixels are never zeroed out. There's probably a lot of diffs from the previous
     **              version because I re-indented the entire file to help figure out the logic
-    **              added code leave the saturdated pixel value in place for early  reads instead of zeroing it out                
+    **                
     */
 
     int crrej (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
@@ -472,7 +472,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
  ** each sample.
  */
 
-static void fitsamps (short nsamp, float *sci, float *err, short *dq,
+static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
         float *time, float *darkandglow, float thresh, 
         float *out_sci, float *out_err, 
         short *out_samp, float *out_time,
@@ -1377,7 +1377,7 @@ static int RejFirstRead(short *dq, float *diff, short nsamp, float thresh) {
    from an actual dark reference image.
  */  
 
-static void EstimateDarkandGlow (short nsamp, float *time, float gain,
+static void EstimateDarkandGlow (const short nsamp, float *time, float gain,
         float *tot_ADUs) {
 
     int   i;

@@ -3,12 +3,13 @@
 # include   <stdlib.h>
 # include   <math.h>
 
-# include   "hstio.h"
+# include "hstio.h"
 
 # include   "wf3.h"
 # include   "wf3rej.h"
 # include   "rej.h"
 # include   "wf3err.h"
+# include   "wf3info.h"
 
 /* local mask values */
 # define    OK          (short)0
@@ -142,15 +143,16 @@ Code Outline:
   18-Feb-2009	H. Bushouse	Fixed bug in test to exclude flagged pixels from
 				being tested for CR hits so that pixels marked
 				previously as SPILL still get tested for CR.
+  14-Dec-2011	H. Bushouse	Upgraded to rescale input data that are in
+				units of count rates. (PR 69969; Trac #814)
 */
 
-int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], 
-            char imgname[][SZ_FNAME+1], int grp [], int nimgs, 
-            clpar *par, int niter, int dim_x, int dim_y, 
-            float sigma[], multiamp noise, multiamp gain, 
-            float efac[], float skyval[], FloatTwoDArray *ave, 
-            FloatTwoDArray *avevar, float *efacsum, 
-            ShortTwoDArray *dq, int *nrej, char *shadfile)
+int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][SZ_FNAME+1],
+	      int grp [], int nimgs, clpar *par, int niter, int dim_x,
+	      int dim_y, float sigma[], multiamp noise, multiamp gain, 
+	      float efac[], float skyval[], DataUnits bunit[],
+	      FloatTwoDArray *ave, FloatTwoDArray *avevar, float *efacsum, 
+              ShortTwoDArray *dq, int *nrej, char *shadfile)
 {
     extern int status;
 
@@ -447,6 +449,14 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         getFloatLine (ipsci[k], bufftop, buf);
                         getShortLine (ipdq[k], bufftop, bufdq);
                         freeHdr(&dqhdr);
+
+			/* Rescale the inputs by exposure time, if needed */
+			if (bunit[k] == COUNTRATE) {
+			    for (i = 0; i < dim_x; i++) {
+				 buf[i] *= efac[k];
+			    }
+			}
+
                          /* Scale the input values by the sky and exposure time
                             for comparison to the detection threshhold.
                         */ 
@@ -481,6 +491,16 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                     InitFloatSect (thresh[k], buf, ipsci[k], line, width,dim_x);
                     InitFloatSect (spthresh[k], buf, ipsci[k],line,width,dim_x);
                     InitShortSect (mask[k], bufdq, ipdq[k], line, width, dim_x);
+
+		    /* Rescale input data by exposure time, if necessary */
+		    if (bunit[k] == COUNTRATE) {
+			for (ii = 0; ii < buffheight; ii++) {
+			     for (i=0; i < dim_x; i++) {
+				  pic[k][ii][i] *= efac[k];
+			     }
+			}
+		    }
+
                     /* Scale the pic value by the sky value and exposure time
                         for comparison to the detection threshhold.
                     */

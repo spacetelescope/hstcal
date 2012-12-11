@@ -1,3 +1,9 @@
+15 Nov 2012 - HSTCAL delivered to opus for use in the pipeline
+
+### 18Oct 2012 - MLS - Version 2.7.1
+       949:  fixed a memory leak in cridcalc that was occuring on linux machines
+             and only affected IR data.
+
 ### 21 May 2012 - MLS -- Version 2.6.4
     - small fix in for the negative cosmic rays
       modified the cridcalc rejection settings for spike so that those

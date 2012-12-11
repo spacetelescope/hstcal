@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include <string.h>
 
-# include "hstio.h"	/* defines HST I/O functions */
+# include "hstio.h"/* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"
 # include "trl.h"

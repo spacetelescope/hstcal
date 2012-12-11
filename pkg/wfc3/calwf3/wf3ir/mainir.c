@@ -14,7 +14,7 @@ int status = 0;			/* zero is OK */
 # include "wf3.h"
 # include "wf3info.h"
 # include "wf3err.h"
-# include "wf3corr.h"		/* calibration switch names for wf3ir */
+# include "wf3corr.h"        /* calibration switch names for wf3ir */
 
 static void FreeNames (char *, char *, char *, char *);
 

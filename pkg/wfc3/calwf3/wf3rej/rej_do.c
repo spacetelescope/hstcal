@@ -2,11 +2,12 @@
 # include   <stdlib.h>
 # include   <string.h>
 
-# include   "hstio.h"
+# include "hstio.h"
 
 # include   "wf3.h"
 # include   "wf3rej.h"
 # include   "wf3err.h"
+# include   "wf3info.h"
 # include   "rej.h"
 
 static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
@@ -43,6 +44,13 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
     26-Aug-2008   H. Bushouse     Set non_zero=nimgs when resetting efrac for 
                                   the case where all inputs have 0 exptime.
                                   This will allow bias images to process.
+    14-Dec-2011   H. Bushouse     Upgraded to pass new bunit array to and from
+				  all functions that need it, in order to
+				  handle input data that are in count rates.
+				  (PR 69969; Trac #814).
+  30-Aug-12       M. Sosey        Checks the value of EXPFLAG in all the input image and if
+                            any one image contains something other than NORMAL, it reports
+                            the value as MIXED in the output crj header. PR #72001
 */
 
 int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
@@ -54,6 +62,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     IODescPtr   ipdq[MAX_FILES];    /* data quality image descriptor */
     float       skyval[MAX_FILES];  /* background DN values */
     float       efac[MAX_FILES];    /* exposure factors */
+    DataUnits	bunit[MAX_FILES];   /* image data units */
     multiamp    noise;              /* readout noise */
     multiamp    gain;               /* A-to-D gain factors */
     float       exptot;
@@ -97,17 +106,19 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     int     rej_check (IRAFPointer, int, int, clpar *, int [],
 		       char [][SZ_FNAME+1], int [], IODescPtr [], IODescPtr [],
-		       multiamp *, multiamp *, int *, int *, int);
+		       multiamp *, multiamp *, int *, int *, int, char []);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
-			double *);
+			double *, DataUnits []);
     int     rejpar_in (clpar *, int [], int, float,   int *, float []);
-    void    rej_sky (char *, IODescPtr [], IODescPtr [], int, short, float []);
+    void    rej_sky (char *, IODescPtr [], IODescPtr [], int, short, float [],
+		     DataUnits [], float []);
     void    cr_history (SingleGroup *, clpar *, int, int);
     int     rej_init (IODescPtr [], IODescPtr [], clpar *, int, int, int,
-                multiamp, multiamp, float [], float [], SingleGroup *, float *);
+                multiamp, multiamp, float [], float [], DataUnits [],
+		SingleGroup *, float *);
     int     rej_loop (IODescPtr [], IODescPtr [], char [][SZ_FNAME+1],
                 int [], int, clpar *, int, int, int, float [], multiamp,
-		multiamp, float [], float [], FloatTwoDArray *,
+		multiamp, float [], float [], DataUnits [], FloatTwoDArray *,
 		FloatTwoDArray *, float *, ShortTwoDArray *, int *, char *);
     int     PutKeyFlt (Hdr *, char *, float, char *);
     int     PutKeyDbl (Hdr *, char *, double, char *);
@@ -125,6 +136,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     void    PrSwitch (char *, int);
     void    FindAsnRoot (char *, char *);
     void    initmulti (multiamp *);
+    char    expflagFinal[]="NORMAL"; /*24 char keyword max in header */
 
     /* -------------------------------- begin ------------------------------- */
 
@@ -190,7 +202,8 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     
     /* Calculate the scaling factors due to different exposure time */
     strcpy (par->expname, "EXPTIME");
-    if (cr_scaling (par->expname, tpin, efac, &nimgs, &expend, &expstart)) {
+    if (cr_scaling (par->expname, tpin, efac, &nimgs, &expend, &expstart,
+		    bunit)) {
         WhichError (status);
         return (status);
     }
@@ -231,7 +244,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
         /* Open input files and temporary files, check the parameters */
         if (rej_check (tpin, extver, numext, par, newpar, imgname, ext,
-            ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs)) {
+            ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs, expflagFinal)) {
             WhichError (status);
             return(status);
         }
@@ -240,7 +253,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         PrSwitch ("shadcorr", par->shadcorr);
 
         /* Read in the parameters */
-        if (rejpar_in (par, newpar, nimgs, exptot,   &niter, sigma) )
+        if (rejpar_in (par, newpar, nimgs, exptot, &niter, sigma) )
             return(status);
 
         /* Allocate array space */
@@ -248,7 +261,8 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         work    = calloc (nimgs*dim_x, sizeof(float));
 
         /* Calculate the sky levels */
-        rej_sky (par->sky, ipsci, ipdq, nimgs, par->badinpdq, skyval);
+        rej_sky (par->sky, ipsci, ipdq, nimgs, par->badinpdq, efac,
+		 bunit, skyval);
         if (status != WF3_OK) {
             WhichError (status);
             return (status);
@@ -288,7 +302,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
             /* Compute the initial pixel values to be used to compare against
 	    ** all images. */
             if (rej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y, 
-			  noise, gain, efac, skyval, &sg, work)) {
+			  noise, gain, efac, skyval, bunit, &sg, work)) {
                 WhichError(status);
                 closeSciDq(nimgs, ipsci, ipdq, par);
                 return (status);
@@ -299,8 +313,9 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
             /* Do the iterative cosmic ray rejection calculations */
             if (rej_loop (ipsci, ipdq, imgname, ext, nimgs, par, niter, dim_x,
-		      dim_y, sigma, noise, gain, efac, skyval, &sg.sci.data,
-		      &sg.err.data, efacsum, &sg.dq.data, &nrej, shadref.name)){
+		      dim_y, sigma, noise, gain, efac, skyval, bunit,
+		      &sg.sci.data, &sg.err.data, efacsum, &sg.dq.data, &nrej,
+		      shadref.name)){
                 WhichError(status);
                 closeSciDq(nimgs, ipsci, ipdq, par);
                 return (status);
@@ -373,6 +388,8 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej/texpt, 
 		   "Cosmic ray impact rate (pixels/sec)");
         PutKeyFlt (sg.globalhdr, "EXPTIME", exptot, "");
+        PutKeyStr (sg.globalhdr, "EXPFLAG", expflagFinal,
+                "Exposure flag for combined dataset");
         if (par->shadcorr) {
             logit = 0;
             if (UpdateSwitch ("SHADCORR", par->shadcorr, sg.globalhdr, &logit))
