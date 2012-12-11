@@ -14,9 +14,9 @@
 # include "acserr.h"
 
 /* This routine subtracts the dark image from x (in-place).
- For CCD data, the dark image is multiplied by the exposure time
- before subtracting.  The dark time is just the
- exposure time; it DOES NOT INCLUDE the idle time since the last
+ For CCD data, the dark image is multiplied by the dark time
+ before subtracting.  The dark time is the exposure time + FLASHDUR;
+ for post-SM4 non-BIAS WFC, it also INCLUDES the idle time since the last
  flushing of the chip or the readout time.
  
  For MAMA data, the dark image is just multiplied by the exposure time
@@ -50,6 +50,8 @@
  and use it instead of EXPTIME for scaling dark image.
  Warren Hack, 2002 Apr 24:
  Reverted back to using EXPTIME for scaling dark image.
+ Pey Lian Lim, 2012 Dec 11:
+ Now use DARKTIME for scaling dark image.
  */
 
 int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
@@ -61,6 +63,8 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
    */
   
   extern int status;
+
+  const float darkscaling = 3.0;  /* Extra idle time */
   
   SingleGroupLine y, z;	/* y and z are scratch space */
   int extver = 1;		/* get this imset from dark image */
@@ -73,6 +77,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   float mean, dark;
   float weight, wdark;    /* weights for line averages */
   int update;
+  float darktime;
   
   int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
   int sub1d (SingleGroup *, int, SingleGroupLine *);
@@ -85,6 +90,19 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
 	initSingleGroupLine (&y);
 	
 	scilines = x->sci.data.ny;
+
+  /* Compute DARKTIME */
+  /* SBC does not have FLASH keywords */
+  if (acs2d->detector == MAMA_DETECTOR)
+    darktime = acs2d->exptime;
+  else {
+    darktime = acs2d->exptime + acs2d->flashdur;
+
+    /* Post-SM4 non-BIAS WFC only */
+    /* TARGNAME unavailable, assume EXPTIME=0 means BIAS */
+    if (acs2d->detector == WFC_CCD_DETECTOR && acs2d->expstart > SM4MJD && acs2d->exptime > 0)
+      darktime += darkscaling;
+  }
   
 	/* Compute correct extension version number to extract from
    reference image to correspond to CHIP in science data.
@@ -156,7 +174,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
 			return (status);
     }
     
-    multk1d(&z, acs2d->exptime);
+    multk1d(&z, darktime);
     
     AvgSciValLine (&z, acs2d->sdqflags, &dark, &wdark);
     
