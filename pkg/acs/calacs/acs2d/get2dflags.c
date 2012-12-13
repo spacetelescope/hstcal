@@ -120,41 +120,43 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs2d, int *missing) {
  */
 
 static int checkDark (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
-  
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
-   int *missing     io: incremented if the file is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
-  
-	extern int status;
-  
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-	void MissingFile (char *, char *, int *);
-  
-	if (acs2d->darkcorr == PERFORM) {
-    
-    if (GetSwitch (phdr, "DARKCORR", &calswitch))
-      return (status);
-    if (calswitch == COMPLETE) {
-      acs2d->darkcorr = OMIT;
-      return (status);
-    }
-    
+
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs2d   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+     */
+
+    extern int status;
+
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+
+    if (acs2d->darkcorr == PERFORM && acs2d->pctecorr != PERFORM) {
+
+        if (GetSwitch (phdr, "DARKCORR", &calswitch))
+            return (status);
+
+        if (calswitch == COMPLETE) {
+            acs2d->darkcorr = OMIT;
+            return (status);
+        }
+
     if (GetImageRef (acs2d->refnames, phdr,
                      "DARKFILE", &acs2d->dark, &acs2d->darkcorr))
-      return (status);
+        return (status);
+
     if (acs2d->dark.exists != EXISTS_YES)
-      MissingFile ("DARKFILE", acs2d->dark.name, missing);
+        MissingFile ("DARKFILE", acs2d->dark.name, missing);
     
     if (acs2d->darkcorr == PERFORM)
-      (*nsteps)++;
-	}
-  
-	return (status);
+       (*nsteps)++;
+    }
+
+    return (status);
 }
 
 /* If this step is to be performed, check for the existence of the
@@ -162,41 +164,43 @@ static int checkDark (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  */
 
 static int checkDarkCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
-  
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
-   int *missing     io: incremented if the file is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
-  
-	extern int status;
-  
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-	void MissingFile (char *, char *, int *);
-  
-	if (acs2d->darkcorr == PERFORM) {
-    
-    if (GetSwitch (phdr, "DARKCORR", &calswitch))
-      return (status);
-    if (calswitch == COMPLETE) {
-      acs2d->darkcorr = OMIT;
-      return (status);
+
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs2d   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+     */
+
+    extern int status;
+
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+
+    if (acs2d->darkcorr == PERFORM && acs2d->pctecorr == PERFORM) {
+
+        if (GetSwitch (phdr, "DARKCORR", &calswitch))
+            return (status);
+
+        if (calswitch == COMPLETE) {
+            acs2d->darkcorr = OMIT;
+            return (status);
+        }
+
+        if (GetImageRef (acs2d->refnames, phdr,
+                         "DRKCFILE", &acs2d->darkcte, &acs2d->darkcorr))
+            return (status);
+
+        if (acs2d->darkcte.exists != EXISTS_YES)
+            MissingFile ("DRKCFILE", acs2d->darkcte.name, missing);
+
+        if (acs2d->darkcorr == PERFORM)
+            (*nsteps)++;
     }
-    
-    if (GetImageRef (acs2d->refnames, phdr,
-                     "DRKCFILE", &acs2d->darkcte, &acs2d->darkcorr))
-      return (status);
-    if (acs2d->darkcte.exists != EXISTS_YES)
-      MissingFile ("DRKCFILE", acs2d->darkcte.name, missing);
-    
-    if (acs2d->darkcorr == PERFORM)
-      (*nsteps)++;
-	}
-  
-	return (status);
+
+    return (status);
 }
 
 /* Check whether we should assign initial values to the data quality
