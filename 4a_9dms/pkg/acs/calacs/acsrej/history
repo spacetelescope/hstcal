@@ -1,0 +1,73 @@
+28 Sept 1999 (WJH)
+        - Revised the use of multi-amp gain and noise values in
+            'acsrej_init.c' to follow what was done in 'acsrej_loop.c'.
+            This methods assigns the two possible values to each line and
+            loops over 0-ampx for the first value, and ampx-dimx for the 
+            second value, eliminating any 'if...else' checks.
+        - Fixed the buffer management in 'acsrej_loop.c'. 
+            + reset the 'sum' and 'sumvar' line buffers for each line.
+            + normalized the data for 'pic' buffer as it is read in
+                so entire buffer has the same normalization, rather than
+                having 2 lines of un-normalized data in at all times.  This
+                affected the labelling of SPILL pixels when a HIT is 
+                detected.  
+            + short-circuited SPILL pixel checking when 'radius'
+                (variable 'width') is set to 0.
+            + simplified the indexing of the SPILL checking loops
+            + restored the simpler logic used for calculating the 
+                ERROR arrays.  
+            + established 2 new line buffers (zerofbuf and zerosbuf)
+                which are all zero.  They are used with 'memcpy' to 
+                set all other line buffers (sum,sumvar,buf,bufdq,...)
+                to zero more efficiently/cleanly than with a 'for()' loop.
+            + revised scrolling functions (scroll*Buff) to simply
+                use 'memcpy' once then return when CRRADIUS is ZERO
+                (i.e., width/bufflines == 1).
+            + revised scrolling functions to also use the ZERO buffers 
+                and 'memcpy' rather than 'memset' properly reset buffer
+                lines beyond the edge of the input image.
+            + fixed a memory leak in 'getShadBuff' for the buffer 'zl'
+        - Also changed the 'MINVAL' in 'acsrej_sky.c' to better reflect
+            the DN range of the ACS CCDs.    
+
+7 Sept 1999 (WJH)
+        - Finished major revisions based on code review.  
+            + Renamed 'acsrej.h' to 'rej.h' in this directory
+            + Modified all files except 'piksrt.c'.
+            + Removed 'key2.c' and use functions from 'lib/key.c' instead
+            + use only one set of multiamp values for 'gain' and 'readnoise'
+                This would be read in from the first image in the input list
+            + revised 'acsrej_check.c' to only read the first image when
+                possible.  
+            + changed the list of parameters in 'newpar' to correspond more
+                directly to the column names in CRREJTAB
+            + incorporated 'strtor' into 'readpar.c' and removed 'strtor.c'
+            + revised method of binning to calculate sky values in 'acsrej_sky'
+            + cleaned up 'cr_mode' calculation to properly calculate ranges
+            + revised 'acsrej_init' to use DQ array and SingleGroup
+            + consolidated 'shadcorr' calls as much as possible, as
+                well as cleaning up use of 'gn' and 'noise' values.
+            + renamed buffer functions in 'acsrej_loop' to better reflect
+                the type of variable that is used
+            + changed ShadBuff functions in 'acsrej_loop' to 'static'
+                and to pass all variables by value
+            + revised functions to call 'c_imtlen' as few times as possible
+            + modified most math functions and loops over pixels to set the 
+                upper limit as an INT variable and use it, rather than
+                referencing the value from the structure on each pixel.          
+
+Mar 30 1999
+        - Revision to use gain/readnoise arrays directly instead of 
+            calling a function every pixel to get the values.  Also, 
+            status only set to error conditions, not to OK.  
+            
+Nov 24 1998 
+		- First complete version for CALACS with trailer file management,
+			line-by-line I/O and unified error handling within CALACS.
+			
+
+Jan 22 1998	- edit crrej_do.c such that the keyword NCOMBINE is added 
+		  to the output file's science extension header, instead of 
+		  to the primary header.
+		- edit cr_history.c to replace put_key_X calls with PutKeyX.
+		- edit key2.c to print a message when a new keyword is added.
