@@ -1,3 +1,6 @@
+### 12-Dec-2012 - PLL -- Version 8.1.0
+    FLSHCORR moved from ACSCCD to ACS2D. Added support for FLSCFILE.
+
 ### 12-Dec-2012 - PLL -- Version 8.0.7
     DARKCORR uses new time scaling to account for FLASHDUR and extra 3 secs.
     Fixed minor bug in checking whether DRKCFILE exists.

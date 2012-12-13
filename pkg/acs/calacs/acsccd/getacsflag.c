@@ -11,7 +11,6 @@ static int checkBias (Hdr *, ACSInfo *, int *, int *);
 static int checkBlev (Hdr *, ACSInfo *, int *, int *);
 static int checkCCD (Hdr *, ACSInfo *, int *);
 static int checkDQI (Hdr *, ACSInfo *, int *, int *);
-static int checkFlash (Hdr *, ACSInfo *, int *, int *);
 static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
 
 /* This routine gets the names of reference images and tables from the
@@ -25,6 +24,10 @@ static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
  Warren Hack, 2001 Feb 7:
  Finished revisions for supporting Post-Flash
  processing.
+ **
+
+ Pey Lian Lim, 2012 Dec 12:
+ Moved FLSHCORR to ACS2D.
  **
  */
 
@@ -64,9 +67,6 @@ int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 	}
 
 	if (checkBias (phdr, acs, &missing, &nsteps))
-    return (status);
-
-	if (checkFlash (phdr, acs, &missing, &nsteps))
     return (status);
 
   if (checkPCTE (phdr, acs, &missing, &nsteps))
@@ -201,52 +201,6 @@ static int checkBlev (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 		}
 
     if (acs->blevcorr == PERFORM)
-      (*nsteps)++;
-	}
-
-	return (status);
-}
-
-/* If this step is to be performed, check for the existence of the
- post-flash file.  If it exists, get the pedigree and descrip keyword values.
- */
-
-static int checkFlash (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
-
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs   i: switches, file names, etc
-   int *missing     io: incremented if the file is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
-
-	extern int status;
-
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-	void MissingFile (char *, char *, int *);
-
-	/* Are we supposed to do this step? */
-	if (acs->flashcorr == PERFORM) {
-
-    if (GetSwitch (phdr, "FLSHCORR", &calswitch)) {
-      status = ACS_OK;
-      if (GetSwitch (phdr, "POSTFLSH", &calswitch))
-        return (status);
-    }
-    if (calswitch == COMPLETE) {
-      acs->flashcorr = OMIT;
-      return (status);
-    }
-
-    if (GetImageRef (acs->refnames, phdr,
-                     "FLSHFILE", &acs->flash, &acs->flashcorr))
-      return (status);
-    if (acs->flash.exists != EXISTS_YES)
-      MissingFile ("FLSHFILE", acs->flash.name, missing);
-
-    if (acs->flashcorr == PERFORM)
       (*nsteps)++;
 	}
 

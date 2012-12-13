@@ -24,6 +24,9 @@ void InitCCDTrl (char *, char *, int);
  
  Warren Hack, 2000 Sept 11:
  Revised to support post-flash processing.
+
+ Pey Lian Lim, 2012, Dec 12:
+ Moved FLSHCORR to ACS2D.
  
  **	Not much modification from the basic outline
  **		followed in CALSTIS1...
@@ -87,7 +90,6 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw, RefFileInfo *refnames,
 	acs.atodcorr = ccd_sw->atodcorr;
 	acs.blevcorr = ccd_sw->blevcorr;
 	acs.biascorr = ccd_sw->biascorr;
-	acs.flashcorr = ccd_sw->flashcorr;
   acs.pctecorr = ccd_sw->pctecorr;
 	acs.noisecorr = PERFORM;
 	acs.printtime = printtime;

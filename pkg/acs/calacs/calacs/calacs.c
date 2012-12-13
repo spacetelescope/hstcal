@@ -44,6 +44,8 @@
  update the ASN_STAT keyword in the ASN table header.
  MRD, 2011 Mar 21:
  Updated CopyFFile so that it updates the FILENAME header keyword
+ PLL, 2012 Dec 12:
+ Moved FLSHCORR from ACSCCD to ACS2D.
  */
 
 
@@ -1069,11 +1071,11 @@ static void SetACSSw (CalSwitch *sci_sw, CalSwitch *acsccd_sci_sw, CalSwitch *ac
 	acsccd_sci_sw->atodcorr = sci_sw->atodcorr;
 	acsccd_sci_sw->blevcorr = sci_sw->blevcorr;
 	acsccd_sci_sw->biascorr = sci_sw->biascorr;
-	acsccd_sci_sw->flashcorr = sci_sw->flashcorr;
   acsccd_sci_sw->pctecorr = sci_sw->pctecorr;
 	acsccd_sci_sw->glincorr = OMIT;
 	acsccd_sci_sw->lflgcorr = OMIT;
 	acsccd_sci_sw->darkcorr = OMIT;
+  acsccd_sci_sw->flashcorr = OMIT;
 	acsccd_sci_sw->flatcorr = OMIT;
 	acsccd_sci_sw->shadcorr = OMIT;
 	acsccd_sci_sw->photcorr = OMIT;
@@ -1087,9 +1089,9 @@ static void SetACSSw (CalSwitch *sci_sw, CalSwitch *acsccd_sci_sw, CalSwitch *ac
 	acs2d_sci_sw->glincorr = sci_sw->glincorr;
 	acs2d_sci_sw->lflgcorr = sci_sw->lflgcorr;
 	acs2d_sci_sw->biascorr = sci_sw->biascorr;
-	acs2d_sci_sw->flashcorr = sci_sw->flashcorr;
   acs2d_sci_sw->pctecorr = sci_sw->pctecorr;
 	acs2d_sci_sw->darkcorr = sci_sw->darkcorr;
+  acs2d_sci_sw->flashcorr = sci_sw->flashcorr;
 	acs2d_sci_sw->flatcorr = sci_sw->flatcorr;
 	acs2d_sci_sw->shadcorr = sci_sw->shadcorr;
 	acs2d_sci_sw->photcorr = sci_sw->photcorr;
@@ -1125,8 +1127,6 @@ static void ResetACSSw (CalSwitch *acsccd_sci_sw, CalSwitch *acs2d_sci_sw) {
     acs2d_sci_sw->blevcorr = OMIT;
 	if (acsccd_sci_sw->biascorr == PERFORM)
     acs2d_sci_sw->biascorr = OMIT;
-	if (acsccd_sci_sw->flashcorr == PERFORM)
-    acs2d_sci_sw->flashcorr = OMIT;
 }
 
 # define FITS_BUFSIZE  2880	/* size of a FITS block */

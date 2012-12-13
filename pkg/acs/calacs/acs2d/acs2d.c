@@ -79,6 +79,7 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	acs2d.glincorr = acs2d_sw->glincorr;
 	acs2d.lflgcorr = acs2d_sw->lflgcorr;
 	acs2d.darkcorr = acs2d_sw->darkcorr;
+  acs2d.flashcorr = acs2d_sw->flashcorr;
 	acs2d.flatcorr = acs2d_sw->flatcorr;
 	acs2d.shadcorr = acs2d_sw->shadcorr;
 	acs2d.photcorr = acs2d_sw->photcorr;

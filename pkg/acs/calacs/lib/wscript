@@ -24,12 +24,12 @@ def build(bld):
             ../acs2d/acs2d.c   ../acs2d/do2d.c   ../acs2d/dodark.c
             ../acs2d/doflat.c   ../acs2d/dononlin.c ../acs2d/dophot.c
             ../acs2d/doshad.c   ../acs2d/dospot.c   ../acs2d/get2dflags.c
-            ../acs2d/getlintab.c   ../acs2d/getspottab.c
+            ../acs2d/getlintab.c   ../acs2d/getspottab.c ../acs2d/doflash.c
             ../acs2d/photmode.c ../acs2d/sanity2d.c
 
             ../acsccd/acsccd.c   ../acsccd/blevdrift.c ../acsccd/blevfit.c
             ../acsccd/doatod.c   ../acsccd/dobias.c ../acsccd/doblev.c
-            ../acsccd/doccd.c   ../acsccd/doflash.c ../acsccd/findblev.c
+            ../acsccd/doccd.c    ../acsccd/findblev.c
             ../acsccd/findover.c ../acsccd/getacsflag.c
             ../acsccd/getccdsw.c ../acsccd/blev_funcs_postsm4.c
             ../acsccd/dopcte.c ../acsccd/pcte_fixycte.c ../acsccd/pcte_funcs.c

@@ -23,6 +23,8 @@
  Added Post-FLASH processing support.
  Warren Hack, 2002 March 18:
  Added history reporting on overscan table.
+ Pey Lian Lim, 2012 Dec 12:
+ Added support for CTE corrected post-flash.
  
  */
 
@@ -97,28 +99,33 @@ int biasHistory (ACSInfo *acs, Hdr *phdr) {
   
 	return (status);
 }
+
 int flashHistory (ACSInfo *acs, Hdr *phdr) {
+
+    extern int status;
+
+    int logit;  /* true if we should log file name */
+    int OmitStep (int);
+    int ImgHistory (RefImage *, Hdr *);
+    int UpdateSwitch (char *, int, Hdr *, int *);
   
-	extern int status;
-  
-	int logit;			/* true if we should log file name */
-	int OmitStep (int);
-	int ImgHistory (RefImage *, Hdr *);
-	int UpdateSwitch (char *, int, Hdr *, int *);
-  
-	if (OmitStep (acs->flashcorr))
-    return (status);
-  
-	if (UpdateSwitch ("FLSHCORR", acs->flashcorr, phdr, &logit))
-    return (status);
-  
-	/* Write history records for the bias image. */
-	if (logit) {
-    if (ImgHistory (&acs->flash, phdr))
-      return (status);
+    if (OmitStep (acs->flashcorr))
+        return (status);
+
+    if (UpdateSwitch ("FLSHCORR", acs->flashcorr, phdr, &logit))
+        return (status);
+
+    if (logit) {
+        if (acs->pctecorr == PERFORM) {
+            if (ImgHistory (&acs->flashcte, phdr))
+                return (status);
+        } else {
+            if (ImgHistory (&acs->flash, phdr))
+                return (status);
 	}
-  
-	return (status);
+    }
+
+    return (status);
 }
 
 int blevHistory (ACSInfo *acs, Hdr *phdr, int done, int driftcorr) {

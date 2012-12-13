@@ -24,6 +24,9 @@ static void FreeNames (char *, char *, char *, char *);
  Warren Hack, 1998 June 1:
  Revised for ACS... It will work on 1 ACS image at a time. Based on 
  original CALSTIS code by Phil Hodge.
+
+ Pey Lian Lim, 2012 Dec 12:
+ Moved FLSHCORR to ACS2D.
  */
 
 int main (int argc, char **argv) {
@@ -104,9 +107,6 @@ int main (int argc, char **argv) {
     } else if (strcmp (argv[i], "-bias") == 0) {
 			ccd_sw.biascorr = PERFORM;
 			switch_on = 1;
-    } else if (strcmp (argv[i], "-flash") == 0) {
-			ccd_sw.flashcorr = PERFORM;
-			switch_on = 1;
     } else if (argv[i][0] == '-') {
       for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
@@ -147,10 +147,9 @@ int main (int argc, char **argv) {
 	/* Was no calibration switch specified on command line? */
 	if (!switch_on) {	/* default values (mostly PERFORM) */
     ccd_sw.dqicorr  = DefSwitch ("dqicorr");
-    ccd_sw.atodcorr = DefSwitch ("atodcorr");
+    ccd_sw.atodcorr = DefSwitch ("atodcorr"); /* OMIT */
     ccd_sw.blevcorr = DefSwitch ("blevcorr");
     ccd_sw.biascorr = DefSwitch ("biascorr");
-    ccd_sw.flashcorr = DefSwitch ("flshcorr");
 	}
   
 	/* Expand the templates. */

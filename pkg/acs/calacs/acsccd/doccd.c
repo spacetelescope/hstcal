@@ -15,6 +15,8 @@
  reports bias levels for each AMP. 
  
  10-Dec-2001 WJH: Added update of SIZAXIS keywords to reflect trimmed size.
+
+ 11-Dec-2012 PLL: Moved FLSHCORR stuff to ACS2D.
  
  ** This code is a trimmed down version of CALSTIS1 do2d.c.  
  */
@@ -30,7 +32,6 @@
 
 static void AtoDMsg (ACSInfo *, int);
 static void BiasMsg (ACSInfo *, int);
-static void FlashMsg (ACSInfo *, int);
 static void PCTEMsg (ACSInfo *, int);
 static void BlevMsg (ACSInfo *, int);
 static void dqiMsg (ACSInfo *, int);
@@ -47,7 +48,6 @@ int DoCCD (ACSInfo *acs_info) {
   ACSInfo * acs;    /* hold a copy of the acs_info struct for each extension */
   int option = 0;
   float meanblev;		/* mean value of overscan bias (for history) */
-  float meanflash;	/* mean value of post-flash image (for history) */
   int driftcorr;	/* true means bias level was corrected for drift */
   int done;	/* true means the input SingleGroup has been freed */
   int sizex, sizey; 	/* size of output image */
@@ -61,8 +61,6 @@ int DoCCD (ACSInfo *acs_info) {
   int to_electrons(ACSInfo *, SingleGroup *);
   int doBias (ACSInfo *, SingleGroup *);
   int biasHistory (ACSInfo *, Hdr *);
-  int doFlash (ACSInfo *, SingleGroup *, float *);
-  int flashHistory (ACSInfo *, Hdr *);
   int doBlev (ACSInfo *, SingleGroup *, int, float *, int *, int *);
   int destripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1);
   int blevHistory (ACSInfo *, Hdr *, int, int);
@@ -458,45 +456,6 @@ int DoCCD (ACSInfo *acs_info) {
   }
   /**************************************************************************/
   
-  /**************************************************************************/
-  /* Subtract post-flash image. */
-  FlashMsg(&acs[0], 1);
-
-  if (acs_info->flashcorr == PERFORM) {
-    for (i = 0; i < acs_info->nimsets; i++) {
-      /* Initialize this to a set value... */
-      meanflash = 0.0;
-      
-      if (doFlash(&acs[i], &x[i], &meanflash))
-        return (status);
-      
-      /* Report mean of post-flash image subtracted from science image,
-       if it was performed...*/
-      if (meanflash > 0.){
-        sprintf(MsgText,"Mean of post-flash image (MEANFLSH) = %g",meanflash);
-        trlmessage(MsgText);
-        
-        /* If they want to add this keyword, we can uncomment this code. */
-        if (PutKeyFlt(&x[i].sci.hdr, "MEANFLSH", meanflash,
-                       "mean of post-flash values subtracted"))
-          return (status);	    
-        
-        PrSwitch ("flshcorr", COMPLETE);
-      } else {
-        PrSwitch ("flshcorr", SKIPPED);
-      }
-    }
-    
-    if (acs_info->printtime)
-      TimeStamp("FLSHCORR complete", acs->rootname);
-  }
-
-  if (!OmitStep(acs_info->flashcorr)) {
-    if (flashHistory(&acs[0], x[0].globalhdr))
-      return (status);
-  }
-  /**************************************************************************/
-
 	/* Write this imset to the output file.  The
    CAL_VER and FILENAME keywords will be updated, and the primary
    header will be written.
@@ -601,22 +560,6 @@ static void BiasMsg (ACSInfo *acs, int extver) {
     
     PrRefInfo ("biasfile", acs->bias.name, acs->bias.pedigree,
                acs->bias.descrip, "");
-	}
-}
-
-static void FlashMsg (ACSInfo *acs, int extver) {
-  
-	int OmitStep (int);
-	void PrSwitch (char *, int);
-	void PrRefInfo (char *, char *, char *, char *, char *);
-  
-	trlmessage ("\n");
-	PrSwitch ("flshcorr", acs->flashcorr);
-  
-	if (extver == 1 && !OmitStep (acs->flashcorr)) {
-    
-    PrRefInfo ("flshfile", acs->flash.name, acs->flash.pedigree,
-               acs->flash.descrip, "");
 	}
 }
 

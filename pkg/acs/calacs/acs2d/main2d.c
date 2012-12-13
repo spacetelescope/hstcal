@@ -23,6 +23,9 @@ static void FreeNames (char *, char *, char *, char *);
 
    Warren Hack, 1998 June 9:
    	Initial version for ACS.
+
+   Pey Lian Lim, 2012 Dec 12:
+        Moved FLSHCORR from ACSCCD.
 */
 
 int main (int argc, char **argv) {
@@ -96,6 +99,9 @@ int main (int argc, char **argv) {
 	    } else if (strcmp (argv[i], "-dark") == 0) {
 		acs2d_sw.darkcorr = PERFORM;
 		switch_on = 1;
+        } else if (strcmp (argv[i], "-flash") == 0) {
+            acs2d_sw.flashcorr = PERFORM;
+            switch_on = 1;
 	    } else if (strcmp (argv[i], "-flat") == 0) {
 		acs2d_sw.flatcorr = PERFORM;
 		switch_on = 1;
@@ -132,7 +138,7 @@ int main (int argc, char **argv) {
 	    printf ("  command-line switches:\n");
 	    printf ("       -dqi  -atod\n");
 	    printf ("       -glin -lflg\n");
-	    printf ("       -dark -flat -shad -phot -stat\n");
+	    printf ("       -dark -flash -flat -shad -phot -stat\n");
 	    FreeNames (inlist, outlist, input, output);
 	    exit (ERROR_RETURN);
 	}
@@ -149,8 +155,9 @@ int main (int argc, char **argv) {
 	    acs2d_sw.glincorr = DefSwitch ("glincorr");
 	    acs2d_sw.lflgcorr = DefSwitch ("lflgcorr");
 	    acs2d_sw.darkcorr = DefSwitch ("darkcorr");
+        acs2d_sw.flashcorr = DefSwitch ("flshcorr");  /* OMIT */
 	    acs2d_sw.flatcorr = DefSwitch ("flatcorr");
-	    acs2d_sw.shadcorr = DefSwitch ("shadcorr");
+        acs2d_sw.shadcorr = DefSwitch ("shadcorr");  /* OMIT */
 	    acs2d_sw.photcorr = DefSwitch ("photcorr");
 	}
 

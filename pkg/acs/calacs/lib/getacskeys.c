@@ -19,6 +19,7 @@
  11-Feb-1999 WJH - Read EXPTIME from Primary header instead of SCI hdr
  29-Oct-2001 WJH - Updated to use default value for CCDOFST[A,B,C.D] of 3
  4-Dec-2001 WJH - Read in EXPSTART and EXPEND for computing darktime.
+ 12-Dec-2012 PLL - Changed FLASHDUR and FLASHSTA defaults.
  */
 
 int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
@@ -147,10 +148,10 @@ int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
     if (GetKeyInt (phdr, "BINAXIS2", USE_DEFAULT, 1, &acs->binaxis[1]))
       return (status);
     
-    if (GetKeyFlt (phdr, "FLASHDUR", USE_DEFAULT, 1.0, &acs->flashdur))
-      return (status);
-    if (GetKeyStr (phdr, "FLASHSTA", NO_DEFAULT, "",acs->flashstatus, ACS_CBUF))
-      return (status);
+  if (GetKeyFlt (phdr, "FLASHDUR", USE_DEFAULT, 0.0, &acs->flashdur))
+    return (status);
+  if (GetKeyStr (phdr, "FLASHSTA", USE_DEFAULT, "", acs->flashstatus, ACS_CBUF))
+    return (status);
     
 	}
   

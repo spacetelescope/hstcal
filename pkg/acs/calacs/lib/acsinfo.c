@@ -16,6 +16,7 @@
             and 'ccdbias' with 'ccdbias[4]'. removed 'filtcorr'.
      4-Dec-2001 WJH - added expend, along with expstart.
      17-Apr-2002 WJH - removed all references to 'statcorr'
+     12-Dec-2012 PLL - added CTE corrected flash reference file.
 */
 
 void ACSInit (ACSInfo *acs) {
@@ -116,7 +117,6 @@ void ACSInit (ACSInfo *acs) {
 
 	/* Initialize reference images and tables for ACSCCD */
 	InitRefImg (&(acs->bias));
-	InitRefImg (&(acs->flash));
 	InitRefTab (&(acs->bpix));
 	InitRefTab (&(acs->ccdpar));
 	InitRefTab (&(acs->oscn));
@@ -126,6 +126,8 @@ void ACSInit (ACSInfo *acs) {
 	/* Initialize reference images and tables for ACS2D */
 	InitRefImg (&(acs->dark));
   InitRefImg (&(acs->darkcte));
+  InitRefImg (&(acs->flash));
+  InitRefImg (&(acs->flashcte));
 	InitRefImg (&(acs->pflt));
 	InitRefImg (&(acs->dflt));
 	InitRefImg (&(acs->lflt));
