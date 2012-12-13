@@ -18,6 +18,8 @@
  Removed all references to 'statcorr' and STATFLAG. Always perform 'doStat'.
  Warren Hack, 2008 Jan 18:
  Added logic to trap negative values in MAMA data.
+ Pey Lian Lim, 2012 Dec 11:
+ Moved FLASHCORR stuff from ACSCCD.
  */
 
 # include <string.h>
@@ -29,6 +31,7 @@
 # include "acserr.h"
 
 static void DarkMsg (ACSInfo *, int, int);
+static void FlashMsg (ACSInfo *, int, int);
 static void dqiMsg (ACSInfo *, int);
 static void NonLinMsg (ACSInfo *, int);
 static void PhotMsg (ACSInfo *);
@@ -49,6 +52,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	SingleGroup x;	/* used for both input and output */
 	int option = 0;
 	float meandark;		/* mean value of dark (for history) */
+        float meanflash; /* mean value of post-flash image (for history) */
 	int gsat, lsat;		/* > 0 if saturated pixels found */
 	int done;	/* true means error array was initialized in donoise */
 	int i;
@@ -62,6 +66,8 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	int CCDHistory (ACSInfo *, Hdr *);
 	int doDark (ACSInfo *, SingleGroup *, float *);
 	int darkHistory (ACSInfo *, Hdr *);
+        int doFlash (ACSInfo *, SingleGroup *, float *);
+        int flashHistory (ACSInfo *, Hdr *);
 	int doDQI (ACSInfo *, SingleGroup *);
 	int dqiHistory (ACSInfo *, Hdr *);
 	int doFlat (ACSInfo *, int, SingleGroup *);
@@ -288,6 +294,32 @@ int Do2D (ACSInfo *acs2d, int extver) {
     if (darkHistory (acs2d, x.globalhdr))
       return (status);
 
+    /**************************************************************************/
+    /* Subtract post-flash image. */
+    FlashMsg(acs2d, extver, acs2d->pctecorr);
+
+    if (acs2d->flashcorr == PERFORM) {
+        if (doFlash(acs2d, &x, &meanflash))
+            return (status);
+
+        sprintf(MsgText, "Mean of post-flash image (MEANFLSH) = %g", meanflash);
+        trlmessage(MsgText);
+
+        if (PutKeyFlt(&x.sci.hdr, "MEANFLSH", meanflash,
+                      "mean of post-flash values subtracted"))
+            return (status);	    
+
+        PrSwitch ("flshcorr", COMPLETE);
+    
+        if (acs2d->printtime)
+            TimeStamp("FLSHCORR complete", acs2d->rootname);
+    }
+
+    if (extver == 1 && !OmitStep (acs2d->flashcorr))
+        if (flashHistory(acs2d, x.globalhdr))
+            return (status);
+    /**************************************************************************/
+
 	/*  These corrections are not yet ready to be run...  They require
    the use of Sections...
 
@@ -409,6 +441,27 @@ static void DarkMsg (ACSInfo *acs2d, int extver, int pctecorr) {
                  acs2d->dark.descrip, "");
     }
 	}
+}
+
+static void FlashMsg (ACSInfo *acs2d, int extver, int pctecorr) {
+
+    int OmitStep (int);
+    void PrSwitch (char *, int);
+    void PrRefInfo (char *, char *, char *, char *, char *);
+
+    trlmessage ("\n");
+    PrSwitch ("flshcorr", acs2d->flashcorr);
+
+    if (extver == 1 && !OmitStep (acs2d->flashcorr)) {
+
+        if (pctecorr == PERFORM) {
+            PrRefInfo ("flshfile", acs2d->flashcte.name,
+                       acs2d->flashcte.pedigree, acs2d->flashcte.descrip, "");
+        } else {
+            PrRefInfo ("flshfile", acs2d->flash.name,
+                       acs2d->flash.pedigree, acs2d->flash.descrip, "");
+        }
+    }
 }
 
 static void dqiMsg (ACSInfo *acs2d, int extver) {

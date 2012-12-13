@@ -4,4 +4,4 @@
 
 # define ACS_N_OMIT   2
 
-static char omitsw[ACS_N_OMIT][9] = {"atodcorr", "shadcorr"};
+static char omitsw[ACS_N_OMIT][9] = {"atodcorr", "shadcorr", "flshcorr"};

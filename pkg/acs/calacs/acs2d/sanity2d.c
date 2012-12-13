@@ -16,5 +16,7 @@ void Sanity2d (ACSInfo *acs2d) {
 	} else {
 
 	    acs2d->shadcorr = OMIT;
+        acs2d->flashcorr = OMIT;
+
 	}
 }

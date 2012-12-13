@@ -107,7 +107,6 @@ typedef struct {
 
     /* calibration images and tables for ACSCCD*/
     RefImage bias;      /* bias image */
-    RefImage flash;     /* post-flash image */
     RefTab bpix;        /* bad pixel table */
     RefTab ccdpar;      /* CCD parameters table */
     RefTab oscn;        /* Overscan parameters table */
@@ -118,6 +117,8 @@ typedef struct {
     /* calibration images and tables for ACS2D*/
     RefImage dark;      /* dark image */
     RefImage darkcte;   /* cte corrected dark */
+    RefImage flash;     /* post-flash image */
+    RefImage flashcte;  /* cte corrected post-flash */
     RefImage pflt;      /* pixel-to-pixel flat field */
     RefImage dflt;      /* delta flat */
     RefImage lflt;      /* low-order flat */

@@ -15,15 +15,13 @@ static int GetSw (Hdr *, char *, int *);
  
  07 May 2001 - Added code to read in FLSHCORR keyword when running ACSCCD.
  08 Mar 2011 MRD - Added code to read PCTECORR keyword.
- 
+ 12 Dec 2012 PLL - Moved FLSHCORR to ACS2D.
  */
 
 int GetccdSw (ACSInfo *acs, Hdr *phdr) {
   
-  
 	extern int status;
 	FitsKw key;		/* keyword location in header */
-  char flashkey[ACS_CBUF];
   
 	if (GetSw (phdr, "ATODCORR", &acs->atodcorr))
     return (status);
@@ -33,27 +31,6 @@ int GetccdSw (ACSInfo *acs, Hdr *phdr) {
     return (status);
 	if (GetSw (phdr, "DQICORR",  &acs->dqicorr))
     return (status);
-  
-	key = findKw (phdr, "FLSHCORR");
-	if (key == NotFound) {
-    sprintf(MsgText,"FLSHCORR keyword not found...");
-    trlwarn(MsgText);
-    
-    key = findKw (phdr, "POSTFLSH");
-    if (key != NotFound) {
-      sprintf(flashkey,"POSTFLSH");
-      /* Now warn the user to change keyword name to FLSHCORR. */
-      sprintf(MsgText,"Using old keyword POSTFLSH!");
-      trlwarn(MsgText);
-      sprintf(MsgText,"Please rename keyword to FLSHCORR in header.");
-      trlwarn(MsgText);
-    }
-	} else {
-    sprintf(flashkey,"FLSHCORR");
-  }
-  
-	if (GetSw (phdr, flashkey, &acs->flashcorr)) 
-    return(status);
   
   key = findKw (phdr, "PCTECORR");
   if (key == NotFound) {

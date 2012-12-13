@@ -9,6 +9,8 @@
 static int checkCCD (Hdr *, ACSInfo *, int *);
 static int checkDark (Hdr *, ACSInfo *, int *, int *);
 static int checkDarkCTE (Hdr *, ACSInfo *, int *, int *);
+static int checkFlash (Hdr *, ACSInfo *, int *, int *);
+static int checkFlashCTE (Hdr *, ACSInfo *, int *, int *);
 static int checkDQI (Hdr *, ACSInfo *, int *, int *);
 static int checkFlat (Hdr *, ACSInfo *, int *, int *);
 static int checkNonLin (Hdr *, ACSInfo *, int *, int *);
@@ -23,6 +25,8 @@ static int checkShad (Hdr *, ACSInfo *, int *, int *);
  Warren Hack, 2001 Oct 17:
  Replaced APERTAB and PHOTTAB checks with GRAPHTAB and COMPTAB
  in checkPhot.
+ Pey Lian Lim, 2012 Dec 12:
+ Moved FLASHCORR from ACSCCD. Removed POSTFLSH support per PR 44872.
  */
 
 int Get2dFlags (ACSInfo *acs2d, Hdr *phdr) {
@@ -50,7 +54,13 @@ int Get2dFlags (ACSInfo *acs2d, Hdr *phdr) {
   
   if (checkDarkCTE (phdr, acs2d, &missing, &nsteps))
     return (status);
-  
+
+  if (checkFlash (phdr, acs2d, &missing, &nsteps))
+    return (status);
+
+  if (checkFlashCTE (phdr, acs2d, &missing, &nsteps))
+    return (status);
+
 	if (checkFlat (phdr, acs2d, &missing, &nsteps))
     return (status);
   
@@ -120,41 +130,43 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs2d, int *missing) {
  */
 
 static int checkDark (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
-  
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
-   int *missing     io: incremented if the file is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
-  
-	extern int status;
-  
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-	void MissingFile (char *, char *, int *);
-  
-	if (acs2d->darkcorr == PERFORM) {
-    
-    if (GetSwitch (phdr, "DARKCORR", &calswitch))
-      return (status);
-    if (calswitch == COMPLETE) {
-      acs2d->darkcorr = OMIT;
-      return (status);
-    }
-    
+
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs2d   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+     */
+
+    extern int status;
+
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+
+    if (acs2d->darkcorr == PERFORM && acs2d->pctecorr != PERFORM) {
+
+        if (GetSwitch (phdr, "DARKCORR", &calswitch))
+            return (status);
+
+        if (calswitch == COMPLETE) {
+            acs2d->darkcorr = OMIT;
+            return (status);
+        }
+
     if (GetImageRef (acs2d->refnames, phdr,
                      "DARKFILE", &acs2d->dark, &acs2d->darkcorr))
-      return (status);
+        return (status);
+
     if (acs2d->dark.exists != EXISTS_YES)
-      MissingFile ("DARKFILE", acs2d->dark.name, missing);
+        MissingFile ("DARKFILE", acs2d->dark.name, missing);
     
     if (acs2d->darkcorr == PERFORM)
-      (*nsteps)++;
-	}
-  
-	return (status);
+       (*nsteps)++;
+    }
+
+    return (status);
 }
 
 /* If this step is to be performed, check for the existence of the
@@ -162,41 +174,177 @@ static int checkDark (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  */
 
 static int checkDarkCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
-  
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
-   int *missing     io: incremented if the file is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
-  
-	extern int status;
-  
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-	void MissingFile (char *, char *, int *);
-  
-	if (acs2d->darkcorr == PERFORM) {
-    
-    if (GetSwitch (phdr, "DARKCORR", &calswitch))
-      return (status);
-    if (calswitch == COMPLETE) {
-      acs2d->darkcorr = OMIT;
-      return (status);
+
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs2d   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+     */
+
+    extern int status;
+
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+
+    if (acs2d->darkcorr == PERFORM && acs2d->pctecorr == PERFORM) {
+
+        if (GetSwitch (phdr, "DARKCORR", &calswitch))
+            return (status);
+
+        if (calswitch == COMPLETE) {
+            acs2d->darkcorr = OMIT;
+            return (status);
+        }
+
+        if (GetImageRef (acs2d->refnames, phdr,
+                         "DRKCFILE", &acs2d->darkcte, &acs2d->darkcorr))
+            return (status);
+
+        if (acs2d->darkcte.exists != EXISTS_YES)
+            MissingFile ("DRKCFILE", acs2d->darkcte.name, missing);
+
+        if (acs2d->darkcorr == PERFORM)
+            (*nsteps)++;
     }
-    
-    if (GetImageRef (acs2d->refnames, phdr,
-                     "DRKCFILE", &acs2d->darkcte, &acs2d->darkcorr))
-      return (status);
-    if (acs2d->dark.exists != EXISTS_YES)
-      MissingFile ("DRKCFILE", acs2d->darkcte.name, missing);
-    
-    if (acs2d->darkcorr == PERFORM)
-      (*nsteps)++;
+
+    return (status);
+}
+
+/* If this step is to be performed, check for the existence of the
+ post-flash file.  If it exists, get the pedigree and descrip keyword values.
+ */
+
+static int checkFlash (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs2d   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+     */
+
+    extern int status;
+
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+
+    SingleGroup y;
+    double ltm[2], ltv[2];
+    const int extver=1;
+    int GetLT (Hdr *, double *, double *);
+
+    if (acs2d->flashcorr == PERFORM && acs2d->pctecorr != PERFORM) {
+
+        if (GetSwitch (phdr, "FLSHCORR", &calswitch))
+            return (status);
+
+        if (calswitch == COMPLETE) {
+            acs2d->flashcorr = OMIT;
+            return (status);
+        }
+
+        if (GetImageRef (acs2d->refnames, phdr,
+                         "FLSHFILE", &acs2d->flash, &acs2d->flashcorr))
+            return (status);
+
+        if (acs2d->flash.exists != EXISTS_YES)
+            MissingFile ("FLSHFILE", acs2d->flash.name, missing);
+
+        /* Error message if LTV not 0 */
+        initSingleGroup (&y);
+	getSingleGroup (acs2d->flash.name, extver, &y);
+        if (hstio_err())
+            return (status = OPEN_FAILED);
+        if (GetLT (&y.sci.hdr, ltm, ltv)) {
+            freeSingleGroup(&y);
+            return (status);
 	}
-  
-	return (status);
+        if ((ltv[0] != 0) || (ltv[1] != 0)) {
+            sprintf(MsgText, "FLSHFILE `%s' has untrimmed overscans.",
+                    acs2d->flash.name);
+            trlerror (MsgText);
+            freeSingleGroup(&y);
+            return (status = SIZE_MISMATCH);
+	}
+        freeSingleGroup(&y);
+
+        if (acs2d->flashcorr == PERFORM)
+            (*nsteps)++;
+    }
+
+    return (status);
+}
+
+/* If this step is to be performed, check for the existence of the
+ post-flash file.  If it exists, get the pedigree and descrip keyword values.
+ */
+
+static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs2d   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+     */
+
+    extern int status;
+
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+
+    SingleGroup y;
+    double ltm[2], ltv[2];
+    const int extver=1;
+    int GetLT0 (Hdr *, double *, double *);
+
+    if (acs2d->flashcorr == PERFORM && acs2d->pctecorr == PERFORM) {
+
+        if (GetSwitch (phdr, "FLSHCORR", &calswitch))
+            return (status);
+
+        if (calswitch == COMPLETE) {
+            acs2d->flashcorr = OMIT;
+            return (status);
+        }
+
+        if (GetImageRef (acs2d->refnames, phdr,
+                         "FLSCFILE", &acs2d->flashcte, &acs2d->flashcorr))
+            return (status);
+
+        if (acs2d->flashcte.exists != EXISTS_YES)
+            MissingFile ("FLSCFILE", acs2d->flashcte.name, missing);
+
+        /* Error message if LTV not 0 */
+        initSingleGroup (&y);
+	getSingleGroup (acs2d->flashcte.name, extver, &y);
+        if (hstio_err())
+            return (status = OPEN_FAILED);
+        if (GetLT (&y.sci.hdr, ltm, ltv)) {
+            freeSingleGroup(&y);
+            return (status);
+	}
+        if ((ltv[0] != 0) || (ltv[1] != 0)) {
+            sprintf(MsgText, "FLSCFILE `%s' has untrimmed overscans.",
+                    acs2d->flashcte.name);
+            trlerror (MsgText);
+            freeSingleGroup(&y);
+            return (status = SIZE_MISMATCH);
+	}
+        freeSingleGroup(&y);
+
+        if (acs2d->flashcorr == PERFORM)
+            (*nsteps)++;
+    }
+
+    return (status);
 }
 
 /* Check whether we should assign initial values to the data quality

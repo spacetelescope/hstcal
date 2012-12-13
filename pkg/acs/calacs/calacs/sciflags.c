@@ -18,7 +18,7 @@ static void MAMASanity (int, char *);
  Various flags are set (e.g. acs->basic_2d), depending on which calacs
  module will perform the calibration.  Basic 2-D reduction, 
  derived from 'calstis1', is divided into two parts; acsccd and acs2d.
- The steps dqicorr, atodcorr, postflsh and blevcorr
+ The steps dqicorr, atodcorr, blevcorr, and pctecorr
  constitute the acsccd part, and these are included with the 
  sci_basic_ccd flag rather than with sci_basic_2d which is 
  used for the acs2d steps.
@@ -30,6 +30,8 @@ static void MAMASanity (int, char *);
  Revised to add Post-Flash processing step
  Warren Hack, 2001 Oct 17:
  Replaced APERTAB and PHOTTAB with GRAPHTAB and COMPTAB
+ Pey Lian Lim, 2012 Dec 12:
+ Moved FLSHCORR from ACSCCD to ACS2D
  */
 
 int SciFlags (ACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
@@ -119,13 +121,6 @@ int SciFlags (ACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
     if (GetNewRef (phdr, "BIASFILE", sciref))
       return (status);
 	}
-	
-	if (sci_sw->flashcorr == PERFORM) {
-    acs->sci_basic_ccd = PERFORM;   refimage_used = 1;
-    CCDSanity (acs->detector, "FLSHCORR");
-    if (GetNewRef (phdr, "FLSHFILE", sciref))
-      return (status);
-	}
   
   if (sci_sw->pctecorr == PERFORM) {
     acs->sci_basic_ccd = PERFORM;   refimage_used = 1;
@@ -145,7 +140,21 @@ int SciFlags (ACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
     if (GetNewRef (phdr, "DRKCFILE", sciref))
       return (status);
 	}
-  
+
+    if (sci_sw->flashcorr == PERFORM) {
+        acs->sci_basic_2d = PERFORM;
+        refimage_used = 1;
+        CCDSanity (acs->detector, "FLSHCORR");
+
+        if (sci_sw->pctecorr == PERFORM) {
+            if (GetNewRef (phdr, "FLSCFILE", sciref))
+                return (status);
+	} else {
+            if (GetNewRef (phdr, "FLSHFILE", sciref))
+                return (status);
+	}
+    }
+
 	if (sci_sw->flatcorr == PERFORM) {
     acs->sci_basic_2d = PERFORM;   
 		refimage_used = 1;

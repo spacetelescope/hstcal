@@ -1,5 +1,6 @@
- 11-Dec-2012:  CALACS 8.0.7  DARKCORR uses new time scaling to account for
-                             FLASHDUR and extra 3 secs.
+ 12-Dec-2012:  CALACS 8.1.0 FLSHCORR moved to ACS2D. Added FLSCFILE.
+ 12-Dec-2012:  CALACS 8.0.7 DARKCORR uses new time scaling to account for
+                            FLASHDUR and extra 3s. Fixed DRKCFILE check bug.
  18-Jul-2012:  CALACS 8.0.6 Move FLSHCORR after PCTECORR.
  29-Mar-2012:  CALACS 8.0.1 Revert TRL filenames to OPUS requirements
  21-Jun-2011:  CALACS 7.0.0 Bring WFC CTE and stripe corrections to HSTCAL.
