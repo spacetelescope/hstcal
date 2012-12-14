@@ -1,3 +1,6 @@
+### 14-Dec-2012 - PLL -- Version 8.1.1
+    Fixed ACSREJ ERR calculations for data in ELECTRONS.
+
 ### 12-Dec-2012 - PLL -- Version 8.1.0
     FLSHCORR moved from ACSCCD to ACS2D. Added support for FLSCFILE.
 
