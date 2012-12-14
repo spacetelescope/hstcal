@@ -1,3 +1,4 @@
+ 14-Dec-2012:  CALACS 8.1.1 ACSREJ ERR now calculates correct ERR for ELECTRONS.
  12-Dec-2012:  CALACS 8.1.0 FLSHCORR moved to ACS2D. Added FLSCFILE.
  12-Dec-2012:  CALACS 8.0.7 DARKCORR uses new time scaling to account for
                             FLASHDUR and extra 3s. Fixed DRKCFILE check bug.
