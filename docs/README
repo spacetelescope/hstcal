@@ -1,7 +1,14 @@
 HSTCAL DOCUMENTATIONS
 =====================
 
-Pre-compiled PDFs for calxxx are included in this directory.
+For latest IRAFX weekly documentation builds of CALXXX, go to HSTCAL section
+in the corresponding links below.
 
-For latest IRAFX weekly documentation builds, go to
-http://ssb.stsci.edu/doc/stsci_python_x/
+CALACS in acstools
+http://ssb.stsci.edu/doc/stsci_python_x/acstools.doc/html/index.html
+
+CALSTIS in stistools
+http://ssb.stsci.edu/doc/stsci_python_x/stistools.doc/html/index.html
+
+CALWF3 in wfc3tools
+N/A
