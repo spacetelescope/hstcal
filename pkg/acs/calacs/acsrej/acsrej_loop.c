@@ -138,11 +138,13 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     float   sig2, psig2, rej2;  /* square of something */
     float   *exp2;              /* square of exptime per image*/
     float   scale, val, dum, pixsky;
-    short   crflag, nocr, dqpat;
+    short   sval, crflag, nocr, nospill, dqpat;
     short   maskdq;
 
     float   efacn, skyvaln, exp2n;
     int     newbias;
+
+    ShortTwoDArray dq2;         /* local array for storing output blv DQ vals */
 
     /* local data arrays */
     float   ***pic;
@@ -191,6 +193,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     dqpat = par->badinpdq;
     scale = par->scalense/100.;
     nocr = ~crflag;
+    nospill = ~SPILL;
     numpix = dim_x * dim_y;
     newbias = par->newbias;
 
@@ -308,10 +311,16 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     if (par->thresh <= 0.)
         psig2 = -1.;
 
-    /* reset the (ouput) DQF */
+    /* initialize the output DQ arrays: dq2 will hold values to be written
+       back into the input DQ arrays at the end of processing, while dq
+       will hold values to write to the output CRJ DQ extension */
+    initShortData (&dq2);
+    allocShortData (&dq2, dim_x, dim_y);
     for (j = 0; j < dim_y; j++) {
-        for (i = 0; i < dim_x; i++)
-            PDQSetPix(dq,i,j,OK);
+        for (i = 0; i < dim_x; i++) {
+            PDQSetPix(dq,i,j,crflag);
+            PDQSetPix(&dq2,i,j,OK);
+        }
     }
 
     /* All Observations will have the same CCDAMP */
@@ -647,7 +656,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         }
                     } /* End loop over i (X) */
 
-                    /* On the last iteration, write out individual masks */
+                    /* On the last iteration, accumulate variance and DQ vals */
                     if (iter == (niter-1)) {
 
                         /* accumulate the variance only during the
@@ -690,23 +699,48 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         for (i = 0; i < dim_x; i++) {
                             /* output DQF is just the logical OR of all
                               (original) input DQF */
-                            bufdq[i] = bufdq[i] & nocr; /* 17 June 99, WJH */
-                            bufdq[i] = bufdq[i] | PDQPix(dq,i,line);
+                            bufdq[i] = bufdq[i] | PDQPix(&dq2,i,line);
 
-                            /* All masked pixels have the same flag value and
-                              is combined with what was in the mask, if any. */
+                            /* remove any CR or SPILL flags that were in the
+                               input files from a previous run of acsrej or were
+                               set from a previous image */
+                            bufdq[i] = bufdq[i] & nocr;
+                            bufdq[i] = bufdq[i] & nospill;
+
+                            /* sval - which is used to set the DQ value in the
+                               output crj file - will initially pick up a value
+                               of CR from the initialization of the dq array,
+                               but as soon as 1 good input is encountered the
+                               CR value will be removed */
+                            sval = bufdq[i] | PDQPix(dq,i,line);
+
+                            /* A pixel marked as CR or SPILL will have a CR
+                               value in the output images */
                             if (mask[n][width][i] == HIT ||
                                 mask[n][width][i] == SPILL) {
                                 bufdq[i] = bufdq[i] | crflag;
                                 (*nrej)++;
+
+                            /* if the input is good, remove the CR value from
+                               the output image array */
+                            } else {
+                                sval = sval & nocr;
                             }
 
-                            PDQSetPix(dq,i,line,bufdq[i]);
+                            /* Store the values arrived at so far in the
+                               output arrays */
+                            PDQSetPix(&dq2, i, line, bufdq[i]);
+                            PDQSetPix(dq, i, line, sval);
+
                         } /* End loop over x position */
 
-                        /* compress bufdq into byte mask, line-by-line */
+                        /* compress bufdq into byte mask, line-by-line.
+                           this will be uncompressed later to be written back
+                           into the DQ arrays of the input files.
+                        */
                         writeBitLine (bufdq, n, line, dim_x, crflag, crmask);
-                    }
+
+                    } /* End of last iteration block */
                 } /* End if(efacn > 0.) block */
             } /* End loop over images */
 
@@ -725,12 +759,14 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
             for (i = 0; i < ampx; i++) {
                 pixexp = PIX(efacsum,i,line,dim_x);
                 if (pixexp > 0.) {
-                    PPix(ave,i,line) = (sum[i] / pixexp) /
-                                       (1 + shadline[i] / pixexp);
-                    if (iter == (niter-1))
+                    if (iter == (niter-1)) {
                         PPix(ave,i,line) = (sum[i] * gn[0] / pixexp) /
                                            (1 + shadline[i] / pixexp);
                         PPix(avevar,i,line) = sqrt(sumvar[i] * gn[0]) / pixexp;
+                    } else {
+                        PPix(ave,i,line) = (sum[i] / pixexp) /
+                                           (1 + shadline[i] / pixexp);
+                    }
                 } else {
                     if (iter == (niter-1)) {
                         PPix(ave,i,line) = par->fillval;
@@ -741,12 +777,14 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
             for (i = ampx; i < dim_x; i++) {
                 pixexp = PIX(efacsum,i,line,dim_x);
                 if (pixexp > 0.) {
-                    PPix(ave,i,line) = (sum[i] / pixexp) /
-                                       (1 + shadline[i] / pixexp);
-                    if (iter == (niter-1))
+                    if (iter == (niter-1)) {
                         PPix(ave,i,line) = (sum[i] * gn[1] / pixexp) /
                                            (1 + shadline[i] / pixexp);
                         PPix(avevar,i,line) = sqrt(sumvar[i] * gn[1]) / pixexp;
+                    } else {
+                        PPix(ave,i,line) = (sum[i] / pixexp) /
+                                           (1 + shadline[i] / pixexp);
+                    }
                 } else {
                     if (iter == (niter-1)) {
                         PPix(ave,i,line) = par->fillval;
@@ -828,6 +866,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     free (shadline);
     free (shadcorr);
     freeFloatBuff(shadbuff, shad_dimy);
+    freeShortData (&dq2);
 
     if (par->shadcorr == PERFORM) {
         freeHdr (&scihdr);
@@ -899,7 +938,7 @@ static void freeShortBuff (short **sect, int lines) {
 
 static Byte ***allocBitBuff (int nimgs, int lines, int numbits) {
     Byte ***mask;
-    int y,n,x;
+    int y,n;
     float remainder;
     int nsize, nrem;
 
@@ -1228,8 +1267,7 @@ static void getShadcorr (float **shad, int line, int nlines, int dimx,
 static void getShadBuff (IODescPtr *ipshad, int line, int shad_dimy, int dim_x,
                          int shad_x, int rx, int ry, int x0, int y0,
                          float **shad) {
-    int i,j,k,m, i0, zline;
-    int sum;
+    int i,j,k,m, zline;
     float **ysect, **zsect;
     float *zl;
     int shad_dimx;
