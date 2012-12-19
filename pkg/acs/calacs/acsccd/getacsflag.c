@@ -13,6 +13,7 @@ static int checkCCD (Hdr *, ACSInfo *, int *);
 static int checkDQI (Hdr *, ACSInfo *, int *, int *);
 static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
 
+
 /* This routine gets the names of reference images and tables from the
  primary header and checks for dummy pedigree.
 
@@ -29,109 +30,114 @@ static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
  Pey Lian Lim, 2012 Dec 12:
  Moved FLSHCORR to ACS2D.
  **
- */
+
+ Pey Lian Lim, 2012 Dec 19:
+ Make sure check is skipped if input *acs flag is not PERFORM.
+ Otherwise, acsccd.e flags do not work properly.
+*/
 
 int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 
-	extern int status;
+    extern int status;
 
-	int missing = 0;	/* true if any calibration file is missing */
-	int nsteps = 0;		/* number of calibration steps to perform */
+    int missing = 0;	/* true if any calibration file is missing */
+    int nsteps = 0;		/* number of calibration steps to perform */
 
-	int GetccdSw (ACSInfo *, Hdr *);
+    int GetccdSw (ACSInfo *, Hdr *);
 
+    /* Get the values for the Calibration Switches from the
+    **	header for processing.
+    */
+    if (GetccdSw (acs, phdr) )
+        return(status);
 
-	/* Get the values for the Calibration Switches from the
-   **	header for processing.
-   */
-	if (GetccdSw (acs, phdr) )
-		return(status);
+    /* Check each reference file that we need. */
 
-	/* Check each reference file that we need. */
+    if (checkDQI (phdr, acs, &missing, &nsteps))
+        return (status);
 
-	if (checkDQI (phdr, acs, &missing, &nsteps))
-    return (status);
+    if (checkAtoD (phdr, acs, &missing, &nsteps))
+        return (status);
 
-	if (checkAtoD (phdr, acs, &missing, &nsteps))
-    return (status);
+    if (checkBlev (phdr, acs, &missing, &nsteps))	/* no reference file */
+        return (status);
 
-	if (checkBlev (phdr, acs, &missing, &nsteps))	/* no reference file */
-    return (status);
+    /* Although this should never be called with MAMA data, we
+       just want to be safe...
+    */
+    if (acs->detector != MAMA_DETECTOR) {
+        if (checkCCD (phdr, acs, &missing))
+            return (status);
+    }
 
-	/* Although this should never be called with MAMA data, we
-   just want to be safe...
-   */
-	if (acs->detector != MAMA_DETECTOR) {
-    if (checkCCD (phdr, acs, &missing))
-      return (status);
-	}
+    if (checkBias (phdr, acs, &missing, &nsteps))
+        return (status);
 
-	if (checkBias (phdr, acs, &missing, &nsteps))
-    return (status);
+    if (checkPCTE (phdr, acs, &missing, &nsteps))
+        return (status);
 
-  if (checkPCTE (phdr, acs, &missing, &nsteps))
-    return (status);
-
-	if (missing) {
-    return (status = CAL_FILE_MISSING);
-	} else if (nsteps < 1) {
-    trlwarn ("No calibration switch was set to PERFORM, ");
-    trlwarn ("            or all reference files had PEDIGREE = DUMMY.");
-    return (status = NOTHING_TO_DO);
-	} else {
-    return (status);
-	}
+    if (missing) {
+        return (status = CAL_FILE_MISSING);
+    } else if (nsteps < 1) {
+        trlwarn ("No calibration switch was set to PERFORM, ");
+        trlwarn ("            or all reference files had PEDIGREE = DUMMY.");
+        return (status = NOTHING_TO_DO);
+    } else {
+        return (status);
+    }
 }
 
+
 /* If this step is to be performed, check for the existence of the
- atod table.
- */
+   atod table.
+*/
 
 static int checkAtoD (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs   i: switches, file names, etc
-   int *missing     io: incremented if the file is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+    */
 
-	extern int status;
+    extern int status;
 
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
-	void MissingFile (char *, char *, int *);
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
+    void MissingFile (char *, char *, int *);
 
-	/* Are we supposed to do this step? */
-	if (acs->atodcorr == PERFORM) {
+    /* Are we supposed to do this step? */
+    if (acs->atodcorr == PERFORM) {
 
-    if (GetSwitch (phdr, "ATODCORR", &calswitch))
-      return (status);
-    if (calswitch == COMPLETE) {
-      acs->atodcorr = OMIT;
-      return (status);
+        if (GetSwitch (phdr, "ATODCORR", &calswitch))
+            return (status);
+        if (calswitch == COMPLETE) {
+            acs->atodcorr = OMIT;
+            return (status);
+        }
+
+        /* Get the table name, check that the file exists, and get
+           pedigree and descrip.
+        */
+        if (GetTabRef (acs->refnames, phdr,
+                       "ATODTAB", &acs->atod, &acs->atodcorr))
+            return (status);
+        if (acs->atod.exists != EXISTS_YES)
+            MissingFile ("ATODTAB", acs->atod.name, missing);
+
+        if (acs->atodcorr == PERFORM)
+            (*nsteps)++;
     }
 
-    /* Get the table name, check that the file exists, and get
-     pedigree and descrip.
-     */
-    if (GetTabRef (acs->refnames, phdr,
-                   "ATODTAB", &acs->atod, &acs->atodcorr))
-      return (status);
-    if (acs->atod.exists != EXISTS_YES)
-      MissingFile ("ATODTAB", acs->atod.name, missing);
-
-    if (acs->atodcorr == PERFORM)
-      (*nsteps)++;
-	}
-
-	return (status);
+    return (status);
 }
 
+
 /* If this step is to be performed, check for the existence of the
- bias file.  If it exists, get the pedigree and descrip keyword values.
- */
+   bias file.  If it exists, get the pedigree and descrip keyword values.
+*/
 
 static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
@@ -142,224 +148,227 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
    int *nsteps      io: incremented if this step can be performed
    */
 
-	extern int status;
+    extern int status;
 
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-	void MissingFile (char *, char *, int *);
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
 
-  if (GetImageRef (acs->refnames, phdr,
-                     "BIASFILE", &acs->bias, &acs->biascorr))
-      return (status);
-      
-  if (acs->bias.exists != EXISTS_YES)
-      MissingFile ("BIASFILE", acs->bias.name, missing);
+    /* Are we supposed to do this step? */
+    if (acs->biascorr == PERFORM) {
 
-	/* Are we supposed to do this step? */
-	if (acs->biascorr == PERFORM) {
+        if (GetSwitch (phdr, "BIASCORR", &calswitch))
+            return (status);
+        if (calswitch == COMPLETE) {
+            acs->biascorr = OMIT;
+            return (status);
+        }
 
-    if (GetSwitch (phdr, "BIASCORR", &calswitch))
-      return (status);
-    if (calswitch == COMPLETE) {
-      acs->biascorr = OMIT;
-      return (status);
+
+        if (GetImageRef (acs->refnames, phdr,
+                         "BIASFILE", &acs->bias, &acs->biascorr))
+            return (status);
+
+        if (acs->bias.exists != EXISTS_YES)
+            MissingFile ("BIASFILE", acs->bias.name, missing);
+        if (acs->biascorr == PERFORM)
+            (*nsteps)++;
     }
 
-    if (acs->biascorr == PERFORM)
-      (*nsteps)++;
-	}
-
-	return (status);
+    return (status);
 }
 
 
 static int checkBlev (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs   i: switches, file names, etc
-   int *nsteps      io: incremented if this step can be performed
-   */
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs   i: switches, file names, etc
+       int *nsteps      io: incremented if this step can be performed
+    */
 
-	extern int status;
+    extern int status;
 
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
-	void MissingFile (char *, char *, int *);
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
+    void MissingFile (char *, char *, int *);
 
-	/* Are we supposed to do this step? */
-	if (acs->blevcorr == PERFORM) {
+    /* Are we supposed to do this step? */
+    if (acs->blevcorr == PERFORM) {
 
-    if (GetSwitch (phdr, "BLEVCORR", &calswitch))
-      return (status);
+        if (GetSwitch (phdr, "BLEVCORR", &calswitch))
+            return (status);
 
-    if (calswitch == COMPLETE) {
-			acs->blevcorr = OMIT;
-			return (status);
-		}
+        if (calswitch == COMPLETE) {
+            acs->blevcorr = OMIT;
+            return (status);
+        }
 
-    if (acs->blevcorr == PERFORM)
-      (*nsteps)++;
-	}
+        if (acs->blevcorr == PERFORM)
+            (*nsteps)++;
+    }
 
-	return (status);
+    return (status);
 }
 
+
 /* If this step is to be performed, check for the existence of the
- CTE parameters file.  If it exists, get the pedigree and descrip keyword values.
- */
+   CTE parameters file.  If it exists, get the pedigree and descrip
+   keyword values.
+*/
 
 static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs   i: switches, file names, etc
-   int *missing     io: incremented if the file is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs   i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+    */
 
-	extern int status;
+    extern int status;
 
-	int calswitch;
-	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-	void MissingFile (char *, char *, int *);
-        int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+    int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
 
-	/* Are we supposed to do this step? */
-	if (acs->pctecorr == PERFORM) {
+    /* Are we supposed to do this step? */
+    if (acs->pctecorr == PERFORM) {
 
-    if (GetSwitch (phdr, "PCTECORR", &calswitch))
-      return (status);
+        if (GetSwitch (phdr, "PCTECORR", &calswitch))
+            return (status);
 
-    if (calswitch == COMPLETE) {
-      acs->pctecorr = OMIT;
-      return (status);
+        if (calswitch == COMPLETE) {
+            acs->pctecorr = OMIT;
+            return (status);
+        }
+
+        if (GetTabRef (acs->refnames, phdr,
+                       "PCTETAB", &acs->pcte, &acs->pctecorr))
+            return (status);
+
+        if (acs->pcte.exists != EXISTS_YES)
+            MissingFile ("PCTETAB", acs->pcte.name, missing);
+
+        if (acs->pctecorr == PERFORM)
+            (*nsteps)++;
     }
 
-    if (GetTabRef (acs->refnames, phdr,
-                   "PCTETAB", &acs->pcte, &acs->pctecorr))
-      return (status);
-
-    if (acs->pcte.exists != EXISTS_YES)
-      MissingFile ("PCTETAB", acs->pcte.name, missing);
-
-    if (acs->pctecorr == PERFORM)
-      (*nsteps)++;
-	}
-
-	return (status);
+    return (status);
 }
 
 
 /* If the detector is the CCD, we need the CCD parameters table for
- BIASCORR, DARKCORR, and PHOTCORR.  This routine checks that the table
- exists.
+   BIASCORR, DARKCORR, and PHOTCORR.  This routine checks that the table
+   exists.
 
- We also need the table for initializing the error array, but we
- don't have a flag for that step.  That's why we need this table
- regardless of which steps are to be performed.
- */
+   We also need the table for initializing the error array, but we
+   don't have a flag for that step.  That's why we need this table
+   regardless of which steps are to be performed.
+*/
 
 static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
 
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs   i: switches, file names, etc
-   int *missing     io: incremented if the table is missing
-   */
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs   i: switches, file names, etc
+       int *missing     io: incremented if the table is missing
+    */
 
-	extern int status;
-	int calswitch;			/* returned by GetTabRef and ignored */
-	int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
-	void MissingFile (char *, char *, int *);
-	int GotFileName (char *);
+    extern int status;
+    int calswitch;			/* returned by GetTabRef and ignored */
+    int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
+    void MissingFile (char *, char *, int *);
+    int GotFileName (char *);
 
-	if (acs->detector == MAMA_DETECTOR)
-    return (status);
+    if (acs->detector == MAMA_DETECTOR)
+        return (status);
 
-	if (GetTabRef (acs->refnames, phdr,
-                 "CCDTAB", &acs->ccdpar, &calswitch))
-    return (status);
+    if (GetTabRef (acs->refnames, phdr,
+                   "CCDTAB", &acs->ccdpar, &calswitch))
+        return (status);
 
-	if (acs->ccdpar.exists != EXISTS_YES) {
+    if (acs->ccdpar.exists != EXISTS_YES) {
 
-    MissingFile ("CCDTAB", acs->ccdpar.name, missing);
+        MissingFile ("CCDTAB", acs->ccdpar.name, missing);
 
-	} else if (acs->ccdpar.goodPedigree != GOOD_PEDIGREE) {
+    } else if (acs->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
-    (*missing)++;
-    sprintf (MsgText, "CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
-		trlerror (MsgText);
-	}
-
-  /* Get OSCNTAB here as it applies to all CCD processing as well.
-   WJH 6 May 1999
-   */
-  if (GetTabRef (acs->refnames, phdr,
-                 "OSCNTAB", &acs->oscn, &acs->blevcorr))
-    return (status);
-
-  if (acs->oscn.exists != EXISTS_YES) {
-    if (GotFileName (acs->oscn.name)) {
-      MissingFile ("OSCNTAB", acs->oscn.name, missing);
+        (*missing)++;
+        sprintf (MsgText, "CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
+        trlerror (MsgText);
     }
-  }
 
-	return (status);
+    /* Get OSCNTAB here as it applies to all CCD processing as well.
+       WJH 6 May 1999
+    */
+    if (GetTabRef (acs->refnames, phdr,
+                   "OSCNTAB", &acs->oscn, &acs->blevcorr))
+        return (status);
+
+    if (acs->oscn.exists != EXISTS_YES) {
+        if (GotFileName (acs->oscn.name)) {
+            MissingFile ("OSCNTAB", acs->oscn.name, missing);
+        }
+    }
+
+    return (status);
 }
 
+
 /* Check whether we should assign initial values to the data quality
- array.  There is a reference table but not an image for this step.
+   array.  There is a reference table but not an image for this step.
 
- For the CCD, there are two steps to DQICORR, checking for saturation
- and using the BPIXTAB to initialize the data quality array.  If no
- bad pixel table was specified (name is blank or "N/A"), or if the
- table is dummy, we can still do this calibration step, but it will
- just consist of checking and flagging saturation.  For the MAMAs,
- however, if this switch is set to PERFORM, the table must exist.
+   For the CCD, there are two steps to DQICORR, checking for saturation
+   and using the BPIXTAB to initialize the data quality array.  If no
+   bad pixel table was specified (name is blank or "N/A"), or if the
+   table is dummy, we can still do this calibration step, but it will
+   just consist of checking and flagging saturation.  For the MAMAs,
+   however, if this switch is set to PERFORM, the table must exist.
 
- Note that, unlike most other switches, dqicorr will not be reset to
- omit if the header value is "COMPLETE", since it would not cause any
- problem to perform this step more than once.  The user might do so
- deliberately in order to accumulate the flags from more than one table.
- */
+   Note that, unlike most other switches, dqicorr will not be reset to
+   omit if the header value is "COMPLETE", since it would not cause any
+   problem to perform this step more than once.  The user might do so
+   deliberately in order to accumulate the flags from more than one table.
+*/
 
 static int checkDQI (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
-  /* arguments:
-   Hdr *phdr        i: primary header
-   ACSInfo *acs   i: switches, file names, etc
-   int *missing     io: incremented if the table is missing
-   int *nsteps      io: incremented if this step can be performed
-   */
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs   i: switches, file names, etc
+       int *missing     io: incremented if the table is missing
+       int *nsteps      io: incremented if this step can be performed
+    */
 
-	extern int status;
+    extern int status;
 
-	int GotFileName (char *);
-	int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
-	void MissingFile (char *, char *, int *);
+    int GotFileName (char *);
+    int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
+    void MissingFile (char *, char *, int *);
 
-	if (acs->dqicorr == PERFORM) {
+    if (acs->dqicorr == PERFORM) {
 
-    if (GetTabRef (acs->refnames, phdr,
-                   "BPIXTAB", &acs->bpix, &acs->dqicorr))
-      return (status);
+        if (GetTabRef (acs->refnames, phdr,
+                       "BPIXTAB", &acs->bpix, &acs->dqicorr))
+            return (status);
 
-    if (acs->bpix.exists != EXISTS_YES) {
+        if (acs->bpix.exists != EXISTS_YES) {
 
-      if (acs->detector == MAMA_DETECTOR ||
-          GotFileName (acs->bpix.name)) {
+            if (acs->detector == MAMA_DETECTOR ||
+                GotFileName (acs->bpix.name)) {
 
-        MissingFile ("BPIXTAB", acs->bpix.name, missing);
-      }
+                MissingFile ("BPIXTAB", acs->bpix.name, missing);
+            }
+        }
+
+        if (acs->dqicorr == PERFORM)
+            (*nsteps)++;
     }
 
-    if (acs->dqicorr == PERFORM)
-      (*nsteps)++;
-	}
-
-	return (status);
+    return (status);
 }
