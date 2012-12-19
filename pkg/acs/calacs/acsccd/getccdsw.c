@@ -12,58 +12,58 @@ static int GetSw (Hdr *, char *, int *);
  returned by this function.  Missing switches will be set to OMIT.  The
  switch will be set to PERFORM only if the calibration switch value in
  the header exists and is "PERFORM".
- 
+
  07 May 2001 - Added code to read in FLSHCORR keyword when running ACSCCD.
  08 Mar 2011 MRD - Added code to read PCTECORR keyword.
  12 Dec 2012 PLL - Moved FLSHCORR to ACS2D.
  */
 
 int GetccdSw (ACSInfo *acs, Hdr *phdr) {
-  
-	extern int status;
-	FitsKw key;		/* keyword location in header */
-  
-	if (GetSw (phdr, "ATODCORR", &acs->atodcorr))
+
+    extern int status;
+    FitsKw key;		/* keyword location in header */
+
+    if (GetSw (phdr, "ATODCORR", &acs->atodcorr))
+        return (status);
+    if (GetSw (phdr, "BIASCORR", &acs->biascorr))
+        return (status);
+    if (GetSw (phdr, "BLEVCORR", &acs->blevcorr))
+        return (status);
+    if (GetSw (phdr, "DQICORR",  &acs->dqicorr))
+        return (status);
+
+    key = findKw (phdr, "PCTECORR");
+    if (key == NotFound) {
+        sprintf(MsgText, "PCTECORR keyword not found...");
+        trlwarn(MsgText);
+    }
+    if (GetSw (phdr, "PCTECORR", &acs->pctecorr))
+        return (status);
+
     return (status);
-	if (GetSw (phdr, "BIASCORR", &acs->biascorr))
-    return (status);
-	if (GetSw (phdr, "BLEVCORR", &acs->blevcorr))
-    return (status);
-	if (GetSw (phdr, "DQICORR",  &acs->dqicorr))
-    return (status);
-  
-  key = findKw (phdr, "PCTECORR");
-  if (key == NotFound) {
-    sprintf(MsgText, "PCTECORR keyword not found...");
-    trlwarn(MsgText);
-  }
-  if (GetSw (phdr, "PCTECORR", &acs->pctecorr))
-    return (status);
-  
-	return (status);
 }
 
 /* This routine just calls GetSwitch to get the value of the switch,
- but then the value returned is limited to OMIT (0) and PERFORM (1).
- */
+   but then the value returned is limited to OMIT (0) and PERFORM (1).
+*/
 
 static int GetSw (Hdr *phdr, char *calswitch, int *flag) {
-  
-  /* arguments:
-   Hdr *phdr        i: primary header
-   char *calswitch  i: name of keyword (e.g. FLATCORR)
-   int *flag        o: value (0 or 1) of calibration switch
-   */
-  
-	extern int status;
-  
-	int GetSwitch (Hdr *, char *, int *);
-  
-	if (GetSwitch (phdr, calswitch, flag))
+
+    /* arguments:
+       Hdr *phdr        i: primary header
+       char *calswitch  i: name of keyword (e.g. FLATCORR)
+       int *flag        o: value (0 or 1) of calibration switch
+    */
+
+    extern int status;
+
+    int GetSwitch (Hdr *, char *, int *);
+
+    if (GetSwitch (phdr, calswitch, flag))
+        return (status);
+
+    if (*flag != PERFORM)
+        *flag = OMIT;
+
     return (status);
-  
-	if (*flag != PERFORM)
-    *flag = OMIT;
-  
-	return (status);
 }

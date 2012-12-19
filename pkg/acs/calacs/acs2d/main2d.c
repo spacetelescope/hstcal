@@ -46,8 +46,8 @@ int main (int argc, char **argv) {
     int n;
 
     /* Input and output suffixes. */
-    char *isuffix[] = {"_raw", "_blv_tmp", "_crj_tmp"};
-    char *osuffix[] = {"_flt", "_flt",     "_crj"};
+    char *isuffix[] = {"_raw", "_blv_tmp", "_blc_tmp", "_crj_tmp", "_crc_tmp"};
+    char *osuffix[] = {"_flt", "_flt",     "_flc",     "_crj",     "_crc"};
 
     int nsuffix = 3;
 
