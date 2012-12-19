@@ -138,7 +138,7 @@ int main (int argc, char **argv) {
         printf ("  command-line switches:\n");
         printf ("       -dqi  -atod\n");
         printf ("       -glin -lflg\n");
-        printf ("       -dark -flash -flat -shad -phot -stat\n");
+        printf ("       -dark -flash -flat -shad -phot\n");
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }
