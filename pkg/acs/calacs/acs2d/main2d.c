@@ -136,9 +136,8 @@ int main (int argc, char **argv) {
     if (inlist[0] == '\0' || too_many) {
         printf ("syntax:  acs2d [-t] [-v] [-q] input output\n");
         printf ("  command-line switches:\n");
-        printf ("       -dqi  -atod\n");
-        printf ("       -glin -lflg\n");
-        printf ("       -dark -flash -flat -shad -phot\n");
+        printf ("       -dqi -glin -lflg -dark\n");
+        printf ("       -flash -flat -shad -phot\n");
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }
@@ -151,14 +150,14 @@ int main (int argc, char **argv) {
 
     /* Was no calibration switch specified on command line? */
     if (!switch_on) {	/* default values (mostly PERFORM) */
-        acs2d_sw.dqicorr  = DefSwitch ("dqicorr");
-        acs2d_sw.glincorr = DefSwitch ("glincorr");
-        acs2d_sw.lflgcorr = DefSwitch ("lflgcorr");
-        acs2d_sw.darkcorr = DefSwitch ("darkcorr");
+        acs2d_sw.dqicorr   = DefSwitch ("dqicorr");
+        acs2d_sw.glincorr  = DefSwitch ("glincorr");
+        acs2d_sw.lflgcorr  = DefSwitch ("lflgcorr");
+        acs2d_sw.darkcorr  = DefSwitch ("darkcorr");
         acs2d_sw.flashcorr = DefSwitch ("flshcorr");  /* OMIT */
-        acs2d_sw.flatcorr = DefSwitch ("flatcorr");
-        acs2d_sw.shadcorr = DefSwitch ("shadcorr");  /* OMIT */
-        acs2d_sw.photcorr = DefSwitch ("photcorr");
+        acs2d_sw.flatcorr  = DefSwitch ("flatcorr");
+        acs2d_sw.shadcorr  = DefSwitch ("shadcorr");  /* OMIT */
+        acs2d_sw.photcorr  = DefSwitch ("photcorr");
     }
 
     /* Expand the templates. */
