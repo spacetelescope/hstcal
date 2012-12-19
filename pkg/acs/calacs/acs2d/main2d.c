@@ -26,6 +26,9 @@ static void FreeNames (char *, char *, char *, char *);
 
    Pey Lian Lim, 2012 Dec 12:
         Moved FLSHCORR from ACSCCD.
+
+   Pey Lian Lim, 2012 Dec 19:
+        Added check to see if PCTECORR was performed.
 */
 
 int main (int argc, char **argv) {
@@ -65,6 +68,12 @@ int main (int argc, char **argv) {
     void WhichError (int);
     int CompareNumbers (int, int, char *);
     void initSwitch (CalSwitch *);
+
+    /* For image header access */
+    Hdr phdr;
+    int pctecorr;
+    int LoadHdr (char *, Hdr *);
+    int GetSwitch (Hdr *, char *, int *);
 
     c_irafinit (argc, argv);
 
@@ -184,6 +193,29 @@ int main (int argc, char **argv) {
             j = c_imtgetim (o_imt, output, ACS_LINE);
         else
             output[0] = '\0';
+
+        /* Open input image in order to read its primary header. */
+        if (LoadHdr (input, &phdr)) {
+            WhichError (status);
+            sprintf (MsgText, "Skipping %s", input);
+            trlmessage (MsgText);
+            continue;
+        }
+
+        /* Set PCTECORR flag.
+           PERFORM:   Will use DRKCFILE and FLSCFILE.
+           Otherwise: Will use DARKFILE and FLSHFILE.
+        */
+        if (GetSwitch (&phdr, "PCTECORR", &pctecorr)) {
+            WhichError (status);
+            sprintf (MsgText, "Skipping %s", input);
+            trlmessage (MsgText);
+            continue;
+        }
+        if (pctecorr == COMPLETE)
+            acs2d_sw.pctecorr = PERFORM;
+        else
+            acs2d_sw.pctecorr = OMIT;
 
         if (MkOutName (input, isuffix, osuffix, nsuffix, output, ACS_LINE)) {
             WhichError (status);
