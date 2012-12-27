@@ -47,6 +47,9 @@
    H.Bushouse, 2010 Oct 20:
 	Updated InitDthTrl to return if the input list is empty, in order to
 	handle associations with missing members. (PR 66366)
+  M Sosey, 2012 December 27:
+      Updated to account for a memory leak on linux machines during BuildDth 
+      when RPTCORR is off and a new spt is being constructed (#967)       
 */
 
 int Wf3Dth (char *in_list, char *output, int dthcorr, int printtime,
@@ -116,7 +119,7 @@ void InitDthTrl (char *inlist, char *output) {
 	char *trlsuffix[]={"", "", ""};
 	int nsuffix = 3;
 	
-	int MkOutName (char *, char **, char **, int, char *, int);
+	int MkOutName (const char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 
@@ -141,16 +144,16 @@ void InitDthTrl (char *inlist, char *output) {
 
 	for (n = 0; n < nfiles; ++n) {
 	     c_imtgetim (tpin, input, SZ_FNAME);
-
 	     /* Start by stripping off suffix from input/output filenames */
 	     if (MkOutName (input, isuffix, trlsuffix, nsuffix, out_name,
 			    SZ_LINE)) {
+         
 		 WhichError (status);
 		 sprintf (MsgText, "Couldn't determine trailer filename for %s",
 			  input);
 		 trlmessage (MsgText);
 	     }
-
+         
 	     /* Now convert trailer filename extension from '.fits' to '.trl' */
 	     if (MkNewExtn (out_name, TRL_EXTN)) {
 		 sprintf (MsgText, "Error creating input trailer filename %s",
@@ -158,7 +161,7 @@ void InitDthTrl (char *inlist, char *output) {
 		 trlerror (MsgText);
 		 WhichError (status);
 	     }
-
+         
 	     if ( (strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
 		 trl_len += SZ_LINE;
 		 trl_in = realloc (trl_in, trl_len);
@@ -189,7 +192,6 @@ void InitDthTrl (char *inlist, char *output) {
 	/* Sets up temp trailer file for output and copies input
 	** trailer file into it. */
 	InitTrlFile (trl_in, trl_out);
-
 	/* Deallocate memory */
 	free(trl_in);
 	c_imtclose (tpin);

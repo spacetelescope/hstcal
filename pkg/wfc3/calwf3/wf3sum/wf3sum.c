@@ -60,6 +60,9 @@ static void FreeWf3Input (char **, int);
 	an error in allocating space for list of image names in InitSumTrl.
     H.Bushouse, 2002 Nov 26:
 	Updates to track 2 minor changes in CALACS.
+  M Sosey, 2012 December 27:
+      Updated to account for a memory leak on linux machines during BuildDth 
+      when RPTCORR is off and a new spt is being constructed (#967)       
 */
 
 int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
@@ -617,7 +620,7 @@ static void InitSumTrl (char *input, char *output) {
 	char *trlsuffix[] = {"", ""};
 	int nsuffix = 2;
 	
-	int MkOutName (char *, char **, char **, int, char *, int);
+	int MkOutName (const char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 

@@ -1,3 +1,8 @@
+Updates for version 3.1 28-Dec-2012 (MLS):
+    - Updated to account for a memory leak on linux machines during BuildDth 
+      when RPTCORR is off and a new spt is being constructed (#967)       
+
+######### HST CAL DELIVERED ########
 Updates 18Oct 2012 - MLS - Version 2.7.1
         fixed a memory leak in cridcalc that was occuring on linux machines
              and only affected IR data.
