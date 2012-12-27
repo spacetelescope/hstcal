@@ -69,6 +69,9 @@
 	   when it's necessary to build list from all the asn member names.
 	   (PR 70922, Trac #869)
          
+  M Sosey, 2012 December 27:
+      Updated to account for a memory leak on linux machines during BuildDth 
+      when RPTCORR is off and a new spt is being constructed (#967)       
 */
 
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug) {
@@ -101,9 +104,9 @@ int debug	i: true --> print debugging info during processing
 	int ProcessCCD (AsnInfo *, WF3Info *, int *, int);
 	int ProcessIR  (AsnInfo *, WF3Info *, int);	
 	int Wf3Dth (char *, char *, int, int, int);
-	char *BuildDthInput (AsnInfo *, int);
+	const char *BuildDthInput (AsnInfo *, int);
 	int updateAsnTable (AsnInfo *, int, int);
-	void InitDthTrl (char *, char *);
+	void InitDthTrl (const char *, char *);
 	
 	/* Post error handler */
 	push_hstioerr (errchk);
@@ -215,8 +218,6 @@ int debug	i: true --> print debugging info during processing
 		 */
 
 		 wf3dth_input = BuildDthInput (&asn, prod);
-         sprintf(MsgText,"dither input %s",wf3dth_input);
-         trlmessage(MsgText);
          
 		 /* Skip this product if the input list is empty */
 		 if (wf3dth_input == NULL) continue;
@@ -333,7 +334,7 @@ char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
 }
 
 
-char *BuildDthInput (AsnInfo *asn, int prod) {
+const char *BuildDthInput (AsnInfo *asn, int prod) {
 
 	int nchars;
 	int i, j;
@@ -349,7 +350,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 	* commas.  The length of the string is re-adjusted each time
 	* through the loop, so +10 is good enough.
 	*/
-	wf3dth_input = (char *) calloc( 1, 1 );
+	wf3dth_input = ( char *) calloc( 1, 1 );
 
 	/* Now, lets search the association table for all inputs... */
 	for (i=1; i <= asn->numsp; i++) {

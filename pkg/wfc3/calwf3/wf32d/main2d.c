@@ -28,6 +28,9 @@ static void FreeNames (char *, char *, char *, char *);
    H.Bushouse, 2002 June 17:
 	Remove use of "statcorr" switch - statistics always computed by
 	default (in accordance with CALACS changes).
+  M Sosey, 2012 December 27:
+      Updated to account for a memory leak on linux machines during BuildDth 
+      when RPTCORR is off and a new spt is being constructed (#967)       
 */
 
 int main (int argc, char **argv) {
@@ -63,7 +66,7 @@ int main (int argc, char **argv) {
 
 	int WF32d (char *, char *, CCD_Switch *, RefFileInfo *, int, int);
 	int DefSwitch (char *);
-	int MkOutName (char *, char **, char **, int, char *, int);
+	int MkOutName (const char *, char **, char **, int, char *, int);
  	void WhichError (int);
 	int CompareNumbers (int, int, char *);
 	void initCCDSwitches (CCD_Switch *);

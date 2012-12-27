@@ -2,6 +2,10 @@
 	MkOutName	constructs an output name from the input
 	DefaultExtn	appends the default filename extension
 	MkNewExtn	replaces current extension with new extension
+
+  M Sosey, 2012 December 27:
+      Updated to account for a memory leak on linux machines during BuildDth 
+      when RPTCORR is off and a new spt is being constructed (#967)       
 */
 
 # include <stdio.h>
@@ -58,7 +62,7 @@ static int strcatN (char *, char *, int);
 	Added calls to free() to clean up memory on error exits.
 */
 
-int MkOutName (char *input, char **isuffix, char **osuffix, int nsuffix,
+int MkOutName (const char *input, char **isuffix, char **osuffix, int nsuffix,
 	       char *output, int maxch) {
 
 /* arguments:

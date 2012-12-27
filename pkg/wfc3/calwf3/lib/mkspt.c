@@ -63,7 +63,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 
 	int  nsuffix = 6;               /* How many suffixes to check */
 
-	int  MkOutName (char *, char **, char **, int, char *, int);
+	int  MkOutName (const char *, char **, char **, int, char *, int);
 	int  MkName (char *, char *, char *, char *, char *, int);
 	void WhichError (int);
 	int  FileExists (char *);
