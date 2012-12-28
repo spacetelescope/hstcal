@@ -123,7 +123,8 @@ static struct _TrlBuf {
     char *buffer;
     char *preface;          /* CALWF3 comments common to all inputs */
     int usepref;            /* Switch to specify whether preface is used */
-} trlbuf;
+    int init;
+} trlbuf = { 0 } ;
 
 /* 
     This initialization function sets up the trailer file to be used
@@ -213,6 +214,7 @@ char *output        i: full filename of output (final) trailer file
     }	
          	
     c_imtclose(tpin);
+    trlbuf.init = 1;
 
     return (status);
 
@@ -453,6 +455,11 @@ char *message     	  i: new trailer file line to add to buffer
     void asnmessage (char *);
 
     extern int status;
+
+    if ( ! trlbuf.init ) {
+	printf("TRLBUF NOT INIT\n");
+	abort();
+    }
 
     trlbuf.buffer = realloc (trlbuf.buffer,
 			     (strlen(trlbuf.buffer) + strlen(message) +2));
