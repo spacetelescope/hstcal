@@ -1,0 +1,15 @@
+# vim: set syntax=python:
+
+SUBDIRS = [
+    'lib',
+    'calwf3',
+    'wf3ccd',
+    'wf3rej',
+    'wf3ir',
+    'wf32d',
+    'wf3sum',
+    ]
+
+def build(bld):
+    for subdir in SUBDIRS:
+        bld.recurse(subdir)
