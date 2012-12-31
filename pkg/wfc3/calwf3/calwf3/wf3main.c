@@ -7,6 +7,7 @@
 # include "wf3version.h"
 
 /* H. Bushouse	07-Sep-2011	Implemented new "--version" command line argument. */
+/* M. Sosey     added a -r to also print the version (-v is used, so warren chose r for revision */
 
 /* CALWF3 driver: retrieves input table name and calls pipeline
 */

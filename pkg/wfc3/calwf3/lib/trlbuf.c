@@ -373,7 +373,7 @@ int InitTrlBuf (void) {
     trlbuf.overwrite = NO;	/* Initialize with default of append */
     trlbuf.quiet = NO;		/* Initialize to produce STDOUT messages */
     trlbuf.usepref = YES;      /* Switch to specify whether to output preface */
-
+    
     if ( (trlbuf.buffer = realloc (NULL, INIT_LEN)) == NULL){
         trlerror ("Out of memory for trailer file buffer.");
         return (status = OUT_OF_MEMORY);
@@ -385,7 +385,7 @@ int InitTrlBuf (void) {
 
     trlbuf.buffer[0] = '\0';
     trlbuf.preface[0] = '\0';
-
+    trlbuf.init = 1;
     return(status);
 }
 
@@ -457,8 +457,8 @@ char *message     	  i: new trailer file line to add to buffer
     extern int status;
 
     if ( ! trlbuf.init ) {
-	printf("TRLBUF NOT INIT\n");
-	abort();
+	printf("TRLBUF NOT INIT, YOU MAY HAVE PROBLEMS\n");
+    abort();
     }
 
     trlbuf.buffer = realloc (trlbuf.buffer,

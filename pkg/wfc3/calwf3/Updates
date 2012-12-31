@@ -1,3 +1,5 @@
+Updates for version 3.1 31-Dec-2012 (MLS):
+    - fixed TrlBufInit problem so it initializes correctly
 Updates for version 3.1 28-Dec-2012 (MLS):
     - Updated to account for a memory leak on linux machines during BuildDth 
       when RPTCORR is off and a new spt is being constructed (#967)       
