@@ -1,5 +1,12 @@
+### 2-Jan-2013 - MLS -- Version 3.1.1
+    File I/O in acsrej updated to avoid problems with CFITSIO upcasting  
+    file permissions to read/write when not needed. This will allow the 
+    hstio code to remove logic that allowed the old code to work but  
+    caused problems for CADC when CFITSIO opened ref files in read/write  
+    mode because of that hstio logic. 
+
 ###31 Dec 2012 - MLS - Version 3.1
-    - fixed TrlInitBuf problem so that it initializes correcty
+    - fixed TrlInitBuf problem so that it initializes correcty (r21162)
 ###28 Dec 2012 -MLS - Version 3.1
     - Updated to account for a memory leak on linux machines during BuildDth 
       when RPTCORR is off and a new spt is being constructed (#967)       

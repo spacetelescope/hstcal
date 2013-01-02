@@ -759,26 +759,38 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][SZ_FNAME+1],
     }
 
     /* Write out CR hit information to input images,
-        if par->mask was set...
+       if par->mask was set...
     */
     if (par->mask) {
+        /* Close all references to the images so we can open the
+           data quality ones as read/write. */
+        for (n=0; n<nimgs; n++) {
+            closeImage (ipsci[n]);
+            closeImage (ipdq[n]);
+        }
+
         for (n=0; n<nimgs; n++) {
             /*  reopen DQ as read/write*/
-            closeImage (ipdq[n]);
-	    initHdr (&dqhdr);
-	    ipdqn = openUpdateImage (imgname[n], "dq", grp[n], &dqhdr);
+            initHdr (&dqhdr);
+
+            ipdqn = openUpdateImage (imgname[n], "dq", grp[n], &dqhdr);
 
             for (line = 0; line < dim_y; line++) {
                 getShortLine (ipdqn, line, bufdq);
-                readBitLine (crmask,n,line,dim_x, crflag, nocr, bufdq);
-                putShortLine (ipdqn, line, bufdq);			
+                readBitLine (crmask, n, line, dim_x, crflag, nocr, bufdq);
+                putShortLine (ipdqn, line, bufdq);
             } /* End loop over lines in each image */
 
             /* close images... This should be done by the calling routine! */
             closeImage (ipdqn);
-    	    freeHdr (&dqhdr);
+            freeHdr (&dqhdr);
+        } /* End loop over images */
 
-        } /* End loop over images */			
+        /* Reopen all images in readonly mode. */
+        for (n=0; n<nimgs; n++) {
+            ipsci[n] = openInputImage (imgname[n], "sci", grp[n]);
+            ipdq[n] = openInputImage (imgname[n], "dq", grp[n]);
+        }
     } /* End if */
 
     /* Use this marker to allow easier clean-up after an error condition 

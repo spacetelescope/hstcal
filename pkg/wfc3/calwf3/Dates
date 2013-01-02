@@ -1,3 +1,10 @@
+2-Jan-2013 - MLS -- Version 3.1.1
+    File I/O in acsrej updated to avoid problems with CFITSIO upcasting  
+    file permissions to read/write when not needed. This will allow the 
+    hstio code to remove logic that allowed the old code to work but  
+    caused problems for CADC when CFITSIO opened ref files in read/write  
+    mode because of that hstio logic. 
+
 31-Dec-2012 ML versions 3.1
             fixed TrlBufInit bug, the init in the trlbuf structure wasn't being set to 1 on int
             causing calwf3 to always abort after the check message was added. 
