@@ -8,7 +8,7 @@ def build(bld):
         source = """
             add2d.c addk2d.c bin2d.c bincoords.c binupdate.c
             blazecorr.c checkimsetok.c defswitch.c div2d.c dostat.c
-            evaldisp.c 
+            evaldisp.c
             extrap1d.c fileexists.c getcorner.c getdettemp.c getlt0.c
             getlt.c getmoc.c getrefname.c getswitch.c gettds.c
             gotfilename.c imghistory.c imgpedigree.c initreftab.c
@@ -82,7 +82,7 @@ def build(bld):
             ../cs6/idtalg/xc6.c
 
             ../cs7/absflux.c ../cs7/adjustdisp.c ../cs7/calstis7.c
-            ../cs7/datamasked.c ../cs7/do2dx.c ../cs7/evaldisp7.c 
+            ../cs7/datamasked.c ../cs7/do2dx.c ../cs7/evaldisp7.c
             ../cs7/geocorr7.c ../cs7/getabsphot.c ../cs7/getapdes7.c
             ../cs7/getapoffset.c ../cs7/getapthr.c ../cs7/getdisp.c
             ../cs7/getflags7.c ../cs7/getgrpinfo7.c ../cs7/getidc.c
@@ -104,7 +104,7 @@ def build(bld):
             ../cs12/targpos.c
             """,
         target = 'calstis',
-        install_path = '${PREFIX}/lib',
+        install_path = bld.env.INSTALL_LIB and '${PREFIX}/lib',
         use = 'CFITSIO',
         includes = ['../include'],
         export_includes = ['../include']

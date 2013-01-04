@@ -184,23 +184,27 @@ def configure(conf):
             conf.env.append_value('CFLAGS','-O2')
 
 def build(bld):
-    try:
-        targets = bld.get_targets()
-    except:
-        targets = []
-
     bld(name='lib', always=True)
     bld(name='test', always=True)
 
-    if not len(targets) or 'lib' in targets:
+    targets = [x.strip() for x in bld.targets.split(',')]
+
+    if not len(targets):
+        targets = ['lib', 'test']
+
+    if 'lib' in targets:
         bld.env.INSTALL_LIB = True
+        targets.remove('lib')
     else:
         bld.env.INSTALL_LIB = None
 
-    if not len(targets) or 'test' in targets:
+    if 'test' in targets:
         bld.env.INSTALL_TEST = True
+        targets.remove('test')
     else:
         bld.env.INSTALL_TEST = None
+
+    bld.targets = ','.join(targets)
 
     # Recurse into all of the libraries
     for library in SUBDIRS:
