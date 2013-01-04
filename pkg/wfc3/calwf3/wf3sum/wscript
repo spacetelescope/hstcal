@@ -2,6 +2,7 @@
 
 def build(bld):
     t = bld.program(
+        name = 'wf3sum.e',
         source = 'mainsum.c',
         target = 'wf3sum.e',
         use = ['calwf3', 'imphttab'] + bld.env.LOCAL_LIBS,
@@ -9,4 +10,3 @@ def build(bld):
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'
         )
-

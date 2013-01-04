@@ -2,6 +2,7 @@
 
 def build(bld):
     t = bld.program(
+        name = 'cs6.e',
         source = 'cs6.c',
         target = 'cs6.e',
         use = ['calstis', 'imphttab'] + bld.env.LOCAL_LIBS,

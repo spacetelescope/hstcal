@@ -184,6 +184,24 @@ def configure(conf):
             conf.env.append_value('CFLAGS','-O2')
 
 def build(bld):
+    try:
+        targets = bld.get_targets()
+    except:
+        targets = []
+
+    bld(name='lib', always=True)
+    bld(name='test', always=True)
+
+    if not len(targets) or 'lib' in targets:
+        bld.env.INSTALL_LIB = True
+    else:
+        bld.env.INSTALL_LIB = None
+
+    if not len(targets) or 'test' in targets:
+        bld.env.INSTALL_TEST = True
+    else:
+        bld.env.INSTALL_TEST = None
+
     # Recurse into all of the libraries
     for library in SUBDIRS:
         bld.recurse(library)
@@ -235,3 +253,14 @@ def test(ctx):
         if library.endswith('test'):
             if os.system('nosetests %s' % library):
                 raise Exception("Tests failed")
+
+# This is a little recipe from the waf docs to produce abstract
+# targets that define what to build and install.
+from waflib.TaskGen import feature, before_method
+@feature("*")
+@before_method('process_rule')
+def post_the_other(self):
+    deps = getattr(self, 'depends_on', [])
+    for name in self.to_list(deps):
+        other = self.bld.get_tgen_by_name(name)
+        other.post()

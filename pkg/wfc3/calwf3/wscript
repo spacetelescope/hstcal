@@ -13,3 +13,13 @@ SUBDIRS = [
 def build(bld):
     for subdir in SUBDIRS:
         bld.recurse(subdir)
+
+    bld(name='wf3',
+        depends_on=[
+            'calwf3.e',
+            'wf3ccd.e',
+            'wf3rej.e',
+            'wf3ir.e',
+            'wf32d.e',
+            'wf3sum.e'],
+        always=True)

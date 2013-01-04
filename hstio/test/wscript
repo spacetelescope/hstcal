@@ -8,7 +8,7 @@ def build_test(bld, name):
         use = bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
-        install_path = '${PREFIX}/bin/test'
+        install_path = bld.env.INSTALL_TEST and '${PREFIX}/bin'
         )
 
 def build(bld):
