@@ -15,6 +15,7 @@ int status = 0;			/* zero is OK */
 # include "wf3info.h"
 # include "wf3err.h"
 # include "wf3corr.h"        /* calibration switch names for wf3ir */
+# include "wf3version.h"
 
 static void FreeNames (char *, char *, char *, char *);
 
@@ -101,6 +102,11 @@ int main (int argc, char **argv) {
 	/* Parse the command-line arguments */
 	for (i = 1;  i < argc;  i++) {
 
+	    if (!(strcmp(argv[i],"--version"))) {
+		printf("%s\n",WF3_CAL_VER_NUM);
+		exit(0);
+	    }
+
 	    if (argv[i][0] == '-') {
 		for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
@@ -109,6 +115,9 @@ int main (int argc, char **argv) {
 			verbose = YES;
 		    } else if (argv[i][j] == 'q') {
 			quiet = YES;
+            } else if (argv[i][j] == 'r'){
+                printf ("Current version: %s\n", WF3_CAL_VER);
+                exit(0);
 		    } else {
 			printf (MsgText, "Unrecognized option %s\n", argv[i]);
 			FreeNames (inlist, outlist, input, output);
@@ -125,7 +134,7 @@ int main (int argc, char **argv) {
 	}
 
 	if (inlist[0] == '\0' || too_many) {
-	    printf ("syntax:  wf3ir [-t] [-v] [-q] input output\n");
+	    printf ("syntax:  wf3ir [-t] [-v] [-q] [-r] input output\n");
 	    printf ("  command-line switches:\n");
 	    printf ("       -bseq -pede\n");
 	    FreeNames (inlist, outlist, input, output);

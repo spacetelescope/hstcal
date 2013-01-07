@@ -32,12 +32,19 @@ int main (int argc, char **argv) {
 
     /* Initialize mtype to NULL to signal no change in ASN_MTYP for output*/
     mtype[0] = '\0';
+
+    /* Initialize the structure for managing trailer file comments */
+    InitTrlBuf ();
+
     
     /* Get input and output file names and switches in the command line. */
     rej_command (argc, argv, input, output, &par, newpar);
 
-    /* Initialize the structure for managing trailer file comments */
-    InitTrlBuf ();
+    if (status) {
+        WhichError (status);
+        exit (ERROR_RETURN);
+    }
+
 
     /* Reject cosmic rays. */
     if (Wf3Rej (input, output, mtype, &par, newpar)) {

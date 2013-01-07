@@ -11,6 +11,7 @@ int status = 0;			/* zero is OK */
 # include "wf3.h"
 # include "wf3sum.h"
 # include "wf3err.h"
+# include "wf3version.h"
 
 /* 
     This function will only return either 0 (WF3_OK) if everything
@@ -62,6 +63,9 @@ int main (int argc, char **argv) {
 			verbose = YES;
 		    } else if (argv[i][j] == 'q') {
 			quiet = YES;
+            } else if (argv[i][j] == 'r'){
+                printf ("Current version: %s\n", WF3_CAL_VER);
+                exit(0);
 		    } else {
 			printf (MsgText, "Unrecognized option %s\n", argv[i]);
 			free (input);
@@ -78,7 +82,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("syntax:  wf3sum [-t] [-v] [-q] input output\n");
+	    printf ("syntax:  wf3sum [-t] [-v] [-q] [-r] input output\n");
 	    free (input);
 	    free (output);
 	    exit (ERROR_RETURN);

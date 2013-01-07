@@ -7,6 +7,7 @@
 # include "wf3.h"
 # include "wf3rej.h"
 # include "wf3err.h"
+# include "wf3version.h"
 
 void rej_reset (clpar *, int []); 
 static int syntax_error (char *);
@@ -41,16 +42,25 @@ int newpar[];       o: array of parameters set by the user
     /* Reset the parameters */
     rej_reset (par, newpar); 
 
-    /* Not enough arguments; List all options for user */
-    if (argc < 3) {
-        syntax_error ("wf3rej input output [-t] [-v]");
-        printf("                    [-shadcorr] [-crmask]\n ");
-        printf("                    [-table <filename>] [-scale #]\n");
-        printf("                    [-init (med|min)] [-sky (none|mode)]\n");
-        printf("                    [-sigmas #] [-radius #] [-thresh #]\n");
-        printf("                    [-pdq #]\n"); 
-        return(status);
-    }
+    
+    /* Not enough arguments or just wants version number; List all options for user */
+    if (argc < 3  ) {
+        if (argc >= 2){
+            if (strcmp("-r", argv[1]) == 0) { 
+                printf ("Current version: %s\n", WF3_CAL_VER);
+                exit(0);
+            }
+        } else {
+            printf(" wf3rej input output [-t] [-v]");
+            printf("                    [-shadcorr] [-crmask]\n ");
+            printf("                    [-table <filename>] [-scale #]\n");
+            printf("                    [-init (med|min)] [-sky (none|mode)]\n");
+            printf("                    [-sigmas #] [-radius #] [-thresh #]\n");
+            printf("                    [-pdq #]\n"); 
+            printf("                    [-r]\n");
+            exit(ERROR_RETURN);
+        }
+    }       
 
     /* Get names of input and output files. These are mandatory. */
     strcpy (input,  argv[1]);
@@ -74,7 +84,6 @@ int newpar[];       o: array of parameters set by the user
             } else if (strcmp("v", argv[ctoken]+1) == 0) { 
                 par->verbose = 1;
                 ctoken++;
-
             } else if (strcmp("shadcorr", argv[ctoken]+1) == 0) { 
                 par->shadcorr = 1;
                 ctoken++;

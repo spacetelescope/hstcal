@@ -15,6 +15,7 @@ int status = 0;			/* zero is OK */
 # include "wf3info.h"
 # include "wf3err.h"
 # include "wf3corr.h"		/* calibration switch names for cs1 */
+# include "wf3version.h"
 
 static void FreeNames (char *, char *, char *, char *);
 
@@ -43,7 +44,7 @@ int main (int argc, char **argv) {
 	int quiet = NO;		/* suppress STDOUT messages? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */
-
+    
 	IRAFPointer i_imt, o_imt;	/* imt list pointers */
 	char *input;		/* name of input science file */
 	char *output;		/* optional name of output file */
@@ -97,6 +98,10 @@ int main (int argc, char **argv) {
 	initCCDSwitches (&wf32d_sw);
 
 	for (i = 1;  i < argc;  i++) {
+	    if (!(strcmp(argv[i],"--version"))) {
+		printf("%s\n",WF3_CAL_VER_NUM);
+		exit(0);
+	    }
 
 	    if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */
 		wf32d_sw.dqicorr = PERFORM;
@@ -121,6 +126,9 @@ int main (int argc, char **argv) {
 				verbose = YES;
 		    } else if (argv[i][j] == 'q') {
 				quiet = YES;
+            } else if (argv[i][j] == 'r'){
+              printf ("Current version: %s\n", WF3_CAL_VER);
+              exit(0);
 		    } else {
 			printf ("Unrecognized option %s\n", argv[i]);
 	    		FreeNames (inlist, outlist, input, output);
@@ -136,7 +144,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (inlist[0] == '\0' || too_many) {
-	    printf ("syntax:  wf32d [-t] [-v] [-q] input output\n");
+	    printf ("syntax:  wf32d [-t] [-v] [-q] [-r] input output\n");
 	    printf ("  command-line switches:\n");
 	    printf ("       -dqi  -atod\n");
 	    printf ("       -dark -flat -shad -phot -stat\n");
