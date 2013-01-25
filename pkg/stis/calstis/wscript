@@ -5,7 +5,11 @@ SUBDIRS = [
     'cs0',
     'cs1',
     'cs2',
-    'cs6'
+    'cs4',
+    'cs6',
+    'cs7',
+    'cs11',
+    'cs12'
     ]
 
 def build(bld):
