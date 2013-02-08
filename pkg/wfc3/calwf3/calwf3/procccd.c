@@ -77,7 +77,8 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime) {
 	int  updateAsnTable (AsnInfo *, int, int);
 	
 	save_crj = *save_tmp;		/* initial value; */	
-	
+	posid=0;	/* initial value; */	
+    
 	/* Reset RPTCORR setting from ASN table to use CRCORR for UVIS */
 	if (asn->rptcorr == PERFORM) {
 	    asn->crcorr = PERFORM;
@@ -85,16 +86,18 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime) {
 	}
 
 	/* Loop over the products/positions for each CR-split/Repeat-Obs set. */
+    
 	for (prod = 0; prod < asn->numprod; prod++) {
 	     if (asn->verbose){
-		 sprintf (MsgText, "CALWF3: processing UVIS product %d", prod);	
+		 sprintf (MsgText, "CALWF3: processing UVIS product %d, spmems is %i, total products is %i", prod,asn->spmems[posid], asn->numprod);	
 		 trlmessage (MsgText);
 	     }	
 
+         /*see bug notes in next for */
 	     /* Process this PARTIAL/SINGLE/FULL product... */
 	     for (posid = 1; posid <= asn->numsp; posid++) {
 		  if (asn->verbose) {
-		      sprintf (MsgText,"CALWF3: processing posid = %d", posid);
+		      sprintf (MsgText,"CALWF3: processing posid = %d, num sub-products=%i", posid, asn->numsp);
 		      trlmessage (MsgText);
 		  }
 
@@ -107,8 +110,12 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime) {
 		      wf3rej_input[0] = '\0';
 		  }
 			
+          /*is this a bug? with 2 members and 1 product in the ans table the code in wf3table where spmems 
+           is populated always sets it to 1. expid always ends up as 1 and posid increases , but spmems[posid] is always 1
+           so the the flt images get calibrated with their own reference files instead of the intended first image reference
+           files. If there were 2 products in the table would this be different? It actually is the preferred process now. */
 		  for (expid = 1; expid <= asn->spmems[posid]; expid++) {
-
+                
 		       /* From this point on, we are working with ONE image
 		       ** at a time... */
 
@@ -116,55 +123,56 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime) {
 		       ** image header */	
 		       /*if (prod == 0 && posid == 1 && expid == 1) {*/
 		       if (expid == 1) {
+			        /* (Re-)Initialize the lists of reference file
+			        ** keywords and names. */
+			        InitRefFile (&sciref);
 
-			   /* (Re-)Initialize the lists of reference file
-			   ** keywords and names. */
-			   InitRefFile (&sciref);
+			        /* Assign default values in wf3. */
+			        WF3Defaults (wf3hdr);
 
-			   /* Assign default values in wf3. */
-			   WF3Defaults (wf3hdr);
+			        if (asn->process == SINGLE ) {
+			            if (GetSingle (asn, wf3hdr) )
+				        return (status);
+			        } else {	
+			            if (GetAsnMember (asn, prod, posid, expid,
+					        	 wf3hdr)) 
+                                 
+				        return (status);
+			        } 
 
-			   if (asn->process == SINGLE ) {
-			       if (GetSingle (asn, wf3hdr) )
-				   return (status);
-			   } else {	
-			       if (GetAsnMember (asn, prod, posid, expid,
-						 wf3hdr)) 
-				   return (status);
-			   } 
+			        /* Initialize variables, and get info (calibration
+			         ** switches and reference file names) from primary
+			        ** headers. */
+			        if (CCDRefInit (wf3hdr, &sci_sw, &sciref))
+			            return (status);
 
-			   /* Initialize variables, and get info (calibration
-			   ** switches and reference file names) from primary
-			   ** headers. */
-			   if (CCDRefInit (wf3hdr, &sci_sw, &sciref))
-			       return (status);
+			        /* Make sure 'save_tmp' and 'save_crj' are no longer
+			        ** set to 'DUMMY'. 
+			        **
+			        ** If save_tmp was set from the command-line, then 
+			        ** ignore what is set in the header keyword
+			        ** EXPSCORR. */
 
-			   /* Make sure 'save_tmp' and 'save_crj' are no longer
-			   ** set to 'DUMMY'. 
-			   **
-			   ** If save_tmp was set from the command-line, then 
-			   ** ignore what is set in the header keyword
-			   ** EXPSCORR. */
+			        if (*save_tmp == DUMMY) {
+			            *save_tmp = NO;
+			               save_crj = *save_tmp;
+			        }
 
-			   if (*save_tmp == DUMMY) {
-			       *save_tmp = NO;
-			       save_crj = *save_tmp;
-			   }
-
-			   if (asn->verbose) {
-			       trlmessage 
-				     ("CALWF3: Got reference file information");
-			   }
-			   /* Store the trailer file comments into preface */
-			   newpreface = YES;
+			        if (asn->verbose) {
+			               trlmessage 
+				            ("CALWF3: Got reference file information");
+			        }
+			         /* Store the trailer file comments into preface */
+			        newpreface = YES;
 
 		       } else {
 
 			   if (asn->process == SINGLE ) {
+                
 			       if (GetSingle (asn, wf3hdr))
 				   return (status);
-			   } else {	
-			       if (GetAsnMember (asn, prod, posid, expid,
+			   } else {	               
+ 			       if (GetAsnMember (asn, prod, posid, expid,
 						 wf3hdr)) 
 				   return (status);
 			   } 
@@ -291,7 +299,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime) {
 			   (wf3hdr->sci_crcorr != PERFORM) &&
 			   (wf3hdr->sci_rptcorr != PERFORM))
 			   remove (wf3hdr->blv_tmp);
-
+              
 		  } /* End loop over individual EXPosures, 
 		    **	go on to create products */
 

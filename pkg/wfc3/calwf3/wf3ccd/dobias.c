@@ -28,6 +28,11 @@
 	science images, which needs to account for the columns of serial 
 	virtual overscan that are in the middle of a full-frame bias reference
 	image.
+   M. Sosey, 2013 Feb 7:
+   Updated to take into account the bias reference files who have values for their
+   CCDAMP of SINGLE_AMP or SINGLE_OR_ALL. This was not being tested against and their
+   are now reference files in CDBS with this designation when any single amp is used. 
+
 */
 
 int doBias (WF3Info *wf3, SingleGroup *x) {
@@ -48,7 +53,7 @@ SingleGroup *x	io: image to be calibrated; written to in-place
 	int scilines; 		/* number of lines in science image */
 	int i, j;
 	int update;
-	char biasamp[NAMPS+1];	/* CCDAMP string for bias ref file */
+	char biasamp[SZ_CBUF+1];	/* CCDAMP string for bias ref file */
 
 	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *,
 		      int *, int *);
@@ -97,22 +102,26 @@ SingleGroup *x	io: image to be calibrated; written to in-place
 
 	/* If the science and reference images are not the same size, check to
 	   see if we're calibrating a subarray image with a full-frame, 4-amp
-	   bias image. The full-frame bias will containt serial virtual overscan
+	   bias image. The full-frame bias will contain serial virtual overscan
 	   columns in the middle of it, which must be accounted for in the value
 	   of x0 if the science image subarray is located to the right (higher
 	   column numbers) of the virtual overscan, which will be the case for
 	   science image subarrays located in the amp B and D quadrants.
 	*/
 	if (!same_size) {
+        sprintf(MsgText,"Bias ref and science image not the same size");
+        trlmessage(MsgText);
 	    /* Retrieve CCDAMP value from bias image header */
-	    if(GetKeyStr(y.globalhdr, "CCDAMP", NO_DEFAULT, "", biasamp, NAMPS))
+	    if(GetKeyStr(y.globalhdr, "CCDAMP", NO_DEFAULT, "", biasamp, SZ_CBUF))
 		return (status);
 
 	    /* If the bias image uses all 4 amps and the science image uses
 	       either amp B or D, then add the virtual overscan columns to x0 */
-	    if ((streq_ic(biasamp,"ABCD") || streq_ic(biasamp,"ANY")) &&
+	    if ((streq_ic(biasamp,"ABCD") || streq_ic(biasamp,"ANY") \
+                || streq_ic(biasamp,"SINGLE_AMP") ||streq_ic(biasamp,"SINGLE_OR_ALL") ) &&
 		(streq_ic(wf3->ccdamp,"B") || streq_ic(wf3->ccdamp,"D"))) {
 		 x0 += 60;
+         
 	    }
 	}
 

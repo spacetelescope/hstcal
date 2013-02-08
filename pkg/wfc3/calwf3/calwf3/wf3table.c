@@ -582,8 +582,7 @@ int GetAsnTable (AsnInfo *asn) {
 	     for (i = 0; i < strlen(exp[row].type); i++) {
 		  if (exp[row].type[i] == UNDERLINE_CHAR) {       
 		      exp[row].type[i] = DASH_CHAR;
-		      sprintf(MsgText,
-		  "MEMTYPE %s in row %d was INVALID and needs to be corrected.",
+		      sprintf(MsgText, "MEMTYPE %s in row %d was INVALID and needs to be corrected.",
 			      exp[row].mtype, row+1);
 		      trlwarn(MsgText);
 		  }
@@ -662,8 +661,8 @@ int GetAsnTable (AsnInfo *asn) {
 	     /* As long as this is not the final product,
 	     ** count number of members in each product/sub-product...*/
 	     if (strstr(exp[row].type,"prod-dth") != NULL) {
-		 exp[row].posid = 0;	
-		 posid = 0;	
+		    exp[row].posid = 0;	
+		    posid = 0;	
 
 		 /* If we have a dither product listed, we want to eventually
 		 ** perform dither combining step... */	
@@ -707,6 +706,7 @@ int GetAsnTable (AsnInfo *asn) {
 
 		/* Keep track of how many sub-products there are based on
 		** POSID from MEMTYPE values */
+        
 		if (posid > numsp) {
 		    if ((exp[row].prsnt && (strstr(memtype,"exp") != NULL)) ||
 			strstr(memtype,"prod") != NULL) {
@@ -795,7 +795,7 @@ int GetAsnTable (AsnInfo *asn) {
 		      asn->process == FULL) {
 
 		      spmems[exp[row].posid]++;
-		      /* Exposure IDs will start at 1 to be consistent 
+ 		      /* Exposure IDs will start at 1 to be consistent 
 		      ** with POSID numbering. Initialize here, count later. */
 		      expmem[exp[row].posid] = 1;
 		 }
@@ -909,7 +909,7 @@ int GetAsnTable (AsnInfo *asn) {
 
 		      /* If neither, it must be a sub-product */
 		      } else {
-
+ 
 			  if (spmems[posid] > 0) {
 
 			  strcpy(asn->product[prodid].subprod[posid].name,
@@ -955,36 +955,7 @@ int GetAsnTable (AsnInfo *asn) {
 	/* Close the ASN table.  We are done reading it in. */
 	c_tbtclo (tp);
 	
-	/* The following code block is a temporary patch to get dithered
-	** NICMOS associations (which don't have subproducts) to process
-	** in the development version of calwf3. H.A.B. 19-Oct-2000 */
-	prodid = 0;
-	for (row = 0; row < nrows; row++) {
-	     posid = exp[row].posid;
-	     if (asn->product[prodid].numsp >= 1 && spmems[posid] == 1) {
-		 strcpy (asn->product[prodid].subprod[posid].name,
-			 exp[row].memname);
-		 strcpy (asn->product[prodid].subprod[posid].mtype,
-			 exp[row].type);
-		 asn->product[prodid].subprod[posid].prsnt =
-			 exp[row].prsnt;
-		 asn->product[prodid].subprod[posid].asnrow = row+1;
-
-                 /* Create full file name for this subproduct */
-                 if (MkName (exp[row].memname, "_raw", "_flt", "",
-                     asn->product[prodid].subprod[posid].spname, SZ_LINE)) {
-
-		     strcpy(asn->product[prodid].subprod[posid].spname,
-			    exp[row].memname);
-		     strcat(asn->product[prodid].subprod[posid].spname,
-			    "_flt.fits");
-		 }
-
-		 asn->product[prodid].subprod[posid].numexp = spmems[posid];
-		 asn->product[prodid].subprod[posid].posid  = posid;
-	      }
-	}
-	/* End of temporary patch */
+    
 
 	/* Clean up memory usage as well. */
 	free (spmems);
