@@ -31,7 +31,7 @@ int getGroupInfo (WF3Info *wf3, SingleNicmosGroup *in) {
 	/* Function definitions */
 	int getExpTime   (WF3Info *, Hdr *);
 	int getDataUnits (WF3Info *, Hdr *);
-	int getTDFTrans  (WF3Info *, Hdr *);
+	/*int getTDFTrans  (WF3Info *, Hdr *);*/
 
 	/* Get the exposure time */
 	if (getExpTime (wf3, &(in->sci.hdr)))
@@ -41,10 +41,11 @@ int getGroupInfo (WF3Info *wf3, SingleNicmosGroup *in) {
 	if (getDataUnits (wf3, &(in->sci.hdr)))
 	    return (status);
 
-	/* Get the TDF status */
+	/* Get the TDF status --see #980
 	if (getTDFTrans (wf3, &(in->sci.hdr)))
 	    return (status);
-
+    */
+    
 	/* Successful return */
 	return (status = 0);
 }

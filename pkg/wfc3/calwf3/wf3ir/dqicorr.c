@@ -195,6 +195,7 @@ int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
 ** H.Bushouse	Oct. 2000	Copied from calnica maskcorr for WFC3.
 ** H.Bushouse	08-May-2002	Changed DQ flag macro "BADPIX" to
 **				"DETECTORPROB". Added use of wf3dq.h.
+** M. Sosey     11-Feb-2013, the DQ array no longer reflects TDFTRANS
 */
 
 static int dqicorr (WF3Info *wf3, SingleNicmosGroup *input,
@@ -215,10 +216,11 @@ static int dqicorr (WF3Info *wf3, SingleNicmosGroup *input,
 	/* Combine the DQ mask with the input DQ */
 	aor (input, mask);
 
-	/* Was there a TDF transition during the exposure? */
+    /*this was removed by the team per #980
+	as there a TDF transition during the exposure?
 	if (wf3->tdftrans[wf3->group-1] > 0) {
 
-	    /* Set the DETECTORPROB value in the entire DQ array */
+	    Set the DETECTORPROB value in the entire DQ array
 	    for (j = 0; j < input->dq.data.ny; j++) {
 		 for (i = 0; i < input->dq.data.nx; i++) {
 		      DQSetPix (input->dq.data,i,j,
@@ -226,6 +228,7 @@ static int dqicorr (WF3Info *wf3, SingleNicmosGroup *input,
 		 }
 	    }
 	}
+    */
 
 	/* Successful return */
 	return (status = 0);
