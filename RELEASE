@@ -1,9 +1,9 @@
 
 set repo=https://svn.stsci.edu/svn/ssb/stsci_python/hstcal
 
-set branch=release_2012_06
+set branch=release_2013_03
 
-set VER=1.1
+set VER=1.2
 
 
 Making the source distribution
