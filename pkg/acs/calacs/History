@@ -1,3 +1,6 @@
+### 01-Apr-2013 - PLL -- Version 8.1.2
+    Fixed PCTECORR bug in Ticket #992.
+
 ### 17-Dec-2012 - PLL -- Version 8.1.2
     Fixed ACSREJ DQ propagation in FLTs.
 

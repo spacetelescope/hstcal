@@ -81,7 +81,7 @@ int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* read NSEMODEL keyword from primary header */
   if (GetKeyInt(&hdr_ptr, "NSEMODEL", NO_DEFAULT, -999, &pars->noise_model)) {
     trlerror("(pctecorr) Error reading NSEMODEL keyword from PCTETAB");
@@ -102,7 +102,7 @@ int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
     status = KEYWORD_MISSING;
     return status;
   }
-  
+
   /* read SUBTHRSH keyword from primary header */
   if (GetKeyDbl(&hdr_ptr, "SUBTHRSH", NO_DEFAULT, -999, &pars->sub_thresh)) {
     trlerror("(pctecorr) Error reading SUBTHRSH keyword from PCTETAB");
@@ -283,7 +283,7 @@ int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
   /* calculate cte_frac */
   pars->cte_frac = CalcCteFrac(expstart, scalemjd, scaleval);
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* read column by column scaling from 4th table extension */
   /* make filename + ext number 4 */
@@ -297,7 +297,7 @@ int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
     status = OPEN_FAILED;
     return status;
   }
-  
+
   /* iterate over table rows */
   for (j = 0; j < AMP_COLS; j++) {
     /* loop over table columns to read log q values */
@@ -461,7 +461,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     pars->rn_clip = rn_clip;
   }
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* get value and perform check for read noise smoothing algorithm */
   if (GetKeyInt(x->globalhdr, "PCTENSMD", USE_DEFAULT, def_value, &noise_model)) {
@@ -481,7 +481,7 @@ int CompareCteParams(SingleGroup *x, CTEParams *pars) {
     pars->noise_model = noise_model;
   }
   /****************************************************************************/
-  
+
   /****************************************************************************/
   /* get value and perform check for over-subtraction threshold */
   if (GetKeyDbl(x->globalhdr, "PCTETRSH", USE_DEFAULT, def_value_dbl, &sub_thresh)) {
@@ -834,51 +834,51 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
 
   /* status variable for return */
   extern int status;
-  
+
   /* iteration variables */
   int i, j, it_count;
-  
+
   /* local constants */
   const int max_it1 = 25;
   const int max_it2 = 30;
   const double rms_fac = 1.10;
   const double f_fac = 1.25;
-  
+
   /* accumulation variables */
   double sum;
   int num;
-  
+
   double * local_noise;
   double d1, f, rms;
-  
+
   /* check for valid noise_model */
   if (noise_model != 0 && noise_model != 1 && noise_model != 2) {
     return (status = ERROR_RETURN);
   }
-  
+
   for (i = 0; i < arrx; i++) {
     for (j = 0; j < arry; j++) {
       sig_arr[i*arry + j] = data[i*arry + j];
       noise_arr[i*arry + j] = 0.0;
     }
   }
-  
+
   /* no smoothing */
   if (noise_model == 0) {
     return status;
   }
-  
+
   /* adjust each pixel to be more similar to the three pixels below it */
   it_count = 0;
-  
+
   do {
     sum = 0.0;
     num = 0;
-    
+
     for (i = 1; i < arrx; i++) {
       for (j = 0; j < arry; j++) {
         d1 = sig_arr[i*arry + j] - sig_arr[(i-1)*arry + j];
-        
+
         if (d1 > 0.1*read_noise) {
           d1 = 0.1*read_noise;
         } else if (d1 < -0.1*read_noise) {
@@ -886,27 +886,27 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
         }
 
         noise_arr[i*arry + j] += d1;
-        
+
         sum += pow(noise_arr[i*arry + j], 2);
         num++;
       }
     }
-    
+
     for (i = 0; i < arrx; i++) {
       for (j = 0; j < arry; j++) {
         sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
       }
     }
-    
+
     rms = sqrt(sum / (double) num);
-    
+
     it_count++;
-    
+
   } while (it_count < max_it1 || (it_count < max_it2 && rms < rms_fac*read_noise));
-  
+
   if (noise_model == 1) {
-    /* allocate local copy of noise */ 
-    local_noise = (double *) malloc(arrx * arry * sizeof(double)); 
+    /* allocate local copy of noise */
+    local_noise = (double *) malloc(arrx * arry * sizeof(double));
 
     /* remove any excessive local corrections
      */
@@ -914,7 +914,7 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
       for (j = 0; j < arry; j++) {
         f = 1.0;
 
-        if (i > 1 && i < arrx && j > 0 && j < (arry-1)) {
+        if (i > 1 && i < (arrx-1) && j > 0 && j < (arry-1)) {
           f = pow(noise_arr[(i-1) * arry + (j+1)], 2) +
               pow(noise_arr[ i    * arry + (j+1)], 2) +
 	      pow(noise_arr[(i+1) * arry + (j+1)], 2) +
@@ -924,7 +924,7 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
               pow(noise_arr[(i-1) * arry + (j-1)], 2) +
               pow(noise_arr[ i    * arry + (j-1)], 2) +
               pow(noise_arr[(i+1) * arry + (j-1)], 2);
-   
+
           f = sqrt(f/9.0) / (f_fac * read_noise); /* scale-down factor */
 
           if (f < 1) {
@@ -955,6 +955,6 @@ int DecomposeRN(const int arrx, const int arry, const double data[arrx*arry],
       sig_arr[i*arry + j] = data[i*arry + j] - noise_arr[i*arry + j];
     }
   }
-   
+
   return status;
 }
