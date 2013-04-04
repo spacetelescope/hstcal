@@ -203,8 +203,8 @@ int main (int argc, char **argv) {
         }
 
         /* Set PCTECORR flag.
-           PERFORM:   Will use DRKCFILE and FLSCFILE.
-           Otherwise: Will use DARKFILE and FLSHFILE.
+           PERFORM:   Will use DRKCFILE.
+           Otherwise: Will use DARKFILE.
         */
         if (GetSwitch (&phdr, "PCTECORR", &pctecorr)) {
             WhichError (status);

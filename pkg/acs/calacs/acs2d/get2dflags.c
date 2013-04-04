@@ -286,6 +286,11 @@ static int checkFlash (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
 
 static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
 
+    /* This is basically the same as checkFlash().
+       It was written to support CTE-corrected post-flash reference file.
+       But then ACS Team decided to use non-corrected post-flash instead.
+     */
+
     /* arguments:
        Hdr *phdr        i: primary header
        ACSInfo *acs2d   i: switches, file names, etc
@@ -316,11 +321,11 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
         }
 
         if (GetImageRef (acs2d->refnames, phdr,
-                         "FLSCFILE", &acs2d->flashcte, &acs2d->flashcorr))
+                         "FLSHFILE", &acs2d->flashcte, &acs2d->flashcorr))
             return (status);
 
         if (acs2d->flashcte.exists != EXISTS_YES)
-            MissingFile ("FLSCFILE", acs2d->flashcte.name, missing);
+            MissingFile ("FLSHFILE", acs2d->flashcte.name, missing);
 
         /* Error message if LTV not 0 */
         initSingleGroup (&y);
@@ -332,7 +337,7 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
             return (status);
 	}
         if ((ltv[0] != 0) || (ltv[1] != 0)) {
-            sprintf(MsgText, "FLSCFILE `%s' has untrimmed overscans.",
+            sprintf(MsgText, "FLSHFILE `%s' has untrimmed overscans.",
                     acs2d->flashcte.name);
             trlerror (MsgText);
             freeSingleGroup(&y);
