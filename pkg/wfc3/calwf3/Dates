@@ -1,3 +1,10 @@
+26-Mar-2013 - MLS -- Version 3.1.3
+    Updated the postflash routine to apply the correct offset for all amps
+    when a user specified subarray is used (no GO users are allowed to do this)
+  
+    Some unrelated files will change because I formatted the indentation to make
+    the code easier to decipher
+
 11-Feb-2013 - MLS -- Version 3.1.2
     Updated the bias subtraction to check for CCDAMP values of SINGLE_AMP and
     SINGLE_OR_ALL in the reference bias file image when a full frame reference file
@@ -5,6 +12,8 @@
 
     Removed check for TDFTRANS per team request, see #980, I'm keeping the same version as
     the previous change because I havent delivered it yet
+
+    Added correct pixel offset for subarray images taken with amp B or D for post-flash corretion
 
 2-Jan-2013 - MLS -- Version 3.1.1
     File I/O in acsrej updated to avoid problems with CFITSIO upcasting  

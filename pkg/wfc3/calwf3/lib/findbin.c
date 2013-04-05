@@ -3,6 +3,9 @@
 # include "trl.h"		/* for trlwarn */
 # include "wf3err.h"		/* for REF_TOO_SMALL */
 
+# include <string.h>
+# include "wf3.h"
+
 /* This routine finds the bin factors and corner location to use
    when calling bin2d to extract and bin the appropriate subset of
    a reference image to match a science image.
@@ -20,406 +23,408 @@
    Revision history:
 
    Howard Bushouse, 2000 Dec 7:
-	Added error checks for WFC3 in the case where the science image
-	is binned more than the reference image.
+   Added error checks for WFC3 in the case where the science image
+   is binned more than the reference image.
 
    H. Bushouse, 2002 Mar 18:
-	Added the FindBinIR routine (copy of FindBin) to accomodate use
-	with WFC3 IR images.
-*/
+   Added the FindBinIR routine (copy of FindBin) to accomodate use
+   with WFC3 IR images.
+ */
 
 /* 
-** Developed to support line-by-line operations within CALACS.  
-** Based on calstis FindBin but operates on 1 line of reference data
-** at a time.
-*/
+ ** Developed to support line-by-line operations within CALACS.  
+ ** Based on calstis FindBin but operates on 1 line of reference data
+ ** at a time.
+ */
 int FindLine (SingleGroup *x, SingleGroupLine *y,
-	      int *same_size, int *rx, int *ry, int *x0, int *y0) {
+        int *same_size, int *rx, int *ry, int *x0, int *y0) {
 
-/* arguments:
-SingleGroup *x		i: science image
-SingleGroupLine *y	i: line from reference image
-int *same_size		o: true if zero offset and same size and binning
-int *rx, *ry		o: ratio of bin sizes
-int *x0, *y0		o: location of start of subimage in ref image
-*/
+    /* arguments:
+       SingleGroup *x		i: science image
+       SingleGroupLine *y	i: line from reference image
+       int *same_size		o: true if zero offset and same size and binning
+       int *rx, *ry		o: ratio of bin sizes
+       int *x0, *y0		o: location of start of subimage in ref image
+     */
 
-	extern int status;
+    extern int status;
 
-	int sci_bin[2];			/* bin size of science image */
-	int sci_corner[2];		/* science image corner location */
-	int ref_bin[2];			/* bin size of reference image */
-	int ref_corner[2];		/* ref image corner location */
-	int rsize;
-	int cshift[2];			/* shift of sci relative to ref */
-	int ratiox, ratioy;		/* local variables for rx, ry */
-	int xzero, yzero;		/* local variables for x0, y0 */
-	int GetCorner (Hdr *, int, int *, int *);
+    int sci_bin[2];			/* bin size of science image */
+    int sci_corner[2];		/* science image corner location */
+    int ref_bin[2];			/* bin size of reference image */
+    int ref_corner[2];		/* ref image corner location */
+    int rsize;
+    int cshift[2];			/* shift of sci relative to ref */
+    int ratiox, ratioy;		/* local variables for rx, ry */
+    int xzero, yzero;		/* local variables for x0, y0 */
+    int GetCorner (Hdr *, int, int *, int *);
 
-	/* Get bin sizes of science and reference images from headers. */
-	rsize = 1;
-	if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
-	    return (status);
-	if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
-	    return (status);
+    /* Get bin sizes of science and reference images from headers. */
+    rsize = 1;
+    if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+        return (status);
+    if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
+        return (status);
 
-	if (sci_corner[0] == ref_corner[0] &&
-	    sci_corner[1] == ref_corner[1] &&
-	    sci_bin[0] == ref_bin[0] &&
-	    sci_bin[1] == ref_bin[1] &&
-	    x->sci.data.nx == y->sci.tot_nx) {
+    if (sci_corner[0] == ref_corner[0] &&
+            sci_corner[1] == ref_corner[1] &&
+            sci_bin[0] == ref_bin[0] &&
+            sci_bin[1] == ref_bin[1] &&
+            x->sci.data.nx == y->sci.tot_nx) {
 
-	    /* We can use the reference image directly, without binning
-		and without extracting a subset.  */
-	    *same_size = 1;
-	    *rx = 1;
-	    *ry = 1;
-	    *x0 = 0;
-	    *y0 = 0;
+        /* We can use the reference image directly, without binning
+           and without extracting a subset.  */
+        *same_size = 1;
+        *rx = 1;
+        *ry = 1;
+        *x0 = 0;
+        *y0 = 0;
 
-	} else if (ref_bin[0] < sci_bin[0] ||
-		   ref_bin[1] < sci_bin[1]) {
+    } else if (ref_bin[0] < sci_bin[0] ||
+            ref_bin[1] < sci_bin[1]) {
 
-	    /* Science image is binned more than reference image: This
-	    ** is not allowed for WFC3. */
-	    *same_size = 0;
+        /* Science image is binned more than reference image: This
+         ** is not allowed for WFC3. */
+        *same_size = 0;
 
-	    *rx = sci_bin[0] / ref_bin[0];
-	    *ry = sci_bin[1] / ref_bin[1];
-	    *x0 = 0;
-	    *y0 = 0;
+        *rx = sci_bin[0] / ref_bin[0];
+        *ry = sci_bin[1] / ref_bin[1];
+        *x0 = 0;
+        *y0 = 0;
 
-	} else if (ref_bin[0] > sci_bin[0] ||
-		   ref_bin[1] > sci_bin[1]) {
+    } else if (ref_bin[0] > sci_bin[0] ||
+            ref_bin[1] > sci_bin[1]) {
 
-	    /* Reference image is binned more than science image. For WFC3
-	    ** this could happen for the shutter-shading correction file,
-	    ** and the low-order flat field. */
-	    *same_size = 0;
+        /* Reference image is binned more than science image. For WFC3
+         ** this could happen for the shutter-shading correction file,
+         ** and the low-order flat field. */
+        *same_size = 0;
 
-	    *rx = ref_bin[0] / sci_bin[0];
-	    *ry = ref_bin[1] / sci_bin[1];
-	    *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
-	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
+        *rx = ref_bin[0] / sci_bin[0];
+        *ry = ref_bin[1] / sci_bin[1];
+        *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
+        *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 
-	} else {
+    } else {
 
-            /* For subarray input images, whether they are binned or not... */
-	    *same_size = 0;
+        /* For subarray input images, whether they are binned or not... */
+        *same_size = 0;
 
-	    /* ratio of bin sizes */
-	    ratiox = sci_bin[0] / ref_bin[0];
-	    ratioy = sci_bin[1] / ref_bin[1];
-	    if (ratiox * ref_bin[0] != sci_bin[0] ||
-		ratioy * ref_bin[1] != sci_bin[1])
-		return (status = SIZE_MISMATCH);
+        /* ratio of bin sizes */
+        ratiox = sci_bin[0] / ref_bin[0];
+        ratioy = sci_bin[1] / ref_bin[1];
+        if (ratiox * ref_bin[0] != sci_bin[0] ||
+                ratioy * ref_bin[1] != sci_bin[1])
+            return (status = SIZE_MISMATCH);
 
-	    /* cshift is the offset in units of unbinned
-		pixels.  Divide by ref_bin to convert to units of pixels
-		in the reference image.
-	    */
-	    cshift[0] = sci_corner[0] - ref_corner[0];
-	    cshift[1] = sci_corner[1] - ref_corner[1];
-	    xzero = cshift[0] / ref_bin[0];
-	    yzero = cshift[1] / ref_bin[1];
-	    if (xzero * ref_bin[0] != cshift[0] ||
-		yzero * ref_bin[1] != cshift[1]) {
-		trlwarn ("Subimage offset not divisible by bin size.");
-	    }
-	    *rx = ratiox;
-	    *ry = ratioy;
-	    *x0 = xzero;
-	    *y0 = yzero;
-	}
+        /* cshift is the offset in units of unbinned
+           pixels.  Divide by ref_bin to convert to units of pixels
+           in the reference image.
+         */
+        cshift[0] = sci_corner[0] - ref_corner[0];
+        cshift[1] = sci_corner[1] - ref_corner[1];
+        xzero = cshift[0] / ref_bin[0];
+        yzero = cshift[1] / ref_bin[1];
+        if (xzero * ref_bin[0] != cshift[0] ||
+                yzero * ref_bin[1] != cshift[1]) {
+            trlwarn ("Subimage offset not divisible by bin size.");
+        }
+        sprintf(MsgText,"Subimage locations rx=%d, ry=%d, x0=%d, y0=%d",ratiox,ratioy,xzero,yzero);
+        trlmessage(MsgText);
+        *rx = ratiox;
+        *ry = ratioy;
+        *x0 = xzero;
+        *y0 = yzero;
+    }
 
-	return (status);
+    return (status);
 }
 
 /* 
-** Developed to support line-by-line operations within CALACS.  
-** Based on FindBin but operates on 1 line of reference data at a time.
-*/
+ ** Developed to support line-by-line operations within CALACS.  
+ ** Based on FindBin but operates on 1 line of reference data at a time.
+ */
 int FindLineHdr (Hdr *scihdr, Hdr *refhdr, int dimx, int refx,
-		 int *same_size, int *rx, int *ry, int *x0, int *y0) {
+        int *same_size, int *rx, int *ry, int *x0, int *y0) {
 
-/* arguments:
-Hdr *scihdr	i: science image header
-Hdr *refhdr	i: reference image header
-int dimx	i: X dimension of input image
-int refx	i: X dimension of reference image
-int *same_size	o: true if zero offset and same size and binning
-int *rx, *ry	o: ratio of bin sizes
-int *x0, *y0	o: location of start of subimage in ref image
-*/
+    /* arguments:
+       Hdr *scihdr	i: science image header
+       Hdr *refhdr	i: reference image header
+       int dimx	i: X dimension of input image
+       int refx	i: X dimension of reference image
+       int *same_size	o: true if zero offset and same size and binning
+       int *rx, *ry	o: ratio of bin sizes
+       int *x0, *y0	o: location of start of subimage in ref image
+     */
 
-	extern int status;
+    extern int status;
 
-	int sci_bin[2];			/* bin size of science image */
-	int sci_corner[2];		/* science image corner location */
-	int ref_bin[2];			/* bin size of reference image */
-	int ref_corner[2];		/* ref image corner location */
-	int rsize = 1;
-	int cshift[2];			/* shift of sci relative to ref */
-	int ratiox, ratioy;		/* local variables for rx, ry */
-	int xzero, yzero;		/* local variables for x0, y0 */
-	int GetCorner (Hdr *, int, int *, int *);
+    int sci_bin[2];			/* bin size of science image */
+    int sci_corner[2];		/* science image corner location */
+    int ref_bin[2];			/* bin size of reference image */
+    int ref_corner[2];		/* ref image corner location */
+    int rsize = 1;
+    int cshift[2];			/* shift of sci relative to ref */
+    int ratiox, ratioy;		/* local variables for rx, ry */
+    int xzero, yzero;		/* local variables for x0, y0 */
+    int GetCorner (Hdr *, int, int *, int *);
 
-	/* Get bin sizes of science and reference images from headers. */
-	if (GetCorner (scihdr, rsize, sci_bin, sci_corner))
-	    return (status);
-	if (GetCorner (refhdr, rsize, ref_bin, ref_corner))
-	    return (status);
+    /* Get bin sizes of science and reference images from headers. */
+    if (GetCorner (scihdr, rsize, sci_bin, sci_corner))
+        return (status);
+    if (GetCorner (refhdr, rsize, ref_bin, ref_corner))
+        return (status);
 
-	if (sci_corner[0] == ref_corner[0] &&
-	    sci_corner[1] == ref_corner[1] &&
-	    sci_bin[0] == ref_bin[0] &&
-	    sci_bin[1] == ref_bin[1] &&
-	    dimx == refx) {
+    if (sci_corner[0] == ref_corner[0] &&
+            sci_corner[1] == ref_corner[1] &&
+            sci_bin[0] == ref_bin[0] &&
+            sci_bin[1] == ref_bin[1] &&
+            dimx == refx) {
 
-	    /* We can use the reference image directly, without binning
-	    ** and without extracting a subset.  */
-	    *same_size = 1;
-	    *rx = 1;
-	    *ry = 1;
-	    *x0 = 0;
-	    *y0 = 0;
+        /* We can use the reference image directly, without binning
+         ** and without extracting a subset.  */
+        *same_size = 1;
+        *rx = 1;
+        *ry = 1;
+        *x0 = 0;
+        *y0 = 0;
 
-	} else if (ref_bin[0] < sci_bin[0] ||
-		   ref_bin[1] < sci_bin[1]) {
+    } else if (ref_bin[0] < sci_bin[0] ||
+            ref_bin[1] < sci_bin[1]) {
 
-	    /* Science image is binned more than reference image: This
-	    ** is not allowed for WFC3. */
-	    *same_size = 0;
+        /* Science image is binned more than reference image: This
+         ** is not allowed for WFC3. */
+        *same_size = 0;
 
-	    *rx = sci_bin[0] / ref_bin[0];
-	    *ry = sci_bin[1] / ref_bin[1];
+        *rx = sci_bin[0] / ref_bin[0];
+        *ry = sci_bin[1] / ref_bin[1];
 
-	     return (status = SIZE_MISMATCH);
+        return (status = SIZE_MISMATCH);
 
-	} else if (ref_bin[0] > sci_bin[0] ||
-		   ref_bin[1] > sci_bin[1]) {
+    } else if (ref_bin[0] > sci_bin[0] ||
+            ref_bin[1] > sci_bin[1]) {
 
-	    /* Reference image is binned more than the science image. */
-	    *same_size = 0;
+        /* Reference image is binned more than the science image. */
+        *same_size = 0;
 
-	    *rx = ref_bin[0] / sci_bin[0];
-	    *ry = ref_bin[1] / sci_bin[1];
-	    *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
-	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
+        *rx = ref_bin[0] / sci_bin[0];
+        *ry = ref_bin[1] / sci_bin[1];
+        *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
+        *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 
-	} else {
+    } else {
 
-	    /* We must extract subset. */
-	    *same_size = 0;
+        /* We must extract subset. */
+        *same_size = 0;
 
-	    /* ratio of bin sizes */
-	    ratiox = sci_bin[0] / ref_bin[0];
-	    ratioy = sci_bin[1] / ref_bin[1];
-	    if (ratiox * ref_bin[0] != sci_bin[0] ||
-		ratioy * ref_bin[1] != sci_bin[1])
-		return (status = SIZE_MISMATCH);
+        /* ratio of bin sizes */
+        ratiox = sci_bin[0] / ref_bin[0];
+        ratioy = sci_bin[1] / ref_bin[1];
+        if (ratiox * ref_bin[0] != sci_bin[0] ||
+                ratioy * ref_bin[1] != sci_bin[1])
+            return (status = SIZE_MISMATCH);
 
-	    /* cshift is the offset in units of unbinned
-		pixels.  Divide by ref_bin to convert to units of pixels
-		in the reference image.
-	    */
-	    cshift[0] = sci_corner[0] - ref_corner[0];
-	    cshift[1] = sci_corner[1] - ref_corner[1];
-	    xzero = cshift[0] / ref_bin[0];
-	    yzero = cshift[1] / ref_bin[1];
-	    if (xzero * ref_bin[0] != cshift[0] ||
-		yzero * ref_bin[1] != cshift[1]) {
-		trlwarn ("Subimage offset not divisible by bin size.");
-	    }
-	    *rx = ratiox;
-	    *ry = ratioy;
-	    *x0 = xzero;
-	    *y0 = yzero;
-	}
+        /* cshift is the offset in units of unbinned
+           pixels.  Divide by ref_bin to convert to units of pixels
+           in the reference image.
+         */
+        cshift[0] = sci_corner[0] - ref_corner[0];
+        cshift[1] = sci_corner[1] - ref_corner[1];
+        xzero = cshift[0] / ref_bin[0];
+        yzero = cshift[1] / ref_bin[1];
+        if (xzero * ref_bin[0] != cshift[0] ||
+                yzero * ref_bin[1] != cshift[1]) {
+            trlwarn ("Subimage offset not divisible by bin size.");
+        }
+        *rx = ratiox;
+        *ry = ratioy;
+        *x0 = xzero;
+        *y0 = yzero;
+    }
 
-	return (status);
+    return (status);
 }
 
 
 int FindBin (SingleGroup *x, SingleGroup *y, int *same_size,
-	     int *rx, int *ry, int *x0, int *y0) {
+        int *rx, int *ry, int *x0, int *y0) {
 
-/* arguments:
-SingleGroup *x    i: science image
-SingleGroup *y    i: reference image
-int *same_size    o: true if zero offset and same size and binning
-int *rx, *ry      o: ratio of bin sizes
-int *x0, *y0      o: location of start of subimage in ref image
-*/
+    /* arguments:
+       SingleGroup *x    i: science image
+       SingleGroup *y    i: reference image
+       int *same_size    o: true if zero offset and same size and binning
+       int *rx, *ry      o: ratio of bin sizes
+       int *x0, *y0      o: location of start of subimage in ref image
+     */
 
-	extern int status;
+    extern int status;
 
-	int sci_bin[2];			/* bin size of science image */
-	int sci_corner[2];		/* science image corner location */
-	int ref_bin[2];			/* bin size of reference image */
-	int ref_corner[2];		/* ref image corner location */
-	int rsize = 1;
-	int cshift[2];			/* shift of sci relative to ref */
-	int ratiox, ratioy;		/* local variables for rx, ry */
-	int xzero, yzero;		/* local variables for x0, y0 */
-	int GetCorner (Hdr *, int, int *, int *);
+    int sci_bin[2];			/* bin size of science image */
+    int sci_corner[2];		/* science image corner location */
+    int ref_bin[2];			/* bin size of reference image */
+    int ref_corner[2];		/* ref image corner location */
+    int rsize = 1;
+    int cshift[2];			/* shift of sci relative to ref */
+    int ratiox, ratioy;		/* local variables for rx, ry */
+    int xzero, yzero;		/* local variables for x0, y0 */
+    int GetCorner (Hdr *, int, int *, int *);
 
-	/* Get bin sizes of science and reference images from headers. */
-	if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
-	    return (status);
-	if (status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
-	    return (status);
+    /* Get bin sizes of science and reference images from headers. */
+    if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+        return (status);
+    if (status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
+        return (status);
 
-	if (sci_corner[0] == ref_corner[0] &&
-	    sci_corner[1] == ref_corner[1] &&
-	    sci_bin[0] == ref_bin[0] &&
-	    sci_bin[1] == ref_bin[1] &&
-	    x->sci.data.nx == y->sci.data.nx &&
-	    x->sci.data.ny == y->sci.data.ny) {
+    if (sci_corner[0] == ref_corner[0] &&
+            sci_corner[1] == ref_corner[1] &&
+            sci_bin[0] == ref_bin[0] &&
+            sci_bin[1] == ref_bin[1] &&
+            x->sci.data.nx == y->sci.data.nx &&
+            x->sci.data.ny == y->sci.data.ny) {
 
-	    /* We can use the reference image directly, without binning
-		and without extracting a subset.
-	    */
-	    *same_size = 1;
-	    *rx = 1;
-	    *ry = 1;
-	    *x0 = 0;
-	    *y0 = 0;
+        /* We can use the reference image directly, without binning
+           and without extracting a subset.
+         */
+        *same_size = 1;
+        *rx = 1;
+        *ry = 1;
+        *x0 = 0;
+        *y0 = 0;
 
-	} else if (ref_bin[0] > sci_bin[0] ||
-		   ref_bin[1] > sci_bin[1]) {
+    } else if (ref_bin[0] > sci_bin[0] ||
+            ref_bin[1] > sci_bin[1]) {
 
-	    /* Reference image is binned more than the science image. */
-	    *same_size = 0;
+        /* Reference image is binned more than the science image. */
+        *same_size = 0;
 
-	    *rx = ref_bin[0] / sci_bin[0];
-	    *ry = ref_bin[1] / sci_bin[1];
-	    *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
-	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
+        *rx = ref_bin[0] / sci_bin[0];
+        *ry = ref_bin[1] / sci_bin[1];
+        *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
+        *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 
-	    return (status = REF_TOO_SMALL);
+        return (status = REF_TOO_SMALL);
 
-	} else {
+    } else {
 
-	    /* We must bin, extract subset, or both. */
-	    *same_size = 0;
+        /* We must bin, extract subset, or both. */
+        *same_size = 0;
 
-	    /* ratio of bin sizes */
-	    ratiox = sci_bin[0] / ref_bin[0];
-	    ratioy = sci_bin[1] / ref_bin[1];
-	    if (ratiox * ref_bin[0] != sci_bin[0] ||
-		ratioy * ref_bin[1] != sci_bin[1])
-		return (status = SIZE_MISMATCH);
+        /* ratio of bin sizes */
+        ratiox = sci_bin[0] / ref_bin[0];
+        ratioy = sci_bin[1] / ref_bin[1];
+        if (ratiox * ref_bin[0] != sci_bin[0] ||
+                ratioy * ref_bin[1] != sci_bin[1])
+            return (status = SIZE_MISMATCH);
 
-	    /* cshift is the offset in units of unbinned (or low-res)
-		pixels.  Divide by ref_bin to convert to units of pixels
-		in the reference image.
-	    */
-	    cshift[0] = sci_corner[0] - ref_corner[0];
-	    cshift[1] = sci_corner[1] - ref_corner[1];
-	    xzero = cshift[0] / ref_bin[0];
-	    yzero = cshift[1] / ref_bin[1];
-	    if (xzero * ref_bin[0] != cshift[0] ||
-		yzero * ref_bin[1] != cshift[1]) {
-		trlwarn ("Subimage offset not divisible by bin size.");
-	    }
-	    *rx = ratiox;
-	    *ry = ratioy;
-	    *x0 = xzero;
-	    *y0 = yzero;
-	}
+        /* cshift is the offset in units of unbinned (or low-res)
+           pixels.  Divide by ref_bin to convert to units of pixels
+           in the reference image.
+         */
+        cshift[0] = sci_corner[0] - ref_corner[0];
+        cshift[1] = sci_corner[1] - ref_corner[1];
+        xzero = cshift[0] / ref_bin[0];
+        yzero = cshift[1] / ref_bin[1];
+        if (xzero * ref_bin[0] != cshift[0] ||
+                yzero * ref_bin[1] != cshift[1]) {
+            trlwarn ("Subimage offset not divisible by bin size.");
+        }
+        *rx = ratiox;
+        *ry = ratioy;
+        *x0 = xzero;
+        *y0 = yzero;
+    }
 
-	return (status);
+    return (status);
 }
 
 
 int FindBinIR (SingleNicmosGroup *x, SingleNicmosGroup *y, int *same_size,
-	       int *rx, int *ry, int *x0, int *y0) {
+        int *rx, int *ry, int *x0, int *y0) {
 
-/* arguments:
-SingleGroup *x    i: science image
-SingleGroup *y    i: reference image
-int *same_size    o: true if zero offset and same size and binning
-int *rx, *ry      o: ratio of bin sizes
-int *x0, *y0      o: location of start of subimage in ref image
-*/
+    /* arguments:
+       SingleGroup *x    i: science image
+       SingleGroup *y    i: reference image
+       int *same_size    o: true if zero offset and same size and binning
+       int *rx, *ry      o: ratio of bin sizes
+       int *x0, *y0      o: location of start of subimage in ref image
+     */
 
-	extern int status;
+    extern int status;
 
-	int sci_bin[2];			/* bin size of science image */
-	int sci_corner[2];		/* science image corner location */
-	int ref_bin[2];			/* bin size of reference image */
-	int ref_corner[2];		/* ref image corner location */
-	int rsize = 1;
-	int cshift[2];			/* shift of sci relative to ref */
-	int ratiox, ratioy;		/* local variables for rx, ry */
-	int xzero, yzero;		/* local variables for x0, y0 */
-	int GetCorner (Hdr *, int, int *, int *);
+    int sci_bin[2];			/* bin size of science image */
+    int sci_corner[2];		/* science image corner location */
+    int ref_bin[2];			/* bin size of reference image */
+    int ref_corner[2];		/* ref image corner location */
+    int rsize = 1;
+    int cshift[2];			/* shift of sci relative to ref */
+    int ratiox, ratioy;		/* local variables for rx, ry */
+    int xzero, yzero;		/* local variables for x0, y0 */
+    int GetCorner (Hdr *, int, int *, int *);
 
-	/* Get bin sizes of science and reference images from headers. */
-	if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
-	    return (status);
-	if (status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
-	    return (status);
+    /* Get bin sizes of science and reference images from headers. */
+    if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+        return (status);
+    if (status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
+        return (status);
 
-	if (sci_corner[0] == ref_corner[0] &&
-	    sci_corner[1] == ref_corner[1] &&
-	    sci_bin[0] == ref_bin[0] &&
-	    sci_bin[1] == ref_bin[1] &&
-	    x->sci.data.nx == y->sci.data.nx &&
-	    x->sci.data.ny == y->sci.data.ny) {
+    if (sci_corner[0] == ref_corner[0] &&
+            sci_corner[1] == ref_corner[1] &&
+            sci_bin[0] == ref_bin[0] &&
+            sci_bin[1] == ref_bin[1] &&
+            x->sci.data.nx == y->sci.data.nx &&
+            x->sci.data.ny == y->sci.data.ny) {
 
-	    /* We can use the reference image directly, without binning
-		and without extracting a subset.
-	    */
-	    *same_size = 1;
-	    *rx = 1;
-	    *ry = 1;
-	    *x0 = 0;
-	    *y0 = 0;
+        /* We can use the reference image directly, without binning
+           and without extracting a subset.
+         */
+        *same_size = 1;
+        *rx = 1;
+        *ry = 1;
+        *x0 = 0;
+        *y0 = 0;
 
-	} else if (ref_bin[0] > sci_bin[0] ||
-		   ref_bin[1] > sci_bin[1]) {
+    } else if (ref_bin[0] > sci_bin[0] ||
+            ref_bin[1] > sci_bin[1]) {
 
-	    /* Reference image is binned more than the science image. */
-	    *same_size = 0;
+        /* Reference image is binned more than the science image. */
+        *same_size = 0;
 
-	    *rx = ref_bin[0] / sci_bin[0];
-	    *ry = ref_bin[1] / sci_bin[1];
-	    *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
-	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
+        *rx = ref_bin[0] / sci_bin[0];
+        *ry = ref_bin[1] / sci_bin[1];
+        *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
+        *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 
-	    return (status = REF_TOO_SMALL);
+        return (status = REF_TOO_SMALL);
 
-	} else {
+    } else {
 
-	    /* We must bin, extract subset, or both. */
-	    *same_size = 0;
+        /* We must bin, extract subset, or both. */
+        *same_size = 0;
 
-	    /* ratio of bin sizes */
-	    ratiox = sci_bin[0] / ref_bin[0];
-	    ratioy = sci_bin[1] / ref_bin[1];
-	    if (ratiox * ref_bin[0] != sci_bin[0] ||
-		ratioy * ref_bin[1] != sci_bin[1])
-		return (status = SIZE_MISMATCH);
+        /* ratio of bin sizes */
+        ratiox = sci_bin[0] / ref_bin[0];
+        ratioy = sci_bin[1] / ref_bin[1];
+        if (ratiox * ref_bin[0] != sci_bin[0] ||
+                ratioy * ref_bin[1] != sci_bin[1])
+            return (status = SIZE_MISMATCH);
 
-	    /* cshift is the offset in units of unbinned (or low-res)
-		pixels.  Divide by ref_bin to convert to units of pixels
-		in the reference image.
-	    */
-	    cshift[0] = sci_corner[0] - ref_corner[0];
-	    cshift[1] = sci_corner[1] - ref_corner[1];
-	    xzero = cshift[0] / ref_bin[0];
-	    yzero = cshift[1] / ref_bin[1];
-	    if (xzero * ref_bin[0] != cshift[0] ||
-		yzero * ref_bin[1] != cshift[1]) {
-		trlwarn ("Subimage offset not divisible by bin size.");
-	    }
-	    *rx = ratiox;
-	    *ry = ratioy;
-	    *x0 = xzero;
-	    *y0 = yzero;
-	}
+        /* cshift is the offset in units of unbinned (or low-res)
+           pixels.  Divide by ref_bin to convert to units of pixels
+           in the reference image.
+         */
+        cshift[0] = sci_corner[0] - ref_corner[0];
+        cshift[1] = sci_corner[1] - ref_corner[1];
+        xzero = cshift[0] / ref_bin[0];
+        yzero = cshift[1] / ref_bin[1];
+        if (xzero * ref_bin[0] != cshift[0] ||
+                yzero * ref_bin[1] != cshift[1]) {
+            trlwarn ("Subimage offset not divisible by bin size.");
+        }
+        *rx = ratiox;
+        *ry = ratioy;
+        *x0 = xzero;
+        *y0 = yzero;
+    }
 
-	return (status);
+    return (status);
 }

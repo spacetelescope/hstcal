@@ -42,6 +42,8 @@
 	Added error return if reference image not binned same as the
 	science image.
 
+   M. Sosey 2013 March 26:
+    Updated to correctly deal with both canned and user specified sub arrays
 */
 
 int doFlash (WF3Info *wf3ccd, SingleGroup *x, float *meanflash) {
@@ -109,7 +111,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	initSingleGroupLine (&y);
 	
 	scilines = x->sci.data.ny;
-
+    
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
 	if (DetCCDChip (wf3ccd->flash.name, wf3ccd->chip, wf3ccd->nimsets, &extver) )
@@ -152,9 +154,10 @@ float *meanflash    o: mean of post-flash image values subtracted
 	/* AMPX,AMPY initialization */
 	dimx = x->sci.data.nx;
 	dimy = x->sci.data.ny;
-
-	offsetx = (int)(wf3ccd->offsetx > 0) ? wf3ccd->offsetx : 0;
-	offsety = (int)(wf3ccd->offsety > 0) ? wf3ccd->offsety : 0;
+    
+    /*sometimes this offset is negative*/
+	offsetx = (int)((wf3ccd->offsetx) > 0) ? (wf3ccd->offsetx) : 0;
+	offsety = (int)((wf3ccd->offsety) > 0) ? (wf3ccd->offsety) : 0;
 
 	/* Correct the AMP readout boundaries for this offset */
 	ampx = ((wf3ccd->ampx == 0) ? 0 : (int)(wf3ccd->ampx + offsetx) );
@@ -163,11 +166,13 @@ float *meanflash    o: mean of post-flash image values subtracted
 	/* Bounds checking to make sure we don't try to apply gain
 	** 	and noise outside the bounds of the image. 
 	*/
+    
 	if (ampx >= (dimx - wf3ccd->offsetx) || ampx > dimx ) ampx = dimx;
 	if (ampy >= (dimy - wf3ccd->offsety) || ampy > dimy ) ampy = dimy;
 
 	wf3ccd->ampx = ampx;
 	wf3ccd->ampy = ampy;
+    
 	mean = 0.0;
 	weight = 0.0;
     
@@ -187,6 +192,9 @@ float *meanflash    o: mean of post-flash image values subtracted
 
 	initSingleGroupLine (&z);
 	allocSingleGroupLine (&z, x->sci.data.nx);
+          
+    x0+=(wf3ccd->offsetx);
+                  
 	for (i=0, j=y0; i < scilines; i++,j++) { 
 
 	/* We are working with a sub-array and need to apply the
@@ -195,13 +203,12 @@ float *meanflash    o: mean of post-flash image values subtracted
 	    getSingleGroupLine (wf3ccd->flash.name, j, &y);
 
 	    update = NO;
-
 	    if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
 			trlerror ("(flshcorr) size mismatch.");
 			return (status);
 	    }
 
-	    multgn1d (&z, j, wf3ccd->ampx, wf3ccd->ampy, gain,wf3ccd->flashdur);
+	    multgn1d (&z, j, wf3ccd->ampx, wf3ccd->ampy, gain, wf3ccd->flashdur);
 
 	    AvgSciValLine (&z, wf3ccd->sdqflags, &flash, &wflash);
 
