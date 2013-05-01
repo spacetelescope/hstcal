@@ -2,3 +2,33 @@ HSTCAL 1.2 RELEASE NOTES
 
 March 2013
 
+The HSTCAL package provides an environment for compiling IRAF tasks
+written in C without using IRAF at all.  The HSTIO image and 
+tables C API has been replicated using CFITSIO. This API was 
+used to compile the ACS calibration code CALACS and WFC3 calibration
+code CALWF3 without IRAF. 
+
+CALWF3
+======
+Version 3.0 of CALWF3 was installed in Nov 2012 as the calibration 
+software that gets used in the archive and for pipeline calibrations, 
+replacing the now outdated STSDAS/IRAF based version (both of which 
+have been removed from STSDAS).  This release also includes calwf3
+related tasks; namely, wf32d, wf3ccd, wf3ir, and wf3rej.
+
+Changes since the last release of CALWF3 include:
+* removed check for TDFTRANS for WFC3/IR data
+* fixed a memory leak in calwf3
+* fixed a CFITSIO bug in wf3rej
+* WFC3/UVIS subarray bias correction step updated to correctly apply the proper reference data
+
+
+CALACS
+======
+Version 8.1.2 of CALACS has been included in this release. Changes from previous release include:
+* CALACS now uses CTE corrected dark and post-flash reference files as appropriate
+* post-flash correction now enabled in calacs
+* error values computed in acsrej have been corrected
+
+
+
