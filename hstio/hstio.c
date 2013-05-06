@@ -2334,7 +2334,7 @@ int putFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
                 }
 
                 naxis = 0;
-                fits_write_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
                 iodesc->dims[0] = 0;
                 iodesc->dims[1] = 0;
 
@@ -2465,7 +2465,7 @@ int putFloatSect(IODescPtr iodesc_, FloatTwoDArray *da, int xbeg,
                 }
 
                 naxis = 0;
-                fits_write_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
                 iodesc->dims[0] = 0;
                 iodesc->dims[1] = 0;
                 /* update the header, etc. */
@@ -2668,7 +2668,7 @@ int putShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
                 }
 
                 naxis = 0;
-                fits_write_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
                 iodesc->dims[0] = 0;
                 iodesc->dims[1] = 0;
 
@@ -2798,7 +2798,7 @@ int putShortSect(IODescPtr iodesc_, ShortTwoDArray *da, int xbeg, int ybeg,
                 }
 
                 naxis = 0;
-                fits_write_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
                 iodesc->dims[0] = 0;
                 iodesc->dims[1] = 0;
                 /* update the header, etc. */
