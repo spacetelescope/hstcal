@@ -1,5 +1,5 @@
 #!/bin/sh
-# STSDAS contains some code from the Numerical Recipes book.  We
+# hstcal contains some code from the Numerical Recipes book.  We
 # have licenses to use it and distribute binaries, but not to distribute
 # source code.  
 #
