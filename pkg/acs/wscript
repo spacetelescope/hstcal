@@ -1,0 +1,13 @@
+# vim: set syntax=python:
+
+from waflib.Task import Task
+
+LIBRARIES = [
+    'calacs'
+    ]
+
+def build(bld):
+    for library in LIBRARIES:
+        bld.recurse(library)
+
+    bld(name='acs', depends_on='calacs.e', always=True)
