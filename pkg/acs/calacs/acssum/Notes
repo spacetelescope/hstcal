@@ -1,0 +1,50 @@
+changes for handling multiple imsets for echelle:
+
+GetKeyInfo8:
+	check opt_elem[0] to see if echelle data
+	if echelle {
+	    set echelle flag
+	    remove comparison between nextend/3 and nrptexp
+	    save nrptexp
+	}
+
+new routine:
+	determine the correct value for nrptexp
+
+SumGrps:
+	for sporder = minorder, maxorder {
+	    call PrGrpBegin, i.e. for output imset, not input
+	    reset index to zero
+	    find first imset matching sporder in array
+	    if verbose, print input imset number
+	    getsinglegroup (x)
+	    while not done {
+		find next imset matching sporder in array
+		if verbose, print input imset number
+		getsinglegroup (y)
+		add to current sum (x)
+		etc
+	    }
+	    update extension keywords
+	    write output imset
+	}
+
+PutHdrInfo8:
+	OK as is?  problem:  nextend could vary from imset to imset
+	set nextend to nrptexp
+
+
+new routine:
+	if not echelle {
+	    set all elements in array to one
+	    return
+	}
+
+	read sporder from each SCI extension, saving the values in an array
+	get delta_sporder (+1 or -1) by comparing the first two elements
+	loop over all elements in the sporder array {
+	    count the number of times sporder changes in a different
+		    direction from the sign of delta_sporder
+	    assign that value to nrptexp
+	    find minorder, maxorder
+	}
