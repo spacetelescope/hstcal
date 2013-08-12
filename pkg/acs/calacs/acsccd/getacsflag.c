@@ -1,17 +1,16 @@
 # include <stdio.h>
-# include <string.h>		/* for strncmp, strcmp */
+# include <string.h>        /* for strncmp, strcmp */
 
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"		/* defines error codes */
+# include "acserr.h"        /* defines error codes */
 
 static int checkAtoD (Hdr *, ACSInfo *, int *, int *);
 static int checkBias (Hdr *, ACSInfo *, int *, int *);
 static int checkBlev (Hdr *, ACSInfo *, int *, int *);
 static int checkCCD (Hdr *, ACSInfo *, int *);
 static int checkDQI (Hdr *, ACSInfo *, int *, int *);
-static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
 
 
 /* This routine gets the names of reference images and tables from the
@@ -20,7 +19,7 @@ static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
  Warren Hack, 1998 June 8:
  Original ACS version based on Phil Hodge's CALSTIS routine...
  **
- **	No Major modifications from STIS code...
+ **    No Major modifications from STIS code...
 
  Warren Hack, 2001 Feb 7:
  Finished revisions for supporting Post-Flash
@@ -34,33 +33,27 @@ static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
  Pey Lian Lim, 2012 Dec 19:
  Make sure check is skipped if input *acs flag is not PERFORM.
  Otherwise, acsccd.e flags do not work properly.
-*/
+ **
 
+ Pey Lian Lim, 2013 Aug 12:
+ Separated PCTECORR from ACSCCD.
+ **
+
+*/
 int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 
     extern int status;
 
-    int missing = 0;	/* true if any calibration file is missing */
-    int nsteps = 0;		/* number of calibration steps to perform */
+    int missing = 0;    /* true if any calibration file is missing */
+    int nsteps = 0;     /* number of calibration steps to perform */
 
     int GetccdSw (ACSInfo *, Hdr *);
 
     /* Get the values for the Calibration Switches from the
-    **	header for processing.
+    **    header for processing.
     */
     if (GetccdSw (acs, phdr) )
         return(status);
-
-    /* Check each reference file that we need. */
-
-    if (checkDQI (phdr, acs, &missing, &nsteps))
-        return (status);
-
-    if (checkAtoD (phdr, acs, &missing, &nsteps))
-        return (status);
-
-    if (checkBlev (phdr, acs, &missing, &nsteps))	/* no reference file */
-        return (status);
 
     /* Although this should never be called with MAMA data, we
        just want to be safe...
@@ -70,10 +63,18 @@ int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
             return (status);
     }
 
-    if (checkBias (phdr, acs, &missing, &nsteps))
+    /* Check each reference file that we need. */
+
+    if (checkDQI (phdr, acs, &missing, &nsteps))
         return (status);
 
-    if (checkPCTE (phdr, acs, &missing, &nsteps))
+    if (checkAtoD (phdr, acs, &missing, &nsteps))
+        return (status);
+
+    if (checkBlev (phdr, acs, &missing, &nsteps))    /* no reference file */
+        return (status);
+
+    if (checkBias (phdr, acs, &missing, &nsteps))
         return (status);
 
     if (missing) {
@@ -91,7 +92,6 @@ int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 /* If this step is to be performed, check for the existence of the
    atod table.
 */
-
 static int checkAtoD (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
     /* arguments:
@@ -138,7 +138,6 @@ static int checkAtoD (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 /* If this step is to be performed, check for the existence of the
    bias file.  If it exists, get the pedigree and descrip keyword values.
 */
-
 static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
   /* arguments:
@@ -214,54 +213,6 @@ static int checkBlev (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 }
 
 
-/* If this step is to be performed, check for the existence of the
-   CTE parameters file.  If it exists, get the pedigree and descrip
-   keyword values.
-*/
-
-static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
-
-    /* arguments:
-       Hdr *phdr        i: primary header
-       ACSInfo *acs   i: switches, file names, etc
-       int *missing     io: incremented if the file is missing
-       int *nsteps      io: incremented if this step can be performed
-    */
-
-    extern int status;
-
-    int calswitch;
-    int GetSwitch (Hdr *, char *, int *);
-    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
-    void MissingFile (char *, char *, int *);
-    int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
-
-    /* Are we supposed to do this step? */
-    if (acs->pctecorr == PERFORM) {
-
-        if (GetSwitch (phdr, "PCTECORR", &calswitch))
-            return (status);
-
-        if (calswitch == COMPLETE) {
-            acs->pctecorr = OMIT;
-            return (status);
-        }
-
-        if (GetTabRef (acs->refnames, phdr,
-                       "PCTETAB", &acs->pcte, &acs->pctecorr))
-            return (status);
-
-        if (acs->pcte.exists != EXISTS_YES)
-            MissingFile ("PCTETAB", acs->pcte.name, missing);
-
-        if (acs->pctecorr == PERFORM)
-            (*nsteps)++;
-    }
-
-    return (status);
-}
-
-
 /* If the detector is the CCD, we need the CCD parameters table for
    BIASCORR, DARKCORR, and PHOTCORR.  This routine checks that the table
    exists.
@@ -270,7 +221,6 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
    don't have a flag for that step.  That's why we need this table
    regardless of which steps are to be performed.
 */
-
 static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
 
     /* arguments:
@@ -280,7 +230,7 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
     */
 
     extern int status;
-    int calswitch;			/* returned by GetTabRef and ignored */
+    int calswitch;            /* returned by GetTabRef and ignored */
     int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
     void MissingFile (char *, char *, int *);
     int GotFileName (char *);
@@ -335,7 +285,6 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
    problem to perform this step more than once.  The user might do so
    deliberately in order to accumulate the flags from more than one table.
 */
-
 static int checkDQI (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
     /* arguments:

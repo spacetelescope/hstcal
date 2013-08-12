@@ -1,4 +1,4 @@
-/* ACSCCD -- basic CCD image reduction */
+/* ACSCTE -- CTE loss correction */
 
 # include <stdio.h>
 # include <stdlib.h>		/* calloc */
@@ -18,33 +18,23 @@ int status = 0;			/* zero is OK */
 
 static void FreeNames (char *, char *, char *, char *);
 
-/* This is the main module for ACSCCD.  It gets the input and output
- file names, calibration switches, and flags, and then calls ACSccd.
-
- Warren Hack, 1998 June 1:
- Revised for ACS... It will work on 1 ACS image at a time. Based on
- original CALSTIS code by Phil Hodge.
-
- Pey Lian Lim, 2012 Dec 12:
- Moved FLSHCORR to ACS2D.
-
- Pey Lian Lim, 2012 Dec 19:
- Commented calibration switches because they are overwritten in
- getacsflags.c by image header anyway.
+/* This is the main module for ACSCTE.  It gets the input and output
+ file names, calibration switches, and flags, and then calls ACScte.
 
  Pey Lian Lim, 2013 Aug 9:
- Separated PCTECORR step from ACSCCD.
+ Separated PCTECORR step from ACSCCD. It is now a separate sub-module.
 
  */
 
 int main (int argc, char **argv) {
 
-    char *inlist;		/* input file name */
-    char *outlist;		/* output blev file name */
+    char *inlist;		/* input blv_tmp file name */
+    char *outlist;		/* output blc_tmp file name */
     /*int switch_on = 0;*/	/* was any switch specified? */
     int printtime = NO;	/* print time after each step? */
     int verbose = NO;	/* print additional info? */
     int quiet = NO;	/* print additional info? */
+    int onecpu = NO; /* Use OpenMP (multi vs single CPU mode), if available? */
     int too_many = 0;	/* too many command-line arguments? */
     int i, j;		/* loop indexes */
     int k;
@@ -56,10 +46,10 @@ int main (int argc, char **argv) {
     int n;
 
     /* Input and output suffixes. */
-    char isuffix[] = "_raw";
-    char osuffix[] = "_blv_tmp";
+    char isuffix[] = "_blv_tmp";
+    char osuffix[] = "_blc_tmp";
 
-    /* A structure to pass the calibration switches to ACSCCD */
+    /* A structure to pass the calibration switches to ACSCTE */
     CalSwitch ccd_sw;
 
     /* reference file keywords and names */
@@ -69,7 +59,7 @@ int main (int argc, char **argv) {
     void FreeRefFile (RefFileInfo *);
     void initSwitch (CalSwitch *);
 
-    int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int);
+    int ACScte (char *, char *, CalSwitch *, RefFileInfo *, int, int, int);
     int DefSwitch (char *);
     int MkName (char *, char *, char *, char *, char *, int);
     void WhichError (int);
@@ -77,6 +67,7 @@ int main (int argc, char **argv) {
 
     /* For image header access */
     Hdr phdr;
+    int pctecorr;
     int LoadHdr (char *, Hdr *);
     int GetSwitch (Hdr *, char *, int *);
 
@@ -106,21 +97,6 @@ int main (int argc, char **argv) {
 
     for (i = 1;  i < argc;  i++) {
 
-        /**********
-        if (strcmp (argv[i], "-dqi") == 0) {
-            ccd_sw.dqicorr = PERFORM;
-            switch_on = 1;
-        } else if (strcmp (argv[i], "-atod") == 0) {
-            ccd_sw.atodcorr = PERFORM;
-            switch_on = 1;
-        } else if (strcmp (argv[i], "-blev") == 0) {
-            ccd_sw.blevcorr = PERFORM;
-            switch_on = 1;
-        } else if (strcmp (argv[i], "-bias") == 0) {
-            ccd_sw.biascorr = PERFORM;
-            switch_on = 1;
-        } else if (argv[i][0] == '-') {
-        **********/
         if (argv[i][0] == '-') {
             for (j = 1;  argv[i][j] != '\0';  j++) {
                 if (argv[i][j] == 't') {
@@ -129,6 +105,8 @@ int main (int argc, char **argv) {
                     verbose = YES;
                 } else if (argv[i][j] == 'q') {
                     quiet = YES;
+                } else if (argv[i][j] == '1') {
+                    onecpu = YES;
                 } else {
                     printf (MsgText, "Unrecognized option %s\n", argv[i]);
                     FreeNames (inlist, outlist, input, output);
@@ -144,11 +122,7 @@ int main (int argc, char **argv) {
         }
     }
     if (inlist[0] == '\0' || too_many) {
-        printf ("syntax:  acsccd [-t] [-v] [-q] input output\n");
-        /*
-        printf ("  command-line switches:\n");
-        printf ("       -dqi -atod -blev -bias\n");
-        */
+        printf ("syntax:  acscte [-t] [-v] [-q] [-1] input output\n");
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }
@@ -159,12 +133,9 @@ int main (int argc, char **argv) {
     SetTrlQuietMode(quiet);
 
     /* Was no calibration switch specified on command line?
-       default values (mostly PERFORM) except ATODCORR
+       default values (mostly PERFORM)
     if (!switch_on) {*/
-    ccd_sw.dqicorr  = DefSwitch ("dqicorr");
-    ccd_sw.atodcorr = DefSwitch ("atodcorr");
-    ccd_sw.blevcorr = DefSwitch ("blevcorr");
-    ccd_sw.biascorr = DefSwitch ("biascorr");
+    ccd_sw.pctecorr = DefSwitch ("pctecorr");
     /*}*/
 
     /* Expand the templates. */
@@ -201,7 +172,20 @@ int main (int argc, char **argv) {
         }
 
         /* Determine osuffix. */
-        strcpy(osuffix, "_blv_tmp");
+        if (GetSwitch (&phdr, "PCTECORR", &pctecorr)) {
+            WhichError (status);
+            sprintf (MsgText, "Skipping %s", input);
+            trlmessage (MsgText);
+            continue;
+        }
+        if (pctecorr == PERFORM)
+            strcpy(osuffix, "_blc_tmp");
+        else {
+            WhichError (status);
+            sprintf (MsgText, "Skipping %s because PCTECORR is not set to PERFORM", input);
+            trlmessage (MsgText);
+            continue;
+        }
 
         if (MkName (input, isuffix, osuffix, "", output, ACS_LINE)) {
             WhichError (status);
@@ -211,7 +195,8 @@ int main (int argc, char **argv) {
         }
 
         /* Calibrate the current input file. */
-        if (ACSccd (input, output, &ccd_sw, &refnames, printtime, verbose)) {
+        if (ACScte (input, output, &ccd_sw, &refnames, printtime, verbose,
+                    onecpu)) {
             sprintf (MsgText, "Error processing %s.", input);
             trlerror (MsgText);
             WhichError (status);

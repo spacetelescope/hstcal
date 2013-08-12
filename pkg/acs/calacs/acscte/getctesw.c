@@ -15,23 +15,19 @@ static int GetSw (Hdr *, char *, int *);
  switch will be set to PERFORM only if the calibration switch value in
  the header exists and is "PERFORM".
 
- 07 May 2001 - Added code to read in FLSHCORR keyword when running ACSCCD.
- 08 Mar 2011 MRD - Added code to read PCTECORR keyword.
- 12 Dec 2012 PLL - Moved FLSHCORR to ACS2D.
  12 Aug 2013 PLL - Separated PCTECORR from ACSCCD.
  */
-int GetccdSw (ACSInfo *acs, Hdr *phdr) {
+int GetcteSw (ACSInfo *acs, Hdr *phdr) {
 
     extern int status;
     FitsKw key;        /* keyword location in header */
 
-    if (GetSw (phdr, "DQICORR",  &acs->dqicorr))
-        return (status);
-    if (GetSw (phdr, "ATODCORR", &acs->atodcorr))
-        return (status);
-    if (GetSw (phdr, "BIASCORR", &acs->biascorr))
-        return (status);
-    if (GetSw (phdr, "BLEVCORR", &acs->blevcorr))
+    key = findKw (phdr, "PCTECORR");
+    if (key == NotFound) {
+        sprintf(MsgText, "PCTECORR keyword not found...");
+        trlwarn(MsgText);
+    }
+    if (GetSw (phdr, "PCTECORR", &acs->pctecorr))
         return (status);
 
     return (status);

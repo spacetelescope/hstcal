@@ -1,3 +1,25 @@
+Update for version 8.2.0 - 12-Aug-13 (PLL)
+    acsccd/acsccd.c
+    acsccd/doccd.c
+    acsccd/dopcte.c -> acscte/dopcte.c
+    acsccd/getacsflag.c
+    acsccd/getccdsw.c
+    acsccd/mainccd.c
+    acsccd/pcte.h -> acscte/pcte.h
+    acsccd/pcte_fixycte.c -> acscte/pcte_fixycte.c
+    acsccd/pcte_funcs.c -> acscte/pcte_funcs.c
+    acscte/docte.c
+    acscte/maincte.c
+    acscte/acscte.c
+    acscte/getcteflag.c
+    acscte/getctesw.c
+    calacs/acsinit.c
+    calacs/calacs.c
+    calacs/calacs.h
+    calacs/sciflags.c
+    include/acscorr.h
+    lib/acsinfo.c
+
 Update for version 8.1.3 - 04-Apr-13 (PLL)
     acs2d/get2dflags.c
     acs2d/main2d.c
@@ -116,18 +138,18 @@ Update for Version 5.1.1 - 27-Apr-10 (WJH)
     acsrej/readpar.c:
         Replaced 'strtor' function with latest one from calstis/lib.
     acsrej.cl:
-        Wrapped sigmas parameter value in single-quotes to support extraneous 
+        Wrapped sigmas parameter value in single-quotes to support extraneous
         spaces in the parameter value.
-        
+
 
 Update for Version 4.4.2 - 19-Mar-04 (WJH)
     calacs/calacs.c:
         Added 'acssum_msgtext' variable as a dynamically allocated string
-        variable to print out the list of input image names for ACSSUM and 
+        variable to print out the list of input image names for ACSSUM and
         replace the use of 'MsgText' (a statically sized string variable).
-    lib/mkoutname: 
+    lib/mkoutname:
         Added calls to 'free()' to clean up memory upon exiting for errors.
-        
+
 
 Update for Version 4.4.1 - 21-Jan-04 (WJH)
     acs.h:
@@ -141,7 +163,7 @@ Update for Version 4.4 - 24 Nov 03 (WJH):
     acsccd/doblev.c:
         Implemented limit on sdev to be sqrt(mean) for first pass,
         and use readnoise as value of sdev for second pass in
-        'cleanBiasFit'.  Also, added 'rn' as input to 'cleanBiasFit'. 
+        'cleanBiasFit'.  Also, added 'rn' as input to 'cleanBiasFit'.
 
 Update for Version 4.3a - 27 June 03 (WJH):
     acsinfo.h, lib/acsinfo.c:
@@ -151,13 +173,13 @@ Update for Version 4.3a - 27 June 03 (WJH):
         Moved 'BiasKeywords' from doccd.c and modified to use HSTIO
         functions to open output and force an update to PHDR.
     acsccd/doccd.c:
-        Removed all separate references to 'blev','bzero','bslope' as 
-        'blev' was incorporated into ACSInfo struct. 
+        Removed all separate references to 'blev','bzero','bslope' as
+        'blev' was incorporated into ACSInfo struct.
         Removed 'BiasKeywords' function to 'acsccd.c'.
     acsccd/doblev.c:
         Changed all references to 'blev' to point to ACSInfo.blev.
-        Removed all references to 'bslope','bzero'. 
-        
+        Removed all references to 'bslope','bzero'.
+
 
 Update for Version 4.3 - 6 June 03 (WJH):
     acsccd/doccd.c:
@@ -165,7 +187,7 @@ Update for Version 4.3 - 6 June 03 (WJH):
         keywords, and ONLY if BIASLEVA already exists for OPUS 14.3.
     calacs/calacs.c:
         Added call to 'updateSwitch' to update the EXPSCORR switch
-        when finished running BLV_TMP file through ACS2D. 
+        when finished running BLV_TMP file through ACS2D.
         Then, moved it to 'acs2d' to take advantage of open header.
     acs2d/do2d.c:
         Update EXPSCORR switch value now.
@@ -173,11 +195,11 @@ Update for Version 4.3 - 6 June 03 (WJH):
         Copy value of expscorr into ACS2D structure.
     acsinfo.h:
         Add expscorr to ACSInfo structure for use in ACS2D.
-    
+
 Update for Version 4.2c - 14 May 03 (WJH):
     acsrej/acsrej.c:
         Added call to 'mkNewSpt' within error condition for acsrej_do
-        to always produce an SPT file for product when possible. 
+        to always produce an SPT file for product when possible.
         This also involved remembering the value of the error condition,
         setting it to ACS_OK, calling 'mkNewSpt', then resetting to old
         value in order to allow 'mkNewSpt' to work successfully in this case.
@@ -192,12 +214,12 @@ Update for Version 4.2b - 1 May 03 (WJH):
     acsccd/doblev.c:
         Set default ccdbias value to be AMP C/D value for WFC Chip 2 data
         where no overscan was available for computing the bias level.
-        
+
 Update for Version 4.2a - 2 Apr 03 (WJH):
     calacs/calacs.c:
-        Added check on status value returned from ACSREJ.  If 
-        set to 'NO_GOOD_DATA', it will reset 'acshdr->sci_basic_2d' to 
-        'SKIPPED' so that no further processing will be performed.  It 
+        Added check on status value returned from ACSREJ.  If
+        set to 'NO_GOOD_DATA', it will reset 'acshdr->sci_basic_2d' to
+        'SKIPPED' so that no further processing will be performed.  It
         then resets the status value to ACS_OK for continuing normally.
     acsrej/acsrej_loop.c:
         Added code to avoid crashing when exp[n] = 0. for an input image.
@@ -206,17 +228,17 @@ Update for Version 4.2a - 2 Apr 03 (WJH):
         Added trailer file comments to better describe how EXPTIME=0 cases
         are handled.
     acsrej/acsrej_init.c:
-        Added code to count number of inputs with exptime>0. Also, 
+        Added code to count number of inputs with exptime>0. Also,
         now checks whether exptime!=0 when building initial guess.
     acsrej/acsrej_do.c:
         Added code to count number of inputs with exptime>0.
         If some are zero, new code will insure that first good image
-        gets used to initialize this initial guess image. 
+        gets used to initialize this initial guess image.
         Revised to handle cases where 0,1,or more inputs are valid.
-        If none have exptime>0, skips acsrej_loop altogether and 
+        If none have exptime>0, skips acsrej_loop altogether and
         outputs a blank with DQ values of 1
-        and ERR values of 0 with the exception of the 0,0 pixel which 
-        has values of 8 and -1 respectively. 
+        and ERR values of 0 with the exception of the 0,0 pixel which
+        has values of 8 and -1 respectively.
         It now returns status=NO_GOOD_DATA if non-zero = 0 (no inputs
         with exptime>0).
 
@@ -238,14 +260,14 @@ Update for Version 4.2 - 6 Mar 03 (WJH):
         Added code to initialize and compute values of blev,bslope,bzero as
             4-element arrays, 1 element per amp.
         Added 'cleanBiasFit' function to perform sigma-clipping of
-            overscan values which are fit to compute the bslope and 
+            overscan values which are fit to compute the bslope and
             bzero values.  The clipped array then gets used in a call
             to BlevAccum to set up the actual fit.
     acsccd/blevfit.c:
         Added function to return the values of the slope and zero-point
             computed for the fit.  Also, the fit reports the values to the
             user in a trailer message.
-        
+
 
 Update for Version 4.1c - 25-Aug-2002 (WJH):
     acsrej/acsrej_loop.c:
@@ -258,8 +280,8 @@ Update for Version 4.1c - 25-Aug-2002 (WJH):
 
 Update for Version 4.1b - 19-Aug-2002 (WJH):
     calacs/calacs.c:
-        Fix involved using subprod.mtype instead of prod.mtype for 
-        acssum_mtype.      
+        Fix involved using subprod.mtype instead of prod.mtype for
+        acssum_mtype.
 
 Update for Version 4.1a - 25-July-2002 (WJH):
     calacs/calacs.c:
@@ -273,7 +295,7 @@ Update for Version 4.1a - 25-July-2002 (WJH):
 
 Update for Version 4.1 - 9-July-2002 (WJH):
     calacs/acstable.c:
-        Fixed bug with interpreting RPn MEMTYPEs.  
+        Fixed bug with interpreting RPn MEMTYPEs.
         RPTLEN reset to 2, and searching for '-rp' instead
          of '-rpt'.
 
@@ -281,16 +303,16 @@ Update for Version 4.0a - 7-June-2002 (WJH):
     acsrej/acsrej_loop.c:
         Added conditions to not include pixels marked as bad in error values.
     acssum/acssum.c:
-        Added '+1' to reallocation call to account for appended comma when 
-            building the list of input images. 
+        Added '+1' to reallocation call to account for appended comma when
+            building the list of input images.
         NOTE: There still may be a underlying
-            bug which may cause this routine to crash for nimages > 12, but 
+            bug which may cause this routine to crash for nimages > 12, but
             that has yet to be fully determined.
 
 Update for Version 4.0 - 25-Apr-2002 (WJH):
     calacs/calacs.c:
         Added check on RPTCORR as well as CRCORR to see if anything needs to
-            be done.  
+            be done.
     calacs/acsdth.c:
         Eliminated creation of empty '_dth.fits' product.
     acs2d/acs2d.c:
@@ -303,7 +325,7 @@ Update for Version 4.0 - 25-Apr-2002 (WJH):
     calacs/calacs.c:
         set DQICORR to COMPLETE for CRJ file.
         Set ASN_STAT only in ASN tables, NOT single images.
-          
+
 Update for Version 3.6 - 17-Apr-2002 (WJH):
     acssum/acssum.c
     acssum/acssum.h
@@ -332,10 +354,10 @@ Update for Version 3.5h - 10-Apr-2002 (WJH):
         comments to trailer files, thus preserving Generic Conversion comments.
 
         Also, added control over ASN_STAT keyword in ASN table.  This will
-        set the value to INCOMPLETE when no product is generated for an 
+        set the value to INCOMPLETE when no product is generated for an
         association in order for DADS to be able to ingest the data.
         This required a new function, updateAsnStat, based on UpdateAsnTable.
-        
+
 Update for Version 3.5g - 9-Apr-2002 (WJH):
     acs2d/do2d.c:
         Update BUNIT in SCI and ERR extensions instead of globalhdr (Primary).
@@ -360,14 +382,14 @@ Update for Version 3.5f - 19-Mar-2002 (WJH):
     acsrej/acsrej_do.c:
         used totdark value to compute new EXPSTART value, and output as double
     acsrej/cr_scaling.c:
-        compute and pass back the total dark time computed from 
+        compute and pass back the total dark time computed from
             EXPEND-EXPSTART pair values
     acsrej/acsrej_sky.c:
         correct the computed bin position for the bin width. Important
         when nbins < MIN_BINS, and hwidth < 1.
     lib/acshist.c:
         added reporting on overscan table used in BLEVCORR step.
-    
+
 Update for Version 3.5e - 7-Feb-2002 (WJH):
     calacs/calacs.c:
         Fixed trailer file name for asn trailer file to be 'asnroot.tra'.
@@ -379,11 +401,11 @@ Update for Version 3.5e - 7-Feb-2002 (WJH):
         initialized.
     calacs/acstable.c:
         Moved 'asn->dthcorr' to always be set to PERFORM for all ASNs.
-        
+
 Update for Version 3.5d - 30-Jan-2002 (WJH):
     acs2d/dophot.c:
         Removed all gain normalization of PHOTFLAM, including the function
-        'AvgGains'.  
+        'AvgGains'.
     acs2d/doflat.c:
         Added code from 'dodark.c' to divide the flat-fields by the gains
         from CCDTAB.  This results in the data being produced by CALACS in
@@ -399,7 +421,7 @@ Update for Version 3.5c1 - 24-Jan-2002 (WJH):
         arrays to the SYNPHOT functions. This was done to match the
         defaults in the interactive usage of SYNPHOT.
         Only affected ARR_SIZE definition - changed from 1000 to 10,000.
-        
+
 Update for Version 3.5c - 18-Jan-2002 (WJH):
     calacs/getflags.c:
         Changed logic to default to 'FLSHCORR' in all cases.
@@ -415,7 +437,7 @@ Update for Version 3.5b - 17-Dec-2001 (WJH):
     acs2d/photmode.c:
         Add check to ignore filters given as 'N/A'.
         Convert 'POL*V' to 'pol_v' for use with synphot
-        Check 'obstype' to see if it is coronographic, then add 
+        Check 'obstype' to see if it is coronographic, then add
             'coron' to photmode string.
     acsinfo.h:
         Add 'obstype' to structure for reading in 'OBSTYPE' keyword.
@@ -423,15 +445,15 @@ Update for Version 3.5b - 17-Dec-2001 (WJH):
         Initialize new parameter 'obstype'.
     lib/getacskeys.c:
         Read in 'OBSTYPE' keyword.
-   
+
 Update for Version 3.5a - 14-Dec-2001 (WJH):
     acs2d/photmode.c:
         Convert POL filter names to 'pol_uv' for use with synphot.
-        
+
 Updates for Version 3.5a - 10-Dec-2001 (WJH):
     acsccd/doccd.c:
         Updates SIZAXIS keywords with new values in trimmed product.
-        
+
 Updates for Version 3.5a - 4-Dec-2001 (WJH):
     lib/dodqi.c:
         Added CCDAMP,CCDGAIN,CCDCHIP columns as row selector columns.
@@ -458,8 +480,8 @@ Updates for Version 3.5 - 2-Nov-2001 (WJH):
             and 'ccdbias' with 'ccdbias[4]'. removed 'filtcorr'.
     lib/getccdtab.c:
         Revised to replace CCDBIAS column with CCDBIAS[A,B,C,D]
-        to table.  Also use CCDOFST[A,B,C,D] to select appropriate row as 
-        well. 
+        to table.  Also use CCDOFST[A,B,C,D] to select appropriate row as
+        well.
     lib/donoise.c:
         Use different default value of ccdbias[amp] for each amp (if
         needed) instead of just one value.
@@ -468,13 +490,13 @@ Updates for Version 3.5 - 2-Nov-2001 (WJH):
     acsccd/doccd.c:
         Updated to use CCDBIAS[A,B,C,D] for default bias levels
         and to use CCDOFST to select CCDBIAS from revised CCDTAB file. Also,
-        reports bias levels for each AMP. 
+        reports bias levels for each AMP.
     acsccd/doblev.c:
         Revised to use CCDOFST[A,B,C,D] to select default
-        bias levels from CCDBIAS[A,B,C,D] (which are new to CCDTAB) in 
+        bias levels from CCDBIAS[A,B,C,D] (which are new to CCDTAB) in
         this version. Updated to use VY values of <=0 to detect lack of
         virtual overscan use and NOT apply BlevDrift().
-    
+
 
 Updates for Version 3.4 - 23-Oct-2001 (WJH):
     Problem Report #44676
@@ -513,7 +535,7 @@ Updates for Version 3.3 - 6-Aug-2001 (WJH):
 
     acssum.c,mainsum.c :
         WJH 19 April 2001
-            Removed 'save_tmp' as a parameter to ACSSUM.  This parameter will 
+            Removed 'save_tmp' as a parameter to ACSSUM.  This parameter will
             only be controlled by CALACS, not by individual tasks.
 
     lib/parseamps.c:
@@ -534,7 +556,7 @@ Updates for Version 3.3 - 6-Aug-2001 (WJH):
         Fixed a bug in calculating the second trim region in a subarray.
 
     acsccd/getacsflag.c,doccd.c:
-	    Warren Hack, 2001 Feb 7: 
+	    Warren Hack, 2001 Feb 7:
 		    Finished revisions for supporting Post-Flash processing.
 
     acsccd/doflash.c:
@@ -556,7 +578,7 @@ Updates for Version 3.3 - 6-Aug-2001 (WJH):
         processing individual EXP files with ACS2D...
         If we are not performing CRCORR, then copy
         blv_tmp file into a final _flt file.
-        Finished processing blv_tmp file through ACS2D               
+        Finished processing blv_tmp file through ACS2D
         Now, delete _blv_tmp files ONLY if not doing CRCORR
 
         Also, removes sub-products properly when ACSSUM completes.
@@ -566,9 +588,9 @@ Updates for Version 3.3 - 6-Aug-2001 (WJH):
 
     calacs/getsciinfo.c:
         Updated to provide better diagnostics when primary header is
-        unreadable.   
+        unreadable.
 
-    calacs/refexist.c:    
+    calacs/refexist.c:
         Warren Hack, 2001 July 3:
             Revised to report more informative error messages for
             situations where a NULL string is given as a ref file name.

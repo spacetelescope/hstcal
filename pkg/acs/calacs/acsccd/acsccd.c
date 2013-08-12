@@ -15,7 +15,7 @@
 # include "acscorr.h"		/* calibration switch names */
 
 static int BiasKeywords (ACSInfo *);
-void InitCCDTrl (char *, char *, int);
+void InitCCDTrl (char *, char *);
 
 
 /* Do basic CCD calibration.
@@ -34,7 +34,7 @@ void InitCCDTrl (char *, char *, int);
  **
  */
 int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
-            RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
+            RefFileInfo *refnames, int printtime, int verbose) {
 
     extern int status;
 
@@ -67,7 +67,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
        and output file names, then initialize the trailer file buffer
        with those names.
     */
-    InitCCDTrl (input, output, ccd_sw->pctecorr);
+    InitCCDTrl (input, output);
     /* If we had a problem initializing the trailer files, quit... */
     if (status != ACS_OK)
         return (status);
@@ -92,11 +92,9 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     acs.atodcorr = ccd_sw->atodcorr;
     acs.blevcorr = ccd_sw->blevcorr;
     acs.biascorr = ccd_sw->biascorr;
-    acs.pctecorr = ccd_sw->pctecorr;
     acs.noisecorr = PERFORM;
     acs.printtime = printtime;
     acs.verbose = verbose;
-    acs.onecpu = onecpu;
 
     /* For debugging...
     acs.dqicorr  = PERFORM;
@@ -107,6 +105,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     acs.printtime = 1;
     acs.verbose = 1;
     */
+
     acs.refnames = refnames;
 
     PrFileName ("input", acs.input);
@@ -151,22 +150,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
 
     freeHdr(&phdr);
 
-    /* If ccd_sw->pctecorr is set to OMIT but acs.pctecorr is now set to PERFORM
-     * then this is a case where we are performing the no-CTE half of the
-     * processing for an image that's also getting CTE corrections.
-     *
-     * GetACSFlags overwrites all the *CORR flag settings passed in as ccd_sw.
-     * this is bad if we're explicitely trying to tell DoCCD not to perform
-     * CTE corrections by setting ccd_sw->pctecorr to OMIT in calacs.c, so here
-     * I'm going to set acs.pctecorr back to whatever it was in
-     * ccd_sw->pctecorr.
-     * MRD 15 Mar 2011
-     */
-    if ((acs.pctecorr == PERFORM) && (ccd_sw->pctecorr == OMIT)) {
-        acs.pctecorr = ccd_sw->pctecorr;
-    }
-
-    /* Do basic CCD image reduction. */
+     /* Do basic CCD image reduction. */
 
     if (acs.printtime) {
         TimeStamp("Begin processing", acs.rootname);
@@ -202,7 +186,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
 }
 
 
-void InitCCDTrl (char *input, char *output, int pctecorr) {
+void InitCCDTrl (char *input, char *output) {
 
     extern int status;
 
@@ -223,12 +207,6 @@ void InitCCDTrl (char *input, char *output, int pctecorr) {
     trl_in[0] = '\0';
     trl_out[0] = '\0';
     exist = EXISTS_UNKNOWN;
-
-    /* if pctecorr is set to PERFORM then the osuffix is _blc_tmp
-     * and the trlsuffix is _flc */
-    if (pctecorr == PERFORM) {
-        strcpy(osuffix, "_blc_tmp");
-    }
 
     /* Start by stripping off suffix from input/output filenames */
     if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, ACS_LINE)) {

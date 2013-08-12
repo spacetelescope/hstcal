@@ -1,3 +1,5 @@
+ 12-Aug-2013:  CALACS 8.2.0 New ACSCTE sub-module added to separate PCTECORR
+                            from ACSCCD.
   4-Apr-2013:  CALACS 8.1.3 Removed FLSCFILE support as it is no longer needed.
   1-Apr-2013:  CALACS 8.1.2 PCTECORR bug fix for Ticket #992.
  17-Dec-2012:  CALACS 8.1.2 ACSREJ DQ now properly propagates to FLT images.
@@ -34,7 +36,7 @@
   9-Nov-2001:  CALACS 3.5  Support for final CCDTAB/OSCNTAB formats, and
                             bias reference images.
  23-Oct-2001:  CALACS 3.4  PHOTCORR finally works.
-  6-Aug-2001:  CALACS 3.3  
+  6-Aug-2001:  CALACS 3.3
  14-Nov-2000:  CALACS 3.2  First version installed in STSDAS
  14-Jan-1999   CALACS 2.0  (14-Jan-1999) First version installed in STLOCAL
  24-Nov-1998:  CALASC 1.0  (24-Nov-1998) compiled (1st trailer file version)
