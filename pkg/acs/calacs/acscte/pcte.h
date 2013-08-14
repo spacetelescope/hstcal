@@ -16,22 +16,22 @@
 #define ACSWFC 1
 
 #define NAMPS 4
-#define AMP_COLS 2072
+#define AMP_COLS 2048
 
 /* structure to hold CTE parameters from reference file */
 typedef struct {
-  double cte_frac;
-  double rn_clip;
-  int noise_model;
-  int sim_nit;
-  int shft_nit;
-  double sub_thresh;
-  double dtde_l[NUM_PHI];
-  int q_dtde[NUM_PHI];
-  int psi_node[NUM_PSI];
-  double chg_leak[NUM_PSI * NUM_LOGQ];
-  int levels[NUM_LEV];
-  double col_scale[AMP_COLS * NAMPS];
+    double cte_frac;
+    double rn_clip;
+    int noise_model;
+    int sim_nit;
+    int shft_nit;
+    double sub_thresh;
+    double dtde_l[NUM_PHI];
+    int q_dtde[NUM_PHI];
+    int psi_node[NUM_PSI];
+    double chg_leak[NUM_PSI * NUM_LOGQ];
+    int levels[NUM_LEV];
+    double col_scale[AMP_COLS * NAMPS];
 } CTEParams;
 
 /* function prototypes */
