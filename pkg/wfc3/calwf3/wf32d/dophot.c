@@ -63,7 +63,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	** lower case for use in synphot. */
 	Phot2Obs (photmode, obsmode);
 	if (wf32d->verbose) {
-	    sprintf (MsgText, "Created SYNPHOT obsmode of: %s", obsmode);
+	    sprintf (MsgText, "Created PYSYNPHOT obsmode of: %s", obsmode);
 	    trlmessage (MsgText);
 	}
 

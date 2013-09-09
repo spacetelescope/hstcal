@@ -1,5 +1,7 @@
 # include "hstio.h"
 # include "wf3.h"
+# include "wf3info.h"
+# include "wf3err.h"
 
 /* The science data and the error array values are multiplied by k;
    the data quality array is not modified.
@@ -7,6 +9,9 @@
    Howard Bushouse, 2001 Nov 16:
 	Revised to track CALACS changes - Modified calling sequence and
 	internal operation of multgn1d.
+    
+   Megan Sosey, 2013 Sep 6
+   Added new routine to deal with subarrays which span amp regions
 */
 
 int multk1d (SingleGroupLine *a, float k) {
@@ -88,6 +93,54 @@ void AvgSciValLine (SingleGroupLine *y, short sdqflags, float *mean,
 	}
 }
 
+void multgn1dsub(SingleGroupLine *a, int line, float *gain, float k0, char *ccdamp) {
+
+/* arguments:
+SingleGroupLine *a	io: input data; output product
+int line		i: line number of input line
+int ampx, ampy		i: amp parameters
+float *gain		i: atogain parameter
+float k0		i: value for scaling image data
+			(exptime or flashdur or ...)
+            
+This uses logic which is good for subarrays    
+            
+*/
+	int i;
+	float k;
+	int dimx;
+
+
+	/* Determine k */
+	k = 0;
+	dimx = a->sci.tot_nx;
+            
+    /* Since both the science and error arrays operate on the 
+        same line of data, we will combine them into one loop over
+        X values.
+    */
+    
+    if (strcmp (ccdamp, "A")==0) {   
+            k = k0 / gain[AMP_A];
+    } else if (strcmp (ccdamp, "B")==0) {   
+             k = k0 / gain[AMP_B];
+    } else if  (strcmp (ccdamp, "C")==0) {   
+             k = k0 / gain[AMP_C];
+    } else if  (strcmp (ccdamp, "D")==0) {   
+             k = k0 / gain[AMP_D];
+    } else {
+        trlerror("Bad AMP assignment in multgn1dsub");
+    }
+             
+    /* Apply scale factors  */
+    for (i = 0;  i < dimx;  i++) {
+	     a->sci.line[i] = k * a->sci.line[i];
+	     a->err.line[i] = k * a->err.line[i];        
+    }
+ 
+}
+
+
 void multgn1d (SingleGroupLine *a, int line, int ampx, int ampy, float *gain,
 	       float k0) {
 
@@ -98,10 +151,15 @@ int ampx, ampy		i: amp parameters
 float *gain		i: atogain parameter
 float k0		i: value for scaling image data
 			(exptime or flashdur or ...)
+            
+None of this logic is taking into account the subarray cases where only 1 amp
+is used to read out the entire array, no mater where it is taken from            
+            
 */
 	int i;
 	float k;
 	int dimx;
+
 
 	/* Determine k */
 	k = 0;
@@ -118,6 +176,7 @@ float k0		i: value for scaling image data
         } else {
             k = 0.;
         } 
+    
         /* This line has 2-AMP readout */
         /* Apply gain for first amp to first part of line */
         for (i = 0;  i < ampx;  i++) {
@@ -131,8 +190,8 @@ float k0		i: value for scaling image data
         if (ampx < dimx) {
             k = k0 / gain[AMP_D];
             for (i = ampx;  i < dimx;  i++) {
-		 a->sci.line[i] = k * a->sci.line[i];
-		 a->err.line[i] = k * a->err.line[i];        
+		        a->sci.line[i] = k * a->sci.line[i];
+		        a->err.line[i] = k * a->err.line[i];        
             }
         }
 
@@ -160,5 +219,6 @@ float k0		i: value for scaling image data
             }
         }
     }
+
 }
 

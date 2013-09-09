@@ -9,6 +9,7 @@
 /* This routine finds the bin factors and corner location to use
    when calling bin2d to extract and bin the appropriate subset of
    a reference image to match a science image.
+   
    If the science image has zero offset and is the same size and
    binning as the reference image, same_size will be set to true;
    otherwise, the values of rx, ry, x0, y0 will be assigned.
@@ -58,11 +59,15 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
     int ratiox, ratioy;		/* local variables for rx, ry */
     int xzero, yzero;		/* local variables for x0, y0 */
     int GetCorner (Hdr *, int, int *, int *);
-
+    xzero=0;
+    yzero=0;
+    
     /* Get bin sizes of science and reference images from headers. */
     rsize = 1;
+   
     if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
         return (status);
+   
     if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
         return (status);
 
@@ -109,6 +114,7 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
 
         /* For subarray input images, whether they are binned or not... */
         *same_size = 0;
+        
 
         /* ratio of bin sizes */
         ratiox = sci_bin[0] / ref_bin[0];
@@ -119,10 +125,11 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
 
         /* cshift is the offset in units of unbinned
            pixels.  Divide by ref_bin to convert to units of pixels
-           in the reference image.
+           in the reference image. sci corner or ref_corner can be negative if in physical overscan
          */
         cshift[0] = sci_corner[0] - ref_corner[0];
         cshift[1] = sci_corner[1] - ref_corner[1];
+        
         xzero = cshift[0] / ref_bin[0];
         yzero = cshift[1] / ref_bin[1];
         if (xzero * ref_bin[0] != cshift[0] ||
@@ -268,7 +275,10 @@ int FindBin (SingleGroup *x, SingleGroup *y, int *same_size,
     int ratiox, ratioy;		/* local variables for rx, ry */
     int xzero, yzero;		/* local variables for x0, y0 */
     int GetCorner (Hdr *, int, int *, int *);
-
+    
+    xzero=0;
+    yzero=0;
+    
     /* Get bin sizes of science and reference images from headers. */
     if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
         return (status);

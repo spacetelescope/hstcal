@@ -1,3 +1,8 @@
+Updates for  Version 3.1.4  9-Sept-2013 MLS
+
+    Updated the postflash routine and sub1d and multk1d to perform the correct subarray
+    calibration for all cases. (#983) The previous update was not sufficient for team subarrays.
+    
 Updates for  Version 3.1.3  26-Mar-2013 MLS
 
     Updated the postflash routine to apply the correct offset for all amps

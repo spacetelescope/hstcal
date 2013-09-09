@@ -10,7 +10,7 @@
 
 /* 
 	This function builds the PHOTMODE string for the image header.
-	The string will be used as input to 'synphot' for determining
+	The string will be used as input to 'pysynphot' for determining
 	the values of the photometric keywords.
 	
    Howard Bushouse, 2001 May 8:
