@@ -28,6 +28,7 @@
                  there are too few points to fit a polynomial (presumably
                  due to Lyman Alpha avoidance with a large aperture) (PEH)
    07 Feb 06  -  Add an argument to Interp2D (PEH)
+   28 Aug 13  -  Use integer loop index and limits in X1DBack (PEH)
 */
 
 # include <stdio.h>
@@ -340,6 +341,7 @@ int debug;             i: debug control
 	double residual;	/* residual background */
 	double tcent;		/* center of trace in image coordinates */
 	double hold;
+        int k, isize;           /* loop index and limit */
 
 	/* Compute endpoints of background extraction box. Notice that
            the 0.5 pixel offsets below, used to make the endpoint coordinates
@@ -358,14 +360,11 @@ int debug;             i: debug control
 	y2    = y2      * sts->ltm[1] + sts->ltv[1];
 	tcent = ycenter * sts->ltm[1] + sts->ltv[1];
 
-	/* Scan background box, extract pixels and update accumulators.
-           The update in A1 direction is clearly by steps of sin(bktilt)
-           size, but in the A2 direction we have the choice of using
-           steps of size 1.0 or cos(bktilt). Which one is better ?
-        */
-	for (xx = x1, yy = y1;
-             yy <= y2;
-             xx += sts->sin_bktilt, yy += sts->cos_bktilt) {
+	/* Scan background box, extract pixels and update accumulators. */
+        xx = x1;
+        yy = y1;
+        isize = NINT(size);
+	for (k = 0;  k < isize;  k++) {
 	
 	    /* Interpolate, checking for out of bounds. */
 	    Interp2D (in, sts->sdqflags, xx, yy, 1.0, WGT_VARIANCE,
@@ -418,6 +417,8 @@ int debug;             i: debug control
 	        } else
 	            (*nfbck)++;
 	    }
+            xx += sts->sin_bktilt;
+            yy += sts->cos_bktilt;
 	}
 }
 

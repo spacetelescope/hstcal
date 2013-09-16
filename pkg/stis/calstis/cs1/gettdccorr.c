@@ -60,6 +60,10 @@ static int CloseTdcTab(TblInfo *);
 	just opens the table to determine which type it is and then calls
 	either origTdcCorr (the original GetTdcCorr) or new function
 	postSM4TdcCorr.
+
+   Phil Hodge, 2013 Sept 13:
+	In postSM4TdcCorr, change the condition for setting read_this_row,
+        and add a check that read_this_row is greater than zero.
 */
 
 int GetTdcCorr(StisInfo1 *sts, double median_dark, double *factor) {
@@ -239,10 +243,17 @@ double *factor          o: NUV correction factor for dark image
 		c_tbtclo(tp);
 		return TABLE_ERROR;
 	    }
-	    if (date0 < sts->expstart && date0 > best_date0) {
+	    if (date0 < sts->expstart && (row == 1 || date0 > best_date0)) {
 		best_date0 = date0;
 		read_this_row = row;
 	    }
+	}
+	if (read_this_row < 1) {
+	    c_tbtclo(tp);
+	    printf("Warning:  No valid row found in TDCTAB %s\n",
+	           sts->tdctab.name);
+	    *factor = 1.;
+	    return 0;
 	}
 
 	c_tbegtd(tp, cp_date0, read_this_row, &date0);
