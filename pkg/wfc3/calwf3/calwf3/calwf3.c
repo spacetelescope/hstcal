@@ -64,6 +64,7 @@
      added the option "-r" to print the current version and exit cleanly
    M. Sosey, 2012 June 26:
     There were some missed updates from the iraf version, namely 
+    
      H.Bushouse, 2012 Mar 27:
 	   Fixed BuildDthInput to reallocate additional memory for wf3dth_input
 	   when it's necessary to build list from all the asn member names.

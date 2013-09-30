@@ -92,7 +92,6 @@ int main (int argc, char **argv) {
 	outlist[0] = '\0';
 	input[0]   = '\0';
 	output[0]  = '\0';
-	
 	/* Initialize the lists of reference file keywords and names. */
 	InitRefFile (&refnames);
 
@@ -132,7 +131,7 @@ int main (int argc, char **argv) {
 			too_many = 1;
 	    }
 	}
-
+    
 	if (inlist[0] == '\0' || too_many) {
 	    printf ("syntax:  wf3ir [-t] [-v] [-q] [-r] input output\n");
 	    printf ("  command-line switches:\n");
@@ -184,15 +183,16 @@ int main (int argc, char **argv) {
 		
 	    if (n_out > 0)
 		i = c_imtgetim (o_imt, output, SZ_LINE);
-	    else
-		output[0] = '\0';
+	    else {
+		    output[0] = '\0';
 
-	    if (MkName (input, isuffix, osuffix, "", output, SZ_LINE)) {
-		WhichError (status);
-		sprintf (MsgText, "Skipping %s", input);
-		trlmessage (MsgText);
-		continue;
-	    }
+	        if (MkName (input, isuffix, osuffix, "", output, SZ_LINE)) {
+		        WhichError (status);
+		        sprintf (MsgText, "Skipping %s", input);
+		        trlmessage (MsgText);
+		        continue;
+	        }
+        }
 
 	    /* Calibrate the current input file. */
 	    if (WF3ir (input, output, &ir_sw, &refnames, printtime, verbose,

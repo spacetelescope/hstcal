@@ -50,6 +50,10 @@ int newpar[];       o: array of parameters set by the user
                 printf ("Current version: %s\n", WF3_CAL_VER);
                 exit(0);
             }
+            if (argv[ctoken][2] == '-') {
+                printf("You need to speficy an output image name");
+                exit(0);
+            }
         } else {
             printf(" wf3rej input output [-t] [-v]");
             printf("                    [-shadcorr] [-crmask]\n ");

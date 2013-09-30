@@ -1,3 +1,7 @@
+30-Sept-2013 - MLS -- Version 3.1.5
+    1049: Fixed the individual task executables for wf3ir, wf3ccd, wf32d to properly used the user 
+    specfied output filename when they are called standalone
+    
 09-Sept-2013 - MLS -- Version 3.1.4
     983: Updated the postflash routine and sub1d and multk1d to perform the correct subarray
     calibration for all cases. The previous update was not sufficient for team subarrays.

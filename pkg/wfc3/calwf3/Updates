@@ -1,3 +1,7 @@
+Updates for  Version 3.1.5  30-Sept-2013 MLS
+     Fixed the individual task executables for wf3ir, wf3ccd, wf32d to properly used the user specfied output filename
+     when they are called standalone (#1049)
+
 Updates for  Version 3.1.4  9-Sept-2013 MLS
 
     Updated the postflash routine and sub1d and multk1d to perform the correct subarray

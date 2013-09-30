@@ -187,17 +187,18 @@ int main (int argc, char **argv) {
 
 	    i = c_imtgetim (i_imt, input, SZ_LINE);
 		
-	    if (n_out > 0)
-		i = c_imtgetim (o_imt, output, SZ_LINE);
-	    else
-		output[0] = '\0';
+	    if (n_out > 0) {
+		    i = c_imtgetim (o_imt, output, SZ_LINE);
+	    } else {
+    		output[0] = '\0';
 
-	    if (MkName (input, isuffix, osuffix, "", output, SZ_LINE)) {
-		WhichError (status);
-		sprintf (MsgText, "Skipping %s", input);
-		trlmessage (MsgText);
-		continue;
-	    }
+	        if (MkName (input, isuffix, osuffix, "", output, SZ_LINE)) {
+		        WhichError (status);
+		        sprintf (MsgText, "Skipping %s", input);
+		        trlmessage (MsgText);
+		        continue;
+	        }
+        }
 
 	    /* Calibrate the current input file. */
 	    if (WF3ccd (input, output, &ccd_sw, &refnames, printtime, verbose)){
