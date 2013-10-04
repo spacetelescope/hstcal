@@ -18,7 +18,7 @@
 static int getDarkParam (Hdr *, double *, double *);
 static double CCDFactor (double, double, double);
 static int MedSciVal (SingleGroup *, float *);
-static int medianDark (SingleGroup *, float *);
+static int meanNUVDark(SingleGroup *, double *);
 static void OverrideFactor (StisInfo1 *, int, double *, int *);
 
 
@@ -82,6 +82,12 @@ static void OverrideFactor (StisInfo1 *, int, double *, int *);
    Phil Hodge, 2012 July 6:
 	Add function medianDark; include median_dark in the call to
 	GetTdcCorr.
+
+   Phil Hodge, 2013 Oct 3:
+	Replace function medianDark with meanNUVDark; change median_dark to
+	mean_nuv_dark in the call to GetTdcCorr.  meanNUVDark actually does
+	compute the mean rather than the median of the NUV-MAMA dark
+	reference image.
 */
 
 int doDark (StisInfo1 *sts, SingleGroup *x, float *meandark, int sci_extver) {
@@ -175,10 +181,10 @@ int sci_extver     i: IMSET number in input (science) file
 	factor = 1;
 
 	if (sts->detector == NUV_MAMA_DETECTOR) {
-	    float median_dark;
-	    if (status = medianDark (&y, &median_dark))
+	    double mean_nuv_dark;
+	    if (status = meanNUVDark(&y, &mean_nuv_dark))
 	        return (status);
-	    if (status = GetTdcCorr (sts, (double)median_dark, &factor))
+	    if (status = GetTdcCorr(sts, mean_nuv_dark, &factor))
 	        return (status);
 	}
         else if (sts->detector == CCD_DETECTOR) {
@@ -356,24 +362,38 @@ static int MedSciVal (SingleGroup *y, float *meandark) {
 	return (0);
 }
 
-/* This function calls MedSciVal to get the median of the dark reference
-   image, ignoring bad pixels.  The result is then multiplied by the
-   factor (nominally 4) to account for binning of the dark to a size of
-   1024x1024 pixels.
+/* This function computes the average value of the dark reference image,
+   ignoring bad pixels.  The result is then multiplied by a factor
+   (should be 4) to account for binning of the dark to low-res pixels.
 
    This function is only used for NUV-MAMA data.
 */
 
-static int medianDark (SingleGroup *y, float *median_dark) {
+static int meanNUVDark(SingleGroup *y, double *mean_nuv_dark) {
 
 	int status;
-	float median;
+	int numgood;		/* number of good pixels */
+	int i, j;
+	double sum, mean_value;
 
-	if ((status = MedSciVal (y, &median)) != 0)
-	    return status;
+	numgood = 0;
+	sum = 0.;
+	for (j = 0;  j < y->sci.data.ny;  j++) {
+	    for (i = 0;  i < y->sci.data.nx;  i++) {
+		if (DQPix(y->dq.data, i, j) == 0) {
+		    sum += Pix(y->sci.data, i, j);
+		    numgood++;
+		}
+	    }
+	}
 
-	*median_dark = median * (float)(y->sci.data.nx) / 1024. *
-	                        (float)(y->sci.data.ny) / 1024.;
+	if (numgood > 0)
+	    mean_value = sum / (double)numgood;
+	else
+	    mean_value = 0.;
+
+	*mean_nuv_dark = mean_value * (double)(y->sci.data.nx) / 1024. *
+	                              (double)(y->sci.data.ny) / 1024.;
 
 	return 0;
 }

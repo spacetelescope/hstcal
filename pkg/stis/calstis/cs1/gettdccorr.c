@@ -64,13 +64,17 @@ static int CloseTdcTab(TblInfo *);
    Phil Hodge, 2013 Sept 13:
 	In postSM4TdcCorr, change the condition for setting read_this_row,
         and add a check that read_this_row is greater than zero.
+
+   Phil Hodge, 2013 Oct 3:
+	Rename variable median_dark to mean_dark, as it now is the average,
+	not the median.
 */
 
-int GetTdcCorr(StisInfo1 *sts, double median_dark, double *factor) {
+int GetTdcCorr(StisInfo1 *sts, double mean_dark, double *factor) {
 
 /* arguments:
 StisInfo1 *sts          i: calibration switches, etc
-double median_dark      i: median of good pixels of dark reference image
+double mean_dark        i: average of good pixels of dark reference image
 double *factor          o: NUV correction factor for dark image
 */
 	int status;
@@ -109,7 +113,7 @@ double *factor          o: NUV correction factor for dark image
 	c_tbtclo(tp);
 
 	if (tbl_type == POST_SM4_TDC_FORMAT) {
-	    status = postSM4TdcCorr(sts, median_dark, factor);
+	    status = postSM4TdcCorr(sts, mean_dark, factor);
 	} else if (tbl_type == ORIG_TDC_FORMAT) {
 	    status = origTdcCorr(sts, factor);
 	} else {
@@ -130,7 +134,7 @@ double *factor          o: NUV correction factor for dark image
                 ta + tb * (temperature - temp0) +
                      tc * (temperature - temp0)**2
 
-   This count_rate is then divided by median_dark to get the correction
+   This count_rate is then divided by mean_dark to get the correction
    factor by which the dark reference image should be multiplied to
    correct for the change in dark rate with time.
 
@@ -149,12 +153,12 @@ double *factor          o: NUV correction factor for dark image
 	    TC
 */
 
-static int postSM4TdcCorr(StisInfo1 *sts, double median_dark,
+static int postSM4TdcCorr(StisInfo1 *sts, double mean_dark,
                           double *factor) {
 
 /* arguments:
 StisInfo1 *sts          i: calibration switches, etc
-double median_dark      i: median of good pixels of dark reference image
+double mean_dark        i: mean of good pixels of dark reference image
                            (binned to 1024x1024 pixels in size)
 double *factor          o: NUV correction factor for dark image
 */
@@ -228,7 +232,7 @@ double *factor          o: NUV correction factor for dark image
 	}
 	if (sts->expstart < min_date0) {
 	    printf("ERROR    Exposure start time precedes earliest date "
-                   "in TDCTAB.\n");
+	           "in TDCTAB.\n");
 	    c_tbtclo(tp);
 	    return TABLE_ERROR;
 	}
@@ -322,7 +326,7 @@ double *factor          o: NUV correction factor for dark image
 	if (count_rate > 100.) {
 	    printf("Warning  TDC dark count rate = %.6g\n", count_rate);
 	}
-	*factor = count_rate / median_dark;
+	*factor = count_rate / mean_dark;
 	if (fabs(*factor) > 100. || fabs(*factor) < 0.01) {
 	    printf("Warning  TDC correction factor = %.6g.\n", *factor);
 	}
