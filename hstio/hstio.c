@@ -1625,20 +1625,7 @@ IODescPtr openInputImage(char *fname, char *ename, int ever) {
             return NULL;
         }
 
-        /*
-        This is to get around a safety feature of CFITSIO.  If a file
-        is opened READONLY, and then later opened READWRITE (without
-        closing it first), CFITSIO raises an error, since it assumes
-        that once a file is READONLY, it is always READONLY.  We can't
-        just always open READWRITE here, since that will fail if the
-        permissions on the file are not writable.  So, we check to see
-        if the file is writable, and then open accordingly.
-         */
-        if (access(ospath, W_OK)) {
-            open_mode = READONLY;
-        } else {
-            open_mode = READWRITE;
-        }
+        open_mode = READONLY;
 
         if (c_vfn2osfn(tmp, ospath)) {
             free(tmp);
