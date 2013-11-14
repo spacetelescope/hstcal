@@ -18,16 +18,16 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
   This is mostly a file bookkeeping routine for the cosmic ray rejection task.
   It takes care of input/output files open/close, check for dimensions, read/
   write data from/to files, allocate memory spaces etc.
-  
+
     Date          Author          Description
     ----          ------          -----------
     06-May-1996   J.-C. Hsu       Adapt from the SPP code crrej_do.x
     05-Aug-1998   W. Hack         Modified to handle ACS data
     11-Feb-1999   W. Hack         EXPTIME now in Pri. Hdr.
     18-Mar-1999   W.J. Hack       Revised to read EXPTIMEs from Primary headers
-                                    for cr_scaling using tpin directly
+                                  for cr_scaling using tpin directly
     14-Sep-1999   W.J. Hack       Cleaned up SHADCORR usage. Added check for max
-                                    number of files here.
+                                  number of files here.
 */
 int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int newpar[])
 {
@@ -45,7 +45,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     SingleGroup sg;
     int         niter = 0;
     float       sigma[MAX_ITER];
-    
+
     Hdr         phdr;               /* primary header */
     int         extver;             /* Current extension being processed*/
     int         numext;             /* Number of extensions in each image */
@@ -54,7 +54,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     char        fimage[ACS_FNAME];  /* Name of first image in list */
     char        root[ACS_FNAME];    /* ROOTNAME for output CRJ file */
     char        uroot[ACS_FNAME];   /* Upper case version of rootname */
-    char        *shadrefname;  
+    char        *shadrefname;
 
     int         ext[MAX_FILES];
     int         dim_x, dim_y;       /* image dimensions */
@@ -68,7 +68,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     double      expend, expstart;
     int         non_zero;           /* number of input images with EXPTIME>0.*/
     int         found;
-    char        imgdefault[ACS_FNAME];  /* name of first input image with EXPTIME > 0. */     
+    char        imgdefault[ACS_FNAME];  /* name of first input image with EXPTIME > 0. */
 
     int     GetSwitch (Hdr *, char *, int *);
     int     UpdateSwitch (char *, int, Hdr *, int *);
@@ -116,17 +116,17 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     uroot[0] = '\0';
     initmulti (&noise);
     initmulti (&gain);
-    
+
     numext = 0;
     nextend = 0;
 
 
-    /* Since CR-SPLIT images are in separate files, we need to 
+    /* Since CR-SPLIT images are in separate files, we need to
         combine the same chip's exposure from each file.  Therefore
         we will loop over each extension in the first image, determine
         what chip that corresponds to, and get the same chip from the
-        rest of the images (which could be in any arbitrary 
-        extension in each of the images).  
+        rest of the images (which could be in any arbitrary
+        extension in each of the images).
     */
 
     /* First, let's determine how many extensions/chips in each file */
@@ -134,26 +134,26 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
 
     if (LoadHdr (fimage, &phdr) )
         return (status = ERROR_RETURN);
-        
-    if (GetKeyInt (&phdr, "NEXTEND", NO_DEFAULT, 0, &nextend) == 0) 
+
+    if (GetKeyInt (&phdr, "NEXTEND", NO_DEFAULT, 0, &nextend) == 0)
         numext = nextend / EXT_PER_GROUP;
-    else 
+    else
         numext = 1;
 
     shadswitch = 0;
     /* Check to see if SHADCORR was set to PERFORM in image header */
-    if (GetSwitch (&phdr, "SHADCORR", &shadswitch) ) 
+    if (GetSwitch (&phdr, "SHADCORR", &shadswitch) )
         return(status);
 
     /* If shadcorr was set either by the user on the command line
         or in the image header, initialize shadcorr processing.
     */
     if (par->shadcorr == PERFORM || shadswitch == PERFORM) {
-    
+
         /* Use par->shadcorr as switch for performing shading correction */
         par->shadcorr = PERFORM;
         shadrefname = calloc(ACS_FNAME, sizeof(char));
-    
+
         if (GetKeyStr (&phdr, "SHADFILE", NO_DEFAULT, "", shadrefname, ACS_FNAME) )
             return(status);
         strcpy (shadref.name, shadrefname);
@@ -161,7 +161,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
         if (ImgPedigree (&shadref) )
             return (status);
         /* If a DUMMY shadfile was specified, turn off shadcorr */
-        if (shadref.goodPedigree == DUMMY) 
+        if (shadref.goodPedigree == DUMMY)
             par->shadcorr = OMIT;
         free (shadrefname);
     }
@@ -170,7 +170,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
 
     /* Initialize efac */
     for (n = 0; n < MAX_FILES; n++) efac[n] = 1.0;
-    
+
     /* calculate the scaling factors due to different exposure time */
     strcpy (par->expname, "EXPTIME");
     if (cr_scaling (par->expname, tpin, efac, &nimgs, &expend, &expstart) ){
@@ -192,7 +192,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
         /* Count how many inputs have non-zero(valid) EXPTIME */
         if (efac[n] > 0.) non_zero++;
     }
-    /* for the case of all images have zero exposure time, use equal 
+    /* for the case of all images have zero exposure time, use equal
         exposure time of 1. */
     if (exptot == 0.) {
         for (n = 0; n < nimgs; ++n) {
@@ -205,7 +205,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     }
 
     /* Now, start the loop. */
-    for (extver = 1; extver <= numext; extver++) { 
+    for (extver = 1; extver <= numext; extver++) {
 
         if (par->printtime) {
             TimeStamp ("Start cosmic ray rejection","");
@@ -217,7 +217,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
             WhichError (status);
             return(status);
         }
-        
+
         /* Now that we have read in SHADCORR, report if it will be performed */
         PrSwitch ("shadcorr", par->shadcorr);
 
@@ -244,8 +244,8 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
 
         /* use the first input image to set up the data structure */
         initSingleGroup (&sg);
-        
-        /* Find the first image in the input list which has an 
+
+        /* Find the first image in the input list which has an
             EXPTIME > 0. to use for initializing the output SingleGroup.
         */
         found = 0;
@@ -256,20 +256,20 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
             if (efac[n] > 0.) {
                 strcpy(imgdefault,imgname[n]);
                 found = 1;
-            } 
+            }
             n++;
         } while (found == 0);
-                
+
         getSingleGroup (imgdefault, extver, &sg);
-        
+
         if (non_zero > 1){
-            /* compute the initial pixel values to be used to compare against all 
+            /* compute the initial pixel values to be used to compare against all
                images. */
             if (non_zero < nimgs){
                 trlwarn ("Some input exposures had EXPTIME = 0.");
             }
 
-            if (acsrej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y, 
+            if (acsrej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y,
                     noise, gain, efac, skyval, &sg, work) ) {
                 WhichError(status);
                 closeSciDq(nimgs, ipsci, ipdq, par);
@@ -281,14 +281,14 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
 
             /* do the iterative cosmic ray rejection calculations */
             if (acsrej_loop (ipsci, ipdq, imgname, ext, nimgs, par, niter, dim_x, dim_y,
-                    sigma, noise, gain, efac, skyval, 
-                    &sg.sci.data, &sg.err.data, efacsum, &sg.dq.data, 
+                    sigma, noise, gain, efac, skyval,
+                    &sg.sci.data, &sg.err.data, efacsum, &sg.dq.data,
                     &nrej, shadref.name) ) {
                 WhichError(status);
                 closeSciDq(nimgs, ipsci, ipdq, par);
                 return (status);
             }
-        } else { 
+        } else {
             trlwarn ("Cosmic-ray rejection NOT performed!");
             if (non_zero > 0) {
                 trlwarn ("Some input exposures had EXPTIME = 0.");
@@ -297,20 +297,20 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
                 trlwarn ("ALL input exposures had EXPTIME = 0.");
                 trlwarn ("Output product will be BLANK!");
             } */
-        } /* End if(non_zero) block */ 
+        } /* End if(non_zero) block */
 
-    
+
         /* must close all images, now that we are done reading them */
         closeSciDq(nimgs, ipsci, ipdq, par);
 
-        /* calculate the total sky ... */ 
+        /* calculate the total sky ... */
         skysum = 0.;
         for (n = 0; n < nimgs; ++n) {
             skysum += skyval[n];
         }
         /* ... and force it to be non-negative */
         if (skysum < 0.) skysum = 0.;
-        
+
         if (par->printtime){
             if (non_zero > 1){
                 TimeStamp ("Finished detecting cosmic rays on extension", "");
@@ -345,13 +345,13 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
         /* update the exposure time of the output images */
         PutKeyFlt (sg.globalhdr, "TEXPTIME", exptot, "");
         PutKeyFlt (sg.globalhdr, "SKYSUM", skysum, "Total sky level (DN)");
-        PutKeyDbl (sg.globalhdr, "EXPSTART", expstart, "computed exposure start time (Modified Julian Date)"); 
+        PutKeyDbl (sg.globalhdr, "EXPSTART", expstart, "computed exposure start time (Modified Julian Date)");
         PutKeyDbl (sg.globalhdr, "EXPEND", expend, "exposure end time (Modified Julian Date)");
-        /*  
-            Updated REJ_RATE to use 'texpt' as a safe value when 
+        /*
+            Updated REJ_RATE to use 'texpt' as a safe value when
             EXPTIME=0 for all members. WJH, 24 Feb 2003
         */
-        PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej/texpt, 
+        PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej/texpt,
                 "Cosmic ray impact rate (pixels/sec)");
         PutKeyFlt (sg.globalhdr, "EXPTIME", exptot, "");
         if (par->shadcorr) {
@@ -397,7 +397,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
         free (work);
 
     }
-    /* Set status to a value which will be understood by 
+    /* Set status to a value which will be understood by
         CALACS to turn off subsequent processing. */
     if (non_zero == 0) status = NO_GOOD_DATA;
 
@@ -409,14 +409,10 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
 static void closeSciDq(int nimgs, IODescPtr ipsci[], IODescPtr ipdq[], clpar *par) {
 
     int n;
-    
+
     /* must close all images, now that we are done reading them */
     for (n = 0; n < nimgs; ++n) {
         closeImage (ipsci[n]);
-
-        /* This may have already been closed when updating the DQ array
-        ** with the CR masks */
-        if (!par->mask)
-        	closeImage (ipdq[n]);
+        closeImage (ipdq[n]);
     }
 }

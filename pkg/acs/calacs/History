@@ -1,3 +1,7 @@
+### 14-Nov-2013 - PLL -- Version 8.2.1
+    Fixed ACSREJ bug where files are not being closed properly before being
+    reopened. This fix is compulsory due to recent changes to HSTIO.
+
 ### 12-Aug-2013 - PLL -- Version 8.2.0
     New ACSCTE sub-module added to separate PCTECORR from ACSCCD.
     ACSCTE runs after ACSCCD but before ACS2D.
