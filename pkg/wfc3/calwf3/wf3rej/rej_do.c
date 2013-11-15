@@ -447,11 +447,8 @@ static void closeSciDq (int nimgs, IODescPtr ipsci[], IODescPtr ipdq[],
     /* Must close all images, now that we are done reading them */
     for (n = 0; n < nimgs; ++n) {
         closeImage (ipsci[n]);
+        closeImage (ipdq[n]);
 
-        /* This may have already been closed when updating the DQ array
-        ** with the CR masks */
-        if (!par->mask)
-            closeImage (ipdq[n]);
     }
 }
 

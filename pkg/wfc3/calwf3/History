@@ -1,3 +1,6 @@
+### 15-Niv-2013 - MLS -- Version 3.1.6
+    Fixed a file i/o issue after change in cfitsio interaction (see #970, #1073 and #1069)
+
 ### 30-Sept-2013 - MLS -- Version 3.1.5
     - fixed the individual task executables for wf3ir, wf3ccd, wf32d to properly used the user specfied output filename
       when they are called standalone
