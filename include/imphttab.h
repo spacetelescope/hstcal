@@ -83,7 +83,7 @@ int status;
 /* The following definition needs to be kept updated with MAXPARS */
 static char colnames[9][12] = {"OBSMODE", "DATACOL", "RESULT", "NELEM1", "NELEM2", "PAR1VALUES", "PAR2VALUES", "RESULT1", "RESULT2"};
 
-static char *photnames[4] = {"PHOTZPT","PHOTFLAM", "PHOTPLAM", "PHOTBW"};
+static char *photnames[6] = {"PHOTZPT","PHOTFLAM", "PHOTPLAM", "PHOTBW","PHTFLAM1","PHTFLAM2"};
 
 
 typedef struct {
@@ -108,6 +108,8 @@ typedef struct {
     double photplam;
     double photbw;
     double photzpt;
+    double phtflam1;
+    double phtflam2;
     
 } PhotPar;
 
