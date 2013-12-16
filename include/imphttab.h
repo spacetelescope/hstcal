@@ -1,8 +1,10 @@
+# include "c_iraf.h"  /* For Bool type */
+
 /* Constants and Definitions for use with IMPHTTAB library */
 /* Definitions based on those defined in acs.h */
 
 #define YES         1
-#define NO          0 
+#define NO          0
 
 # define SZ_LINE      255
 # define SZ_FITS_REC   82
@@ -94,15 +96,17 @@ typedef struct {
     char descrip2[SZ_FITS_REC];    /* value of descrip from row */
     int exists;                     /* does reference table exist? */
 
-	char obsmode[SZ_FITS_REC];	/* obsmode of science data */
+    char obsmode[SZ_FITS_REC];    /* obsmode of science data */
     char photmode[SZ_FITS_REC]; /* obsmode used for comparison with IMPHTTAB */
-    
+
+    /* Extrapolation flag */
+    Bool extrap;
+
     /* parsed out value of any parameterized values */
     double *parvalues;
     char **parnames;
     int npar;
-    
-    
+
     /* Output values derived from table */
     double photflam;
     double photplam;
@@ -110,7 +114,7 @@ typedef struct {
     double photzpt;
     double phtflam1;
     double phtflam2;
-    
+
 } PhotPar;
 
 
