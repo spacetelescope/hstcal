@@ -1,5 +1,0 @@
-27-May-1997
-This directory contains routines that can be used by more than one
-calstis program.
-
-incldir.c       function inclDirectory (test routine t.c), not currently used
