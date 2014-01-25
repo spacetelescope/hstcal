@@ -1,0 +1,15 @@
+# vim: set syntax=python:
+
+SUBDIRS = [
+    'lib',
+    'calacs',
+    'acsrej',
+    'acssum',
+    'acsccd',
+    'acscte',
+    'acs2d'
+    ]
+
+def build(bld):
+    for subdir in SUBDIRS:
+        bld.recurse(subdir)
