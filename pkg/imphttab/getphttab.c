@@ -1079,7 +1079,7 @@ void computebounds (double *x, int nx, double val, int *i0, int *i1) {
     int n;
 
     /* first test for whether we've got an end case here */
-    if (x[nx-1] == val) {
+    if (x[nx-1] <= val) {
         *i0 = nx - 2;
         *i1 = nx - 1;
     } else {
