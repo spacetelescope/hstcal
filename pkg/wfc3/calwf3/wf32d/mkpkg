@@ -73,6 +73,7 @@ calwf3.a:
 	do2d.c		../wf3.h ../wf3info.h ../wf3err.h <hstio.h>
 	dodark.c	../wf3.h ../wf3info.h ../wf3err.h <hstio.h>
 	doflat.c	../wf3.h ../wf3info.h ../wf3err.h <hstio.h>
+	doflux.c    ../wf3.h ../wf3info.h ../wf3err.h <hstio.h> 
 	dophot.c	../wf3.h ../wf3info.h ../wf3err.h <hstio.h> <xsynphot.h>
 	doshad.c	../wf3.h ../wf3info.h ../wf3err.h <hstio.h>
 	get2dflags.c	../wf3.h ../wf3info.h ../wf3err.h <hstio.h>

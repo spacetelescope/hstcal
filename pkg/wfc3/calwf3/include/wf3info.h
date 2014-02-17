@@ -56,6 +56,9 @@
     H. Bushouse, 2011 Sep 7:
     Replaced graphtab and comptab RefTab entries with new phot table
     in WF3Info struct.
+
+    M. Sosey, 2013 Dec 4:
+    Added new FLUXCORR switch for UVIS data to scale chip photometry
 */
 
 # include "msg.h"
@@ -172,6 +175,7 @@ typedef struct {
     int zsigcorr;	/* IR zero-read signal correction */
     int zoffcorr;	/* IR zero-read subtraction */
     int crcorr;		/* IR CR rejection */
+    int fluxcorr;   /*Uvis chip flux correction*/
 
     /* calibration images and tables */
     RefImage bias;      /* bias image */

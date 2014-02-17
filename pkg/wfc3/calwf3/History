@@ -1,3 +1,12 @@
+### 09-Dec-2013 - MLS -- Version 3.2
+    A new calibration step was added to the UVIS process, FLUXCORR, can now be run at the end of regular
+    processing. It will scale the chip2 image using the new PHTFLAM1 and PHTFLAM2 values in the IMPHTAB.
+    New flatfields for all filters, as well as a new IMPHTTAB will be delivered by the team for this step
+    to be completely implemented. This is a significant version increase since I had to modify the globablly
+    access GetPhotTab to read the new WFC3 imphttab correctly, as well as touch many routines in the calwf3 process.
+    (#1011 is the main ticket)
+
+
 ### 15-Niv-2013 - MLS -- Version 3.1.6
     Fixed a file i/o issue after change in cfitsio interaction (see #970, #1073 and #1069)
 

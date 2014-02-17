@@ -22,7 +22,7 @@ def build(bld):
             unbin2d.c  unbinline.c   whicherror.c
 
             ../wf32d/wf32d.c   ../wf32d/do2d.c   ../wf32d/dodark.c
-            ../wf32d/doflat.c   ../wf32d/dophot.c
+            ../wf32d/doflat.c   ../wf32d/dophot.c ../wf32d/doflux.c
             ../wf32d/doshad.c   ../wf32d/get2dflags.c
             ../wf32d/photmode.c ../wf32d/sanity2d.c
 

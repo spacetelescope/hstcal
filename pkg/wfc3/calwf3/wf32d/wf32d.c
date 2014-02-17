@@ -97,6 +97,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 	wf32d.shadcorr = wf32d_sw->shadcorr;
 	wf32d.photcorr = wf32d_sw->photcorr;
 	wf32d.expscorr = wf32d_sw->expscorr;
+    wf32d.fluxcorr = wf32d_sw->fluxcorr;
 	wf32d.noiscorr = PERFORM;
 	wf32d.printtime = printtime;
 	wf32d.verbose = verbose;
@@ -105,7 +106,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 	PrFileName ("input", wf32d.input);
 	PrFileName ("output", wf32d.output);
-	
+	    
 	/* Check whether the output file already exists. */
 	if (FileExists (wf32d.output))
 	    return (status);

@@ -165,6 +165,7 @@ int main (int argc, char **argv) {
 	    ccd_sw.blevcorr = DefSwitch ("blevcorr");
 	    ccd_sw.biascorr = DefSwitch ("biascorr");
 	    ccd_sw.flashcorr = DefSwitch ("flshcorr");
+        ccd_sw.fluxcorr = DefSwitch ("fluxcorr");
 	}
 
 	/* Expand the templates. */

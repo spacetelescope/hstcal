@@ -39,7 +39,11 @@
     changed "electrons" to "ELECTRONS" to be consistent, also there are places 
     in the code that are doing a case sensative check. I'm going to try and make 
     those case insensitive as well          
+   M. Sosey, 2013 July 3
+   Added code to implement new FLUXCORR step, see #1011
+
 */
+
 
 # include <string.h>
 # include <stdio.h>
@@ -55,7 +59,7 @@ static void dqiMsg (WF3Info *, int);
 static void PhotMsg (WF3Info *);
 static void ShadMsg (WF3Info *, int);
 static void FlatMsg (WF3Info *, int);
-
+static void FluxMsg (WF3Info *);
 static int OscnTrimmed (Hdr*, Hdr *);
 
 int Do2D (WF3Info *wf32d, int extver) {
@@ -83,12 +87,14 @@ int extver       i: "imset" number, the current set of extensions
 	int doDQI (WF3Info *, SingleGroup *);
 	int dqiHistory (WF3Info *, Hdr *);
 	int doFlat (WF3Info *, int, SingleGroup *);
+    int doFlux (WF3Info *, SingleGroup *);
 	int flatHistory (WF3Info *, Hdr *);
 	int doNoise (WF3Info *, SingleGroup *, int *);
 	int noiseHistory (Hdr *);
 	int doPhot (WF3Info *, SingleGroup *);
 	int PhotMode (WF3Info *, Hdr *);
 	int photHistory (WF3Info *, Hdr *);
+    int fluxHistory (WF3Info *, Hdr *);
 	int doShad (WF3Info *, int, SingleGroup *);
 	int shadHistory (WF3Info *, Hdr *);
 	int doStat (SingleGroup *, short);
@@ -291,23 +297,47 @@ int extver       i: "imset" number, the current set of extensions
 	/* Assign values to photometry keywords. */
 	trlmessage ("");
 	PrSwitch ("photcorr", wf32d->photcorr);
+	trlmessage ("");
+	PrSwitch ("fluxcorr", wf32d->fluxcorr);
 
 	/* Update the PHOTMODE keyword regardless of PHOTCORR. */
 	if (PhotMode (wf32d, &x.sci.hdr))
 	    return (status);
 
-	/* Calculate the photometry keyword values in set to PERFORM... */
+	/* Calculate the photometry keyword values if set to PERFORM... */
 	if (wf32d->photcorr == PERFORM) {
 	    if (doPhot (wf32d, &x))
-		return (status);
+		    return (status);
 	    PhotMsg (wf32d);
 	    PrSwitch ("photcorr", COMPLETE);
 	    if (wf32d->printtime)
-		TimeStamp ("PHOTCORR complete", wf32d->rootname);
+		    TimeStamp ("PHOTCORR complete",wf32d->rootname);
+        
+        /*Scale chip2 so that the flux correction is uniform between the detectors
+          This will only be done if photcorr is perform since we need the values
+          from the imphttable to make the correction */
+        
+        if (wf32d->fluxcorr == PERFORM) {
+            if  (wf32d->chip == 2) {
+	            sprintf(MsgText,"Performing FLUXCORR on chip %d",wf32d->chip);
+	            trlmessage(MsgText);
+                if (doFlux (wf32d, &x))
+                    return(status);
+                FluxMsg(wf32d);
+                PrSwitch ("fluxcorr", COMPLETE);
+                if (wf32d->printtime)
+                    TimeStamp ("FLUXCORR complete", wf32d->rootname);
+            }    
+        }
+        
 	}
 	if (extver == 1 && !OmitStep (wf32d->photcorr))
 	    if (photHistory (wf32d, x.globalhdr))
-		return (status);
+    		return (status);
+        
+    if (extver == 1 && !OmitStep (wf32d->fluxcorr))
+        if (fluxHistory (wf32d, x.globalhdr))
+            return(status);
 
 	/* Compute min, max, mean, etc. of good science data. */
 	if (doStat (&x, wf32d->sdqflags))
@@ -411,6 +441,18 @@ static void PhotMsg (WF3Info *wf32d) {
 
 	    PrRefInfo ("imphttab", wf32d->phot.name, wf32d->phot.pedigree,
 			wf32d->phot.descrip, wf32d->phot.descrip2);
+	}
+}
+
+static void FluxMsg (WF3Info *wf32d) {
+
+	int OmitStep (int);
+	void PrSwitch (char *, int);
+
+	trlmessage ("");
+
+	if (!OmitStep (wf32d->fluxcorr)) {
+	    PrSwitch ("fluxcorr", wf32d->fluxcorr);
 	}
 }
 

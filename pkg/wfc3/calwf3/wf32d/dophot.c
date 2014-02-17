@@ -33,6 +33,11 @@ static void  Phot2Obs (char *, char *);
 	Removed synphot dependencies and replaced with interface to new
 	IMPHTTAB reference table, which returns precomputed photometric
 	values.
+    
+   M. Sosey, 3, July 2013
+   Added new FLUXCORR step to the pipeline to make the flux scaling for both chips
+   equal. New keywords PHTFLAM1, PHTFLAM2, PHTRATIO added for tracking. PHTRATIO is
+   the value chip2 is scaled by and is PHTFLAM1/PHTFLAM2
 */
 
 int doPhot (WF3Info *wf32d, SingleGroup *x) {
@@ -46,6 +51,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 	PhotPar obs;
 	float photfnu;
+    float ratio;
 	
 	char  photmode[SZ_LINE+1], obsmode[SZ_LINE+1];
 
@@ -72,19 +78,33 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 	/* Get phot values from IMPHTTAB */
 	if (GetPhotTab (&obs, obsmode)) {
-	    trlerror ("Error retrun from GetPhotTab.");
+	    trlerror ("Error return from GetPhotTab.");
 	    return (status);
 	}
 
 	/* Add this information as a HISTORY comment */
 	if (wf32d->verbose) {
-	    sprintf (MsgText, "Computed PHOTFLAM value of %g", obs.photflam);
+	    sprintf (MsgText, "Retrieved PHOTFLAM value of %g", obs.photflam);
 	    trlmessage (MsgText);
 	}
 
 	/* Update the photometry keyword values in the SCI header. */
 	if (PutKeyFlt (&x->sci.hdr, "PHOTFLAM", obs.photflam,
 		       "inverse sensitivity"))
+	    return (status);
+
+	if (PutKeyFlt (&x->sci.hdr, "PHTFLAM1", obs.phtflam1,
+		       "inverse sensitivity for chip 1"))
+	    return (status);
+
+	if (PutKeyFlt (&x->sci.hdr, "PHTFLAM2", obs.phtflam2,
+		       "inverse sensitivity for chip 2"))
+	    return (status);
+        
+    ratio=obs.phtflam1/obs.phtflam2;
+    
+	if (PutKeyFlt (&x->sci.hdr, "PHTRATIO", ratio,
+		       "ratio used to scale chip2 to chip1"))
 	    return (status);
 
 	if (PutKeyFlt (&x->sci.hdr, "PHOTZPT", obs.photzpt, "zero point"))
