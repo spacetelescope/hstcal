@@ -37,6 +37,8 @@ static int Debug (char *, CmplxArray *);
     8 Jun 06  -  In MakeFT, allow for the possibility that psf is larger
                  than zpsf, i.e. either copy all of psf into the middle
                  of zpsf or copy the middle of psf into all of zpsf. (PEH)
+   13 Nov 13  -  Corrected the section in GetPSF for the number of detector
+                 pixels illuminated by the aperture. (PEH)
 */
 
 int EchScatRead (Hdr *phdr, double xsize, double ysize,
@@ -871,8 +873,12 @@ Image *psf1,2,3;        o: PSF images, previously initialized
 
                 /* # of STIS pixels (ms*ml) illuminated by aperture. */
 
-                ms = ((int)NINT (xsize / xplate)) / 2 ;
-                ml = ((int)NINT (ysize / yplate)) / 2 ;
+                /* modified on 2013 Nov 13 by PEH
+                   xplate / psfscale and yplate / psfscale are the factors
+                   by which the PSF in the _tel.fits file are oversampled.
+                */
+                ms = (NINT (ns / (xplate / psfscale))) / 2;
+                ml = (NINT (nl / (yplate / psfscale))) / 2;
                 ms = 2 * ms + 1;
                 ml = 2 * ml + 1;
 
