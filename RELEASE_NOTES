@@ -1,4 +1,110 @@
-HSTCAL 1.2 RELEASE NOTES
+========================
+HSTCAL 1.3 Release Notes
+========================
 
-March 2013
+The HSTCAL package provides an environment for compiling IRAF tasks written in
+C without using IRAF at all.  The HSTIO image and tables C API has been
+replicated using CFITSIO. This API was used to compile the ACS calibration code
+CALACS, WFC3 calibration code CALWF3 and STIS calibration code CALSTIS.
+
+
+CALWF3
+======
+Version 3.2 of CALWF3 was installed in Apr 2014 and is the calibration software
+that gets used in the archive  for pipeline calibrations.  It replaced the now
+outdated STSDAS/IRAF based version (both of which have been removed from
+STSDAS).  This release includes calwf3 related tasks; namely, wf32d, wf3ccd,
+wf3ir, and wf3rej.
+
+Changes since the last release of CALWF3 include:
+
+* Flatfielding was revised to use chip-dependent flat-fields, each chip's DQE
+has been calibrated independently. The user may choose to scale the chips so
+that they will produce the same scaled flux when converted to electrons.  New
+keywords were added to support this chip-specific calibration of the data.
+
+* Added capability to apply post-flash correction to user-specified subarray
+WFC3 data.
+
+* Added support for the user to specify the output name when running any of the
+stand-alone executables; namely, wf3ir.e, wf3ccd.e, and wf32d.e.
+
+* Fixed HSTIO read/write bug copied over from ACSREJ so that most files are
+opened in read-only mode.
+
+
+CALACS
+======
+Version 8.2.0 of CALACS has been included in this release. Changes from previous
+release include:
+
+* Fixed HSTIO read/write bug in ACSREJ so file is closed properly before being
+reopened in a different IO mode
+
+* Separated PCTECORR from ACSCCD and made it into its own ACSCTE step
+
+
+CALSTIS
+=======
+This release includes, for the first time, the calibration code for STIS:
+CALSTIS.  This version continues the development of CALSTIS that was previously
+released under STSDAS.
+
+Version 3.4 (13-November-2013) includes the following changes made since the
+last public release:
+
+* In the code for echelle scattered light correction, an image of the PSF of
+the telescope is read from a reference file.  This image covers 0.2 by 0.2
+arcseconds and is oversampled.  For echelle data, the aperture is usually no
+larger than this, so the PSF image will be truncated to match the aperture used
+for an exposure.  The code to truncate the PSF did not take into account the
+case of an aperture that was larger than 0.2 arcsec, however.  This has been
+fixed.
+
+* Use the mean instead of median when applying the NUV-MAMA dark reference
+image.
+
+* A bug was fixed in the background subtraction for the X1D extraction step.
+Due to roundoff errors, the number of pixels used for the background region was
+sometimes smaller than intended.
+
+* For NUV data taken since SM4, the latest calibration developed by C. Cox now
+gets used to scale the dark reference image. Calstis now opens the TDCTAB and
+determines which format it is from the columns that are found in the table.  The
+temperature and time correction factor then gets determined by evaluating either
+Colin's newly calibrated expression or the pre-SM4 expression.
+
+* When the image I/O interface used by the C versions of the pipeline software
+was first written, there was code in calstis that opened a file readonly, then
+opened it again read/write without first closing the file (this was fixed some
+time ago).  The IRAF interface permitted that, but CFITSIO -- which is used in
+the current (hstcal) version of calstis -- does not.  As a workaround, when the
+openInputImage function in the hstcal version of the image I/O interface was
+first written a few years ago, it opened the input file read/write.  This was
+highly undesireable, however, because calstis would fail if the user did not
+have write permission for the input file, so the openInputImage function has now
+been modified to open the input file readonly.  This bug also affected CALACS
+and CALWF3 where it was corrected as well (noted as "fixing an HSTIO read/write
+bug").
+
+
+IMPHTTAB
+========
+This package provides all the support necessary for interpreting IMPHTTAB
+reference files.  Use of the IMPHTTAB reference files replaces direct calls to
+IRAF's synphot package when computing the photometry keywords.  The following
+bugs and enhancements have been implemented since the last release:
+
+* Fixed a bug in PHOTCORR that crashed when PHOT* value is zero, which is a
+valid value for SBC blocking filter.
+
+* Added support for MJD extrapolation. This is actually for STIS Team but would
+affect other instruments (such as ACS) should they require this feature at some
+later time.
+
+* The code was updated to allow acceptence of IMPHTTAB reference files with
+varying extension numbers. Previously, all HST instrument files had the same
+number of extensions and they were explicitly read in, but since WFC3 has added
+extensions for use with the new photometry scaling routine a code update was
+needed. This update is backwards compatable.
 
