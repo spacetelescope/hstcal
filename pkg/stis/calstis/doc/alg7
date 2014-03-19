@@ -1,0 +1,178 @@
+This describes 2-D rectification of spectroscopic observations.
+
+All information in reference tables and images should be in reference
+coordinates (low-res MAMA, or unbinned CCD without overscan).
+
+Notation:
+	CRPIX1, CRPIX2	reference pixel in output (rectified) image
+	CRVAL1, CRVAL2	coordinate values at CRPIXi
+	CDELT1  Angstroms per pixel in output image
+	CDELT2  arcseconds per pixel (along slit) in output image
+	LTM1_2, LTM2_2, LTV1, LTV2	mapping from reference
+		coordinates to image coordinates:
+			X = Xref * LTM1_1 + LTV1
+			Y = Yref * LTM2_2 + LTV2
+
+	ox, oy  pixel coordinates in the output image
+	S, L    the point in input image corresponding to (ox,oy),
+		but in reference coordinates (refers to sample & line)
+	ix, iy  pixel coordinates in input corresponding to (S,L)
+	A2CENTER	detector line number at which (or with respect
+		to which) reference data were measured, in particular
+		the dispersion relation or the spectrum trace
+
+	delta	the offset (arcsec) in the dispersion direction from
+		the slit used to determine the dispersion relation to
+		the current slit
+	MAMA_offset	deliberate offset ("dither") to prevent targets
+		from always falling at the same location on the detector 
+	MSM_error	uncertainty in MSM position, measured by cs4
+		from wavecal observations
+	Yoffset		MAMA offset + MSM error + offset in cross
+		dispersion direction from position reference slit to
+		the current slit (converted to pixels)
+
+	coeff	coefficients of dispersion relation
+	IAC_coeff1, IAC_coeff2	two arrays of incidence angle correction
+		coefficients
+	MAMA_coeff1, MAMA_coeff2	two arrays of MAMA offset
+		correction coefficients
+
+
+Coordinates in the raw image will often differ from (S,L), because the
+raw image may be a subimage or be binned.  The LTV and LTM keywords give
+the mapping from (S,L) to pixels in the raw image.  We will loop over
+pixels in the rectified image; for each pixel we need to find the
+corresponding point in the raw image, and we'll interpolate at that
+point to get the data value for output.
+
+Outside the loops over groups and spectral orders:
+
+Read the aperture description table (APD), the aperture throughput table
+(APT), and the spectroscopic distortion table (SDC).  The SDC table
+actually contains coordinate information rather than distortion; the name
+reflects its connection with the imaging distortion table (IDC).
+
+When reading the SDC table, read into memory all rows that match the opti-
+cal element (i.e. grating) and central wavelength, that is, all spectral
+orders (just one for long slit, but many for echelle).  The range of
+spectral orders is used to set the limits on the loop over spectral order.
+A2CENTER is one of the columns to be read.  In this table, A2CENTER is the
+line number on the detector corresponding to CRPIX2 of the output image.
+
+Within the loop over groups:
+
+Compute the heliocentric correction factor.
+
+Within the loop over spectral orders:
+
+Extract the information for the current order from the list read from the
+SDC table.  The size for the output image and the coordinate parameters
+CRPIXi and CDELTi should then be scaled depending on the binning of the
+input image, as specified by LTM1_1 and LTM2_2 for the input image.
+
+Read the dispersion coefficients table (DSP) to find the set of rows
+corresponding to the current spectral order (and optical element and
+central wavelength).  For echelle, there may be just one matching row,
+but for first order there should be many rows, each for a different
+location A2CENTER on the detector in the cross-dispersion direction.
+
+Read the spectrum trace table (1DT) to find the set of rows with matching
+optical element, central wavelength, and spectral order.  As with the DSP
+table, there can be many rows that match, each with a different A2CENTER.
+
+Read the incidence angle correction (IAC) table for the current grating,
+central wavelength, and spectral order to get terms used to correct the
+dispersion coefficients.  For MAMA observations, read the similarly
+structured MAMA offset correction table.
+
+If we're not processing a wavecal, read the wavecal offsets (SHIFTA1 and
+SHIFTA2) from the SCI extension header.  These offsets should have been
+converted by cs4 to reference pixel size.
+
+Read the aperture description table to get the offset of the slit from
+the slit used to determine the dispersion relation.  (We read this table
+before to get the offset from the position reference slit.)
+
+summary:
+The entries in the DSP and 1DT tables are indexed by A2CENTER.  For each
+line of the output image, we have to find the corresponding line in the
+input image, then we use the 1DT to find the actual position in the second
+axis.  For a given line of the output rectified image, we get the corre-
+sponding line L0 on the detector (but uncorrected for the trace) by making
+use of the A2CENTER *from the SDC table*.  That value of A2CENTER is the
+detector line number corresponding to CRPIX2 of the output image.  L0 is
+then compared with A2CENTER in the DSP and 1DT tables, and the contents
+of those tables are linearly interpolated at L0 between rows for which the
+values of A2CENTER bracket L0.  If L0 is smaller than the smallest A2CENTER
+or larger than the largest A2CENTER, the table values are not extrapolated.
+
+
+Do for each line (oy) in the output rectified image:
+
+	Get a first approximation L0 to L:
+		L0 = (oy - CRPIX2) / LTM2_2 + A2CENTER + Yoffset
+
+	Notes:
+	L0 is in reference coordinates, because the reason we need this
+	is to compare with A2CENTER columns in the DSP and 1DT tables.
+	CRPIX2 and A2CENTER are from the SDC table, but LTM2_2 is from
+	the input header.
+
+	Find the pair of rows in the dispersion coefficients table for
+	which the A2CENTER values bracket L0.  Use linear interpolation
+	on the coefficients in those two rows to get the coefficients at
+	L0.  If L0 is outside the range of A2CENTER in the DSP table,
+	return the coefficients in the row with A2CENTER closest to L0.
+
+	Interpolate within the spectrum trace table at L0, as with
+	the dispersion coefficients.
+
+	Correct the dispersion coefficients for IAC and MAMA offset:
+
+		do i = 1, ncoeff
+		    coeff[i] = coeff[i] + IAC_coeff1[i] * delta
+		end do
+		coeff[1] = coeff[1] + IAC_coeff2[1] * delta +
+				      IAC_coeff2[2] * delta**2
+
+		if MAMA observation then
+		    do i = 1, ncoeff
+			coeff[i] = coeff[i] +
+				MAMA_coeff1[i] * MAMA_offset[1] +
+				MAMA_coeff2[i] * MAMA_offset[2]
+		    end do
+		end if
+
+		If we're not processing a wavecal, add the pixel shift
+		SHIFTA1 found from the wavecal to coeff[1].
+
+	Do for each sample (ox) in the current line of the output image:
+
+		Compute heliocentric wavelength from ox:
+			wl0 = (ox - CRPIX1) * CDELT1 + CRVAL1.
+		Divide by heliocentric Doppler factor to get observed
+		wavelength.
+
+		Apply modified dispersion relation at observed wavelength
+		to get S.
+
+		Evaluate the spectrum trace function at S to get dL, and
+		add to L0 to get L.
+		L = L0 + dL
+			(note that S and L are still in reference coords)
+
+		not done yet:
+		    Add small-scale geometric correction to (S,L).
+
+		Apply LTV & LTM to convert (S,L) from reference coordinates
+		to actual image coordinates (ix,iy).
+
+		not done yet:
+		    Determine the factor (Jacobian) by which to multiply
+		    the interpolated value to conserve flux.
+
+		Interpolate in the input image at (ix,iy) to get the flux
+		to assign to the output at (ox,oy).
+	end do
+end do
