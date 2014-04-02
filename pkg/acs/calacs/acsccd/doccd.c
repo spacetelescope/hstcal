@@ -315,11 +315,15 @@ int DoCCD (ACSInfo *acs_info) {
                with gain = 2 and in dual-slope integrator mode. */
             if (strcmp(acs_info->jwrotype, "DS_int") == 0 &&
                     acs_info->ccdgain == 2) {
+                /*
                 trlmessage("Performing bias-shift and cross talk corrections.");
 
                 if (bias_shift_corr(acs_info, &x[0], &x[1])) {
                     return status;
                 }
+                */
+
+                trlmessage("Performing cross talk correction.");
 
                 for (i = 0; i < acs_info->nimsets; i++) {
                     cross_talk_corr(&acs[i], &x[i]);
