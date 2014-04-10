@@ -128,7 +128,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     trlmessage(MsgText);
 
     /* also add cte_frac as header keyword */
-    if (acs->chip == 2) {
+    if ((acs->chip == 2) || (acs->subarray == YES)) {
         if (PutKeyDbl(x->globalhdr, "PCTEFRAC", pars.cte_frac,
                       "CTE scaling factor")) {
             trlerror("(pctecorr) Error writing PCTEFRAC to image header");
@@ -188,15 +188,18 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
             return (status);
         }
 
-        /* fill cte_frac_arr */
-        /* To match cte_frac_arr: v8.1.3  ->  v8.2
+        /* fill cte_frac_arr
+
+           To match cte_frac_arr: v8.1.3  ->  v8.2
                k*amp_arr2+m  -> (k+20)*(amp_arr2+24) + (m+24)
+
+           offsety (LTV2) always 0 for fullframe and -1 for 2K subarray.
         */
         for (k = 0; k < amp_arr1; k++) {
             for (m = 0; m < amp_arr2; m++) {
                 cte_frac_arr[k*amp_arr2 + m] = pars.cte_frac *
                     pars.col_scale[m*NAMPS + amp] *
-                    (double) k / CTE_REF_ROW;
+                    ((double) k - acs->offsety) / CTE_REF_ROW;
             }
         }
 
@@ -298,7 +301,6 @@ static int get_amp_array_size(const ACSInfo *acs, SingleGroup *x,
         if (*yend > x->sci.data.ny) *yend = x->sci.data.ny;
         *xsize = *xend - *xbeg;
         *ysize = *yend - *ybeg;
-
     } else {
         sprintf(MsgText,"(pctecorr) Detector not supported: %i",acs->detector);
         trlerror(MsgText);
