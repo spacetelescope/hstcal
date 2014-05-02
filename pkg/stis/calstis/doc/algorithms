@@ -1,0 +1,483 @@
+Here is a description of the algorithms used for the calibration steps
+in CALSTIS1.  Some of ISR STIS 95-007 is no longer valid.  The steps are
+listed in alphabetical order by the name of the header keyword for the
+calibration switch.
+
+For the MAMA detectors, the calibration steps are as follows.
+(icd:  lors, dqi, glin & lflg, dark, flat, phot)
+
+	Assign values to error array
+	Update data quality array from bad pixel table (DQICORR)
+	Convert from high-res to low-res (LORSCORR)
+	Check for nonlinearity (GLINCORR and LFLGCORR)
+	Subtract dark image (DARKCORR)
+	Multiply by flat field image (FLATCORR)
+	Update photometry keywords (PHOTCORR)
+	Compute statistics, and update extension headers (STATFLAG)
+
+For the CCD detector, the calibration steps are as follows.
+(icd:  dqi, atod, blev, bias, dark, flat, shad, phot)
+
+	Get information from the CCD parameters table
+	Assign values to error array
+	Analog-to-digital correction (ATODCORR)
+	Update data quality array from bad pixel table (DQICORR)
+	Subtract bias from overscan regions (BLEVCORR)
+	Subtract bias image (BIASCORR)
+	Subtract dark image (DARKCORR)
+	Multiply by flat field image (FLATCORR)
+	Correct for shutter shading (SHADCORR)
+	Update photometry keywords (PHOTCORR)
+	Compute statistics, and update extension headers (STATFLAG)
+
+If the skip_steps argument to CALSTIS1 is true (or the -c command-line
+flag was used), only the steps through overscan subtraction (BLEVCORR)
+are performed; this is done prior to cosmic-ray rejection for CCD data.
+
+The data are contained in extensions in FITS files, with three extensions
+in a set:  science (EXTNAME=SCI), error (ERR), and data quality (DQ).
+There may be multiple sets (or groups) in the input file, and if so
+CALSTIS1 will read each group, calibrate it, and write the resulting
+three-extension group to the output FITS file.
+
+Reference images are expected to cover the entire illuminated portion of
+the detector (except mixed illuminated and overscan pixels for binned CCD
+data).  The reference image need not be binned the same as the uncalibrated
+data, but if they differ, the reference image must be more finely binned.
+(The one exception is the low-order flat file, which must be binned and
+can be binned more than the uncalibrated data.)  If the uncalibrated image
+is a subimage or is binned more than the reference image, the matching
+subset of the reference image will be extracted to a scratch array and
+binned down to match the uncalibrated data.  This is done for the bias,
+dark, and flat field data.  The binning is done by averaging the pixel
+values in a rectangular box.  The errors are combined by taking the square
+root of the sum of the squares of the errors in the box, then dividing by
+the number of pixels in the box.
+
+There are primary header keywords that describe the binning and location
+of the image within the detector.  These keywords are based on the
+proposal instructions, and they are not changed if the image is binned
+or a subset is taken by CALSTIS.  Therefore, these keywords do not
+necessarily describe the current image, so they cannot used by CALSTIS
+to determine the binning or subset.  Instead, CALSTIS uses the LTV1 &
+LTV2 and LTM1_1 & LTM2_2 keywords in the extension headers.  LTVi are
+the elements of a vector, and LTMi_i are the diagonal elements of a
+matrix, giving the linear transformation from the reference coordinate
+system to image pixel coordinates.
+
+    | image X |     | LTM1_1  LTM1_2 |     | reference X |     | LTV1 |
+    |         |  =  |                |  *  |             |  +  |      |
+    | image Y |     | LTM2_1  LTM2_2 |     | reference Y |     | LTV2 |
+
+The reference coordinate system is low-res, full detector for the MAMA,
+and it is unbinned, illuminated portion (i.e. no overscan) for the CCD.
+The orientation of the reference coordinates is the same as that of a
+raw image created by Generic Conversion; that is, LTM1_2 & LTM2_1 are
+assumed to be zero, and LTMi_i are required to be positive.
+
+For the CCD, a row is selected in the CCD parameters table based on an
+agreement between image header keywords and table columns.  These are
+CCDAMP, CCDGAIN, CCDOFFST, BINAXIS1, and BINAXIS2.  Once the correct row
+is found, the values of the columns ATODGAIN, CCDBIAS, READNSE, and
+SATURATE are read.  CCDGAIN is the commanded value of gain, while
+ATODGAIN is the actual value, in electrons per dn.  CCDBIAS is the
+estimate of the bias in dn which would be used by the on-board software
+for target-acquisition.  This is also used for bias level subtraction
+(BLEVCORR) for lines that do not have enough good pixels in the overscan
+regions.  READNSE is the readnoise in electrons.  The primary header of
+the output image is then updated with the values of ATODGAIN and READNSE.
+For the MAMA, the gain is set to one, and the bias and readnoise are set
+to zero.
+(Note:  The current situation is that the selection ignores
+CCDOFFST, BINAXIS1, and BINAXIS2; column SATURATE is not read.)
+
+A preliminary step (not controlled by a header keyword) is to compute
+and assign values to the error array (see donoise.c).  This is done if
+all values in the input error array are zero.  The error (in dn) is
+computed by:
+
+	error = sqrt ((I - bias) / gain + (readnoise / gain)^2)
+
+where I is the data value from the input SCI extension (in dn), and bias,
+readnoise, and gain are obtained as described in the previous paragraph.
+The bias is in dn, readnoise is in electrons, and gain is electrons per dn.
+
+For the MAMA detectors, if DOPPCORR is PERFORM, then keywords EXPSTART,
+DOPPZERO, DOPPMAG, and ORBITPER are read from the SCI extension header.
+These are used in computing the Doppler shift with which some reference
+files will be convolved.  These files are the bad pixel table, the dark
+image, and the flat fields.
+
+ATODCORR (doatod.c):
+--------
+This step is currently not performed; if it were, it should only be done
+for the CCD.
+
+The following columns are read from the analog-to-digital table
+(ATODTAB): CCDAMP, CCDGAIN, REF_KEY, REF_KEY_VALUE, NELEM, and ATOD.
+The table is read to find all rows for which CCDAMP and CCDGAIN match
+the image header keywords of the same name.  For each of those rows,
+the REF_KEY string and REF_KEY_VALUE are gotten.  The REF_KEY string
+is the name of a keyword in the image primary header.  The value of
+that keyword is read from the image header, and the absolute value of
+the difference between that value and the value of REF_KEY_VALUE in
+the current table row is taken.  The row for which that difference is
+minimum is the row from which the correction array ATOD is read.  The
+array length NELEM is read from that row as well, and the length may
+differ from row to row, although the maximum length is fixed.
+
+For each pixel in the SCI extension, the input pixel value (still an
+integer at this stage) is used as an index into the correction (ATOD)
+array, and the SCI pixel value is replaced by the value of the ATOD array
+for that index.  Zero indexing is used.  If the input SCI value is less
+than zero, no change to the value is made.  If the input value is beyond
+the end of the ATOD array, the last element of the ATOD array is assigned
+as the SCI value, and the pixel is flagged as saturated (256) in the data
+quality array.
+
+BIASCORR (dobias.c):
+--------
+This step should only be performed for the CCD.
+
+The bias reference image (possibly a subset or binned down to match the
+uncalibrated data) will be subtracted from the uncalibrated data, with
+no scaling for bias.
+
+BLEVCORR (doblev.c):
+--------
+This step should only be performed for the CCD.
+
+The bin size is required to be 1, 2, or 4 for both image axes; otherwise,
+the routine returns with an error.  (Note:  Is this necessary?)
+The first step is to determine the size of the overscan region for each
+side of the input image.  See below for details.  The output image will
+be smaller than the input due to trimming off the physical and virtual
+overscan regions.  If the data are binned, the pixels that are partly
+overscan and partly illuminated will also be removed.  The CRPIXi and
+LTVi keywords are updated in the output; these change due to the offset
+from removing the overscan.  The overscan level is determined for each
+image line and subtracted, independently of other lines.  The algorithm
+to find the bias level is described below.  Parallel (virtual) overscan
+lines are ignored.  When processing a given line, if the overscan regions
+contain a sufficient number of good pixels, the mean is subtracted from
+each pixel in the line, and the error array is updated by adding the
+overscan error in quadrature.  If there are fewer than three good
+overscan pixels, a default value is subtracted (ccdbias from the CCD
+parameters table), and each pixel in the output data quality is flagged
+as having a calibration defect (512).  If an output text file for overscan
+values was specified, the value subtracted from the current line is
+printed to that file.  The mean value of all overscan levels is computed,
+and the mean is written to the output SCI extension header as MEANBLEV.
+
+The sizes of the overscan regions are found by findover.c.  They depend on
+binning and whether the image is full-frame or a subimage.  The locations
+of the overscan regions depend on which amplifier was used for readout.
+The physical overscan regions at the ends of each line are 19 pixels.  If
+a subimage was taken, the subset is only in the second image axis; the
+full width is included, except for the first and last pixels (the outer-
+most pixel all around the image is lost), so there are only 18 pixels
+of overscan at the ends, and there is no parallel overscan.  Binning and
+subimage are mutually exclusive; binned images are full-frame.  Since 19
+is a prime number, for binned data the region on each end of the line will
+have a pixel that is a mixture of overscan and illuminated portion.  Thus
+the number of pixels that can be used to determine the overscan level
+(pure overscan) is one less than the number of pixels to trim off before
+copying to output.  The number of pixels to trim off each side of the image
+(before accounting for readout amplifier) is as follows:
+
+full image, no binning:
+	Left = 19
+	Right = 19
+	Bottom = 0
+	Top = 20
+
+subimage:
+	Left = 19
+	Right = 19
+	Bottom = 0
+	Top = 20
+
+binned:
+	Left = (19 + 1) / BINAXIS1
+	Right = NAXIS1 - (1024 / BINAXIS1 - 1) - Left
+	Bottom = 0
+	Top = NAXIS2 - 1024 / BINAXIS2
+
+Integer division is used.  NAXIS1, NAXIS2, BINAXIS1, and BINAXIS2 are
+the values of image header keywords.
+
+Values can then be swapped to account for which amplifier was used for
+readout.  If amp A was used, no swapping is needed.  For amp B or D,
+Left and Right are swapped.  For amp C or D, Bottom and Top are swapped.
+
+The overscan level is found by findblev.c.  Pixels are copied from each
+end of the current line to a scratch array, skipping pixels flagged as bad.
+The following algorithm is used for rejecting deviant values.  The median
+of the values in the scratch array is first computed.  The median of the
+absolute values of the deviations (the MAD) is then found.  Since the
+values are expected to be integers (possibly not, depending on ATODCORR),
+the MAD could be zero, so a lower limit of one is adopted for the MAD.
+Values are rejected if they deviate more than three MADs from the median.
+This is repeated until no further values are rejected or until fewer than
+three remain.  The mean of the remaining good values is taken as the bias
+level, if there are at least three such values, and that is what is
+subtracted from the line.
+
+DARKCORR (dodark.c):
+--------
+The dark reference image (possibly a subset or binned down to match the
+uncalibrated data) will be scaled and subtracted from the uncalibrated
+data.  The mean of the dark values subtracted will be written to the
+SCI extension header with the keyword MEANDARK.  For CCD data, the dark
+image will be multiplied by the dark time (see below) and divided by the
+atodgain (from the CCD parameters table) before subtracting.  For MAMA
+data, the dark image will be multiplied by the exposure time before
+subtracting; it will also be convolved with the Doppler smoothing
+function if DOPPCORR is PERFORM.
+
+For CCD data, the dark time is longer than the exposure time by an
+amount which depends on the location on the detector and which amplifier
+was used for readout.  The dark time is the sum of the exposure time,
+the time since the line was flushed before the exposure, and the time
+to read out the line following the exposure.
+
+Before the exposure begins, the CCD is continually flushed (read out)
+from the middle line of the detector toward the top and bottom.  The time
+from the end of the flushing until the beginning of the exposure increases
+linearly from zero at the middle line of the detector to two seconds at
+the top and bottom edges.
+
+After the exposure ends, the detector is read out line by line.  The time
+required to read out a given line increases from zero at the edge nearest
+the readout amplifier to up to about 29 seconds at the far edge.  The
+actual time depends on binning and subset; the details are given below.
+
+First define the following parameters.
+
+      FAST_SERIAL = 0.000006 second / pixel
+      SLOW_SERIAL = 0.000022 second / pixel
+    SLOW_PARALLEL = 0.000640 second / line
+
+       line = line number in image, which may be subset or binned
+        row = location on chip (unbinned pixels) corresponding to 'line'
+     nlines = number of image lines (binned pixels) read out
+      ncols = number of binned pixels in a line
+    allrows = lines (unbinned) on detector from 'line' to readout amp
+   BINAXIS1 = 1 / LTM1
+   BINAXIS2 = 1 / LTM2
+
+'row' may differ from 'line' due to binning or subarray.  It does not
+depend on readout amplifier, however.  Changing 'line' by one changes
+'row' by BINAXIS2.  The origin of 'line' can be offset from the
+beginning of the detector (row = 0) if subimage mode was used.
+
+	row = (LINE - LTV2) / LTM2 + (1 / LTM2 - 1) / 2
+
+'nlines' can differ from 'line' depending on readout amplifier.
+
+For binned data (which will be full-frame), the time to read out line
+number 'line' is obtained as follows.
+
+	ncols = 1044 / BINAXIS1 + 10
+
+	if readout amp is A or B then
+	    nlines = (row + 1) / BINAXIS2
+	else if readout amp is C or D then
+	    nlines = (1024 - row) / BINAXIS2
+	end if
+
+	readout time = nlines * BINAXIS2 * SLOW_PARALLEL +
+		nlines * ncols *
+			((BINAXIS1 - 1.) * FAST_SERIAL + SLOW_SERIAL)
+
+For unbinned data, which may be a subimage, the readout time for line
+number 'line' is as follows.
+
+	ncols = 1024 + 2 * 20
+
+	if readout amp is A or B then
+	    nlines = line + 1
+	    allrows = row + 1  =  line - LTV2 + 1
+	else if readout amp is C or D then
+	    nlines = NAXIS2 - line
+	    allrows = 1024 - row  =  1024 - (line - LTV2)
+	end if
+
+	readout time = allrows * SLOW_PARALLEL +
+		nlines * ncols * SLOW_SERIAL
+
+The dark time is computed for each image line; the small variation within
+a line is ignored.
+
+DQICORR (dodqi.c):
+-------
+The bpixtab contains the following integer header parameters:
+	NX, NY:  full size (not binned) of data quality array
+
+and the following integer columns:
+	XSTART, YSTART:  starting pixel (one indexed) of a range
+		of pixels to be assigned an initial value
+	REPEAT:  number of pixels to be assigned the value
+	AXIS:  1 --> X axis, 2 --> Y axis
+	FLAG:  value to be ORed with data quality array
+
+Each table row specifies a single pixel or a line to be flagged in either
+the X or Y direction.  If the science data are binned or do not start at
+the beginning of the detector, a scratch array of size NX by NY will be
+created; otherwise, the data quality values are assigned directly into the
+input data quality array.  For each row of the table, the starting pixel
+(XSTART,YSTART) and other information are read from the table.  A total
+of up to REPEAT pixel values may be assigned, starting at (XSTART,YSTART)
+and continuing along the X axis if AXIS is one and along the Y axis if
+AXIS is two.  The actual starting pixel may be shifted and/or smeared
+out due to the Doppler correction.  It is not an error to run off the
+edge of the array, or for the shifted starting pixel to be off the image,
+but the starting pixel (XSTART,YSTART) as read from the table must be
+within the range [1:NX,1:NY].  A data quality value is assigned by ORing
+it with any previous value, so the regions specified by different rows
+of the table may coincide or overlap.
+
+GLINCORR, LFLGCORR (dononlin.c):
+------------------
+This step should only be performed for the MAMA detectors.
+
+The row in the MAMA linearity table is selected on DETECTOR, and the
+following columns are read:  GLOBAL_LIMIT, LOCAL_LIMIT, TAU, and EXPAND.  
+
+If either GLINCORR or LFLGCORR is PERFORM, the global count rate will be
+checked.  If the value of the SCI extension header keyword GLOBRATE is
+greater than GLOBAL_LIMIT, the keyword GLOBLIM in the SCI extension header
+will be set to "EXCEEDED"; otherwise, GLOBLIM will be set to
+"NOT-EXCEEDED", and a correction factor will be computed and multiplied by
+each pixel in the science image and error array.  The correction factor is
+computed by iteratively solving GLOBRATE = X * exp (-TAU * X) for X, where
+X is the true count rate.  The correction factor is X / GLOBRATE.
+
+If LFLGCORR is PERFORM, each pixel in the science image is compared with
+the product of LOCAL_LIMIT and the exposure time EXPTIME.  That count
+rate limit is then adjusted for binning by dividing by the pixel area in
+high-res pixels.  If the science data value is larger than that product,
+that pixel and others within a radius of EXPAND high-res pixels are
+flagged as nonlinear.
+
+
+FLATCORR (doflat.c):
+--------
+The flat field correction uses from one to three reference images, the
+keywords for which are PFLTFILE, DFLTFILE, and LFLTFILE.  Any combination
+of one or more of these files may be used.  To indicate that a file is
+not to be used, set its keyword name to blank.  The PFLTFILE and DFLTFILE
+are interchangeable as far as CALSTIS is concerned.  They must both be
+binned the same, or they can both be unbinned.  The LFLTFILE, however,
+must be binned.
+
+The PFLTFILE and DFLTFILE, if they were specified, are read into memory
+and multiplied together.  The SCI extension values are multiplied pixel
+by pixel, and the ERR extension values are added in quadrature.  The
+LFLTFILE, if it was specified, is read into memory, "unbinned" by
+bilinear interpolation, and multiplied by the product of the PFLTFILE
+and DFLTFILE.
+
+The factor by which to expand the LFLTFILE in each axis depends on
+whether we have a PFLTFILE or a DFLTFILE.  If either of those files does
+exist, we expand the LFLTFILE to the size of the product of those files.
+If not, we expand the LFLTFILE to the size of the uncalibrated data, and
+we determine the factor by comparing the LTM1 and LTM2 keywords in the
+LFLTFILE and the uncalibrated data.  The interpolation of errors during
+unbinning is as follows.
+
+	sqrt (p * r * (err_a[i,j  ])^2 + q * r * (err_a[i+1,j  ])^2 +
+	      p * s * (err_a[i,j+1])^2 + q * s * (err_a[i+1,j+1])^2)
+
+where p & q are the weights for interpolating in the first image axis,
+and r & s are the weights for the second image axis.  This is not the
+correct expression for the general case of interpolation (the p*r, q*r,
+etc., should be squared along with the errors), but I think this is
+appropriate for resampling the low-order flat fields.
+
+For MAMA data, the product of the flat field images will be convolved
+with the Doppler smoothing function if DOPPCORR is PERFORM.
+
+After taking the product of all the flat fields that were specified, a
+subset is taken and binned if necessary to match the uncalibrated image,
+and the uncalibrated data is then multiplied by the binned subset.
+
+LORSCORR (dolores.c):
+--------
+This step should only be performed for the MAMA detectors.
+
+The binning of the uncalibrated image is determined from the LTM1 and
+LTM2 keywords in the SCI extension header.  LTMi = 1 implies the reference
+pixel size, low-res, and LTMi = 2 means high-res.  In this step, if either
+or both axes are high-res, they will be binned down to low-res.  The
+binning differs from binning reference files to match an uncalibrated
+image in that in this step the pixel values are summed rather than
+averaged.
+
+Doppler convolution:
+-------------------
+This is only relevant for the MAMA detectors.
+
+The first step is to compute an array containing the Doppler smearing
+function.  A local 1-D scratch array is allocated, and values in that
+array are incremented if they are affected by the Doppler shift.  The
+time t in the expression below begins with the value of the header
+keyword EXPSTART and is incremented in one-second intervals up to
+EXPSTART + EXPTIME inclusive.  At each of these times, the Doppler
+shift in unbinned pixels is computed as:
+
+	shift = DOPMAG * sin (2 * pi * (t - DOPZERO) / ORBITPER)
+
+The value of shift is rounded to the nearest integer to make an array
+index, an offset is added (to put shift=0 in the middle of the scratch
+array), and that array element is incremented by one.  After accululating
+all the counts, the values in the array are normalized to a sum of one.
+It may be that only one or a few of the array elements are non-zero,
+and the non-zero elements do not need to include zero Doppler shift.
+The subset of elements that are non-zero are copied to the output array,
+and the offset from the first output array element and the element
+corresponding to zero Doppler shift is also returned.
+After computing the Doppler smearing function, this array is convolved
+with each column of the image.  An image column is copied to a scratch
+array, the convolution is computed, and the result is written back into
+the original column.  Let ds be the Doppler smearing function computed
+above, and let nds be the number of elements in ds.  Let s0 be the zero
+point offset, i.e. ds[s0] is the array element with zero Doppler shift.
+It's perfectly OK for s0 to be outside the array, i.e. less than zero or
+greater than nds-1.  Pixel j of the original data is copied to pixel
+j + nds - 1 in the scratch array, the convolution sum is computed (see
+below), and the result is written back to pixel j + nds - 1 - s0.  Thus,
+if the Doppler smearing function is just one element (e.g. a short time
+exposure), pixel j will simply be shifted to pixel j - s0.
+
+	   j                  in original array
+	   jj = j + (nds-1)   in scratch array y
+	   j = jj - s0        back into original array
+
+That needs to be rewritten, doesn't it?
+
+PHOTCORR (dophot.c):
+--------
+The following columns are read from the photometric throughput table
+(PHOTTAB):  DETECTOR, OPT_ELEM, CCDAMP, CCDGAIN, NELEM, WAVELENGTH, and
+THROUGHPUT.  The table is read to find the row for which the values of
+DETECTOR and OPT_ELEM are the same as in the input image header.  If the
+detector is the CCD, CCDAMP and CCDGAIN are also compared with the header
+keywords.  For the matching row, the number of elements NELEM is read, and
+the WAVELENGTH and THROUGHPUT arrays are read.  The synphot routine phopar
+is then called to determine the inverse sensitivity, reference magnitude
+(actually a constant), pivot wavelength, and RMS bandwidth.  These are
+written to keywords in the primary header.
+
+SHADCORR (doshad.c):
+--------
+This step is currently not performed; if it were, it should only be done
+for the CCD.
+
+The shutter shading correction is based on a reference image.  If
+SHADFILE represents the value of this reference image at a pixel,
+the uncalibrated image is corrected pixel by pixel as follows:
+
+	corrected = uncalibrated * EXPTIME / (EXPTIME + SHADFILE)
+
+### cal_dir is not described; this option probably should be deleted
