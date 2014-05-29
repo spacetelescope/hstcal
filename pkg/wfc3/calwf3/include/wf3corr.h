@@ -4,7 +4,6 @@
 **
 ** H.Bushouse	17 June 2002: Removed "statcorr" from CCD_Switch and
 **		and IR_Switch (tracking CALACS changes).
-** M. Sosey 4 Dec 2013: added fluxcorr for UVIS
 */
 
 typedef struct {
@@ -17,7 +16,6 @@ typedef struct {
 	int dqicorr;
 	int flatcorr;
 	int flashcorr;
-    int fluxcorr;
 	int photcorr;
 	int rptcorr;
 	int shadcorr;

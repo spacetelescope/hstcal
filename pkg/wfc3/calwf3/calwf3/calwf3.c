@@ -441,7 +441,6 @@ CCD_Switch *wf32d_sci_sw      o: wf32d switches for science file
 	wf32d_sci_sw->crcorr    = sci_sw->crcorr;
 	wf32d_sci_sw->rptcorr   = sci_sw->rptcorr;
 	wf32d_sci_sw->expscorr  = sci_sw->expscorr;	
-    wf32d_sci_sw->fluxcorr  = sci_sw->fluxcorr;
 	
 }
 

@@ -167,11 +167,6 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 		return (status);
 	}
 
-	if (sci_sw->fluxcorr == PERFORM) {
-	    CCDSanity (wf3->detector, "FLUXCORR");
-		return (status);
-	}
-
 	return (status);
 }
 

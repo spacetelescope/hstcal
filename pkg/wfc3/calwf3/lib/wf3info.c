@@ -57,9 +57,6 @@
    H.Bushouse, 2011 Sep 7:
 	Modified WF3Init to initialize new phot tab instead of graph and
 	comp tabs.
-    
-  M. Sosey 2013 December 4
-    Added fluxcorr switches for new uvis photometry scaling of chips
 */
 
 void WF3Init (WF3Info *wf3) {
@@ -151,7 +148,6 @@ void WF3Init (WF3Info *wf3) {
 	wf3->nlincorr = OMIT;
 	wf3->flatcorr = OMIT;
 	wf3->flashcorr = OMIT;
-    wf3->fluxcorr = OMIT;
 	wf3->pfltcorr = OMIT;
 	wf3->dfltcorr = OMIT;
 	wf3->lfltcorr = OMIT;
@@ -464,7 +460,6 @@ void initCCDSwitches (CCD_Switch *sw) {
 	sw->dqicorr  = OMIT;
 	sw->flatcorr = OMIT;
 	sw->flashcorr = OMIT;
-    sw->fluxcorr = OMIT;
 	sw->photcorr = OMIT;
 	sw->rptcorr  = OMIT;
 	sw->shadcorr = OMIT;

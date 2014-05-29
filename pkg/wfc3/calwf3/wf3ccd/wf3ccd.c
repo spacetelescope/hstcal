@@ -28,10 +28,6 @@ static int BiasKeywords (WF3Info *);
    H. Bushouse, 2003 Oct 24:
    Added BiasKeywords routine to populate bias level keywords for
    each amp (CALACS changes).
-   M. Sosey, 2013 July 3
-   Addded new FLUXCORR step to scale flux units in both chips to
-   the same scale using the ratio of PHTFLAM1/PHTFLAM2 ->PHTRATIO 
-
  */
 
 int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
@@ -92,7 +88,6 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     wf3.blevcorr = ccd_sw->blevcorr;
     wf3.biascorr = ccd_sw->biascorr;
     wf3.flashcorr = ccd_sw->flashcorr;
-    wf3.fluxcorr = ccd_sw->fluxcorr;
     wf3.noiscorr = PERFORM;
     wf3.printtime = printtime;
     wf3.verbose = verbose;

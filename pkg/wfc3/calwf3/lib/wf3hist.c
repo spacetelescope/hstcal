@@ -323,24 +323,6 @@ int photHistory (WF3Info *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int fluxHistory (WF3Info *wf3, Hdr *phdr) {
-
-	extern int status;
-	int logit;			/* true if we should log file name */
-	int OmitStep (int);
-	int TabHistory (RefTab *, Hdr *);
-	int UpdateSwitch (char *, int, Hdr *, int *);
-
-	if (OmitStep (wf3->fluxcorr))
-	    return (status);
-
-	if (UpdateSwitch ("FLUXCORR", wf3->fluxcorr, phdr, &logit))
-	    return (status);
-
-	return (status);
-}
-
-
 /* Update the calibration switch in the primary header to COMPLETE
    or SKIPPED.
 */

@@ -21,8 +21,7 @@ H.Bushouse, 2001 May 8:
 	Revised to add FLSHCORR processing keyword.
 H.Bushouse, 2002 June 20:
 	Removed use of STATFLAG switch (always perform doStat by default).
-M.Sosey, 2013 Dec 4:
-    revised to add FLUXCORR processing keyword
+
 */
 
 int GetCCDSws (CCD_Switch *sw, Hdr *phdr) {
@@ -58,9 +57,7 @@ Hdr *phdr       i: primary header
 	    return (status);
 	if (GetSw (phdr, "EXPSCORR", &sw->expscorr))
 	    return (status);
-	if (GetSw (phdr, "FLUXCORR", &sw->fluxcorr))
-	    return (status);
-        
+
 	/* Check to ensure that only one of these switches are
 	** set, since they are exclusive options. */
 	if (sw->rptcorr == PERFORM && sw->crcorr == PERFORM) {
@@ -69,13 +66,7 @@ Hdr *phdr       i: primary header
 	    status = HEADER_PROBLEM;
 	    return (status);  
 	}
-    
-    if (sw->photcorr == OMIT && sw->fluxcorr == PERFORM){
-        trlerror("PHOTCORR and FLUXCORR both need to be set to PERFORM!");
-        trlerror("     FLUXCORR needs PHOTCORR to set required keywords");
-        status = HEADER_PROBLEM;
-        return (status);
-    }
+
 	return (status);
 }
 

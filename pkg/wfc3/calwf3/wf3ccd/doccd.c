@@ -38,11 +38,6 @@
    added message info giving mean bias level for each amp (CALACS
    changes).
 
-
-    M. Sosey, 2013 July 3
-    Addded new FLUXCORR step to scale flux units in both chips to
-    the same scale using the ratio of PHTFLAM1/PHTFLAM2 ->PHTRATIO 
-    
  ** This code is a trimmed down version of CALSTIS1 do2d.c.  
  */
 
@@ -360,7 +355,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     if (extver == 1 && !OmitStep (wf3->flashcorr)) {
         if (flashHistory (wf3, x.globalhdr))
             return (status);
-    }    
+    }
 
     /* Write this imset to the output file.  If extver is one, the
        CAL_VER and FILENAME keywords will be updated, and the primary
