@@ -1,0 +1,2 @@
+Don't include cerror.o in ../libxtables.a.  setError, clearError, and
+checkError are in ../cvos/c_iraf_priv.c.
