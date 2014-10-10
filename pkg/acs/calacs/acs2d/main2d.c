@@ -29,13 +29,17 @@ static void FreeNames (char *, char *, char *, char *);
 
    Pey Lian Lim, 2012 Dec 19:
         Added check to see if PCTECORR was performed.
+
+   Pey Lian Lim, 2014 Oct 9:
+       Disabled command line keywords. Obtain calibration flags from header.
+
 */
 
 int main (int argc, char **argv) {
 
     char *inlist;		/* list of input file names */
     char *outlist;		/* list of output file names */
-    int switch_on = 0;	/* was any switch specified? */
+    /*int switch_on = 0;*/	/* was any switch specified? */
     int printtime = NO;	/* print time after each step? */
     int verbose = NO;	/* print additional info? */
     int quiet = NO;		/* suppress STDOUT messages? */
@@ -63,7 +67,7 @@ int main (int argc, char **argv) {
     void FreeRefFile (RefFileInfo *);
 
     int ACS2d (char *, char *, CalSwitch *, RefFileInfo *, int, int);
-    int DefSwitch (char *);
+    /*int DefSwitch (char *);*/
     int MkOutName (char *, char **, char **, int, char *, int);
     void WhichError (int);
     int CompareNumbers (int, int, char *);
@@ -74,6 +78,7 @@ int main (int argc, char **argv) {
     int pctecorr;
     int LoadHdr (char *, Hdr *);
     int GetSwitch (Hdr *, char *, int *);
+    int Get2dSw (CalSwitch *, Hdr *);
 
     c_irafinit (argc, argv);
 
@@ -96,7 +101,8 @@ int main (int argc, char **argv) {
 
     for (i = 1;  i < argc;  i++) {
 
-        if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */
+        /*********
+        if (strcmp (argv[i], "-dqi") == 0) {
             acs2d_sw.dqicorr = PERFORM;
             switch_on = 1;
         } else if (strcmp (argv[i], "-glin") == 0) {
@@ -121,6 +127,8 @@ int main (int argc, char **argv) {
             acs2d_sw.photcorr = PERFORM;
             switch_on = 1;
         } else if (argv[i][0] == '-') {
+        *********/
+        if (argv[i][0] == '-') {
             for (j = 1;  argv[i][j] != '\0';  j++) {
                 if (argv[i][j] == 't') {
                     printtime = YES;
@@ -144,9 +152,11 @@ int main (int argc, char **argv) {
     }
     if (inlist[0] == '\0' || too_many) {
         printf ("syntax:  acs2d [-t] [-v] [-q] input output\n");
+        /*
         printf ("  command-line switches:\n");
         printf ("       -dqi -glin -lflg -dark\n");
         printf ("       -flash -flat -shad -phot\n");
+        */
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }
@@ -157,17 +167,17 @@ int main (int argc, char **argv) {
     /* Copy command-line value for QUIET to structure */
     SetTrlQuietMode(quiet);
 
-    /* Was no calibration switch specified on command line? */
-    if (!switch_on) {	/* default values (mostly PERFORM) */
-        acs2d_sw.dqicorr   = DefSwitch ("dqicorr");
-        acs2d_sw.glincorr  = DefSwitch ("glincorr");
-        acs2d_sw.lflgcorr  = DefSwitch ("lflgcorr");
-        acs2d_sw.darkcorr  = DefSwitch ("darkcorr");
-        acs2d_sw.flashcorr = DefSwitch ("flshcorr");  /* OMIT */
-        acs2d_sw.flatcorr  = DefSwitch ("flatcorr");
-        acs2d_sw.shadcorr  = DefSwitch ("shadcorr");  /* OMIT */
-        acs2d_sw.photcorr  = DefSwitch ("photcorr");
-    }
+    /* Was no calibration switch specified on command line?
+    if (!switch_on) {	default values (mostly PERFORM)
+    acs2d_sw.dqicorr   = DefSwitch ("dqicorr");
+    acs2d_sw.glincorr  = DefSwitch ("glincorr");
+    acs2d_sw.lflgcorr  = DefSwitch ("lflgcorr");
+    acs2d_sw.darkcorr  = DefSwitch ("darkcorr");
+    acs2d_sw.flashcorr = DefSwitch ("flshcorr");  OMIT
+    acs2d_sw.flatcorr  = DefSwitch ("flatcorr");
+    acs2d_sw.shadcorr  = DefSwitch ("shadcorr");  OMIT
+    acs2d_sw.photcorr  = DefSwitch ("photcorr");
+    /*}*/
 
     /* Expand the templates. */
     i_imt = c_imtopen (inlist);
@@ -196,6 +206,15 @@ int main (int argc, char **argv) {
 
         /* Open input image in order to read its primary header. */
         if (LoadHdr (input, &phdr)) {
+            WhichError (status);
+            sprintf (MsgText, "Skipping %s", input);
+            trlmessage (MsgText);
+            continue;
+        }
+
+        /* Get the values for the Calibration Switches from the
+           header for processing. */
+        if (Get2dSw (&acs2d_sw, &phdr) ) {
             WhichError (status);
             sprintf (MsgText, "Skipping %s", input);
             trlmessage (MsgText);

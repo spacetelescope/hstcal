@@ -1,3 +1,5 @@
+ 10-Oct-2014:  CALACS 8.3.1 ACS2D standalone executable now reads calibration
+                            flags from header, not command line.
  08-Apr-2014:  CALACS 8.3.0 PCTECORR now supports WFC 2K subarrays.
  14-Nov-2013:  CALACS 8.2.1 ACSREJ bug fix due to HSTIO update.
  12-Aug-2013:  CALACS 8.2.0 New ACSCTE sub-module added to separate PCTECORR
