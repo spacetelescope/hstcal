@@ -1,0 +1,12 @@
+# vim: set syntax=python:
+
+def build(bld):
+    t = bld.program(
+        source = 'main2d.c',
+        target = 'acs2d.e',
+        use = ['calacs', 'imphttab'] + bld.env.LOCAL_LIBS,
+        lib = bld.env.EXTERNAL_LIBS,
+        libpath = bld.env.LIBPATH,
+        install_path = '${PREFIX}/bin'
+        )
+
