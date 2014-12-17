@@ -41,6 +41,13 @@
   M Sosey, 2012 December 27:
       Updated to account for a memory leak on linux machines during BuildDth 
       when RPTCORR is off and a new spt is being constructed (#967)       
+      
+ M. Sosey, 2014 November 7:
+      Moved the execution of doFlux (the 2 chip uv correction) here so that it ran after
+      both chips had been calibrated. This is a consecquence of the correction  being needed
+      for chip2, which happens to be in extension 1 of the raw file, so it gets the imphttab params
+      first, before the ones for chip1 have been grabbed. The code needs the ratio of the two to 
+      operate correctly.     
 */
 
 int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
@@ -68,7 +75,8 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 	void PrGrpBegin (char *label, int n);
 	void PrGrpEnd (char *label, int n);
 	void Init2DTrl (char *, char *);
-	
+    int doFlux (WF3Info *);
+ 	
 /* ----------------------- Start Code --------------------------------*/
 
 	/* Determine the names of the trailer files based on the input
@@ -160,7 +168,21 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 		return (status);
 	    PrGrpEnd ("imset", extver);
 	}
-
+   
+    /*Scale chip2, sci 1,so that the flux correction is uniform between the detectors
+      This will only be done if PHOTCORR and FLUXCORR are perform since we need the values
+      from the imphttable to make the correction */
+    
+    if (wf32d.fluxcorr == PERFORM) {
+        if (doFlux (&wf32d))
+            return(status);
+        FluxMsg(wf32d);
+        PrSwitch ("fluxcorr", COMPLETE);
+        if (wf32d.printtime)
+            TimeStamp ("FLUXCORR complete", wf32d.rootname);
+    }
+    
+        
 	trlmessage ("\n");
 	PrEnd ("WF32D");
 

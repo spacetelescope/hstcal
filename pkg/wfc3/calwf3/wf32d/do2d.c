@@ -59,7 +59,6 @@ static void dqiMsg (WF3Info *, int);
 static void PhotMsg (WF3Info *);
 static void ShadMsg (WF3Info *, int);
 static void FlatMsg (WF3Info *, int);
-static void FluxMsg (WF3Info *);
 static int OscnTrimmed (Hdr*, Hdr *);
 
 int Do2D (WF3Info *wf32d, int extver) {
@@ -87,7 +86,6 @@ int extver       i: "imset" number, the current set of extensions
 	int doDQI (WF3Info *, SingleGroup *);
 	int dqiHistory (WF3Info *, Hdr *);
 	int doFlat (WF3Info *, int, SingleGroup *);
-    int doFlux (WF3Info *, SingleGroup *);
 	int flatHistory (WF3Info *, Hdr *);
 	int doNoise (WF3Info *, SingleGroup *, int *);
 	int noiseHistory (Hdr *);
@@ -313,24 +311,8 @@ int extver       i: "imset" number, the current set of extensions
 	    if (wf32d->printtime)
 		    TimeStamp ("PHOTCORR complete",wf32d->rootname);
         
-        /*Scale chip2 so that the flux correction is uniform between the detectors
-          This will only be done if photcorr is perform since we need the values
-          from the imphttable to make the correction */
-        
-        if (wf32d->fluxcorr == PERFORM) {
-            if  (wf32d->chip == 2) {
-	            sprintf(MsgText,"Performing FLUXCORR on chip %d",wf32d->chip);
-	            trlmessage(MsgText);
-                if (doFlux (wf32d, &x))
-                    return(status);
-                FluxMsg(wf32d);
-                PrSwitch ("fluxcorr", COMPLETE);
-                if (wf32d->printtime)
-                    TimeStamp ("FLUXCORR complete", wf32d->rootname);
-            }    
-        }
-        
 	}
+    
 	if (extver == 1 && !OmitStep (wf32d->photcorr))
 	    if (photHistory (wf32d, x.globalhdr))
     		return (status);
@@ -444,17 +426,6 @@ static void PhotMsg (WF3Info *wf32d) {
 	}
 }
 
-static void FluxMsg (WF3Info *wf32d) {
-
-	int OmitStep (int);
-	void PrSwitch (char *, int);
-
-	trlmessage ("");
-
-	if (!OmitStep (wf32d->fluxcorr)) {
-	    PrSwitch ("fluxcorr", wf32d->fluxcorr);
-	}
-}
 
 static void ShadMsg (WF3Info *wf32d, int extver) {
 
