@@ -1,8 +1,0 @@
-# vim: set syntax=python:
-
-def build(bld):
-    # We don't really build any of these files, but we want to install them
-    if bld.env.INSTALL_LIB:
-        bld.install_files(
-            '${PREFIX}/include',
-            'c_iraf.h hstio.h numeric.h xclio.h ximio.h xsynphot.h xtables.h')
