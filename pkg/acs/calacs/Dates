@@ -1,0 +1,47 @@
+ 10-Oct-2014:  CALACS 8.3.1 ACS2D standalone executable now reads calibration
+                            flags from header, not command line.
+ 08-Apr-2014:  CALACS 8.3.0 PCTECORR now supports WFC 2K subarrays.
+ 14-Nov-2013:  CALACS 8.2.1 ACSREJ bug fix due to HSTIO update.
+ 12-Aug-2013:  CALACS 8.2.0 New ACSCTE sub-module added to separate PCTECORR
+                            from ACSCCD.
+  4-Apr-2013:  CALACS 8.1.3 Removed FLSCFILE support as it is no longer needed.
+  1-Apr-2013:  CALACS 8.1.2 PCTECORR bug fix for Ticket #992.
+ 17-Dec-2012:  CALACS 8.1.2 ACSREJ DQ now properly propagates to FLT images.
+ 14-Dec-2012:  CALACS 8.1.1 ACSREJ ERR now calculates correct ERR for ELECTRONS.
+ 12-Dec-2012:  CALACS 8.1.0 FLSHCORR moved to ACS2D. Added FLSCFILE.
+ 12-Dec-2012:  CALACS 8.0.7 DARKCORR uses new time scaling to account for
+                            FLASHDUR and extra 3s. Fixed DRKCFILE check bug.
+ 18-Jul-2012:  CALACS 8.0.6 Move FLSHCORR after PCTECORR.
+ 29-Mar-2012:  CALACS 8.0.1 Revert TRL filenames to OPUS requirements
+ 21-Jun-2011:  CALACS 7.0.0 Bring WFC CTE and stripe corrections to HSTCAL.
+ 05-Apr-2011:  CALACS 6.0.1 Update to use IMPHTTAB reference files.
+ 27-Apr-2010:  CALACS 5.1.1 Update 'strtor' in ACSREJ to use STIS/WFC3 version
+ 10-Aug-2009:  CALACS 5.0.5 ACSREJ empty DQ array fix
+ 29-Aug-2008:  CALACS 5.0.0 float gain values in ref tabs for SM4
+ 25-Jul-2002:  CALACS 4.1a dithered, RPT-OBS ACSSUM fix
+  9-Jul-2002:  CALACS 4.1 dithered RPT-OBS ASN table fix
+  7-Jun-2002:  CALACS 4.0a ACSREJ error array fix, and ACSSUM memory fix.
+ 25-Apr-2002:  CALACS 4.0  (See History file).
+ 17-Apr-2002:  CALACS 3.6  Always perform 'doStat'.
+ 10-Apr-2002:  CALACS 3.5h ASN_STAT update in ASN table, and trl file fix.
+  9-Apr-2002:  CALACS 3.5g ACSREJ corrections for dark time and sky values
+                            BUNIT update to SCI/ERR instead of Primary header
+ 19-Mar-2002:  CALACS 3.5f Darktime corrected for CR-combined product, and
+                                biassection shifted to 0-index from 1-index
+  7-Feb-2002:  CALACS 3.5e Fixed trailer file creation for ASN tables, updated
+                            BUNITs to ELECTRONS, cleaned up subarray
+                            flat-fielding processing.
+ 30-Jan-2002:  CALACS 3.5d Update 'dophot' to be consistent with SYNPHOT
+                            and correctly apply gain to flat-fields.
+ 18-Jan-2002:  CALACS 3.5c Fixes an SBC processing bug, and trailer file bug
+ 19-Dec-2001:  CALACS 3.5b
+ 10-Dec-2001:  CALACS 3.5a Computes darktime, and selects BPIX rows properly
+                            and updates SIZAXIS keywords in trimmed product.
+  9-Nov-2001:  CALACS 3.5  Support for final CCDTAB/OSCNTAB formats, and
+                            bias reference images.
+ 23-Oct-2001:  CALACS 3.4  PHOTCORR finally works.
+  6-Aug-2001:  CALACS 3.3
+ 14-Nov-2000:  CALACS 3.2  First version installed in STSDAS
+ 14-Jan-1999   CALACS 2.0  (14-Jan-1999) First version installed in STLOCAL
+ 24-Nov-1998:  CALASC 1.0  (24-Nov-1998) compiled (1st trailer file version)
+ 11-Nov-1998:  CALACS 0.7a (11-Nov-1998) compiled
