@@ -1,0 +1,711 @@
+### 10-Oct-2014 - PLL -- Version 8.3.1
+    ACS2D standalone executable now reads calibration flags from header, not
+    command line.
+
+### 08-Apr-2014 - PLL -- Version 8.3.0
+    PCTECORR now supports WFC 2K subarrays.
+
+### 14-Nov-2013 - PLL -- Version 8.2.1
+    Fixed ACSREJ bug where files are not being closed properly before being
+    reopened. This fix is compulsory due to recent changes to HSTIO.
+
+### 12-Aug-2013 - PLL -- Version 8.2.0
+    New ACSCTE sub-module added to separate PCTECORR from ACSCCD.
+    ACSCTE runs after ACSCCD but before ACS2D.
+
+### 04-Apr-2013 - PLL -- Version 8.1.3
+    Removed FLSCFILE support as it is no longer needed.
+    Only FLSHFILE is used for post-flash correction regardless of PCTECORR flag.
+
+### 01-Apr-2013 - PLL -- Version 8.1.2
+    Fixed PCTECORR bug in Ticket #992.
+
+### 17-Dec-2012 - PLL -- Version 8.1.2
+    Fixed ACSREJ DQ propagation in FLTs.
+
+### 14-Dec-2012 - PLL -- Version 8.1.1
+    Fixed ACSREJ ERR calculations for data in ELECTRONS.
+
+### 12-Dec-2012 - PLL -- Version 8.1.0
+    FLSHCORR moved from ACSCCD to ACS2D. Added support for FLSCFILE.
+
+### 12-Dec-2012 - PLL -- Version 8.0.7
+    DARKCORR uses new time scaling to account for FLASHDUR and extra 3 secs.
+    Fixed minor bug in checking whether DRKCFILE exists.
+
+### 18-Jul-2012 - PLL -- Version 8.0.6
+    FLSHCORR now happens after PCTECORR.
+
+### 18-May-2012 - WJH -- Version 8.0.5
+    File I/O in acsrej updated to avoid problems with CFITSIO upcasting
+    file permissions to read/write when not needed. This will allow the
+    hstio code to remove logic that allowed the old code to work but
+    caused problems for CADC when CFITSIO opened ref files in read/write
+    mode because of that hstio logic.
+
+### 08-May-2012 - PLL -- Version 8.0.4
+    PCTECORR readnoise mitigation algorithm updated as requested by J. Anderson.
+    CTE correction version updated to 3.2 from 3.1.
+
+### 07-May-2012 - PLL -- Version 8.0.3
+    Crosstalk scaling changed to 9.1e-5 from 7.1e-5 as requested by N. Grogin.
+
+### 25-Apr-2012 - PLL -- Version 8.0.2
+    Updated bias shift coefficients with new values from D. Golimowski.
+    See Ticket #883.
+
+### 29-Mar-2012 - WJH -- Version 8.0.1
+    Reverted naming convention for trailer files back to conventions used
+    in V6.0 and earlier in order to maintain compatibility with OPUS
+    requirements.
+
+### 19-Jul-2011 - MRD -- Version 7.1.1
+    Added support for a new PCTETAB that contains time dependent CTE information.
+
+### 13-Jul-2011 - WJH -- Version 7.1.0
+    Added parallelization of CTE processing via OpenMP.
+
+### 21-Jun-2011 - MRD -- Version 7.0.0
+    Bring WFC CTE and stripe corrections from IRAF CALACS.
+
+### 05-Apr-2011 - MRD -- Version 6.0.1
+    Updated CALACS to use new IMPHTTAB reference files instead of xsynphot.
+
+### 27-Apr-2010 - WJH -- Version 5.1.1
+    Updated ACSREJ to use the same 'strtor' function used by STIS and WFC3
+    which correctly handles extraneous spaces within strings, such as the
+    crsigmas parameter.
+
+### 10-Aug-2009 - WJH -- Version 5.0.5
+    (OPR 63285)
+    SegV errors were being caused by ACSREJ not being able to read in DQ
+    information in correctly when DQ array is empty on input to ACSREJ.
+    Updates to acsrej_init, acsrej_loop, and acsrej_sky were implemented
+    to read in DQ header prior to calling getShortLine() so that HSTIO will
+    expand any empty DQ array. This fix was originally implemented in CALWF3
+    in Dec 2007.
+
+
+### 16-Jan-2009 - WJH -- Version 5.0.4
+    (OPR 61698)
+    The methods used in cleanBiasFit (in doblev.c) to compute the mean and
+    standard deviation of the good pixel values and to subsequently reject
+    outliers have been upgraded to take into account the pixels that have
+    already been flagged upstream, as well as to check for any potential
+    divide-by-zero conditions. This not only avoids the possibility of a
+    divide-by-zero when all values are rejected, but also results in
+    calculation of the correct mean and standard deviation - and therefore
+    better outlier rejection - when an intermediate number of pixels are
+    flagged. Tested against j8zs05020_asn which caused a seg fault during
+    BLEVCORR prior to this fix.
+
+    (OPR 60727)
+    acsrej_init.c did not correctly initialize the readnoise values
+    for each amp.
+
+    (OPR 61164)
+    If given the name of a non-existent file as input, it will now quit
+    gracefully.
+
+    (Trac #285)
+    Reprocessing of a product/sub-product should process cleanly again.
+    The changes required CALACS to recognize when it was provided a partially
+    processed FLT image as input and it would copy it to a blv_tmp file for
+    the remaining processing.  This would only work if overscan regions
+    have been trimmed off already (BLEVCORR set to COMPLETE). It also required
+    changes to GetSw to only return a value of OMIT if not PERFORM or COMPLETE.
+    This mode will never be used in the operational pipeline.
+
+    (Trac #286)
+    CALACS no longer crashes when the trailer file can not be written out.
+    Pointer to output trailer file forced to be closed in 'trlbuf.c' if an
+    error occurs in opening the output trailer file.
+
+
+### 29-Aug-2008 - WJH -- Version 5.0.0
+    (OPR 60729)
+    The commanded gain values for ACS after the repair will go from
+    integer values of 1,2,4,and 8 to floating point values of 0.5, 1.0,
+    1.4, and 2.0. These new values will be used in the CCDTAB as well
+    as in the input image headers for the CCDGAIN keyword value. The
+    code was changed to check the datatype of the CCDGAIN column in
+    ATODTAB,BPIXTAB, and CCDTAB and calls the correct code to read
+    the values in from the table as either int or float.  This allows
+    it to work with old (pre-SM4) and new (post-SM4) reference tables.
+
+
+### 18-Jan-2008 - WJH -- Version 4.6.5
+    (OPR 59285 )
+    Negative valued pixels in SBC data cause doNoise to crash. New logic
+    was added to that code to print a warning message when such a pixel is
+    found, then computes the error on the abs(value).
+
+### 14-Nov-2007 - WJH -- Version 4.6.4
+    (OPR 58937 )
+    Added 'MJD#' to the PHOTMODE string to account for time-dependent
+    sensitivity of the instruments. Tested using 'j8ui04hbq'.
+
+### 14-Dec-2006 - WJH -- Version 4.6.3
+    (OPR 57144)
+    Problems recognizing wild-card values in the BPIXTAB were corrected
+    so that hot pixels will be flagged correctly in SBC data.
+
+
+### 28-Jul-2006 - WJH -- Version 4.6.2
+    (OPR 59395)
+    Logic for recognizing and ignoring flagged bad pixels during
+    bias level fitting was backwards and did not reject those flagged
+    pixels.  This was found by H. Bushouse during use of derived code
+    in CALWF3.
+
+    Readnoise value used for sigma clipping the values from the overscan
+    regions during bias-level determination was not being determined
+    correctly for all amp configurations.
+
+### 13-Mar-2006 - WJH -- Version 4.6.1
+    (OPR 54914)
+    Regression testing for OPUS build 2006.3 found that
+    the ASNs with multiple pointings crashed when processed
+    with the version modified to address this OPR.  Sub-products
+    are now assigned an ID while missing members are not.
+
+### 21-Dec-2005 - WJH -- Version 4.6.0
+    (OPR 54914)
+    An error in assigning IDs to sub-products caused
+    seg faults when ASN members are missing. This needed
+    to be fixed in 'calacs/acstable.c'.
+
+### 09-Sep-2005 - WJH -- Version 4.5.9
+    (OPR 54365)
+    Another memory bug for large numbers of inputs to DTH
+    association trailer files needed to be fixed.
+
+### 07-Jun-2005 - WJH -- Version 4.5.8
+    (OPR 53088)
+    A memory bug was fixed in the handling of the number of images
+    each sub-product had as input.
+
+### 21-Feb-2005 - WJH -- Version 4.5.6
+    (OPR 53088)
+    Revised 'acstable.c' to not try to create sub-products
+    when there are no input exposures for the sub-product.
+
+### 15-Feb-2005 - WJH -- Version 4.5.5
+    - Revised memory allocation for trailer file input in ACSREJ to
+    avoid multiple calls to 'realloc' for long input lists.
+
+### 14-Feb-2005 - WJH -- Version 4.5.4
+    - (OPR 53050)
+    Removed any reference to updateAsnStat, since only OPUS should
+    update the ASN_STAT keyword in the ASN table header.
+
+### 22-Dec-2004 - WJH -- Version 4.5.3
+    - (OPR 52638)
+    Changed the logic for resetting the ASN member structures for each position
+    to avoid having ACSREJ processing set 'sci_basic_2d' to SKIPPED for
+    subsequent members of the ASN.  These structures should have been reset for
+    each position, not for each product.
+
+### 22-Nov-2004 - WJH -- Version 4.5.2
+    - (OPR 52474)
+    Changed interpretation of position IDs in 'GetAsnTable' from 1-9A-Z to
+    simply base 10, so that '10' gets translated to 10, not 36.
+
+### 29-Sep-2004 - WJH -- Version 4.5.1
+    - (OPR 52102)
+    Removed code from calacs.c that deletes input FLT images for the SFL
+    product image.  This insures that all generated FLT images will be
+    available for use with MultiDrizzle in the pipeline for REPEAT-OBS ASNs.
+
+### 19-Jul-2004 - WJH -- Version 4.5.0
+    - Implemented support for applying CFLTFILE and SPOTTAB (spot flats and
+        their shifts) in the FLATCORR step.
+
+### 19-Mar-2004 - WJH -- Version 4.4.2
+    - (OPR 50778)
+    Replaced usage of MsgText string variable for output of list of inputs
+    to ACSSUM with a dynamically allocated variable to avoid array out-of-bounds
+    memory problems with long lists of inputs.  This error caused a 32 image
+    REPEAT-OBS ASN to fail in the pipeline (j8xd01010_asn.fits).
+    - Added calls to 'free' to clean up memory upon exiting for errors in
+    MkOutName.
+
+### 21-Jan-2004 - WJH -- Version 4.4.1
+    - (OPR 49939) Fix
+    Revised the value of ATOD_SATURATE to 65534 so that comparisons for
+    pixels with values greater than this will be successfully flagged as
+    full-well saturated.
+
+### 30 Dec 2003 - WJH -- Version 4.4
+    - (OPR 50143)
+    Changed the allocation of the bit-buffer in 'acsrej_loop.c' to handle
+    image sizes not divisible by 8, as found in HRC-512 subarray datasets.
+
+### 24 Nov 2003 - WJH -- Version 4.4
+    - Removed SCALENSE from the computation of the error in ACSREJ.
+    - (OPR 49939)
+    Implemented a-to-d saturation flagging in 'dodqi' as an additional flag
+    for saturation
+
+    - (OPR 49938)
+    Implemented 2-stage clipping in computation of bias value from overscan
+    columns.  First stage will be limited to 3*sigma or 3*sqrt(mean), whichever
+    is less, while second stage will be limited to 3*readnoise.
+
+    - (OPR 49937)
+    Fixed all obsmode strings for WFC to return with 'wfc1' for all chips.
+
+    - Fixed indexing problem for subarray data in 'findover' for biassect[0].
+
+    - modified 'dodqi.c' to optionally select rows on ccdamp and ccdgain,
+        depending on whether the columns are present or not.  This allows
+        BPIXTAB to not have those columns and have all rows apply to all
+        ccdamp/ccdgain combinations and still be compatible with BPIXTAB
+        with all columns.
+
+### 27 June 2003 - WJH -- Version 4.3a
+    - Fixed implementation of updating BIASLEV keywords so that all values
+      get written out to header, not just first 2 for ACS/WFC.
+
+### 6 June 2003 - WJH -- Version 4.3
+    - (OPR 46019)
+    Update CALACS to populate the BIASLEV* keywords in PRIMARY header
+    if they already exist.  These keywords were added in OPUS 14.3,
+    which was delivered to OTFR/pipeline operations the week of 9 June 2003.
+    - (OPR 48856)
+    The EXPSCORR switch now gets updated after BLV_TMP files are processed
+    in ACS2D.
+
+### 14 May 2003 - WJH -- Version 4.2c
+    - (OPR 48857)
+    Reworked acsrej/acsrej.c to produce SPT files for the products regardless
+    of errors. This affected all datasets where all members of the ASN
+    have EXPTIME=0.
+
+### 1 May 2003 - WJH -- Version 4.2b
+    - (OPR 48858)
+    Added logic to 'doNoise' and 'doBlev' to use default ccdbias values from
+    CCDTAB for chip 2 of WFC observations instead of relying on 'ampy' which
+    resulted in using Chip 1 biases for Chip 2.  This only affected
+    the ERR array initialization and blev subtraction for subarrays without
+    overscans taken on WFC chip 2.
+
+### 2 Apr 2003 - WJH -- Version 4.2a
+    - (OPR 48250)
+    Modified ACSREJ to handle partial ASNs where some or all input
+    exposures have EXPTIME = 0.
+
+### 6 Mar 2003 - WJH -- Version 4.2
+    - (OPR 47231) - 14Jan2003
+    Revised 'photmode' to read LRFWAVE as float instead of int.
+    - (OPR 46897 - partial) - 6Mar2003
+    Added the necesary code to compute the new bias keywords for each
+    amp, although the code to update the headers has been commented out
+    until the headers contain those keywords.
+    - (OPR 47702)
+    The calculations for the keyword REJ_RATE were modified to account for
+    a total exptime of 0. in the event of a serious problem with the data.
+    An exposure time of 1 is used instead.
+    - The fitting to the overscan values for computing the bias levels was
+    modified to perform a single-pass 3-sigma clip.  This clipping is done
+    to remove any rows affected by cosmic-rays that have been seen to
+    incorrectly introduce a slope to the bias values subtracted from the image.
+
+### 2002 Aug 25 - WJH
+    (OPR 46650) Version 4.1c
+    Changed how SCALENSE was used in computing threshhold values for
+    detecting cosmic rays, especially in SPILL pixels.  High values of
+    SCALENSE previously resulted in halos around cosmic-ray cleaned pixels.
+    John Blakeslee also modified 'acsrej_init' to apply the same criteria
+    when creating the initial guess image.
+
+### 2002 Aug 19 - WJH
+    (OPR 46417)
+    Corrected a bug where RPT-OBS sub-products MTYPE was getting overwritten
+    by the PROD-DTH MTYPE in dithered RPT-OBS associations.
+    Fix involved using subprod.mtype instead of prod.mtype.
+
+### 2002 July 25 - WJH
+    (OPR 46255)
+    Removed all references to 'sflfile', output filename for ACSSUM,
+    from CALACS.  Instead replaced it with direct references to the
+    association table sub-product names.  This allows RPT-OBS dithered
+    observations to go to the correct sub-product filename.
+
+### 2002 July 9 - WJH
+    (OPR 46106)
+    Corrected a bug in interpreting dithered RPT-OBS observations from the
+        MEMTYPES given in the assocation table. This bug caused the pipeline
+        to completely crash when processing these observations, as no dither
+        product was present as expected by PyDrizzle.
+
+### 2002 June 7 - WJH
+    (OPR 46036)
+    Corrected the error array computation in ACSREJ to not include pixels
+        affected by detected cosmic-rays in the errors.
+    (OPR 46035)
+    Also, fixed a memory bug in ACSSUM which caused it to crash when summing
+        more than a small number of images.
+
+### 2002 Apr 25 - WJH
+    Eliminated creation of dummy/empty '_dth.fits' product. This also
+        removes a dependence on 'DITHCORR'/'DRIZCORR' keyword.
+    (OPR 45725)
+    Added check against RPTCORR to see if any processing needs to be done.
+        This allows RPT-OBS ASNs with no other processing turned on to generate
+        an SFL file so that DADS can ingest the ASN.
+    (OPR 45720)
+    Revert to using EXPTIME for dark scaling, and removed all computation
+        of darktime in ACSREJ.
+
+    (OPR 45721) Set DQICORR to COMPLETE for CRJ products.
+
+### 2002 Apr 17 - WJH
+    (OPR 45632)
+    Removed all references to STATFLAG, so that 'doStat' will always be
+    performed.
+    (OPR 45616)
+    Fixed a problem with ASN_STAT, so that only ASN tables will be
+    updated (not single exposures).
+    (OPR 45723)
+    Correctly added DQ checking for initial guess image building in ACSREJ
+    for BOTH median and minimum cases, while correcting a bug in 'median'
+    case. Also, added ERR array for median image.
+    Restored preface information to trailer files by backing out the
+    change in 3.5h.
+
+
+### 2002 Apr 10 - WJH
+    (OPR 45061)
+    A fix apparently got dropped between 3.5e and 3.5g regarding overwriting
+    of Generic Conversion comments in trailer files.  'calacs.c' was
+    re-modified to correct this again.
+    (OPR 45616)
+    ASN_STAT needed to be modified by CALACS to reflect whether a product is
+    created for an association or not. This affects whether DADS can even
+    ingest the data.
+
+### 2002 Apr 9 - WJH
+    (OPR 45607)
+    Update the BUNIT keyword in the SCI and ERR extension upon successful
+    flat-fielding, instead of updating the Primary header.
+
+### 2002 Apr 8 - WJH
+    (OPR 45594)
+    Fixed another bug in the sky calculation.  This one, pointed out by
+    the ACS IDT (Zlatan), had the histogram for sky computation in 'acsrej_sky'
+    not being reset to all zero for every image, only the first.  The allocation
+    of the histogram array space was not inside the loop over images, as it
+    is in CALSTIS, so it and the corresponding 'free()' call was moved inside
+    the loop to correct the problem.
+
+### 2002 Apr 5 - WJH
+    (OPR 45594)
+    Fixed a bug in initializing the total dark time sum in 'cr_scaling.c'.
+    This caused the computed dark time to be wildly wrong under some compilers.
+
+    (Started adding OPR numbers to History file. These numbers refer to bug
+    reports filed against CALACS during pipeline testing.)
+
+### 2002 Mar 19 - WJH
+    Fixed a bug in how the dark time is calculated for CR-combined products.
+    This required updating the EXPSTART keyword with a computed value to reflect
+    the actual darktime. Also, biassection values were shifted to be 0-indexed
+    as they are read in from OSCNTAB.  Also, corrected an indexing error in
+    BLEVDRIFT zerocol computation (found by Howard during WFC3 code work).
+    Added code to report HISTORY comments on the overscan table
+    used for processing (thanks to Howard for pointing out this deficiency).
+    Finally, corrected the sky computation in ACSREJ to correctly bin the
+    data when nbins < 1000. This bug resulted in incorrect calculation of
+    final sky value.
+
+### 2002 Feb 7 - WJH
+    Fixed 'CalAcsRun' in 'calacs.c' to add all trailer file comments to
+    any association table trailer file regardles of whether there is a
+    final product or not.  This will ALWAYS use 'asnrootname.tra' as the
+    file name for this final trailer file.
+    Fixed a bug in how the gain was applied to subarrays of the flat-fields.
+
+### 2002 Jan 30 - WJH
+    Revised 'acs2d/doflat.c' to divide the flat-field reference file by the
+    appropriate gain for each amp to be consistent with how the flat-field
+    was generated.
+    Removed all normalization of photflam keyword by gain, since the
+    data is now being gain corrected during flat-fielding. (acs2d/dophot.c)
+    Finally, update the BUNIT keyword with the new value of 'ELECTRONS' to be
+    consistent with the image type after flat-fielding now.
+
+### 2002 Jan 24 - WJH
+    Changed default array size for synphot arrays in 'dophot.c' to match
+    defaults in SYNPHOT package. This affected the calculation of the
+    photometric keywords and the change now makes them completely consistent.
+
+### 2002 Jan 18 - WJH
+    Updated 'calacs/getflags.c' to correctly handle missing FLSHCORR keywords.
+        This caused a problem with SBC files which never have that keyword,
+        but HRC and WFC still need to default to 'FLSHCORR' instead of
+        'POSTFLSH'.
+        Also fixed a bug in trailer file management, where the OPUS comments
+            were getting over-written by CALACS (in 'AppendTrlFile()').
+
+### 2001 Dec 19 - WJH
+    Updated all 'mkpkg' files to insure all header file dependencies were
+        included. Also removed 'acssizes.h' since no code used it.
+
+### 2001 Dec 17 - WJH (Version 3.5b)
+    Read in 'OBSTYPE' keyword for coronographic mode and add it to
+        photmode string (in 'photmode.c'). Also, convert 'POL*V' filter
+        name into 'pol_v' photmode string and ignore filter names given
+        as 'N/A'.
+
+### 2001 Dec 14 - WJH (Version 3.5a)
+    Updated 'doPhot' to convert POL filter strings into 'POL_UV' for
+        all polarizer filter names. This was done since only POL_UV is
+        used in synphot.
+
+### 2001 Dec 10 - WJH (Version 3.5a)
+    Updated 'doDQI' to apply only those rows which have the same amp,
+        gain and chip values as the science image.
+    Also added EXPSTART and EXPEND to the list of keywords read in by
+        CALACS.  They are used for computing the DARKTIME used for
+        scaling the dark image.
+    'doCCD' updates SIZAXIS keywords to be consistent with NAXIS keywords.
+
+### 2001 Nov 9 - WJH (Version 3.5)
+    The delivery of flight CCDTAB and OSCNTAB reference files came with
+    a change in the columns for CCDTAB and definitions of VX/VY columns
+    in OSCNTAB.  A default value of 3 for CCDOFST values was added to
+    CALACS (in 'lib/getacskeys.c') to reflect the default usage of ACS.
+    'donoise.c', 'getccdtab.c' and 'acsinfo.c' were modified to translate
+    the CCDOFST for each amp (of 3) into a default CCDBIAS value for each
+    amp, instead of just 1 value for all amps as assumed before. The headers
+    files 'acsinfo.h' and 'acs.h' were also modified to support this. Finally,
+    'doblev.c' and 'blevdrift.c' were revised to report better when no
+    virtual overscan is used, as that is the normal case for WFC operations.
+    In addition, the method for determining the bias level for each row was
+    simplified to use a polynomial fit in all cases, averaging leading and
+    trailing when included in the fit. This fixes a major problem with striping
+    seen when only 1 amp was used per row.  'doblev.c' was simplified,
+    removing AvgBiasSect function, and 'findblev.c' was revised to use
+    1 or 2 sections if present.
+
+
+### 2001 Oct 23 - WJH (Version 3.4)
+    The calculation of the photometry keywords changed dramatically
+    in this version, returning to the method used by WFPC2 instead of
+    using the PHOTTAB/APERTABs used by STIS.  Instead, GRAPHTAB and
+    COMPTAB are now used and synphot functions are called to do the
+    entire calculation.  All references to PHOTTAB and APERTAB were
+    removed, the PhotInfo structure was simplified to only keep one
+    wavelength and throughput array set calculated by synphot for the
+    entire obsmode.  The population of the PHOTMODE keyword was updated
+    to reflect the actual component names for ACS in SYNPHOT.  This
+    work addresses OPR 44676, and uses the results of OPRs 44674 and
+    44675 (for the GRAPHTAB and COMPTAB keyword addition).
+
+
+### 2001 Aug 6 - WJH (Version 3.3)
+    This version encompasses a number of OPR issues and bug fixes.
+    The 'POSTFLSH' keyword (added for post-flash processing) has been
+    changed to 'FLSHCORR' as per OPR #43066, and this version was modified
+    to accept either keyword.  An warning will be issued, though, if
+    'POSTFLSH' is found instead of 'FLSHCORR'.  In addition, the post-flash
+    subtraction was modified (along with the multgn1d function) to scale by
+    FLASHDUR instead of EXPTIME.
+
+    Also, a number of fixes were implemented to correctly calculate the
+    trim regions for sub-arrays (OPR #44304).  Some minor fixes were also
+    implemented to provide more informative error message when NULL
+    strings are given as reference file names unexpectedly. Also, the code
+    for 'doPhot' was revised to update the photometry keywords in all
+    IMSETS, not just the first.  Finally, revisions were made to allow the
+    EXPSCORR keyword to function properly requiring revisions to the
+    ACSSUM and CALACS code.
+
+### 2000 Nov 14 - WJH
+	The logic for CCDAMP interpretation needed to be enhanced to accomodate
+	all the combinations for both HRC and WFC.  Bugs in the 27 Oct version
+	were found and needed to be corrected.  This should complete the
+	revisions necessary for all CCDAMP configurations.  In addition, the
+	Post-Flash processing code was revised to properly apply the CCDAMP
+	configurations.
+
+### 2000 Oct 27 - WJH  (Version 3.2)
+	This version (Version 3.2) corrects a couple of serious bugs dealing
+	with single-pointing dither associations and dual-amp usage.  Revisions
+	were made to 'calacs/acstable.c' to support EXP-DTH exposures without
+	sub-products as would be done for single-pointing dither patterns. Also,
+	lib/detnsegn.c was revised to support diagonal dual-amp usage where
+	there was ambiguity in the logic regarding the application of gain values.
+	The fix results in dual-amp usage being treated INTERNALLY as if it
+	were a 4-amp readout with only AMPX being used.  Finally, 'lib/donoise.c'
+	was revised to automatically (and correctly) detect when the AMPX
+	value (plus offset) extends into the overscan at the end of each line.
+	In this case (as will be for single-amp usage), the value will be
+	automatically (and internally) adjusted to the full width of the image.
+	As a result, ALL AMPX and AMPY values in CCDTAB can be given in terms
+	of trimmed image coordinates as exact positions.
+
+### 2000 Sept 12 (implemented: 9 Oct 2000)
+	The new version (Version 3.1) supports Post-Flash processing
+	and fixes a bug with different CCDAMP configuration support. The
+	post-flash processing mimics the dark image subtraction, but gets
+	performed in ACSCCD as the last processing step.  The following files
+	were modified to support this new processing step:
+		acsccd/doccd.c, acsccd/acsccd.c, acsccd/mainccd.c,
+		calacs/calacs.c, lib/findover.c, lib/getflags.c, lib/sciflags.c,
+		lib/acsinfo.c, lib/getacskeys.c, acsccd/getacsflag.c,
+		lib/acshist.c, acsccd/doblev.c, lib/donoise.c, acs2d/dodark.c,
+		lib/multk1d.c, acscorr.h, acsinfo.h.
+	In addition, a new function was written to actually perform the
+	Post-Flash subtraction: acsccd/doflash.c.
+
+
+### 2000 June 23 (implemented: 30 Aug 2000)
+	This version (Version 3.0) works with the new HSTIO library for
+	accessing lines using [Get/Put]*Line functions to use zero-based
+	indexes.  The changes were confined to 'ACSREJ'.  In addition,
+	changes were made to 'acsdth' to properly incorporate all input
+	trailer files into the _dth product trailer file.  Also, changes
+	were made to use new HSTIO functions to support 1-D data to include
+	all extensions of input SPT files into the _dth products SPT files.
+
+### 2000 April 18
+	Multiple revisions were implemented to allow subarrays and 1-amp
+	readouts to process properly.  Checks were put in place when applying
+	gain to each line to avoid division by zero gain for 1-amp readout.
+	Also, some fixes were done in the application of sub-regions of
+	reference files to the subarray data.  Finally, trailer file
+	management was highly revised to eliminate the use of a TMP file.
+	It now uses an in-memory buffer to hold the initial GC comments before
+	overwriting the file with them so that the new CALACS comments can
+	be appended. (Version 2.9g)
+
+### 2000 April 3
+	This version resets the extension which CALACS uses for the trailer
+	files from '.trl' to '.tra'.  Generic Conversion uses the '.tra'
+	extension by default for all their output, so this should allow
+	CALACS to recognize and append to the trailer files already present
+	from Generic Conversion. (Version 2.9f)
+
+### 2000 March 21
+	This minor change eliminates the use of TMP trailer files. The only
+	code commented out was in 'trlbuf.c'.
+	This resolves OPR #40959. (Version 2.9e)
+
+### 2000 March 21
+	CALACS was updated to reflect the bug fixes to 'acsrej_init.c' and
+	'findblev.c' that came up during IPT testing.
+	(Version 2.9d)
+
+### 2000 January 12
+    This version (2.9c) renames all functions that read or write keywords
+    to *Key[Dbl,Flt,Int,Str,Bool].  The function names needed to be changed
+    to avoid any name conflicts with similarly named HSTIO functions under
+    VMS, since VMS is case-insensitive.
+
+### 1999 December 8
+    This version (2.9b) cleans up 'acsrej_loop.c'.  Specifically,  I split
+    out the shading correction buffer applied to whole lines as opposed to
+    individual pixels and added explanatory comments to make the code easier
+    to follow.
+
+### 1999 November 11
+    This version (2.9) finally includes the creation of SPT files for output
+    products and sub-products.  It uses a general function, lib/mkspt.c, to
+    create the new SPT file.  This function was added to 'acsrej.c',
+    'acssum.c' and 'acsdth.c'.  In addition, a fix was included to properly
+    apply binned shading file to subarrays.
+    WJH
+
+### 1999 October 21
+    ACSREJ:
+        Final revisions were made to 'acsrej_check.c',
+        'mainrej.c', 'cr_scaling.c', 'acsrej.c', and 'acsrej_loop.c' to
+        address the last of the code review comments.
+        Specifically, 'return(status)' replaced 'exit' outside of 'main' and
+        'WhichError()' is called upon exiting.  In addition, 'getACSnsegn' was
+        revised to use 'for()' loops over all the keywords.  Finally,
+        shading correction in 'acsrej_loop' was revised to use the same
+        code for all cases of binning and offsets.
+
+### 1999 October 18
+    ACSREJ:
+        Errors in the buffer management were corrected in this version (2.8b).
+        The buffers were getting filled with un-normalized data, but then
+        scrolled after being normalized, resulting in a buffer with both
+        normalized and un-normalized data.  This caused the CR-detection
+        algorithm and SPILL-detection routine to fail.
+        In addition, indexing in SPILL-detection section was incorrect for
+        'jj', and DQ values were being remembered only for the last image.
+        These errors were corrected and the use of 'dqpat' was made more
+        robust in the CR-detection section.
+
+### 1999 September 10
+    This version reflects all the changes performed to address the issues
+    and bugs revealed during code reviews of 'ACS2D' and 'ACSREJ'.
+    See 'acsrej/history' for a list of revision descriptions for that task.
+
+
+### 1999 January 14
+	Revisions were made to the trailer file handling functions to
+	clean up some bugs found in code review.  In addition, saving
+	temp files was linked to the keyword EXPSCORR as originally planned.
+	In addition, command line syntax errors are not recorded in trailer
+	files, while other bugs were corrected based on code reviews of
+	ACSCCD and the first half of ACS2D.
+
+	Also, ACSCCD was modified to only output an overscan-trimmed image
+	in the case of successful BLEVCORR, while ACS2D now checks to see
+	that the overscan regions have been trimmed by examining the LTV
+	keywords in the input files.
+
+	This release was ACS_CAL_VER 2.0 and represents the first delivery
+	to STLOCAL and OPUS.
+
+
+### 1998 November 24
+	Trailer file management was added to CALACS.  This required the
+	replacement of all 'asnmessage/asnwarn/asnerror' calls with calls
+	to 'trlmessage/trlwarn/trlerror' found in 'lib/trlbuf.c'.
+
+		lib/trlbuf.c	Contains all the functions required for trailer
+						file management.  The trailer file buffer is
+						global to that file.
+
+		lib/mkpkg		Added trlbuf.c
+
+
+
+### 1998 November 11
+
+	This is the first essentially complete version of the CALACS package.
+	All basic functionality has been incorporated, including the following
+	recent additions:
+
+	acsversion.h, "0.7a (11-Nov-1998)"
+
+	All routines which created output statements were converted to
+	the use of asnwarn,asnmessage, or asnerror, as appropriate.  These
+	routines were then added to 'acs.h' for global use, along with the
+	definition of MsgText, which is used as a 1 line buffer for creating
+	custom output strings with 'sprintf'.
+
+
+	Multi-amp usage has been incorporated into all functions which applied
+	read-noise and gain to the image data; primarily,
+		acsrej/acsrej_init.c
+		acsrej/acsrej_loop.c
+		lib/detnsegn.c			- functions for determining what noise
+									and gain values are appropriate for a pixel
+		lib/donoise.c
+
+	Also, determination of bias levels were revised to take into account
+	what amps were being used, and what bias sections were specified in
+	the overscan table (acsccd/doblev.c).
+
+	In addition, the function 'acsdth' was created in the CALACS task to
+	create an empty DTH product when one was specified in the association
+	table. (calacs/acsdth.c).
+
+
