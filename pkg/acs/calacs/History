@@ -1,3 +1,6 @@
+### 02-Mar-2015 - PLL -- Version 8.3.2
+    ACSREJ can now process longer input list (up to 509 characters).
+
 ### 10-Oct-2014 - PLL -- Version 8.3.1
     ACS2D standalone executable now reads calibration flags from header, not
     command line.

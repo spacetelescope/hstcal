@@ -14,7 +14,7 @@ int status = 0;             /* zero is OK */
 
 int main (int argc, char **argv) {
 
-    char    input[ACS_LINE], output[ACS_LINE];      /* file names */
+    char    input[ACS_LINE*2], output[ACS_LINE];    /* file names */
     clpar   par;                                    /* parameters used */
     int     newpar[MAX_PAR+1];          /* user specifiable parameters */
     char    mtype[SZ_STRKWVAL+1];      /* Role of exposure in association */
@@ -26,7 +26,7 @@ int main (int argc, char **argv) {
 
     /* Initialize mtype to NULL to signal no change in ASN_MTYP for output*/
     mtype[0] = '\0';
-    
+
     /* Get input and output file names and switches in the command line. */
     rej_command (argc, argv, input, output, &par, newpar);
 
