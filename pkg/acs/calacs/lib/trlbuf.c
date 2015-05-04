@@ -1,4 +1,4 @@
-/* 
+/*
     The following function and structure definitions manage the
     output of CALACS trailer file comments, both to STDOUT and to
     the trailer file(s).  Code for using a temp file as an output
@@ -35,13 +35,13 @@
             comments after the first CALACSBEG string will be
             overwritten.
     void SetTrlQuietMode (int quiet);
-        - This function records the value of the command-line 
+        - This function records the value of the command-line
             parameter QUIET into the structure.
     void InitTrlPreface (void);
-        - This function will copy contents of the buffer into the preface.	
+        - This function will copy contents of the buffer into the preface.
     void ResetTrlPreface (void);
-        - This function will reset the preface to a null string, so 
-            nothing more gets written out to any other trailer files.	
+        - This function will reset the preface to a null string, so
+            nothing more gets written out to any other trailer files.
     void CloseTrlBuf (void);
         - moves buffer from temp file to final output trailer file,
             then closes temp and output trailer files.
@@ -74,14 +74,14 @@
     static void CatTrlFile(FILE *ip, FILE *op);
         - appends ENTIRE input trailer file (ip) to output trailer file (op)
     static int AppendTrlFile();
-        - sets up trailer file so that all new comments start after preface 
+        - sets up trailer file so that all new comments start after preface
     static void AddTrlBuf (char *message);
         - adds a new message (line) to trailer comments buffer
     static void ResetTrlBuf (void);
         - clears out comments (sets to blank) already written to file
     static void WriteTrlBuf (char *message);
-        - writes out comments in buffer to open trailer file 
-          then calls ResetTrlBuf to clear buffer 
+        - writes out comments in buffer to open trailer file
+          then calls ResetTrlBuf to clear buffer
           -OR-
           calls AddTrlBuf to append comment to buffer.
 
@@ -92,6 +92,7 @@
     Revised:         14 Apr 2000, WJH (removed use of temp file)
     Revised:         26 Aug 2002, WJH (increased buffer size for trldata)
     Revised:         18 Apr 2012, PLL (fixed InitTrlFile inf loop bug)
+    Revised:          4 May 2015, PLL (replaced tmpnam with mkstemp)
 */
 
 # include <stdio.h>
@@ -121,10 +122,10 @@ static struct _TrlBuf {
     int usepref;            /* Switch to specify whether preface is used */
 } trlbuf;
 
-/* 
+/*
     This initialization function sets up the trailer file to be used
-    as output for all the messages from the task it is called from.  
-    It will concatenate multiple input trailer files 
+    as output for all the messages from the task it is called from.
+    It will concatenate multiple input trailer files
     or copy intial portion of input trailer file into one output
     file, creating the single trailer file for the messages to be
     written to...
@@ -139,9 +140,10 @@ char *output        i: full filename of output (final) trailer file
 
     IRAFPointer tpin;
     FILE *ip, *tp;
-    int n;
+    int n, td;
     char trldata[ACS_LINE+1];
-    char uniq_outname[L_tmpnam];
+    static char uniq_outtemplate[] = "bozoXXXXXX";
+    char uniq_outname[ACS_CBUF];
 
     void SetTrlOverwriteMode (int);
 
@@ -163,7 +165,7 @@ char *output        i: full filename of output (final) trailer file
     /* open the input file template */
     tpin = c_imtopen (inlist);
 
-    /* Only if we are building a product/sub-product trailer 
+    /* Only if we are building a product/sub-product trailer
         file, do we need to concatenate input trailer files
         or append to an input file.
     */
@@ -173,18 +175,20 @@ char *output        i: full filename of output (final) trailer file
            This is to avoid infinite loop when output is
            accidentally the same as one of the inputs.
            Not using tmpfile() because it opens binary stream.
+           Not using tmpnam() because compiler complains about danger.
         */
-        if ( tmpnam(uniq_outname) == NULL ) {
+        strcpy(uniq_outname, uniq_outtemplate);
+        if ( (td = mkstemp(uniq_outname)) < 0 ) {
             trlerror("Failed to create temporary file name.");
             return(status=INVALID_TEMP_FILE);
         }
 
-        if ( (tp = fopen(uniq_outname,"w")) == NULL) {
+        if ( (tp = fdopen(td, "w") ) == NULL ) {
             trlopenerr(uniq_outname);
             return(status=INVALID_TEMP_FILE);
         }
 
-        /* Since we have determined that we are indeed combining 
+        /* Since we have determined that we are indeed combining
             input trailer files to create a new trailer file, ...
         */
         /* loop all input files */
@@ -201,12 +205,12 @@ char *output        i: full filename of output (final) trailer file
 
             /* Do we have an input file to start with? */
             if (ip != NULL) {
-                /* If so, append the input to output */ 
+                /* If so, append the input to output */
                 CatTrlFile(ip, tp);
                 /* Done with this input file... */
                 fclose(ip);
             }
-             
+
         }	 /* End loop over all input files */
 
         fclose(tp); /* To set feof */
@@ -233,19 +237,19 @@ char *output        i: full filename of output (final) trailer file
         /* End if (strcmp) */
     } else if (trlbuf.overwrite == YES) {
 
-        /* We are revising/creating a single trailer file 
+        /* We are revising/creating a single trailer file
            We want to overwrite old CALACS comments with new,
-           so set the file pointer to just before the first line 
+           so set the file pointer to just before the first line
            which starts with TRL_PREFIX...
         */
         if (AppendTrlFile ())
-            return(status); 
-                        
+            return(status);
+
         /* We are finished overwriting old comments, so reset this mode. */
-        SetTrlOverwriteMode(NO);    		
+        SetTrlOverwriteMode(NO);
 
     }
-	
+
     c_imtclose(tpin);
 
     return (status);
@@ -257,11 +261,11 @@ char *output        i: full filename of output (final) trailer file
 /* ------------------------------------------------------------------*/
 
 
-/* This function appends the ENTIRE contents of the input file (ip) 
+/* This function appends the ENTIRE contents of the input file (ip)
     to those of the output file (op)...
-*/ 
+*/
 static void CatTrlFile(FILE *ip, FILE *op) {
-	
+
     char buf[ACS_LINE];
 
     buf[0] = '\0';
@@ -274,7 +278,7 @@ static void CatTrlFile(FILE *ip, FILE *op) {
     /* Now copy the file into the output trailer file */
     while ( !feof(ip) ) {
         fgets(buf, ACS_LINE, ip);
-        fprintf(op,"%s",buf);	
+        fprintf(op,"%s",buf);
     }
 
     /* Flush the pipe to make sure that nothing gets left behind
@@ -288,22 +292,22 @@ static void CatTrlFile(FILE *ip, FILE *op) {
 /* ------------------------------------------------------------------*/
 
 
-/* This function sets the file pointer for the input file (ip) 
+/* This function sets the file pointer for the input file (ip)
     up to the line just before encountering TRL_PREFIX ...
     It reads in all the comments prior to TRL_PREFIX into memory,
     then opens the trailer file in overwrite('w+' instead of 'a+') mode
-    and prints those comments to it. 
-    WJH 14 Apr 2000 
+    and prints those comments to it.
+    WJH 14 Apr 2000
 
     18 Jan 2002 (WJH): Removed extraneous, bug-ridden 'tmpptr' buffer used
         during reallocation of oprefix buffer size.
 
-*/ 
+*/
 static int AppendTrlFile() {
-	
+
     extern int status;
     char buf[ACS_LINE];
-    
+
     char *oprefix;
 
 
@@ -325,8 +329,8 @@ static int AppendTrlFile() {
         if (strstr(buf,TRL_PREFIX) !=NULL) {
             break;
         } else {
-            /* Store this line in a buffer to be written out when 
-                the old file is overwritten...     
+            /* Store this line in a buffer to be written out when
+                the old file is overwritten...
             */
             oprefix = realloc (oprefix, (strlen(oprefix) + strlen(buf) +2 ));
 
@@ -348,7 +352,7 @@ static int AppendTrlFile() {
     fclose (trlbuf.fp);
     trlbuf.fp = NULL;
 
-    /* ...reopen it with 'w+' instead of 'a+'... */    
+    /* ...reopen it with 'w+' instead of 'a+'... */
     if ( (trlbuf.fp = fopen(trlbuf.trlfile,"w+")) == NULL) {
         trlopenerr(trlbuf.trlfile);
         return(status=INVALID_TEMP_FILE);
@@ -356,7 +360,7 @@ static int AppendTrlFile() {
     /* ... and write out the preface information we wanted to keep. */
     fprintf (trlbuf.fp, "%s\n", oprefix);
     fflush (trlbuf.fp);
-    
+
     /* Now, clean up the memory used by the temp buffer. */
     oprefix[0] = '\0';
     free (oprefix);
@@ -369,7 +373,7 @@ static int AppendTrlFile() {
 /* ------------------------------------------------------------------*/
 
 
-/* 
+/*
     This function closes the trailer file.
 */
 int WriteTrlFile (void) {
@@ -382,7 +386,7 @@ int WriteTrlFile (void) {
     fclose (trlbuf.fp);
     /* Reset value of fp to NULL so that later checks will be valid */
     trlbuf.fp = NULL;
-    
+
     return (status);
 }
 
@@ -392,7 +396,7 @@ int WriteTrlFile (void) {
 
 
 /* This initialization routine must be called before any others in this
-    file.  
+    file.
 */
 
 int InitTrlBuf (void) {
@@ -426,7 +430,7 @@ int InitTrlBuf (void) {
 /* ------------------------------------------------------------------*/
 
 
-/*  
+/*
     This function sets the switch to specify whether the preface should
     be output to the trailer file or not.  This is used when no CRREJ is
     done on a list of images, and you don't want the preface in the trailer
@@ -443,11 +447,11 @@ void SetTrlPrefaceMode (int use) {
 /* ------------------------------------------------------------------*/
 
 
-/* 
+/*
     This function sets the overwrite switch.  Once set, all comments
     after the first CALACSBEG string will be overwritten.
     This will be used strictly for the RAW file trailer files,
-    where the generic conversion comments should be kept, but 
+    where the generic conversion comments should be kept, but
     the CALACS comments should be overwritten with the latest results.
 */
 void SetTrlOverwriteMode (int owrite) {
@@ -462,7 +466,7 @@ void SetTrlOverwriteMode (int owrite) {
 
 
 /* This function records the value of the command-line parameter QUIET
-    into the structure... 
+    into the structure...
 */
 void SetTrlQuietMode (int quiet) {
     trlbuf.quiet = quiet;
@@ -474,7 +478,7 @@ void SetTrlQuietMode (int quiet) {
 /* ------------------------------------------------------------------*/
 
 
-/* Add a new message line to the buffer.  
+/* Add a new message line to the buffer.
     Re-allocate space for the buffer and append line to new buffer.
 */
 
@@ -492,7 +496,7 @@ char *message     	  i: new trailer file line to add to buffer
     if (trlbuf.preface == NULL) {
         asnmessage ("Out of memory: Couldn't store trailer file comment.");
         status = OUT_OF_MEMORY;
-    } else {	
+    } else {
 
         strcat (trlbuf.buffer, message);
 
@@ -507,8 +511,8 @@ char *message     	  i: new trailer file line to add to buffer
 /* ------------------------------------------------------------------*/
 
 
-/* 
-    This function will copy contents of the buffer into the preface 
+/*
+    This function will copy contents of the buffer into the preface
 */
 void InitTrlPreface (void) {
 
@@ -519,7 +523,7 @@ void InitTrlPreface (void) {
     if (trlbuf.preface == NULL) {
         asnmessage ("Out of memory: Couldn't store trailer file preface.");
         status = OUT_OF_MEMORY;
-    } else {	
+    } else {
         strcpy (trlbuf.preface, trlbuf.buffer);
     }
 }
@@ -530,7 +534,7 @@ void InitTrlPreface (void) {
 
 
 /* This function will reset the preface to a null string, so nothing
-    more gets written out to any other trailer files.  It also 
+    more gets written out to any other trailer files.  It also
     reallocates the space to preface so that it doesn't take any memory.
 */
 void ResetTrlPreface (void) {
@@ -553,10 +557,10 @@ void ResetTrlPreface (void) {
 /* ------------------------------------------------------------------*/
 
 
-/* 
+/*
     Clear out messages from buffer.  Intended for use after
-    messages were already written to file.  Assumes trlbuf.buffer 
-    already exists!  
+    messages were already written to file.  Assumes trlbuf.buffer
+    already exists!
 */
 static void ResetTrlBuf (void) {
 
@@ -582,7 +586,7 @@ static void ResetTrlBuf (void) {
 /*
     Write out message to trailer file, if any exist.
     If no file exists, then append message to buffer.
-    Once message has been written out to a file, 
+    Once message has been written out to a file,
     reset the trailer buffer to a single newline.
 */
 
@@ -590,7 +594,7 @@ static void WriteTrlBuf (char *message) {
 
     /* Check to see if trailer file is open for writing... */
     if (trlbuf.fp != NULL) {
-            	
+
         /* Trailer file is open, so write out buffer...*/
         if (trlbuf.preface[0] != '\0' && trlbuf.usepref == YES) {
             fprintf(trlbuf.fp,"%s\n",trlbuf.preface);
@@ -606,9 +610,9 @@ static void WriteTrlBuf (char *message) {
         if (trlbuf.buffer[0] != '\0')
             ResetTrlBuf ();
 
-        /* The user must explicitly use 'ResetTrlPreface' in 
+        /* The user must explicitly use 'ResetTrlPreface' in
             calling function in order to reset the preface.
-            This allows the preface to be written out to 
+            This allows the preface to be written out to
             multiple trailer files...
         */
     } else {
@@ -622,7 +626,7 @@ static void WriteTrlBuf (char *message) {
 /* ------------------------------------------------------------------*/
 
 
-/* Free memory allocated for this list, after writing out any final 
+/* Free memory allocated for this list, after writing out any final
     messages to the last used trailer file...
     It will then close any open trailer files as well.
 */
@@ -633,7 +637,7 @@ void CloseTrlBuf (void) {
 
     /* Do we have any messages which need to be written out? */
     if (trlbuf.buffer[0] != '\0') {
-        /* We do, so open last known trailer file and 
+        /* We do, so open last known trailer file and
             append these messages to that file...
         */
 
@@ -647,7 +651,7 @@ void CloseTrlBuf (void) {
         /* Now that we have copied the information to the final
             trailer file, we can close it and the temp file...
         */
-        fclose (ofp);	
+        fclose (ofp);
     }
 
     cleanup: ;
@@ -677,7 +681,7 @@ void trlmessage (char *message) {
     }
 
     /* Send output to (temp) trailer file */
-    WriteTrlBuf (message);	
+    WriteTrlBuf (message);
 
 }
 
@@ -709,7 +713,7 @@ void trlerror (char *message) {
 
     char line[ACS_LINE+1];
 
-    /* Create full warning message, like that output in ASNWARN */	
+    /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of ERROR message */
     sprintf(line,"%s",ERR_PREFIX);
     strcat (line,message);
