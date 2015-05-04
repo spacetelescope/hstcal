@@ -142,7 +142,7 @@ char *output        i: full filename of output (final) trailer file
     FILE *ip, *tp;
     int n, td;
     char trldata[ACS_LINE+1];
-    static char uniq_outtemplate[] = "bozoXXXXXX";
+    static char uniq_outtemplate[] = "tmp_calacs_XXXXXX";
     char uniq_outname[ACS_CBUF];
 
     void SetTrlOverwriteMode (int);
