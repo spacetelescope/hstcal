@@ -110,6 +110,7 @@ static void ResetTrlBuf (void);
 static void AddTrlBuf (char *message);
 static void WriteTrlBuf (char *message);
 static void CatTrlFile (FILE *ip, FILE *op);
+static void CatTrlFile_NoEOF (FILE *ip, FILE *op);
 static int AppendTrlFile();
 
 static struct _TrlBuf {
@@ -182,8 +183,11 @@ char *output        i: full filename of output (final) trailer file
             trlerror("Failed to create temporary file name.");
             return(status=INVALID_TEMP_FILE);
         }
-
-        if ( (tp = fdopen(td, "w") ) == NULL ) {
+        if ( unlink(uniq_outname) < 0) {
+            trlerror("Failed to unlink temporary file name.");
+            return(status=INVALID_TEMP_FILE);
+        }
+        if ( (tp = fdopen(td, "w+") ) == NULL ) {
             trlopenerr(uniq_outname);
             return(status=INVALID_TEMP_FILE);
         }
@@ -213,23 +217,12 @@ char *output        i: full filename of output (final) trailer file
 
         }	 /* End loop over all input files */
 
-        fclose(tp); /* To set feof */
-
-        if ( (tp = fopen(uniq_outname,"r")) == NULL) {
-            trlopenerr(uniq_outname);
-            return(status=INVALID_TEMP_FILE);
-        }
+        fflush(tp);
 
 	/* Copy temporary file content to output trailer file */
-	CatTrlFile(tp, trlbuf.fp);
+	CatTrlFile_NoEOF(tp, trlbuf.fp);
 
-        fclose(tp);
-
-        /* Delete temporary file.
-           Report the error, but the processing can continue anyway */
-	if ( remove( uniq_outname ) != 0 ) {
-            trlerror("Failed to delete temporary file in InitTrlFile.");
-        }
+        fclose(tp);  /* Also delete the file because of unlink() */
 
         /* Reset overwrite now to NO */
         SetTrlOverwriteMode(NO);
@@ -286,6 +279,31 @@ static void CatTrlFile(FILE *ip, FILE *op) {
     */
     fflush (op);
 }
+
+
+/* Like CatTrlFile() but ip does not have EOF */
+static void CatTrlFile_NoEOF(FILE *ip, FILE *op) {
+
+    char buf[ACS_LINE];
+
+    buf[0] = '\0';
+
+    /* We need to insure that we start at the beginning of
+        the input file (ip)...
+    */
+    rewind(ip);
+
+    /* Now copy the file into the output trailer file */
+    while ( fgets(buf, ACS_LINE, ip) != NULL ) {
+        fprintf(op,"%s",buf);
+    }
+
+    /* Flush the pipe to make sure that nothing gets left behind
+        in whatever cache may be in operation.
+    */
+    fflush (op);
+}
+
 
 /* ------------------------------------------------------------------*/
 /*                          AppendTrlFile                            */
