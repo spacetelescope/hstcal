@@ -235,6 +235,9 @@ int extver       i: "imset" number, the current set of extensions
 	    if (dqiHistory (wf32d, x.globalhdr))
 		return (status);
 
+    /* OR the sink pixel image with the DQ for CCD only*/
+    
+
 	/* Subtract dark image. */
 	DarkMsg (wf32d, extver);
 	if (wf32d->darkcorr == PERFORM) {

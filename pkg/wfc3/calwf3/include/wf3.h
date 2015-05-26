@@ -2,6 +2,7 @@
 
 # include <stdio.h>             /* To insure that FILE is defined for TrlPtr */
 # include "msg.h"
+# include "imphttab.h"
 
 /* Macros for dusing GetKey/PutKey functions.... */
 # define USE_DEFAULT    1       /* Use default if keyword is missing */
@@ -61,6 +62,7 @@ typedef enum SwitchVals_ SwitchVals;
 # define        AMPSTR1         "CD"
 # define        AMPSTR2         "AB"
 # define        AMPSORDER       "ABCD"
+
 /* Define array indices for each amp for clarity of code. 22Mar99, WJH */
 # define        AMP_A           0
 # define        AMP_B           1
@@ -68,6 +70,12 @@ typedef enum SwitchVals_ SwitchVals;
 # define        AMP_D           3
 
 # define	DEFAULT_OFFSET	3
+
+/* used for the CTE correction in UVIS where the amps are stacked
+   in the order they are read out  */
+# define RAZ_COLS 8412
+# define RAZ_ROWS 2070
+
  
 /* A reference image. */
 typedef struct {
@@ -78,6 +86,7 @@ typedef struct {
     int exists;                     /* does reference image exist? */
     int goodPedigree;               /* DUMMY_PEDIGREE if dummy */
 } RefImage;
+
 
 /* A reference table. */
 typedef struct {
@@ -105,6 +114,7 @@ typedef struct {
     int chip;       /* Chip being processed */
     int detector;   /* Which detector was used */
 } multiamp;
+
 
 /* This macro defines the string which will be used to distinguish the 
 	start of CALWF3 comments in the trailer files...

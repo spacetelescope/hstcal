@@ -48,6 +48,8 @@ static void IRSanity  (int, char *);
    H.Bushouse, 2011 Sep 7:
     Updated GetCCDRef and GetIRRef to use new IMPHTTAB instead of synphot 
     GRAPHTAB and CoMPTAB.
+    
+   M. sosey August 2014  PCETAB,  DRKCFILE, BIACFILE, SNKCFILE added for PCTECORR step
 
 */
 
@@ -71,6 +73,24 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (GetNewRef (phdr, "CCDTAB", sciref))
 	    return (status);
 
+    if (sci_sw->pctecorr == PERFORM) {
+        
+        CCDSanity (wf3->detector, "PCTECORR");
+        wf3->sci_basic_cte = PERFORM;
+        
+        if (GetNewRef (phdr, "PCTETAB", sciref))
+            return (status);
+            
+        if (GetNewRef (phdr, "DRKCFILE",  sciref))
+            return (status);
+        
+        if (GetNewRef (phdr, "BIACFILE", sciref))
+            return (status);
+        
+        if (GetNewRef (phdr, "SNKCFILE", sciref))
+            return (status);
+    }
+
 	if (sci_sw->dqicorr == PERFORM) {
 	    wf3->sci_basic_ccd = PERFORM;
 	    if (GetNewRef (phdr, "BPIXTAB", sciref))
@@ -80,8 +100,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->crcorr == PERFORM) {
 	    wf3->sci_crcorr = PERFORM;
 	    if (wf3->nimages < 2) {
-		trlwarn 
-		    ("CRCORR will be omitted because there's only one image.");
+		trlwarn ("CRCORR will be omitted because there's only one image.");
 		wf3->sci_crcorr = OMIT;
 	    }
 	    /* reference table is checked below, after getting rptcorr */
@@ -213,7 +232,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->darkcorr == PERFORM || sci_sw->zsigcorr == PERFORM) {
 	    wf3->sci_basic_ir = PERFORM;
 	    if (GetNewRef (phdr, "DARKFILE", sciref))
-		return (status);
+		    return (status);
 	}
 
 	if (sci_sw->nlincorr == PERFORM || sci_sw->zsigcorr == PERFORM) {

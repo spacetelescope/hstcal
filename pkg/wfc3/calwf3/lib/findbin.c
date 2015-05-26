@@ -96,7 +96,7 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
         *ry = sci_bin[1] / ref_bin[1];
         *x0 = 0;
         *y0 = 0;
-
+        trlwarn("Science image binned more than reference image");
     } else if (ref_bin[0] > sci_bin[0] ||
             ref_bin[1] > sci_bin[1]) {
 
@@ -109,7 +109,7 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
         *ry = ref_bin[1] / sci_bin[1];
         *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
         *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
-
+        trlwarn("Reference image binned more than science image");
     } else {
 
         /* For subarray input images, whether they are binned or not... */
@@ -120,9 +120,11 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
         ratiox = sci_bin[0] / ref_bin[0];
         ratioy = sci_bin[1] / ref_bin[1];
         if (ratiox * ref_bin[0] != sci_bin[0] ||
-                ratioy * ref_bin[1] != sci_bin[1])
-            return (status = SIZE_MISMATCH);
-
+                ratioy * ref_bin[1] != sci_bin[1]){
+            status = SIZE_MISMATCH;    
+            return (status);
+        }
+        
         /* cshift is the offset in units of unbinned
            pixels.  Divide by ref_bin to convert to units of pixels
            in the reference image. sci corner or ref_corner can be negative if in physical overscan
@@ -205,8 +207,8 @@ int FindLineHdr (Hdr *scihdr, Hdr *refhdr, int dimx, int refx,
 
         *rx = sci_bin[0] / ref_bin[0];
         *ry = sci_bin[1] / ref_bin[1];
-
-        return (status = SIZE_MISMATCH);
+        status = SIZE_MISMATCH;
+        return (status);
 
     } else if (ref_bin[0] > sci_bin[0] ||
             ref_bin[1] > sci_bin[1]) {
@@ -228,8 +230,10 @@ int FindLineHdr (Hdr *scihdr, Hdr *refhdr, int dimx, int refx,
         ratiox = sci_bin[0] / ref_bin[0];
         ratioy = sci_bin[1] / ref_bin[1];
         if (ratiox * ref_bin[0] != sci_bin[0] ||
-                ratioy * ref_bin[1] != sci_bin[1])
-            return (status = SIZE_MISMATCH);
+                ratioy * ref_bin[1] != sci_bin[1]){
+            status = SIZE_MISMATCH;
+            return (status);
+        }
 
         /* cshift is the offset in units of unbinned
            pixels.  Divide by ref_bin to convert to units of pixels
@@ -280,9 +284,9 @@ int FindBin (SingleGroup *x, SingleGroup *y, int *same_size,
     yzero=0;
     
     /* Get bin sizes of science and reference images from headers. */
-    if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+    if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
         return (status);
-    if (status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
+    if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
         return (status);
 
     if (sci_corner[0] == ref_corner[0] &&
@@ -311,8 +315,8 @@ int FindBin (SingleGroup *x, SingleGroup *y, int *same_size,
         *ry = ref_bin[1] / sci_bin[1];
         *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
         *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
-
-        return (status = REF_TOO_SMALL);
+        status = REF_TOO_SMALL;
+        return (status);
 
     } else {
 
@@ -323,8 +327,10 @@ int FindBin (SingleGroup *x, SingleGroup *y, int *same_size,
         ratiox = sci_bin[0] / ref_bin[0];
         ratioy = sci_bin[1] / ref_bin[1];
         if (ratiox * ref_bin[0] != sci_bin[0] ||
-                ratioy * ref_bin[1] != sci_bin[1])
-            return (status = SIZE_MISMATCH);
+                ratioy * ref_bin[1] != sci_bin[1]){
+            status = SIZE_MISMATCH;
+            return (status);
+        }
 
         /* cshift is the offset in units of unbinned (or low-res)
            pixels.  Divide by ref_bin to convert to units of pixels
@@ -372,9 +378,9 @@ int FindBinIR (SingleNicmosGroup *x, SingleNicmosGroup *y, int *same_size,
     int GetCorner (Hdr *, int, int *, int *);
 
     /* Get bin sizes of science and reference images from headers. */
-    if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+    if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
         return (status);
-    if (status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
+    if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
         return (status);
 
     if (sci_corner[0] == ref_corner[0] &&
@@ -403,8 +409,8 @@ int FindBinIR (SingleNicmosGroup *x, SingleNicmosGroup *y, int *same_size,
         *ry = ref_bin[1] / sci_bin[1];
         *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
         *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
-
-        return (status = REF_TOO_SMALL);
+        status = REF_TOO_SMALL;
+        return (status);
 
     } else {
 
@@ -415,8 +421,11 @@ int FindBinIR (SingleNicmosGroup *x, SingleNicmosGroup *y, int *same_size,
         ratiox = sci_bin[0] / ref_bin[0];
         ratioy = sci_bin[1] / ref_bin[1];
         if (ratiox * ref_bin[0] != sci_bin[0] ||
-                ratioy * ref_bin[1] != sci_bin[1])
-            return (status = SIZE_MISMATCH);
+                ratioy * ref_bin[1] != sci_bin[1]) {
+            status = SIZE_MISMATCH;  
+            return (status);
+            
+        }
 
         /* cshift is the offset in units of unbinned (or low-res)
            pixels.  Divide by ref_bin to convert to units of pixels

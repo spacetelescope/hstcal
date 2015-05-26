@@ -60,6 +60,9 @@
     
   M. Sosey 2013 December 4
     Added fluxcorr switches for new uvis photometry scaling of chips
+    
+  M. sosey 2014
+    Added pctecorr switches for new CTE correction
 */
 
 void WF3Init (WF3Info *wf3) {
@@ -159,17 +162,22 @@ void WF3Init (WF3Info *wf3) {
 	wf3->photcorr = OMIT;
 	wf3->zoffcorr = OMIT;
 	wf3->zsigcorr = OMIT;
+    wf3->pctecorr = OMIT;
 
 	/* Initialize reference images and tables for WF3CCD */
 	InitRefImg (&(wf3->bias));
+    InitRefImg (&(wf3->sink));
+    InitRefImg (&(wf3->biac));
 	InitRefImg (&(wf3->flash));
 	InitRefTab (&(wf3->bpix));
 	InitRefTab (&(wf3->ccdpar));
 	InitRefTab (&(wf3->oscn));
 	InitRefTab (&(wf3->atod));
+    InitRefTab (&(wf3->pctetab));
 
 	/* Initialize reference images and tables for WF32D */
 	InitRefImg (&(wf3->dark));
+    InitRefImg (&(wf3->darkc));
 	InitRefImg (&(wf3->pflt));
 	InitRefImg (&(wf3->dflt));
 	InitRefImg (&(wf3->lflt));
@@ -252,7 +260,7 @@ int GetTabRef (RefFileInfo *refnames, Hdr *phdr,
 	int GetRefName (RefFileInfo *, Hdr *, char *, char *);
 	int TabPedigree (RefTab *);
 
-	/* Get the reference table name. */
+	/* Get the reference table name. */    
 	if (GetRefName (refnames, phdr, keyword, table->name))
 	    return (status);
 
@@ -468,6 +476,7 @@ void initCCDSwitches (CCD_Switch *sw) {
 	sw->photcorr = OMIT;
 	sw->rptcorr  = OMIT;
 	sw->shadcorr = OMIT;
+    sw->pctecorr = OMIT;
 }
 
 void initIRSwitches (IR_Switch *sw) {

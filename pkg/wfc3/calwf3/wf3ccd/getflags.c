@@ -3,6 +3,7 @@
 
 # include "hstio.h"
 # include "wf3.h"
+# include "msg.h"
 # include "wf3info.h"
 # include "wf3err.h"		/* defines error codes */
 
@@ -18,15 +19,19 @@ static int checkFlash(Hdr *, WF3Info *, int *, int *);
 
    Warren Hack, 1998 June 8:
     Original ACS version based on Phil Hodge's CALSTIS routine...
+   
    Howard Bushouse, 2000 Aug 29:
     Original WFC3 version based on Warren Hack's CALACS routine.
+   
    H.Bushouse, 2001 Nov 16:
     Updates to track CALACS changes - finished revisions for supporting
     post-flash processing.
+    
    H.Bushouse, 2009 Jan 08:
     Enhanced all the checkNNNN routines to check for the correct FILETYPE
     for each reference file, as well as verifying correct selection criteria
     such as DETECTOR, FILTER, and CCDGAIN.
+
 */
 
 int GetFlags (WF3Info *wf3, Hdr *phdr) {
@@ -58,10 +63,10 @@ int GetFlags (WF3Info *wf3, Hdr *phdr) {
 
 	if (checkBias (phdr, wf3, &missing, &nsteps))
 	    return (status);
-		
+        
 	if (checkFlash (phdr, wf3, &missing, &nsteps))
 	    return (status);
-
+    
 	if (missing) {
 	    return (status = CAL_FILE_MISSING);
 	} else if (nsteps < 1) {
@@ -334,6 +339,8 @@ int *missing     io: incremented if the table is missing
 
 	return (status);
 }
+
+
 
 /* Check whether we should assign initial values to the data quality
    array.  There is a reference table but not an image for this step.

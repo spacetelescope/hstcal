@@ -59,12 +59,24 @@
 
     M. Sosey, 2013 Dec 4:
     Added new FLUXCORR switch for UVIS data to scale chip photometry
+    
+    M. Sosey 2014 August:
+    Added new keywords and step for UVIS CTE correction
+    
+    M. Sosey  ARG, this is where the wf3info structure is defined for the
+    calibration steps. It has all the reference file names from the science
+    image. There is ANOTHER wf3info struct, yes, called exactly the same
+    thing which is defined in calwf3.h and exists one level from from the
+    proccd calling code. It contains only the calibration switches. It would
+    be much clearer to call them different things so that debugging time isn't
+    wasted in the future when you dont realize there are two different but
+    same named structures being accessed during the pipeline run. 
+ 
 */
 
 # include "msg.h"
 
 # define NAMPS  4    /* Maximum number of amps for a single readout */
-
 # define MAX_MAREADS	26	/* Max number of MultiAccum reads */
 
 /* Dark image interpolation type */
@@ -176,23 +188,29 @@ typedef struct {
     int zoffcorr;	/* IR zero-read subtraction */
     int crcorr;		/* IR CR rejection */
     int fluxcorr;   /*Uvis chip flux correction*/
+    int pctecorr;  /*UVIS chip CTE correction */
 
     /* calibration images and tables */
     RefImage bias;      /* bias image */
-    RefImage flash;	/* post-flash image */
+    RefImage sink;     /*the sink pixel file*/
+    RefImage biac;     /*biasc image for cte correction*/ 
+    RefImage flash;  	/* post-flash image */
     RefTab bpix;        /* bad pixel table */
     RefTab ccdpar;      /* CCD parameters table */
     RefTab oscn;        /* Overscan parameters table */
     RefTab atod;        /* analog to digital correction table */
     RefTab crrej;       /* CR rejection parameters table */
     RefImage dark;      /* dark image */
+    RefImage darkc;      /* de-trailed dark reference file */
     RefImage pflt;      /* pixel-to-pixel flat field */
     RefImage dflt;      /* delta flat */
     RefImage lflt;      /* low-order flat */
     RefImage shad;      /* shutter shading correction image */
-    RefTab phot;	/* photometry table */
-    RefImage nlin;	/* non-linearity coefficients image */
-    RefImage zoff;
+    RefTab phot;    	/* photometry table */
+    RefImage nlin;	    /* non-linearity coefficients image */
+    RefImage zoff;      /* super zero  */
+    RefTab pctetab;     /*uvis CTE parameter table*/
+    
 } WF3Info;
 
 /* This contains the throughput curve (from _pht table) and the aperture

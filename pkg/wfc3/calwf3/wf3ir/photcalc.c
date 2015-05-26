@@ -2,8 +2,6 @@
 # include <string.h>
 # include <ctype.h>
 
-# include "imphttab.h"
-
 # include "hstio.h"	/* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"

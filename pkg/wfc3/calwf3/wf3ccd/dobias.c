@@ -36,7 +36,7 @@
    Updated to take into account the bias reference files who have values for their
    CCDAMP of SINGLE_AMP or SINGLE_OR_ALL. This was not being tested against and their
    are now reference files in CDBS with this designation when any single amp is used. 
-
+   
  */
 
 int doBias (WF3Info *wf3, SingleGroup *x) {

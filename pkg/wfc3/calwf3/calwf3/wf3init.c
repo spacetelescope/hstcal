@@ -106,11 +106,15 @@ void WF3Defaults (WF3Info *wf3) {
 
 	/* rawfile has been assigned already */
 	wf3->crj_root[0] = '\0';
+    wf3->crc_root[0] = '\0';
 	wf3->outroot[0]  = '\0';
 	wf3->crjfile[0]  = '\0';
 	wf3->fltfile[0]  = '\0';
 	wf3->imafile[0]  = '\0';
 	wf3->blv_tmp[0]  = '\0';
+    wf3->blc_tmp[0]  = '\0';
+    wf3->crc_tmp[0]  = '\0';
+    wf3->rac_tmp[0]  = '\0';
 	wf3->crj_tmp[0]  = '\0';
 	wf3->dthfile[0]  = '\0';
 	wf3->mtype[0]    = '\0';
@@ -122,11 +126,13 @@ void WF3Defaults (WF3Info *wf3) {
 	wf3->scibin[1] = 0;
 	wf3->scigain   = 0;
 	wf3->samebin   = 0;
+    
 
 	/* Initialize flags to not perform the step. */
 	wf3->sci_basic_ccd = OMIT;
 	wf3->sci_basic_2d  = OMIT;
 	wf3->sci_basic_ir  = OMIT;
+    wf3->sci_basic_cte = OMIT;
 	wf3->sci_crcorr    = OMIT;
 	wf3->sci_rptcorr   = OMIT;
 	wf3->sci_dthcorr   = OMIT;
@@ -146,19 +152,35 @@ int InsertWF3Suffix (WF3Info *wf3) {
 	if (MkName (wf3->crj_root, "_crj", "_crj_tmp", "", wf3->crj_tmp,
 		    SZ_LINE))
 	    return (status);
-		
+        
+    if (MkName (wf3->crc_root, "_crc", "_crc_tmp", "", wf3->crc_tmp,SZ_LINE))
+            return (status);
+            
+    if (MkName (wf3->rootname, "_raw","_rac","", wf3->rac_tmp, SZ_LINE))
+        return(status);
+        		
+	if (MkName (wf3->rootname, "_rac", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
+	    return (status);
+
 	if (MkName (wf3->rootname, "_raw", "_ima", "", wf3->imafile, SZ_LINE))
 	    return (status);
 
 	if (MkName (wf3->rootname, "_raw", "_flt", "", wf3->fltfile, SZ_LINE))
 	    return (status);
 
+	if (MkName (wf3->rootname, "_rac", "_flc", "", wf3->flcfile, SZ_LINE))
+	    return (status);
+
 	if (MkName (wf3->asn_table, "_raw", "_drz", "", wf3->dthfile, SZ_LINE))
 	    return (status);
+    
+    if (MkName (wf3->asn_table, "_rac", "_drc", "", wf3->dthfile, SZ_LINE))
+        return (status);
 
 	if (MkName (wf3->rootname, "_raw", "_blv_tmp", "", wf3->blv_tmp,
 		    SZ_LINE))
 	    return (status);
+            
 
 	if (wf3->detector == CCD_DETECTOR) {
 	    sprintf (MsgText,"Wf3Init: blv_tmp = %s ",wf3->blv_tmp);

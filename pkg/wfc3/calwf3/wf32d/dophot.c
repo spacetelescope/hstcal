@@ -3,7 +3,6 @@
 # include <string.h>    /* strchr */
 # include <ctype.h>
 
-# include "imphttab.h"
 # include "hstio.h"
 
 # include "wf3.h"
@@ -91,6 +90,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 		sprintf (MsgText, "Retrieved PHOTFLAM value of %g", obs.photflam);
 		trlmessage (MsgText);
 	}
+    
 
 
 	/* Update the photometry keyword values in the SCI header. */
@@ -98,12 +98,12 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 				"inverse sensitivity"))
 		return (status);
 
-	/* the value for the phtflam? which is not in the current obsmode
-	   should remain 0.0, which is the default. Both are here because
-	   the obs structure is updated here, but each chip is processed
-	   separately and the imphttab which contains the values we want
-	   is read twice, once for each chips obsmode , and time the table
-	   is read the obs structure is reset  */
+    /* the value for the phtflam? which is not in the current obsmode
+       should remain 0.0, which is the default. Both are here because
+       the obs structure is updated here, but each chip is processed
+       separately and the imphttab which contains the values we want
+       is read twice, once for each chips obsmode , and time the table
+       is read the obs structure is reset  */
 
 	if (PutKeyFlt (&x->sci.hdr, "PHOTZPT", obs.photzpt, "zero point"))
 		return (status);
@@ -119,6 +119,27 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
 	if (PutKeyFlt (&x->sci.hdr, "PHOTFNU", photfnu, "inverse sensitivity"))
 		return (status);
+    
+    /*only update the chip that's currently processing,
+    a consequence of the imphttab calling function */    
+    if (wf32d->chip == 1){
+        if (PutKeyFlt (&x->sci.hdr, "PHTFLAM1", obs.phtflam1,
+	    	   "photometry scaling for chip 1")){
+            return (status);
+        }     
+        if (PutKeyFlt (x->globalhdr, "PHTFLAM1", obs.phtflam1,
+	    	   "photometry scaling for chip 1")){
+            return (status);
+        }              
+    }
+    
+    if (wf32d->chip == 2){
+        if (PutKeyFlt (&x->sci.hdr, "PHTFLAM2", obs.phtflam2,
+	    	   "photometry scaling for chip 2")) {
+	        return (status);
+        }
+    }
+    
 
 	/*only update the chip that's currently processing,
 	  a consequence of the imphttab calling function */    

@@ -5,6 +5,9 @@
    ltm[0] and ltm[1] are assumed to be greater than zero.
 */
 
+# include "trl.h"
+# include "wf3.h"
+
 # define NINT(x)  ((x >= 0.) ? (int) (x + 0.5) : (int) (x - 0.5))
 
 int FromLT (int rsize, double *ltm, double *ltv, int *bin, int *corner) {
@@ -31,6 +34,6 @@ int corner[2]    o: corner of subarray in X and Y
 	corner[1] = NINT (dycorner);
 	bin[0] = NINT (dbinx);
 	bin[1] = NINT (dbiny);
-
+    
 	return (status);
 }
