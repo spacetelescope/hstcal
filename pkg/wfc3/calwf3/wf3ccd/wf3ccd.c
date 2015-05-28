@@ -79,20 +79,21 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
       The input can either be _raw or _rac, check for both
     
     */
-    if (strcmp(wf3.input,"_raw") == 0){
-        if (strcmp(wf3.input,"_rac") == 0){
-            if (MkName (input, "_rac","_rac", "", wf3.input, SZ_LINE)){
-                strcpy(wf3.input, input);
-                strcat(wf3.input,"_rac.fits");
-            }
-        } else {
-        
-            if (MkName (input, "_raw", "_raw", "", wf3.input, SZ_LINE) ) {
-                strcpy(wf3.input, input);
-                strcat (wf3.input,"_raw.fits");		
-            }
+    sprintf(MsgText,"wf3ccd: wf3.input is %s",input);
+    trlmessage(MsgText);
+    if (MkName(input,"_raw", "_raw","", wf3.input, SZ_LINE)){
+        strcpy(wf3.input, input);
+        strcat (wf3.input,"_raw.fits");		
+    } else {
+        if (MkName (input, "_rac","_rac", "", wf3.input, SZ_LINE)){
+            strcpy(wf3.input, input);
+            strcat(wf3.input,"_rac.fits");
         }
     }
+    
+    
+    sprintf(MsgText,"Now using %s for input",wf3.input);
+    trlmessage(MsgText);
     
     InitCCDTrl (input, output);
 
@@ -126,8 +127,8 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
      */
     wf3.refnames = refnames;
 
-    PrFileName ("input", wf3.input);
-    PrFileName ("output", wf3.output);
+    PrFileName ("Input", wf3.input);
+    PrFileName ("Output", wf3.output);
 
     /* Check whether the output file already exists. */
     if (FileExists (wf3.output))

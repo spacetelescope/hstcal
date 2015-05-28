@@ -331,7 +331,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                          ** to be prepended to all input file trailer files */
 
                         trlmessage("Calling wf3ccd for original raw file and no CTE");
-                        if (WF3ccd (wf3hdr->rawfile, wf3hdr->blv_tmp,
+                        if (WF3ccd (wf3hdr->rootname, wf3hdr->blv_tmp,
                                     &wf3ccd_sci_sw, &sciref, printtime,
                                     asn->verbose)) 		
                             return (status);

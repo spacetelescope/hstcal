@@ -48,7 +48,7 @@ void initCTEParams(CTEParams *pars){
     /*#pragma omp parallel for schedule(static)\
       private( i)
       */
-    for (i=0;i<ROWS; i++){
+    for (i=0;i<RAZ_ROWS; i++){
         pars->iz_data[i]=0;
         pars->scale512[i]=0.;
         pars->scale1024[i]=0.;
@@ -398,7 +398,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* read data from table */
 	/* loop over table rows */
 
-	for (j = 0; j < COLUMNS; j++) {
+	for (j = 0; j < RAZ_COLS; j++) {
 		/* get trap from this row */    
 		c_tbegti(tbl_ptr, iz_ptr, j+1, &pars->iz_data[j]);
 
@@ -621,7 +621,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
         status = KEYWORD_MISSING;
         return status;
     }
-    if (0> fix_rocr<=  1 && fix_rocr != pars->fix_rocr){
+    if (0> fix_rocr && fix_rocr <=  1 && fix_rocr != pars->fix_rocr){
         pars->fix_rocr = fix_rocr;
     } else {
         if (PutKeyInt(group->globalhdr,"FIXROCR",pars->fix_rocr,"fix readout cosmic rays")){

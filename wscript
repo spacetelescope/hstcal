@@ -181,13 +181,9 @@ def configure(conf):
             conf.env.append_value('CFLAGS', '-g')
         if conf.check_cc(cflags='-O0'):
             conf.env.append_value('CFLAGS', '-O0')
-        if conf.check_cc(cflags='-Wall'):
-            conf.env.append_value('CFLAGS','-Wall')
     else:
         if conf.check_cc(cflags='-O2'):
             conf.env.append_value('CFLAGS','-O2')
-        if conf.check_cc(cflags='-Wall'):
-            conf.env.append_value('CFLAGS','-Wall')
 
 def build(bld):
     bld(name='lib', always=True)

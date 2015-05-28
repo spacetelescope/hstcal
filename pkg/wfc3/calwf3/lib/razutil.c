@@ -52,7 +52,7 @@ int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
                 memcpy( &Pix(raz->sci.data,i,j), &Pix(cd->sci.data,i,j), sizeof(float));
                 memcpy( &Pix(raz->sci.data,i+subcol-1,j), &Pix(cd->sci.data,(subcol*2)-i,j),sizeof(float));
                 memcpy( &Pix(raz->sci.data,i+2*subcol,j-1), &Pix(ab->sci.data,i,RAZ_ROWS-j),sizeof(float));
-                memcpy( &Pix(raz->sci.data,i+3*subcol-1,j-1), &Pix(ab->sci.data,(subcol*2)-i,RAZ_ROWS-j), sizeof(float));
+                memcpy( &Pix(raz->sci.data,i+(3*subcol)-1,j-1), &Pix(ab->sci.data,(subcol*2)-i,RAZ_ROWS-j), sizeof(float));
             }
         }
         

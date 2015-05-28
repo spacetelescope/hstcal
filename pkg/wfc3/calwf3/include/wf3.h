@@ -72,7 +72,9 @@ typedef enum SwitchVals_ SwitchVals;
 # define	DEFAULT_OFFSET	3
 
 /* used for the CTE correction in UVIS where the amps are stacked
-   in the order they are read out  */
+   in the order they are read out. Defined here so that the rest of
+   the pipeline has access to them, for use mostly in the sink pixel
+   mask creation which happens in wf3ccd  */
 # define RAZ_COLS 8412
 # define RAZ_ROWS 2070
 

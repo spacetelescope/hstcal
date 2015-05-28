@@ -159,7 +159,7 @@ int InsertWF3Suffix (WF3Info *wf3) {
     if (MkName (wf3->rootname, "_raw","_rac","", wf3->rac_tmp, SZ_LINE))
         return(status);
         		
-	if (MkName (wf3->rootname, "_rac", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
+	if (MkName (wf3->rac_tmp, "_rac", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
 	    return (status);
 
 	if (MkName (wf3->rootname, "_raw", "_ima", "", wf3->imafile, SZ_LINE))
@@ -168,7 +168,7 @@ int InsertWF3Suffix (WF3Info *wf3) {
 	if (MkName (wf3->rootname, "_raw", "_flt", "", wf3->fltfile, SZ_LINE))
 	    return (status);
 
-	if (MkName (wf3->rootname, "_rac", "_flc", "", wf3->flcfile, SZ_LINE))
+	if (MkName (wf3->rac_tmp, "_rac", "_flc", "", wf3->flcfile, SZ_LINE))
 	    return (status);
 
 	if (MkName (wf3->asn_table, "_raw", "_drz", "", wf3->dthfile, SZ_LINE))
