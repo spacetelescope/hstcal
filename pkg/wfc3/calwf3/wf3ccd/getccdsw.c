@@ -28,6 +28,8 @@ int GetccdSw (WF3Info *wf3, Hdr *phdr) {
 	    return (status);
 	if (GetSw (phdr, "FLSHCORR", &wf3->flashcorr))
 	    return (status);
+    if (GetSw (phdr, "PCTECORR", &wf3->pctecorr))
+        return(status);
 
 	return (status);
 }

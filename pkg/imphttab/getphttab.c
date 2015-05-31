@@ -274,7 +274,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
                 }
 
                 /* Read in photometry values from table row */
-                if (status = ReadPhotArray(&tabinfo, row, &tabrow)) {
+                if (status == ReadPhotArray(&tabinfo, row, &tabrow)) {
                     printf("*** Error in ReadPhotArray\n");
                     return (status);
                 }

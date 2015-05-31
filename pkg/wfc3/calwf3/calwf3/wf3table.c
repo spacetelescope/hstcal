@@ -43,7 +43,7 @@
 # define CRLEN	2
 # define RPTLEN 2
 # define DTHLEN 3
-# define NSUF	7
+# define NSUF	13
 
 # define MEMABSENT -1
 # define DASH_CHAR '-'
@@ -1124,6 +1124,7 @@ void initAsnSubProd (SubProdInfo *subprod, int numexp) {
 	subprod->numexp     = numexp;
 	subprod->spname[0]  = '\0';
 	subprod->crj_tmp[0] = '\0';
+    subprod->crc_tmp[0] = '\0';
 	subprod->exp        = NULL;
 }
 
@@ -1135,6 +1136,7 @@ void initAsnExp (ExpInfo *exp) {
 	exp->asnrow     = 0;
 	exp->expname[0] = '\0';
 	exp->blv_tmp[0] = '\0';
+    exp->blc_tmp[0] = '\0';
 	exp->dx = 0;
 	exp->dy = 0;
 	exp->xi = 0;
@@ -1342,8 +1344,12 @@ static int IsProduct (char *input) {
 	char prodsuf[NSUF][SZ_CBUF+1] = {
 		"_crj", "_crj_tmp",
 		"_blv", "_blv_tmp",
+        "_blc", "_blc_tmp",
+        "_crc", "_crc_tmp",
+        "_flc",
 		"_flt", "_sfl",
-		"_drz"
+		"_drz",
+        "_drc",
 	};
 	
 	for (i=0; i < NSUF; i++) {

@@ -23,6 +23,9 @@ H.Bushouse, 2002 June 20:
 	Removed use of STATFLAG switch (always perform doStat by default).
 M.Sosey, 2013 Dec 4:
     revised to add FLUXCORR processing keyword
+    
+M.sosey 2014 August
+    revised for CTE correction in UVIS, PCTECORR
 */
 
 int GetCCDSws (CCD_Switch *sw, Hdr *phdr) {
@@ -60,6 +63,9 @@ Hdr *phdr       i: primary header
 	    return (status);
 	if (GetSw (phdr, "FLUXCORR", &sw->fluxcorr))
 	    return (status);
+	if (GetSw (phdr, "PCTECORR", &sw->pctecorr))
+	    return (status);
+    
         
 	/* Check to ensure that only one of these switches are
 	** set, since they are exclusive options. */

@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <string.h>
 # include "msg.h"
+# include "wf3.h"
 
 
 /* This function checks that the number of input and output files are
@@ -27,7 +28,7 @@ int CompareNumbers (int n_in, int n_out, char *str_out) {
 	    }
 	    strcat (MsgText, ".\n");
 		
-	    printf (MsgText);
+	    trlmessage(MsgText);
 	    return (1);
 	}
 

@@ -33,7 +33,8 @@ double ltv[2]    o: MWCS linear transformation vector, one indexed
 	    sprintf (MsgText, "(LTM1_1, LTM2_2) = (%.8g, %.8g) is invalid",
 		     ltm[0], ltm[1]);
 	    trlerror (MsgText);
-	    return (status = INVALID_VALUE);
+        status = INVALID_VALUE;
+	    return (status);
 	}
 
 	return (status);

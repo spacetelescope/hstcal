@@ -340,6 +340,26 @@ int fluxHistory (WF3Info *wf3, Hdr *phdr) {
 	return (status);
 }
 
+int cteHistory (WF3Info *wf3, Hdr *phdr) {
+	extern int status;
+	int logit;			/* true if we should log file name */
+	int OmitStep (int);
+	int TabHistory (RefTab *, Hdr *);
+	int UpdateSwitch (char *, int, Hdr *, int *);
+
+	if (OmitStep (wf3->pctecorr))
+	    return (status);
+
+	if (UpdateSwitch ("PCTECORR", wf3->pctecorr, phdr, &logit))
+	    return (status);
+
+	addHistoryKw (phdr, "CTE parameters table: ");
+	if (TabHistory (&wf3->pctetab, phdr))
+	    return (status);
+
+	return (status);
+}
+
 
 /* Update the calibration switch in the primary header to COMPLETE
    or SKIPPED.

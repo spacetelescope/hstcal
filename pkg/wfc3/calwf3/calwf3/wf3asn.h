@@ -1,7 +1,7 @@
 # define	BADVAL	-99999
 
 /* Image types */
-enum imageTypes_ {EXP, CRJ, RPT, DTH};
+enum imageTypes_ {EXP, CRJ, RPT, DTH, CRC, CDTH};
 typedef enum imageTypes_ imageTypes;
 
 /* Observation type */
@@ -46,6 +46,7 @@ typedef struct {
 	int asnrow;		      /* row from ASN table */
 	char expname[SZ_FNAME+1];    /* Full filenames for member EXP images */
 	char blv_tmp[SZ_FNAME+1];    /* BLV_TMP files to be deleted */
+    char blc_tmp[SZ_FNAME+1];  /*BLC_TMP file to be deleted*/
 	float dx, dy;
 	float xi, yi;
 } ExpInfo;
@@ -59,6 +60,7 @@ typedef struct {
 	int posid;			/* Numbering starts at 1 */
 	char spname[SZ_FNAME+1];     	/* Full filename for sub-product */
 	char crj_tmp[SZ_FNAME+1];	/* CRJ_TMP file(s) to be deleted */
+    char crc_tmp[SZ_FNAME+1];
 	ExpInfo *exp;			/* List of member EXP information */
 } SubProdInfo;
 

@@ -364,7 +364,7 @@ int getDarkInfo (WF3Info *wf3) {
 
 	/* Read the list of exposure times */
 	for (i = 0; i < wf3->ndarks; i++) {
-	     sprintf (kword, "EXPOS_%d\0", i+1);
+	     sprintf (kword, "EXPOS_%d", i+1);
 	     wf3->dtimes[i] = 0;
 	     if (getKeyD (dark.globalhdr, kword, &(wf3->dtimes[i]))) {
 		 trlkwerr (kword, wf3->dark.name);

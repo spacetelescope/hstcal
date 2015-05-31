@@ -1,7 +1,6 @@
 # define SZ_CBUF           24  /* small buffer for e.g. rootname */
 # define SZ_FNAME          255
 # define SZ_LINE           255
-# define SZ_FITS_REC       80
 # define SZ_FITS_VAL       68
 # define SZ_KEYWORD	    8
 
@@ -18,6 +17,9 @@ void errchk ();
 void asnwarn (char *message);
 void asnerror (char *message);
 void asnmessage (char *message);
+void ctemessage (char *message);
+void cteerror (char *message);
+void ctewarn (char *message);
 
 # define WARN_PREFIX    "Warning    "
 # define ERR_PREFIX     "ERROR:    "

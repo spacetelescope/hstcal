@@ -150,32 +150,32 @@ int *nsteps      io: incremented if this step can be performed
 	if (wf32d->darkcorr == PERFORM) {
 
 	    if (GetSwitch (phdr, "DARKCORR", &calswitch))
-		return (status);
+		    return (status);
 	    if (calswitch == COMPLETE) {
-		wf32d->darkcorr = OMIT;
-		return (status);
+		    wf32d->darkcorr = OMIT;
+		    return (status);
 	    }
-
+            
 	    if (GetImageRef (wf32d->refnames, phdr, "DARKFILE", &wf32d->dark,
 			     &wf32d->darkcorr))
-		return (status);
+		    return (status);
 	    if (wf32d->dark.exists != EXISTS_YES) {
-		MissingFile ("DARKFILE", wf32d->dark.name, missing);
+		    MissingFile ("DARKFILE", wf32d->dark.name, missing);
 
 	    } else {
 
-		/* Is the FILETYPE appropriate for a DARK file? */
-		CheckImgType (&wf32d->dark, "DARK", "DARKFILE", missing);
+		    /* Is the FILETYPE appropriate for a DARK file? */
+		    CheckImgType (&wf32d->dark, "DARK", "DARKFILE", missing);
 
-		/* Does it have the correct DETECTOR value? */
-		if (CheckDetector(wf32d->dark.name, wf32d->detector, "DETECTOR",
+		    /* Does it have the correct DETECTOR value? */
+		    if (CheckDetector(wf32d->dark.name, wf32d->detector, "DETECTOR",
 				  missing))
-		    return (status);
+		        return (status);
 	    }
 
 	    if (wf32d->darkcorr == PERFORM)
-		(*nsteps)++;
-	}
+	        (*nsteps)++;
+	 }
 
 	return (status);
 }

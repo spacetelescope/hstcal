@@ -14,7 +14,7 @@
    If users don't wish to perform the correction then they set FLUXCORR OMIT and can use
    the values of PHTFLAM1 and PHTFLAM2 to correct the flux in the respective chips
 
-   MLS Dec 6, 2013
+MLS Dec 6, 2013
 
 Update: Nov 2014
 This step takes place after all the WF32d steps and after the FLT file has been initially 
@@ -22,7 +22,7 @@ written to disk. This is necessary because of how the pipeline is setup to proce
 which chip is getting corrected here, and where the data is - we need information from the header
 of both imsets to process chip2 correctly.
 
- */
+*/
 
 void FluxMsg (WF3Info *wf32d) {
 
@@ -52,8 +52,7 @@ int doFlux (WF3Info *wf32d){
 	int multk1d (SingleGroupLine *a, float k);
 	int i,j;
 	void FluxMsg (WF3Info *);
-	char fluxout[SZ_LINE+1];    
-
+    
 
 	if (wf32d->fluxcorr != PERFORM)
 		return (status=CAL_STEP_NOT_DONE);
@@ -94,9 +93,9 @@ int doFlux (WF3Info *wf32d){
 	}
 
 	if (wf32d->verbose){
-		sprintf(MsgText,"Using PHTRATIO: %g ",ratio);
-		trlmessage(MsgText);
-	}
+    	sprintf(MsgText,"Using PHTRATIO: %g ",ratio);
+	    trlmessage(MsgText);
+    }
 
 	for (i=0; i < chip2.sci.data.nx ; i++) {   
 		for (j=0; j < chip2.sci.data.ny ; j++) { 
@@ -117,28 +116,29 @@ int doFlux (WF3Info *wf32d){
 
 	   putSingleGroupHdr("testflux.fits", &chip2, 0); */
 
-	/*make a new output file for testing*/
+	/*make a new output file for testing
 	strcpy(fluxout,wf32d->rootname);
 	strcat(fluxout,"_flux.fits");
+    
 
 	if (wf32d->verbose){
 		sprintf(MsgText,"Saving flux corrected data to: %s",fluxout);
 		trlmessage(MsgText);
-	}
+	}*/
 
-	/*
-	   putSingleGroup(fluxout, chip2.group_num, &chip2, 0);
-	   putSingleGroup(fluxout, chip1.group_num, &chip1, 0);
-	 */
-
-	/*doing it the long way, calling all the same functions that
-	  putSingleGroup uses to get around the overwrite issue with hstio */
-
-	IODescPtr out;
-	Hdr phdr;
-	initHdr (&phdr);
-
-	out = openUpdateImage(wf32d->output,"",0,&phdr);
+    /*
+	putSingleGroup(fluxout, chip2.group_num, &chip2, 0);
+	putSingleGroup(fluxout, chip1.group_num, &chip1, 0);
+    */
+    
+    /*doing it the long way, calling all the same functions that
+    putSingleGroup uses to get around the overwrite issue with hstio */
+       
+    IODescPtr out;
+    Hdr phdr;
+    initHdr (&phdr);
+    
+    out = openUpdateImage(wf32d->output,"",0,&phdr);
 	if (PutKeyDbl (&phdr, "PHTRATIO", ratio,
 				"photometry scaling for chip 2 to chip 1"))
 		return (status);
@@ -148,13 +148,13 @@ int doFlux (WF3Info *wf32d){
 	if (PutKeyDbl (&phdr, "PHTFLAM1", phtflam1,
 				"photometry scaling for chip1"))
 		return (status);
-	putHeader(out);
-	closeImage(out);
-	freeHdr(&phdr);
+    putHeader(out);
+    closeImage(out);
+    freeHdr(&phdr);
+        
 
-
-	chip2.sci.iodesc = openUpdateImage(wf32d->output, "SCI", chip2.group_num, &chip2.sci.hdr);
-	putFloatData(chip2.sci.iodesc,&chip2.sci.data);
+    chip2.sci.iodesc = openUpdateImage(wf32d->output, "SCI", chip2.group_num, &chip2.sci.hdr);
+    putFloatData(chip2.sci.iodesc,&chip2.sci.data);
 	if (PutKeyDbl (&chip2.sci.hdr, "PHTRATIO", ratio,
 				"ratio used to scale chip2 to chip1"))
 		return (status);
@@ -162,13 +162,14 @@ int doFlux (WF3Info *wf32d){
 	if (PutKeyDbl (&chip2.sci.hdr, "PHTFLAM1", phtflam1,
 				"photomtery scaling for chip1 "))
 		return (status);
-	closeImage(chip2.sci.iodesc);
+    closeImage(chip2.sci.iodesc);
 
-	chip2.err.iodesc = openUpdateImage(wf32d->output, "ERR", chip2.group_num, &chip2.err.hdr);
-	putFloatData(chip2.err.iodesc,&chip2.err.data);
-	closeImage(chip2.err.iodesc);
+    chip2.err.iodesc = openUpdateImage(wf32d->output, "ERR", chip2.group_num, &chip2.err.hdr);
+    putFloatData(chip2.err.iodesc,&chip2.err.data);
+    closeImage(chip2.err.iodesc);
 
-
+    
+    
 	if (hstio_err()) {
 		sprintf (MsgText, "Couldn't write imset %d.", 1);
 		trlerror (MsgText);
@@ -178,7 +179,7 @@ int doFlux (WF3Info *wf32d){
 	if (wf32d->printtime)
 		TimeStamp ("Output written to disk", wf32d->rootname);
 
-	logit=0;
+	logit=0; /*means dont log reference file names*/
 	if (UpdateSwitch ("FLUXCORR", wf32d->fluxcorr, chip2.globalhdr, &logit))
 		return (status);
 

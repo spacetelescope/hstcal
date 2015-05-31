@@ -5,6 +5,7 @@ SUBDIRS = [
     'calwf3',
     'wf3ccd',
     'wf3rej',
+    'wf3cte',
     'wf3ir',
     'wf32d',
     'wf3sum',
@@ -18,6 +19,7 @@ def build(bld):
         depends_on=[
             'calwf3.e',
             'wf3ccd.e',
+            'wf3cte.e',
             'wf3rej.e',
             'wf3ir.e',
             'wf32d.e',

@@ -102,6 +102,8 @@ def _determine_mac_osx_fortran_flags(conf):
             conf.env.MAC_OS_NAME = 'snowleopard'
         elif s == '10.7':
             conf.env.MAC_OS_NAME = 'lion'
+        elif s == '10.9':
+            conf.env.MAC_OS_NAME = 'mavericks'
 
         if conf.env.MAC_OS_NAME:
             conf.end_msg(conf.env.MAC_OS_NAME, 'GREEN')
@@ -110,7 +112,7 @@ def _determine_mac_osx_fortran_flags(conf):
                 "Do not recognize this Mac OS only know 10.5-10.7",
                 'YELLOW')
 
-    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion') :
+    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion','mavericks') :
         conf.env.append_value('FCFLAGS', '-m64')
 
 def _determine_sizeof_int(conf):
@@ -179,6 +181,8 @@ def configure(conf):
             conf.env.append_value('CFLAGS', '-g')
         if conf.check_cc(cflags='-O0'):
             conf.env.append_value('CFLAGS', '-O0')
+        if conf.check_cc(cflags='-Wall'):
+            conf.env.append_value('CFLAGS','-Wall')
     else:
         if conf.check_cc(cflags='-O2'):
             conf.env.append_value('CFLAGS','-O2')

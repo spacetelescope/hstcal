@@ -50,7 +50,10 @@
   M Sosey, 2012 December 27:
       Updated to account for a memory leak on linux machines during BuildDth 
       when RPTCORR is off and a new spt is being constructed (#967)       
+  M Sosey, 2015 May: 
+      Updated for UVIS2
 */
+
 
 int Wf3Dth (char *in_list, char *output, int dthcorr, int printtime,
 	    int verbose){
@@ -114,8 +117,8 @@ void InitDthTrl (char *inlist, char *output) {
 	char input[SZ_FNAME+1];		/* Name of image in list */
 	char out_name[SZ_FNAME+1];
 	
-	char *isuffix[]={"_sfl", "_crj", "_flt"};
-	char *osuffix[]={"_drz", "_drz", "_drz"};
+	char *isuffix[]={"_sfl", "_crj", "_flt", "_flc", "_crc"};
+	char *osuffix[]={"_drz", "_drz", "_drz", "_drc", "_drc"};
 	char *trlsuffix[]={"", "", ""};
 	int nsuffix = 3;
 	

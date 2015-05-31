@@ -234,6 +234,7 @@ int extver       i: "imset" number, the current set of extensions
 	if (extver == 1 && !OmitStep (wf32d->dqicorr))
 	    if (dqiHistory (wf32d, x.globalhdr))
 		return (status);
+    
 
 	/* Subtract dark image. */
 	DarkMsg (wf32d, extver);

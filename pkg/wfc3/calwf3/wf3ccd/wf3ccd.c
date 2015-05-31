@@ -20,18 +20,18 @@ static int BiasKeywords (WF3Info *);
 
    Warren Hack, 1998 July 28:
    Revised for ACS from CALSTIS1. 
+   
    Howard Bushouse, 2000 Aug 29:
    Initial WFC3 version.
+   
    H. Bushouse, 2001 May 7:
    Revised to support post-flash processing (adopted equivalent
    calacs changes).
+   
    H. Bushouse, 2003 Oct 24:
    Added BiasKeywords routine to populate bias level keywords for
    each amp (CALACS changes).
-   M. Sosey, 2013 July 3
-   Addded new FLUXCORR step to scale flux units in both chips to
-   the same scale using the ratio of PHTFLAM1/PHTFLAM2 ->PHTRATIO 
-
+      
  */
 
 int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
@@ -59,40 +59,49 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     void InitCCDTrl (char *, char *);
     void WF3Init (WF3Info *);
     int MkName (char *, char *, char *, char *, char *, int);
-
+    int SinkDetect (WF3Info *);
     /* ----------------------- Start Code --------------------------------*/
 
     /* Determine the names of the trailer files based on the input
        and output file names, then initialize the trailer file buffer
        with those names.
      */
-    InitCCDTrl (input, output);
-    /* If we had a problem initializing the trailer files, quit... */
-    if (status != WF3_OK) 
-        return (status);
-
     PrBegin ("WF3CCD");
 
-    if (printtime)
-        TimeStamp ("WF3CCD started", "");
 
     /* Initialize structure containing calwf3 information. */
     WF3Init (&wf3);
 
     /* Copy command-line arguments into wf3. */
-    /* Start by making sure input name is a full filename... */
-    if (MkName (input, "_raw", "_raw", "", wf3.input, SZ_LINE) ) {
-        strcpy(wf3.input, input);
-        strcat (wf3.input,"_raw.fits");		
-    }
+    /* Start by making sure input name is a full filename... 
+      
+      The input can either be _raw or _rac or rootname 
+        or rootname+unexpected, check for all
+    
+    */    
+    /*if the input doesn't end _rac or _raw add it, this covers rootname user input*/
+    strcpy(wf3.input,input);
+    
+    /*user specified output*/
     strcpy (wf3.output, output);
+    
+    InitCCDTrl (input, output);
+
+
+    if (printtime)
+        TimeStamp ("WF3CCD started", "");
+
+    /* If we had a problem initializing the trailer files, quit... */
+    if (status != WF3_OK) 
+        return (status);
+
+    
 
     wf3.dqicorr  = ccd_sw->dqicorr;
     wf3.atodcorr = ccd_sw->atodcorr;
     wf3.blevcorr = ccd_sw->blevcorr;
     wf3.biascorr = ccd_sw->biascorr;
     wf3.flashcorr = ccd_sw->flashcorr;
-    wf3.fluxcorr = ccd_sw->fluxcorr;
     wf3.noiscorr = PERFORM;
     wf3.printtime = printtime;
     wf3.verbose = verbose;
@@ -108,8 +117,8 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
      */
     wf3.refnames = refnames;
 
-    PrFileName ("input", wf3.input);
-    PrFileName ("output", wf3.output);
+    PrFileName ("Input:", wf3.input);
+    PrFileName ("Output:", wf3.output);
 
     /* Check whether the output file already exists. */
     if (FileExists (wf3.output))
@@ -152,16 +161,28 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     /* Do basic CCD image reduction. */
     if (wf3.printtime)
         TimeStamp ("Begin processing", wf3.rootname);
-
+ 
     /* Process each imset (chip) in input file */
     for (extver = 1;  extver <= wf3.nimsets;  extver++) {
         trlmessage ("\n");
         PrGrpBegin ("imset", extver);
-        if (DoCCD (&wf3, extver))
+
+       if (DoCCD (&wf3, extver))
             return (status);
         PrGrpEnd ("imset", extver);
     }
 
+
+    /*Update the SINK pixels in the DQ mask of both science image sets
+     It's done here with one call to the file because they need to be
+     processed in the RAZ format Jay uses
+    */
+     
+     if (wf3.dqicorr) {
+        if (SinkDetect(&wf3))
+            return(status);          
+     }
+    
     /* Update the BIASLEVn keywords in the header. They must be updated
      ** here because only some are computed for each SingleGroup and
      ** HSTIO will only allow one update to the Primary header with
@@ -193,10 +214,6 @@ void InitCCDTrl (char *input, char *output) {
     char trl_out[SZ_LINE+1]; 	/* output trailer filename */
     int exist;
 
-
-    char isuffix[] = "_raw";
-    char osuffix[] = "_blv_tmp";
-
     int MkName (char *, char *, char *, char *, char *, int);
     void WhichError (int);
     int TrlExists (char *);
@@ -208,20 +225,46 @@ void InitCCDTrl (char *input, char *output) {
     exist = EXISTS_UNKNOWN;
 
     /* Start by stripping off suffix from input/output filenames */
-    if (MkName (input, isuffix, "", TRL_EXTN, trl_in, SZ_LINE)) {
-        WhichError (status);
-        sprintf (MsgText, "Couldn't determine trailer filename for %s",
-                input);
-        trlmessage (MsgText);
-    }
+    if (strcmp(input,"_raw") == 1){
+        if (MkName (input, "_raw", "", TRL_EXTN, trl_in, SZ_LINE)) {
+            WhichError (status);
+            sprintf (MsgText, "Couldn't determine trailer filename for %s",
+                    input);
+            trlmessage (MsgText);
+        }
+    } else {
+        if (strcmp(input,"_rac") == 1){
+            if (MkName (input, "_rac", "", TRL_EXTN, trl_in, SZ_LINE)) {
+                WhichError (status);
+                sprintf (MsgText, "Couldn't determine trailer filename for %s",
+                        input);
+                trlmessage (MsgText);
+            }
+        }
+    }    
+    
+    
+    if (strcmp(input,"_raw") == 1){
 
-    if (MkName (output, osuffix, "", TRL_EXTN, trl_out, SZ_LINE)) {
-        WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s",
-                output);
-        trlmessage (MsgText);
-    }
+        if (MkName (output, "_blv_tmp", "", TRL_EXTN, trl_out, SZ_LINE)) {
+            WhichError (status);
+            sprintf (MsgText, "Couldn't create trailer filename for %s",
+                    output);
+            trlmessage (MsgText);
+        }
+    } else {
+        if (strcmp(input,"_rac") == 1){
 
+            if (MkName (output, "_blc_tmp", "", TRL_EXTN, trl_out, SZ_LINE)) {
+                WhichError (status);
+                sprintf (MsgText, "Couldn't create trailer filename for %s",
+                        output);
+                trlmessage (MsgText);
+            }
+        }
+    }
+    
+    
     /* Test whether the output file already exists */
     exist = TrlExists(trl_out);
     if (exist == EXISTS_YES) {
@@ -319,4 +362,5 @@ static int BiasKeywords (WF3Info *wf3) {
 
     return (status);
 }
+
 

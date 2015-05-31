@@ -1,3 +1,6 @@
+Updates for Version 3.3  31-May-2015 MLS
+    UVIS 2.0 added, including CTE correction, Sink Pixel and Photometry updates
+    
 Updates for  Version 3.2.1 08-Dec-2014 MLS
     The FLUXCORR step has been updated, changing how the data is processed in the flow of the pipeline. It was discovered that
     a chain of requirements meant that the values from the IMPHTTAB were not being read or updated correctly. This is a multifold

@@ -61,7 +61,7 @@ int main (int argc, char **argv) {
 	void initCCDSwitches (CCD_Switch *);
 
 	int WF3ccd (char *, char *, CCD_Switch *, RefFileInfo *, int, int);
-	int DefSwitch (char *);
+    int DefSwitch (char *);
 	int MkName (char *, char *, char *, char *, char *, int);
 	void WhichError (int);
 	int CompareNumbers (int, int, char *);
@@ -166,6 +166,7 @@ int main (int argc, char **argv) {
 	    ccd_sw.biascorr = DefSwitch ("biascorr");
 	    ccd_sw.flashcorr = DefSwitch ("flshcorr");
         ccd_sw.fluxcorr = DefSwitch ("fluxcorr");
+        ccd_sw.pctecorr = DefSwitch ("pctecorr");
 	}
 
 	/* Expand the templates. */
