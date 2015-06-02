@@ -48,6 +48,7 @@
    indented the code to make it easier to parse. onecpu was added
    to the function signature so that the user can have more control over
    the number of threads/cpus that are used during parallel processing for CTE correction.
+   
  */
 
 int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {
@@ -295,9 +296,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                                 return (status);
 
                             /* Reset switches */
-                            trlmessage("resetting ccd switches");
                             ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
-                            trlmessage("Finished resetting ccd switch");
 
                         } else {
 
@@ -318,14 +317,11 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                         if (wf3hdr->sci_crcorr == PERFORM || 
                                 wf3hdr->sci_rptcorr == PERFORM) {
                                 strcat (wf3rej_cte_input, wf3hdr->blc_tmp);
-                                trlmessage("strcat blc_tmp");
                                 if (expid < asn->spmems[posid]) {
-                                    trlmessage("strcat comma");
                                     /* Don't add a comma to the end of the last
                                      ** filename */
                                     strcat(wf3rej_cte_input, ",");
                                 }
-                            trlmessage("Updating delete file list for blc_tmp");
                             /* Also add blc_tmp to list of files to be deleted */
                             strcpy (asn->product[prod].subprod[posid].exp[expid].blc_tmp,
                                 wf3hdr->blc_tmp);
@@ -390,7 +386,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                         if (wf3hdr->sci_basic_2d == PERFORM && wf3hdr->sci_basic_cte == PERFORM) {
 
-                            SetTrlPrefaceMode (NO);
+                            SetTrlPrefaceMode (YES);
 
                             /* Basic 2-D processing (flat field, etc). */
                             trlmessage("Starting WF32d with blc_tmp file");
@@ -400,15 +396,17 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                                 return (status);				
 
                         } else {
-                            /* Remember blc_tmp as final output...*/
-                            if (CopyFFile (wf3hdr->blc_tmp, wf3hdr->flcfile))
-                                return (status);
+                            if (wf3hdr->sci_basic_2d == OMIT && wf3hdr->sci_basic_cte == PERFORM){
+                                /* Remember blc_tmp as final output...*/
+                                if (CopyFFile (wf3hdr->blc_tmp, wf3hdr->flcfile))
+                                    return (status);
+                            }
                         }
                             
                         /*DO this with or without CTE perform*/
                         if (wf3hdr->sci_basic_2d == PERFORM ) {
 
-                            SetTrlPrefaceMode (NO);
+                            SetTrlPrefaceMode (YES);
 
                             /* Basic 2-D processing (flat field, etc). */
                             if (WF32d (wf3hdr->blv_tmp, wf3hdr->fltfile, 
@@ -431,12 +429,10 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             (wf3hdr->sci_rptcorr != PERFORM)){
                             
                         if (wf3hdr->sci_basic_cte == PERFORM) {
+                            trlmessage("Deleting BLC TMP");
                             remove (wf3hdr->blc_tmp);
-                            remove (wf3hdr->blv_tmp);
-                        } else {
-                            remove (wf3hdr->blv_tmp);
                         }
-
+                        remove (wf3hdr->blv_tmp);
                     }/*end if save_tmp*/
                       
                 
@@ -699,7 +695,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                                     ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
                                     trlmessage("Reset CCDsw");
                                     /* Basic 2-D processing (flat field, etc). */
-                                    if (WF32d (wf3hdr->blc_tmp, wf3hdr->fltfile,
+                                    if (WF32d (wf3hdr->blc_tmp, wf3hdr->flcfile,
                                                 &wf32d_sci_sw, &sciref, printtime,
                                                 asn->verbose))
                                         return (status);
@@ -708,7 +704,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                                     /* Save blc_tmp as final output */
                                     if (CopyFFile (wf3hdr->blc_tmp,
-                                                wf3hdr->fltfile))
+                                                wf3hdr->flcfile))
                                         return (status);
                                 }
                                 trlmessage("Finished WF32D");
@@ -742,7 +738,12 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 if ((save_crj != YES ) && (wf3hdr->sci_crcorr == PERFORM ||
                             wf3hdr->sci_rptcorr == PERFORM)) {
                     for (posid = 1; posid <= asn->numsp; posid++) {
-                        remove (asn->product[prod].subprod[posid].crc_tmp);
+                        remove (asn->product[prod].subprod[posid].crj_tmp);
+                    }
+                    if (wf3hdr->sci_basic_cte == PERFORM){
+                        for (posid = 1; posid <= asn->numsp; posid++){
+                            remove (asn->product[prod].subprod[posid].crc_tmp);
+                        }
                     }
                 }
             } /*end remove tmp files*/

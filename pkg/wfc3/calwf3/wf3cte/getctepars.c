@@ -22,7 +22,7 @@ void initCTEParams(CTEParams *pars){
     pars->cte_ver='\0';
     pars->cte_date0=0.;
     pars->cte_date1=0.;
-    pars->cte_traps=0;
+    pars->cte_traps=0.;
     pars->cte_len=0;
     pars->rn_amp=0.; 
     pars->n_forward=0; 
@@ -299,7 +299,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		}
                 
 		/* get qlevq from this row */
-		c_tbegti(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
+		c_tbegtr(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qlevq);
 			cteerror(MsgText);
@@ -319,12 +319,13 @@ No.    Name         Type      Cards   Dimensions   Format
 			return status;
 		}
         if (ctraps > TRAPS){
-            sprintf(MsgText,"More TRAPS in reference file than available, update TRAPS: %i -> %i",TRAPS,ctraps);
+            sprintf(MsgText,"More TRAPS in reference file than available, update TRAPS: %i -> %i",TRAPS,(int)ctraps);
             trlmessage(MsgText);
         }
 	}
     
-    pars->cte_traps=ctraps;
+    /*if ctraps ever overflows int this needs to be changed*/
+    pars->cte_traps=(int)ctraps;
 
 	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%i\t%f\t%i\n",130,
             pars->wcol_data[129],pars->qlevq_data[129], pars->dpdew_data[129], pars->cte_traps);

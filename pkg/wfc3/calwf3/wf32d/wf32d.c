@@ -47,7 +47,13 @@
       both chips had been calibrated. This is a consecquence of the correction  being needed
       for chip2, which happens to be in extension 1 of the raw file, so it gets the imphttab params
       first, before the ones for chip1 have been grabbed. The code needs the ratio of the two to 
-      operate correctly.     
+      operate correctly.    
+      
+ M. Sosey, 2015 May:
+    The CTE version of the data has a separate DARK reference file associated with it.
+    It's stored in the DRKCFILE in the header. For the case when PCTECORR == PERFORM,
+    I've changed the code to look for that image instead of the regular DARKFILE. 
+     
 */
 
 int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,

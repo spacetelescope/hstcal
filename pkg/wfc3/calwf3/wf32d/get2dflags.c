@@ -140,32 +140,43 @@ int *nsteps      io: incremented if this step can be performed
 
 	extern int status;
 
-	int calswitch;
+	int calswitch; 
 	int GetSwitch (Hdr *, char *, int *);
 	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 	void MissingFile (char *, char *, int *);
 	void CheckImgType (RefImage *, char *, char *, int *);
 	int  CheckDetector (char *, int, char *, int *);
-
+    char *darktouse;
+    
 	if (wf32d->darkcorr == PERFORM) {
-
 	    if (GetSwitch (phdr, "DARKCORR", &calswitch))
 		    return (status);
 	    if (calswitch == COMPLETE) {
 		    wf32d->darkcorr = OMIT;
 		    return (status);
-	    }
+	    } else {
+        
+            if (GetSwitch (phdr, "PCTECORR", &calswitch))   
+                return(status);
+            if (calswitch == COMPLETE){
+                darktouse="DRKCFILE";
+            } else {
+                darktouse="DARKFILE";
+            }
+        }
+
             
-	    if (GetImageRef (wf32d->refnames, phdr, "DARKFILE", &wf32d->dark,
+	    if (GetImageRef (wf32d->refnames, phdr, darktouse, &wf32d->dark,
 			     &wf32d->darkcorr))
 		    return (status);
+
 	    if (wf32d->dark.exists != EXISTS_YES) {
-		    MissingFile ("DARKFILE", wf32d->dark.name, missing);
+		    MissingFile (darktouse, wf32d->dark.name, missing);
 
 	    } else {
 
 		    /* Is the FILETYPE appropriate for a DARK file? */
-		    CheckImgType (&wf32d->dark, "DARK", "DARKFILE", missing);
+		    CheckImgType (&wf32d->dark, "DARK", darktouse, missing);
 
 		    /* Does it have the correct DETECTOR value? */
 		    if (CheckDetector(wf32d->dark.name, wf32d->detector, "DETECTOR",

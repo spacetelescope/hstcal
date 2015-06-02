@@ -202,7 +202,6 @@ typedef struct {
     RefTab atod;        /* analog to digital correction table */
     RefTab crrej;       /* CR rejection parameters table */
     RefImage dark;      /* dark image */
-    RefImage darkc;      /* de-trailed dark reference file */
     RefImage pflt;      /* pixel-to-pixel flat field */
     RefImage dflt;      /* delta flat */
     RefImage lflt;      /* low-order flat */

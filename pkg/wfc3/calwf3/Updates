@@ -1,6 +1,20 @@
 Updates for Version 3.3  31-May-2015 MLS
     UVIS 2.0 added, including CTE correction, Sink Pixel and Photometry updates
+    (#1011) New photometry correction for UVIS. This includes a delivery of new flatfields for all filters in CDBS
+            as well as a new IMPHTTAB. The new calibration step is controlled by the FLUXCORR keyword in the image header.
+
+    (#1154) CTE correction for all UVIS data. This is done in conjunction with a full run through of the pipeline code
+    without the CTE correction applied. This correction is for the same reasons as in ACS, but the CTE correction method
+    and code are different, and they are applied to the raw file instead of later in the processing. Some sections of the CTE
+    code support parallel processing with OpenMP. The default for calwf3 is to use all available processors. To restrict
+    processing to 1 cpu use the flag -1 in the call to calwf3.e  The cte processing is controlled with the PCTECORR keyword. 
     
+    Sink pixels added to the science image DQ mask using the SNKCFILE reference image. This image has 2 extensions,
+    each in the pre-overscan trimmed format. This step is performed if DQICORR is PERFORM, and is done before BLEVCORR
+    while the science image is still untrimmed.
+    
+    (see #1193 for more detailed information on all the updates)
+        
 Updates for  Version 3.2.1 08-Dec-2014 MLS
     The FLUXCORR step has been updated, changing how the data is processed in the flow of the pipeline. It was discovered that
     a chain of requirements meant that the values from the IMPHTTAB were not being read or updated correctly. This is a multifold

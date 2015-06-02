@@ -16,7 +16,7 @@ typedef struct {
     float thresh; /*over subtraction threshold*/        
     int cte_traps; /*number of valid TRAPS in file for reallocation*/
     int wcol_data[TRAPS]; /*trap number, insync with number of traps*/
-    int qlevq_data[TRAPS];/*charge packet size in electrons*/
+    float qlevq_data[TRAPS];/*charge packet size in electrons*/
     float dpdew_data[TRAPS];/*trap size in electrons*/  
     int   iz_data[RAZ_COLS]; /*column number in raz format*/
     double scale512[RAZ_COLS]; /*scaling appropriate at row 512 */

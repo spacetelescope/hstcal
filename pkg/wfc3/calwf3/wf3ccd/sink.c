@@ -1,7 +1,8 @@
 /* WFC3 -- Detect and mark SINK pixels in the DQ array
 
     This is done  for the CTE  AND  non-CTE corrected data.
-
+    See WFC3-2014-22 ISR for more information.
+    
     go through the reference image pixel by pixel, if the reference image has
     a pixel value > 999 then that indicates that this is a sink pixel with 
     its value representing the turn on date. If the turn on date of the pixel is AFTER 
@@ -35,6 +36,9 @@
     
     MLS, May 2015
 
+    MLS, June 1, 2015. oops. The reference file the team is giving me is in the raw pre-overscan
+    trimmed format, so this has to be performed AFTER doDQI but before BLEVCORR to be safe.
+
 */
 
 # include <time.h>
@@ -45,80 +49,57 @@
 # include "wf3info.h"
 # include "wf3corr.h"		/* calibration switch names */
 
-int makedqRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
-int undodqRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
-int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray *, FloatTwoDArray  *);
+int makedqRAZ(SingleGroup *, SingleGroup *);
+int undodqRAZ(SingleGroup *, SingleGroup *);
+int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *, int);
 int getFloatHD(char *, char *, int , FloatHdrData *);
 
-int SinkDetect(WF3Info *wf3){
+int SinkDetect(WF3Info *wf3, SingleGroup *x, int extver){
 
     extern int status;
     int i,j, jj;
     short dqval;
     float refdate;
 
-    trlmessage("\nPerforming SINK pixel detection and flagging");
+    sprintf(MsgText,"\nPerforming SINK pixel detection for group %i",extver);
+    trlmessage(MsgText);
     
-    refdate=51544.; /*Year 2000*/
+    refdate=51544.; /*Year 2000, reference file is in MJD*/
     if (wf3->verbose){
         sprintf(MsgText,"Reference date for Sink Pixels: %f",refdate);
         trlmessage(MsgText);
     }
 
     /*THE SCIENCE IMAGE*/
-    SingleGroup raz; /*quad rotated image to work with*/
-    SingleGroup cd; /* input image */
-    SingleGroup ab; /*input image */
-    
+    SingleGroup raz; /*quad rotated image to work with*/    
 
     /* INIT THE SCIENCE INPUT  */
-    initSingleGroup (&cd);
-    initSingleGroup (&ab);
     initSingleGroup (&raz);
-    allocSingleGroup (&raz,RAZ_COLS, RAZ_ROWS);
-    
-    trlmessage("Finished allocating sink pixel image memory");
-    
-    getSingleGroup (wf3->input, 1, &cd);
-    if (hstio_err())
-        return (status = OPEN_FAILED);
-
-    getSingleGroup (wf3->input, 2, &ab);
-    if (hstio_err())
-        return (status = OPEN_FAILED);
+    allocSingleGroup (&raz,RAZ_COLS/2, RAZ_ROWS);
+        
         
     /*CONVERT DQ DATA TO RAZ FORMAT FOR SCIENCE FILE*/
-    makedqRAZ(&cd, &ab, &raz);
-    trlmessage("Converted science image to RAZ format");
+    makedqRAZ(x, &raz);
 
 
 	/* GET THE SINK FILE REFERENCE IMAGE FROM SINKFILE AND INITIALIZE */
-    
-    FloatHdrData sinkrefab;
-    FloatHdrData sinkrefcd;
-    initFloatHdrData(&sinkrefab);
-    initFloatHdrData(&sinkrefcd);
-
-    getFloatHD(wf3->sink.name,"SCI",1,&sinkrefcd);
-    getFloatHD(wf3->sink.name,"SCI",2,&sinkrefab);    
-    
-    sprintf(MsgText,"Finished reading Sinkpixel file: %s",wf3->sink.name);
-    trlmessage(MsgText);
+    FloatHdrData sinkref;
+    initFloatHdrData(&sinkref);
+    getFloatHD(wf3->sink.name,"SCI",extver,&sinkref);
         
      
     /*NOW TURN THE SINK REFERENCE IMAGES INTO RAZ FORMAT*/
     FloatTwoDArray sinkraz;
     initFloatData(&sinkraz); /*float 2d arrays*/
-    allocFloatData(&sinkraz,RAZ_COLS, RAZ_ROWS);     
-    makeFloatRaz(&sinkrefcd.data,&sinkrefab.data,&sinkraz);
+    allocFloatData(&sinkraz,RAZ_COLS/2, RAZ_ROWS);     
+    makeFloatRaz(&sinkref.data,&sinkraz,extver);
 
-    trlmessage("Turned sink pixel mask into RAZ format");
     
     /*THE MJD OF THE SCIENCE EXPOSURE IS THE COMPARISON DATE
      THE FOLLOWING TRANSLATION TAKEN FROM ISR WFC3-2014-22.PDF */
     
     
-    for (i=1;i<RAZ_COLS-1;i++){
+    for (i=1;i<(RAZ_COLS/2)-1;i++){
         for (j=1; j<RAZ_ROWS-1; j++){
             if ( PPix(&sinkraz,i,j) >  refdate && wf3->expstart > PPix(&sinkraz,i,j) ){
                 /*FLAG THE PRIMARY SINK PIXEL*/
@@ -127,18 +108,17 @@ int SinkDetect(WF3Info *wf3){
             
                 if (PPix(&sinkraz,i,j-1) != 0){
                     /*FLAG THE DOWNSTREAM PIXEL*/
-                    dqval = TRAP | DQPix (raz.dq.data, i, j);
-                    DQSetPix (raz.dq.data, i, j, dqval);
+                    dqval = TRAP | DQPix (raz.dq.data, i, j-1);
+                    DQSetPix (raz.dq.data, i, j-1, dqval);
                 }
 
                 for (jj=j+1; jj<RAZ_ROWS; jj++){
-                    if (PPix(&sinkraz,i,j) != 0){
+                    if (PPix(&sinkraz,i,jj) != 0){
                         if (Pix(raz.dq.data,i,j) <= PPix(&sinkraz,i,jj) ){
                         /*FLAG THIS UPSTREAM PIXEL*/
                         dqval = TRAP | DQPix (raz.dq.data, i, jj);
                         DQSetPix (raz.dq.data, i, jj, dqval);
-                        }
-                
+                        }                
                     }
                 }
                 
@@ -146,15 +126,13 @@ int SinkDetect(WF3Info *wf3){
         } /*end j*/
     }/*end i*/   
     
-    trlmessage("Undoing RAZ for science image");
-    undodqRAZ(&cd,&ab,&raz);
+    /*format the data back to expected orientation*/
+    undodqRAZ(x,&raz);
 
-    freeSingleGroup(&ab);
-    freeSingleGroup(&cd);
     freeSingleGroup(&raz);
     freeFloatData(&sinkraz);
-    freeFloatHdrData(&sinkrefab);
-    freeFloatHdrData(&sinkrefcd);
+    freeFloatHdrData(&sinkref);
+    trlmessage("Finished freeing data in sinkpixel");
 }
 
 

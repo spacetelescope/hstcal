@@ -43,8 +43,10 @@
    Addded new FLUXCORR step to scale flux units in both chips to
    the same scale using the ratio of PHTFLAM1/PHTFLAM2 ->PHTRATIO 
    
+   M. Sosey June 2015
+   If DQICORR is performed, then the SINK pixel mask is also propgated
+   This is part of the UVIS 2 update
     
- ** This code is a trimmed down version of CALSTIS1 do2d.c.  
  */
 
 # include <string.h>
@@ -81,6 +83,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     int i, j, x1, dx;		/* loop index */
     int overscan;
     int blevcorr;
+    int dqicorr;
     char buff[SZ_FITS_REC+1];
     Bool subarray;
 
@@ -109,7 +112,8 @@ int DoCCD (WF3Info *wf3, int extver) {
     int FindOverscan (WF3Info *, int, int, int *);
     int GetCCDTab (WF3Info *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
-    
+    int SinkDetect (WF3Info *, SingleGroup *, int);
+
     /*========================Start Code here =======================*/	
     initSingleGroup (&x);
     if (wf3->printtime)
@@ -240,12 +244,14 @@ int DoCCD (WF3Info *wf3, int extver) {
 
     /* Data quality initialization and (for the CCDs) check saturation. */
     dqiMsg (wf3, extver);
+    dqicorr=PERFORM;
     if (wf3->dqicorr == PERFORM || wf3->dqicorr == DUMMY) {
         if (doDQI (wf3, &x))
             return (status);
         PrSwitch ("dqicorr", COMPLETE);
         if (wf3->printtime)
             TimeStamp ("DQICORR complete", wf3->rootname);
+        dqicorr=COMPLETE;
     }
     
         
@@ -253,6 +259,19 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (dqiHistory (wf3, x.globalhdr))
             return (status);
 
+    /*Update the SINK pixels in the DQ mask of both science image sets
+     It's done here with one call to the file because they need to be
+     processed in the RAZ format Jay uses, though only one chip done here
+    */
+     
+    if (dqicorr == COMPLETE) {
+        if (SinkDetect(wf3, &x, extver))
+            return(status);          
+        
+        trlmessage("Finished sink pixel flagging");
+    }
+     
+    
     /* Analog to digital correction. */
     AtoDMsg (wf3, extver);
     if (wf3->atodcorr == PERFORM) {
@@ -270,7 +289,6 @@ int DoCCD (WF3Info *wf3, int extver) {
     BlevMsg (wf3, extver);
     blevcorr = PERFORM;
     if (wf3->blevcorr == PERFORM) {
-
         /* This is set based on results of FindOver */
         done = overscan;
 

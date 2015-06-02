@@ -177,7 +177,6 @@ void WF3Init (WF3Info *wf3) {
 
 	/* Initialize reference images and tables for WF32D */
 	InitRefImg (&(wf3->dark));
-    InitRefImg (&(wf3->darkc));
 	InitRefImg (&(wf3->pflt));
 	InitRefImg (&(wf3->dflt));
 	InitRefImg (&(wf3->lflt));

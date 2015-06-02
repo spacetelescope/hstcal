@@ -1073,7 +1073,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     }
         
 
-   /*define to make private in parllel run*/
+   /*define to make private in parallel run*/
    float *pix_obsd = 0;   
    float *pix_modl = 0;   
    float *pix_curr = 0;   
@@ -1084,8 +1084,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     #pragma omp parallel for schedule (dynamic,1) \
         private(dmod,i,j,jj,jmax,REDO,NREDO, \
           pix_obsd,pix_modl,pix_curr,pix_init,\
-          pix_read,pix_ctef)\
-        shared(rz,pixz_fff,cte)
+          pix_read,pix_ctef,NITINV)\
+        shared(rc,rz,pixz_fff,cte)
 
     for (i=0; i< RAZ_COLS; i++){           
         /*These will be farmed out when parallel*/    
@@ -1124,7 +1124,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                     sim_colreadout_l(pix_curr, pix_read, pix_ctef, cte);
 
 
-/*                    if (NITCTE == 1 && NITINV ==1 && i==0 && NREDO==0){
+/*  write for validation
+                    if (NITCTE == 1 && NITINV ==1 && i==0 && NREDO==0){
                         FILE *readfile = fopen("pix_read_megan.dat", "w");
                         if (readfile == NULL)
                         {
@@ -1190,7 +1191,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                                  pix_obsd[j+1] - pix_obsd[j+2] <-15))) {
                             jmax=j;
                             /*GO DOWNSTREAM AND LOOK FOR THE OFFENDING CR*/
-                            for (jj=j-10; jj<=j;jj++){
+                            for (jj=j-9; jj<=j;jj++){
                                 if ( (pix_modl[jj] - pix_obsd[jj]) > 
                                         (pix_modl[jmax] - pix_obsd[jmax]) ) {
                                         jmax=jj;
@@ -1224,11 +1225,11 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                 sprintf(MsgText,"%15s AMPLIFIER D %2s","*****","*****");
                 trlmessage(MsgText);
             }
-            if (i==4206){
+            if (i==4205){
                 sprintf(MsgText,"%15s AMPLIFIER A %2s","*****","*****");
                 trlmessage(MsgText);
             }
-            if (i==6309){
+            if (i==6308){
                 sprintf(MsgText,"%15s AMPLIFIER B %2s","*****","*****");
                 trlmessage(MsgText);
             }
@@ -1281,7 +1282,7 @@ NITs == cte_pars->n_par
 
 These are already in the parameter structure CTEParams
     int     Ws              the number of traps < 999999
-    int     q_w[TRAPS];     the run of charge with level  == qlevq_data
+    float     q_w[TRAPS];     the run of charge with level  == qlevq_data
     float   dpde_w[TRAPS];  the run of charge loss with level == dpdew_data
     float   rprof_wt[TRAPS][100]; the emission probability as fn of downhill pixel == rprof fits image
     float   cprof_wt[TRAPS][100]; the cumulative probability cprof_t( 1)  = 1. - rprof_t(1)  == cprof fits image

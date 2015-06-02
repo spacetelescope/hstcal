@@ -59,7 +59,6 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     void InitCCDTrl (char *, char *);
     void WF3Init (WF3Info *);
     int MkName (char *, char *, char *, char *, char *, int);
-    int SinkDetect (WF3Info *);
     /* ----------------------- Start Code --------------------------------*/
 
     /* Determine the names of the trailer files based on the input
@@ -79,6 +78,8 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
         or rootname+unexpected, check for all
     
     */    
+
+
     /*if the input doesn't end _rac or _raw add it, this covers rootname user input*/
     strcpy(wf3.input,input);
     
@@ -172,16 +173,6 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
         PrGrpEnd ("imset", extver);
     }
 
-
-    /*Update the SINK pixels in the DQ mask of both science image sets
-     It's done here with one call to the file because they need to be
-     processed in the RAZ format Jay uses
-    */
-     
-     if (wf3.dqicorr) {
-        if (SinkDetect(&wf3))
-            return(status);          
-     }
     
     /* Update the BIASLEVn keywords in the header. They must be updated
      ** here because only some are computed for each SingleGroup and
