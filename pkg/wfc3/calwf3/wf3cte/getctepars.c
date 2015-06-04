@@ -69,7 +69,7 @@ int GetCTEPars (char *filename, CTEParams *pars) {
 	   CTEDATE0 - date of wfc3/uvis installation in HST, in fractional years
 	   CTEDATE1 - reference date of CTE model pinning, in fractional years
 
-	   PCTETDIM - max length of CTE trail
+	   PCTETLEN - max length of CTE trail
 	   PCTERNCL - readnoise amplitude and clipping level
 	   PCTESMIT - number of iterations used in CTE forward modeling
 	   PCTESHFT - number of iterations used in the parallel transfer
@@ -171,13 +171,13 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* read max length of cte trail */
-	if (GetKeyInt(&hdr_ptr, "PCTETDIM", NO_DEFAULT, -999, &pars->cte_len)) {
-		cteerror("(pctecorr) Error reading PCTETDIM keyword from PCTETAB");
+	if (GetKeyInt(&hdr_ptr, "PCTETLEN", NO_DEFAULT, -999, &pars->cte_len)) {
+		cteerror("(pctecorr) Error reading PCTETLEN keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"PCTETDIM: %d",pars->cte_len);
+	sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
 	trlmessage(MsgText);
 
 	/* get read noise clipping level */
@@ -489,7 +489,7 @@ No.    Name         Type      Cards   Dimensions   Format
         'CTE_VER':'1.0' ,  #version number of algorithm
         'CTEDATE0':54962.0, #date of uvis installation in HST in MJD
         'CTEDATE1':56173.0, #reference date of cte model pinning in MJd
-        'PCTETDIM':60, #max length of CTE trail
+        'PCTETLEN':60, #max length of CTE trail
         'PCTERNOI':3.25, #read noise amplitude, clipping limit
         'PCTENFOR':5 ,#number of iterations used in cte forward modeling
         'PCTENPAR':7 ,#number of iterations used in parallel transfer
@@ -541,8 +541,8 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 	}
     
     /*check the PCTEDIM keyword in header*/
-	if (GetKeyInt(group->globalhdr, "PCTETDIM", NO_DEFAULT, -999, &cte_len)) {
-		trlmessage("(pctecorr) Error reading PCTETDIM keyword from header");
+	if (GetKeyInt(group->globalhdr, "PCTETLEN", NO_DEFAULT, -999, &cte_len)) {
+		trlmessage("(pctecorr) Error reading PCTETLEN keyword from header");
 		status = HEADER_PROBLEM;
 		return status;
 	}
@@ -551,8 +551,8 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     if ( (cte_len != pars->cte_len) && (cte_len > 1) ){
         pars->cte_len=cte_len;
     } else {
-        if (PutKeyInt(group->globalhdr,"PCTETDIM",pars->cte_len,"max length of CTE trail")){
-            trlmessage("(pctecorr) Error updating PCTETDIM in header");
+        if (PutKeyInt(group->globalhdr,"PCTETLEN",pars->cte_len,"max length of CTE trail")){
+            trlmessage("(pctecorr) Error updating PCTETLEN in header");
             status=HEADER_PROBLEM;
             return status;
         }

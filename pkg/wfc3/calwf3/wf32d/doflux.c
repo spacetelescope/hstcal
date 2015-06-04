@@ -109,27 +109,6 @@ int doFlux (WF3Info *wf32d){
 	if (doStat (&chip2, wf32d->sdqflags))
 		return (status);
 	TimeStamp ("Image statistics recomputed", wf32d->rootname);
-
-
-
-	/* The global and science headers don't seem to be updating
-
-	   putSingleGroupHdr("testflux.fits", &chip2, 0); */
-
-	/*make a new output file for testing
-	strcpy(fluxout,wf32d->rootname);
-	strcat(fluxout,"_flux.fits");
-    
-
-	if (wf32d->verbose){
-		sprintf(MsgText,"Saving flux corrected data to: %s",fluxout);
-		trlmessage(MsgText);
-	}*/
-
-    /*
-	putSingleGroup(fluxout, chip2.group_num, &chip2, 0);
-	putSingleGroup(fluxout, chip1.group_num, &chip1, 0);
-    */
     
     /*doing it the long way, calling all the same functions that
     putSingleGroup uses to get around the overwrite issue with hstio */

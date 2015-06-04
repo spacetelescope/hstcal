@@ -42,7 +42,7 @@ CTE_VER - version number of cte algorithm
 CTEDATE0 - date of wfc3/uvis installation in HST, in fractional years
 CTEDATE1 - reference date of CTE model pinning, in fractional years
 
-PCTETDIM - max length of CTE trail
+PCTETLEN - max length of CTE trail
 PCTERNOI - readnoise amplitude for clipping
 PCTESMIT - number of iterations used in CTE forward modeling
 PCTESHFT - number of iterations used in the parallel transfer

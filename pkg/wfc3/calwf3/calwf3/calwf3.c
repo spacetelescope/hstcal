@@ -113,7 +113,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	int ProcessCCD (AsnInfo *, WF3Info *, int *, int, int);
 	int ProcessIR  (AsnInfo *, WF3Info *, int);	
 	int Wf3Dth (char *, char *, int, int, int);
-	const char *BuildDthInput (AsnInfo *, int);
+	char *BuildDthInput (AsnInfo *, int);
 	int updateAsnTable (AsnInfo *, int, int);
 	void InitDthTrl (const char *, char *);
 
@@ -236,13 +236,6 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 			 ** not. So we set up the trailer file based on the association
 			 ** file name itself. */
 
-			/* If desired, we could optionally use the full _drz.tra
-			 ** filename as the trailer file name, based on the output
-			 ** dither product name...
-			 if (strcmp(asn.product[prod].prodname,"") != 0) {
-			 InitDthTrl (wf3dth_input, asn.product[prod].prodname);
-			 } else { */
-
 			InitDthTrl (wf3dth_input, asn.rootname);
 
 			/* } */
@@ -343,7 +336,7 @@ char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
 }
 
 
-const char *BuildDthInput (AsnInfo *asn, int prod) {
+char *BuildDthInput (AsnInfo *asn, int prod) {
 
 	int nchars;
 	int i, j;
