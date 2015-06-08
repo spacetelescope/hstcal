@@ -147,6 +147,7 @@ int *nsteps      io: incremented if this step can be performed
 	void CheckImgType (RefImage *, char *, char *, int *);
 	int  CheckDetector (char *, int, char *, int *);
     char *darktouse;
+    char *darktype;
     
 	if (wf32d->darkcorr == PERFORM) {
 	    if (GetSwitch (phdr, "DARKCORR", &calswitch))
@@ -160,8 +161,10 @@ int *nsteps      io: incremented if this step can be performed
                 return(status);
             if (calswitch == COMPLETE){
                 darktouse="DRKCFILE";
+                darktype="CTEDARK";
             } else {
                 darktouse="DARKFILE";
+                darktype="DARK";
             }
         }
 
@@ -176,7 +179,7 @@ int *nsteps      io: incremented if this step can be performed
 	    } else {
 
 		    /* Is the FILETYPE appropriate for a DARK file? */
-		    CheckImgType (&wf32d->dark, "DARK", darktouse, missing);
+		    CheckImgType (&wf32d->dark, darktype, darktouse, missing);
 
 		    /* Does it have the correct DETECTOR value? */
 		    if (CheckDetector(wf32d->dark.name, wf32d->detector, "DETECTOR",

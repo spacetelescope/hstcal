@@ -263,8 +263,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     }    
 
     /***CALCULATE THE SMOOTH READNOISE IMAGE***/
-    if (verbose)
-        trlmessage("CTE: Calculating smooth readnoise image\n");
+    trlmessage("CTE: Calculating smooth readnoise image\n");
 
     initSingleGroup(&rsz);
     allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS);
@@ -1071,7 +1070,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         trlmessage(MsgText);
         trlmessage("Col[2000]  ori\tcor\tchg");
     }
-        
+    
+    trlmessage("Calculating CTE correction..");    
 
    /*define to make private in parallel run*/
    float *pix_obsd = 0;   
@@ -1240,6 +1240,13 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                         (int)(pix_modl[1999]), 
                         ((((int)pix_modl[1999]) - ((int) pix_obsd[1999]))));
                 trlmessage(MsgText);
+            }
+        } else {
+            if (i=0){
+                trlmessage("Moving CTE charge around ... ");
+            }
+            if ( (i+1)%100 == 0){
+                trlmessage(".");
             }
         }
                            

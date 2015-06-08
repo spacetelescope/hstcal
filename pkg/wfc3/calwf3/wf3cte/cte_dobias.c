@@ -9,11 +9,12 @@
 
 
 /* This routine subtracts the special BIACFILE image from x (in-place).
-   For WF3 CTE corrected science data. 
+   For WF3 CTE corrected science data.
 
    This is a special bias image created for the CTE correction and 
    follows the same format as other reference bias images. The bias subtraction
    is done before the RAZ image is made. Instead of calling the regular routine.
+   The regular bias subtraction is still performed.
 
  */
 
@@ -51,10 +52,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	same_size = 1;
 
 
-	/* Get the first line of biac image data. */
-	sprintf(MsgText,"\nTrying to open bias file %s\n",wf3->biac.name);
-	trlmessage(MsgText);
-    
+	/* Get the first line of biac image data. */    
 	openSingleGroupLine (wf3->biac.name, x->group_num, &y);
 	if (hstio_err())
 		return (status = OPEN_FAILED);
@@ -141,11 +139,8 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	closeSingleGroupLine (&y);
 	freeSingleGroupLine (&y);
 
-    /*set biascorr to PERFORMED so it isn't done again*/
-    PrSwitch ("biascorr", COMPLETE);
-
 	if(wf3->printtime){
-		TimeStamp("Finished subtracting BIAC file",wf3->rootname);
+		TimeStamp("Finished subtracting BIAC file: ",wf3->rootname);
 	}
     
 	return (status);

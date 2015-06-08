@@ -217,11 +217,11 @@ void Init2DTrl (char *input, char *output) {
 	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
-	char *isuffix[] = {"_raw", "_blv_tmp", "_blc_tmp", "_crj_tmp"};
-	char *osuffix[] = {"_flt", "_flt","_flc",  "_crj"};
-	char *trlsuffix[] = {"", "", ""};
+	char *isuffix[] = {"_raw", "_rac","_blv_tmp", "_blc_tmp", "_crj_tmp"};
+	char *osuffix[] = {"_flt", "_flc","_flt","_flc", "_crj"};
+	char *trlsuffix[] = {"", "", "","",""};
 
-	int nsuffix = 3;
+	int nsuffix = 5;
 	
 	/* Initialize internal variables */
 	trl_in[0] = '\0';
@@ -265,6 +265,8 @@ void Init2DTrl (char *input, char *output) {
 		SetTrlOverwriteMode (YES);	
 	    }
 	}
+    
+    
 
 	/* Sets up temp trailer file for output and copies input
 		trailer file into it.

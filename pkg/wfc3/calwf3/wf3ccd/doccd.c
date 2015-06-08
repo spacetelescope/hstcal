@@ -112,14 +112,14 @@ int DoCCD (WF3Info *wf3, int extver) {
     int FindOverscan (WF3Info *, int, int, int *);
     int GetCCDTab (WF3Info *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
-    int SinkDetect (WF3Info *, SingleGroup *, int);
+    int SinkDetect (WF3Info *, SingleGroup *);
 
     /*========================Start Code here =======================*/	
     initSingleGroup (&x);
     if (wf3->printtime)
         TimeStamp ("Open SingleGroup now...", "");
 
-    /* Open the input image. 
+    /* OPEN THE INPUT IMAGE. 
      ** FOR WF3: Keep this in memory throughout processing.
      ** Read in reference images line-by-line within the individual
      ** processing step functions and pass along modified input image
@@ -132,15 +132,15 @@ int DoCCD (WF3Info *wf3, int extver) {
     if (wf3->printtime)
         TimeStamp ("Input read into memory", wf3->rootname);
 
-    /* Get header info that varies from imset to imset necessary
-     **	for reading CCDTAB. 
+    /* GET HEADER INFO THAT VARIES FROM IMSET TO IMSET NECESSARY
+     **	FOR READING CCDTAB. 
      */
     if (GetGrp (wf3, &x.sci.hdr)) {
         freeSingleGroup (&x);
         return (status);
     }
 
-    /* Read in keywords from primary header... */
+    /* READ IN KEYWORDS FROM PRIMARY HEADER... */
     if (GetKeyBool (x.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
         return (status);
     if (subarray)
@@ -148,9 +148,9 @@ int DoCCD (WF3Info *wf3, int extver) {
     else
         wf3->subarray = NO;
 
-    /* For the CCD, update primary header keywords.
-     ** Also reset CRCORR if there's only one image set.  */
-    /* Get values from tables, using same function used in WF3CCD. */
+    /* FOR THE CCD, UPDATE PRIMARY HEADER KEYWORDS.
+     * ALSO RESET CRCORR IF THERE'S ONLY ONE IMAGE SET.  
+     * GET VALUES FROM TABLES, USING SAME FUNCTION USED IN WF3CCD. */
     if (GetCCDTab (wf3, x.sci.data.nx, x.sci.data.ny)) {
         freeSingleGroup (&x);
         return (status);
@@ -182,11 +182,11 @@ int DoCCD (WF3Info *wf3, int extver) {
             return (status);	
     }
 
-    /* Get overscan region information from OSCNTAB */
+    /* GET OVERSCAN REGION INFORMATION FROM OSCNTAB */
     if (FindOverscan (wf3, x.sci.data.nx, x.sci.data.ny, &overscan))
         return (status);
 
-    /* Fill in the error array, if it initially contains all zeros. */
+    /* FILL IN THE ERROR ARRAY, IF IT INITIALLY CONTAINS ALL ZEROS. */
     if (wf3->noiscorr == PERFORM) {
         if (doNoise (wf3, &x, &done))
             return (status);
@@ -242,7 +242,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         }
     }
 
-    /* Data quality initialization and (for the CCDs) check saturation. */
+    /* DATA QUALITY INITIALIZATION AND (FOR THE CCDS) CHECK SATURATION. */
     dqiMsg (wf3, extver);
     dqicorr=PERFORM;
     if (wf3->dqicorr == PERFORM || wf3->dqicorr == DUMMY) {
@@ -259,20 +259,17 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (dqiHistory (wf3, x.globalhdr))
             return (status);
 
-    /*Update the SINK pixels in the DQ mask of both science image sets
-     It's done here with one call to the file because they need to be
-     processed in the RAZ format Jay uses, though only one chip done here
+    /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
+     IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE
+     PROCESSED IN THE RAZ FORMAT JAY USES, THOUGH ONLY ONE CHIP DONE HERE
     */
      
     if (dqicorr == COMPLETE) {
-        if (SinkDetect(wf3, &x, extver))
+        if (SinkDetect(wf3, &x))
             return(status);          
-        
-        trlmessage("Finished sink pixel flagging");
     }
-     
     
-    /* Analog to digital correction. */
+    /* ANALOG TO DIGITAL CORRECTION. */
     AtoDMsg (wf3, extver);
     if (wf3->atodcorr == PERFORM) {
         if (doAtoD (wf3, &x))
@@ -281,11 +278,13 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (wf3->printtime)
             TimeStamp ("ATODCORR complete", wf3->rootname);
     }
-    if (extver == 1 && !OmitStep (wf3->atodcorr))
-        if (atodHistory (wf3, x.globalhdr))
+    if (extver == 1 && !OmitStep (wf3->atodcorr)){
+        if (atodHistory (wf3, x.globalhdr)){
             return (status);
+        }
+    }
 
-    /* Subtract bias from overscan. */
+    /* SUBTRACT BIAS FROM OVERSCAN. */
     BlevMsg (wf3, extver);
     blevcorr = PERFORM;
     if (wf3->blevcorr == PERFORM) {
@@ -383,21 +382,21 @@ int DoCCD (WF3Info *wf3, int extver) {
             return (status);
     }    
 
-    /* Write this imset to the output file.  If extver is one, the
-       CAL_VER and FILENAME keywords will be updated, and the primary
-       header will be written.  */
+    /* WRITE THIS IMSET TO THE OUTPUT FILE.  IF EXTVER IS ONE, THE
+       CAL_VER AND FILENAME KEYWORDS WILL BE UPDATED, AND THE PRIMARY
+       HEADER WILL BE WRITTEN.  */
 
     if (extver == 1) {
         UCalVer (x.globalhdr);
         UFilename (wf3->output, x.globalhdr);
     }
 
-    /* If BLEVCORR was performed, then output trimmed image,
-       otherwise output full image... 
+    /* IF BLEVCORR WAS PERFORMED, THEN OUTPUT TRIMMED IMAGE,
+       OTHERWISE OUTPUT FULL IMAGE... 
      */
     if (blevcorr == COMPLETE) {
 
-        /* BLEVCORR was completed, so overscan regions can be trimmed... */
+        /* BLEVCORR WAS COMPLETED, SO OVERSCAN REGIONS CAN BE TRIMMED... */
         if (wf3->verbose) {
             sprintf (MsgText,
                     "Writing out image with trimx = %d,%d,%d,%d, trimy = %d,%d",
@@ -409,9 +408,9 @@ int DoCCD (WF3Info *wf3, int extver) {
             trlmessage(MsgText);
         }
 
-        /* Output overscan-trimmed, bias-subtracted image 
-         **  using the routine 'putSingleGroupSect' from HSTIO
-         **  to write it directly from the full image in memory.  */
+        /* OUTPUT OVERSCAN-TRIMMED, BIAS-SUBTRACTED IMAGE 
+         **  USING THE ROUTINE 'PUTSINGLEGROUPSECT' FROM HSTIO
+         **  TO WRITE IT DIRECTLY FROM THE FULL IMAGE IN MEMORY.  */
         sizex = x.sci.data.nx - (wf3->trimx[0] + wf3->trimx[1] +
                 wf3->trimx[2] + wf3->trimx[3]);
         sizey = x.sci.data.ny - (wf3->trimy[0] + wf3->trimy[1]);
@@ -431,19 +430,19 @@ int DoCCD (WF3Info *wf3, int extver) {
             }
         }
 
-        /* Update SIZAXIS keywords to reflect the new trimmed image size */
+        /* UPDATE SIZAXIS KEYWORDS TO REFLECT THE NEW TRIMMED IMAGE SIZE */
         if (PutKeyInt (&x.sci.hdr, "SIZAXIS1", sizex, ""))
             return (status);
         if (PutKeyInt (&x.sci.hdr, "SIZAXIS2", sizey, ""))
             return (status);
 
-        /* Now write out the appropriate remaining section */
+        /* NOW WRITE OUT THE APPROPRIATE REMAINING SECTION */
         putSingleGroupSect (wf3->output, extver, &x, wf3->trimx[0],
                 wf3->trimy[0], sizex, sizey, option);
 
     } else {
 
-        /* BLEVCORR was not completed, so keep overscan regions... */
+        /* BLEVCORR WAS NOT COMPLETED, SO KEEP OVERSCAN REGIONS... */
         if (wf3->verbose) {
             sprintf(MsgText,"Writing out FULL image with overscan regions");
             trlmessage(MsgText);

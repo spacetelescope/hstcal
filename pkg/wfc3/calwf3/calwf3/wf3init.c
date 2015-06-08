@@ -109,6 +109,7 @@ void WF3Defaults (WF3Info *wf3) {
     wf3->crc_root[0] = '\0';
 	wf3->outroot[0]  = '\0';
 	wf3->crjfile[0]  = '\0';
+    wf3->crcfile[0]  = '\0';
 	wf3->fltfile[0]  = '\0';
 	wf3->imafile[0]  = '\0';
 	wf3->blv_tmp[0]  = '\0';
@@ -152,6 +153,8 @@ int InsertWF3Suffix (WF3Info *wf3) {
 	if (MkName (wf3->crj_root, "_crj", "_crj_tmp", "", wf3->crj_tmp,
 		    SZ_LINE))
 	    return (status);
+    if (MkName (wf3->crc_root, "_crc", "_crc","",wf3->crcfile, SZ_LINE))
+        return(status);
         
     if (MkName (wf3->crc_root, "_crc", "_crc_tmp", "", wf3->crc_tmp,SZ_LINE))
             return (status);
@@ -159,7 +162,7 @@ int InsertWF3Suffix (WF3Info *wf3) {
     if (MkName (wf3->rootname, "_raw","_rac","", wf3->rac_tmp, SZ_LINE))
         return(status);
         		
-	if (MkName (wf3->rootname, "_rac", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
+	if (MkName (wf3->rootname, "_raw", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
 	    return (status);
 
 	if (MkName (wf3->rootname, "_raw", "_ima", "", wf3->imafile, SZ_LINE))
@@ -168,27 +171,27 @@ int InsertWF3Suffix (WF3Info *wf3) {
 	if (MkName (wf3->rootname, "_raw", "_flt", "", wf3->fltfile, SZ_LINE))
 	    return (status);
 
-	if (MkName (wf3->rootname, "_rac", "_flc", "", wf3->flcfile, SZ_LINE))
+	if (MkName (wf3->rootname, "_raw", "_flc", "", wf3->flcfile, SZ_LINE))
 	    return (status);
 
 	if (MkName (wf3->asn_table, "_raw", "_drz", "", wf3->dthfile, SZ_LINE))
 	    return (status);
-    
-    if (MkName (wf3->asn_table, "_rac", "_drc", "", wf3->dthfile, SZ_LINE))
-        return (status);
-
+        
 	if (MkName (wf3->rootname, "_raw", "_blv_tmp", "", wf3->blv_tmp,
 		    SZ_LINE))
 	    return (status);
             
 
+    /*I removed this because there's not enough information here
+      to catch the CTE flag, and it made no sense to just print one
+    
 	if (wf3->detector == CCD_DETECTOR) {
 	    sprintf (MsgText,"Wf3Init: blv_tmp = %s ",wf3->blv_tmp);
 	    trlmessage (MsgText);
 	} else {
 	    sprintf (MsgText,"Wf3Init: flt = %s ",wf3->fltfile);
 	    trlmessage (MsgText);
-	}
+	} */
 		
 	return (status);
 }

@@ -54,14 +54,14 @@ int undodqRAZ(SingleGroup *, SingleGroup *);
 int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *, int);
 int getFloatHD(char *, char *, int , FloatHdrData *);
 
-int SinkDetect(WF3Info *wf3, SingleGroup *x, int extver){
+int SinkDetect(WF3Info *wf3, SingleGroup *x){
 
     extern int status;
     int i,j, jj;
     short dqval;
     float refdate;
 
-    sprintf(MsgText,"\nPerforming SINK pixel detection for group %i",extver);
+    sprintf(MsgText,"\nPerforming SINK pixel detection for group %i",x->group_num);
     trlmessage(MsgText);
     
     refdate=51544.; /*Year 2000, reference file is in MJD*/
@@ -85,14 +85,14 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x, int extver){
 	/* GET THE SINK FILE REFERENCE IMAGE FROM SINKFILE AND INITIALIZE */
     FloatHdrData sinkref;
     initFloatHdrData(&sinkref);
-    getFloatHD(wf3->sink.name,"SCI",extver,&sinkref);
+    getFloatHD(wf3->sink.name,"SCI",x->group_num,&sinkref);
         
      
     /*NOW TURN THE SINK REFERENCE IMAGES INTO RAZ FORMAT*/
     FloatTwoDArray sinkraz;
     initFloatData(&sinkraz); /*float 2d arrays*/
     allocFloatData(&sinkraz,RAZ_COLS/2, RAZ_ROWS);     
-    makeFloatRaz(&sinkref.data,&sinkraz,extver);
+    makeFloatRaz(&sinkref.data,&sinkraz,x->group_num);
 
     
     /*THE MJD OF THE SCIENCE EXPOSURE IS THE COMPARISON DATE
@@ -132,7 +132,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x, int extver){
     freeSingleGroup(&raz);
     freeFloatData(&sinkraz);
     freeFloatHdrData(&sinkref);
-    trlmessage("Finished freeing data in sinkpixel");
+    trlmessage("Finished Sink pixel flagging");
 }
 
 

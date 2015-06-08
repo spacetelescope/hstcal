@@ -28,7 +28,7 @@ typedef struct {
     char blc_tmp[SZ_LINE+1];    /* blevcorr, with CTE bias*/
 	char crj_tmp[SZ_LINE+1];	/* CR rejected, no CTE, summed */
     char crc_tmp[SZ_LINE+1];    /* CR combined with CTE done*/
-	char dthfile[SZ_LINE+1];	/* dither combined science data */	
+	char dthfile[SZ_LINE+1];	/* dither combined science data */
 	char mtype[SZ_FITS_VAL+1];	/* Role of exposure in association */
 
 	char rootname[SZ_CBUF+1];	/* root name for set of obs */

@@ -71,23 +71,40 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     /* Initialize structure containing calwf3 information. */
     WF3Init (&wf3);
 
+    /* If we have IR data, do not even proceed here... */
+    if (wf3.detector == IR_DETECTOR) {
+        trlerror ("Can NOT process IR data with WF3CCD...");
+        freeHdr (&phdr);
+        return (status = ERROR_RETURN);
+    }
+
     /* Copy command-line arguments into wf3. */
     /* Start by making sure input name is a full filename... 
-      
+       
       The input can either be _raw or _rac or rootname 
-        or rootname+unexpected, check for all
+        or rootname+unexpected, check for all. This seems
+        like rather strange logic, but it works.
     
     */    
+    if (strcmp(input,"_raw") == 1){
+        if (MkName (input, "_raw", "", "", wf3.input, SZ_LINE)) {
+            trlmessage("");
+        } else {
+            strcpy(wf3.input,input);
+        }
+    } else {
+        if (strcmp(input,"_rac") == 1){
+            if (MkName (input, "_rac", "", "", wf3.input, SZ_LINE)) {
+                strcpy(wf3.input,input);
+                strcat(wf3.input,"_rac.fits");
+            }
+        }
+    }    
 
-
-    /*if the input doesn't end _rac or _raw add it, this covers rootname user input*/
-    strcpy(wf3.input,input);
-    
     /*user specified output*/
     strcpy (wf3.output, output);
     
     InitCCDTrl (input, output);
-
 
     if (printtime)
         TimeStamp ("WF3CCD started", "");
@@ -95,8 +112,6 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     /* If we had a problem initializing the trailer files, quit... */
     if (status != WF3_OK) 
         return (status);
-
-    
 
     wf3.dqicorr  = ccd_sw->dqicorr;
     wf3.atodcorr = ccd_sw->atodcorr;
@@ -106,16 +121,6 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     wf3.noiscorr = PERFORM;
     wf3.printtime = printtime;
     wf3.verbose = verbose;
-
-    /* For debugging...
-       wf3.dqicorr  = PERFORM;
-       wf3.atodcorr = PERFORM;
-       wf3.blevcorr = PERFORM;
-       wf3.biascorr = PERFORM;
-       wf3.noiscorr = PERFORM;
-       wf3.printtime = 1;
-       wf3.verbose = 1;
-     */
     wf3.refnames = refnames;
 
     PrFileName ("Input:", wf3.input);
@@ -135,14 +140,8 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
         return (status);
     }
 
-    /* If we have IR data, do not even proceed here... */
-    if (wf3.detector == IR_DETECTOR) {
-        trlerror ("Can NOT process IR data with WF3CCD...");
-        freeHdr (&phdr);
-        return (status = ERROR_RETURN);
-    }
 
-    /* Print information about this image. */
+    /* PRINT INFORMATION ABOUT THIS IMAGE. */
     PrHdrInfo (wf3.aperture, wf3.filter, wf3.det);
 
     /* Get reference file names from input image header.  Pedigree is
@@ -159,11 +158,11 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
 
     freeHdr (&phdr);
 
-    /* Do basic CCD image reduction. */
+    /* DO BASIC CCD IMAGE REDUCTION. */
     if (wf3.printtime)
         TimeStamp ("Begin processing", wf3.rootname);
  
-    /* Process each imset (chip) in input file */
+    /* PROCESS EACH IMSET (CHIP) IN INPUT FILE */
     for (extver = 1;  extver <= wf3.nimsets;  extver++) {
         trlmessage ("\n");
         PrGrpBegin ("imset", extver);
@@ -174,14 +173,15 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     }
 
     
-    /* Update the BIASLEVn keywords in the header. They must be updated
-     ** here because only some are computed for each SingleGroup and
-     ** HSTIO will only allow one update to the Primary header with
-     ** SingleGroup updates.
+    /* UPDATE THE BIASLEVN KEYWORDS IN THE HEADER. THEY MUST BE UPDATED
+     ** HERE BECAUSE ONLY SOME ARE COMPUTED FOR EACH SINGLEGROUP AND
+     ** HSTIO WILL ONLY ALLOW ONE UPDATE TO THE PRIMARY HEADER WITH
+     ** SINGLEGROUP UPDATES.
      **
-     ** When there is no overscan to compute bias levels, all values will
-     ** be zero except for blev[amp] for the amp used for the observation. */
+     ** WHEN THERE IS NO OVERSCAN TO COMPUTE BIAS LEVELS, ALL VALUES WILL
+     ** BE ZERO EXCEPT FOR BLEV[AMP] FOR THE AMP USED FOR THE OBSERVATION. */
 
+    trlmessage("Setting Bias Keywords in header");
     BiasKeywords (&wf3);
 
     trlmessage ("\n");
@@ -190,7 +190,7 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     if (wf3.printtime)
         TimeStamp ("WF3CCD completed", wf3.rootname);
 
-    /* Write out temp trailer file to final file */
+    /* WRITE OUT TEMP TRAILER FILE TO FINAL FILE */
     WriteTrlFile ();
 
     return (status);
