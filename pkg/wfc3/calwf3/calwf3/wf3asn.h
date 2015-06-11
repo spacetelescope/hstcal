@@ -47,6 +47,7 @@ typedef struct {
 	char expname[SZ_FNAME+1];    /* Full filenames for member EXP images */
 	char blv_tmp[SZ_FNAME+1];    /* BLV_TMP files to be deleted */
     char blc_tmp[SZ_FNAME+1];  /*BLC_TMP file to be deleted*/
+    char rac_tmp[SZ_FNAME+1];  /*RAC file to be deleted*/
 	float dx, dy;
 	float xi, yi;
 } ExpInfo;
@@ -60,7 +61,7 @@ typedef struct {
 	int posid;			/* Numbering starts at 1 */
 	char spname[SZ_FNAME+1];     	/* Full filename for sub-product */
 	char crj_tmp[SZ_FNAME+1];	/* CRJ_TMP file(s) to be deleted */
-    char crc_tmp[SZ_FNAME+1];
+    char crc_tmp[SZ_FNAME+1];  /*CRC_TMP file to be deleted*/
 	ExpInfo *exp;			/* List of member EXP information */
 } SubProdInfo;
 
@@ -83,6 +84,7 @@ typedef struct {
 	asnType process;      /* single image, partial or full ASN processing */
 	int crcorr;		/* do cosmic-ray rejection for science files? */
 	int rptcorr;		/* combine repeatobs science data? */
+    int pctecorr;  /*do CTE correction?*/
 	int dthcorr;  	/* Dither combine sub-products into final product? */
 	int numprod;	/* Number of dither-combined/polarizer products (>1) */
 	int numsp;		/* Number of sub-products in association */

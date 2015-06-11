@@ -217,11 +217,11 @@ void Init2DTrl (char *input, char *output) {
 	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
-	char *isuffix[] = {"_raw", "_rac","_blv_tmp", "_blc_tmp", "_crj_tmp"};
-	char *osuffix[] = {"_flt", "_flc","_flt","_flc", "_crj"};
+	char *isuffix[] = {"_raw", "_rac","_blv_tmp", "_blc_tmp", "_crj_tmp","_crc_tmp"};
+	char *osuffix[] = {"_flt", "_flc","_flt","_flc", "_crj","_crc"};
 	char *trlsuffix[] = {"", "", "","",""};
 
-	int nsuffix = 5;
+	int nsuffix = 6;
 	
 	/* Initialize internal variables */
 	trl_in[0] = '\0';
@@ -242,7 +242,8 @@ void Init2DTrl (char *input, char *output) {
 	    trlmessage (MsgText);
 	}
 
-	/* Now, convert trailer filename extensions from '.fits' to '.trl' */
+	/* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
+    
 	if (MkNewExtn (trl_in, TRL_EXTN) ) {
 	    sprintf (MsgText, "Error with input trailer filename %s", trl_in);
 	    trlerror (MsgText);

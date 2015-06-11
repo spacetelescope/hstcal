@@ -48,8 +48,9 @@
    indented the code to make it easier to parse. onecpu was added
    to the function signature so that the user can have more control over
    the number of threads/cpus that are used during parallel processing for CTE correction.
+   (see #1193 UVIS2.0 update)
 
-*/
+ */
 
 int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {
 
@@ -61,14 +62,13 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     CCD_Switch wf32d_sci_sw;   	/* WF32D  switches for science file */
     CCD_Switch wf3cte_sci_sw;   /* CTE switches for science file */
     int save_crj;			    /* don't delete crj_tmp file? */
-    int save_rac;               /* don't delete the RAC file? */
 
     int prod;			        /* which CR-split/Rptobs product 
-                                   are we working with?	*/
+                                           are we working with?	*/
     int posid;			        /* counter for input products	*/
     int expid;			        /* counter for input exposures 	*/
     int newpreface = NO;		/* switch for keeping previous comments
-                                   for all remaining trailer files */
+                                           for all remaining trailer files */
 
     char *wf3rej_input;	        /* list of input names for WF3REJ */
     char *wf3rej_cte_input;     /* listof input CTE corrected names for WF3REJ*/
@@ -79,6 +79,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     int  CopyFFile  (char *, char *);
     void SetCCDSw   (CCD_Switch *, CCD_Switch *, CCD_Switch *,CCD_Switch *);
     void ResetCCDSw (CCD_Switch *, CCD_Switch *);
+    void ResetSwitch (CCD_Switch *, CCD_Switch *);
     void WF3Defaults (WF3Info *);	
     void InitRefFile (RefFileInfo *);
     void FreeRefFile (RefFileInfo *);
@@ -93,7 +94,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     int  updateAsnTable (AsnInfo *, int, int);
 
     save_crj = *save_tmp;		/* initial value; */	
-    save_rac = *save_tmp;
 
     posid=0;	/* initial value; */	
 
@@ -103,16 +103,14 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
         asn->rptcorr = OMIT;
     }
 
-    /* Loop over the products/positions for each CR-split/Repeat-Obs set. */
-
+    /* LOOP OVER THE PRODUCTS/POSITIONS FOR EACH CR-SPLIT/REPEAT-OBS SET. */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose){
             sprintf (MsgText, "CALWF3: processing UVIS product %d, spmems is %i, total products is %i", prod,asn->spmems[posid], asn->numprod);	
             trlmessage (MsgText);
         }	
 
-        /*see bug notes in next for */
-        /* Process this PARTIAL/SINGLE/FULL product... */
+        /* PROCESS THIS PARTIAL/SINGLE/FULL PRODUCT... */
         for (posid = 1; posid <= asn->numsp; posid++) {
             if (asn->verbose) {
                 sprintf (MsgText,"CALWF3: processing posid = %d, num sub-products=%i", posid, asn->numsp);
@@ -121,39 +119,33 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
             /*  Allocate space for WF3REJ NON-CTE input image list */
             if (asn->crcorr == PERFORM || asn->rptcorr == PERFORM) {
-                if (wf3hdr->sci_basic_cte == OMIT){
-                    nchars = asn->spmems[posid] * (SZ_FNAME+1);
-                    wf3rej_input = (char *) calloc( nchars + 1, sizeof(char));
+                nchars = asn->spmems[posid] * (SZ_FNAME+1);
+                wf3rej_input = (char *) calloc( nchars + 1, sizeof(char));
+                wf3rej_input[0] = '\0';
 
-                    /* Initialize this string to NULL */
-                    wf3rej_input[0] = '\0';
-                } else {
+                if (wf3hdr->sci_basic_cte == PERFORM){
                     nchars = asn->spmems[posid] * (SZ_FNAME+1);
                     wf3rej_cte_input = (char *) calloc( nchars + 1, sizeof(char));
-
-                    /* Initialize this string to NULL */
                     wf3rej_cte_input[0] = '\0';
                 }
             }
 
 
-            /*is this a bug? with 2 members and 1 product in the asn table the code in wf3table where spmems 
-              is populated always sets it to 1. expid always ends up as 1 and posid increases , but spmems[posid] is always 1
-              so the the flt images get calibrated with their own reference files instead of the intended first image reference
-              files. If there were 2 products in the table would this be different? It actually is the preferred process now. */			
+            /*IS THIS A BUG? WITH 2 MEMBERS AND 1 PRODUCT IN THE ASN TABLE THE CODE IN WF3TABLE WHERE SPMEMS 
+              IS POPULATED ALWAYS SETS IT TO 1. EXPID ALWAYS ENDS UP AS 1 AND POSID INCREASES , BUT SPMEMS[POSID] IS ALWAYS 1
+              SO THE THE FLT IMAGES GET CALIBRATED WITH THEIR OWN REFERENCE FILES INSTEAD OF THE INTENDED FIRST IMAGE REFERENCE
+              FILES. IF THERE WERE 2 PRODUCTS IN THE TABLE WOULD THIS BE DIFFERENT? IT ACTUALLY IS THE PREFERRED PROCESS NOW. */			
             for (expid = 1; expid <= asn->spmems[posid]; expid++) {
 
-                /** From this point on, we are working with ONE image at a time... **/
+                /** FROM THIS POINT ON, WE ARE WORKING WITH ONE IMAGE AT A TIME... 
+                  READ IN MEMBER KEYWORD INFO FROM --FIRST-- EXP ** IMAGE HEADER */	
 
-                /* Read in Member keyword info from --FIRST-- EXP ** image header */	
-
-                /*if (prod == 0 && posid == 1 && expid == 1) {*/
                 if (expid == 1) {
-                    /* (Re-)Initialize the lists of reference file
-                     ** keywords and names. */
+                    /* (RE-)INITIALIZE THE LISTS OF REFERENCE FILE
+                     ** KEYWORDS AND NAMES. */
                     InitRefFile (&sciref);
 
-                    /* Assign default values in wf3. */
+                    /* ASSIGN DEFAULT VALUES IN WF3. */
                     WF3Defaults (wf3hdr);
 
                     if (asn->process == SINGLE ) {
@@ -166,24 +158,23 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             return (status);
                     } 
 
-                    /* Initialize variables, and get info (calibration
-                     ** switches and reference file names) from primary
-                     ** headers. */
+                    /* INITIALIZE VARIABLES, AND GET INFO (CALIBRATION
+                     ** SWITCHES AND REFERENCE FILE NAMES) FROM PRIMARY
+                     ** HEADERS. */
                     if (CCDRefInit (wf3hdr, &sci_sw, &sciref))
                         return (status);
 
 
-                    /* Make sure 'save_tmp' and 'save_crj' are no longer
-                     ** set to 'DUMMY'. 
+                    /* MAKE SURE 'SAVE_TMP' AND 'SAVE_CRJ' ARE NO LONGER
+                     ** SET TO 'DUMMY'. 
                      **
-                     ** If save_tmp was set from the command-line, then 
-                     ** ignore what is set in the header keyword
+                     ** IF SAVE_TMP WAS SET FROM THE COMMAND-LINE, THEN 
+                     ** IGNORE WHAT IS SET IN THE HEADER KEYWORD
                      ** EXPSCORR. */
 
                     if (*save_tmp == DUMMY) {
                         *save_tmp = NO;
                         save_crj = *save_tmp;
-                        save_rac = *save_tmp;
                     }
 
                     if (asn->verbose) {
@@ -193,7 +184,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     /* Store the trailer file comments into preface */
                     newpreface = YES;
 
-                } else { /*expid ==1 end if*/
+                } else { /*EXPID ==1 END IF*/
 
                     if (asn->process == SINGLE ) {
 
@@ -204,31 +195,32 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             return (status);
                     } 
 
-                    /* Construct output and temporary file names. */
+                    /* CONSTRUCT OUTPUT AND TEMPORARY FILE NAMES. */
                     if (InsertWF3Suffix (wf3hdr))
                         return (status);	    		
-                } /*end else for expid != 1*/
+                } /*END ELSE FOR EXPID != 1*/
 
-                /* Check ASN table settings for CRCORR/RPTCORR 
-                 ** against image header values.  If they are not
-                 ** consistent, print out a ERROR message and quit.
-                 ** Only need to perform this check on the first image
-                 ** in the association. WJH 21 May 1999 */
+
+                /* CHECK ASN TABLE SETTINGS FOR CRCORR/RPTCORR 
+                 ** AGAINST IMAGE HEADER VALUES.  IF THEY ARE NOT
+                 ** CONSISTENT, PRINT OUT A ERROR MESSAGE AND QUIT.
+                 ** ONLY NEED TO PERFORM THIS CHECK ON THE FIRST IMAGE
+                 ** IN THE ASSOCIATION. WJH 21 MAY 1999 */
                 if (prod == 0 && posid == 1 && expid == 1) {
                     if (CheckCorr(asn, wf3hdr))
                         return (status);
                 }                
 
-                /* Copy switch values for WF3CCD and WF32D and WF3CTE argument
-                 ** lists. */
+                /* COPY SWITCH VALUES FOR WF3CCD AND WF32D AND WF3CTE ARGUMENT
+                 ** LISTS. */
                 SetCCDSw (&sci_sw, &wf3ccd_sci_sw, &wf3cte_sci_sw, &wf32d_sci_sw);
 
                 if (asn->verbose) {
                     trlmessage ("CALWF3: Processing switches set... ");
                 }
 
-                /* Ready to process input image now... */
-                /* Do we have anything to do with this image? 	*/
+                /* READY TO PROCESS INPUT IMAGE NOW... */
+                /* DO WE HAVE ANYTHING TO DO WITH THIS IMAGE? 	*/
                 if (wf3hdr->sci_basic_2d  != PERFORM &&
                         wf3hdr->sci_basic_ccd != PERFORM &&
                         wf3hdr->sci_crcorr    != PERFORM &&
@@ -239,299 +231,273 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     FreeRefFile (&sciref);
                     return (status = NOTHING_TO_DO);
 
-                } else {
+                }   
 
-                    if (wf3hdr->sci_basic_cte == PERFORM) {
+                if (wf3hdr->sci_basic_cte == PERFORM) {
 
-                        /*correct for CTE issues and THEN complete the calibration
-                          also run through the pipeline completely without CTE corr after,
-                          so in this case, two sets of fully calibrated output images will be created*/                 
+                    /*correct for CTE issues and THEN complete the calibration
+                      also run through the pipeline completely without CTE corr after,
+                      so in this case, two sets of fully calibrated output images will be created                 
 
-                        if ( WF3cte(wf3hdr->rawfile, wf3hdr->rac_tmp, &sci_sw, &sciref, printtime, asn->verbose, onecpu) )
-                            return (status);                
+                      This step processes both chips together
+                      and has some of its own calibration files so it's
+                      outside the single chip loop below 
 
-                        /* First, check for CTE correction, then intialilize the Input CCD image with WF3CCD.
-                         ** Then, either do cosmic ray rejection followed by
-                         ** WF32D, or just run WF32D. */
+                      This also occurs before DoCCD which populates
+                      all the useful data structures :/
 
-                        /*check to see if PCTECORR is on
-                          This step processes both chips together
-                          and has some of its own calibration files so it's
-                          outside the single chip loop below 
+                      So wfc3 version of cte correction occurs
+                      as the first thing, instead of like ACS which
+                      happens after acsccd and the blevcorr step.
 
-                          This also occurs before DoCCD which populates
-                          all the useful data structures :/
+                     */
 
-                          So wfc3 version of cte correction occurs
-                          as the first thing, instead of like ACS which
-                          happens after acsccd and the blevcorr step. This
-                          means I have to read in all the information just
-                          for the pctestep.
-
-                          Is it better to move the population of wf3 structure
-                          higher in the code or just live with it or keep it the
-                          same as the other instrument pipelines for pseudo clarity
-                          to others?
-                          */
-
-                        if (wf3hdr->sci_basic_ccd == PERFORM) {
-
-                            /* This is calwf3ccd; note we use wf3ccd_sci_sw. */
-
-                            /* Copy all messages up to here into preface buffer
-                             ** to be prepended to all input file trailer files */
-                            if (newpreface == YES) {
-                                InitTrlPreface();
-                            }
-                            SetTrlPrefaceMode (YES);
-
-                            /*do wf3ccd stuff on the RAC image inside wf3cte instead */
-                            if (WF3ccd (wf3hdr->rac_tmp, wf3hdr->blc_tmp,
-                                        &wf3ccd_sci_sw, &sciref, printtime,
-                                        asn->verbose)) 		
-                                return (status);
-                            
-                            /* Reset switches */
-                            ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
-                        } else {
-
-                            /* Copy the input file to blc_tmp. We need to do this
-                             ** because wf3rej may (depending on the crmask column
-                             ** in the crrejtab) modify the DQ flags in its input
-                             ** file. */
-                            if (CopyFFile (wf3hdr->rac_tmp, wf3hdr->blc_tmp))
-                                return (status);
-                        }
+                    if ( WF3cte(wf3hdr->rawfile, wf3hdr->rac_tmp, &sci_sw, &sciref, printtime, asn->verbose, onecpu) )
+                        return (status);                
 
 
-
-                        /* We now are working with blc_tmp here... */
-                        /* Copy (cat) blc_tmp name to wf3rej_input string */
-                        if (wf3hdr->sci_crcorr == PERFORM || 
-                                wf3hdr->sci_rptcorr == PERFORM) {
-                            strcat (wf3rej_cte_input, wf3hdr->blc_tmp);
-                            if (expid < asn->spmems[posid]) {
-                                /* Don't add a comma to the end of the last
-                                 ** filename */
-                                strcat(wf3rej_cte_input, ",");
-                            }
-                            /* Also add blc_tmp to list of files to be deleted */
-                            strcpy (asn->product[prod].subprod[posid].exp[expid].blc_tmp,
-                                    wf3hdr->blc_tmp);
-                        }
-                    }
-                        
-                    /*ALWAYS REPEAT THE PROCESS WITHOUT THE CTE CORRECTION SO BOTH ARE PRODUCED*/
                     if (wf3hdr->sci_basic_ccd == PERFORM) {
 
-                        /* This is calwf3ccd; note we use wf3ccd_sci_sw. */
+                        /* THIS IS CALWF3CCD; NOTE WE USE WF3CCD_SCI_SW. */
 
-                        /* Copy all messages up to here into preface buffer
-                         ** to be prepended to all input file trailer files */
+                        /* COPY ALL MESSAGES UP TO HERE INTO PREFACE BUFFER
+                         ** TO BE PREPENDED TO ALL INPUT FILE TRAILER FILES */
+                        if (newpreface == YES) {
+                            InitTrlPreface();
+                        }
+                        SetTrlPrefaceMode (YES);
 
-                        trlmessage("Calling wf3ccd for original raw file and no CTE");
-                        if (WF3ccd (wf3hdr->rawfile, wf3hdr->blv_tmp,
+                        /*DO WF3CCD STUFF ON THE RAC IMAGE */
+                        if (WF3ccd (wf3hdr->rac_tmp, wf3hdr->blc_tmp,
                                     &wf3ccd_sci_sw, &sciref, printtime,
                                     asn->verbose)) 		
-                            return (status);
-
-                        /* Reset switches */
-                        ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
-
-                        /* We now are working with blv_tmp here... */
-                        /* Copy (cat) blv_tmp name to wf3rej_input string */
-                        if (wf3hdr->sci_crcorr == PERFORM ||  wf3hdr->sci_rptcorr == PERFORM) {
-                            strcat (wf3rej_input, wf3hdr->blv_tmp);
-                            if (expid < asn->spmems[posid]) {
-                                /* Don't add a comma to the end of the last
-                                 ** filename */
-                                strcat(wf3rej_input, ",");
-                            }
-
-                            /* Also add blv_tmp to list of files to be deleted */
-                            strcpy (asn->product[prod].subprod[posid].exp[expid].blv_tmp,
-                                    wf3hdr->blv_tmp);
-                        }
-
-
-                    } else {
-
-                        /* Copy the input file to blv_tmp. We need to do this
-                         ** because wf3rej may (depending on the crmask column
-                         ** in the crrejtab) modify the DQ flags in its input
-                         ** file. */
-                        if (CopyFFile (wf3hdr->rawfile, wf3hdr->blv_tmp))
-                            return (status);
-                    }
-
-
-
-                    /* If we are NOT performing CRCORR or RPTCORR, then
-                     ** finish processing individual files with WF32D. */ 
-
-                    if (wf3hdr->sci_crcorr != PERFORM && wf3hdr->sci_rptcorr != PERFORM) { 
-                        if (asn->debug) {
-                            trlmessage ("UVIS crcorr/rptcorr not set to Perform...");
-                        }
-
-                        /* PROCESS CTE DATA FIRST*/
-                        if (wf3hdr->sci_basic_2d == PERFORM && wf3hdr->sci_basic_cte == PERFORM) {
-                            SetTrlPrefaceMode (YES);
-
-                            /* Basic 2-D processing (flat field, etc). */
-                            if (WF32d (wf3hdr->blc_tmp, wf3hdr->flcfile, 
-                                        &wf32d_sci_sw, &sciref, printtime,
-                                        asn->verbose)) 
-                                return (status);				
-
-                        } else {
-                            if (wf3hdr->sci_basic_2d == OMIT && wf3hdr->sci_basic_cte == PERFORM){
-                                /* Remember blc_tmp as final output...*/
-                                if (CopyFFile (wf3hdr->blc_tmp, wf3hdr->flcfile))
-                                    return (status);
-                            }
-                        }/*end process CTE with wf32d*/ 
-
-                        /*DO this without CTE perform*/
-                        if (wf3hdr->sci_basic_2d == PERFORM) {
-                            SetTrlPrefaceMode (YES);
-
-                            /* Basic 2-D processing (flat field, etc). */
-                            if (WF32d (wf3hdr->blv_tmp, wf3hdr->fltfile, 
-                                        &wf32d_sci_sw, &sciref, printtime,
-                                        asn->verbose)) 
-                                return(status);
-
-
-                        } else {  
-                            /* Remember blv_tmp as final output...*/
-                            if (CopyFFile (wf3hdr->blv_tmp, wf3hdr->fltfile))
                                 return (status);
-                        }    
+                                
+                            /* RESET SWITCHES FOR NON-CTE PROCESSING RUN */
+                            ResetSwitch(&sci_sw, &wf3ccd_sci_sw);
 
-                    } 
-
-                    /* Only delete these if not doing CRCORR/RPTCORR */
-                    if ((*save_tmp != YES) &&
-                            (wf3hdr->sci_crcorr != PERFORM) &&
-                            (wf3hdr->sci_rptcorr != PERFORM)){
-
-                        if (wf3hdr->sci_basic_cte == PERFORM) {
-                            remove (wf3hdr->blc_tmp);
-                        }
-                        remove (wf3hdr->blv_tmp);
-                    }/*end if save_tmp*/
-
-
-                }   /* end expid  loop over individual EXPosures,go on to create products */
-
-                /* Reset the trailer file preface to NULL since
-                 ** it has already been copied into trailer files */
-                ResetTrlPreface();
-
-
-                /* Do CRCORR/RPTCORR processing on NON-CTE datasets  */
-                if (wf3hdr->sci_crcorr == PERFORM ||  wf3hdr->sci_rptcorr == PERFORM) {
-
-                    /* Cosmic ray rejection, followed by basic 2-D
-                     ** processing. */
-                    if (asn->verbose) {
-                        sprintf (MsgText,
-                                "CALWF3: Now process position %d from product %d",
-                                posid, prod);
-                        trlmessage (MsgText);
-                    }
-
-                    /* Copy switch values for WF3CCD and WF32D argument
-                     ** lists. */
-
-                    SetCCDSw (&sci_sw, &wf3ccd_sci_sw, &wf3cte_sci_sw, &wf32d_sci_sw);	
-
-                    /* Reset DQICORR, since it will already have been done */
-                    wf32d_sci_sw.dqicorr = COMPLETE;
-
-                    if (asn->debug || asn->verbose) {
-                        sprintf (MsgText,"Input to WF3REJ is:");
-                        trlmessage (MsgText);
-                    }
-                    if (wf3hdr->sci_basic_cte == PERFORM){
-
-                        /* Need to allocate memory for a separate string to
-                         ** be long enough to hold all input names when
-                         ** printing it out. Causes pipeline problems
-                         ** otherwise. HAB 20-Jun-2004 */
-
-                        wf3rej_msgtext = calloc(strlen(wf3rej_cte_input)+25,
-                                sizeof(char));
-                        sprintf (wf3rej_msgtext, "%s", wf3rej_cte_input);
-                        trlmessage (wf3rej_msgtext);
-                        free (wf3rej_msgtext);
-                        sprintf (MsgText,"Output to WF3REJ is: %s",
-                                wf3hdr->crc_tmp);
-                        trlmessage (MsgText);
-                    } else {
-                        /* Need to allocate memory for a separate string to
-                         ** be long enough to hold all input names when
-                         ** printing it out. Causes pipeline problems
-                         ** otherwise. HAB 20-Jun-2004 */
-
-                        wf3rej_msgtext = calloc(strlen(wf3rej_input)+25,
-                                sizeof(char));
-                        sprintf (wf3rej_msgtext, "%s", wf3rej_input);
-                        trlmessage (wf3rej_msgtext);
-                        free (wf3rej_msgtext);
-                        sprintf (MsgText,"Output to WF3REJ is: %s",
-                                wf3hdr->crj_tmp);
-                        trlmessage (MsgText);
-                    }
-
-
-                    /* Set up the correct value of ASN_MTYP for WF3REJ
-                     ** output image. */                
-                    if (strncmp (wf3hdr->asn_table, wf3hdr->crj_tmp, 9) ) {
-
-                        /* crj_tmp is a sub-product */
-                        strcpy (wf3hdr->mtype,
-                                asn->product[prod].subprod[posid].mtype);
                     } else {
 
-                        /* crj_tmp leads to a product with same rootname as
-                         ** asn_table */
-                        strcpy (wf3hdr->mtype, asn->product[prod].mtype);
-                    }   
-
-                    /* Reject cosmic rays. */
-                    if (WF3Rej_0 (wf3rej_input, wf3hdr->crj_tmp,
-                                wf3hdr->mtype, printtime, asn->verbose)) {
-                        if (status == NO_GOOD_DATA || status == NOTHING_TO_DO) {
-                            /* Set CRCORR to skipped so that we don't try to
-                               apply WF32d to crj_tmp product */
-                            wf3hdr->sci_crcorr = SKIPPED;
-                            /* Reset status to good now that we have dealt
-                             ** with this condition */
-                            status = WF3_OK;
-                        } else {
-                            return (status); 
-                        }
+                        /* COPY THE INPUT FILE TO BLC_TMP. WE NEED TO DO THIS
+                           BECAUSE WF3REJ MAY (DEPENDING ON THE CRMASK COLUMN
+                           IN THE CRREJTAB) MODIFY THE DQ FLAGS IN ITS INPUT
+                           FILE. */
+                        if (CopyFFile (wf3hdr->rac_tmp, wf3hdr->blc_tmp))
+                            return (status);
                     }
 
-                    if (updateAsnTable (asn, prod, posid))
+
+
+                    /* WE NOW ARE WORKING WITH BLC_TMP HERE... */
+                    /* COPY (CAT) BLC_TMP NAME TO WF3REJ_CTE_INPUT STRING */
+                    if (wf3hdr->sci_crcorr == PERFORM || wf3hdr->sci_rptcorr == PERFORM) {
+                        strcat (wf3rej_cte_input, wf3hdr->blc_tmp);
+                        if (expid < asn->spmems[posid]) {
+                            /* DON'T ADD A COMMA TO THE END OF THE LAST FILENAME */
+                            strcat(wf3rej_cte_input, ",");
+                        }
+                        /* ALSO ADD BLC_TMP TO LIST OF FILES TO BE DELETED */
+                        strcpy (asn->product[prod].subprod[posid].exp[expid].blc_tmp,
+                                wf3hdr->blc_tmp);
+                    }      
+
+                } /*END CTE PROCESSING TO BLC_TMP LEVEL*/
+                
+                
+                
+                /*ALWAYS REPEAT THE PROCESS WITHOUT THE CTE CORRECTION SO BOTH ARE PRODUCED*/
+                if (wf3hdr->sci_basic_ccd == PERFORM) {
+                
+                    /*INITIALIZE THE TRAILER INFO IF CTE NOT PERFORMED*/
+                    if (wf3hdr->sci_basic_cte == OMIT){
+
+                        /* COPY ALL MESSAGES UP TO HERE INTO PREFACE BUFFER
+                           TO BE PREPENDED TO ALL INPUT FILE TRAILER FILES */
+                        if (newpreface == YES) {
+                            InitTrlPreface();
+                        }
+                        SetTrlPrefaceMode (YES);
+                    }
+    
+                    if (WF3ccd (wf3hdr->rawfile, wf3hdr->blv_tmp,
+                                &wf3ccd_sci_sw, &sciref, printtime,
+                                asn->verbose)) 		
                         return (status);
 
-                    /* Free up memory used by wf3rej_input for this
-                     ** subproduct */
-                    free(wf3rej_input); 
+                        /* RESET SWITCHES */
+                        ResetSwitch(&sci_sw, &wf3ccd_sci_sw);
+
+                } else {
+
+                    /* Copy the input file to blv_tmp. We need to do this
+                     ** because wf3rej may (depending on the crmask column
+                     ** in the crrejtab) modify the DQ flags in its input
+                     ** file. */
+                    if (CopyFFile (wf3hdr->rawfile, wf3hdr->blv_tmp))
+                        return (status);
+                }
 
 
-                    /*NOW DO IT FOR THE CTE DATA*/
+                /* WE ARE NOW WORKING WITH BLV_TMP HERE... */
+                /* COPY BLV_TMP NAME TO WF3REJ_INPUT STRING */
+                if (wf3hdr->sci_crcorr == PERFORM ||  wf3hdr->sci_rptcorr == PERFORM) {
+                    strcat (wf3rej_input, wf3hdr->blv_tmp);
+                    if (expid < asn->spmems[posid]) {
+                        /* DON'T ADD A COMMA TO THE END OF THE LAST FILENAME */
+                        strcat(wf3rej_input, ",");
+                    }
+                    /* ALSO ADD BLV_TMP TO LIST OF FILES TO BE DELETED */
+                    strcpy (asn->product[prod].subprod[posid].exp[expid].blv_tmp,
+                            wf3hdr->blv_tmp);
+                }
+
+
+                /* IF WE ARE NOT PERFORMING CRCORR OR RPTCORR, THEN
+                   FINISH PROCESSING INDIVIDUAL FILES WITH WF32D. */ 
+
+                if (wf3hdr->sci_crcorr != PERFORM && wf3hdr->sci_rptcorr != PERFORM) { 
+                    if (asn->debug) {
+                        trlmessage ("UVIS crcorr/rptcorr not set to Perform...");
+                    }
+
+                    /*DO THIS WITHOUT CTE PERFORM*/
+                    if (wf3hdr->sci_basic_2d == PERFORM) {
+                        SetTrlPrefaceMode (NO);
+
+                        /* BASIC 2-D PROCESSING (FLAT FIELD, ETC). */
+                        if (WF32d (wf3hdr->blv_tmp, wf3hdr->fltfile, 
+                                    &wf32d_sci_sw, &sciref, printtime,
+                                    asn->verbose)) 
+                            return(status);
+
+
+                    } else {  
+                        /* Remember blv_tmp as final output...*/
+                        if (CopyFFile (wf3hdr->blv_tmp, wf3hdr->fltfile))
+                            return (status);
+                    }    
+
+
+                    /* PROCESS CTE DATA */
+                    if (wf3hdr->sci_basic_2d == PERFORM && wf3hdr->sci_basic_cte == PERFORM) {
+                        SetTrlPrefaceMode (NO);
+
+                        /* Basic 2-D processing (flat field, etc). */
+                        if (WF32d (wf3hdr->blc_tmp, wf3hdr->flcfile, 
+                                    &wf32d_sci_sw, &sciref, printtime,
+                                    asn->verbose)) 
+                            return (status);				
+
+                    } else {/* REMEMBER BLC_TMP AS FINAL OUTPUT...*/
+                        if (wf3hdr->sci_basic_2d == OMIT && wf3hdr->sci_basic_cte == PERFORM){
+                            if (CopyFFile (wf3hdr->blc_tmp, wf3hdr->flcfile))
+                                return (status);
+                        }
+                    }/*END PROCESS CTE WITH WF32D*/ 
+
+
+                } 
+
+                /* ONLY DELETE THESE IF NOT DOING CRCORR/RPTCORR */
+                if ((*save_tmp != YES) &&
+                        (wf3hdr->sci_crcorr != PERFORM) &&
+                        (wf3hdr->sci_rptcorr != PERFORM)){
+
+                    if (wf3hdr->sci_basic_cte == PERFORM) {
+                        remove (wf3hdr->blc_tmp);
+                        remove (wf3hdr->rac_tmp);
+                    }
+                    remove (wf3hdr->blv_tmp);
+                }/*END IF SAVE_TMP*/
+            }/* END EXPID  LOOP OVER INDIVIDUAL EXPOSURES,GO ON TO CREATE PRODUCTS */
+
+            /* RESET THE TRAILER FILE PREFACE TO NULL SINCE
+               IT HAS ALREADY BEEN COPIED INTO TRAILER FILES */
+            ResetTrlPreface();
+
+
+            /*** DO CRCORR/RPTCORR PROCESSING ***/
+            if (wf3hdr->sci_crcorr == PERFORM ||  wf3hdr->sci_rptcorr == PERFORM) {
+
+                /* COSMIC RAY REJECTION, FOLLOWED BY BASIC 2-D PROCESSING. */
+                if (asn->verbose) {
+                    sprintf (MsgText,
+                            "CALWF3: Now processing position %d from product %d",
+                            posid, prod);
+                    trlmessage (MsgText);
+                }
+
+                /* COPY SWITCH VALUES FOR WF3CCD AND WF32D ARGUMENT LISTS. */
+                SetCCDSw (&sci_sw, &wf3ccd_sci_sw, &wf3cte_sci_sw, &wf32d_sci_sw);	
+
+                /* RESET DQICORR, SINCE IT WILL ALREADY HAVE BEEN DONE */
+                wf32d_sci_sw.dqicorr = COMPLETE;
+
+                if (asn->debug || asn->verbose) {
+                    sprintf (MsgText,"Non-cte input to WF3REJ is:");
+                    trlmessage (MsgText);
+                
+
+                /* NEED TO ALLOCATE MEMORY FOR A SEPARATE STRING TO
+                 ** BE LONG ENOUGH TO HOLD ALL INPUT NAMES WHEN
+                 ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
+                 ** OTHERWISE. HAB 20-JUN-2004 */
+                wf3rej_msgtext = calloc(strlen(wf3rej_input)+25,
+                        sizeof(char));
+                sprintf (wf3rej_msgtext, "%s", wf3rej_input);
+                trlmessage (wf3rej_msgtext);
+                free (wf3rej_msgtext);
+                sprintf (MsgText,"Output from WF3REJ is: %s",
+                        wf3hdr->crj_tmp);
+                trlmessage (MsgText);
+                
+                }
+                /* SET UP THE CORRECT VALUE OF ASN_MTYP FOR WF3REJ
+                   OUTPUT IMAGE. */                
+                if (strncmp (wf3hdr->asn_table, wf3hdr->crj_tmp, 9) ) {
+                    /* CRJ_TMP IS A SUB-PRODUCT */
+                    strcpy (wf3hdr->mtype,
+                            asn->product[prod].subprod[posid].mtype);
+                } else {
+
+                    /* CRJ_TMP LEADS TO A PRODUCT WITH SAME ROOTNAME AS
+                     ** ASN_TABLE */
+                    strcpy (wf3hdr->mtype, asn->product[prod].mtype);
+                }   
+
+                /* Reject cosmic rays. */
+                if (WF3Rej_0 (wf3rej_input, wf3hdr->crj_tmp,
+                            wf3hdr->mtype, printtime, asn->verbose)) {
+                    if (status == NO_GOOD_DATA || status == NOTHING_TO_DO) {
+                        /* Set CRCORR to skipped so that we don't try to
+                           apply WF32d to crj_tmp product */
+                        wf3hdr->sci_crcorr = SKIPPED;
+                        /* Reset status to good now that we have dealt
+                         ** with this condition */
+                        status = WF3_OK;
+                    } else {
+                        return (status); 
+                    }
+                }
+
+                if (updateAsnTable (asn, prod, posid))
+                    return (status);
+
+                /* Free up memory used by wf3rej_input for this
+                 ** subproduct */
+                free(wf3rej_input); 
+
+
+                /*NOW DO IT FOR THE CTE DATA*/
+                if (wf3hdr->sci_basic_cte == PERFORM){
                     if (asn->debug || asn->verbose) {
                         sprintf (MsgText,"CTE corrected input to WF3REJ is:");
                         trlmessage (MsgText);
-
-                        /* Need to allocate memory for a separate string to
-                         ** be long enough to hold all input names when
-                         ** printing it out. Causes pipeline problems
-                         ** otherwise. HAB 20-Jun-2004 */
+                    
+                        /* NEED TO ALLOCATE MEMORY FOR A SEPARATE STRING TO
+                         ** BE LONG ENOUGH TO HOLD ALL INPUT NAMES WHEN
+                         ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
+                         ** OTHERWISE. HAB 20-JUN-2004 */
 
                         wf3rej_msgtext = calloc(strlen(wf3rej_cte_input)+25,
                                 sizeof(char));
@@ -542,223 +508,207 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                                 wf3hdr->crc_tmp);
                         trlmessage (MsgText);
                     }
-
-                    /* Set up the correct value of ASN_MTYP for WF3REJ
-                     ** output image. */                
+                    
+                    /* SET UP THE CORRECT VALUE OF ASN_MTYP FOR WF3REJ
+                       OUTPUT IMAGE. */                
                     if (strncmp (wf3hdr->asn_table, wf3hdr->crc_tmp, 9) ) {
-
-                        /* crc_tmp is a sub-product */
+                        /* CRC_TMP IS A SUB-PRODUCT */
                         strcpy (wf3hdr->mtype,
                                 asn->product[prod].subprod[posid].mtype);
                     } else {
 
-                        /* crc_tmp leads to a product with same rootname as
-                         ** asn_table */
+                        /* CRJ_TMP LEADS TO A PRODUCT WITH SAME ROOTNAME AS
+                         ** ASN_TABLE */
                         strcpy (wf3hdr->mtype, asn->product[prod].mtype);
                     }   
 
-                    /* Reject cosmic rays. */
+                    /* REJECT COSMIC RAYS. */
                     if (WF3Rej_0 (wf3rej_cte_input, wf3hdr->crc_tmp,
                                 wf3hdr->mtype, printtime, asn->verbose)) {
                         if (status == NO_GOOD_DATA || status == NOTHING_TO_DO) {
-                            /* Set CRCORR to skipped so that we don't try to
-                               apply WF32d to crj_tmp product */
+                            /* SET CRCORR TO SKIPPED SO THAT WE DON'T TRY TO
+                               APPLY WF32D TO CRC_TMP PRODUCT */
                             wf3hdr->sci_crcorr = SKIPPED;
-                            /* Reset status to good now that we have dealt
-                             ** with this condition */
+                            /* RESET STATUS TO GOOD NOW THAT WE HAVE DEALT
+                             ** WITH THIS CONDITION */
                             status = WF3_OK;
                         } else {
                             return (status); 
                         }
                     }
 
-                    if (updateAsnTable (asn, prod, posid))
-                        return (status);
-
-                    /* Free up memory used by wf3rej_input for this
-                     ** subproduct */
+                    /* FREE UP MEMORY USED BY WF3REJ_INPUT FOR THIS
+                     ** SUBPRODUCT */
                     free(wf3rej_cte_input); 
+                }/*END REJ FOR CTE DATA*/
 
 
-                    /* MOVE ON TO WF32D */
+                /* MOVE ON TO WF32D */
 
-                    if (wf3hdr->sci_basic_2d == PERFORM && 
-                            wf3hdr->sci_crcorr == PERFORM) {
+                if (wf3hdr->sci_basic_2d == PERFORM && 
+                        wf3hdr->sci_crcorr == PERFORM) { 
 
-                        if (wf3hdr->sci_basic_cte == OMIT){
-                            /* Flatfield the summed, cosmic ray rejected image. */
-                            if (WF32d (wf3hdr->crj_tmp, wf3hdr->crjfile,
-                                        &wf32d_sci_sw, &sciref, printtime, asn->verbose))
-                                return (status);
-                        } else {
-                            /* Flatfield the summed, cosmic ray rejected CTE image. */
-                            if (WF32d (wf3hdr->crc_tmp, wf3hdr->crcfile,
-                                        &wf32d_sci_sw, &sciref, printtime, asn->verbose))
-                                return (status);
-
-                        }
-
-                    } 
-                    if (wf3hdr->sci_crcorr == PERFORM && wf3hdr->sci_basic_2d == PERFORM) {
-                        if (wf3hdr->sci_basic_cte == PERFORM) {
-
-                            /* Remember CR-combined image as final output name,
-                             ** since WF32D was not run. */
-                            if (CopyFFile (wf3hdr->crc_tmp, wf3hdr->crcfile))
-                                return (status);
-
-                            /* Remember what crc_tmp files to delete */
-                            strcpy (asn->product[prod].subprod[posid].crc_tmp,
-                                    wf3hdr->crc_tmp);
-
-                            /* If EXPSCORR=PERFORM, finish processing individual
-                               exposures with Wf32d. */
-                            if (sci_sw.expscorr == PERFORM) {
-
-                                for (expid=1; expid <= asn->spmems[posid]; expid++) {
-
-                                    /* Get input & output file names for this exp */
-                                    if (asn->process == SINGLE) {
-                                        if (GetSingle (asn, wf3hdr))
-                                            return (status);
-                                    } else {
-                                        if (GetAsnMember (asn, prod, posid, expid,
-                                                    wf3hdr))
-                                            return (status);
-                                    }
-                                    if (InsertWF3Suffix (wf3hdr))
-                                        return (status);
-
-                                    if (wf3hdr->sci_basic_2d == PERFORM) {
-                                        SetTrlPrefaceMode (YES);
-
-                                        /* Reset switches */
-                                        ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
-                                        trlmessage("Reset CCDsw");
-                                        /* Basic 2-D processing (flat field, etc). */
-                                        if (WF32d (wf3hdr->blc_tmp, wf3hdr->flcfile,
-                                                    &wf32d_sci_sw, &sciref, printtime,
-                                                    asn->verbose))
-                                            return (status);
-
-                                    } else {
-
-                                        /* Save blc_tmp as final output */
-                                        if (CopyFFile (wf3hdr->blc_tmp,
-                                                    wf3hdr->flcfile))
-                                            return (status);
-                                    }
-                                    trlmessage("Finished WF32D");
-
-                                } /* End loop over indivdual exposures */
-
-                            } /* End of EXPSCORR processing */
-
-                            /* Delete intermediate files */
-                            if (*save_tmp != YES) {
-                                for (expid=1; expid <= asn->spmems[posid]; expid++) {
-                                    if (asn->debug) {
-                                        sprintf (MsgText, "Deleting %s...",
-                                                asn->product[prod].subprod[posid].exp[expid].blc_tmp);
-                                        trlmessage (MsgText);
-                                    }
-                                    remove (asn->product[prod].subprod[posid].exp[expid].blc_tmp);
-                                }
-                            }                
-
-                        } /*end of CTE CRCORR processing*/
-
-                        /*Do this whether PCTECORR is PERFORM or not*/
-                        /* Remember CR-combined image as final output name,
-                         ** since WF32D was not run. */
-                        if (CopyFFile (wf3hdr->crj_tmp, wf3hdr->crjfile))
+                    if (wf3hdr->sci_basic_cte == OMIT){
+                        /* Flatfield the summed, cosmic ray rejected image. */
+                        if (WF32d (wf3hdr->crj_tmp, wf3hdr->crjfile,
+                                    &wf32d_sci_sw, &sciref, printtime, asn->verbose))
+                            return (status);
+                    } else {
+                        /* Flatfield the summed, cosmic ray rejected CTE image. */
+                        if (WF32d (wf3hdr->crc_tmp, wf3hdr->crcfile,
+                                    &wf32d_sci_sw, &sciref, printtime, asn->verbose))
                             return (status);
 
-                        /* Remember what crj_tmp files to delete */
+                    }
+                } else if (wf3hdr->sci_crcorr == PERFORM){
+                    if (wf3hdr->sci_basic_cte == PERFORM) {
+                        /* REMEMBER CR-COMBINED IMAGE AS FINAL OUTPUT NAME,
+                         ** SINCE WF32D WAS NOT RUN. */
+                        if (CopyFFile (wf3hdr->crc_tmp, wf3hdr->crcfile))
+                            return (status);
+                        /* REMEMBER WHAT CRC_TMP FILES TO DELETE */
+                        strcpy (asn->product[prod].subprod[posid].crc_tmp,
+                                wf3hdr->crc_tmp);
+                    } else { 
+                        if (CopyFFile (wf3hdr->crj_tmp, wf3hdr->crjfile))
+                            return (status);
+                        /* REMEMBER WHAT CRC_TMP FILES TO DELETE */
                         strcpy (asn->product[prod].subprod[posid].crj_tmp,
                                 wf3hdr->crj_tmp);
+                     }
+                }
 
-                        /* If EXPSCORR=PERFORM, finish processing individual
-                           exposures with Wf32d. */
-                        if (sci_sw.expscorr == PERFORM) {
+                /* IF EXPSCCORR = PERFORM, FINISH PROCESSING INDIVIDUAL EXPOSURES*/
+                if (sci_sw.expscorr == PERFORM) {
 
-                            for (expid=1; expid <= asn->spmems[posid]; expid++) {
+                    for (expid=1; expid <= asn->spmems[posid]; expid++) {
 
-                                /* Get input & output file names for this exp */
-                                if (asn->process == SINGLE) {
-                                    if (GetSingle (asn, wf3hdr))
-                                        return (status);
-                                } else {
-                                    if (GetAsnMember (asn, prod, posid, expid,
-                                                wf3hdr))
-                                        return (status);
-                                }
-                                if (InsertWF3Suffix (wf3hdr))
+                        /* GET INPUT & OUTPUT FILE NAMES FOR THIS EXP */
+                        if (asn->process == SINGLE) {
+                            if (GetSingle (asn, wf3hdr))
+                                return (status);
+                        } else {
+                            if (GetAsnMember (asn, prod, posid, expid,
+                                        wf3hdr))
+                                return (status);
+                        }
+                        if (InsertWF3Suffix (wf3hdr))
+                            return (status);
+
+                        if (wf3hdr->sci_basic_2d == PERFORM){
+                            SetTrlPrefaceMode(NO);
+                                    
+                            /* Reset switches*/
+                            ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
+                            
+                            /* Basic 2-D processing (flat field, etc). */
+                            if (WF32d (wf3hdr->blv_tmp, wf3hdr->fltfile,
+                                        &wf32d_sci_sw, &sciref, printtime,
+                                        asn->verbose))
+                                return (status);
+
+                        } else {
+
+                            /* Save blv_tmp as final output */
+                            if (CopyFFile (wf3hdr->blv_tmp,
+                                        wf3hdr->fltfile))
+                                return (status);
+                        }
+
+                    } /* End loop over indivdual exposures */
+
+                    if(wf3hdr->sci_basic_cte == PERFORM) {
+                        /*LOOP OVER EXPOSURES FOR CTE PRODUCTS*/
+                        for (expid=1; expid <= asn->spmems[posid]; expid++) {
+
+                            /* GET INPUT & OUTPUT FILE NAMES FOR THIS EXP */
+                            if (asn->process == SINGLE) {
+                                if (GetSingle (asn, wf3hdr))
+                                    return (status);
+                            } else {
+                                if (GetAsnMember (asn, prod, posid, expid,
+                                            wf3hdr))
+                                    return (status);
+                            }
+                            if (InsertWF3Suffix (wf3hdr))
+                                return (status);
+
+                            if (wf3hdr->sci_basic_2d == PERFORM){
+                                SetTrlPrefaceMode(NO);
+
+                                /* Reset switches*/
+                                ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
+
+                                /* Basic 2-D processing (flat field, etc). */
+                                if (WF32d (wf3hdr->blc_tmp, wf3hdr->flcfile,
+                                            &wf32d_sci_sw, &sciref, printtime,
+                                            asn->verbose))
                                     return (status);
 
-                                if (wf3hdr->sci_basic_2d == PERFORM) {
-                                    SetTrlPrefaceMode (YES);
+                            } else {
 
-                                    /* Reset switches */
-                                    ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
-
-                                    /* Basic 2-D processing (flat field, etc). */
-                                    if (WF32d (wf3hdr->blv_tmp, wf3hdr->fltfile,
-                                                &wf32d_sci_sw, &sciref, printtime,
-                                                asn->verbose))
-                                        return (status);
-
-                                } else {
-
-                                    /* Save blv_tmp as final output */
-                                    if (CopyFFile (wf3hdr->blv_tmp,
-                                                wf3hdr->fltfile))
-                                        return (status);
-                                }
+                                /* Save blc_tmp as final output */
+                                if (CopyFFile (wf3hdr->blc_tmp,
+                                            wf3hdr->flcfile))
+                                    return (status);
                             }
 
                         } /* End loop over indivdual exposures */
+                    } /*END CTE*/
+                } /* End of EXPSCORR processing */
 
-                    } /* End of EXPSCORR processing */
 
+                /* Delete intermediate files */
+                if (*save_tmp != YES) {
+                    for (expid=1; expid <= asn->spmems[posid]; expid++) {
+                        if (asn->debug) {
+                            sprintf (MsgText, "Deleting %s...",
+                                    asn->product[prod].subprod[posid].exp[expid].blv_tmp);
+                            trlmessage (MsgText);
+                        }
+                        remove (asn->product[prod].subprod[posid].exp[expid].blv_tmp);
+                    }
+                }                
+
+                if (wf3hdr->sci_basic_cte == PERFORM) {
                     /* Delete intermediate files */
                     if (*save_tmp != YES) {
                         for (expid=1; expid <= asn->spmems[posid]; expid++) {
                             if (asn->debug) {
                                 sprintf (MsgText, "Deleting %s...",
-                                        asn->product[prod].subprod[posid].exp[expid].blv_tmp);
+                                        asn->product[prod].subprod[posid].exp[expid].blc_tmp);
                                 trlmessage (MsgText);
                             }
-                            remove (asn->product[prod].subprod[posid].exp[expid].blv_tmp);
+                            remove (asn->product[prod].subprod[posid].exp[expid].rac_tmp);
+                            remove (asn->product[prod].subprod[posid].exp[expid].blc_tmp);
                         }
-                    } 
+                    }    
+                 }            
 
+            } /* End of CRCORR/RPTCORR processing */	
 
-                } /* End of CRCORR/RPTCORR processing */	
+        }  /* End of processing for SINGLE/PARTIAL product */
 
-            }  /* End of processing for SINGLE/PARTIAL product */
-
-            /* Done with the tmp files.... */
-            if (asn->process != SINGLE) {
-
-                /* We only have something to delete if process != SINGLE */
-                if ((save_crj != YES ) && (wf3hdr->sci_crcorr == PERFORM ||
-                            wf3hdr->sci_rptcorr == PERFORM)) {
-                    for (posid = 1; posid <= asn->numsp; posid++) {
-                        remove (asn->product[prod].subprod[posid].crj_tmp);
-                    }
-                    if (wf3hdr->sci_basic_cte == PERFORM){
-                        for (posid = 1; posid <= asn->numsp; posid++){
-                            remove (asn->product[prod].subprod[posid].crc_tmp);
-                        }
+        /* Done with the tmp files.... */
+        if (asn->process != SINGLE) {
+            /* We only have something to delete if process != SINGLE */
+            if ((save_crj != YES ) && (wf3hdr->sci_crcorr == PERFORM ||
+                        wf3hdr->sci_rptcorr == PERFORM)) {
+                for (posid = 1; posid <= asn->numsp; posid++) {
+                    remove (asn->product[prod].subprod[posid].crj_tmp);
+                }
+                if (wf3hdr->sci_basic_cte == PERFORM){
+                    for (posid = 1; posid <= asn->numsp; posid++){
+                        remove (asn->product[prod].subprod[posid].crc_tmp);
                     }
                 }
-            } /*end remove tmp files*/
+            }
+        } /*end remove tmp files*/
 
-            } /* End loop over CCD products here...		*/
-        }
-        /* Done with lists of reference file keywords and names. */
-        FreeRefFile (&sciref);
-        return (status);
-    }
+    } /* End loop over CCD products here...		*/
+
+    /* Done with lists of reference file keywords and names. */
+    FreeRefFile (&sciref);
+    return (status);
+}
 

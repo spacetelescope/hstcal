@@ -46,8 +46,8 @@ int main (int argc, char **argv) {
     int n;
 
     /* Input and output suffixes. */
-    char isuffix[] = "_blv_tmp";
-    char osuffix[] = "_blc_tmp";
+    char isuffix[] = "_raw";
+    char osuffix[] = "_rac";
 
     /* A structure to pass the calibration switches to WFC3CTE */
     CalSwitch ccd_sw;
@@ -179,7 +179,7 @@ int main (int argc, char **argv) {
             continue;
         }
         if (pctecorr == PERFORM)
-            strcpy(osuffix, "_blc_tmp");
+            strcpy(osuffix, "_rac");
         else {
             WhichError (status);
             sprintf (MsgText, "Skipping %s because PCTECORR is not set to PERFORM", input);

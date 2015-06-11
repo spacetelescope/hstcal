@@ -66,7 +66,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     
     refdate=51544.; /*Year 2000, reference file is in MJD*/
     if (wf3->verbose){
-        sprintf(MsgText,"Reference date for Sink Pixels: %f",refdate);
+        sprintf(MsgText,"Reference date for Sink Pixels: %f (MJD)",refdate);
         trlmessage(MsgText);
     }
 

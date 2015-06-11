@@ -67,7 +67,14 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
      */
     PrBegin ("WF3CCD");
 
+    InitCCDTrl (input, output);
+    /* If we had a problem initializing the trailer files, quit... */
+    if (status != WF3_OK) 
+        return (status);
 
+    if (printtime)
+        TimeStamp ("WF3CCD started", "");
+        
     /* Initialize structure containing calwf3 information. */
     WF3Init (&wf3);
 
@@ -86,33 +93,29 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
         like rather strange logic, but it works.
     
     */    
-    if (strcmp(input,"_raw") == 1){
+    if (strstr(input,"_raw")){
         if (MkName (input, "_raw", "", "", wf3.input, SZ_LINE)) {
-            trlmessage("");
+            strcpy(wf3.input,input);
+            strcat(wf3.input,"_raw.fits");
         } else {
             strcpy(wf3.input,input);
         }
-    } else {
-        if (strcmp(input,"_rac") == 1){
-            if (MkName (input, "_rac", "", "", wf3.input, SZ_LINE)) {
-                strcpy(wf3.input,input);
-                strcat(wf3.input,"_rac.fits");
-            }
+    } else if (strstr(input,"_rac")){
+        if (MkName (input, "_rac", "", "", wf3.input, SZ_LINE)) {
+            strcpy(wf3.input,input);
+            strcat(wf3.input,"_rac.fits");
+        } else {
+            strcpy(wf3.input,input);
         }
+        
+    } else {
+        strcpy(wf3.input,input);
+        strcat(wf3.input,"_raw.fits");
     }    
 
     /*user specified output*/
     strcpy (wf3.output, output);
     
-    InitCCDTrl (input, output);
-
-    if (printtime)
-        TimeStamp ("WF3CCD started", "");
-
-    /* If we had a problem initializing the trailer files, quit... */
-    if (status != WF3_OK) 
-        return (status);
-
     wf3.dqicorr  = ccd_sw->dqicorr;
     wf3.atodcorr = ccd_sw->atodcorr;
     wf3.blevcorr = ccd_sw->blevcorr;
@@ -199,74 +202,76 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
 
 void InitCCDTrl (char *input, char *output) {
 
-    extern int status;
+	extern int status;
+	int exist;
 
-    char trl_in[SZ_LINE+1]; 	/* trailer filename for input */
-    char trl_out[SZ_LINE+1]; 	/* output trailer filename */
-    int exist;
+	char trl_in[SZ_LINE+1]; 	/* trailer filename for input */
+	char trl_out[SZ_LINE+1]; 	/* output trailer filename */
+	
+	int MkOutName (const char *, char **, char **, int, char *, int);
+	int MkNewExtn (char *, char *);
+	void WhichError (int);
+	int TrlExists (char *);
+	void SetTrlOverwriteMode (int);
 
-    int MkName (char *, char *, char *, char *, char *, int);
-    void WhichError (int);
-    int TrlExists (char *);
-    void SetTrlOverwriteMode (int);
+	/* Input and output suffixes. */
+	char *isuffix[] = {"_raw", "_rac"};
+	char *osuffix[] = {"_blv_tmp", "_blc_tmp"};
+	char *trlsuffix[] = {"", ""};
 
-    /* Initialize internal variables */
-    trl_in[0] = '\0';
-    trl_out[0] = '\0';
-    exist = EXISTS_UNKNOWN;
+	int nsuffix = 2;
+	
+	/* Initialize internal variables */
+	trl_in[0] = '\0';
+	trl_out[0] = '\0';
+	exist = EXISTS_UNKNOWN;
 
-    /* Start by stripping off suffix from input/output filenames */
-    if (strcmp(input,"_raw") == 1){
-        if (MkName (input, "_raw", "", TRL_EXTN, trl_in, SZ_LINE)) {
-            WhichError (status);
-            sprintf (MsgText, "Couldn't determine trailer filename for %s",
-                    input);
-            trlmessage (MsgText);
-        }
-    } else {
-        if (strcmp(input,"_rac") == 1){
-            if (MkName (input, "_rac", "", TRL_EXTN, trl_in, SZ_LINE)) {
-                WhichError (status);
-                sprintf (MsgText, "Couldn't determine trailer filename for %s",
-                        input);
-                trlmessage (MsgText);
-            }
-        }
-    }    
+	/* Start by stripping off suffix from input/output filenames */
+	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, SZ_LINE)) {
+	    WhichError (status);
+	    sprintf (MsgText, "Couldn't determine trailer filename for %s",
+		     input);
+	    trlmessage (MsgText);
+	}
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
+	    WhichError (status);
+	    sprintf (MsgText, "Couldn't create trailer filename for %s",
+		     output);
+	    trlmessage (MsgText);
+	}
+
+	/* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
+    
+	if (MkNewExtn (trl_in, TRL_EXTN) ) {
+	    sprintf (MsgText, "Error with input trailer filename %s", trl_in);
+	    trlerror (MsgText);
+	    WhichError (status);
+	}
+	if (MkNewExtn (trl_out, TRL_EXTN) ) {
+	    sprintf (MsgText, "Error with output trailer filename %s", trl_out);
+	    trlerror (MsgText);
+	    WhichError (status);
+	}
+
+	/* If we are working with a RAW file, then see if a TRL file 
+	   needs to be overwritten after the generic conversion comments.  */
+	if (strstr(input, isuffix[0]) != NULL) {
+	    /* Test whether the output file already exists */
+	    exist = TrlExists(trl_out);            
+	    if (exist == EXISTS_YES) {
+		/* The output file exists, so we want to add to them 
+		** the new trailer comments.  */
+		    SetTrlOverwriteMode (NO);	
+	    }
+	}
     
     
-    if (strcmp(input,"_raw") == 1){
 
-        if (MkName (output, "_blv_tmp", "", TRL_EXTN, trl_out, SZ_LINE)) {
-            WhichError (status);
-            sprintf (MsgText, "Couldn't create trailer filename for %s",
-                    output);
-            trlmessage (MsgText);
-        }
-    } else {
-        if (strcmp(input,"_rac") == 1){
-
-            if (MkName (output, "_blc_tmp", "", TRL_EXTN, trl_out, SZ_LINE)) {
-                WhichError (status);
-                sprintf (MsgText, "Couldn't create trailer filename for %s",
-                        output);
-                trlmessage (MsgText);
-            }
-        }
-    }
-    
-    
-    /* Test whether the output file already exists */
-    exist = TrlExists(trl_out);
-    if (exist == EXISTS_YES) {
-        /* The output file exists, so we want to overwrite them with
-         ** the new trailer comments.  */
-        SetTrlOverwriteMode (YES);	
-    }
-
-    /* Sets up temp trailer file for output and copies input
-     ** trailer file into it.  */
-    InitTrlFile (trl_in, trl_out);
+	/* Sets up temp trailer file for output and copies input
+		trailer file into it.
+	*/
+	InitTrlFile (trl_in, trl_out);
+	/* Check value of STATUS for errors in calling routine */
 }
 
 static int BiasKeywords (WF3Info *wf3) {

@@ -420,7 +420,7 @@ int CheckGain (char *image, float gain, char *keyword, int *badtype) {
 	extern int status;
 
 	FitsKw key;		/* location of keyword in header */
-	IODescPtr im;		/* descriptor for primary header unit */
+	IODescPtr im;   /* descriptor for primary header unit */
 	Hdr phdr;		/* primary header */
 
 	float keyval;

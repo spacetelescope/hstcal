@@ -3,7 +3,7 @@
 
 # include "msg.h"
 
-# define NSUF	7
+# define NSUF	15
 
 void FindAsnRoot (char *input, char *root) {
 
@@ -12,10 +12,13 @@ void FindAsnRoot (char *input, char *root) {
 	char filename[SZ_FNAME+1];
 	
 	/* names of WF3 product suffixes */
-	char prodsuf[NSUF+3][SZ_CBUF+1] = {
+	char prodsuf[NSUF][SZ_CBUF+1] = {
 		"_raw", "_asn", 
 		"_crj", "_crj_tmp",
 		"_blv", "_blv_tmp",
+        "_blc", "_blc_tmp",
+        "_crc", "_crc_tmp",
+        "_flc",
 		"_flt", "_sfl",
 		"_drz", 
 		".fit"
@@ -28,7 +31,7 @@ void FindAsnRoot (char *input, char *root) {
 	strcpy (filename, input);
 	
 	/* Look for each suffix recognized by WF3 in filename... */
-	for (i = 0; i < NSUF+3 ; i++){
+	for (i = 0; i < NSUF ; i++){
 		/* Is this suffix in filename? 
 		**	If so, set in_len to the length of filename up to that point
 		**	If not, set in_len to the length of filename

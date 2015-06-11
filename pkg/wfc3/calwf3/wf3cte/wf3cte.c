@@ -689,7 +689,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
     }
 
     for(NIT=1; NIT<=100; NIT++){ 
-        #pragma omp parallel for schedule(dynamic) \
+        #pragma omp parallel for schedule(static) \
            private(i,j,imid,obs_loc,rsz_loc,d)\
            shared(raz, rsz, rnsig,rms,nrms, zadj)
            
@@ -723,6 +723,9 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
                             fminf(Pix(rsz->sci.data,i,j), 999.9));
                         trlmessage(MsgText);
                     }
+                } else {
+                    sprintf(MsgText,".");
+                    trlmessage(MsgText);
                 }
             }
         } /*end the parallel for*/
@@ -1084,7 +1087,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     #pragma omp parallel for schedule (dynamic,1) \
         private(dmod,i,j,jj,jmax,REDO,NREDO, \
           pix_obsd,pix_modl,pix_curr,pix_init,\
-          pix_read,pix_ctef,NITINV)\
+          pix_read,pix_ctef,NITINV,NITCTE)\
         shared(rc,rz,pixz_fff,cte)
 
     for (i=0; i< RAZ_COLS; i++){           
@@ -1410,7 +1413,7 @@ int initCTETrl (char *input, char *output) {
     exist = EXISTS_UNKNOWN;
 
 
-    if (MkName (output, "_rac", "_rac", TRL_EXTN, trl_out, SZ_LINE)) {
+    if (MkName (output, "_rac", "", TRL_EXTN, trl_out, SZ_LINE)) {
         WhichError (status);
         sprintf (MsgText, "Couldn't create trailer filename for %s",
                 output);

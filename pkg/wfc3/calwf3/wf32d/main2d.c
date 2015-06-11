@@ -52,10 +52,10 @@ int main (int argc, char **argv) {
 	int n;
 
 	/* Input and output suffixes. */
-	char *isuffix[] = {"_raw", "_blv_tmp", "_crj_tmp"};
-	char *osuffix[] = {"_flt", "_flt",     "_crj"};
+	char *isuffix[] = {"_raw", "_blv_tmp", "_crj_tmp",  "_blc_tmp","_rac", "_crc_tmp"};
+	char *osuffix[] = {"_flt", "_flt",     "_crj",      "_flc",    "_flc", "_crc"};
 
-	int nsuffix = 3;
+	int nsuffix = 6;
 
 	/* A structure to pass the calibration switches to wf32d */
 	CCD_Switch wf32d_sw;

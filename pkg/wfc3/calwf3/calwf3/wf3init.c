@@ -17,7 +17,7 @@
    H.Bushouse, 2000-Sep-28: Added sci_basic_ir switch for IR chip
    H.Bushouse, 2002-Nov-26: Removed use of sflfile (following CALACS changes).
    H.Bushouse, 2008-Aug-20: Changed dithfile suffix from "dth" to "drz".
-
+   M. Sosey, 2015 June: Updates for CTE implementation with UVIS 2.0
 */
 
 int CCDRefInit (WF3Info *wf3, CCD_Switch *sci_sw, RefFileInfo *sciref) {
@@ -50,10 +50,10 @@ RefFileInfo *sciref o: reference file name and info
 
 	if (missing > 0) {
 	    if (missing == 1) {
-		trlerror ("One reference file was missing.");
+		    trlerror ("One reference file was missing.");
 	    } else {
- 		sprintf (MsgText, "%d reference files were missing.", missing);
-		trlerror (MsgText);
+ 		    sprintf (MsgText, "%d reference files were missing.", missing);
+		    trlerror (MsgText);
 	    }
 	    return (status = CAL_FILE_MISSING);
 	}
@@ -104,7 +104,7 @@ RefFileInfo *sciref o: reference file name and info
 
 void WF3Defaults (WF3Info *wf3) {
 
-	/* rawfile has been assigned already */
+	/* RAWFILE HAS BEEN ASSIGNED ALREADY */
 	wf3->crj_root[0] = '\0';
     wf3->crc_root[0] = '\0';
 	wf3->outroot[0]  = '\0';
@@ -129,7 +129,7 @@ void WF3Defaults (WF3Info *wf3) {
 	wf3->samebin   = 0;
     
 
-	/* Initialize flags to not perform the step. */
+	/* INITIALIZE FLAGS TO NOT PERFORM THE STEP. */
 	wf3->sci_basic_ccd = OMIT;
 	wf3->sci_basic_2d  = OMIT;
 	wf3->sci_basic_ir  = OMIT;
@@ -139,7 +139,7 @@ void WF3Defaults (WF3Info *wf3) {
 	wf3->sci_dthcorr   = OMIT;
 }
 
-/* Construct output and temporary file names from outroot. */
+/* CONSTRUCT OUTPUT AND TEMPORARY FILE NAMES FROM OUTROOT. */
 
 int InsertWF3Suffix (WF3Info *wf3) {
 
@@ -150,19 +150,19 @@ int InsertWF3Suffix (WF3Info *wf3) {
 	if (MkName (wf3->crj_root, "_crj", "_crj", "", wf3->crjfile, SZ_LINE))
 	    return (status);
 
-	if (MkName (wf3->crj_root, "_crj", "_crj_tmp", "", wf3->crj_tmp,
-		    SZ_LINE))
+	if (MkName (wf3->crj_root, "_crj", "_crj_tmp", "", wf3->crj_tmp, SZ_LINE))
 	    return (status);
-    if (MkName (wf3->crc_root, "_crc", "_crc","",wf3->crcfile, SZ_LINE))
+        
+    if (MkName (wf3->crc_root, "_crc", "_crc", "", wf3->crcfile, SZ_LINE))
         return(status);
         
-    if (MkName (wf3->crc_root, "_crc", "_crc_tmp", "", wf3->crc_tmp,SZ_LINE))
-            return (status);
+    if (MkName (wf3->crc_root, "_crc", "_crc_tmp", "", wf3->crc_tmp, SZ_LINE))
+        return (status);
             
     if (MkName (wf3->rootname, "_raw","_rac","", wf3->rac_tmp, SZ_LINE))
         return(status);
         		
-	if (MkName (wf3->rootname, "_raw", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
+	if (MkName (wf3->rootname, "_rac", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
 	    return (status);
 
 	if (MkName (wf3->rootname, "_raw", "_ima", "", wf3->imafile, SZ_LINE))
@@ -177,22 +177,10 @@ int InsertWF3Suffix (WF3Info *wf3) {
 	if (MkName (wf3->asn_table, "_raw", "_drz", "", wf3->dthfile, SZ_LINE))
 	    return (status);
         
-	if (MkName (wf3->rootname, "_raw", "_blv_tmp", "", wf3->blv_tmp,
-		    SZ_LINE))
+	if (MkName (wf3->rootname, "_raw", "_blv_tmp", "", wf3->blv_tmp, SZ_LINE))
 	    return (status);
             
-
-    /*I removed this because there's not enough information here
-      to catch the CTE flag, and it made no sense to just print one
-    
-	if (wf3->detector == CCD_DETECTOR) {
-	    sprintf (MsgText,"Wf3Init: blv_tmp = %s ",wf3->blv_tmp);
-	    trlmessage (MsgText);
-	} else {
-	    sprintf (MsgText,"Wf3Init: flt = %s ",wf3->fltfile);
-	    trlmessage (MsgText);
-	} */
-		
+            		
 	return (status);
 }
 

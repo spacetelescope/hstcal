@@ -464,6 +464,26 @@ void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,
 	wf32d_sci_sw->pctecorr  = sci_sw->pctecorr;
 }
 
+
+/*This is used in proccd during the double loop through
+ for CTE and non-cte processing */
+ 
+void ResetSwitch( CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw){
+	/* arguments:
+	   CCD_Switch *sci_sw            i: all calibration switches for science file
+	   CCD_Switch *wf3ccd_sci_sw     o: wf3ccd switches for science file
+    */
+    
+	wf3ccd_sci_sw->dqicorr   = sci_sw->dqicorr;
+	wf3ccd_sci_sw->atodcorr  = sci_sw->atodcorr;
+	wf3ccd_sci_sw->blevcorr  = sci_sw->blevcorr;
+	wf3ccd_sci_sw->biascorr  = sci_sw->biascorr;
+	wf3ccd_sci_sw->flashcorr = sci_sw->flashcorr;
+    
+}
+
+
+
 /* This routine resets dqicorr, atodcorr, and blevcorr for wf32d.
    These steps are done prior to cosmic ray rejection, then the
    steps for wf32d are done.  It isn't essential to reset these
@@ -471,7 +491,6 @@ void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,
    been done and will turn off that switch locally, but dqicorr will be
    done a second time, so it's a good idea to explicitly turn that off.
 
-   Think harder about how this affects the CTECORR step for uvis
  */
 
 void ResetCCDSw (CCD_Switch *wf3ccd_sci_sw, CCD_Switch *wf32d_sci_sw) {

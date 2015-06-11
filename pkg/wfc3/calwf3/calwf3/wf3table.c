@@ -24,7 +24,8 @@
 **	H.Bushouse, 2010 Oct 20
 **		Modified GetAsnTable to turn off CRCORR/RPTCORR processing if
 **		there aren't any sub-products with > 1 member. (PR 66366)
-**
+**  M. Sosey 2015
+**      Updates for CTE calibration code, see #1193
 */
 
 # include <ctype.h>
@@ -43,7 +44,7 @@
 # define CRLEN	2
 # define RPTLEN 2
 # define DTHLEN 3
-# define NSUF	13
+# define NSUF	14
 
 # define MEMABSENT -1
 # define DASH_CHAR '-'
@@ -685,7 +686,7 @@ int GetAsnTable (AsnInfo *asn) {
 
         	 /* If the last character of the memtype is a number or letter, 
         	 ** convert to an integer value...  */
-		 if (streq_ic(word,"crj") || streq_ic(word,"rpt") ) {
+		 if (streq_ic(word,"crj") || streq_ic(word,"rpt") || streq_ic(word,"crc") ) {
 		     posid = 1;
 		 } else {
 		     if (exp[row].prsnt || streq_ic(memsubtype,"prod")) {
@@ -988,6 +989,7 @@ void initAsnInfo (AsnInfo *asn) {
 	asn->process      = -1;
 	asn->crcorr       = DUMMY;
 	asn->rptcorr      = DUMMY;
+    asn->pctecorr     = DUMMY;
 	/* for dthcorr, OMIT == never do, DUMMY == produce dummy product */
 	asn->dthcorr      = OMIT; 
 	asn->numprod      = 0;
@@ -1137,6 +1139,7 @@ void initAsnExp (ExpInfo *exp) {
 	exp->expname[0] = '\0';
 	exp->blv_tmp[0] = '\0';
     exp->blc_tmp[0] = '\0';
+    exp->rac_tmp[0] = '\0';
 	exp->dx = 0;
 	exp->dy = 0;
 	exp->xi = 0;
@@ -1347,6 +1350,7 @@ static int IsProduct (char *input) {
         "_blc", "_blc_tmp",
         "_crc", "_crc_tmp",
         "_flc",
+        "_rac",
 		"_flt", "_sfl",
 		"_drz",
         "_drc",

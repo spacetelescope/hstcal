@@ -31,8 +31,9 @@ WF3Info *wf3		o: exposure specific flags and info
 	int  mlen;
 	void FindAsnRoot (char *, char *);
 	void UpperAll (char *, char *, int);
+    int MkName(char *, char *, char *, char *, char *, int);
     
-	/* Find out if the member we want exists */	
+	/* FIND OUT IF THE MEMBER WE WANT EXISTS */	
 	if (asn->product[prodid].subprod[posid].exp[expid].name[0] == '\0') {
 	    sprintf (MsgText,
 		 "Couldn't find exposure %d of sub-product %d for product %d. ",		 expid, posid, prodid);
@@ -47,13 +48,25 @@ WF3Info *wf3		o: exposure specific flags and info
 
 	strcpy (outroot, asn->product[prodid].subprod[posid].name);
 	
-	/* Make sure we are only passing a rootname, and not a full filename.*/
+	/* MAKE SURE WE ARE ONLY PASSING A ROOTNAME, AND NOT A FULL FILENAME.*/
 	FindAsnRoot (outroot, rootname);
 	strcpy (wf3->outroot, rootname);
 					
 	strcpy (wf3->rootname,
 		asn->product[prodid].subprod[posid].exp[expid].name);
-	strcpy (wf3->crj_root, asn->product[prodid].subprod[posid].spname);
+	
+    strcpy (wf3->crj_root, asn->product[prodid].subprod[posid].spname);
+    
+    if (wf3->sci_basic_cte == PERFORM){
+        /*replace spname which already has crj in it with crc*/
+    	strcpy (wf3->crc_root, asn->product[prodid].subprod[posid].spname);
+        if (strstr(wf3->crc_root,"_crj")){
+            if (MkName (wf3->crc_root, "_crj", "_crc", "", wf3->crc_root, SZ_LINE)){
+                return (status);
+            }
+        }
+    }
+    
 
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (wf3->rootname, rootname);

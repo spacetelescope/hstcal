@@ -12,22 +12,23 @@
 static void InitRejTrl (char *, char *, int); 
 
 /*  WF3REJ -- cosmic ray rejection with shading correction and 
-                section-by-section checking for WF3
+    section-by-section checking for WF3
 
-  Description:
-  ------------
+Description:
+------------
 
-  Date          Author		Description
-  ----          -------------	-----------
-  08-27-1998	W.J. Hack	Adapt from CALSTIS2
-  08-29-2000	H.A. Bushouse	Adapt from ACSREJ
-  10-27-2003	H. Bushouse	Always try to create new SPT file even if
-				REJ product not created (CALACS changes).
-  02-14-2005	H. Bushouse	Fix memory reallocation problem in InitRejTrl.
-  05-22-2008	H. Bushouse	Make use of wf3.detector to id WFC3 IR images.
-  06-16-2011	H. Bushouse	Fixed error return from rej_do so that original
-				status gets passed up for use in caller.
-				(PR 68593; Trac #722)
+Date          Author		Description
+----          -------------	-----------
+08-27-1998	W.J. Hack	Adapt from CALSTIS2
+08-29-2000	H.A. Bushouse	Adapt from ACSREJ
+10-27-2003	H. Bushouse	Always try to create new SPT file even if
+REJ product not created (CALACS changes).
+02-14-2005	H. Bushouse	Fix memory reallocation problem in InitRejTrl.
+05-22-2008	H. Bushouse	Make use of wf3.detector to id WFC3 IR images.
+06-16-2011	H. Bushouse	Fixed error return from rej_do so that original
+status gets passed up for use in caller.
+(PR 68593; Trac #722)
+06-10-2015  M. Sosey, updates for CTE addtion, #1193 
 */
 
 int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[]) 
@@ -51,7 +52,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
     int 	LoadHdr (char *, Hdr *);
     int         GetKeyStr (Hdr *, char *, int, char *, char *, int);
 
-/* ----------------------------- Begin ------------------------------*/
+    /* ----------------------------- Begin ------------------------------*/
 
     /* Determine which detector is in use from first input image */
     tpin = c_imtopen (in_list);
@@ -81,7 +82,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
     }
 
     /* Determine input and output trailer files, then initialize
-    ** output file by combining inputs into output file */
+     ** output file by combining inputs into output file */
     InitRejTrl(in_list, output, wf3.detector);
 
     /* Quit on error condition */
@@ -119,27 +120,27 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
 
     /* Perform the calculation */
     if (rej_do (tpin, output, mtype, par, newpar, wf3.detector)) {
-	trlmessage ("Did NOT create WF3REJ product. Trying to build SPT...");
-	/* We always want to try to create a new SPT file */
-	old_status = status;
-	status = WF3_OK;
-	if (mkNewSpt (in_list, mtype, output)) {
-	    return (status);
-	}
-	/* Clean up before returning */
-	c_imtclose(tpin);
-	WriteTrlFile ();
-	/* Pass rej_do error status to caller */
-	return (old_status);
+        trlmessage ("Did NOT create WF3REJ product. Trying to build SPT...");
+        /* We always want to try to create a new SPT file */
+        old_status = status;
+        status = WF3_OK;
+        if (mkNewSpt (in_list, mtype, output)) {
+            return (status);
+        }
+        /* Clean up before returning */
+        c_imtclose(tpin);
+        WriteTrlFile ();
+        /* Pass rej_do error status to caller */
+        return (old_status);
     }
 
     /* create new SPT file for output product */
     if (mkNewSpt (in_list, mtype, output)) {
         return(status);
     }
-    
+
     /* Update calibration switch to reflect proper execution
-    **  of this processing step.  */
+     **  of this processing step.  */
     if (wf3.detector == IR_DETECTOR)
         PrSwitch ("rptcorr", COMPLETE);
     else
@@ -169,30 +170,34 @@ static void InitRejTrl (char *input, char *output, int detector) {
     extern int  status;
     IRAFPointer tpin;
     int         n;
-    int         nfiles;                     /* Number of files in list */
+    int         nfiles;             /* Number of files in list */
 
-    char        *trl_in;                   /* trailer filename for input */
-    char        trl_out[SZ_LINE+1];       /* output trailer filename */
+    char        *trl_in;            /* trailer filename for input */
+    char        trl_out[SZ_LINE+1]; /* output trailer filename */
     char        in_name[SZ_FNAME+1];
     char        out_name[SZ_FNAME+1];
 
     int         trl_len;
 
-    char        isuffix[] = "_blv_tmp";
-    char        osuffix[] = "_crj_tmp";
+
+    /* Input and output suffixes for uvis. */
+    char *isuffix[] = {"_blv_tmp", "_blc_tmp","_flt","_flc"};
+    char *osuffix[] = {"_crj_tmp", "_crc_tmp","_crj","_crc"};
+    char *trlsuffix[] = {"", "","",""};
+    int nsuffix = 4;
 
     int MkName (char *, char *, char *, char *, char *, int);
     void WhichError (int);
 
-/* ----------------------------- Begin ------------------------------*/
+    /* ----------------------------- Begin ------------------------------*/
 
     trl_in =  realloc (NULL, (SZ_LINE +1));
     trl_len = SZ_LINE + 1;
 
     if (trl_in == NULL) {
-	printf ("Out of memory: Couldn't allocate for CRJ_TMP trailer file.");
- 	status = OUT_OF_MEMORY;
-	trl_len = 0;
+        printf ("Out of memory: Couldn't allocate for CRx_TMP trailer file.");
+        status = OUT_OF_MEMORY;
+        trl_len = 0;
     }	
 
     /* Initialize TRL filenames */
@@ -207,22 +212,14 @@ static void InitRejTrl (char *input, char *output, int detector) {
     for (n = 0; n < nfiles; ++n) {
         c_imtgetim (tpin, in_name, SZ_FNAME);
 
-        /* Check which WFC3 detector we're using */
-	if (n == 0) {
-
-	    /* Reset file name suffixes for IR images */
-	    if (detector == IR_DETECTOR) {
-		strcpy (isuffix, "_flt");
-        	strcpy (osuffix, "_crj");
-	    }
-	}
-
         /* Start by stripping off suffix from input/output filenames */
-        if (MkName (in_name, isuffix, "", TRL_EXTN, out_name, SZ_FNAME)) {
-            WhichError (status);
-            printf ("Couldn't determine trailer filename for %s", input);
-            continue;
+        if (MkOutName (in_name, isuffix, trlsuffix, nsuffix, out_name, SZ_LINE)) {
+	        WhichError (status);
+	        sprintf (MsgText, "Couldn't determine trailer filename for %s",
+		         input);
+	        trlmessage (MsgText);
         }
+
 
         if ((strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
             trl_len += strlen(out_name)*(nfiles-n);
@@ -236,13 +233,15 @@ static void InitRejTrl (char *input, char *output, int detector) {
         if (n < (nfiles-1)) strcat (trl_in, ",");		
     }
 
-    if (MkName (output, osuffix, "", TRL_EXTN, trl_out, SZ_LINE)) {
-        WhichError (status);
-        printf ("Couldn't create trailer filename for %s", output);
-    }
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
+	    WhichError (status);
+	    sprintf (MsgText, "Couldn't create trailer filename for %s",
+		     output);
+	    trlmessage (MsgText);
+	}
 
     /* Sets up temp trailer file for output and copies input
-    ** trailer file into it.  */
+     ** trailer file into it.  */
     InitTrlFile (trl_in, trl_out);
 
     /* Deallocate memory */

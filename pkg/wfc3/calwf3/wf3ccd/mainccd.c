@@ -47,8 +47,13 @@ int main (int argc, char **argv) {
 	int n;
 
 	/* Input and output suffixes. */
-	char isuffix[] = "_raw";
-	char osuffix[] = "_blv_tmp";
+	/* Input and output suffixes. */
+	/* Input and output suffixes. */
+	char *isuffix[] = {"_raw", "_rac"};
+	char *osuffix[] = {"_blv_tmp", "_blc_tmp"};
+	char *trlsuffix[] = {"", ""};
+
+	int nsuffix = 2;
 
 	/* A structure to pass the calibration switches to WF3CCD */
 	CCD_Switch ccd_sw;
@@ -193,20 +198,20 @@ int main (int argc, char **argv) {
 		    i = c_imtgetim (o_imt, output, SZ_LINE);
 	    } else {
     		output[0] = '\0';
-
-	        if (MkName (input, isuffix, osuffix, "", output, SZ_LINE)) {
-		        WhichError (status);
-		        sprintf (MsgText, "Skipping %s", input);
-		        trlmessage (MsgText);
-		        continue;
-	        }
+        }
+        
+	    if (MkOutName (input, isuffix, osuffix, nsuffix, output, SZ_LINE)) {
+	        WhichError (status);
+	        sprintf (MsgText, "Skipping %s", input);
+	        trlmessage (MsgText);
+	        continue;	    
         }
 
 	    /* Calibrate the current input file. */
 	    if (WF3ccd (input, output, &ccd_sw, &refnames, printtime, verbose)){
-		sprintf (MsgText, "Error processing %s.", input);
-		trlerror (MsgText);
-		WhichError (status);
+		    sprintf (MsgText, "Error processing %s.", input);
+		    trlerror (MsgText);
+		    WhichError (status);
 	    }
 	}
 
