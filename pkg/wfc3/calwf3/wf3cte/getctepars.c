@@ -35,9 +35,6 @@ void initCTEParams(CTEParams *pars){
     /*static scheduling is faster when there are no dependent loop variables
       for dependent variables inside the main loop switch to dynamic so that 
       the thread wait time can be variable 
-
-    #pragma omp parallel for schedule(static)\
-    private( i)
     */
     for (i=0; i<TRAPS;i++){
         pars->wcol_data[i]=0;  
@@ -45,9 +42,6 @@ void initCTEParams(CTEParams *pars){
         pars->dpdew_data[i]=0;
     }
 
-    /*#pragma omp parallel for schedule(static)\
-      private( i)
-      */
     for (i=0;i<RAZ_ROWS; i++){
         pars->iz_data[i]=0;
         pars->scale512[i]=0.;
@@ -327,7 +321,7 @@ No.    Name         Type      Cards   Dimensions   Format
     /*if ctraps ever overflows int this needs to be changed*/
     pars->cte_traps=(int)ctraps;
 
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%i\t%f\t%i\n",130,
+	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%f\t%f\t%i\n",130,
             pars->wcol_data[129],pars->qlevq_data[129], pars->dpdew_data[129], pars->cte_traps);
 	trlmessage(MsgText);
 

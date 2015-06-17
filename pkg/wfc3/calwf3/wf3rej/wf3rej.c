@@ -31,7 +31,7 @@ status gets passed up for use in caller.
 06-10-2015  M. Sosey, updates for CTE addtion, #1193 
 */
 
-int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[]) 
+int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], int makespt) 
 {
 
     extern int      status;
@@ -55,6 +55,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
     /* ----------------------------- Begin ------------------------------*/
 
     /* Determine which detector is in use from first input image */
+    
     tpin = c_imtopen (in_list);
     c_imtgetim (tpin, in_name, SZ_FNAME);
     initHdr (&phdr);
@@ -80,11 +81,13 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
         trlwarn (MsgText);
         wf3.detector = UNKNOWN_DETECTOR;
     }
-
+    
     /* Determine input and output trailer files, then initialize
      ** output file by combining inputs into output file */
+     
+     
     InitRejTrl(in_list, output, wf3.detector);
-
+        
     /* Quit on error condition */
     if (status)
         return (status);
@@ -124,8 +127,10 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
         /* We always want to try to create a new SPT file */
         old_status = status;
         status = WF3_OK;
-        if (mkNewSpt (in_list, mtype, output)) {
-            return (status);
+        if (makespt){
+            if (mkNewSpt (in_list, mtype, output)) {
+                return (status);
+            }
         }
         /* Clean up before returning */
         c_imtclose(tpin);
@@ -135,10 +140,12 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
     }
 
     /* create new SPT file for output product */
-    if (mkNewSpt (in_list, mtype, output)) {
-        return(status);
+    if (makespt){
+        if (mkNewSpt (in_list, mtype, output)) {
+            return(status);
+        }
     }
-
+    
     /* Update calibration switch to reflect proper execution
      **  of this processing step.  */
     if (wf3.detector == IR_DETECTOR)
@@ -183,7 +190,7 @@ static void InitRejTrl (char *input, char *output, int detector) {
     /* Input and output suffixes for uvis. */
     char *isuffix[] = {"_blv_tmp", "_blc_tmp","_flt","_flc"};
     char *osuffix[] = {"_crj_tmp", "_crc_tmp","_crj","_crc"};
-    char *trlsuffix[] = {"", "","",""};
+    char *trlsuffix[] = {"_blv_tmp", "_blc_tmp","_flt","_flc"};
     int nsuffix = 4;
 
     int MkName (char *, char *, char *, char *, char *, int);
@@ -195,7 +202,7 @@ static void InitRejTrl (char *input, char *output, int detector) {
     trl_len = SZ_LINE + 1;
 
     if (trl_in == NULL) {
-        printf ("Out of memory: Couldn't allocate for CRx_TMP trailer file.");
+        printf ("Out of memory: Couldn't allocate for CR_TMP trailer file.");
         status = OUT_OF_MEMORY;
         trl_len = 0;
     }	
@@ -219,7 +226,6 @@ static void InitRejTrl (char *input, char *output, int detector) {
 		         input);
 	        trlmessage (MsgText);
         }
-
 
         if ((strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
             trl_len += strlen(out_name)*(nfiles-n);

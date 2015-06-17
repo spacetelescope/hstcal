@@ -58,10 +58,10 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	int  nx;
 	int  extnum, nextn;
 
-	char *isuffix[] = {"_blv_tmp","_crj_tmp","_crc_tmp","_flt","_crj","_drz","_sfl"};
-	char *osuffix[] = { "_spt","_spt","_spt","_spt","_spt","_spt","_spt"};
+	char *isuffix[] = {"_blv_tmp","_blc_tmp","_crj_tmp","_crc_tmp","_flt","_crj","_drz","_drc","_sfl","_flc"};
+	char *osuffix[] = { "_spt","_spt","_spt","_spt","_spt","_spt","_spt","_spt","_spt","_spt"};
 
-	int  nsuffix = 7;               /* How many suffixes to check */
+	int  nsuffix = 10;               /* How many suffixes to check */
 
 	int  MkOutName (const char *, char **, char **, int, char *, int);
 	int  MkName (char *, char *, char *, char *, char *, int);

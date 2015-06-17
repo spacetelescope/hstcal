@@ -85,7 +85,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     
     Bool subarray; /* to verify that no subarray is being used, it's not implemented yet*/
 
-    /*CONTAIN PARALLEL PROCESSING TO A SINGLE THREAD*/
+    /*CONTAIN PARALLEL PROCESSING TO A SINGLE THREAD AS USER OPTION*/
 #   ifdef _OPENMP
     trlmessage("\nUsing parallel processing provided by OpenMP inside CTE routine\n");
     if (onecpu){
@@ -104,7 +104,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     /*JUST FOR VERIFICIATION IMAGES*/
     Hdr junkhdr;
     initHdr(&junkhdr);
-    IODescPtr out;
+    IODescPtr out=0;
     char tmpout[SZ_LINE+1]; 
    
 
@@ -240,9 +240,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
         sprintf(MsgText,"Bias subtracted image for amps ab written to %s\n",tmpout);
         trlmessage(MsgText);
     }
-    
-
-    
+      
     /*CONVERT TO RAZ FORMAT AND CORRECT FOR GAIN*/
     initSingleGroup(&raz);
     allocSingleGroup(&raz, RAZ_COLS, RAZ_ROWS);
@@ -268,7 +266,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     initSingleGroup(&rsz);
     allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS);
     
-    /***CHECK THE NOISE MITIGATION MODEL  cte_pars.rn_amp ***/
+    /***CHECK THE NOISE MITIGATION MODEL ***/
     if (cte_pars.noise_mit == 0) {
         if (raz2rsz(&wf3, &raz, &rsz, cte_pars.rn_amp, max_threads))
             return (status);

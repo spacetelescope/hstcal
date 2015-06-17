@@ -84,7 +84,6 @@ typedef struct {
 	asnType process;      /* single image, partial or full ASN processing */
 	int crcorr;		/* do cosmic-ray rejection for science files? */
 	int rptcorr;		/* combine repeatobs science data? */
-    int pctecorr;  /*do CTE correction?*/
 	int dthcorr;  	/* Dither combine sub-products into final product? */
 	int numprod;	/* Number of dither-combined/polarizer products (>1) */
 	int numsp;		/* Number of sub-products in association */

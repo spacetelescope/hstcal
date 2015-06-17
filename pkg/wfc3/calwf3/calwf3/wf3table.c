@@ -989,7 +989,6 @@ void initAsnInfo (AsnInfo *asn) {
 	asn->process      = -1;
 	asn->crcorr       = DUMMY;
 	asn->rptcorr      = DUMMY;
-    asn->pctecorr     = DUMMY;
 	/* for dthcorr, OMIT == never do, DUMMY == produce dummy product */
 	asn->dthcorr      = OMIT; 
 	asn->numprod      = 0;
@@ -1406,7 +1405,7 @@ int GetAsnName (char *filename, char *asn_name) {
 int updateAsnTable (AsnInfo *asn, int prodid, int posid) {
 
 /* Arguments:
-**	asn		i: association info structure
+**	asn		    i: association info structure
 **	prodid		i: product id for member that needs to be updated
 **	posid		i: position id for member that needs to be updated
 */
@@ -1439,14 +1438,14 @@ int updateAsnTable (AsnInfo *asn, int prodid, int posid) {
 	/* Find the columns in the ASN table */
 	for (col=0; col < NCOLS; col++) {
 	     if (colptr[col] == 0) {
-		 c_tbcfnd1 (asn_tp, colname[col], &(colptr[col]));
-		 if (c_iraferr() || colptr[col] == 0) {
-		     sprintf (MsgText, "Can't find column %s in %s",
-			      colname[col], asn->asn_table);
-		     trlerror (MsgText);
-		     c_tbtclo (asn_tp);
-		     return (status = 1);
-		 }
+		    c_tbcfnd1 (asn_tp, colname[col], &(colptr[col]));
+            if (c_iraferr() || colptr[col] == 0) {
+	             sprintf (MsgText, "Can't find column %s in %s",
+		              colname[col], asn->asn_table);
+	             trlerror (MsgText);
+	             c_tbtclo (asn_tp);
+	             return (status = 1);
+            }
 	     }
 	}
 	

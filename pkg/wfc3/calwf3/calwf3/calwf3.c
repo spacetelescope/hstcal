@@ -628,26 +628,27 @@ int CopyFFile (char *infile, char *outfile) {
 
 /* This function is an interface for calling WF3Rej.  It sets up the
    default parameters, copies printtime and verbose into the par structure,
-   and calls WF3Rej.
+   and calls WF3Rej. makespt should be 1 the first time through with no CTE
+   and the CTE routine will call it with 0.
  */
 
 # include "wf3rej.h"
 
 int WF3Rej_0 (char *input, char *output, char *mtype, int printtime,
-		int verbose) {
+		int verbose, int makespt) {
 
 	extern int status;
 	clpar 	par;			/* parameters used */
 	int 	newpar[MAX_PAR+1];	/* user specifiable parameters */
 
 	void rej_reset (clpar *, int []);
-	int Wf3Rej (char *, char *, char *, clpar *, int []);
+	int Wf3Rej (char *, char *, char *, clpar *, int [], int);
 
 	rej_reset (&par, newpar);
 	par.printtime = printtime;
 	par.verbose = verbose;
 
-	status = Wf3Rej (input, output, mtype, &par, newpar);
+	status = Wf3Rej (input, output, mtype, &par, newpar, makespt);
 
 	return (status);
 }

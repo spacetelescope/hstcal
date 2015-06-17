@@ -14,7 +14,7 @@
 # define BADBIAS         128    /* bad bias value */
 # define SATPIXEL        256    /* full-well or a-to-d saturated pixel */
 # define BADFLAT         512    /* bad flatfield value */
-# define TRAP           1024    /* UVIS charge trap */
+# define TRAP           1024    /* UVIS charge trap, SINK pixel */
 # define SPIKE          1024    /* CR spike detected during cridcalc IR */ 
 # define ATODSAT        2048    /* a-to-d saturated pixel */
 # define ZEROSIG        2048    /* IR zero-read signal correction */
