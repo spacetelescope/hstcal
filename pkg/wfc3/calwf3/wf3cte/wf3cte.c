@@ -713,7 +713,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
             for (j=0; j<RAZ_ROWS; j++){  
                 find_dadj(1+i-imid,j, obs_loc, rsz_loc, rnsig, &d);
                 Pix(zadj.sci.data,i,j)=d;
-                if (wf3->verbose){
+
                     if (j==1999 && i==19){
                         sprintf(MsgText,"%2i\t%f\t%4i\t%f\t%f\t%f",NIT,rms,i+1,
                             fminf(Pix(raz->sci.data,i,j),999.9),
@@ -721,10 +721,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
                             fminf(Pix(rsz->sci.data,i,j), 999.9));
                         trlmessage(MsgText);
                     }
-                } else {
-                    sprintf(MsgText,".");
-                    trlmessage(MsgText);
-                }
+                 
             }
         } /*end the parallel for*/
     
@@ -1074,13 +1071,13 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     
     trlmessage("Calculating CTE correction..");    
 
-   /*define to make private in parallel run*/
-   float *pix_obsd = 0;   
-   float *pix_modl = 0;   
-   float *pix_curr = 0;   
-   float *pix_init = 0;   
-   float *pix_read = 0;   
-   float *pix_ctef = 0;   
+    /*define to make private in parallel run*/
+    float *pix_obsd = 0;   
+    float *pix_modl = 0;   
+    float *pix_curr = 0;   
+    float *pix_init = 0;   
+    float *pix_read = 0;   
+    float *pix_ctef = 0;   
 
     #pragma omp parallel for schedule (dynamic,1) \
         private(dmod,i,j,jj,jmax,REDO,NREDO, \
@@ -1217,40 +1214,31 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             memcpy(&Pix(rc.sci.data,i,j),&pix_modl[j],sizeof(float)); /*copy modl to RSC image*/
         }         
         
-        if (verbose){
-            if (i ==0){
-                sprintf(MsgText,"%15s AMPLIFIER C %2s","*****","*****");
-                trlmessage(MsgText);
-            }
-            if (i==2103){
-                sprintf(MsgText,"%15s AMPLIFIER D %2s","*****","*****");
-                trlmessage(MsgText);
-            }
-            if (i==4205){
-                sprintf(MsgText,"%15s AMPLIFIER A %2s","*****","*****");
-                trlmessage(MsgText);
-            }
-            if (i==6308){
-                sprintf(MsgText,"%15s AMPLIFIER B %2s","*****","*****");
-                trlmessage(MsgText);
-            }
-            
-            if ((i+1)%100 == 0){
-                sprintf(MsgText,"%d\t%d\t%d\t%d",i+1, 
-                        (int)(pix_obsd[1999]), 
-                        (int)(pix_modl[1999]), 
-                        ((((int)pix_modl[1999]) - ((int) pix_obsd[1999]))));
-                trlmessage(MsgText);
-            }
-        } else {
-            if (i=0){
-                trlmessage("Moving CTE charge around ... ");
-            }
-            if ( (i+1)%100 == 0){
-                trlmessage(".");
-            }
+        if (i ==0){
+            sprintf(MsgText,"%15s AMPLIFIER C %2s","*****","*****");
+            trlmessage(MsgText);
         }
-                           
+        if (i==2103){
+            sprintf(MsgText,"%15s AMPLIFIER D %2s","*****","*****");
+            trlmessage(MsgText);
+        }
+        if (i==4205){
+            sprintf(MsgText,"%15s AMPLIFIER A %2s","*****","*****");
+            trlmessage(MsgText);
+        }
+        if (i==6308){
+            sprintf(MsgText,"%15s AMPLIFIER B %2s","*****","*****");
+            trlmessage(MsgText);
+        }
+
+        if ((i+1)%100 == 0){
+            sprintf(MsgText,"%d\t%d\t%d\t%d",i+1, 
+                    (int)(pix_obsd[1999]), 
+                    (int)(pix_modl[1999]), 
+                    ((((int)pix_modl[1999]) - ((int) pix_obsd[1999]))));
+            trlmessage(MsgText);
+        }
+
               
     } /*end i*/                 
 

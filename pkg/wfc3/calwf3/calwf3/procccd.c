@@ -401,7 +401,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (*save_tmp != YES){
                         if (wf3hdr->sci_basic_cte == PERFORM) {
                             remove (wf3hdr->blc_tmp);
-                            remove (wf3hdr->rac_tmp);
                         }
                         remove (wf3hdr->blv_tmp);
                     }                
@@ -640,7 +639,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                                         asn->product[prod].subprod[posid].exp[expid].blc_tmp);
                                 trlmessage (MsgText);
                             }
-                            remove (asn->product[prod].subprod[posid].exp[expid].rac_tmp);
                             remove (asn->product[prod].subprod[posid].exp[expid].blc_tmp);
                         }
                     }    
