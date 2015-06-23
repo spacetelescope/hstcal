@@ -3,6 +3,8 @@
 	NewRefFile
 	FindRefFile
 	FreeRefFile
+    
+    Valgrind says there's a memory leak in NewRefFile
 */
 
 # include <stdlib.h>
@@ -46,19 +48,22 @@ char *filename     i: name of reference file
 
 	RefFileInfo *previous, *current, *newrec;
 	int foundit = 0;
-
+    previous=0;
+    current=0;
+    newrec=0;
+    
 	/* Search for the keyword in the list. */
 	previous = ref;
 	current = ref->next;		/* skip over dummy first record */
 	while (!foundit) {
 	    if (current == NULL) {
-		current = previous;	/* back up to last record */
+		    current = previous;	/* back up to last record */
 		break;
 	    } else if (strcmp (keyword, current->keyword) == 0) {
-		foundit = 1;
+		    foundit = 1;
 	    } else {
-		previous = current;
-		current = current->next;
+		    previous = current;
+		    current = current->next;
 	    }
 	}
 
@@ -71,7 +76,7 @@ char *filename     i: name of reference file
 
 	    /* Allocate space for a new record, and copy info into it. */
 	    if ((newrec = malloc (sizeof (RefFileInfo))) == NULL)
-		return (status = OUT_OF_MEMORY);
+		    return (status = OUT_OF_MEMORY);
 
 	    strcpy (newrec->keyword, keyword);
 	    strcpy (newrec->filename, filename);
@@ -107,13 +112,13 @@ int *foundit       o: true if keyword was found in list
 	current = ref;
 	while (!done) {
 	    if (current == NULL) {
-		done = 1;
+		    done = 1;
 	    } else if (strcmp (keyword, current->keyword) == 0) {
-		strcpy (filename, current->filename);
-		*foundit = 1;
-		done = 1;
+		    strcpy (filename, current->filename);
+		    *foundit = 1;
+		    done = 1;
 	    } else {
-		current = current->next;
+		    current = current->next;
 	    }
 	}
 }

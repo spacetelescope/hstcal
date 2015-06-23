@@ -103,6 +103,7 @@ typedef struct {
 
 /* This section is for saving the names of reference files. */
 typedef struct ref *RefFileInfoPtr;
+
 typedef struct ref {
 	char keyword[SZ_KEYWORD+1];
 	char filename[SZ_FITS_REC+1];

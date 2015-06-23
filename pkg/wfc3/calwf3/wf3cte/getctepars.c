@@ -85,29 +85,28 @@ No.    Name         Type      Cards   Dimensions   Format
 	extern int status; /* variable for return status */
     int ctraps; /*see if more traps were added to reference file*/
     
-	/* hstio variables */
+	/* HSTIO VARIABLES */
 	Hdr hdr_ptr;
 
-	/* xtables variables */
+	/* TABLES VARIABLES */
 	IRAFPointer tbl_ptr;        /* xtables table pointer */
-	IRAFPointer w_ptr;        /* pointer to w column */
-	IRAFPointer qlevq_ptr;   /*pointer to qlev_q column*/
-	IRAFPointer dpdew_ptr;   /*pointer to pde_W column*/
-	IRAFPointer iz_ptr;       /*pointer to IZ column */
-	IRAFPointer sens512_ptr; /*pointer to sens_0512 column*/
-	IRAFPointer sens1024_ptr; /* pointer to sens2014 column*/
-	IRAFPointer sens1536_ptr; /*pointer to sens1536 column*/
-	IRAFPointer sens2048_ptr; /*pointer to sens2048 column*/
+	IRAFPointer w_ptr;          /* pointer to w column */
+	IRAFPointer qlevq_ptr;      /* pointer to qlev_q column*/
+	IRAFPointer dpdew_ptr;      /* pointer to pde_W column*/
+	IRAFPointer iz_ptr;         /* pointer to IZ column */
+	IRAFPointer sens512_ptr;    /* pointer to sens_0512 column*/
+	IRAFPointer sens1024_ptr;   /* pointer to sens2014 column*/
+	IRAFPointer sens1536_ptr;   /* pointer to sens1536 column*/
+	IRAFPointer sens2048_ptr;   /* pointer to sens2048 column*/
 
-	/* variable for filename + extension number. */
+	/* VARIABLE FOR FILENAME + EXTENSION NUMBER. */
 	char filename_wext[strlen(filename) + 4];
 
-	/* iteration variable */
+	/* ITERATION VARIABLE */
 	int j;
 
 
-	/* names of data columns we want from the file, data will be stored in the pars structure */
-
+	/* NAMES OF DATA COLUMNS WE WANT FROM THE FILE, DATA WILL BE STORED IN THE PARS STRUCTURE */
 	const char wcol[] = "W";
 	const char qlevq[] = "QLEV_Q";
 	const char dpdew[] = "DPDE_W";
@@ -117,7 +116,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	const char sens1536[] = "SENS_1536";
 	const char sens2048[] = "SENS_2048";
 
-	/* load primary header */
+	/* LOAD PRIMARY HEADER */
 	if (LoadHdr(filename, &hdr_ptr)) {
 		sprintf(MsgText,"(pctecorr) Error loading header from %s",filename);
 		cteerror(MsgText);
@@ -125,7 +124,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	/* get cte_name keyword */
+	/* GET CTE_NAME KEYWORD */
 	if (GetKeyStr (&hdr_ptr, "CTE_NAME", NO_DEFAULT, "", &pars->cte_name, SZ_CBUF)) {
 		cteerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -135,7 +134,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"CTE_NAME: %s",&pars->cte_name);
 	trlmessage(MsgText);
 
-	/* get version number  */
+	/* GET VERSION NUMBER  */
 	if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", &pars->cte_ver, SZ_CBUF)) {
 		cteerror("(pctecorr) Error reading CTE_VER keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -144,7 +143,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"CTE_VER: %s",&pars->cte_ver);
 	trlmessage(MsgText);
 
-	/* get date of uvis installation in HST */
+	/* GET DATE OF UVIS INSTALLATION IN HST */
 	if (GetKeyDbl(&hdr_ptr, "CTEDATE0", NO_DEFAULT, -999, &pars->cte_date0)) {
 		cteerror("(pctecorr) Error reading CTEDATE0 keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -154,7 +153,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
 	trlmessage(MsgText);
 
-	/* get refrence date of CTE model pinning */
+	/* GET REFRENCE DATE OF CTE MODEL PINNING */
 	if (GetKeyDbl(&hdr_ptr, "CTEDATE1", NO_DEFAULT, -999, &pars->cte_date1)) {
 		cteerror("(pctecorr) Error reading CTEDATE1 keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -164,7 +163,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
 	trlmessage(MsgText);
 
-	/* read max length of cte trail */
+	/* READ MAX LENGTH OF CTE TRAIL */
 	if (GetKeyInt(&hdr_ptr, "PCTETLEN", NO_DEFAULT, -999, &pars->cte_len)) {
 		cteerror("(pctecorr) Error reading PCTETLEN keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -174,7 +173,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
 	trlmessage(MsgText);
 
-	/* get read noise clipping level */
+	/* GET READ NOISE CLIPPING LEVEL */
 	if (GetKeyFlt(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
 		cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -184,7 +183,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTERNOI: %g",pars->rn_amp);
 	trlmessage(MsgText);
 
-	/* get number of iterations used in forward model */
+	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
 	if (GetKeyInt(&hdr_ptr, "PCTENFOR", NO_DEFAULT, -999, &pars->n_forward)) {
 		cteerror("(pctecorr) Error reading PCTENFOR keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -193,7 +192,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTERNFOR: %d",pars->n_forward);
 	trlmessage(MsgText);
 
-	/* get number of iterations used in parallel transfer*/
+	/* GET NUMBER OF ITERATIONS USED IN PARALLEL TRANSFER*/
 	if (GetKeyInt(&hdr_ptr, "PCTENPAR", NO_DEFAULT, -999, &pars->n_par)) {
 		cteerror("(pctecorr) Error reading PCTENPAR keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -203,7 +202,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTERNPAR: %d",pars->n_par);
 	trlmessage(MsgText);
 
-	/* get read noise mitigation algorithm*/
+	/* GET READ NOISE MITIGATION ALGORITHM*/
 	if (GetKeyInt(&hdr_ptr, "PCTENSMD", NO_DEFAULT, -999, &pars->noise_mit)) {
 		cteerror("(pctecorr) Error reading PCTENSMD keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -212,7 +211,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTENSMD: %d",pars->noise_mit);
 	trlmessage(MsgText);
 
-	/* get over subtraction threshold */
+	/* GET OVER SUBTRACTION THRESHOLD */
 	if (GetKeyFlt(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
 		cteerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
 		status = KEYWORD_MISSING;
@@ -222,7 +221,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTETRSH: %f",pars->thresh);
 	trlmessage(MsgText);
  
-    /*fix the readout Cr's? */
+    /*FIX THE READOUT CR'S? */
     if (GetKeyInt(&hdr_ptr, "FIXROCR", NO_DEFAULT, -999, &pars->fix_rocr)){
         cteerror("(pctecorr) Error reading FIXROCR keyword from PCTETAB");
         status = KEYWORD_MISSING;
@@ -231,14 +230,14 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"FIXROCR: %d",pars->fix_rocr);
 	trlmessage(MsgText);
 
-	/* done reading stuff from the primary header */
+	/* DONE READING STUFF FROM THE PRIMARY HEADER */
 	freeHdr(&hdr_ptr);
 
 	/****************************************************************************/
-	/* read  data from first table extensions */
+	/* READ  DATA FROM FIRST TABLE EXTENSIONS */
 	sprintf(filename_wext, "%s[%i]", filename, 1);
 
-	/* open  parameters file to extension number 1 */
+	/* OPEN  PARAMETERS FILE TO EXTENSION NUMBER 1 */
 	tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
@@ -249,7 +248,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	/* read data from table */
+	/* READ DATA FROM TABLE */
 	/* get column pointer for w */
 	c_tbcfnd1(tbl_ptr, wcol, &w_ptr);
 	if (c_iraferr() || w_ptr == 0) {
@@ -259,7 +258,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	/* get column pointer for qlevq */
+	/* GET COLUMN POINTER FOR QLEVQ */
 	c_tbcfnd1(tbl_ptr, qlevq, &qlevq_ptr);
 	if (c_iraferr() || qlevq_ptr == 0) {
 		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",qlevq);
@@ -268,7 +267,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	/* get column pointer for dpdew */
+	/* GET COLUMN POINTER FOR DPDEW */
 	c_tbcfnd1(tbl_ptr, dpdew, &dpdew_ptr);
 	if (c_iraferr() || dpdew_ptr == 0) {
 		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",dpdew);
@@ -278,12 +277,12 @@ No.    Name         Type      Cards   Dimensions   Format
 	}
 
 
-	/* loop over table rows up to size TRAPS*/
+	/* LOOP OVER TABLE ROWS UP TO SIZE TRAPS*/
     ctraps=0; /*actual usable traps*/
     
 	for (j = 0; j < TRAPS; j++) {
     
-		/* get w from this row */
+		/* GET W FROM THIS ROW */
 		c_tbegti(tbl_ptr, w_ptr, j+1, &pars->wcol_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, wcol);
@@ -292,7 +291,7 @@ No.    Name         Type      Cards   Dimensions   Format
 			return status;
 		}
                 
-		/* get qlevq from this row */
+		/* GET QLEVQ FROM THIS ROW */
 		c_tbegtr(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qlevq);
@@ -304,7 +303,7 @@ No.    Name         Type      Cards   Dimensions   Format
         if (pars->qlevq_data[j] < 999999)
             ctraps+=1;
         
-		/* get dpdew from this row */
+		/* GET DPDEW FROM THIS ROW */
 		c_tbegtr(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dpdew);
@@ -318,20 +317,20 @@ No.    Name         Type      Cards   Dimensions   Format
         }
 	}
     
-    /*if ctraps ever overflows int this needs to be changed*/
+    /*IF CTRAPS EVER OVERFLOWS INT THIS NEEDS TO BE CHANGED*/
     pars->cte_traps=(int)ctraps;
 
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%f\t%f\t%i\n",130,
-            pars->wcol_data[129],pars->qlevq_data[129], pars->dpdew_data[129], pars->cte_traps);
+	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%f\t%f\ttraps=%i\n",20,
+            pars->wcol_data[19],pars->qlevq_data[19], pars->dpdew_data[19], pars->cte_traps);
 	trlmessage(MsgText);
 
 
-	/* close CTE parameters file for extension 1*/
+	/* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
 	c_tbtclo(tbl_ptr);
 
 	/****************************************************************************/
 	/****************************************************************************/
-	/* read cte scaling data from second table extension */
+	/* READ CTE SCALING DATA FROM SECOND TABLE EXTENSION */
 	sprintf(filename_wext, "%s[%i]", filename, 2);
 
 	tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
