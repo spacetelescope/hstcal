@@ -112,9 +112,9 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
                     DQSetPix (raz.dq.data, i, j-1, dqval);
                 }
 
-                for (jj=j+1; jj<RAZ_ROWS; jj++){
+                for (jj=j+2; jj<RAZ_ROWS; jj++){
                     if (PPix(&sinkraz,i,jj) != 0){
-                        if (Pix(raz.dq.data,i,j) <= PPix(&sinkraz,i,jj) ){
+                        if (Pix(raz.sci.data,i,j) <= PPix(&sinkraz,i,jj) ){
                         /*FLAG THIS UPSTREAM PIXEL*/
                         dqval = TRAP | DQPix (raz.dq.data, i, jj);
                         DQSetPix (raz.dq.data, i, jj, dqval);

@@ -784,7 +784,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
         putHeader(out);
         putFloatData(out,&rnz.sci.data);
         closeImage(out);
-        sprintf(MsgText,"Wrote RNZ file for verification  %s",tmpout);
+        sprintf(MsgText,"Wrote RNZ (readnoise) file for verification  %s",tmpout);
         trlmessage(MsgText);
         freeHdr(&junkhdr);
     }            
@@ -1126,8 +1126,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                         pix_curr[j]=pix_read[j];
                     }
                 } /* end NITCTE */
-                
-                    
+                                
                 /*DAMPEN THE ADJUSTMENT IF IT IS CLOSE TO THE READNOISE, THIS IS
                   AN ADDITIONAL AID IN MITIGATING THE IMPACT OF READNOISE*/
                 for (j=0; j< RAZ_ROWS; j++){
@@ -1154,7 +1153,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                                  pix_obsd[j+1] - pix_obsd[j+2] <-15.))) {
                             jmax=j;
                             /*GO DOWNSTREAM AND LOOK FOR THE OFFENDING CR*/
-                            for (jj=j-10; jj<=j;jj++){
+                            for (jj=j-10; jj<j;jj++){
                                 if ( (pix_modl[jj] - pix_obsd[jj]) > 
                                         (pix_modl[jmax] - pix_obsd[jmax]) ) {
                                         jmax=jj;

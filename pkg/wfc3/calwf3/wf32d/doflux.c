@@ -22,6 +22,10 @@ written to disk. This is necessary because of how the pipeline is setup to proce
 which chip is getting corrected here, and where the data is - we need information from the header
 of both imsets to process chip2 correctly.
 
+MLS June 24, 2015:
+
+Added more code to deal with correct scaling of subarray images
+
 */
 
 void FluxMsg (WF3Info *wf32d) {
@@ -63,8 +67,10 @@ int doFlux (WF3Info *wf32d){
 	}
 
 	initSingleGroup (&chip2);
-	initSingleGroup (&chip1);
-
+    if (wf32d->subarray == NO){
+    	initSingleGroup (&chip1);
+    }
+    
 	/* Open the input image. I'm reading in the entire thing here because
 	   I can't get  the overwrite mode to work in hstio, and it might be a bug
 
@@ -72,15 +78,26 @@ int doFlux (WF3Info *wf32d){
 	   with the updated group information
 
 	 */
-	getSingleGroup (wf32d->output, 1, &chip2); /*chip2 is in sci,1*/
-	getSingleGroup (wf32d->output, 2, &chip1); /*chip1 is in sci,2*/
+     
+    /*If a subarray in Chip 2 is passed it needs to be scaled*/ 
+    if (wf32d->subarray == YES){
+        getSingleGroup (wf32d->output, 1, &chip2); /*chip2 is in sci,1*/
+    	if (hstio_err())
+		    return (status = OPEN_FAILED);    
+        
+        memcpy(&phtflam1,&wf32d->chip1_flam,sizeof(double));
+        sprintf(MsgText,"Copied wf332d->chip1_flam: %g to phtflam1: %g",wf32d->chip1_flam,phtflam1);
+        trlmessage(MsgText);
+                
+    } else {
+    	getSingleGroup (wf32d->output, 1, &chip2); /*chip2 is in sci,1*/
+	    getSingleGroup (wf32d->output, 2, &chip1); /*chip1 is in sci,2*/
+    	if (hstio_err())
+		    return (status = OPEN_FAILED);    
+    	if (GetKeyDbl (&chip1.sci.hdr, "PHTFLAM1", USE_DEFAULT, 1., &phtflam1 ))
+		    return (status);
 
-	if (hstio_err())
-		return (status = OPEN_FAILED);    
-
-
-	if (GetKeyDbl (&chip1.sci.hdr, "PHTFLAM1", USE_DEFAULT, 1., &phtflam1 ))
-		return (status);
+    }
 
 	if (GetKeyDbl (&chip2.sci.hdr, "PHTFLAM2", USE_DEFAULT, 1., &phtflam2 ))
 		return (status);        
@@ -90,9 +107,6 @@ int doFlux (WF3Info *wf32d){
 	if (wf32d->verbose){
 		sprintf (MsgText, "flam1 %g, flam2 %g, ratio %g", phtflam1, phtflam2, ratio);
 		trlmessage(MsgText);
-	}
-
-	if (wf32d->verbose){
     	sprintf(MsgText,"Using PHTRATIO: %g ",ratio);
 	    trlmessage(MsgText);
     }
@@ -162,6 +176,11 @@ int doFlux (WF3Info *wf32d){
 	if (UpdateSwitch ("FLUXCORR", wf32d->fluxcorr, chip2.globalhdr, &logit))
 		return (status);
 
+    /*clear out memory*/
+    freeSingleGroup(&chip2);
+    if (wf32d->subarray == NO)
+        freeSingleGroup(&chip1);
+        
 	return (status);
 }
 

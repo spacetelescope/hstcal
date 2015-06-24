@@ -9,6 +9,8 @@
 # include "wf3info.h"
 # include "wf3err.h"
 
+char * replace_str(char *, char *, char *);
+
 static void  Phot2Obs (char *, char *);
 
 /* This routine calls synphot functions to compute values associated with
@@ -41,6 +43,13 @@ static void  Phot2Obs (char *, char *);
    Added new FLUXCORR step to the pipeline to make the flux scaling for both chips
    equal. New keywords PHTFLAM1, PHTFLAM2, PHTRATIO added for tracking. PHTRATIO is
    the value chip2 is scaled by and is PHTFLAM1/PHTFLAM2
+   
+   M. Sosey, 24 June 2015
+   Added new code to deal with getting the value of PHTFLAM1 out of the imphttab
+   when a subarray is used in chip2 -> it only has 1 set of sci extensions so the
+   correct value isn't available later in doFlux. It now gets saved to the wf32d
+   struct as chip1_flam.
+   
  */
 
 int doPhot (WF3Info *wf32d, SingleGroup *x) {
@@ -61,6 +70,9 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int PutKeyFlt (Hdr *, char *, float, char *);
 
+    /*to enable subarrays in fluxcorr*/
+    char *newobs = NULL;
+    
 	if (wf32d->photcorr == DUMMY)
 		return (status);
 
@@ -120,8 +132,8 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 	if (PutKeyFlt (&x->sci.hdr, "PHOTFNU", photfnu, "inverse sensitivity"))
 		return (status);
     
-    /*only update the chip that's currently processing,
-    a consequence of the imphttab calling function */    
+    /*ONLY UPDATE THE CHIP THAT'S CURRENTLY PROCESSING,
+    A CONSEQUENCE OF THE IMPHTTAB CALLING FUNCTION */    
     if (wf32d->chip == 1){
         if (PutKeyFlt (&x->sci.hdr, "PHTFLAM1", obs.phtflam1,
 	    	   "photometry scaling for chip 1")){
@@ -130,7 +142,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
         if (PutKeyFlt (x->globalhdr, "PHTFLAM1", obs.phtflam1,
 	    	   "photometry scaling for chip 1")){
             return (status);
-        }              
+        }
     }
     
     if (wf32d->chip == 2){
@@ -138,29 +150,42 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 	    	   "photometry scaling for chip 2")) {
 	        return (status);
         }
+        if (PutKeyFlt (x->globalhdr, "PHTFLAM2", obs.phtflam2,
+	    	   "photometry scaling for chip 2")){
+            return (status);
+        }
     }
-    
+   
+    /*GET INFORMATION FOR SUBARRAY CASE IN FLUXCORR*/
+    if (wf32d->chip == 2 && wf32d->subarray == YES){
+        
+        sprintf(MsgText,"\nphotmode: %s\nobsmode: %s\n",obs.photmode,obsmode);
+        trlmessage(MsgText);
+            
+	    /* Update the photmode in obs for chip1*/
+        newobs=replace_str(obs.photmode,"uvis2","uvis1");
+        strcpy(obs.photmode,newobs);
+        strcpy(obsmode,newobs);
+        
+        sprintf(MsgText,"\nphotmode: %s\nobsmode: %s\n",obs.photmode,obsmode);
+        trlmessage(MsgText);
 
-	/*only update the chip that's currently processing,
-	  a consequence of the imphttab calling function */    
-	if (wf32d->chip == 1){
-		if (PutKeyFlt (&x->sci.hdr, "PHTFLAM1", obs.phtflam1,
-					"photometry scaling for chip 1")){
-			return (status);
-		}     
-		if (PutKeyFlt (x->globalhdr, "PHTFLAM1", obs.phtflam1,
-					"photometry scaling for chip 1")){
-			return (status);
-		}              
-	}
+	    /* Get phot values from IMPHTTAB */
+	    if (GetPhotTab (&obs, obsmode)) {
+		    trlerror ("Error return from GetPhotTab.");
+		    return (status);
+	    }
 
-	if (wf32d->chip == 2){
-		if (PutKeyFlt (&x->sci.hdr, "PHTFLAM2", obs.phtflam2,
-					"photometry scaling for chip 2")) {
-			return (status);
-		}
-	}
-
+        memcpy(&wf32d->chip1_flam,&obs.phtflam1,sizeof(double));
+        sprintf(MsgText,"PHTFLAM1 = %g",wf32d->chip1_flam);
+        trlmessage(MsgText);  
+        
+        /*now put it back*/
+        newobs=replace_str(obs.photmode,"uvis1","uvis2");
+        strcpy(obs.photmode,newobs);
+        strcpy(obsmode,newobs);
+                    
+    }
 
 	FreePhotPar (&obs);
 
@@ -189,4 +214,22 @@ static void Phot2Obs (char *photmode, char *obsmode) {
 	}
 	obsmode[len] = '\0';
 }
+
+
+/*replace str1 with str2, assumes output is same length as input*/
+char * replace_str(char *str, char *orig, char *replace){
+
+    char *p=NULL;
+    static char buffer[100];
+    
+    if (!(p=strstr(str,orig)))
+        return str;
+    
+    strncpy(buffer,str,p-str);
+    buffer[p-str]='\0';
+    sprintf(buffer+(p-str),"%s%s",replace,p+strlen(orig));
+
+    return buffer;
+}
+    
 

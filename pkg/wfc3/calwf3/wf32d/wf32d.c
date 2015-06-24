@@ -38,22 +38,25 @@
 	Howard Bushouse, 2003 Oct 24:
 	      Added expscorr switch as command argument (CALACS changes).
 
-  M Sosey, 2012 December 27:
+    M Sosey, 2012 December 27:
       Updated to account for a memory leak on linux machines during BuildDth 
       when RPTCORR is off and a new spt is being constructed (#967)       
-      
- M. Sosey, 2014 November 7:
+
+    M. Sosey, 2014 November 7:
       Moved the execution of doFlux (the 2 chip uv correction) here so that it ran after
       both chips had been calibrated. This is a consecquence of the correction  being needed
       for chip2, which happens to be in extension 1 of the raw file, so it gets the imphttab params
       first, before the ones for chip1 have been grabbed. The code needs the ratio of the two to 
       operate correctly.    
       
- M. Sosey, 2015 May:
-    The CTE version of the data has a separate DARK reference file associated with it.
-    It's stored in the DRKCFILE in the header. For the case when PCTECORR == PERFORM,
-    I've changed the code to look for that image instead of the regular DARKFILE. 
-     
+    M. Sosey, 2015 May:
+        The CTE version of the data has a separate DARK reference file associated with it.
+        It's stored in the DRKCFILE in the header. For the case when PCTECORR == PERFORM,
+        I've changed the code to look for that image instead of the regular DARKFILE. 
+ 
+    M. Sosey, 2015, June:
+    Added more code to deal with the flux scaling of subarray images
+       
 */
 
 int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
@@ -177,15 +180,26 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
    
     /*Scale chip2, sci 1,so that the flux correction is uniform between the detectors
       This will only be done if PHOTCORR and FLUXCORR are perform since we need the values
-      from the imphttable to make the correction */
+      from the imphttable to make the correction.Subarrays will also be corrected if they
+      are in chip2 */
     
     if (wf32d.fluxcorr == PERFORM) {
-        if (doFlux (&wf32d))
-            return(status);
+        if (wf32d.subarray == YES){
+            if (wf32d.chip == 2){
+                if (doFlux (&wf32d))
+                    return(status);
+            } else {
+                trlmessage("No flux scaling needed for Chip 1");
+            }
+        } else {
+            if (doFlux (&wf32d))
+                return(status);
+        }
+    
         FluxMsg(wf32d);
         PrSwitch ("fluxcorr", COMPLETE);
         if (wf32d.printtime)
-            TimeStamp ("FLUXCORR complete", wf32d.rootname);
+            TimeStamp ("FLUXCORR complete", wf32d.rootname);    
     }
     
         

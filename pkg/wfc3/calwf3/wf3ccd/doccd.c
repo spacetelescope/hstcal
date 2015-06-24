@@ -265,9 +265,13 @@ int DoCCD (WF3Info *wf3, int extver) {
     */
      
     if (dqicorr == COMPLETE) {
-        if (SinkDetect(wf3, &x))
-            return(status);          
-    }
+        if (wf3->subarray == NO){
+            if (SinkDetect(wf3, &x))
+                return(status);          
+        } else {
+            trlmessage("Sink Pixel detection turned off for subarrays");
+        }
+    }   
     
     /* ANALOG TO DIGITAL CORRECTION. */
     AtoDMsg (wf3, extver);

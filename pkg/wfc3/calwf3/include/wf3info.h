@@ -72,6 +72,13 @@
 
     M. Sosey 2015 May:
     Updates for UVIS 2.0
+    
+    M. sosey 2015 June:
+    Updates to fluxcorr for subarray images necessitate adding
+    a FLAM variable to the info array so that I can access the 
+    value to scale subarray images which have only 1 set of science
+    images. When the chip being processed is chip2, then the flam
+    for chip1 will be saved in the structure for use in fluxcorr.
  
 */
 
@@ -110,6 +117,7 @@ typedef struct {
     char obstype[SZ_CBUF+1];       /* e.g. Imaging, internal */
     int detector;                   /* integer code for detector */
     int chip;
+    double chip1_flam;              /*the flam for chip1 from imphttab*/
     int ncombine;                   /* number previously summed together */
     int nimsets;                    /* number of "groups" in file */
     int members;                /* # of members associated with this exposure */
