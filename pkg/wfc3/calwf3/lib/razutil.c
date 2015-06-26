@@ -15,7 +15,7 @@
    with amps C, D, A, and B, in that order. In the raz image, pixels are all parallel-shifted down, 
    then serial-shifted to the left.
 
-   The code for the DQ arrays and just the float arrays only converts one chip at a time so that it can be run through the regular
+   The code for the DQ arrays and plain float arrays only converts one chip at a time so that it can be run through the regular
    wf3ccd pipeline which operates on 1 chip at a time. 
    
    Megan Sosey, May 2015
@@ -134,7 +134,7 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
 }
 
 
-/* Transform dqin a  RAZ format image back into the separate input arrays calwf3 likes*/
+/* Transform dq in a  RAZ format image back into the separate input arrays calwf3 likes*/
 int undodqRAZ(SingleGroup *x, SingleGroup *raz){
     
     extern int status;
@@ -165,3 +165,39 @@ int undodqRAZ(SingleGroup *x, SingleGroup *raz){
     return (status);
 
 }
+
+/*convert the science image of a single group to RAZ
+ for use in the SINK pixel detection*/
+ 
+int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
+    extern int status;
+    int subcol = (RAZ_COLS/4); /* for looping over quads  */
+    int i,j;
+    
+    if (x->group_num == 1){
+        for (i=0; i<subcol; i++){
+            for (j=0;j<RAZ_ROWS; j++){
+                memcpy( &Pix(raz->sci.data,i,j), &Pix(x->sci.data,i,j), sizeof(float));
+                memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(x->sci.data,subcol*2-i-1,j),sizeof(float));
+            }
+        }
+    
+    } else {
+        if (x->group_num == 2){
+            for (i=0; i<subcol; i++){
+                for (j=0;j<RAZ_ROWS; j++){
+                    memcpy( &Pix(raz->sci.data,i,j), &Pix(x->sci.data,i,RAZ_ROWS-j-1),sizeof(float));
+                    memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(x->sci.data,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(float));
+                }
+            }
+        
+        } else {
+            trlmessage("Invalid group number passed to makeSciSingleRAZ");
+            return(status=INVALID_VALUE);
+        }
+    }
+ 
+   return(status);      
+
+}
+

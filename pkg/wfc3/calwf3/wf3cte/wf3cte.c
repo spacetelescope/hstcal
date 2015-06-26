@@ -291,6 +291,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     if (verbose)
         trlmessage("CTE: Converting RSZ to RSC\n");
 
+    /*rsc image is hardset to 0 in inverse_cte_blur*/
     initSingleGroup(&rsc);
     allocSingleGroup(&rsc, RAZ_COLS, RAZ_ROWS);
 
@@ -606,7 +607,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
 }
 
 
-int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int max_threads){
+int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int max_threads){
     /*
        This routine will read in a RAZ image and will output the smoothest
        image that is consistent with being the observed image plus readnoise.  
@@ -796,7 +797,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
     return (status);
 }
 
-int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], float rnsig, float *d){
+int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], double rnsig, float *d){
 /*
    This function determines for a given pixel how it can
    adjust in a way that is not inconsistent with its being
@@ -814,11 +815,11 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
 
     extern int status;
 
-    float mval;
-    float    dval0, dval0u, w0;
-    float    dval9, dval9u, w9;
-    float    dmod1, dmod1u, w1;
-    float    dmod2, dmod2u, w2;
+    double mval;
+    double    dval0, dval0u, w0;
+    double    dval9, dval9u, w9;
+    double    dmod1, dmod1u, w1;
+    double    dmod2, dmod2u, w2;
 
     mval = rszloc[i][j];
     dval0  = obsloc[i][j] - mval;
@@ -898,7 +899,10 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
 }
 
 
-/*** THIS ROUTINE PERFORMS THE CTE CORRECTIONS ***/
+/*** THIS ROUTINE PERFORMS THE CTE CORRECTIONS 
+     rsz is the readnoise smoothed image
+     rsc is the output image
+***/
 int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
     extern int status;
@@ -988,7 +992,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     freeHdr (&junkhdr);
     
 
-    /*THIS IS RAZ2RAC_PAR IN JAYS CODE*/    
+    /*THIS IS RAZ2RAC_PAR IN JAYS CODE - MAIN CORRECTION LOOP IN HERE*/    
     inverse_cte_blur(rsz, rsc, &pixz_fff, cte, wf3->verbose,wf3->expstart);
     freeSingleGroup(&pixz_fff);
     return(status);
@@ -1011,13 +1015,16 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     
     extern int status;
     
+    /*looping vars*/
     int NREDO, REDO;
-    int NITINV, NITCTE; /*looping vars*/
+    int NITINV, NITCTE; 
     int i;
     int j,jj;
     double dmod;
     int jmax;
+    
     float cte_ff; /*cte scaling based on observation date*/
+    float hardset=0.;
     
     /*STARTING DEFAULTS*/
     NITINV=1;
@@ -1056,13 +1063,13 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     for (i=0; i<RAZ_COLS; i++){
         for (j=0; j< RAZ_ROWS; j++){
             memcpy(&Pix(rz.sci.data,i,j), &Pix(rsz->sci.data,i,j),sizeof(float));
-            memcpy(&Pix(rc.sci.data,i,j), &Pix(rsc->sci.data,i,j),sizeof(float));
+            memcpy(&Pix(rc.sci.data,i,j), &hardset,sizeof(float));
             Pix(pixz_fff.sci.data,i,j) = cte_ff * (float)(j+1)/2048.; /*j+1 so not zero*/
         }          
     }
     
     if (verbose){
-        sprintf(MsgText,"cte->thresh=%f, cte->fix_rocr=%i, n_for=%i, n_par=%i",cte->thresh,cte->fix_rocr,cte->n_forward,cte->n_par);
+        sprintf(MsgText,"cte->thresh=%5.3g, cte->fix_rocr=%i, n_for=%i, n_par=%i",cte->thresh,cte->fix_rocr,cte->n_forward,cte->n_par);
         trlmessage(MsgText);
     }
     
@@ -1086,7 +1093,6 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         shared(rc,rz,pixz_fff,cte)
 
     for (i=0; i< RAZ_COLS; i++){           
-        /*These will be farmed out when parallel*/    
        pix_obsd = (double *) calloc(RAZ_ROWS, sizeof(double));   
        pix_modl = (double *) calloc(RAZ_ROWS, sizeof(double));   
        pix_curr = (double *) calloc(RAZ_ROWS, sizeof(double));   
@@ -1132,7 +1138,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                 for (j=0; j< RAZ_ROWS; j++){
                     dmod = pix_obsd[j] - pix_read[j];
                     if (NITINV < cte->n_forward){ 
-                        dmod *=  (dmod*dmod)/((dmod*dmod) + (double)(cte->rn_amp * cte->rn_amp));
+                        dmod *= (dmod*dmod) /((dmod*dmod) + pow((double)cte->rn_amp , 2));
                     }
                     pix_modl[j] += dmod; /*dampen each pixel as the best is determined*/
                 }
@@ -1144,7 +1150,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             */
             if (cte->fix_rocr) {
                 for (j=10; j< RAZ_ROWS-2; j++){                        
-                    if (  (( cte->thresh - pix_modl[j] < cte->thresh ) && 
+                    if (  (( pix_modl[j] < cte->thresh ) && 
                            ( pix_modl[j] - pix_obsd[j] < cte->thresh )) ||
                           ((pix_modl[j] + pix_modl[j+1] < -12.) &&
                            (pix_modl[j] + pix_modl[j+1] - pix_obsd[j] - pix_obsd[j+1] < -12.)) ||
@@ -1153,7 +1159,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                                  pix_obsd[j+1] - pix_obsd[j+2] <-15.))) {
                             jmax=j;
                             /*GO DOWNSTREAM AND LOOK FOR THE OFFENDING CR*/
-                            for (jj=j-10; jj<j;jj++){
+                            for (jj=j-10; jj<=j;jj++){
                                 if ( (pix_modl[jj] - pix_obsd[jj]) > 
                                         (pix_modl[jmax] - pix_obsd[jmax]) ) {
                                         jmax=jj;
@@ -1283,7 +1289,8 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
     FloatHdrData *rprof;
     FloatHdrData *cprof;
     
-    rprof= cte->rprof;
+    /*from the reference table*/
+    rprof = cte->rprof;
     cprof = cte->cprof;
     
 
@@ -1306,7 +1313,7 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
             for(j=0; j<RAZ_ROWS;j++){   
                 pix_1 = pixo[j];
                 
-                if ( (ttrap < cte->cte_len) || ( pix_1 >= cte->qlevq_data[w] - 1 ) ){                     
+                if ( (ttrap < cte->cte_len) || ( pix_1 >= cte->qlevq_data[w] - 1. ) ){                     
                     if (pixo[j] >= 0.0){
                         pix_1 = pixo[j] + fcarry; /*shuffle charge in*/
                         fcarry = pix_1 - floor(pix_1); /*carry the charge remainder, what if negative?*/
@@ -1314,11 +1321,13 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
                     }
                 
                     /*HAPPENS AFTER FIRST PASS*/
+                    /*SHUFFLE CHARGE IN*/
                     if (j> 0) {
                         if (pixf[j] < pixf[j-1])
-                            ftrap *= (pixf[j] /  pixf[j-1]);                             
+                            ftrap = (pixf[j] /  pixf[j-1]*ftrap);                             
                     }
 
+                    /*RELEASE THE CHARGE*/
                     padd_2=0.;
                     if (ttrap < cte->cte_len){
                         ttrap += 1;

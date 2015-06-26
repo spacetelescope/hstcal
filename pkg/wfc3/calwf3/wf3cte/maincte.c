@@ -30,7 +30,6 @@ int main (int argc, char **argv) {
 
     char *inlist;		/* input blv_tmp file name */
     char *outlist;		/* output blc_tmp file name */
-    /*int switch_on = 0;*/	/* was any switch specified? */
     int printtime = NO;	/* print time after each step? */
     int verbose = NO;	/* print additional info? */
     int quiet = NO;	/* print additional info? */

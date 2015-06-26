@@ -38,8 +38,8 @@ void initCTEParams(CTEParams *pars){
     */
     for (i=0; i<TRAPS;i++){
         pars->wcol_data[i]=0;  
-        pars->qlevq_data[i]=0;
-        pars->dpdew_data[i]=0;
+        pars->qlevq_data[i]=0.;
+        pars->dpdew_data[i]=0.;
     }
 
     for (i=0;i<RAZ_ROWS; i++){
@@ -174,7 +174,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* GET READ NOISE CLIPPING LEVEL */
-	if (GetKeyFlt(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
+	if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
 		cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
@@ -212,13 +212,13 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* GET OVER SUBTRACTION THRESHOLD */
-	if (GetKeyFlt(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
+	if (GetKeyDbl(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
 		cteerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"PCTETRSH: %f",pars->thresh);
+	sprintf(MsgText,"PCTETRSH: %g",pars->thresh);
 	trlmessage(MsgText);
  
     /*FIX THE READOUT CR'S? */
@@ -292,7 +292,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		}
                 
 		/* GET QLEVQ FROM THIS ROW */
-		c_tbegtr(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
+		c_tbegtd(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qlevq);
 			cteerror(MsgText);
@@ -300,11 +300,11 @@ No.    Name         Type      Cards   Dimensions   Format
 			return status;
 		}
         
-        if (pars->qlevq_data[j] < 999999)
+        if (pars->qlevq_data[j] < 999999.)
             ctraps+=1;
         
 		/* GET DPDEW FROM THIS ROW */
-		c_tbegtr(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
+		c_tbegtd(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dpdew);
 			cteerror(MsgText);
@@ -320,7 +320,7 @@ No.    Name         Type      Cards   Dimensions   Format
     /*IF CTRAPS EVER OVERFLOWS INT THIS NEEDS TO BE CHANGED*/
     pars->cte_traps=(int)ctraps;
 
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%f\t%f\ttraps=%i\n",20,
+	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
             pars->wcol_data[19],pars->qlevq_data[19], pars->dpdew_data[19], pars->cte_traps);
 	trlmessage(MsgText);
 
@@ -426,7 +426,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
 
 	}
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d%g\t%g\t%g\t%g\ntotal traps = %i",
+	sprintf(MsgText,"(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d %g\t%g\t%g\t%g\ntotal traps = %i",
             j,pars->iz_data[j-1],pars->scale512[j-1],pars->scale1024[j-1],pars->scale1536[j-1],pars->scale2048[j-1],pars->cte_traps);
 	trlmessage(MsgText);
 
@@ -520,7 +520,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 		return status;
 	}
 
-	if (PutKeyFlt(group->globalhdr, "PCTETRSH", pars->thresh,"cte oversubtraction threshold")) {
+	if (PutKeyDbl(group->globalhdr, "PCTETRSH", pars->thresh,"cte oversubtraction threshold")) {
 		trlmessage("(pctecorr) Error putting PCTETRSH keyword in header");
 		status = HEADER_PROBLEM;
 		return status;

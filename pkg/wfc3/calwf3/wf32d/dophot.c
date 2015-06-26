@@ -162,25 +162,21 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
         sprintf(MsgText,"\nphotmode: %s\nobsmode: %s\n",obs.photmode,obsmode);
         trlmessage(MsgText);
             
-	    /* Update the photmode in obs for chip1*/
+	    /* UPDATE THE PHOTMODE IN OBS FOR CHIP1*/
         newobs=replace_str(obs.photmode,"uvis2","uvis1");
         strcpy(obs.photmode,newobs);
         strcpy(obsmode,newobs);
         
-        sprintf(MsgText,"\nphotmode: %s\nobsmode: %s\n",obs.photmode,obsmode);
-        trlmessage(MsgText);
 
-	    /* Get phot values from IMPHTTAB */
+	    /* GET PHOT VALUES FROM IMPHTTAB */
 	    if (GetPhotTab (&obs, obsmode)) {
 		    trlerror ("Error return from GetPhotTab.");
 		    return (status);
 	    }
 
         memcpy(&wf32d->chip1_flam,&obs.phtflam1,sizeof(double));
-        sprintf(MsgText,"PHTFLAM1 = %g",wf32d->chip1_flam);
-        trlmessage(MsgText);  
         
-        /*now put it back*/
+        /*NOW PUT IT BACK*/
         newobs=replace_str(obs.photmode,"uvis1","uvis2");
         strcpy(obs.photmode,newobs);
         strcpy(obsmode,newobs);

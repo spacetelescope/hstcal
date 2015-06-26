@@ -49,7 +49,7 @@
    to the function signature so that the user can have more control over
    the number of threads/cpus that are used during parallel processing for CTE correction.
    (see #1193 UVIS2.0 update)
-
+   
  */
 
 int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {

@@ -259,19 +259,6 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (dqiHistory (wf3, x.globalhdr))
             return (status);
 
-    /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
-     IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE
-     PROCESSED IN THE RAZ FORMAT JAY USES, THOUGH ONLY ONE CHIP DONE HERE
-    */
-     
-    if (dqicorr == COMPLETE) {
-        if (wf3->subarray == NO){
-            if (SinkDetect(wf3, &x))
-                return(status);          
-        } else {
-            trlmessage("Sink Pixel detection turned off for subarrays");
-        }
-    }   
     
     /* ANALOG TO DIGITAL CORRECTION. */
     AtoDMsg (wf3, extver);
@@ -337,7 +324,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (blevHistory (wf3, x.globalhdr, done, driftcorr))
             return (status);
 
-    /* Subtract bias image. */
+    /* SUBTRACT BIAS IMAGE. */
     BiasMsg (wf3, extver);
     if (wf3->biascorr == PERFORM) {
         if (doBias (wf3, &x))
@@ -350,7 +337,22 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (biasHistory (wf3, x.globalhdr))
             return (status);
 
-    /* Subtract post-flash image. */
+
+    /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
+     IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE
+     PROCESSED IN THE RAZ FORMAT JAY USES, THOUGH ONLY ONE CHIP DONE HERE
+    */
+     
+    if (dqicorr == COMPLETE) {
+        if (wf3->subarray == NO){
+            if (SinkDetect(wf3, &x))
+                return(status);          
+        } else {
+            trlmessage("Sink Pixel detection turned off for subarrays");
+        }
+    }   
+
+    /* SUBTRACT POST-FLASH IMAGE. */
     FlashMsg (wf3, extver);
     if (wf3->flashcorr == PERFORM) {
 
