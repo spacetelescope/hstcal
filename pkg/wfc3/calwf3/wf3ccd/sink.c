@@ -55,7 +55,7 @@
 int makedqRAZ(SingleGroup *, SingleGroup *);
 int makeSciSingleRAZ(SingleGroup *, SingleGroup *);
 int undodqRAZ(SingleGroup *, SingleGroup *);
-int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *, int);
+int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *);
 int getFloatHD(char *, char *, int , FloatHdrData *);
 
 int SinkDetect(WF3Info *wf3, SingleGroup *x){
@@ -92,7 +92,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     FloatTwoDArray sinkraz;
     initFloatData(&sinkraz); /*float 2d arrays*/
     allocFloatData(&sinkraz,RAZ_COLS/2, RAZ_ROWS);     
-    makeFloatRaz(&sinkref.data,&sinkraz,x->group_num);
+    makeFloatRaz(&sinkref.data,&sinkraz);
 
     
     /*THE MJD OF THE SCIENCE EXPOSURE IS THE COMPARISON DATE

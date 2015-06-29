@@ -127,6 +127,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     wf3.pctecorr = cte_sw->pctecorr;
     wf3.darkcorr = cte_sw->darkcorr;
     wf3.biascorr = cte_sw->biascorr;
+    wf3.blevcorr = cte_sw->blevcorr;
     wf3.printtime = printtime;
     wf3.verbose = verbose;
     wf3.refnames = refnames;
@@ -134,6 +135,19 @@ CTE correction in ACS which occurs later in the process after basic structures a
     PrFileName ("input", wf3.input);
     PrFileName ("output", wf3.output);
 
+    if (wf3.biascorr == COMPLETE){
+        trlmessage("BIASCORR complete for input image, CTE can't be performed");
+        return(ERROR_RETURN);
+    }
+    if (wf3.darkcorr == COMPLETE){
+        trlmessage("DARKCORR complete for input image, CTE can't be performed");
+        return(ERROR_RETURN);
+    }
+    if (wf3.blevcorr == COMPLETE){
+        trlmessage("BLEVCORR complete for input image, CTE can't be performed");
+        return(ERROR_RETURN);
+    }
+    
     /* CHECK WHETHER THE OUTPUT FILE ALREADY EXISTS. */
     if (FileExists (wf3.output))
         return (status);

@@ -398,11 +398,13 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 
 
 /* This routine copies switch values from sci_sw to
-   wf3ccd_sci_sw and wf32d_sci_sw.
+   wf3ccd_sci_sw and wf32d_sci_sw and wf3cte_sci_sw
 
 
    H.Bushouse 2003-04-25  Modified to treat RPTCORR exactly the same
    as CRCORR for WFC3 UVIS use.
+   
+   M. Sosey 2015 Updated to add CTE 
  */
 
 void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,

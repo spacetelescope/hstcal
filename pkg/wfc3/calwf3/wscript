@@ -19,8 +19,8 @@ def build(bld):
         depends_on=[
             'calwf3.e',
             'wf3ccd.e',
-            'wf3cte.e',
             'wf3rej.e',
+            'wf3cte.e',
             'wf3ir.e',
             'wf32d.e',
             'wf3sum.e'],

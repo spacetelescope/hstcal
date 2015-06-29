@@ -5,18 +5,27 @@
 # include <time.h>
 # include <string.h>
 
-int status = 0;			/* zero is OK */
 
 # include <c_iraf.h>		/* for c_irafinit */
 # include "ximio.h"
 # include "hstio.h"
 
 # include "wf3.h"
-# include "wf3info.h"
 # include "wf3err.h"
 # include "wf3corr.h"		/* calibration switch names for WFC3ccd */
+# include "wf3version.h"
+
+# ifdef _OPENMP
+#  include <omp.h>
+# endif
 
 static void FreeNames (char *, char *, char *, char *);
+int WF3cte (char *, char *, CCD_Switch *, RefFileInfo *, int, int, int);
+int MkName (char *, char *, char *, char *, char *, int);
+void WhichError (int);
+int CompareNumbers (int, int, char *);
+int LoadHdr (char *, Hdr *);
+int GetSwitch (Hdr *, char *, int *);
 
 /* 
 
@@ -43,34 +52,21 @@ int main (int argc, char **argv) {
     char *output;		/* name of output file */
     int n_in, n_out;	/* number of files in each list */
     int n;
-
-    /* Input and output suffixes. */
-    char isuffix[] = "_raw";
-    char osuffix[] = "_rac";
+    int max_threads; /*for parallel processing*/
+    
+	/* Initialize status to OK and MsgText to null */
+	status     = WF3_OK;
 
     /* A structure to pass the calibration switches to WFC3CTE */
-    CalSwitch ccd_sw;
-
-    /* reference file keywords and names */
+    CCD_Switch cte_sw;
     RefFileInfo refnames;
-
-    void InitRefFile (RefFileInfo *);
-    void FreeRefFile (RefFileInfo *);
-    void initSwitch (CalSwitch *);
-
-    int WF3cte (char *, char *, CalSwitch *, RefFileInfo *, int, int, int);
-    int DefSwitch (char *);
-    int MkName (char *, char *, char *, char *, char *, int);
-    void WhichError (int);
-    int CompareNumbers (int, int, char *);
 
     /* For image header access */
     Hdr phdr;
-    int pctecorr;
-    int LoadHdr (char *, Hdr *);
-    int GetSwitch (Hdr *, char *, int *);
+
 
     c_irafinit (argc, argv);
+    push_hstioerr(errchk);
 
     /* Allocate space for file names. */
     inlist = calloc (SZ_FNAME+1, sizeof (char));
@@ -88,12 +84,13 @@ int main (int argc, char **argv) {
     input[0] = '\0';
     output[0] = '\0';
 
-    /* Initialize the lists of reference file keywords and names. */
+    
+    /*INITIALIZE REFERENCE FILE INFORMATION*/
     InitRefFile (&refnames);
-
+    
     /* Initial values. */
-    initSwitch (&ccd_sw);
-
+ 	initCCDSwitches (&cte_sw);
+    
     for (i = 1;  i < argc;  i++) {
 
         if (argv[i][0] == '-') {
@@ -102,14 +99,15 @@ int main (int argc, char **argv) {
                     printtime = YES;
                 } else if (argv[i][j] == 'v') {
                     verbose = YES;
-                } else if (argv[i][j] == 'q') {
-                    quiet = YES;
                 } else if (argv[i][j] == '1') {
                     onecpu = YES;
+				} else if (argv[i][j] == 'r'){
+					printf ("Current version: %s\n", WF3_CAL_VER);
+					exit(0);
                 } else {
                     printf (MsgText, "Unrecognized option %s\n", argv[i]);
                     FreeNames (inlist, outlist, input, output);
-                    exit (1);
+                    exit (ERROR_RETURN);
                 }
             }
         } else if (inlist[0] == '\0') {
@@ -121,23 +119,35 @@ int main (int argc, char **argv) {
         }
     }
     if (inlist[0] == '\0' || too_many) {
-        printf ("syntax:  WF3cte [-t] [-v] [-q] [-1] input output\n");
+        printf ("syntax:  WF3cte [-v] [-1] input output\n");
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }
-    /* Initialize the structure for managing trailer file comments */
+    /* INITIALIZE THE STRUCTURE FOR MANAGING TRAILER FILE COMMENTS */
     InitTrlBuf ();
-
-    /* Copy command-line value for QUIET to structure */
+    /* COPY COMMAND-LINE VALUE FOR QUIET TO STRUCTURE */
     SetTrlQuietMode(quiet);
 
-    /* Was no calibration switch specified on command line?
-       default values (mostly PERFORM)
-    if (!switch_on) {*/
-    ccd_sw.pctecorr = DefSwitch ("pctecorr");
-    /*}*/
+#   ifdef _OPENMP
+    trlmessage("\nUsing parallel processing provided by OpenMP inside CTE routine\n");
+    if (onecpu){
+        omp_set_dynamic(0);
+        max_threads=1;
+        sprintf(MsgText,"onecpu == TRUE, Using only %i threads/cpu", max_threads);
+    } else {
+        omp_set_dynamic(0);
+        max_threads = omp_get_num_procs(); /*be nice, use 1 less than avail?*/
+        sprintf(MsgText,"Setting max threads to %i of %i cpus\n",max_threads, omp_get_num_procs()); 
+    }
+    omp_set_num_threads(max_threads);
+    trlmessage(MsgText);
+#   endif
 
-    /* Expand the templates. */
+
+
+
+           
+    /* EXPAND THE TEMPLATES. */
     i_imt = c_imtopen (inlist);
     o_imt = c_imtopen (outlist);
     n_in = c_imtlen (i_imt);
@@ -152,7 +162,7 @@ int main (int argc, char **argv) {
         exit (ERROR_RETURN);
     }
 
-    /* Loop over the list of input files. */
+    /* LOOP OVER THE LIST OF INPUT FILES. */
     for (n = 0;  n < n_in;  n++) {
 
         k = c_imtgetim (i_imt, input, SZ_FNAME);
@@ -162,7 +172,7 @@ int main (int argc, char **argv) {
         else
             output[0] = '\0';
 
-        /* Open input image in order to read its primary header. */
+        /* OPEN INPUT IMAGE IN ORDER TO READ ITS PRIMARY HEADER. */
         if (LoadHdr (input, &phdr)) {
             WhichError (status);
             sprintf (MsgText, "Skipping %s", input);
@@ -170,35 +180,38 @@ int main (int argc, char **argv) {
             continue;
         }
 
-        /* Determine osuffix. */
-        if (GetSwitch (&phdr, "PCTECORR", &pctecorr)) {
+        /* GET SWITCHES WE CARE ABOUT. */
+        if (GetSwitch (&phdr, "PCTECORR", &cte_sw.pctecorr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
-            continue;
         }
-        if (pctecorr == PERFORM)
-            strcpy(osuffix, "_rac");
-        else {
+        if (GetSwitch (&phdr, "BIASCORR", &cte_sw.biascorr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s because PCTECORR is not set to PERFORM", input);
-            trlmessage (MsgText);
-            continue;
+        }
+        if (GetSwitch (&phdr, "BLEVCORR", &cte_sw.blevcorr)) {
+            WhichError (status);
         }
 
-        if (MkName (input, isuffix, osuffix, "", output, SZ_FNAME)) {
-            WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
-            continue;
-        }
+        /*SIMPLE CHECK*/
+        if (cte_sw.biascorr == COMPLETE || cte_sw.blevcorr == COMPLETE){
+            sprintf(MsgText,"An uncalibrated, RAW file must be used as input to CTE corr, skipping %s", input);
+            trlmessage(MsgText);
+            exit(ERROR_RETURN);
+            
+        } else if (cte_sw.pctecorr) {
 
-        /* Calibrate the current input file. */
-        if (WF3cte (input, output, &ccd_sw, &refnames, printtime, verbose,
-                    onecpu)) {
-            sprintf (MsgText, "Error processing %s.", input);
-            trlerror (MsgText);
-            WhichError (status);
+            if (MkName (input, "_raw", "_rac", "", output, SZ_FNAME)) {
+                WhichError (status);
+                sprintf (MsgText, "Skipping %s, problem making output name", input);
+                trlmessage (MsgText);
+            }
+
+            /* CALIBRATE THE CURRENT INPUT FILE. */
+            if (WF3cte (input, output, &cte_sw, &refnames, printtime, verbose,
+                        onecpu)) {
+                sprintf (MsgText, "Error processing cte for %s", input);
+                trlerror (MsgText);
+                WhichError (status);
+            }
         }
     }
 
@@ -222,3 +235,6 @@ static void FreeNames (char *inlist, char *outlist, char *input, char *output) {
     free (outlist);
     free (inlist);
 }
+
+
+
