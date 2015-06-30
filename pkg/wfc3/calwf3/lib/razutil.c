@@ -23,22 +23,6 @@
 */
 
 
-/*convert  floating point arrays into raz format*/
-int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz){
-
-    extern int status;
-    int subcol = (RAZ_COLS/4); /* for looping over quads  */
-    int i,j;
-
-    for (i=0; i<subcol; i++){
-        for (j=0;j<RAZ_ROWS; j++){
-            memcpy( &PPix(raz,i,j), &PPix(x,i,j), sizeof(float));
-            memcpy( &PPix(raz,i+subcol,j), &PPix(x,subcol*2-i-1,j),sizeof(float));
-        }
-    }
-            
-    return(status);      
-}
 
 /*convert the sci extension*/
 int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
@@ -141,5 +125,22 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
  
    return(status);      
 
+}
+
+/*convert  floating point arrays into raz format for SINK*/
+int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz){
+
+    extern int status;
+    int subcol = (RAZ_COLS/4); /* for looping over quads  */
+    int i,j;
+
+    for (i=0; i<subcol; i++){
+        for (j=0;j<RAZ_ROWS; j++){
+            memcpy( &PPix(raz,i,j), &PPix(x,i,j), sizeof(float));
+            memcpy( &PPix(raz,i+subcol,j), &PPix(x,subcol*2-i-1,j),sizeof(float));
+        }
+    }
+            
+    return(status);      
 }
 

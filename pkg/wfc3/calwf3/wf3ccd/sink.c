@@ -62,8 +62,10 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
 
     extern int status;
     int i,j, jj;
-    short dqval;
+    short dqval=0;
     float scipix; /*to save the value of the science pixel*/
+    float refdate=50000.;
+    int keep_going=1;
     
     sprintf(MsgText,"\nPerforming SINK pixel detection for group %i",x->group_num);
     trlmessage(MsgText);
@@ -98,10 +100,12 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     /*THE MJD OF THE SCIENCE EXPOSURE IS THE COMPARISON DATE
      THE FOLLOWING TRANSLATION TAKEN FROM ISR WFC3-2014-22.PDF */
     
-    
+    scipix=0.;
     for (i=0;i<(RAZ_COLS/2);i++){
         for (j=0; j<RAZ_ROWS; j++){
-            if ( 10000. < PPix(&sinkraz,i,j)  && PPix(&sinkraz,i,j) <= wf3->expstart ){
+        
+            if (  (PPix(&sinkraz,i,j) > refdate)  &&  ( wf3->expstart > PPix(&sinkraz,i,j))  ){
+            
                 /*FLAG THE PRIMARY SINK PIXEL*/
                 dqval = TRAP | DQPix (raz.dq.data, i, j);
                 DQSetPix (raz.dq.data, i, j, dqval);
@@ -115,13 +119,16 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
 
                 /*FLAG THIS UPSTREAM PIXEL*/
                 for (jj=j+1; jj<RAZ_ROWS; jj++){
-                    if ( 0.5 < PPix(&sinkraz,i,jj) &&  PPix(&sinkraz,i,jj) < 1000. ){
+                    if ((int) PPix(&sinkraz,i,jj) == 0)
+                        keep_going=0;
+                    if ( 0. < PPix(&sinkraz,i,jj) &&  PPix(&sinkraz,i,jj) < 1000. && keep_going){
                         if (scipix <= PPix(&sinkraz,i,jj) ){
                            dqval = TRAP | DQPix (raz.dq.data, i, jj);
                            DQSetPix (raz.dq.data, i, jj, dqval);
                         }                
                     }
                 }
+                keep_going=1;
                 
             } /*end if*/ 
         } /*end j*/

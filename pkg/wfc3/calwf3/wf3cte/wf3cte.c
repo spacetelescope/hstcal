@@ -280,7 +280,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     initSingleGroup(&rsz);
     allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS);
     
-    /***CHECK THE NOISE MITIGATION MODEL ***/
+    /***CREATE THE NOISE MITIGATION MODEL ***/
     if (cte_pars.noise_mit == 0) {
         if (raz2rsz(&wf3, &raz, &rsz, cte_pars.rn_amp, max_threads))
             return (status);
@@ -624,7 +624,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
 int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int max_threads){
     /*
        This routine will read in a RAZ image and will output the smoothest
-       image that is consistent with being the observed image plus readnoise.  
+       image that is consistent with being the observed image plus readnoise. (RSZ image) 
        This is necessary because we want the CTE-correction algorithm to produce the smoothest
        possible reconstruction, consistent with the original image and the
        known readnoise.  This algorithm constructs a model that is smooth
@@ -916,6 +916,9 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
 /*** THIS ROUTINE PERFORMS THE CTE CORRECTIONS 
      rsz is the readnoise smoothed image
      rsc is the output image
+     
+     rac - raw + (rsc-rsz) / gain 
+     
 ***/
 int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
@@ -984,7 +987,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
             ro = (float)j/512.; /*ro can be zero, it's an index*/
             if (ro <0 ) ro=0.;
             if (ro > 2.999) ro=2.999; /*only 4 quads, 0 to 3*/
-            io = (int) floor(ro); /*force truncation towards 0*/
+            io = (int) floor(ro); /*force truncation towards 0 for pos numbers*/
             cte_j= (double)(j+1) / 2048.; 
             cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (double)(ro-(float)io);
             Pix(pixz_fff.sci.data,i,j) = (float) cte_i*cte_j;
@@ -1023,6 +1026,12 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
      Ws is the number of TRAPS that are < 999999
      
      this is sub_wfc3uv_raz2rac_par in jays code
+     
+     floor rounds to negative infinity
+     ceiling rounds to positive infinity
+     truncate rounds up or down to zero
+     round goes to the nearest integer
+     
 ***/
 
 int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEParams *cte, int verbose, double expstart){
@@ -1059,11 +1068,11 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     initSingleGroup(&pixz_fff);
     allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS);
         
-    /*use EXPSTART yyyy-mm-dd to determine the CTE scaling
-    appropriate for the given date. WFC3/UVIS was
-    installed around May 11,2009 and the model was
-    constructed to be valid around Sep 3, 2012, a little
-    over 3 years after installation*/
+    /*USE EXPSTART YYYY-MM-DD TO DETERMINE THE CTE SCALING
+    APPROPRIATE FOR THE GIVEN DATE. WFC3/UVIS WAS
+    INSTALLED AROUND MAY 11,2009 AND THE MODEL WAS
+    CONSTRUCTED TO BE VALID AROUND SEP 3, 2012, A LITTLE
+    OVER 3 YEARS AFTER INSTALLATION*/
 
     cte_ff= (float) (expstart - cte->cte_date0)/ (cte->cte_date1 - cte->cte_date0);    
     cte->scale_frac=cte_ff;   /*save to param structure for header update*/ 
@@ -1087,8 +1096,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         trlmessage(MsgText);
     }
     
-    trlmessage("Calculating CTE correction..");    
-    trlmessage("Col[2000]  ori\tcor\tchg");
+    trlmessage("Col\n[2000]  orig\tcorr\tdiff");
 
     /*define to make private in parallel run*/
     double setzero=0.;
@@ -1104,7 +1112,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         private(dmod,i,j,jj,jmax,REDO,NREDO, \
           pix_obsd,pix_modl,pix_curr,pix_init,\
           pix_read,pix_ctef,NITINV,NITCTE)\
-        shared(rc,rz,pixz_fff,cte)
+        shared(rc,rz,cte,pixz_fff)
 
     for (i=0; i< RAZ_COLS; i++){           
        pix_obsd = (double *) calloc(RAZ_ROWS, sizeof(double));   
@@ -1120,9 +1128,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         }
         
         NREDO=0; /*start out not needing to mitigate CRs*/
-        REDO=1; /*true - to get into the loop the first time*/
-        while (REDO)  { /*replacing goto 9999*/
-            REDO=0; /*false*/
+        REDO=0; /*false*/
+        do { /*replacing goto 9999*/
             /*STARTING WITH THE OBSERVED IMAGE AS MODEL, ADOPT THE SCALING FOR THIS COLUMN*/
             for (j=0; j<RAZ_ROWS; j++){
                 pix_modl[j] = (double)Pix(rz.sci.data,i,j);
@@ -1161,17 +1168,37 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             /*LOOK FOR AND DOWNSCALE THE CTE MODEL IF WE FIND
             THE TELL-TALE SIGN OF READOUT CRS BEING OVERSUBTRACTED;
             IF WE FIND ANY THEN GO BACK UP AND RERUN THIS COLUMN
+            
+            
+            THE WFC3 UVIS MODEL SEARCHES FOR OVERSUBTRACTED TRAILS.
+            WHICH ARE  DEFINED AS EITHER:  
+            
+            - A SINGLE PIXEL VALUE BELOW -10E-
+            - TWO CONSECUTIVE PIXELS TOTALING -12 E-
+            - THREE TOTALLING -15 E-
+ 
+             WHEN WE DETECT SUCH AN OVER-SUBTRACTED TAIL, WE ITERATIVELY REDUCE
+             THE LOCAL CTE SCALING BY 25% UNTIL THE TRAIL IS
+             NO LONGER NEGATIVE  THIS DOES NOT IDENTIFY ALL READOUT-CRS, BUT IT DOES
+             DEAL WITH MANY OF THEM. FOR IMAGES THAT HAVE BACKGROUND GREAT THAN 10 OR SO,
+             THIS WILL STILL END UP OVERSUBTRACTING CRS A BIT, SINCE WE ALLOW
+             THEIR TRAILS TO BE SUBTRACTED DOWN TO -10 RATHER THAN 0.
+            
             */
             if (cte->fix_rocr) {
                 for (j=10; j< RAZ_ROWS-2; j++){                        
-                    if (  (( pix_modl[j] < cte->thresh ) && 
-                           ( pix_modl[j] - pix_obsd[j] < cte->thresh )) ||
+                    if (  (( cte->thresh > pix_modl[j] ) && 
+                           ( cte->thresh > (pix_modl[j] - pix_obsd[j]) )) ||
+
                           ((pix_modl[j] + pix_modl[j+1] < -12.) &&
                            (pix_modl[j] + pix_modl[j+1] - pix_obsd[j] - pix_obsd[j+1] < -12.)) ||
+
                           ((pix_modl[j] + pix_modl[j+1] + pix_modl[j+2] < -15.) &&
                            (pix_modl[j] + pix_modl[j+1] + pix_modl[j+2] -pix_obsd[j] - 
-                                 pix_obsd[j+1] - pix_obsd[j+2] <-15.))) {
+                                 pix_obsd[j+1] - pix_obsd[j+2] <-15.))  ){
+                                 
                             jmax=j;
+                            
                             /*GO DOWNSTREAM AND LOOK FOR THE OFFENDING CR*/
                             for (jj=j-10; jj<=j;jj++){
                                 if ( (pix_modl[jj] - pix_obsd[jj]) > 
@@ -1191,7 +1218,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             
             if (REDO) NREDO +=1;
             if (NREDO == 5)  REDO=0; /*stop*/
-        } /*replacing goto 9999*/
+        } while (REDO); /*replacing goto 9999*/
         
         #pragma omp critical        
         for (j=0; j< RAZ_ROWS; j++){
@@ -1202,24 +1229,24 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             sprintf(MsgText,"%15s AMPLIFIER C %2s","*****","*****");
             trlmessage(MsgText);
         }
-        if (i==2103){
+        if (i==2104){
             sprintf(MsgText,"%15s AMPLIFIER D %2s","*****","*****");
             trlmessage(MsgText);
         }
-        if (i==4205){
+        if (i==4206){
             sprintf(MsgText,"%15s AMPLIFIER A %2s","*****","*****");
             trlmessage(MsgText);
         }
-        if (i==6308){
+        if (i==6309){
             sprintf(MsgText,"%15s AMPLIFIER B %2s","*****","*****");
             trlmessage(MsgText);
         }
 
         if ((i+1)%100 == 0){
             sprintf(MsgText,"%d\t%d\t%d\t%d",i+1, 
-                   (int) floor(pix_obsd[1999]), 
-                    (int) floor(pix_modl[1999]), 
-                    (int)(floor(pix_modl[1999]) - floor(pix_obsd[1999])));
+                   (int) roundf(pix_obsd[1999]), 
+                    (int) roundf(pix_modl[1999]), 
+                    (int)(roundf(pix_modl[1999]) - roundf(pix_obsd[1999])));
             trlmessage(MsgText);
         }
 
@@ -1330,8 +1357,8 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
                 if ( (ttrap < cte->cte_len) || ( pix_1 >= cte->qlevq_data[w] - 1. ) ){                     
                     if (pixo[j] >= 0.0){
                         pix_1 = pixo[j] + fcarry; /*shuffle charge in*/
-                        fcarry = pix_1 - floor(pix_1); /*carry the charge remainder, what if negative?*/
-                        pix_1 = floor(pix_1); /*reset pixel*/
+                        fcarry = pix_1 - truncf(pix_1); /*carry the charge remainder*/
+                        pix_1 = truncf(pix_1); /*reset pixel*/
                     }
                 
                     /*HAPPENS AFTER FIRST PASS*/
