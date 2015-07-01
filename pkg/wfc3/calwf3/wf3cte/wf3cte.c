@@ -1380,7 +1380,7 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
                     if ( pix_1 >= cte->qlevq_data[w] ){
                         prem_3 = ( cte->dpdew_data[w] / (double)cte->n_par) * pixf[j];                        
                         if (ttrap < cte->cte_len)
-                            padd_3 = (cprof->data,w,ttrap)*ftrap;
+                            padd_3 = (double)(cprof->data,w,ttrap)*ftrap;
                         ttrap=0;
                         ftrap=prem_3;
                     }  

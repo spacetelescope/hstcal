@@ -23,6 +23,36 @@
 */
 
 
+/*convert  floating point arrays into raz format*/
+int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
+
+    extern int status;
+    int subcol = (RAZ_COLS/4); /* for looping over quads  */
+    int i,j;
+
+    if (group == 1){
+        for (i=0; i<subcol; i++){
+            for (j=0;j<RAZ_ROWS; j++){
+                memcpy( &PPix(raz,i,j), &PPix(x,i,j), sizeof(float));
+                memcpy( &PPix(raz,i+subcol,j), &PPix(x,subcol*2-i-1,j),sizeof(float));
+            }
+        }
+    } else {
+        if (group == 2){
+            for (i=0; i<subcol; i++){
+                for (j=0;j<RAZ_ROWS; j++){
+                    memcpy( &PPix(raz,i,j), &PPix(x,i,RAZ_ROWS-j-1),sizeof( float));
+                    memcpy( &PPix(raz,i+subcol,j), &PPix(x,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(float));
+                }
+            }
+        } else {
+            trlmessage("Invalid group number passed to makedqRAZ");
+            return(status=INVALID_VALUE);
+        }
+    }
+            
+    return(status);      
+}
 
 /*convert the sci extension*/
 int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
@@ -76,13 +106,28 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
     int i,j;
     
-    for (i=0; i<subcol; i++){
-        for (j=0;j<RAZ_ROWS; j++){
-            memcpy( &Pix(raz->dq.data,i,j), &Pix(x->dq.data,i,j), sizeof(short));
-            memcpy( &Pix(raz->dq.data,i+subcol,j), &Pix(x->dq.data,subcol*2-i-1,j),sizeof(short));
+    if (x->group_num == 1){
+        for (i=0; i<subcol; i++){
+            for (j=0;j<RAZ_ROWS; j++){
+                memcpy( &Pix(raz->dq.data,i,j), &Pix(x->dq.data,i,j), sizeof(short));
+                memcpy( &Pix(raz->dq.data,i+subcol,j), &Pix(x->dq.data,subcol*2-i-1,j),sizeof(short));
+            }
+        }
+    
+    } else {
+        if (x->group_num == 2){
+            for (i=0; i<subcol; i++){
+                for (j=0;j<RAZ_ROWS; j++){
+                    memcpy( &Pix(raz->dq.data,i,j), &Pix(x->dq.data,i,RAZ_ROWS-j-1),sizeof(short));
+                    memcpy( &Pix(raz->dq.data,i+subcol,j), &Pix(x->dq.data,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(short));
+                }
+            }
+        
+        } else {
+            trlmessage("Invalid group number passed to makedqRAZ");
+            return(status=INVALID_VALUE);
         }
     }
-    
  
    return(status);      
 
@@ -96,10 +141,24 @@ int undodqRAZ(SingleGroup *x, SingleGroup *raz){
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
     int i,j;
         
-    for (i=0; i< subcol; i++){
-        for (j=0; j<RAZ_ROWS; j++){
-             memcpy( &Pix(x->dq.data,i,j), &Pix(raz->dq.data,i,j), sizeof(short));
-             memcpy( &Pix(x->dq.data,2*subcol-i-1,j), &Pix(raz->dq.data,i+subcol,j),sizeof(short));
+    if (x->group_num == 1){
+        for (i=0; i< subcol; i++){
+            for (j=0; j<RAZ_ROWS; j++){
+                 memcpy( &Pix(x->dq.data,i,j), &Pix(raz->dq.data,i,j), sizeof(short));
+                 memcpy( &Pix(x->dq.data,2*subcol-i-1,j), &Pix(raz->dq.data,i+subcol,j),sizeof(short));
+            }
+        }
+    } else {
+        if (x->group_num == 2){
+            for (i=0; i< subcol; i++){
+                for (j=0; j<RAZ_ROWS; j++){
+                     memcpy( &Pix(x->dq.data,i,RAZ_ROWS-j-1), &Pix(raz->dq.data,i,j), sizeof(short));
+                     memcpy( &Pix(x->dq.data,subcol*2-i-1,RAZ_ROWS-j-1), &Pix(raz->dq.data,i+subcol,j),sizeof(short));
+                }
+            }
+        } else {
+            trlmessage("Invalid group number passed to makedqRAZ");
+            return(status=INVALID_VALUE);
         }
     }
         
@@ -115,32 +174,30 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
     int i,j;
     
-    for (i=0; i<subcol; i++){
-        for (j=0;j<RAZ_ROWS; j++){
-            memcpy( &Pix(raz->sci.data,i,j), &Pix(x->sci.data,i,j), sizeof(float));
-            memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(x->sci.data,subcol*2-i-1,j),sizeof(float));
+    if (x->group_num == 1){
+        for (i=0; i<subcol; i++){
+            for (j=0;j<RAZ_ROWS; j++){
+                memcpy( &Pix(raz->sci.data,i,j), &Pix(x->sci.data,i,j), sizeof(float));
+                memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(x->sci.data,subcol*2-i-1,j),sizeof(float));
+            }
+        }
+    
+    } else {
+        if (x->group_num == 2){
+            for (i=0; i<subcol; i++){
+                for (j=0;j<RAZ_ROWS; j++){
+                    memcpy( &Pix(raz->sci.data,i,j), &Pix(x->sci.data,i,RAZ_ROWS-j-1),sizeof(float));
+                    memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(x->sci.data,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(float));
+                }
+            }
+        
+        } else {
+            trlmessage("Invalid group number passed to makeSciSingleRAZ");
+            return(status=INVALID_VALUE);
         }
     }
-    
  
    return(status);      
 
-}
-
-/*convert  floating point arrays into raz format for SINK*/
-int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz){
-
-    extern int status;
-    int subcol = (RAZ_COLS/4); /* for looping over quads  */
-    int i,j;
-
-    for (i=0; i<subcol; i++){
-        for (j=0;j<RAZ_ROWS; j++){
-            memcpy( &PPix(raz,i,j), &PPix(x,i,j), sizeof(float));
-            memcpy( &PPix(raz,i+subcol,j), &PPix(x,subcol*2-i-1,j),sizeof(float));
-        }
-    }
-            
-    return(status);      
 }
 

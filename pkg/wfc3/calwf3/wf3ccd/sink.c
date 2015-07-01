@@ -55,7 +55,7 @@
 int makedqRAZ(SingleGroup *, SingleGroup *);
 int makeSciSingleRAZ(SingleGroup *, SingleGroup *);
 int undodqRAZ(SingleGroup *, SingleGroup *);
-int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *);
+int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *, int);
 int getFloatHD(char *, char *, int , FloatHdrData *);
 
 int SinkDetect(WF3Info *wf3, SingleGroup *x){
@@ -78,25 +78,23 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     initSingleGroup (&raz);
     allocSingleGroup (&raz,RAZ_COLS/2, RAZ_ROWS);
         
-        
     /*CONVERT DQ DATA TO RAZ FORMAT FOR SCIENCE FILE*/
     makedqRAZ(x, &raz);
     makeSciSingleRAZ(x, &raz);
-
 
 	/* GET THE SINK FILE REFERENCE IMAGE FROM SINKFILE AND INITIALIZE */
     FloatHdrData sinkref;
     initFloatHdrData(&sinkref);
     getFloatHD(wf3->sink.name,"SCI",x->group_num,&sinkref);
-        
-     
+                 
     /*NOW TURN THE SINK REFERENCE IMAGES INTO RAZ FORMAT*/
-    FloatTwoDArray sinkraz;
+    FloatTwoDArray sinkraz;    
     initFloatData(&sinkraz); /*float 2d arrays*/
     allocFloatData(&sinkraz,RAZ_COLS/2, RAZ_ROWS);     
-    makeFloatRaz(&sinkref.data,&sinkraz);
 
-    
+    makeFloatRaz(&sinkref.data,&sinkraz,x->group_num);
+
+       
     /*THE MJD OF THE SCIENCE EXPOSURE IS THE COMPARISON DATE
      THE FOLLOWING TRANSLATION TAKEN FROM ISR WFC3-2014-22.PDF */
     
@@ -105,7 +103,8 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
         for (j=0; j<RAZ_ROWS; j++){
         
             if (  (PPix(&sinkraz,i,j) > refdate)  &&  ( wf3->expstart > PPix(&sinkraz,i,j))  ){
-            
+                keep_going=1;
+                
                 /*FLAG THE PRIMARY SINK PIXEL*/
                 dqval = TRAP | DQPix (raz.dq.data, i, j);
                 DQSetPix (raz.dq.data, i, j, dqval);
@@ -117,22 +116,25 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
                     DQSetPix (raz.dq.data, i, j-1, dqval);
                 }
 
-                /*FLAG THIS UPSTREAM PIXEL*/
+                /*FLAG THE UPSTREAM PIXELS*/
                 for (jj=j+1; jj<RAZ_ROWS; jj++){
                     if ((int) PPix(&sinkraz,i,jj) == 0)
+                        keep_going=0;
+                    if ( PPix(&sinkraz,i,jj) > refdate)
                         keep_going=0;
                     if ( 0. < PPix(&sinkraz,i,jj) &&  PPix(&sinkraz,i,jj) < 1000. && keep_going){
                         if (scipix <= PPix(&sinkraz,i,jj) ){
                            dqval = TRAP | DQPix (raz.dq.data, i, jj);
                            DQSetPix (raz.dq.data, i, jj, dqval);
                         }                
+                    } else {
+                        keep_going=0;
                     }
-                }
-                keep_going=1;
-                
+                }                
             } /*end if*/ 
         } /*end j*/
     }/*end i*/   
+
     
     /*format the dq data back to expected orientation*/
     undodqRAZ(x,&raz);
