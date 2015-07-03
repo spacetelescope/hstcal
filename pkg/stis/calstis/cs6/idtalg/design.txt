@@ -1,0 +1,798 @@
+
+
+Jeff's functional description is commented with notes of how to do it in 
+practice (memory use, data structure details, etc.) and where to get the
+necessary information from. Comments begin with a --->  
+
+--->  Variable names are denoted by single quotes.
+
+--->  This will be a IRAF task similar to stis$x1d. It will be written in
+      C and use a CL wrapper. Task name: sscatter ?
+
+--->  Reference file names necessary for the algorithm will be input via 
+      task parameters exclusively, since no provisions exist in current 
+      STIS headers to hold then.
+
+--->  As it stands, the algorithm cannot be used with multiple-IMSET files.
+      The reason is that it uses calstis6 iteratively, and calstis6, once
+      initiated, always works on an entire file, processing all IMSETS at
+      once. So it's no use to wrap the algorithm in an external,
+      IMSET-scanning loop. One possible solution is to write the C code 
+      such that only single IMSET files can be processed, and eventually 
+      provide the sscatter Cl wrapper with the ability to unpack IMSETS 
+      and table extensions in parallel and call the C code in a loop 
+      sequence. 
+
+
+*** Prepare to enter main loop ***
+
+Run standard calstis
+  extrinf = 'yes'
+  Howk & Sembach algorithm disabled
+
+--->  This can be performed by a call to CalStis6 with appropriate 
+      parameters. Output goes to a temporary file. What to do with the 
+      lengthy stdout output ? Cannot be turned off.
+
+
+Read SCI, ERR, and DQ from _raw image
+
+--->  A simple GetSingleGroup call into 'input' SingleGroup variable.
+
+--->  Are ERR and DQ used at all ?
+
+
+Read WAVELENGTH, GROSS, NET, SPORDER, and EXTRLOCY from _x1d file
+
+--->  should we read DQ as well ? Would it be useful for the algorithm ?
+
+--->  Data goes into 'extracted', an array of data structures of type:
+
+	typedef struct {
+		short	sporder;
+		short	npts;
+		double	scale;
+		double	*wave;
+		double	*gross;
+		double	*net;
+		short	*dq;
+		double	*extrlocy;
+	} RowContents;
+
+      Each array element stores data from a table row.
+
+      To implement this step, we need a function that can *read* a _x1d
+      table. We only have now functions that *write* _x1d tables.
+
+
+Calculate NM+1 background positions  [NM = number of echelle orders]
+  [IDT uses variable name POS for our EXTRLOCY]
+  Midpoints between EXTRLOCY order positions
+  Linear extrapolation of last 2 points in EXTRLOCY to get last background
+   position on each end
+
+--->  Store in 2-D double array.
+
+
+If hires pixel mode, simulate some lores pixel quantities:
+  Copy SCI, ERR, and DQ to SCI_HI, ERR_HI, and DQ_HI
+  Bin 2x2 groups of pixels in SCI, ERR, and DQ
+  Bin adjacent pixel pairs in WAVELENGTH, GROSS, NET, and EXTRLOCY
+
+--->  AllocSingleGroup with appropriate size in 'input_image' SingleGroup'.
+      alloc array of RowContents data structures in 'extracted_data'.
+      alloc 1-D arrays in 'extracted_data'.
+      bin image from 'input' into 'input_image'.
+      bin arrays from 'extracted' into 'extracted_data'.
+
+      If not hires, just copy pointers so 'input_image' and 'extracted_data'
+      become the working data areas.
+
+      This will mix up DQ bits.
+
+
+Define internal algorithm parameters based on OPT_ELEM from header
+  Note that SCALE may be a function of SPORDER
+  Niter = 3
+  OPT_ELEM == E140M:
+    SCALE = (14.5 - 0.275*SPORDER + 0.001435*SPORDER*SPORDER)
+    Enforce minimum value of 2.5 in SCALE from formula above
+    INC_SCALE = 1.4
+    YYAMP = 1.0
+  OPT_ELEM == E140H:
+    SCALE = 1.5
+    INC_SCALE = 1.3
+    YYAMP = 1.25
+  OPT_ELEM == E230M:
+    SCALE = 1.0
+    INC_SCALE = 1.0
+    YYAMP = 0.0
+  OPT_ELEM == E230H:
+    SCALE = 1.5
+    INC_SCALE = 1.0
+    YYAMP = 0.0
+  [YYAMP above is called YYOFF by IDT, who redefine YYOFF to be a
+  [vector that is the linear interpolation through points:
+  [  (0,0), (250,YYAMP), (500,0), (750,-YYAMP), (1000,0)
+  [  sampled onto x values from 0 to 999 in steps of 1
+  [In main loop, IDT code computes ECHELLE_SCAT_OFFSET from YYOFF, but
+  [ it should be more efficient for us to compute ECHELLE_SCAT_OFFSET as
+  [ needed from YYAMP.]
+
+--->  Get OPT_ELEM from primary header.
+      Store 'inc_scale' and 'yyamp' as double scalars, and 'scale' in
+      'extracted_data' structure.
+
+
+Remove heliocentric velocity correction from WAVELENGTH, if applied
+
+--->  This is a tricky one. If heliocentric correction took place 
+      during the _x1d extraction, the only places where info was
+      recorded are HISTORY keywords in the _x1d file. It's no use to
+      check for the HELCORR='perform' switch in the file, because that
+      can be overriden with x1d.helcorr="omit" by the user. This
+      forces us to violate the FITS standard and look for values
+      in an HISTORY keyword (I've seen this before...).
+
+      get heliocentric correction from _x1d file header;
+      correct wavelength arrays in 'extracted_data' data structure.
+
+
+Lookup true Xsize and Ysize of aperture in arcseconds.
+  Example: for APERTURE == '0.1X0.2', Xsize = 0.096 and Ysize = 0.196
+
+--->  Use modified version of GetApDes6 from calstis6 to store Xsize
+      and Ysize in double scalar variables 'ap_xsize' and 'ap_ysize'.
+      
+
+Build scattering kernels for given OPT_ELEM and CENWAVE
+  FFT1, FFT2, FFT3, FFTO1, FFTO2, and FFTO3 are 2048x2048 complex arrays
+   that must be constructed from detector halo and telescope PSF profiles
+   in reference files (halo_*.fits and stis*c00.fits). The arrays are used
+   once per iteration (currently 3) of the algorithm. Thus, we could trade
+   the 200 Mb of (virtual) memory required to preload these arrays with
+   CPU cycles to construct the arrays 3 times instead of once.
+  IDT Variables returned by this processing step:
+    MSCAT           INT       = Array[140]          (described below)
+    NELEM           INT       = Array[140]          (described below)
+    SCAT            FLOAT     = Array[947, 140]     (described below)
+    ESCAT_PSF       FLOAT     = Array[121]
+
+    MRIP            INT       = Array[53]           (described below)
+    WRIP            DOUBLE    = Array[500, 53]      (described below)
+    RIP             DOUBLE    = Array[500, 53]      (described below)
+
+    NWAVE           INT       =        3
+    WAVE1           FLOAT     =       1150.00
+    WAVE2           FLOAT     =       1200.00
+    WAVE3           FLOAT     =       1275.00
+    FFT1            COMPLEX   = Array[2048, 2048]
+    FFT2            COMPLEX   = Array[2048, 2048]
+    FFT3            COMPLEX   = Array[2048, 2048]
+    FFTO1           COMPLEX   = Array[2048, 2048]
+    FFTO2           COMPLEX   = Array[2048, 2048]
+    FFTO3           COMPLEX   = Array[2048, 2048]
+  Some of these variables still need to be described in detail, along with
+   the reference files from which they are constructed.
+
+--->  echelle_scat_read in IDL code.
+
+--->  halo_*.fits: single 1024 sq image, empty header. For E140 there are 
+      three possible wavelengths, for E230 just one. Names in HAL1FILE, 
+      HAL2FILE, HAL3FILE keywords in primary header. Repeat for E230 ?
+      This file is the first parameter in make_fft. 
+
+--->  stis*c00.fit: single 196 sq image, empty header. OTA PSF ?
+
+--->  Scattering function in SCATFILE keyword.
+
+
+
+Find integer row and fractional order where scattering kernels are centered.
+  Read reference wavelengths for up to 3 kernels from reference file
+
+---> Which reference file ? In stis*c00.fit files, wavelength appears to
+     be coded in a COMMENT header keyword, so we have to violate
+     the FITS standard to access it. Better to add this info to input image
+     header (KERNWAV1, KERNWAV2, KERNWAV3)
+
+  Use linear interpolation of A2CENTER vs. WAVELENGTH(512,*) to find
+   row numbers (LINEPOS1, LINEPOS2, LINEPOS3) at reference wavelengths.
+
+---> This is performed in the x1d table (EXTRLOCY as a function of WAVELNGTH)
+
+  Use linear interpolation of SPORDER vs. A2CENTER to find fractional order
+   numbers (MPSFPOS1, MPSFPOS2, MPSFPOS3) at reference wavelengths.
+
+--->  This step will create scalar variables 'lineposX' and 'mpsfposX'.
+
+
+Calculate fractional order number (MLINE) for each row in image.
+
+--->  Alloc double array 'mline'.
+--->  This is the same computation as in previous step, except that it
+      scans the entire set of image lines. Results stored in 'mline'.
+
+Extend observed WAVELENGTH to NSBIG pixels creating WBIG)
+  NSBIG 3000 implies 988 pixels of padding on each end to handle scattering
+   onto the image from spectrum off the edge of the detector.
+
+--->  Where does NSBIG comes from ?
+
+  [This model ignores physical baffling in instrument?]
+  Dimensions of extended wavelength array (WBIG) are (NSBIG,NM).
+  I1 = (NSBIG-1024)/2 = 988 is the first pixel in WBIG with real data
+  I2 = I1 + 1023 = 2011 is the last pixel in WBIG with real data
+  Loop through SPORDER
+    Assume extrapolated wavelengths have uniform dispersion (DISP) equal
+     to the mean dispersion across the current order (I).
+    Insert WAVELENGTH into WBIG(I1,I) through WBIG(I2,I).
+    Insert extrapolation into ends of WBIG
+  End loop
+
+--->  Alloc 2-D 'wbig' double array.
+--->  Compute 'i1' and 'i2'.
+--->  Loop through SPORDER (from 'extracted_data')
+--->      Compute mean dispersion from wavelength array.
+--->      Fill center of 'wbig[*][sporder]' row with data from 'extracted_data'
+--->      Fill edge regions with extrapolated wavelength values.
+--->  End loop.
+
+
+Read relevant echelle ripple data from ripple_* reference files.
+  Each of the 4 gratings has its own reference file
+  Files are FITS binary tables with columns CENWAVE, M, WAVELENGTH, and BLAZE
+  Only load into memory reference file rows for which:
+    Reference file CENWAVE equals observed CENWAVE
+    Reference file M is in observed SPORDER list
+  MRIP is list of orders satisfying two conditions immediately above
+  RIP contains 500 ripple points for each order in MRIP (from BLAZE column)
+  WRIP contains wavelengths for every point in RIP (from WAVELENGTH column)
+  Note that many orders in SPORDER will not have a ripple function
+
+Extend ripple functions to 3000 pixels, padding each end with 988 pixels.
+  Dimensions of extended ripple array (BLAZE) are (3000,NM).
+  Loop through orders
+    MRIP(GOOD) is closest match to current order number.
+    Extract ripple wavelengths (WW) from WRIP for closest match.
+    Multiply elements in WW by { MRIP(GOOD) / current order number M }.
+    Use linear interpolation of RIP for closest match vs. WW to determine
+     BLAZE at each wavelength in extended wavelength scale WBIG.
+    For 988 exprapolated points in BLAZE on both ends of each order,
+     linearly extrapolate the two end values in WRIP and RIP.
+    [Check for negative values of BLAZE; set to zero? Not in IDT package]
+  Endloop
+
+--->   Alloc 'blaze' 2-D array.
+
+--->  Pretty much described above. Extracting closest match can be
+      done by a modified InterpTrace6 routine from calstis6.
+
+Compute median rows per Angstrom (DYDW) in cross-dispersion direction.
+  Disp=(A2CENTER(1)-A2CENTER(0))/(WAVELENGTH(512,1)-WAVELENGTH(512,0)), etc.
+  DWDY is median of NM-1 values in Disp
+
+Create model spectrum (FMERGE).
+  Loop through orders
+    Multiply observed NET by SCALE (from reference file above) to make NETM
+    Divide NETM by pixels 988 through 2011 in BLAZE
+    <Splice> orders into one long spectrum, making WMERGE and FMERGE
+    Enforce minimum value of -20 counts/pixel in FMERGE
+
+---> idt code uses -20 counts/pixel/second instead
+
+    [Minimum of -20 counts/pixel seems awfully low. Use -1 perhaps?]
+  End loop
+
+<Splice> -- Separate routine to merge echelle orders. May exist already?
+  Define as separate function, since called in two places.
+  Ignore first 4 and last 3 pixels of each order, which may be bad
+  Do not combine fluxes where wavelength from adjacent orders overlap
+  Switch to next order at wavelength midway between last wavelength of
+   current order and first wavelength of next order
+
+Read echelle scattering profiles from ech_scat_* reference files.
+  Each of the 4 gratings has its own reference file
+  Files are FITS binary tables with columns M, NELEM, and SCAT
+  Only retain rows for echelle orders contained in observation
+  NELEM contains number of valid pixels in SCAT for each order
+  SCAT contains echelle grating scatter profile for each order, plus any
+   zero padding required to fill out the rectangular data area in file.
+  NELEM should be odd, so center of kernel is well defined
+  Only the first NELEM points in SCAT are valid for each order
+  All orders should have echelle scattering profiles
+  [We will only read orders in SPORDER, so don't need separate MSCAT list.]
+
+*1* Begin Main Loop *1*
+
+Allocate arrays for scattering model
+  IM_MOD1 is echelle scattering component 1 (wings, real*4, 1024x1024)
+  IM_MOD2 is echelle scattering component 2 (core, real*4, 1024x1024)
+  O_MOD is model of image without scattering (real*4, 1024x1024)
+  These array are initialized to zero at beginning of each iteration
+
+Create model spectrum (FBIG) on extended wavelength scale (WBIG).
+  [IDT uses FLUX for both normal and extended wavelength scale. We will use]
+  [ FLUX for observed flux on the observed wavelength scale and define FBIG]
+  [ to be the flux extrapolated to the extended wavelength scale WBIG.]
+  Loop through orders
+    Linearly interpolate FMERGE vs. WMERGE onto WBIG for each order.
+    In first order, where WBIG < WMERGE(0), set FBIG to FLUX(0)
+    In last order, where WBIG > WMERGE(last), set FBIG to FLUX(last)
+
+--->  Multiply each order by blaze.
+
+  End loop
+
+Build image containing scattered light prediction
+
+*2* Begin Loop Through Orders *2*
+
+  ..SCALE_LSF is echelle scattering profile (SCAT) for current order
+
+--->  SCALE_LSF = scf.scfunc[].values 
+
+    Pixel offset (LSF_OFF) for profile is NELEM/2 (truncate remainder).
+    Recall NELEM should be odd, so SCALE_LSF should have 2*LSF_OFF+1 points.
+
+    ECHELLE_SCAT_OFFSET is the the linear interpolation through points:
+      (0,0), (0.25*NELEM,YYAMP), (0.5*NELEM,0), (0.75*NELEM,-YYAMP), (NELEM,0)
+       sampled onto x values from 0 to NELEM-1 in steps of 1
+    [IDT code uses frebin(YYOFF,NELEM) to compress/expand NELEM=1000 case]
+    [It is simpler to compute ECHELLE_SCAT_OFFSET directly from definition]
+
+  ..Define [two, not three] echelle scattering functions
+      SCALE_LSF1 = SCALE_LSF with central 11 pixels (LSF_OFF-5 to LSF_OFF+5)
+                     set equal to SCALE_LSF(LSF_OFF-5), i.e. clip peak.
+      SCALE_LSF2 = SCALE_LSF - SCALE_LSF1, i.e. wings set to zero
+      [SCALE_OLSF = SCALE_LSF2, identical, so no need for both]
+
+  ..Extract data for current order [we may just define pointers]
+      Recall that I1 and I2 define the set of pixels in WBIG and associated
+       arrays that corresponding to to actual pixels in observed image.
+      E = BLAZE array elements for current order
+---> renamed eblaze to ease finding with editor. 
+      EONIMAGE = E(I1:I2) is part of blaze function actually on image
+      FORDER = FBIG array elements for current order
+      [IDT variable FONIMAGE is defined, but not used, so ignore]
+      YORDER_ONIMAGE = EXTRLOCY array elements for current order
+      WORDER_ONIMAGE = WAVE array elements for current order
+      WORDER = WBIG(I1:I2) is entire extended wavelengths for current order
+      [The arrays in this paragraph facilitate vector operations in IDL and
+        and perhaps add clarity, but the arrays are never modified. Thus,
+        we can use pointers into the original arrays instead. I will use the
+        names in the description below to facilitate comparison with the IDL
+        code.]
+
+  ..Indexes (ISTART, ISTOP) for extended arrays (e.g. WBIG) where scattering
+     by LSF can affect actual image region (I1 to I2).
+      Recall LSF_OFF is half the scattering kernel width
+      ISTART = I1 - LSF_OFF is lowest pixel (e.g., in WBIG) to consider
+      ISTOP = I2 + LSF_OFF is highest pixel (e.g., in WBIG) to consider
+
+*3* Begin Loop Through Pixels ISTART to ISTOP in Extended Arrays *3*
+
+  ....Loop info:
+        These are all the pixels that could scatter light into image
+        IPIX is the index of the current pixel [IDT uses variable "I"]
+
+  ....Define index ranges used for addressing arrays while processing pixel
+        IMAGE1POS and IMAGE2POS bound pixels in observed image that can
+         receive flux from current pixel by LSF scattering
+        ILSF1 and ILSF2 bound points in *LSF* arrays to use in calculation
+        ILSF1 = 0
+        ILSF2 = NELEM - 1, recall indexes begin at zero
+        IMAGE1POS = IPIX - LSF_OFF - I1
+        If (IMAGE1POS<0) { ILSF1=ILSF1-IMAGE1POS; IMAGE1POS=0; }
+        IMAGE2POS = IPIX + LSF_OFF - I1
+        If (IMAGE2POS>1023) { ILSF2=1023+ILSF2-IMAGE2POS; IMAGE1POS=1023; }
+                                                               ^
+                                                               V
+--->    If (IMAGE2POS>1023) { ILSF2=1023+ILSF2-IMAGE2POS; IMAGE2POS=1023; }
+        Note: (IMAGE2POS-IMAGE1POS) equals (ILSF2-ILSF1)
+
+        Examples:
+         IPIX         IMAGE1POS        IMAGE2POS   ILSF1                 ILSF2
+         =====================================================================
+         I1-LSF_OFF   0                0           2*LSF_OFF  =NELEM-1 NELEM-1
+         I1-LSF_OFF+1 0                1           2*LSF_OFF-1=NELEM-2 NELEM-1
+         I1-LSF_OFF+2 0                2           2*LSF_OFF-2=NELEM-3 NELEM-1
+         ------------ ---------------- ----------- ------------------- -------
+         I1-1         0                LSF_OFF-1   LSF_OFF-1           NELEM-1
+         I1           0                LSF_OFF     LSF_OFF             NELEM-1
+         I1+1         0                LSF_OFF+1   LSF_OFF+1           NELEM-1
+         ------------ ---------------- ----------- ------------------- -------
+         I1+LSF_OFF-1 0                2*LSF_OFF-1 1                   NELEM-1
+         I1+LSF_OFF   0                2*LSF_OFF   0                   NELEM-1
+         I1+LSF_OFF+1 1                2*LSF_OFF+1 0                   NELEM-1
+         =====================================================================
+         I2-LSF_OFF-1 1023-2*LSF_OFF-1 1022        0                   NELEM-1
+         I2-LSF_OFF   1023-2*LSF_OFF   1023        0       2*LSF_OFF  =NELEM-1
+         I2-LSF_OFF+1 1023-2*LSF_OFF+1 1023        0       2*LSF_OFF-1=NELEM-2
+         ------------ ---------------- ----------- ------- -------------------
+         I2-1=I1+1022 1023-LSF_OFF-1   1023        0                 LSF_OFF+1
+         I2  =I1+1023 1023-LSF_OFF     1023        0                 LSF_OFF  
+         I2+1=I1+1024 1023-LSF_OFF+1   1023        0                 LSF_OFF-1
+         ------------ ---------------- ----------- ------- -------------------
+         I2+LSF_OFF-2 1021             1023        0                         2
+         I2+LSF_OFF-1 1022             1023        0                         1
+         I2+LSF_OFF   1023             1023        0                         0
+         =====================================================================
+
+        If IMAGE2POS < IMAGE1POS, skip rest of loop for this pixel.
+        [This should never be true, so trap as an error if debugging]
+
+*4* [Begin loop through pixels to receive scattered light?] *4*
+
+  ....[..]Loop info:
+        IDT code avoids explictly looping by using IDL array operations
+
+  ....[..]Translate FBIG in IPIX to flux elsewhere in echelle blaze function
+        F is array defined for pixels "j" in range IMAGE1POS to IMAGE2POS
+        F(j) = FORDER(IPIX) * EONIMAGE(j)/E(IPIX)
+        Right term in product replaces blaze at IPIX with blaze at "j"
+        [Conceptually clearer to multiply *LSF* by EONIMAGE(j)/E(IPIX) below?]
+        Assumes *LSF* scattering happens before or at grating [Is this true?]
+
+  ....[..]Determine where to place scattered light in the model images.
+        XX is the list of integer columns that will recieve scattered light
+        [IDT defines XX in advance to use vector operations in IDL. We can
+        [ simply replace references to XX(j) with IMAGE1POS+j]
+        Y is the list of fractional rows that follow scattered light vs. XX
+        Scattering assumed to follow lines of constant wavelength on image,
+         whereas positions in YORDER_ONIMAGE reflect changes in wavelength.
+         ECHELLE_SCAT_OFFSET is presumably an empirical fudge to match data.
+        dw=WORDER_ONIMAGE(IMAGE1POS+j)-WORDER(IPIX)
+        Y(j)=YORDER_ONIMAGE(IMAGE1POS+j)-DYDW*dw+ECHELLE_SCAT_OFFSET(ILSF1+j)
+        The term DYDW*dw is the change in row number required to get from
+         wavelength WORDER in column IMAGE1POS+j to wavelength WORDER(IPIX).
+
+  ....[..]Calculate fraction of scattered light for row above and below Y
+        Y1 is the integer part of Y
+        FR2 is the fractional part of Y
+        [Y2 is just Y1+1, which we can calculate as needed.]
+        [FR1 is just 1-FR2, which we can calculate as needed.]
+
+  ....[..]Add scattered light contribution into model images
+        Add into each pixel along Y vs. XX the observed flux in pixel IPIX,
+         modified for blaze function changes, line spread function, and
+         fractional splitting between two bracketting rows.
+        Loop (j) through number of columns to receive scattered light
+          Maximum value of j is IMAGE1POS-IMAGE2POS
+          ixx = IMAGE1POS + j
+          iy1 = Y1(j)
+          iy2 = Y1(j) + 1
+          ilsf = ILSF1 + j
+          fr1 = 1 - FR2(j)
+          IM_MOD1(ixx,iy1) = IM_MOD1(ixx,iy1) + F(j)*SCALE_LSF1(ilsf)*fr1
+          IM_MOD1(ixx,iy2) = IM_MOD1(ixx,iy1) + F(j)*SCALE_LSF1(ilsf)*FR2(j)
+          IM_MOD2(ixx,iy1) = IM_MOD2(ixx,iy1) + F(j)*SCALE_LSF2(ilsf)*fr1
+          IM_MOD2(ixx,iy2) = IM_MOD2(ixx,iy1) + F(j)*SCALE_LSF2(ilsf)*FR2(j)
+
+          If final iteration of main loop, then build object image
+            O_MOD(ixx,iy1) = O_MOD(ixx,iy1) + F(j)*SCALE_LSF2(ilsf)*fr1
+            O_MOD(ixx,iy2) = O_MOD(ixx,iy2) + F(j)*SCALE_LSF2(ilsf)*FR2(j)
+            [Recall that SCALE_LSF2 equals the IDT SCALE_OLSF]
+          Endif
+        End loop through columns to receive scattered light
+        This loop will probably be expanded to include previous 4 paragraphs
+
+*4* [End loop through pixels to receive scattered light?] *4*
+*3* End loop through pixels in extended arrays *3*
+*2* End loop through orders *2*
+
+Contents of model images at this point:
+  IM_MOD2 is current guess for what image would look like with no scattered
+   light and infinite resolution. Orders angle across image at positions in
+   EXTRLOCY. All flux in order is contained in two pixel wide swath. Spectral
+   lines are visible in image. Cores of strongly saturated line cores are
+   negative in at least the first iteration.
+  IM_MOD1 is current guess for location of scattered light. Maximum light is
+   in several pixel wide swath *midway* between orders [why?], but there is
+   a pervasive component that sits under orders as well. Strong absorption
+   lines appear as diagonal dark swaths the points where such features would
+   appear in adjacent orders.
+
+Convolve scattering component (IM_MOD1) with cross-disperser profile
+  ESCAT_PSF is the cross-disperser scattering profile
+  ESCAT_PSF is read from reference file before entering main loop
+  Loop through 1024 columns
+    Extract current column from IM_MOD1
+    Pad both ends with 50 extra pixels of zeros.
+    This is an approximation, since there will actually be orders off the
+     the edge, but a fair bit of code would be required to extrapolate the
+     visible orders off the top and bottom of the image.
+    50 pixels is not always enough to mathematically separate top and bottom
+     of image during convolution, since ESCAT_PSF can have more than 101
+     pixels. [Boost amount of padding to the number of elements in ESCAT_PSF
+     divided by two (with integer truncation)?]
+    Convolve padded column with ESCAT_PSF
+    Replace original column with corresponding part of convolved column
+  End loop
+  After column by column convolution, contrast is reduced between pervasive
+   component and peaks midway between orders, but peaks are still present.
+
+Sum two model image components to construct composite model image (IM_MOD)
+  Loop through all pixels in model image
+    IM_MOD = IM_MOD1 + IM_MOD2
+  End loop
+  Note that convolution with cross-disperser scattering function can only
+   be done once the scattered light model image (IM_MOD1) has been fully
+   constructed. One could bypass the need for multiple 1024x1024 images at
+   this stage by constructing IM_MOD1 and convolving with cross-disperser
+   scattering function. Then make a second pass through orders, pixels
+   in extended arrays, and pixels to receive scattered light, adding in
+   the IM_MOD2 component. The savings in memory probably isn't worth the
+   repeated code, especially since array is reused below.
+
+Convolve model image with first telescope PSF and detector halo profile
+  Allocate 2048x2048 array (BIG) and set contents to zero
+  Insert IM_MOD into low quadrant of BIG, i.e BIG(0:1023,0:1023)
+  [Check that this placement is consistent with non-IDL FFT algorithm]
+  Calculate discrete Fourier transform of BIG
+  Multiply element by element with Fourier transform of PSF and Halo (FFT1)
+  FFT1 is computed from reference files before entering main loop
+  Compute real part of inverse transform of product, overwriting BIG
+  Extract 1024x1024 image from low quadrant of BIG
+  Multiply result by 2048*2048 [depending on normalization of FFT routine]
+  Save result in IM_MOD1, reusing array from above with different content
+
+Convolve model image with second telescope PSF and detector halo profile
+  Multiple kernels are used to handle wavelength variations in PSF
+  Skip this step if STIS mode described by a single PSF and halo profile
+  Same procedure as first component, except:
+    BIG need not be reallocated, but set contents to zero
+    Convolve with FFT2, rather than FFT1
+    Store result in IM_MOD2, instead of IM_MOD1
+
+Convolve model image with third telescope PSF and detector halo profile
+  Multiple kernels are used to handle wavelength variations in PSF
+  Skip this step if STIS mode described by only two PSF and halo profiles
+  Same procedure as first component, except:
+    BIG need not be reallocated, but set contents to zero
+    Convolve with FFT3, rather than FFT1
+    Store result in IM_MOD3, instead of IM_MOD1
+
+If final iteration, convolve object model (O_MOD) with PSF and halo
+  Same procedure as first, second and third components above, except:
+    Replace FFT1,FFT2,FFT3 with FFTO1,FFTO2,FFTO3
+    Replace IM_MOD1,IM_MOD2,IM_MOD3 with O_MOD1,O_MOD2,O_MOD3
+
+Coadd convolved model images with row weights based on order number.
+  This scheme is designed to handle variations in PSF shape with row
+  Up to 3 model images are constructed using constant PSF kernels
+  Each kernel applies to a reference wavelength (WAVE1,WAVE2,WAVE3)
+  Recall from above main loop:
+    LINEPOS1,LINEPOS2,LINEPOS3 are rows corresponding to WAVE1,WAVE2,WAVE3
+    MPSFPOS1,MPSFPOS2,MPSFPOS3 are orders coresponding to WAVE1,WAVE2,WAVE3
+    MLINE is fractional order associated with each image row
+
+  If NWAVE is 1 (constant PSF) then
+    Copy all of IM_MOD1 into IM_MOD
+  Else
+    Only copy rows 0 through LINEPOS1-1 of IM_MOD1 into IM_MOD
+    [IDT algorithm copies entire image in both cases, but unnecessary]
+  Endif
+
+  If NWAVE is at least 2 then
+    Fill rows LINEPOS1 through LINEPOS2-1 with FRAC1*IM_MOD1 + FRAC2*IM_MOD2
+    FRAC1 is unity at LINEPOS1 and zero at LINEPOS2
+    FRAC2 is zero at LINEPOS1 and unity at LINEPOS2
+    The ramp is not quite linear with row number, however.
+    Instead, weights are linear with order number in MLINE
+    Thus, FRAC2(row) = (MLINE(row) - MPSFPOS1) / (MPSFPOS2 - MPSFPOS1)
+    FRAC1(row) = 1 - FRAC2(row)
+    If NWAVE is 2, fill rows LINEPOS2 through 1023 of IM_MOD with IM_MOD2
+  Endif
+
+  If NWAVE is at least 3 then
+    Fill rows LINEPOS2 through LINEPOS3-1 with FRAC2*IM_MOD2 + FRAC3*IM_MOD3
+    FRAC2 is unity at LINEPOS2 and zero at LINEPOS3
+    FRAC3 is zero at LINEPOS2 and unity at LINEPOS3
+    The ramp is not quite linear with row number, however.
+    Instead, weights are linear with order number in MLINE
+    Thus, FRAC3(row) = (MLINE(row) - MPSFPOS2) / (MPSFPOS3 - MPSFPOS2)
+    FRAC2(row) = 1 - FRAC3(row)
+    If NWAVE is 3, fill rows LINEPOS3 through 1023 of IM_MOD with IM_MOD3
+    [IDT code reuses the name FRAC1 and FRAC2, but clearer to change name]
+  Endif
+
+If final iteration, coadd object models (O_MOD1,O_MOD2,O_MOD3) with weights
+  Same as procedure for model images above, except:
+    Replace IM_MOD with O_MOD
+    Replace IM_MOD1,IM_MOD2,IM_MOD3 with O_MOD1,O_MOD2,O_MOD3
+
+Add ghosts due to reflections from window above NUV MAMA
+  Define transformation (rotation and expansion) coefficients for ghost image
+    2x2 arrays for E230M Mode:
+      KX = / -33.9909        -0.000844246 \   =   / KX(0,0)  KX(1,0) \
+           \   0.998378       3.51736e-06 /       \ KX(0,1)  KX(1,1) /
+      KY = /   5.46450        1.00869     \
+           \   9.48275e-05   -1.10486e-06 /
+    2x2 arrays for E230H Mode:
+      KX = / -16.4834        -0.000280014 \
+           \   0.998752       1.51807e-06 /
+      KY = /   5.59971        1.00791     \
+           \   1.58386e-05   -7.14570e-07 /
+  Build transformed image using nearest neighbor polynomial warping of image
+    Call new image GHOST [no name used in IDT code]
+    Calculate which pixel (ii,jj) in IM_MOD maps to pixel (i,j) in GHOST
+      x = KX(0,0) + j*KX(1,0) + i*KX(0,1) + j*i*KX(1,1)
+      y = KY(0,0) + j*KY(1,0) + i*KY(0,1) + j*i*KY(1,1)
+      Use nearest neighbor approximation: ii = round(x), jj = round(y)
+      Use closest edge pixel for points that map off edge of IM_MOD
+    GHOST(i,j) = IM_MOD(ii,jj)
+  Scale ghost to 0.3% of original image intensity (multiply by 0.003)
+  Convolve with 3x3 pixel smoothing kernel:
+                         1    / 0.2  0.5  0.2 \
+    Normalized KERNEL = --- * | 0.5  1.0  0.5 |
+                        3.8   \ 0.2  0.5  0.2 /
+    Convolve GHOST with KERNEL
+  Add GHOST to IM_MOD, pixel by pixel
+  General notes about transformation scheme:
+    KX is bilinear mapping of GHOST (i,j) indexes back to IM_MOD ii index 
+    KY is bilinear mapping of GHOST (i,j) indexes back to IM_MOD jj index 
+    Coefficients assume that all indexes begin with zero!
+    KX = /  0  0  \
+         \  1  0  /  is an identity mapping for columns
+    KY = /  0  1  \
+         \  0  0  /  is an identity mapping for rows
+
+Extract new FLUX spectrum from IM_MOD using standard calstis
+  Howk & Sembach algorithm disabled
+  Produce MOD_NET, which will be compared to NET from previous extraction
+
+---> NET = wx1d.net,  MOD_NET = wx1d2.net
+
+Apply correction to extracted flux based on change in NET
+  NET is the net counts from previous iteration
+
+---> No, NET is the original input data.
+
+  Flux increment (INC) is INC_SCALE * (NET - MOD_NET)
+  Recall INC_SCALE comes from an OPT_ELEM specific reference file.
+  Update FLUX: FLUX(j) = FBIG(I1+j) + INC(j)
+  INC_SCALE boosts the flux correction for E140M and E140H, perhaps to
+    accelerate convergence [while hopefully avoiding overshoot?]
+
+Update merged model spectrum (FMERGE).
+  Loop through orders
+    Divide FLUX by pixels 988 through 2011 in BLAZE (i.e. BLAZE_ONIMAGE)
+    <Splice> orders into one long spectrum, making WMERGE and FMERGE
+
+---> The following step is *not* performed in the idl code !
+
+    Enforce minimum value of -20 counts/pixel in FMERGE
+    [Minimum of -20 counts/pixel seems awfully low. Use -1 perhaps?]
+  End loop
+
+*1* End Main Loop *1*
+
+
+--->  Free 2-D array 'blaze'.
+--->  Free 2-D array 'wbig'.
+--->  Free 1-D array 'mline'.
+
+
+Construct scattered light image
+  SCAT = IM_MOD - O_MOD
+
+Return to hires pixel mode, if necessary
+
+Reapply heliocentric velocity correction to WAVELENGTH, if removed above
+
+--->  Why ?
+
+Subtract scattered light image from original raw image
+  IMAGE = IMAGE - SCAT
+  [No need for IDT variable NEW_IMAGE, since IMAGE array can be used]
+
+Extract final spectrum from IMAGE using standard calstis
+  Howk & Sembach algorithm disabled
+  Write results in standard calstis format.
+
+
+
+--->  FreeSingleGroup 'input_image'.
+      free 1-D arrays in 'extracted data'
+      free 'extracted_data' data structure.
+
+
+
+
+_________________________________________________________________________
+
+
+
+
+
+
+
+About 15 min on a Ultra 60 with 380 Mb memory (aura). *Way* more if 
+virtual memory is necessary. Peak data area uses about 200 Mb.
+
+
+
+
+FIX THE FILE NAME (.FITS) PROBLEM !!
+
+
+
+
+Psets:
+
+Since x1d has now a large number of parameters, I reorganized its user
+interface. 
+
+
+
+   Parameters specific to IDT algorithm:
+
+
+
+
+
+
+
+Keywords:
+
+The IDT algorithm depends on a number of reference files whose paths/names
+must be supplied via primary header keywords in the input image. There is
+also a calibration switch that enables the pipeline version of the
+code to select the IDT algorithm. This switch is ignored when the task
+is executed via the 'x1d' script. 
+
+An example taken from my test data set (o4qx04010_flt.fits) is as follows:
+
+IDTCORR = 'perform '
+SCATTAB = 'reffiles/ech_scat_e140h.fits'
+SPSFFILE= 'reffiles/ech_xdisp_e140h.fits'
+XDSPFILE= 'reffiles/xdisp_e140h.fits'
+RIPPLTAB= 'reffiles/ripple_e140h.fits'
+KERNWAV1=                 1150
+KERNWAV2=                 1200
+KERNWAV3=                 1275
+HAL1FILE= 'reffiles/halo_e140h_1150.fits'
+HAL2FILE= 'reffiles/halo_e140h_1200.fits'
+HAL3FILE= 'reffiles/halo_e140h_1275.fits'
+PSF1FILE= 'reffiles/stis1150c00.fit'
+PSF2FILE= 'reffiles/stis1200c00.fit'
+PSF3FILE= 'reffiles/stis1300c00.fit'
+
+Of course, I made up the keyword names; feel free to suggest other names
+if these are not OK.
+
+
+Temporary files:
+
+Because the standard calstis6 code was designed around disk files, 
+the IDT algorithm is constrained to use disk files, both images and 
+tables, to pass information into and out of calstis6. These files are
+deleted at the end of a successful completion, but in case of premature 
+abort they are left in place (in the current working directory). Their 
+names begin with the prefix "TEMP" and they must be manually removed 
+whenever the task is interrupted. 
+
+
+Verbosity:
+
+The 1-D extraction step is performed four times. This step either prints 
+a very summarized report with just the spectral order numbers, or a 
+full length report (the original _trl report from calstis6), depending 
+on the 'verbose' task parameter setting. Once selected, the format is the 
+same in all four iterations, but we can easily change this beahvior. For 
+example, we can have the summarized report be printed at the first three
+iterations and the long one only at the end. What should we do ? What to 
+do when called from the pipeline ?
+
+
+
+
+
+
+
+
+
+
+
+
