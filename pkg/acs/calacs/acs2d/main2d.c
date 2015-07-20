@@ -177,7 +177,7 @@ int main (int argc, char **argv) {
     acs2d_sw.flatcorr  = DefSwitch ("flatcorr");
     acs2d_sw.shadcorr  = DefSwitch ("shadcorr");  OMIT
     acs2d_sw.photcorr  = DefSwitch ("photcorr");
-    /*}*/
+    }*/
 
     /* Expand the templates. */
     i_imt = c_imtopen (inlist);

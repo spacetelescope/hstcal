@@ -81,7 +81,7 @@ static int CloseAtoDTab (TblInfo *);
    Values that on input are greater than or equal to the number of elements
    in the ATOD array will be set to the value of the last element of that
    array, and they will be flagged as saturated.
-   
+
 ** This routine was not modified much from the original STIS version,
 ** only the variable names and some of the column names were changed.
 */
@@ -133,7 +133,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 	    if (ReadAtoDTab (&tabinfo, row, &tabrow))
 		return (status);
-        /* Commanded gain values were int valued pre-SM4 and 
+        /* Commanded gain values were int valued pre-SM4 and
            float valued post-SM4, so we need to check what type
            of ref table we have as input.
         */
@@ -216,12 +216,12 @@ SingleGroup *x    io: image to be calibrated; written to in-place
    columns that we need, and gets the total number of rows in the table.
    The columns are CCDAMP, CCDGAIN, REF_KEY, REF_KEY_VALUE, NELEM, and
    ATOD.
-   
+
    The commanded gain values were integers pre-SM4, and floats post-SM4.
    We need to check the datatype of the CCDGAIN column and set a switch
-   of intgain=1 for pre-SM4 and intgain=0 for post-SM4 to denote what 
+   of intgain=1 for pre-SM4 and intgain=0 for post-SM4 to denote what
    kind of table we have as input.
-   
+
 ** This routine was modified from the STIS version to read ACS specific
 ** columns.
 */
@@ -246,7 +246,7 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 	    trlerror ("Out of memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
-      
+
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
 	    sprintf (MsgText, "ATODTAB `%s' not found.", tname);
@@ -278,10 +278,10 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "PEDIGREE", &tabinfo->cp_pedigree);
 	c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
 
-    /* get info on ccdgain column to determine whether we 
+    /* get info on ccdgain column to determine whether we
        have int or float values to read in.
     */
-    
+
     c_tbcinf(tabinfo->cp_gain, &colnum, colname, colunits, colfmt, &datatype, &lendata, &lenfmt);
     if (datatype == IRAF_INT){
         tabinfo->intgain = 1;
@@ -351,7 +351,7 @@ static int ReadAtoDArray (TblInfo *tabinfo, int row, TblArray *tabarray) {
 
 	nret = c_tbagtr (tabinfo->tp, tabinfo->cp_atod, row,
 			tabarray->atod, 1, tabarray->nelem);
-	if (status = c_iraferr())
+	if ((status = c_iraferr()))
 	    return (status = TABLE_ERROR);
 
 	if (nret < tabarray->nelem) {

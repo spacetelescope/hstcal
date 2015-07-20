@@ -147,6 +147,7 @@ char *output        i: full filename of output (final) trailer file
     char uniq_outname[ACS_CBUF];
 
     void SetTrlOverwriteMode (int);
+    int unlink(const char *);
 
     trldata[0] = '\0';
 

@@ -85,6 +85,8 @@ int main(int argc, char **argv){
 
     fclose(fp);
     printf("Wrote test results to %s\n", outfile);
+
+    return 0;
 }
 
 

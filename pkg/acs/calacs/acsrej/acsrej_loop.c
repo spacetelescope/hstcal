@@ -839,8 +839,10 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     /* Use this marker to allow easier clean-up after an error condition.
        An error condition will have already set status to something else
        that should be passed on...
+
+       Currently commented because not used.
     */
-    cleanup: ;
+    /*cleanup: ;*/
 
     /* free memories */
     free (sum);
@@ -988,7 +990,8 @@ static void freeBitBuff (Byte ***crmask, int nimgs, int lines) {
 /* ------------------------------------------------------------------*/
 /*                          printBitLine                             */
 /* ------------------------------------------------------------------*/
-
+/* Not used */
+#if false
 static void printBitLine (Byte ***crmask, int img, int line, int nx) {
     int     x,i;
     Byte    bit;
@@ -1012,6 +1015,7 @@ static void printBitLine (Byte ***crmask, int img, int line, int nx) {
     }
     /*printf("\n");*/
 }
+#endif
 
 /* ------------------------------------------------------------------*/
 /*                          readBitLine                              */

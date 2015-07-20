@@ -21,7 +21,7 @@ static int GetSw (Hdr *, char *, int *);
 int Get2dSw (CalSwitch *acs2d, Hdr *phdr) {
 
     extern int status;
-    FitsKw key;        /* keyword location in header */
+    /*FitsKw key;*/      /* keyword location in header */
 
     if (GetSw (phdr, "DQICORR",  &acs2d->dqicorr))
         return (status);

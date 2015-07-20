@@ -67,7 +67,7 @@ int doPCTE (ACSInfo *acs, SingleGroup *x) {
     double temp_err;
 
     /* iteration variable */
-    int i, j, k, m;
+    int i, k, m;
 
     char ccdamp[strlen(AMPSTR1)+1]; /* string to hold amps on current chip */
     int numamps;               /* number of amps on chip */

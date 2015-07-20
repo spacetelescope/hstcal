@@ -60,9 +60,11 @@ int Do2D (ACSInfo *acs2d, int extver) {
   int logit;
 	char buff[ACS_FITS_REC+1];
   Bool subarray;
-  
-  char units[ACS_LINE], targname[ACS_LINE];
 
+  char units[ACS_LINE];
+
+  int to_electrons(ACSInfo *, SingleGroup *);
+  int check_zero_noise(SingleGroup *);
 	int CCDHistory (ACSInfo *, Hdr *);
 	int doDark (ACSInfo *, SingleGroup *, float *);
 	int darkHistory (ACSInfo *, Hdr *);
@@ -166,14 +168,14 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	dqiMsg (acs2d, extver);
 
 	if (acs2d->dqicorr == PERFORM ||
-	    acs2d->dqicorr == DUMMY && acs2d->detector != MAMA_DETECTOR) {
+	    (acs2d->dqicorr == DUMMY && acs2d->detector != MAMA_DETECTOR)) {
     if (doDQI (acs2d, &x))
       return (status);
     PrSwitch ("dqicorr", COMPLETE);
     if (acs2d->printtime)
       TimeStamp ("DQICORR complete", acs2d->rootname);
 	}
-	
+
   if (extver == 1 && !OmitStep (acs2d->dqicorr))
     if (dqiHistory (acs2d, x.globalhdr))
       return (status);
@@ -190,25 +192,25 @@ int Do2D (ACSInfo *acs2d, int extver) {
     if (acs2d->printtime)
       TimeStamp ("Nonlinearity corr. complete", acs2d->rootname);
 	}
-	
+
   if (!OmitStep (acs2d->glincorr) || !OmitStep (acs2d->lflgcorr)) {
     if (extver == 1)
       if (nonlinHistory (acs2d, x.globalhdr))
 		    return (status);
 	}
-  
+
   /* if the data aren't already in electrons, do it here. */
   if (GetKeyStr(&x.sci.hdr, "BUNIT", USE_DEFAULT, "", units, ACS_LINE)) {
     freeSingleGroup(&x);
     return status;
   }
-  
+
   if (strncmp(units, "ELECTRONS", 6) != 0) {
     if (to_electrons(acs2d, &x)) {
       freeSingleGroup(&x);
       return (status);
     }
-    
+
     if (PutKeyStr (&x.sci.hdr, "BUNIT", "ELECTRONS", "")) {
       freeSingleGroup(&x);
       return (status);
@@ -218,36 +220,36 @@ int Do2D (ACSInfo *acs2d, int extver) {
       return (status);
     }
   }
-  
+
   /* Fill in the error array, if it initially contains all zeros. */
 	if (acs2d->noisecorr == PERFORM && check_zero_noise(&x) == YES) {
     if (doNoise (acs2d, &x, &done))
       return (status);
-    
+
     if (done) {
       if (extver == 1) {
 		    if (noiseHistory (x.globalhdr))
           return (status);
       }
-      
+
       trlmessage("         Uncertainty array initialized,");
       buff[0] = '\0';
 
 	    if (acs2d->detector != MAMA_DETECTOR) {
         sprintf(MsgText, "    readnoise =");
-        
+
         for (i=0; i < NAMPS-1; i++) {
           if (acs2d->readnoise[i] > 0) {
             sprintf (buff, "%.5g,",acs2d->readnoise[i]);
             strcat (MsgText, buff);
           }
         }
-        
+
         if (acs2d->readnoise[NAMPS-1] > 0) {
           sprintf(buff, "%.5g",acs2d->readnoise[NAMPS-1]);
           strcat (MsgText, buff);
         }
-        
+
         trlmessage(MsgText);
 
         sprintf(MsgText, "    gain =");
@@ -257,16 +259,16 @@ int Do2D (ACSInfo *acs2d, int extver) {
             strcat (MsgText, buff);
           }
         }
-        
+
         if (acs2d->atodgain[NAMPS-1] > 0) {
           sprintf(buff, "%.5g",acs2d->atodgain[NAMPS-1]);
           strcat (MsgText, buff);
         }
-        
+
         trlmessage(MsgText);
 
       }
-      
+
       if (acs2d->printtime)
 		    TimeStamp ("Uncertainty array initialized", acs2d->rootname);
     }
@@ -289,7 +291,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 		if (acs2d->printtime)
 			TimeStamp ("DARKCORR complete", acs2d->rootname);
 	}
-	
+
   if (extver == 1 && !OmitStep (acs2d->darkcorr))
     if (darkHistory (acs2d, x.globalhdr))
       return (status);
@@ -307,10 +309,10 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
         if (PutKeyFlt(&x.sci.hdr, "MEANFLSH", meanflash,
                       "mean of post-flash values subtracted"))
-            return (status);	    
+            return (status);
 
         PrSwitch ("flshcorr", COMPLETE);
-    
+
         if (acs2d->printtime)
             TimeStamp("FLSHCORR complete", acs2d->rootname);
     }
@@ -338,7 +340,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
       return (status);
 
 	}
-	
+
   if (extver == 1 && !OmitStep (acs2d->flatcorr))
     if (flatHistory (acs2d, x.globalhdr))
       return (status);
@@ -399,7 +401,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
     UCalVer (x.globalhdr);
     UFilename (acs2d->output, x.globalhdr);
 	}
-  
+
   /* Update EXPSCORR switch upon completion */
   /* Added update to EXPSCORR switch to record when it
    has been completed... 4-June-2003 WJH */
@@ -413,7 +415,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
     trlerror (MsgText);
 		return (status = 1001);
 	}
-  
+
 	if (acs2d->printtime)
     TimeStamp ("Output written to disk", acs2d->rootname);
 

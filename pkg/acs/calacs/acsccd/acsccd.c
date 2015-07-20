@@ -39,7 +39,6 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     extern int status;
 
     ACSInfo acs;	/* calibration switches, reference files, etc */
-    int extver;
 
     Hdr phdr;		/* primary header for input image */
 
@@ -231,7 +230,6 @@ static int BiasKeywords (ACSInfo *acs) {
 
     extern int status;
 
-    int i;
     IODescPtr im;		/* descriptor for output image */
     int PutKeyFlt (Hdr *, char *, float, char *);
     Hdr phdr;		/* primary header for input image */

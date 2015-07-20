@@ -32,8 +32,8 @@ int PixCteParams (char *filename, const double expstart, CTEParams *pars) {
   IRAFPointer col_ptr_dtde;   /* xtables column pointer for dtde */
   IRAFPointer col_ptr_qdtde;  /* xtables column pointer for q_dtde */
   IRAFPointer col_ptr_levs;   /* xtables column pointer for levels */
-  IRAFPointer col_ptr_mjd;    /* xtables column pointer for mjd */
-  IRAFPointer col_ptr_scale;  /* xtables column pointer for scale */
+  /*IRAFPointer col_ptr_mjd;*/    /* xtables column pointer for mjd */
+  /*IRAFPointer col_ptr_scale;*/  /* xtables column pointer for scale */
   IRAFPointer col_ptr_amp;    /* xtables column pointer for amp */
 
   /* names of data columns we want from the file */

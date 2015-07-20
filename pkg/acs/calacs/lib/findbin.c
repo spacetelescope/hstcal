@@ -119,17 +119,21 @@ int *x0, *y0      o: location of start of subimage in ref image
 	return (status);
 }
 
+
 /* This function contains the basic algorithms and logic for determining
     the size and position of the input image relative to the reference
     image.  Callable by both FindLineHdr and FindLine.
 
     *** It still needs to be cleaned up ***
     WJH 30 July 1999
+
+    *** Commented to disable "unused function" warning from compiler ***
+    PLL 20 July 2015
 */
+#if false
 static int getBin (int *sci_corner, int *ref_corner, int *sci_bin, int
 *ref_bin, int *same_size, int *rx, int *ry, int *x0, int *y0) {
     extern int status;
-	int rsize;
 	int cshift[2];			/* shift of sci relative to ref */
 	int ratiox, ratioy;		/* local variables for rx, ry */
 	int xzero, yzero;		/* local variables for x0, y0 */
@@ -193,6 +197,8 @@ static int getBin (int *sci_corner, int *ref_corner, int *sci_bin, int
 
         return 0;
 }
+#endif
+
 
 /*
 ** Developed to support line-by-line operations within CALACS.

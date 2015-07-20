@@ -23,7 +23,7 @@ static int GetSw (Hdr *, char *, int *);
 int GetccdSw (ACSInfo *acs, Hdr *phdr) {
 
     extern int status;
-    FitsKw key;        /* keyword location in header */
+    /*FitsKw key;*/        /* keyword location in header */
 
     if (GetSw (phdr, "DQICORR",  &acs->dqicorr))
         return (status);

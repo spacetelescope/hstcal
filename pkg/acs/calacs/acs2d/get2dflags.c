@@ -308,7 +308,7 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
     SingleGroup y;
     double ltm[2], ltv[2];
     const int extver=1;
-    int GetLT0 (Hdr *, double *, double *);
+    int GetLT (Hdr *, double *, double *);
 
     if (acs2d->flashcorr == PERFORM && acs2d->pctecorr == PERFORM) {
 

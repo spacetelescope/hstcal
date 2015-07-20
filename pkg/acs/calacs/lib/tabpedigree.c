@@ -44,7 +44,7 @@ int TabPedigree (RefTab *ref) {
 
 	/* Open the reference table. */
 	tp = c_tbtopn (ref->name, IRAF_READ_ONLY, 0);
-	if (status = c_iraferr()) {
+	if ((status = c_iraferr())) {
 	    ref->exists = EXISTS_NO;
 	    clear_cvoserr();
 	    return (status);
@@ -55,7 +55,7 @@ int TabPedigree (RefTab *ref) {
 	   that's not an error in this case.
 	*/
 	c_tbhgtt (tp, "PEDIGREE", ref->pedigree, ACS_FITS_REC);
-	if (status = c_iraferr()) {
+	if ((status = c_iraferr())) {
 	    ref->pedigree[0] = '\0';
 	    clear_cvoserr();
         status = 0;
@@ -65,7 +65,7 @@ int TabPedigree (RefTab *ref) {
     trlmessage("DESCRIP read in as: ");
     sprintf(MsgText, "%s", ref->descrip);
     trlmessage(MsgText);
-	if (status = c_iraferr()) {
+        if ((status = c_iraferr())) {
 	    ref->descrip[0] = '\0';
 	    clear_cvoserr();
         status = 0;

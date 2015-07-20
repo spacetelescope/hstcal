@@ -30,7 +30,6 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
     extern int status;
 
     ACSInfo acs;	/* calibration switches, reference files, etc */
-    int extver;
 
     Hdr phdr;		/* primary header for input image */
 

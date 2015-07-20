@@ -79,10 +79,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
 
     char *acsdth_input;    /* Input list for ACSDTH */
 
-    IRAFPointer tpin;
-    int nimgs, i;
-
-    int prod, posid;
+    int prod;
 
     void PrBegin (char *);
     void PrEnd (char *);
@@ -317,7 +314,6 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
     int i;
     char *acsdth_input;
     char tmpexp[ACS_LINE];
-    char tmpflt[ACS_LINE];
     int MkName (char *, char *, char *, char *, char *, int);
 
     /* Determine how long this string needs to be... */

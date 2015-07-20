@@ -36,7 +36,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
     int         n;
 	Hdr         header;		                /* SPT header */
 	FILE        *fp;		                /* file pointer */
-	IODescPtr   im, imin;		           /* descriptor for input image */
+	IODescPtr   im;		           /* descriptor for input image */
 
     char        in_name[ACS_FNAME+1];       /* filename of input data */
     char        in_spt[ACS_FNAME+1];        /* filename of SPT source data */
@@ -45,7 +45,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
     char        obsnum[4];                  /* Observation number string */
     ShortHdrData  stmp;
     int         nimgs, i;
-    int         nx, ny;
+    int         nx;
 	int 		extnum,nextn;
 
 

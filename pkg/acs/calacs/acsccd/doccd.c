@@ -26,7 +26,7 @@
 
 
 static void dqiMsg (ACSInfo *, int);
-static void AtoDMsg (ACSInfo *, int);
+/*static void AtoDMsg (ACSInfo *, int);*/ /* Not used */
 static void BiasMsg (ACSInfo *, int);
 static void BlevMsg (ACSInfo *, int);
 
@@ -57,7 +57,9 @@ int DoCCD (ACSInfo *acs_info) {
     int doBias (ACSInfo *, SingleGroup *);
     int biasHistory (ACSInfo *, Hdr *);
     int doBlev (ACSInfo *, SingleGroup *, int, float *, int *, int *);
-    int destripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1);
+    int bias_shift_corr(ACSInfo *, SingleGroup *, SingleGroup *);
+    void cross_talk_corr(ACSInfo *, SingleGroup *);
+    int doDestripe(ACSInfo *, SingleGroup *, SingleGroup *);
     int blevHistory (ACSInfo *, Hdr *, int, int);
     int CCDHistory (ACSInfo *, Hdr *);
     int doDQI (ACSInfo *, SingleGroup *);
@@ -509,6 +511,8 @@ static void dqiMsg (ACSInfo *acs, int extver) {
 }
 
 
+/* Not used */
+/*
 static void AtoDMsg (ACSInfo *acs, int extver) {
     int OmitStep (int);
     void PrSwitch (char *, int);
@@ -522,6 +526,7 @@ static void AtoDMsg (ACSInfo *acs, int extver) {
                    acs->atod.descrip, acs->atod.descrip2);
     }
 }
+*/
 
 
 static void BiasMsg (ACSInfo *acs, int extver) {

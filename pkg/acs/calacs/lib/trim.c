@@ -5,15 +5,15 @@
 # include "acserr.h"	/* SIZE_MISMATCH */
 # include "acs.h"
 
-/* This routine takes an input data array, bins it in 1d, extracts a subset, 
+/* This routine takes an input data array, bins it in 1d, extracts a subset,
    and assigns the values to an
    output data array.  The calling routine must allocate the output
    SingleGroupLine (setting its size) and free it when done.
    The coordinate keywords in the output extension headers will be updated.
-   
+
 ** Need to add 'ystart' as input to keep header information correct in output
     array.
-    
+
     This function does not treat any expansion or reduction in Y!
 */
 
@@ -38,13 +38,13 @@ SingleGroupLine *b    o: output data
 	double block[2];	/* number of input pixels for one output */
 	double offset[2];	/* offset of binned image */
 	float weight;		/* binx * biny (or sqrt for errors) */
-	float sum;		/* for summing data values */
-	float sum_err;		/* for summing error array */
-	short sum_dq;		/* for ORing data quality array */
+	/*float sum;*/		/* for summing data values */
+	/*float sum_err;*/		/* for summing error array */
+	/*short sum_dq;*/		/* for ORing data quality array */
 	int nx;				/* size of output array */
 	int m;			/* pixel index in output array */
 	int i;			/* pixel index in input array */
-	int i0;			/* starting location of m in input */
+	/*int i0;*/			/* starting location of m in input */
 
 	int BinCoords (Hdr *, double *, double *, Hdr *, Hdr *, Hdr *);
 
@@ -55,7 +55,7 @@ SingleGroupLine *b    o: output data
 	block[1] = 1;
 	offset[0] = xstart;
 	offset[1] = ystart;  /* Need to modify to pass ystart */
-	
+
 	/* Check the subset of the input corresponding to the output. */
 	if (xstart < 0 || xstart + nx*binx > a->sci.tot_nx) {
 	    trlerror ("(trim1d)  subset is out of bounds:");
@@ -78,7 +78,7 @@ SingleGroupLine *b    o: output data
     }
 
 	/* Copy header info only if requested... */
-	if (update == YES) { 
+	if (update == YES) {
 		/* Copy the headers. */
 		copyHdr (b->globalhdr, a->globalhdr);
 		if (hstio_err())
