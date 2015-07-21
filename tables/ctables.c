@@ -154,6 +154,8 @@ static void freeTableP (IRAFPointer tp) {
                 free (tbl_descr->tablename);
             if (tbl_descr->fullname != NULL)
                 free (tbl_descr->fullname);
+            if (tbl_descr->filename != NULL)
+                free (tbl_descr->filename);
             if (tbl_descr->brackets != NULL)
                 free (tbl_descr->brackets);
             /* free memory for columns */

@@ -29,7 +29,9 @@ int main (int argc, char **argv) {
     mtype[0] = '\0';
 
     /* Get input and output file names and switches in the command line. */
-    rej_command (argc, argv, input, output, &par, newpar);
+    if (rej_command (argc, argv, input, output, &par, newpar)) {
+        exit (ERROR_RETURN);
+    }
 
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
