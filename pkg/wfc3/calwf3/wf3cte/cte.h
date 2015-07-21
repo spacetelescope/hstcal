@@ -8,21 +8,21 @@ typedef struct {
     double cte_date0; /*date of uvis install on hst in mjd*/
     double cte_date1; /*date of cte model pinning mjd*/
     int cte_len; /*max length of cte trail */
-    double   rn_amp; /*read noise amplitude for clipping */
+    float   rn_amp; /*read noise amplitude for clipping */
     int n_forward; /* number of forward modeling iterations */
     int n_par; /*numver of iterations in parallel transfer */
     float scale_frac; /*scaling of cte model relative to ctedate1*/
     int noise_mit; /*read noise mitigation algorithm*/
-    double thresh; /*over subtraction threshold*/        
+    float thresh; /*over subtraction threshold*/        
     int cte_traps; /*number of valid TRAPS in file for reallocation*/
     int wcol_data[TRAPS]; /*trap number, insync with number of traps*/
-    double qlevq_data[TRAPS];/*charge packet size in electrons*/
-    double dpdew_data[TRAPS];/*trap size in electrons*/  
+    float qlevq_data[TRAPS];/*charge packet size in electrons*/
+    float dpdew_data[TRAPS];/*trap size in electrons*/  
     int   iz_data[RAZ_COLS]; /*column number in raz format*/
-    double scale512[RAZ_COLS]; /*scaling appropriate at row 512 */
-    double scale1024[RAZ_COLS];/*scaling appropriate at row 1024 */
-    double scale1536[RAZ_COLS];/*scaling appropriate at row 1536 */
-    double scale2048[RAZ_COLS];/*scaling appropriate at row 2048 */
+    float scale512[RAZ_COLS]; /*scaling appropriate at row 512 */
+    float scale1024[RAZ_COLS];/*scaling appropriate at row 1024 */
+    float scale1536[RAZ_COLS];/*scaling appropriate at row 1536 */
+    float scale2048[RAZ_COLS];/*scaling appropriate at row 2048 */
     char descrip2; /*descrip from table row, not read in for cte purposes*/
     int fix_rocr; /*make allowance for readout cosmic rays*/
     FloatHdrData *rprof; /*differential trail profile as image*/
@@ -75,13 +75,12 @@ int raw2raz(WF3Info *, SingleGroup *, SingleGroup *, SingleGroup *);
 int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, double , int );
 int findPostScanBias(SingleGroup *, float *, float *);
 int findPreScanBias(SingleGroup *, float *, float *);
-int find_dadj(int ,int , float [][RAZ_ROWS], float [][RAZ_ROWS], double , float *);
+int find_dadj(int ,int , float [][RAZ_ROWS], float [][RAZ_ROWS], float , float *);
 int rsz2rsc(WF3Info *, SingleGroup *, SingleGroup *, CTEParams * );
 int inverse_cte_blur(SingleGroup *, SingleGroup *, SingleGroup *, CTEParams *, int, double);
-int sim_colreadout_l(double *, double *, double *, CTEParams *);
+int sim_colreadout_l(float *, float *, float *, CTEParams *);
 int CompareCTEParams(SingleGroup *, CTEParams *);
 int cteHistory (WF3Info *, Hdr *);
-float **alloc_array(int rows, int columns);
 int free_array(float **ptr, int rows, int columns);
 int GetCTESwitch (WF3Info *, Hdr *);
 int initCTETrl (char *, char *);

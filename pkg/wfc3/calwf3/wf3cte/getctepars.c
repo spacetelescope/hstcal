@@ -174,7 +174,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* GET READ NOISE CLIPPING LEVEL */
-	if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
+	if (GetKeyFlt(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
 		cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
@@ -212,7 +212,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* GET OVER SUBTRACTION THRESHOLD */
-	if (GetKeyDbl(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
+	if (GetKeyFlt(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
 		cteerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
@@ -292,7 +292,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		}
                 
 		/* GET QLEVQ FROM THIS ROW */
-		c_tbegtd(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
+		c_tbegtr(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qlevq);
 			cteerror(MsgText);
@@ -304,7 +304,7 @@ No.    Name         Type      Cards   Dimensions   Format
             ctraps+=1;
         
 		/* GET DPDEW FROM THIS ROW */
-		c_tbegtd(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
+		c_tbegtr(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dpdew);
 			cteerror(MsgText);
@@ -323,7 +323,6 @@ No.    Name         Type      Cards   Dimensions   Format
 	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
             pars->wcol_data[19],pars->qlevq_data[19], pars->dpdew_data[19], pars->cte_traps);
 	trlmessage(MsgText);
-
 
 	/* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
 	c_tbtclo(tbl_ptr);
@@ -398,26 +397,26 @@ No.    Name         Type      Cards   Dimensions   Format
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
-		c_tbegtd(tbl_ptr, sens512_ptr, j+1, &pars->scale512[j]);
+		c_tbegtr(tbl_ptr, sens512_ptr, j+1, &pars->scale512[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens512);
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
 
-		c_tbegtd(tbl_ptr, sens1024_ptr, j+1, &pars->scale1024[j]);
+		c_tbegtr(tbl_ptr, sens1024_ptr, j+1, &pars->scale1024[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1024);
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
-		c_tbegtd(tbl_ptr, sens1536_ptr, j+1, &pars->scale1536[j]);
+		c_tbegtr(tbl_ptr, sens1536_ptr, j+1, &pars->scale1536[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1536);
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
-		c_tbegtd(tbl_ptr, sens2048_ptr, j+1, &pars->scale2048[j]);
+		c_tbegtr(tbl_ptr, sens2048_ptr, j+1, &pars->scale2048[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens2048);
 			cteerror(MsgText);
@@ -438,7 +437,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/*  extension 3: differential trail profile as image */
 	ctemessage("Reading in image from extension 3\n");
 
-	/* Get the coefficient images from the NLINFILE */
+	/* Get the coefficient images from the PCTETAB */
 	pars->rprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->rprof == NULL){
 		sprintf (MsgText, "Can't allocate memory for RPROF ref data");
@@ -462,7 +461,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return (status = 1);
 	}
 
-	/* Get the coefficient images from the NLINFILE */
+	/* Get the coefficient images from the PCTETAB */
 	initFloatHdrData (pars->cprof);
 	if (getFloatHD (filename, "CPROF", 1, pars->cprof)){
 		return (status=1);
@@ -558,10 +557,10 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 		return status;
 	}
         
-    if ( (rn_amp >1) && (rn_amp != pars->rn_amp)){
+    if ( (rn_amp >1.) && (rn_amp != pars->rn_amp)){
         pars->rn_amp=rn_amp;
     } else {
-        if(PutKeyDbl(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")){
+        if(PutKeyFlt(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")){
             trlmessage("(pctecorr) Error updating PCTERNOI in header");
             status= HEADER_PROBLEM;
             return status;
