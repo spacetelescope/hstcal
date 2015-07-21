@@ -356,7 +356,6 @@ CTE correction in ACS which occurs later in the process after basic structures a
     
     /*** CREATE THE FINAL CTE CORRECTED IMAGE, PUT IT BACK INTO ORIGNAL RAW FORMAT***/
 
-
     /*** SAVE USEFULL HEADER INFORMATION ***/
     if (cteHistory (&wf3, cd.globalhdr))
         return (status);
@@ -370,7 +369,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     
     for (i=0;i<RAZ_COLS;i++){
         for(j=0; j<RAZ_ROWS; j++){
-            Pix(rzc.sci.data,i,j) = Pix(raz.sci.data,i,j) + (Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j))/wf3.ccdgain;
+            Pix(rzc.sci.data,i,j) = Pix(raz.sci.data,i,j) + (Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j));
             Pix(chg.sci.data,i,j) = Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j);
         }
     }
@@ -396,7 +395,12 @@ CTE correction in ACS which occurs later in the process after basic structures a
         sprintf(MsgText,"CTE: Saved RZC image to check: %s\n",tmpout);
         trlmessage(MsgText);
     }
-    
+    /*convert to  gain*/
+   for (i=0;i<RAZ_COLS;i++){
+        for(j=0; j<RAZ_ROWS; j++){
+            Pix(rzc.sci.data,i,j) /= wf3.ccdgain;
+        }
+    }
     undosciRAZ(&cd,&ab,&rzc);
     
     /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
