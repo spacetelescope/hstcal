@@ -102,7 +102,7 @@ int err_algorithm      i: specifies how interpolation of error estimates
 	PrFileName ("output", sts.output);
 
 	/* Check whether the output file already exists. */
-	if (status = FileExists (sts.output))
+	if ((status = FileExists (sts.output)))
 	    return (status);
 
 	initHdr (&phdr);
@@ -117,14 +117,14 @@ int err_algorithm      i: specifies how interpolation of error estimates
 	closeImage (im);
 
 	/* Get keyword values from primary header. */
-	if (status = GetKeyInfo7 (&sts, &phdr))
+	if ((status = GetKeyInfo7 (&sts, &phdr)))
 	    return (status);
 
 	/* Print information about this image. */
 	PrHdrInfo (sts.obsmode, sts.aperture, sts.opt_elem, sts.det);
 
 	/* Get calibration file names from input image header. */
-	if (status = GetFlags7 (&sts, &phdr))
+	if ((status = GetFlags7 (&sts, &phdr)))
 	    return (status);
 
 	freeHdr (&phdr);
@@ -133,7 +133,7 @@ int err_algorithm      i: specifies how interpolation of error estimates
 	    TimeStamp ("Begin processing", sts.rootname);
 
 	/* Do 2-D spectral extraction. */
-	if (status = Do2Dx (&sts))
+	if ((status = Do2Dx (&sts)))
 	    return (status);
 
 	printf ("\n");

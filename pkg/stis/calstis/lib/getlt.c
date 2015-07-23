@@ -22,13 +22,13 @@ double ltv[2]    o: MWCS linear transformation vector, one indexed
 	int use_def = 1;	/* use default value if keyword is missing */
 
 	/* Get linear transformation info for pixel coordinates. */
-	if (status = Get_KeyD (hdr, "LTM1_1", use_def, 1., &ltm[0]))
+	if ((status = Get_KeyD (hdr, "LTM1_1", use_def, 1., &ltm[0])))
 	    return (status);
-	if (status = Get_KeyD (hdr, "LTM2_2", use_def, 1., &ltm[1]))
+	if ((status = Get_KeyD (hdr, "LTM2_2", use_def, 1., &ltm[1])))
 	    return (status);
-	if (status = Get_KeyD (hdr, "LTV1", use_def, 0., &ltv[0]))
+	if ((status = Get_KeyD (hdr, "LTV1", use_def, 0., &ltv[0])))
 	    return (status);
-	if (status = Get_KeyD (hdr, "LTV2", use_def, 0., &ltv[1]))
+	if ((status = Get_KeyD (hdr, "LTV2", use_def, 0., &ltv[1])))
 	    return (status);
 
 	if (ltm[0] <= 0. || ltm[1] <= 0.) {

@@ -75,12 +75,12 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 
 	/* Get generic parameters. */
 
-	if (status = Get_KeyS (&phdr, "ROOTNAME",
-				no_def, "", sts->rootname, STIS_CBUF))
+	if ((status = Get_KeyS (&phdr, "ROOTNAME",
+				no_def, "", sts->rootname, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (&phdr, "DETECTOR",
-				no_def, "", buf, STIS_FITS_REC))
+	if ((status = Get_KeyS (&phdr, "DETECTOR",
+				no_def, "", buf, STIS_FITS_REC)))
 	    return (status);
 
 	if (strcmp (buf, "NUV-MAMA") == 0) {
@@ -97,13 +97,13 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	/* Quit now if the total exposure time is zero, unless
 	   this is a bias observation.
 	*/
-	if (status = Get_KeyD (&phdr, "TEXPTIME", use_default, 0., &texptime))
+	if ((status = Get_KeyD (&phdr, "TEXPTIME", use_default, 0., &texptime)))
 	    return (status);
 	if (texptime <= 0.) {
 	    strcpy (buf, "not a bias obs");
 	    if (sts->detector == CCD_DETECTOR) {
-		if (status = Get_KeyS (&phdr, "TARGNAME",
-				use_default, "", buf, STIS_FITS_REC)) {
+		if ((status = Get_KeyS (&phdr, "TARGNAME",
+                                        use_default, "", buf, STIS_FITS_REC))) {
 		    return (status);
 		}
 	    }
@@ -115,8 +115,8 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    }
 	}
 
-	if (status = Get_KeyS (&phdr, "OBSTYPE",
-				no_def, "", buf, STIS_FITS_REC))
+	if ((status = Get_KeyS (&phdr, "OBSTYPE",
+				no_def, "", buf, STIS_FITS_REC)))
 	    return (status);
 
 	if (strcmp (buf, "SPECTROSCOPIC") == 0)
@@ -127,8 +127,8 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    printf ("Warning  Unknown OBSTYPE = '%s'\n", buf);
 
 	/* Get opt_elem in order to check for echelle or prism. */
-	if (status = Get_KeyS (&phdr, "OPT_ELEM",
-				use_default, "", buf, STIS_FITS_REC))
+	if ((status = Get_KeyS (&phdr, "OPT_ELEM",
+				use_default, "", buf, STIS_FITS_REC)))
 	    return (status);
 	sts->echelle = (buf[0] == 'E' || buf[0] == 'e');
 	if (strcmp (buf, "PRISM") == 0)
@@ -137,31 +137,31 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    sts->prism = 0;
 
 	/* Find out how many extensions there are in this file. */
-	if (status = Get_KeyI (&phdr, "NEXTEND",
-				use_default, EXT_PER_GROUP, &nextend))
+	if ((status = Get_KeyI (&phdr, "NEXTEND",
+				use_default, EXT_PER_GROUP, &nextend)))
 	    return (status);
 	sts->nimages = nextend / EXT_PER_GROUP;
 
 	/* Get binning and gain info.  We really only need this for the CCD. */
-	if (status = Get_KeyI (&phdr, "BINAXIS1",
-				use_default, 1, &sts->scibin[0]))
+	if ((status = Get_KeyI (&phdr, "BINAXIS1",
+				use_default, 1, &sts->scibin[0])))
 	    return (status);
-	if (status = Get_KeyI (&phdr, "BINAXIS2",
-				use_default, 1, &sts->scibin[1]))
+	if ((status = Get_KeyI (&phdr, "BINAXIS2",
+				use_default, 1, &sts->scibin[1])))
 	    return (status);
-	if (status = Get_KeyI (&phdr, "CCDGAIN", use_default, 1, &sts->scigain))
+	if ((status = Get_KeyI (&phdr, "CCDGAIN", use_default, 1, &sts->scigain)))
 	    return (status);
 	sts->samebin = 1;	/* default */
 
 	/* Get calibration switches. */
-	if (status = GetFlags (sci_sw, &phdr))
+	if ((status = GetFlags (sci_sw, &phdr)))
 	    return (status);
 
 	if (sci_sw->wavecorr == PERFORM) {
 	    /* Was wavecal name not specified on command line? */
 	    if (sts->wavfile[0] == '\0') {
-		if (status = Get_KeyS (&phdr, "WAVECAL", no_def, "",
-			sts->wavfile, STIS_LINE))
+		if ((status = Get_KeyS (&phdr, "WAVECAL", no_def, "",
+                                        sts->wavfile, STIS_LINE)))
 		    return (status);
 	    }
 	    /* Reset wavecorr if wavecal name is "N/A". */
@@ -173,7 +173,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	}
 
 	/* Check that reference files exist. */
-	if (status = SciFlags (sts, sci_sw, &phdr, sciref))
+	if ((status = SciFlags (sts, sci_sw, &phdr, sciref)))
 	    return (status);
 
 	freeHdr (&phdr);

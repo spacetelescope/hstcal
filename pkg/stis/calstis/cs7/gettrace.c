@@ -103,12 +103,12 @@ SpTrace **trace   o: size and coordinate info for output
 	void FreeTrace (SpTrace **);
 
 	/* Open the spectrum trace table. */
-	if (status = OpenTraceTab (sts->sptrctab.name, &tabinfo))
+	if ((status = OpenTraceTab (sts->sptrctab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadTraceTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadTraceTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem, cenwave, and sporder. */
@@ -118,8 +118,8 @@ SpTrace **trace   o: size and coordinate info for output
 		SameInt (tabrow.sporder, sporder)) {
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->sptrctab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->sptrctab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->sptrctab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -130,7 +130,7 @@ SpTrace **trace   o: size and coordinate info for output
 		}
 
 		/* Read data from this row. */
-		if (status = ReadTraceArray (&tabinfo, row, sts, trace))
+		if ((status = ReadTraceArray (&tabinfo, row, sts, trace)))
 		    return (status);
 	    }
 	}
@@ -138,7 +138,7 @@ SpTrace **trace   o: size and coordinate info for output
 
 
 	/* Get for duplicate a2center or non-duplicate a1center. */
-	if (status = CheckTrace (trace)) {
+	if ((status = CheckTrace (trace))) {
 	    FreeTrace (trace);
 	    if (status < 0) {
 		printf ("Warning  Matching row not found in SPTRCTAB %s; \\\n",
@@ -151,7 +151,7 @@ SpTrace **trace   o: size and coordinate info for output
 	    }
 	}
 
-	if (status = CloseTraceTab (&tabinfo))
+	if ((status = CloseTraceTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -291,7 +291,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo7 *sts,
 	}
 
 	/* Insert newrec into the SpTrace list. */
-	if (status = NewTrace (trace, newrec))
+	if ((status = NewTrace (trace, newrec)))
 	    return (status);
 
 	return (0);

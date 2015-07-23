@@ -75,12 +75,12 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 	if (output[0] == '\0') {
-	    if (status = MkName (input, "_x2d", "_sx2", output, STIS_LINE))
+	    if ((status = MkName (input, "_x2d", "_sx2", output, STIS_LINE)))
 		exit (status);
 	}
 
 	/* Sum imsets. */
-	if (status = CalStis8 (input, output, printtime, verbose)) {
+	if ((status = CalStis8 (input, output, printtime, verbose))) {
 	    printf ("Error processing %s.\n", input);
 	    WhichError (status);
 	}

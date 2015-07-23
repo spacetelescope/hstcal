@@ -47,7 +47,7 @@ static int CloseProfileTab (TblInfo *);
 
    This routine supports the profile file format curently created by
    calstis6 when running in "profile generator" mode. This format
-   assumes that each table row stores a cross-dispersion profile 
+   assumes that each table row stores a cross-dispersion profile
    associated with a single spectral order and a single wavelength
    interval inside that order.
 
@@ -69,13 +69,13 @@ static int CloseProfileTab (TblInfo *);
 
    The table is read to find all rows for which the values of SPORDER are
    the same as in the function parameter. There can be several such rows,
-   each with a profile corresponding to a different wavelength/pixel 
+   each with a profile corresponding to a different wavelength/pixel
    range. All these rows are read into memory, pointed to by ProfileArray.
    The SPTRCTAB table need not be sorted.
 
    When done, memory should be freed by calling FreeProfileArray.
 
-   For now, the same subsampling factor value is assumed to be stored 
+   For now, the same subsampling factor value is assumed to be stored
    in all rows of the profile table.
 
 
@@ -105,31 +105,31 @@ ProfileArray *profa;  o: list with profile arrays for current sporder
 	void FreeProfileArray (ProfileArray **);
 
 	/* Open the profile table. */
-	if (status = OpenProfileTab (sts->pftab.name, &tabinfo))
+	if ((status = OpenProfileTab (sts->pftab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadProfileTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadProfileTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for matching sporder. */
 	    if (SameInt (tabrow.sporder, sporder)) {
 
 	        /* Get pedigree & descrip from the row. */
-	        if (status = RowPedigree (&sts->pftab, row,
-	            tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+	        if ((status = RowPedigree (&sts->pftab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 	            return (status);
 
 	        /* Read profiles into structure. */
-	        if (status = ReadProfileArray (&tabinfo, row, profa,
-                             &(sts->subscale)))
+	        if ((status = ReadProfileArray (&tabinfo, row, profa,
+                                                &(sts->subscale))))
 	            return (status);
 	    }
 	}
 
 	/* Sanity check. */
-	if (status = CheckProfile (profa)) {
+	if ((status = CheckProfile (profa))) {
 	    FreeProfileArray (profa);
 	    if (status < 0) {
 		printf ("ERROR    Matching row not found in OPROFAB %s\n",
@@ -141,7 +141,7 @@ ProfileArray *profa;  o: list with profile arrays for current sporder
 	    }
 	}
 
-	if (status = CloseProfileTab (&tabinfo))
+	if ((status = CloseProfileTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -260,7 +260,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 	}
 
 	/* Insert newp into the profile list. */
-	if (status = NewProfile (profa, newp))
+	if ((status = NewProfile (profa, newp)))
 	    return (status);
 
 	free (newp->profoff);

@@ -75,7 +75,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	"ERROR    Pixel-to-pixel flat and delta flat are not the same size.\n");
 		    return (SIZE_MISMATCH);
 		}
-		if (status = mult2d (&y, &z))		/* y is the product */
+		if ((status = mult2d (&y, &z)))		/* y is the product */
 		    return (status);
 		freeSingleGroup (&z);
 	    } else {
@@ -103,11 +103,11 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		    return (ALLOCATION_PROBLEM);
 
 		/* Resample w to z by linear interpolation. */
-		if (status = unbin2d (&w, &z))		/* unbin w --> z */
+		if ((status = unbin2d (&w, &z))) /* unbin w --> z */
 		    return (status);
 		freeSingleGroup (&w);		/* we won't need w again */
 
-		if (status = mult2d (&y, &z))	/* y is the product */
+		if ((status = mult2d (&y, &z))) /* y is the product */
 		    return (status);
 		freeSingleGroup (&z);
 
@@ -130,7 +130,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		if (hstio_err())
 		    return (ALLOCATION_PROBLEM);
 
-		if (status = unbin2d (&z, &y))		/* unbin z --> y */
+		if ((status = unbin2d (&z, &y))) /* unbin z --> y */
 		    return (status);
 		freeSingleGroup (&z);
 	    }
@@ -142,8 +142,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	   get same_size and high_res flags, and get info about binning
 	   and offset for use by bin2d.
 	*/
-	if (status = FindBin (sts, x, &y,
-		&same_size, &high_res, &rx, &ry, &x0, &y0))
+	if ((status = FindBin (sts, x, &y,
+                               &same_size, &high_res, &rx, &ry, &x0, &y0)))
 	    return (status);
 
 	/* Do we need to do Doppler convolution? */
@@ -164,9 +164,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    nds = 2 * (sts->doppmag + 1) + 21;
 	    ds = (float *) calloc (nds, sizeof (float));
 
-	    if (status = MakeDopp (sts->doppzero, sts->doppmag, sts->orbitper,
-			sts->expstart, sts->exptime, sts->dispsign,
-			ds, &nds, &d0))
+	    if ((status = MakeDopp (sts->doppzero, sts->doppmag, sts->orbitper,
+                                    sts->expstart, sts->exptime, sts->dispsign,
+                                    ds, &nds, &d0)))
 		return (status);
 
 	    /* Convolve y with the Doppler smearing function. */
@@ -174,7 +174,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		border = 0;
 	    else
 		border = NINT(sts->doppmag);
-	    if (status = DoppConv (&y, border, ds, nds, d0))
+	    if ((status = DoppConv (&y, border, ds, nds, d0)))
 		return (status);
 
 	    free (ds);
@@ -188,7 +188,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	    /* No binning required. */
 
-	    if (status = div2d (x, &y)) {
+	    if ((status = div2d (x, &y))) {
 		printf ("ERROR    (doFlat) size mismatch\n");
 		return (status);
 	    }
@@ -199,12 +199,12 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* Bin the flat field down to the actual size of x. */
 
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny);
-	    if (status = bin2d (&y, x0, y0, rx, ry, avg, &z)) {
+	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
 		printf ("ERROR    (doFlat) size mismatch\n");
 		return (status);
 	    }
 	    freeSingleGroup (&y);		/* done with y */
-	    if (status = div2d (x, &z))
+	    if ((status = div2d (x, &z)))
 		return (status);
 	    freeSingleGroup (&z);		/* done with z */
 	}

@@ -107,12 +107,12 @@ FILE *dbg          i: file handle for debug output
 
 	/* The following is an initial rejection cycle. */
 
-	if (status = MedianSections (v, qv, first_good, last_good,
-			NPARTS1, xmed, med, &nmed))
+	if ((status = MedianSections (v, qv, first_good, last_good,
+                                      NPARTS1, xmed, med, &nmed)))
 	    return (status);
-	if (status = splint_nr (xmed, med, nmed, xslit, sm_slit, nv))
+	if ((status = splint_nr (xmed, med, nmed, xslit, sm_slit, nv)))
 	    return (status);
-	if (status = GetMAD (v, sm_slit, qv, nv, &mad))
+	if ((status = GetMAD (v, sm_slit, qv, nv, &mad)))
 	    return (status);
 	FlagBad (v, sm_slit, qvtemp, nv, mad);
 
@@ -120,18 +120,18 @@ FILE *dbg          i: file handle for debug output
 	   which should include the occulting bars themselves.
 	*/
 
-	if (status = MedianSections (v, qvtemp, first_good, last_good,
-			NPARTS2, xmed, med, &nmed))
+	if ((status = MedianSections (v, qvtemp, first_good, last_good,
+                                      NPARTS2, xmed, med, &nmed)))
 	    return (status);
 
 	/* Replace medians that are less than or equal to zero with
 	   neighboring values, or with the global median.
 	*/
-	if (status = QMedian (v, qvtemp, nv, &global_median))
+	if ((status = QMedian (v, qvtemp, nv, &global_median)))
 	    return (status);
 	CheckMedians (med, nmed, global_median, med_ok);
 
-	if (status = splint_nr (xmed, med_ok, nmed, xslit, sm_slit, nv))
+	if ((status = splint_nr (xmed, med_ok, nmed, xslit, sm_slit, nv)))
 	    return (status);
 
 	/* Invert the slit pattern.  Note that we test on qv here, not
@@ -341,7 +341,7 @@ int *nmed          o: number of elements of xmed & med that are actually used
 	    else
 		n = last_good - start + 1;
 
-	    if (status = QMedian (v+start, qv+start, n, &y)) {
+	    if ((status = QMedian (v+start, qv+start, n, &y))) {
 
 		if (status == OUT_OF_MEMORY)	/* else ignore this section */
 		    return (status);
@@ -384,7 +384,7 @@ double *mad        o: median of absolute values of deviations from fit
 	for (i = 0;  i < nv;  i++)
 	    diff[i] = fabs (v[i] - sm_slit[i]);
 
-	if (status = QMedian (diff, qv, nv, mad))
+	if ((status = QMedian (diff, qv, nv, mad)))
 	    return (status);
 
 	free (diff);

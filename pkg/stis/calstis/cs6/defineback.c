@@ -19,17 +19,17 @@
 static void ComputeGaussian (double, int, float *);
 
 
-/* 
+/*
    Re-define background regions for scatterd light correction algorithm,
    and smooth them.
 
    This function is an adaptation of the code in CrossCorr (whatch for code
-   duplication !). It builds a similarly averaged 1-D spatial profile and 
-   looks for the regions at the profile wings that can be used to determine 
-   the background. The result is used to redefine values for the background 
-   extraction box sizes and offsets stored in the StisInfo6 structure. 
+   duplication !). It builds a similarly averaged 1-D spatial profile and
+   looks for the regions at the profile wings that can be used to determine
+   the background. The result is used to redefine values for the background
+   extraction box sizes and offsets stored in the StisInfo6 structure.
 
-   This function also smooths the relevant background regions in the 
+   This function also smooths the relevant background regions in the
    input image, to be later used by the 1-D extraction code. The limits
    of the region (image lines) are output to the caller.
 
@@ -41,8 +41,8 @@ static void ComputeGaussian (double, int, float *);
    07 Feb 06  -  Add an argument to Interp2D (PEH)
 */
 
-int DefineBackRegions (StisInfo6 *sts, SpTrace *trc, CoordInfo *coord, 
-                       SingleGroup *in, FloatHdrData *ssgx, 
+int DefineBackRegions (StisInfo6 *sts, SpTrace *trc, CoordInfo *coord,
+                       SingleGroup *in, FloatHdrData *ssgx,
                        FloatHdrData *ssgy, int *ilow_end, int *ihigh_end) {
 
 /* arguments:
@@ -124,7 +124,7 @@ int *ihigh_end;	        that maps into the convolution buffer
 
 	    /* Interpolate in trace table. */
 
-	    if (status = InterpTrace6 (&trc, y_nom, &trace_y))
+	    if ((status = InterpTrace6 (&trc, y_nom, &trace_y)))
 	        return (status);
 
 	    /* Loop over image pixels in the A1 direction. */
@@ -184,12 +184,12 @@ int *ihigh_end;	        that maps into the convolution buffer
 	/* Locate internal end points of profile's wings. These are found
            by disregarding the central 40% of the spatial profile.
         */
-	i1 = (int)((double)jpix * 0.3); 
+	i1 = (int)((double)jpix * 0.3);
 	i2 = (int)((double)jpix * 0.7);
 
 	/* Fit a 4th degree polynomial to the profile wings. The independent
            variable is the relative pixel address within the profile array,
-           not the physical image coordinate. 
+           not the physical image coordinate.
         */
 	if ((px = (double *) calloc (jpix, sizeof(double)))== NULL)
 	    return (OUT_OF_MEMORY);
@@ -269,7 +269,7 @@ int *ihigh_end;	        that maps into the convolution buffer
 
 	/* They must be physically meaningful. These criteria are arbitrary ! */
 	if (sz1 < 4 || sz2 < 4 || offst1 > -4 || offst2 < 4) {
-	    printf (   
+	    printf (
   "Warning  No reliable signal. Using default background extraction boxes.\n");
 	    sz1 = sts->bksize[0];
 	    sz2 = sts->bksize[1];
@@ -346,7 +346,7 @@ int *ihigh_end;	        that maps into the convolution buffer
 	ComputeGaussian (FWHM_Y, ksize, kernel);
 
 	/* Convolve in the A2 direction, with the result stored back in
-           the original image array. Now the data source (buffer) is 
+           the original image array. Now the data source (buffer) is
            zero-padded so there is no need to check for out-of-bounds.
         */
 	for (i = 0; i < npix; i++) {
@@ -380,8 +380,8 @@ int *ihigh_end;	        that maps into the convolution buffer
 
 
 
-/* 
-    Function to compute normalized 1-D Gaussian. 
+/*
+    Function to compute normalized 1-D Gaussian.
 */
 
 static void ComputeGaussian (double fwhm, int size, float *array) {
@@ -394,8 +394,8 @@ float	*array;			o: array with Gaussian values
 	int	i;
 	float	amax;
 
-	for (i = 0; i < size; i++) 
-	    array[i] = exp (-2.70927 * 
+	for (i = 0; i < size; i++)
+	    array[i] = exp (-2.70927 *
                        pow((double)((i - size/2) / fwhm), 2.));
 	amax = 0.0;
 	for (i = 0; i < size; amax += array[i++]);

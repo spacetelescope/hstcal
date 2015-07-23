@@ -20,7 +20,7 @@ double ltv[2]    o: MWCS linear transformation vector, zero indexed
 	int status;
 
 	/* Get the ltm and ltv values from the header. */
-	if (status = GetLT (hdr, ltm, ltv))
+	if ((status = GetLT (hdr, ltm, ltv)))
 	    return (status);
 
 	/* The LTV values in the header are for one-indexed pixel

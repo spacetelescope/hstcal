@@ -34,7 +34,7 @@ char *wavecal_name   i: as above, but from wavecal row
 	if ((history = calloc (STIS_LINE+1, sizeof(char))) == NULL)
 	    return (OUT_OF_MEMORY);
 
-	if (status = Put_KeyS (phdr, "WAVECORR", "COMPLETE", ""))
+	if ((status = Put_KeyS (phdr, "WAVECORR", "COMPLETE", "")))
 	    return (status);
 	addHistoryKw (phdr, "WAVECORR complete ...");
 	if (hstio_err())

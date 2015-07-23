@@ -56,7 +56,7 @@ int atodHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (OmitStep (sts->atodcorr))		/* nothing to do */
 	    return (0);
 
-	if (status = UpdateSwitch ("ATODCORR", sts->atodcorr, phdr, &logit))
+	if ((status = UpdateSwitch ("ATODCORR", sts->atodcorr, phdr, &logit)))
 	    return (status);
 
 	/* Write history records for the A-to-D table. */
@@ -77,12 +77,12 @@ int biasHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (OmitStep (sts->biascorr))
 	    return (0);
 
-	if (status = UpdateSwitch ("BIASCORR", sts->biascorr, phdr, &logit))
+	if ((status = UpdateSwitch ("BIASCORR", sts->biascorr, phdr, &logit)))
 	    return (status);
 
 	/* Write history records for the bias image. */
 	if (logit) {
-	    if (status = ImgHistory (&sts->bias, phdr))
+	    if ((status = ImgHistory (&sts->bias, phdr)))
 		return (status);
 	}
 
@@ -96,7 +96,7 @@ int blevHistory (StisInfo1 *sts, Hdr *phdr, int done, int driftcorr) {
 	if (OmitStep (sts->blevcorr))
 	    return (0);
 
-	if (status = Put_KeyS (phdr, "BLEVCORR", "COMPLETE", ""))
+	if ((status = Put_KeyS (phdr, "BLEVCORR", "COMPLETE", "")))
 	    return (status);
 	if (done) {
 	    addHistoryKw (phdr,
@@ -128,7 +128,7 @@ int CCDHistory (StisInfo1 *sts, Hdr *phdr) {
 	int status;
 
 	addHistoryKw (phdr, "CCD parameters table ...");
-	if (status = TabHistory (&sts->ccdpar, phdr))
+	if ((status = TabHistory (&sts->ccdpar, phdr)))
 	    return (status);
 
 	return (0);
@@ -142,14 +142,14 @@ int darkHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (OmitStep (sts->darkcorr))
 	    return (0);
 
-	if (status = UpdateSwitch ("DARKCORR", sts->darkcorr, phdr, &logit))
+	if ((status = UpdateSwitch ("DARKCORR", sts->darkcorr, phdr, &logit)))
 	    return (status);
 
 	if (logit) {
-	    if (status = ImgHistory (&sts->dark, phdr))
+	    if ((status = ImgHistory (&sts->dark, phdr)))
 		return (status);
 	    if (sts->detector == NUV_MAMA_DETECTOR) {
-		if (status = TabHistory (&sts->tdctab, phdr))
+		if ((status = TabHistory (&sts->tdctab, phdr)))
 		    return (status);
 	    }
 	}
@@ -177,14 +177,14 @@ int dqiHistory (StisInfo1 *sts, Hdr *phdr) {
 	    flag = PERFORM;
 	}
 
-	if (status = UpdateSwitch ("DQICORR", flag, phdr, &logit))
+	if ((status = UpdateSwitch ("DQICORR", flag, phdr, &logit)))
 	    return (status);
 
 	if (logit) {
 	    addHistoryKw (phdr, "  values checked for saturation");
 	    if (sts->bpix.exists == EXISTS_YES) {
 		addHistoryKw (phdr, "  DQ array initialized ...");
-		if (status = TabHistory (&sts->bpix, phdr))
+		if ((status = TabHistory (&sts->bpix, phdr)))
 		    return (status);
 	    }
 	}
@@ -201,23 +201,23 @@ int flatHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (OmitStep (sts->flatcorr))
 	    return (0);
 
-	if (status = UpdateSwitch ("FLATCORR", sts->flatcorr, phdr, &logit))
+	if ((status = UpdateSwitch ("FLATCORR", sts->flatcorr, phdr, &logit)))
 	    return (status);
 
 	if (logit) {
 
 	    if (GotFileName (sts->pflt.name)) {
-		if (status = ImgHistory (&sts->pflt, phdr)) /* pixel-to-pixel */
+		if ((status = ImgHistory (&sts->pflt, phdr))) /* pixel-to-pixel */
 		    return (status);
 	    }
 
 	    if (GotFileName (sts->dflt.name)) {
-		if (status = ImgHistory (&sts->dflt, phdr)) /* delta flat */
+		if ((status = ImgHistory (&sts->dflt, phdr))) /* delta flat */
 		    return (status);
 	    }
 
 	    if (GotFileName (sts->lflt.name)) {
-		if (status = ImgHistory (&sts->lflt, phdr)) /* low-order flat */
+		if ((status = ImgHistory (&sts->lflt, phdr))) /* low-order flat */
 		    return (status);
 	    }
 	}
@@ -235,12 +235,12 @@ int loresHistory (StisInfo1 *sts, Hdr *phdr, int done) {
 	    return (0);
 
 	if (done) {
-	    if (status = Put_KeyS (phdr, "LORSCORR", "COMPLETE", ""))
+	    if ((status = Put_KeyS (phdr, "LORSCORR", "COMPLETE", "")))
 		return (status);
 	    addHistoryKw (phdr,
 	"LORSCORR complete; image converted from high-res to low-res.");
 	} else {
-	    if (status = Put_KeyS (phdr, "LORSCORR", "SKIPPED", ""))
+	    if ((status = Put_KeyS (phdr, "LORSCORR", "SKIPPED", "")))
 		return (status);
 	    addHistoryKw (phdr,
 	"LORSCORR skipped; image is already low-res.\n");
@@ -270,15 +270,15 @@ int nonlinHistory (StisInfo1 *sts, Hdr *phdr) {
 	logit = 0;
 
 	if (!OmitStep (sts->glincorr))
-	    if (status = UpdateSwitch ("GLINCORR", sts->glincorr, phdr, &logit))
+	    if ((status = UpdateSwitch ("GLINCORR", sts->glincorr, phdr, &logit)))
 		return (status);
 
 	if (!OmitStep (sts->lflgcorr))
-	    if (status = UpdateSwitch ("LFLGCORR", sts->lflgcorr, phdr, &logit))
+	    if ((status = UpdateSwitch ("LFLGCORR", sts->lflgcorr, phdr, &logit)))
 		return (status);
 
 	if (logit)
-	    if (status = TabHistory (&sts->mlin, phdr))
+	    if ((status = TabHistory (&sts->mlin, phdr)))
 		return (status);
 
 	return (0);
@@ -292,11 +292,11 @@ int shadHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (OmitStep (sts->shadcorr))
 	    return (0);
 
-	if (status = UpdateSwitch ("SHADCORR", sts->shadcorr, phdr, &logit))
+	if ((status = UpdateSwitch ("SHADCORR", sts->shadcorr, phdr, &logit)))
 	    return (status);
 
 	if (logit) {
-	    if (status = ImgHistory (&sts->shad, phdr))
+	    if ((status = ImgHistory (&sts->shad, phdr)))
 		return (status);
 	}
 
@@ -313,14 +313,14 @@ int photHistory (StisInfo1 *sts, Hdr *phdr) {
 	if (OmitStep (sts->photcorr))
 	    return (0);
 
-	if (status = UpdateSwitch ("PHOTCORR", sts->photcorr, phdr, &logit))
+	if ((status = UpdateSwitch ("PHOTCORR", sts->photcorr, phdr, &logit)))
 	    return (status);
 
 	if (logit) {
-	    if (status = TabHistory (&sts->phot, phdr))
+	    if ((status = TabHistory (&sts->phot, phdr)))
 		return (status);
 	    if (sts->tdscorr == PERFORM) {
-		if (status = TabHistory (&sts->tdstab, phdr))
+		if ((status = TabHistory (&sts->tdstab, phdr)))
 		    return (status);
 	    } else {
 		addHistoryKw (phdr,
@@ -356,7 +356,7 @@ int *logit        o: true if we should log reference file names
 
 	*logit = 0;
 	if (flag == PERFORM) {
-	    if (status = Put_KeyS (phdr, calSwitch, "COMPLETE", ""))
+	    if ((status = Put_KeyS (phdr, calSwitch, "COMPLETE", "")))
 		return (status);
 	    strcat (history, " complete ...");
 	    addHistoryKw (phdr, history);
@@ -364,7 +364,7 @@ int *logit        o: true if we should log reference file names
 		return (HEADER_PROBLEM);
 	    *logit = 1;
 	} else if (flag == DUMMY) {
-	    if (status = Put_KeyS (phdr, calSwitch, "SKIPPED", ""))
+	    if ((status = Put_KeyS (phdr, calSwitch, "SKIPPED", "")))
 		return (status);
 	    strcat (history, " skipped due to dummy reference file ...");
 	    addHistoryKw (phdr,history);
@@ -372,7 +372,7 @@ int *logit        o: true if we should log reference file names
 		return (HEADER_PROBLEM);
 	    *logit = 1;
 	} else if (flag == IGNORED) {
-	    if (status = Put_KeyS (phdr, calSwitch, "SKIPPED", ""))
+	    if ((status = Put_KeyS (phdr, calSwitch, "SKIPPED", "")))
 		return (status);
 	    strcat (history, " not performed ...");  /* for some other reason */
 	    addHistoryKw (phdr,history);
@@ -380,7 +380,7 @@ int *logit        o: true if we should log reference file names
 		return (HEADER_PROBLEM);
 	    *logit = 1;
 	} else if (flag == SKIPPED) {
-	    if (status = Put_KeyS (phdr, calSwitch, "SKIPPED", ""))
+	    if ((status = Put_KeyS (phdr, calSwitch, "SKIPPED", "")))
 		return (status);
 	    *logit = 0;		/* don't log this */
 	}

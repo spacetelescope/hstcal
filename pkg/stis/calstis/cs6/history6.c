@@ -12,9 +12,9 @@
 
 static int outHistory (int, char *, Hdr *);
 
-/* 
-   Append history records to a header. The records list each calibration 
-   step performed (or skipped), and for each step the reference files used 
+/*
+   Append history records to a header. The records list each calibration
+   step performed (or skipped), and for each step the reference files used
    are listed, along with their pedigree and descrip values.
 
    Revision history:
@@ -47,34 +47,34 @@ Hdr *phdr        io: header to receive history records
 	    if (outHistory (sts->x1d, "X1DCORR", phdr)) {
 	        if (hstio_err())
 	            return (HEADER_PROBLEM);
-	        if (status = TabHistory (&sts->sptrctab, phdr))
+	        if ((status = TabHistory (&sts->sptrctab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->xtrctab, phdr))
+	        if ((status = TabHistory (&sts->xtrctab, phdr)))
 		    return (status);
 	    }
 
 	    if (outHistory (sts->backcorr, "BACKCORR", phdr)) {
 	        if (hstio_err())
 		    return (HEADER_PROBLEM);
-	        if (status = TabHistory (&sts->xtrctab, phdr))
+	        if ((status = TabHistory (&sts->xtrctab, phdr)))
 		    return (status);
 	    }
 
 	    if (outHistory (sts->dispcorr, "DISPCORR", phdr)) {
 	        if (hstio_err())
 		    return (HEADER_PROBLEM);
-		    if (status = TabHistory (&sts->disptab, phdr))
-		        return (status);
-		    if (status = TabHistory (&sts->inangtab, phdr))
-		        return (status);
-		    if (status = TabHistory (&sts->apdestab, phdr))
-		        return (status);
+                if ((status = TabHistory (&sts->disptab, phdr)))
+                    return (status);
+                if ((status = TabHistory (&sts->inangtab, phdr)))
+                    return (status);
+                if ((status = TabHistory (&sts->apdestab, phdr)))
+                    return (status);
 	    }
 
 	    if (outHistory (sts->sgeocorr, "SGEOCORR", phdr)) {
 	        if (hstio_err())
 		    return (HEADER_PROBLEM);
-	        if (status = ImgHistory (&sts->sdstfile, phdr))
+	        if ((status = ImgHistory (&sts->sdstfile, phdr)))
 		    return (status);
 	    }
 
@@ -88,22 +88,22 @@ Hdr *phdr        io: header to receive history records
 	    if (outHistory (sts->fluxcorr, "FLUXCORR", phdr)) {
 	        if (hstio_err())
 		    return (HEADER_PROBLEM);
-	        if (status = TabHistory (&sts->phottab, phdr))
+	        if ((status = TabHistory (&sts->phottab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->pctab, phdr))
+	        if ((status = TabHistory (&sts->pctab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->apertab, phdr))
+	        if ((status = TabHistory (&sts->apertab, phdr)))
 		    return (status);
 		if (sts->gaccorr == PERFORM) {
-		    if (status = TabHistory (&sts->gactab, phdr))
+		    if ((status = TabHistory (&sts->gactab, phdr)))
 			return (status);
 		}
 		if (sts->ctecorr == PERFORM) {
-		    if (status = TabHistory (&sts->ccdtab, phdr))
+		    if ((status = TabHistory (&sts->ccdtab, phdr)))
 			return (status);
 		}
 		if (sts->tdscorr == PERFORM) {
-		    if (status = TabHistory (&sts->tdstab, phdr))
+		    if ((status = TabHistory (&sts->tdstab, phdr)))
 			return (status);
 		}
 	    }
@@ -120,19 +120,19 @@ Hdr *phdr        io: header to receive history records
 	    if (outHistory (sts->idt, "SC2DCORR", phdr)) {
 	        if (hstio_err())
 		    return (HEADER_PROBLEM);
-	        if (status = TabHistory (&sts->echsctab, phdr))
+	        if ((status = TabHistory (&sts->echsctab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->exstab, phdr))
+	        if ((status = TabHistory (&sts->exstab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->cdstab, phdr))
+	        if ((status = TabHistory (&sts->cdstab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->riptab, phdr))
+	        if ((status = TabHistory (&sts->riptab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->srwtab, phdr))
+	        if ((status = TabHistory (&sts->srwtab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->halotab, phdr))
+	        if ((status = TabHistory (&sts->halotab, phdr)))
 		    return (status);
-	        if (status = TabHistory (&sts->psftab, phdr))
+	        if ((status = TabHistory (&sts->psftab, phdr)))
 		    return (status);
 	    }
 	}

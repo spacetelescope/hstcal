@@ -114,12 +114,12 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	int RangeCoord (CoordInfo **, int *, int *);
 
 	/* Open the spectroscopic distortion information table. */
-	if (status = OpenSDistTab (sts->distntab.name, &tabinfo))
+	if ((status = OpenSDistTab (sts->distntab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadSDistTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadSDistTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with aperture, opt_elem and cenwave. */
@@ -129,8 +129,8 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 		SameInt (tabrow.cenwave, sts->cenwave)) {
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->distntab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->distntab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->distntab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -141,7 +141,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 		}
 
 		/* Read data from this row. */
-		if (status = ReadSDistArray (&tabinfo, row, coords))
+		if ((status = ReadSDistArray (&tabinfo, row, coords)))
 		    return (status);
 
 		/* It's only for echelle data that we need multiple rows.
@@ -157,7 +157,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	}
 
 	/* Get the range of order numbers. */
-	if (status = RangeCoord (coords, minorder, maxorder)) {
+	if ((status = RangeCoord (coords, minorder, maxorder))) {
 	    if (status < 0) {
 		printf ("Warning  Matching row not found in SDCTAB %s; \\\n",
 				sts->distntab.name);
@@ -169,7 +169,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	    }
 	}
 
-	if (status = CloseSDistTab (&tabinfo))
+	if ((status = CloseSDistTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -294,7 +294,7 @@ static int ReadSDistArray (TblInfo *tabinfo, int row, CoordInfo **coords) {
 	newrec->a2center--;
 
 	/* Insert in the coords list. */
-	if (status = NewCoord (coords, newrec))
+	if ((status = NewCoord (coords, newrec)))
 	    return (status);
 
 	free (newrec);

@@ -35,60 +35,60 @@ Hdr *phdr       i: primary header
 
 	int use_default = 1;	/* use default if keyword is missing */
 
-	if (status = GetSw (phdr, "ATODCORR", &sw->atodcorr))
+	if ((status = GetSw (phdr, "ATODCORR", &sw->atodcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "BACKCORR", &sw->backcorr))
+	if ((status = GetSw (phdr, "BACKCORR", &sw->backcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "BIASCORR", &sw->biascorr))
+	if ((status = GetSw (phdr, "BIASCORR", &sw->biascorr)))
 	    return (status);
-	if (status = GetSw (phdr, "BLEVCORR", &sw->blevcorr))
+	if ((status = GetSw (phdr, "BLEVCORR", &sw->blevcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "CRCORR",   &sw->crcorr))
+	if ((status = GetSw (phdr, "CRCORR",   &sw->crcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "DARKCORR", &sw->darkcorr))
+	if ((status = GetSw (phdr, "DARKCORR", &sw->darkcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "DISPCORR", &sw->dispcorr))
+	if ((status = GetSw (phdr, "DISPCORR", &sw->dispcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "DOPPCORR", &sw->doppcorr))
+	if ((status = GetSw (phdr, "DOPPCORR", &sw->doppcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "DQICORR",  &sw->dqicorr))
+	if ((status = GetSw (phdr, "DQICORR",  &sw->dqicorr)))
 	    return (status);
-	if (status = GetSw (phdr, "EXPSCORR", &sw->expscorr))
+	if ((status = GetSw (phdr, "EXPSCORR", &sw->expscorr)))
 	    return (status);
-	if (status = GetSw (phdr, "FLATCORR", &sw->flatcorr))
+	if ((status = GetSw (phdr, "FLATCORR", &sw->flatcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "FLUXCORR", &sw->fluxcorr))
+	if ((status = GetSw (phdr, "FLUXCORR", &sw->fluxcorr)))
 	    return (status);
-	if (status = optionalSwitch (phdr, "CTECORR", &sw->ctecorr))
+	if ((status = optionalSwitch (phdr, "CTECORR", &sw->ctecorr)))
 	    return (status);
-	if (status = GetSw (phdr, "GEOCORR",  &sw->geocorr))
+	if ((status = GetSw (phdr, "GEOCORR",  &sw->geocorr)))
 	    return (status);
-	if (status = GetSw (phdr, "GLINCORR", &sw->glincorr))
+	if ((status = GetSw (phdr, "GLINCORR", &sw->glincorr)))
 	    return (status);
-	if (status = GetSw (phdr, "HELCORR",  &sw->helcorr))
+	if ((status = GetSw (phdr, "HELCORR",  &sw->helcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "LFLGCORR", &sw->lflgcorr))
+	if ((status = GetSw (phdr, "LFLGCORR", &sw->lflgcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "LORSCORR", &sw->lorscorr))
+	if ((status = GetSw (phdr, "LORSCORR", &sw->lorscorr)))
 	    return (status);
-	if (status = GetSw (phdr, "PHOTCORR", &sw->photcorr))
+	if ((status = GetSw (phdr, "PHOTCORR", &sw->photcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "RPTCORR",  &sw->rptcorr))
+	if ((status = GetSw (phdr, "RPTCORR",  &sw->rptcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "SC2DCORR", &sw->sc2dcorr))
+	if ((status = GetSw (phdr, "SC2DCORR", &sw->sc2dcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "SGEOCORR", &sw->sgeocorr))
+	if ((status = GetSw (phdr, "SGEOCORR", &sw->sgeocorr)))
 	    return (status);
-	if (status = GetSw (phdr, "SHADCORR", &sw->shadcorr))
+	if ((status = GetSw (phdr, "SHADCORR", &sw->shadcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "WAVECORR", &sw->wavecorr))
+	if ((status = GetSw (phdr, "WAVECORR", &sw->wavecorr)))
 	    return (status);
-	if (status = GetSw (phdr, "X1DCORR",  &sw->x1dcorr))
+	if ((status = GetSw (phdr, "X1DCORR",  &sw->x1dcorr)))
 	    return (status);
-	if (status = GetSw (phdr, "X2DCORR",  &sw->x2dcorr))
+	if ((status = GetSw (phdr, "X2DCORR",  &sw->x2dcorr)))
 	    return (status);
 
-	if (status = Get_KeyI (phdr, "STATFLAG", use_default, 1, &sw->statcorr))
+	if ((status = Get_KeyI (phdr, "STATFLAG", use_default, 1, &sw->statcorr)))
 	    return (status);
 
 	return (0);
@@ -108,7 +108,7 @@ int *flag        o: value (0 or 1) of calibration switch
 
 	int status;
 
-	if (status = GetSwitch (phdr, calswitch, flag))
+	if ((status = GetSwitch (phdr, calswitch, flag)))
 	    return (status);
 
 	if (*flag != PERFORM)

@@ -74,16 +74,16 @@ Hdr *phdr        io: header to receive history records
 	if (logit) {
 	    if (hstio_err())
 		return (HEADER_PROBLEM);
-	    if (status = TabHistory (&sts->distntab, phdr))
+	    if ((status = TabHistory (&sts->distntab, phdr)))
 		return (status);
 	    if (sts->obstype == SPECTROSCOPIC_TYPE) {
-		if (status = TabHistory (&sts->apdestab, phdr))
+		if ((status = TabHistory (&sts->apdestab, phdr)))
 		    return (status);
-		if (status = TabHistory (&sts->disptab, phdr))
+		if ((status = TabHistory (&sts->disptab, phdr)))
 		    return (status);
-		if (status = TabHistory (&sts->inangtab, phdr))
+		if ((status = TabHistory (&sts->inangtab, phdr)))
 		    return (status);
-		if (status = TabHistory (&sts->sptrctab, phdr))
+		if ((status = TabHistory (&sts->sptrctab, phdr)))
 		    return (status);
 		if (sts->wx2dcorr == COMPLETE) {
 		    addHistoryKw (phdr,
@@ -106,7 +106,7 @@ Hdr *phdr        io: header to receive history records
 	if (logit) {
 	    if (hstio_err())
 		return (HEADER_PROBLEM);
-	    if (status = ImgHistory (&sts->sdstfile, phdr))
+	    if ((status = ImgHistory (&sts->sdstfile, phdr)))
 		return (status);
 	}
 
@@ -131,14 +131,14 @@ Hdr *phdr        io: header to receive history records
 	if (logit) {
 	    if (hstio_err())
 		return (HEADER_PROBLEM);
-	    if (status = TabHistory (&sts->phottab, phdr))
+	    if ((status = TabHistory (&sts->phottab, phdr)))
 		return (status);
-	    if (status = TabHistory (&sts->apertab, phdr))
+	    if ((status = TabHistory (&sts->apertab, phdr)))
 		return (status);
 
 	    /* pctcorr is not independent; it's associated with fluxcorr. */
 	    if (sts->pctcorr == PERFORM) {
-		if (status = TabHistory (&sts->pctab, phdr))
+		if ((status = TabHistory (&sts->pctab, phdr)))
 		    return (status);
 	    } else {
 		addHistoryKw (phdr,
@@ -149,7 +149,7 @@ Hdr *phdr        io: header to receive history records
 
 	    /* tdscorr is not independent; it's associated with fluxcorr. */
 	    if (sts->tdscorr == PERFORM) {
-		if (status = TabHistory (&sts->tdstab, phdr))
+		if ((status = TabHistory (&sts->tdstab, phdr)))
 		    return (status);
 	    } else {
 		addHistoryKw (phdr,

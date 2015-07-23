@@ -136,7 +136,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	sts.refnames = refnames;
 
 	/* Parse darkscale string. */
-        if (status = ParseDarkscaleString (cs1_sw, &sts))
+        if ((status = ParseDarkscaleString (cs1_sw, &sts)))
             return (status);
 
 	PrFileName ("input", sts.input);
@@ -145,7 +145,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	    PrFileName ("outblev", sts.outblev);
 
 	/* Check whether the output file already exists. */
-	if (status = FileExists (sts.output))
+	if ((status = FileExists (sts.output)))
 	    return (status);
 
 	initHdr (&phdr);
@@ -160,7 +160,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	closeImage (im);
 
 	/* Get keyword values from primary header. */
-	if (status = GetKeyInfo1 (&sts, &phdr))
+	if ((status = GetKeyInfo1 (&sts, &phdr)))
 	    return (status);
 
 	/* Check match between number of IMSETS and number of darkscale
@@ -169,7 +169,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	if (sts.ndarkscale > 0) {
 	    if (sts.ndarkscale != sts.nimages) {
 	        printf (
-"Warning: number of IMSETS = %d, number of darkscale entries = %d\n", 
+"Warning: number of IMSETS = %d, number of darkscale entries = %d\n",
                         sts.nimages, sts.ndarkscale);
 	        fflush (stdout);
 	    }
@@ -188,7 +188,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	   currently set to PERFORM will be reset to OMIT if the value
 	   in the header is COMPLETE.
 	*/
-	if (status = GetFlags1 (&sts, &phdr))
+	if ((status = GetFlags1 (&sts, &phdr)))
 	    return (status);
 
 	freeHdr (&phdr);
@@ -196,12 +196,12 @@ int CalStis1 (char *input, char *output, char *outblev,
 	/* Get values from tables. */
 
 	if (sts.detector == CCD_DETECTOR) {
-	    if (status = GetCCDTab (&sts))
+	    if ((status = GetCCDTab (&sts)))
 		return (status);
 	}
 
 	if (sts.glincorr == PERFORM || sts.lflgcorr == PERFORM) {
-	    if (status = GetLinTab (&sts))
+	    if ((status = GetLinTab (&sts)))
 		return (status);
 	}
 

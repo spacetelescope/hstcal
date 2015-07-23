@@ -162,7 +162,7 @@ double mean_dark        i: mean of good pixels of dark reference image
                            (binned to 1024x1024 pixels in size)
 double *factor          o: NUV correction factor for dark image
 */
-	int status;
+        /*int status;*/
 
 	IRAFPointer tp;			/* pointer to table descriptor */
 	/* column descriptors */
@@ -379,7 +379,7 @@ double *factor          o: NUV correction factor for dark image
 	double interp1d (double, double *, double *, int, int *);
 
 	/* Open table and find columns. */
-	if (status = OpenTdcTab (sts->tdctab.name, &tabinfo))
+	if ((status = OpenTdcTab (sts->tdctab.name, &tabinfo)))
 	    return status;
 	nrows = tabinfo.nrows;
 
@@ -401,11 +401,11 @@ double *factor          o: NUV correction factor for dark image
 
 	for (row = 1; row <= tabinfo.nrows; row++) {
 
-	    if (status = ReadTdcTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadTdcTab (&tabinfo, row, &tabrow)))
 		return status;
 
-	    if (status = RowPedigree (&sts->ccdpar, row,
-		tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+	    if ((status = RowPedigree (&sts->ccdpar, row,
+                    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		return status;
 	    if (sts->tdctab.goodPedigree == DUMMY_PEDIGREE)
 		printf ("Warning  Row %d of TDCTAB is DUMMY.\n", row);
@@ -432,7 +432,7 @@ double *factor          o: NUV correction factor for dark image
 	free (tmin);
 	free (thermcst);
 
-	if (status = CloseTdcTab (&tabinfo))
+	if ((status = CloseTdcTab (&tabinfo)))
 	    return status;
 
 	return 0;

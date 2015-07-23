@@ -88,8 +88,8 @@ double *shift      o: the shift, in pixels
 	    tslit[ihigh] = (double)ihigh - (high - 0.5);
 
 	/* Do the cross correlation, and find the shift. */
-	if (status = XCPeak (sts, v, qv, tslit, nv, range, sdqflags,
-			&c7_shift)) {
+	if ((status = XCPeak (sts, v, qv, tslit, nv, range, sdqflags,
+                              &c7_shift))) {
 	    free (tslit);
 	    return (status);
 	}

@@ -122,20 +122,20 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	}
 
 	/* Open the A-to-D table. */
-	if (status = OpenAtoDTab (sts->atod.name, &tabinfo))
+	if ((status = OpenAtoDTab (sts->atod.name, &tabinfo)))
 	    return (status);
 
 	/* Find the row with value closest to the temperature. */
 
 	foundit = 0;
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
-	    if (status = ReadAtoDTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadAtoDTab (&tabinfo, row, &tabrow)))
 		return (status);
 	    if (SameString (tabrow.ccdamp, sts->ccdamp) &&
 		SameInt (tabrow.ccdgain, sts->ccdgain)) {
 		/* Get value from header. */
-		if (status = Get_KeyD (&x->sci.hdr, tabrow.ref_key, no_default,
-				0., &ref_key_value))
+		if ((status = Get_KeyD (&x->sci.hdr, tabrow.ref_key, no_default,
+                                        0., &ref_key_value)))
 		    return (status);
 		dt = fabs (ref_key_value - tabrow.ref_key_value);
 		if (!foundit) {
@@ -158,8 +158,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	}
 
 	/* Get pedigree & descrip from the row. */
-	if (status = RowPedigree (&sts->atod, row_min,
-		tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+	if ((status = RowPedigree (&sts->atod, row_min,
+                tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 	    return (status);
 	if (sts->atod.goodPedigree == DUMMY_PEDIGREE) {
 	    sts->atodcorr = DUMMY;
@@ -168,7 +168,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	}
 
 	/* Reread the appropriate row to get the correction array. */
-	if (status = ReadAtoDArray (&tabinfo, row_min, &tabarray))
+	if ((status = ReadAtoDArray (&tabinfo, row_min, &tabarray)))
 	    return (status);
 
 	/* Apply this correction to each pixel in the image.  At this
@@ -189,7 +189,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	}
 
 	free (tabarray.atod);
-	if (status = CloseAtoDTab (&tabinfo))
+	if ((status = CloseAtoDTab (&tabinfo)))
 	    return (status);
 
 	return (0);

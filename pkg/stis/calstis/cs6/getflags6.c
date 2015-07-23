@@ -67,21 +67,21 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
 
         /* Check main reference files. */
 
-        if (status = CheckX1D (phdr, sts, &missing))
+        if ((status = CheckX1D (phdr, sts, &missing)))
             return (status);
 
-        if (status = CheckOptimal (phdr, sts))
+        if ((status = CheckOptimal (phdr, sts)))
             return (status);
 
         /* Check remaining calibration switches and reference files. */
 
-        if (status = CheckBack (phdr, sts))
+        if ((status = CheckBack (phdr, sts)))
             return (status);
 
-        if (status = CheckDisp (phdr, sts, &missing))
+        if ((status = CheckDisp (phdr, sts, &missing)))
             return (status);
 
-        if (status = CheckHelio (phdr, sts))
+        if ((status = CheckHelio (phdr, sts)))
             return (status);
 
         if (sts->dispcorr != PERFORM && sts->heliocorr == PERFORM) {
@@ -90,7 +90,7 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
             return (ERROR_RETURN);
         }
 
-        if (status = CheckFlux (phdr, sts, &missing))
+        if ((status = CheckFlux (phdr, sts, &missing)))
             return (status);
 
         if (sts->fluxcorr == PERFORM &&
@@ -101,11 +101,11 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
         }
 
         if (sts->detector != CCD_DETECTOR) {
-            if (status = CheckSmGeo (phdr, sts, &missing))
+            if ((status = CheckSmGeo (phdr, sts, &missing)))
                 return (status);
         }
 
-        if (status = CheckWave (phdr, sts))             /* just check flag */
+        if ((status = CheckWave (phdr, sts)))             /* just check flag */
             return (status);
 
         if (missing)
@@ -131,23 +131,23 @@ int *missing    io: incremented if the file is missing
         int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
 
         /* Spectrum trace table. */
-        if (status = GetCheckRef (phdr, "SPTRCTAB", &sts->sptrctab,
-                                  &sts->x1d, missing, FATAL))
+        if ((status = GetCheckRef (phdr, "SPTRCTAB", &sts->sptrctab,
+                                   &sts->x1d, missing, FATAL)))
             return (status);
 
         /* SDC table. */
-        if (status = GetCheckRef (phdr, "SDCTAB", &sts->distntab,
-                                  &sts->x1d, missing, FATAL))
+        if ((status = GetCheckRef (phdr, "SDCTAB", &sts->distntab,
+                                   &sts->x1d, missing, FATAL)))
             return (status);
 
         /* 1-D extraction parameters table. */
-        if (status = GetCheckRef (phdr, "XTRACTAB", &sts->xtrctab,
-                                  &sts->x1d, missing, FATAL))
+        if ((status = GetCheckRef (phdr, "XTRACTAB", &sts->xtrctab,
+                                   &sts->x1d, missing, FATAL)))
             return (status);
 
         /* Aperture description table. */
-        if (status = GetCheckRef (phdr, "APDESTAB", &sts->apdestab,
-                                  &sts->dispcorr, missing, FATAL))
+        if ((status = GetCheckRef (phdr, "APDESTAB", &sts->apdestab,
+                                   &sts->dispcorr, missing, FATAL)))
             return (status);
 
         /* CCD description table. */
@@ -193,13 +193,13 @@ int *missing    io: incremented if the file is missing
         missing = 0;
 
         /* Profile table. */
-        if (status = GetCheckRef (phdr, "OPROFTAB",
-                        &sts->pftab, &sts->x1d, &missing, NO_FATAL))
+        if ((status = GetCheckRef (phdr, "OPROFTAB",
+                                   &sts->pftab, &sts->x1d, &missing, NO_FATAL)))
             return (status);
 
         /* Flux table. */
-        if (status = GetCheckRef (phdr, "OSPECTAB",
-                        &sts->pxtab, &sts->x1d, &missing, NO_FATAL))
+        if ((status = GetCheckRef (phdr, "OSPECTAB",
+                                   &sts->pxtab, &sts->x1d, &missing, NO_FATAL)))
             return (status);
 
 /*
@@ -228,7 +228,7 @@ StisInfo6 *sts  i: switches, file names, etc
 */
         /*
         if (sts->pipeline) {
-            if (status = GetSwitch (phdr, "BACKCORR", &sts->backcorr))
+            if ((status = GetSwitch (phdr, "BACKCORR", &sts->backcorr)))
                 return (status);
         }
         */
@@ -256,7 +256,7 @@ int *missing    io: incremented if the table is missing
 
         /*
         if (sts->pipeline) {
-            if (status = GetSwitch (phdr, "DISPCORR", &sts->dispcorr))
+            if ((status = GetSwitch (phdr, "DISPCORR", &sts->dispcorr)))
                 return (status);
         }
         */
@@ -264,13 +264,13 @@ int *missing    io: incremented if the table is missing
         if (sts->dispcorr == PERFORM) {
 
             /* Dispersion coefficients. */
-            if (status = GetCheckRef (phdr, "DISPTAB", &sts->disptab,
-                        &sts->dispcorr, missing, FATAL))
+            if ((status = GetCheckRef (phdr, "DISPTAB", &sts->disptab,
+                                       &sts->dispcorr, missing, FATAL)))
                 return (status);
 
             /* Incidence-angle correction table. */
-            if (status = GetCheckRef (phdr, "INANGTAB", &sts->inangtab,
-                        &sts->dispcorr, missing, FATAL))
+            if ((status = GetCheckRef (phdr, "INANGTAB", &sts->inangtab,
+                                       &sts->dispcorr, missing, FATAL)))
                 return (status);
         }
 
@@ -302,7 +302,7 @@ int *missing    io: incremented if the table is missing
 
         /*
         if (sts->pipeline) {
-            if (status = GetSwitch (phdr, "FLUXCORR", &sts->fluxcorr))
+            if ((status = GetSwitch (phdr, "FLUXCORR", &sts->fluxcorr)))
                 return (status);
         }
         */
@@ -310,21 +310,21 @@ int *missing    io: incremented if the table is missing
         if (sts->fluxcorr == PERFORM) {
 
             /* Throughput table. */
-            if (status = GetCheckRef (phdr, "PHOTTAB", &sts->phottab,
-                        &sts->fluxcorr, missing, FATAL))
+            if ((status = GetCheckRef (phdr, "PHOTTAB", &sts->phottab,
+                                       &sts->fluxcorr, missing, FATAL)))
                 return (status);
 
             /* Relative aperture throughput table. */
-            if (status = GetCheckRef (phdr, "APERTAB", &sts->apertab,
-                        &sts->fluxcorr, missing, FATAL))
+            if ((status = GetCheckRef (phdr, "APERTAB", &sts->apertab,
+                                       &sts->fluxcorr, missing, FATAL)))
                 return (status);
 
             /* Table for corrections for slit height.  Note that we pass
                 pctcorr instead of fluxcorr, and l_missing is local.
             */
             l_missing = 0;
-            if (status = GetCheckRef (phdr, "PCTAB", &sts->pctab,
-                                      &sts->pctcorr, &l_missing, NO_FATAL))
+            if ((status = GetCheckRef (phdr, "PCTAB", &sts->pctab,
+                                       &sts->pctcorr, &l_missing, NO_FATAL)))
                 return (status);
             if (l_missing > 0)
                 sts->pctcorr = OMIT;
@@ -333,8 +333,8 @@ int *missing    io: incremented if the table is missing
                 gaccorr instead of fluxcorr, and l_missing is local.
             */
             l_missing = 0;
-            if (status = GetCheckRef (phdr, "GACTAB", &sts->gactab,
-                                      &sts->gaccorr, &l_missing, NO_FATAL))
+            if ((status = GetCheckRef (phdr, "GACTAB", &sts->gactab,
+                                       &sts->gaccorr, &l_missing, NO_FATAL)))
                 return (status);
             if (l_missing > 0) {
                 sts->gaccorr = OMIT;
@@ -346,8 +346,8 @@ int *missing    io: incremented if the table is missing
 
             /* Time-dependent sensitivity table. Handled like pct. */
             l_missing = 0;
-            if (status = GetCheckRef (phdr, "TDSTAB", &sts->tdstab,
-                                      &sts->tdscorr, &l_missing, NO_FATAL))
+            if ((status = GetCheckRef (phdr, "TDSTAB", &sts->tdstab,
+                                       &sts->tdscorr, &l_missing, NO_FATAL)))
                 return (status);
             sts->tdscorr = PERFORM;
             if (l_missing > 0)
@@ -369,15 +369,15 @@ static int CheckHelio (Hdr *phdr, StisInfo6 *sts) {
 Hdr *phdr       i: primary header
 StisInfo6 *sts  i: switches, file names, etc
 */
-
+    /*
         int status;
 
-        /*
+
         if (sts->pipeline) {
-            if (status = GetSwitch (phdr, "HELCORR", &sts->heliocorr))
+            if ((status = GetSwitch (phdr, "HELCORR", &sts->heliocorr)))
                 return (status);
         }
-        */
+    */
 
         return (0);
 }
@@ -402,7 +402,7 @@ int *missing    io: incremented if the file is missing
 
         /*
         if (sts->pipeline) {
-            if (status = GetSwitch (phdr, "SGEOCORR", &sts->sgeocorr))
+            if ((status = GetSwitch (phdr, "SGEOCORR", &sts->sgeocorr)))
                 return (status);
         }
         */
@@ -411,14 +411,14 @@ int *missing    io: incremented if the file is missing
         if (sts->sgeocorr == PERFORM) {
 
             /* Small-scale distortion file. */
-            if (status = Get_KeyS (phdr, "SDSTFILE", use_def, "",
-                        sts->sdstfile.name, STIS_LINE))
+            if ((status = Get_KeyS (phdr, "SDSTFILE", use_def, "",
+                                    sts->sdstfile.name, STIS_LINE)))
                 return (status);
 
             /* Open the image to verify that it exists, and if it does,
                 get pedigree & descrip.
             */
-            if (status = ImgPedigree (&sts->sdstfile))
+            if ((status = ImgPedigree (&sts->sdstfile)))
                 return (status);
             if (sts->sdstfile.exists != EXISTS_YES) {
                 (*missing)++;
@@ -445,7 +445,7 @@ StisInfo6 *sts  i: switches, file names, etc
 
         /*
         if (sts->pipeline) {
-            if (status = GetSwitch (phdr, "WAVECORR", &sts->wavecorr))
+            if ((status = GetSwitch (phdr, "WAVECORR", &sts->wavecorr)))
                 return (status);
         }
         */

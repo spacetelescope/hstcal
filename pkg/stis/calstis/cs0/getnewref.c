@@ -28,11 +28,11 @@ RefFileInfo ref  io: list of keyword,filename pairs
 	if ((filename = calloc (STIS_FITS_REC+1, sizeof(char))) == NULL)
 	    return (status = OUT_OF_MEMORY);
 
-	if (status = Get_KeyS (phdr, keyword, use_default, "",
-		filename, STIS_FITS_REC))
+	if ((status = Get_KeyS (phdr, keyword, use_default, "",
+                                filename, STIS_FITS_REC)))
 	    return (status);
 
-	if (status = NewRefFile (ref, keyword, filename))
+	if ((status = NewRefFile (ref, keyword, filename)))
 	    return (status);
 
 	free (filename);

@@ -99,7 +99,7 @@ CTICorrInfo *cti   io: CTI correction constants
 */
 
     int status;
-    
+
     TblInfo tabinfo;	        /* pointer to table descriptor, etc */
     TblRow tabrow;		/* values read from a table row */
 
@@ -107,9 +107,9 @@ CTICorrInfo *cti   io: CTI correction constants
     int foundit;		/* has the correct row been found? */
 
     /* Open the CCD parameters table and find columns. */
-    if (status = OpenCCDTab6(sts->ccdtab.name, &tabinfo))
+    if ((status = OpenCCDTab6(sts->ccdtab.name, &tabinfo)))
         return (status);
-    
+
     /* Check each row for a match with ccdamp, ccdgain, ccdoffst,
        binaxis1, and binaxis2, and get info from the matching row.
     */
@@ -118,7 +118,7 @@ CTICorrInfo *cti   io: CTI correction constants
     for (row = 1; row <= tabinfo.nrows; row++) {
 
         /* Read the current row into tabrow. */
-        if (status = ReadCCDTab6(&tabinfo, row, &tabrow))
+        if ((status = ReadCCDTab6(&tabinfo, row, &tabrow)))
             return (status);
 
         /* Check for matching row.  If found, copy data to relavant
@@ -131,8 +131,8 @@ CTICorrInfo *cti   io: CTI correction constants
             SameInt(tabrow.bin[1], sts->binaxis[1])) {
 
             foundit = 1;
-            if (status = RowPedigree(&sts->ccdtab, row, tabinfo.tp,
-                                     tabinfo.cp_pedigree, tabinfo.cp_descrip))
+            if ((status = RowPedigree(&sts->ccdtab, row, tabinfo.tp,
+                                      tabinfo.cp_pedigree, tabinfo.cp_descrip)))
                 return (status);
             if (sts->ccdtab.goodPedigree == DUMMY_PEDIGREE)
                 printf ("Warning  Row %d of CCDTAB is DUMMY.\n", row);
@@ -160,7 +160,7 @@ CTICorrInfo *cti   io: CTI correction constants
         return (TABLE_ERROR);
     }
 
-    if (status = CloseCCDTab6(&tabinfo))
+    if ((status = CloseCCDTab6(&tabinfo)))
         return (status);
 
     return (0);
@@ -180,7 +180,7 @@ static int OpenCCDTab6(char *tname, TblInfo *tabinfo)
         printf ("ERROR    CCDTAB `%s' not found.\n", tname);
         return (OPEN_FAILED);
     }
-    
+
     tabinfo->nrows = c_tbpsta (tabinfo->tp, TBL_NROWS);
 
     /* Find the columns. */

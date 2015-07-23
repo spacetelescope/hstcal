@@ -40,10 +40,10 @@ static int CloseApTab (TblInfo *);
 
    The table is read to find the row for which the value of APERTURE
    is the same as in the input image header. For that row, the
-   information about the slit is read in. The offsets and widths are 
+   information about the slit is read in. The offsets and widths are
    in arcseconds.
 
-   WIDTH1 is used only to find the projected slit width when 
+   WIDTH1 is used only to find the projected slit width when
    computing the geocoronal Lya avoidance rgion.
 
 
@@ -77,14 +77,14 @@ ApInfo *slit     o: description of slit
 	int foundit = 0;	/* true if aperture found in table */
 
 	/* Open the aperture description table. */
-	if (status = OpenApTab (sts->apdestab.name, &tabinfo))
+	if ((status = OpenApTab (sts->apdestab.name, &tabinfo)))
 	    return (status);
 
 	/* Check each row for a match with aperture. */
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadApTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadApTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.aperture, sts->aperture)) {
@@ -92,8 +92,8 @@ ApInfo *slit     o: description of slit
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->apdestab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->apdestab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->apdestab.goodPedigree == DUMMY_PEDIGREE) {
 		    sts->dispcorr = DUMMY;
@@ -102,14 +102,14 @@ ApInfo *slit     o: description of slit
 		}
 
 		/* Read aperture info into slit structure. */
-		if (status = ReadApArray (&tabinfo, row, slit))
+		if ((status = ReadApArray (&tabinfo, row, slit)))
 		    return (status);
 
 		break;
 	    }
 	}
 
-	if (status = CloseApTab (&tabinfo))
+	if ((status = CloseApTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {
@@ -148,9 +148,9 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "WIDTH1", &tabinfo->cp_width[0]);
 	c_tbcfnd1 (tabinfo->tp, "WIDTH2", &tabinfo->cp_width[1]);
 	if (tabinfo->cp_aperture  == 0 ||
-	    tabinfo->cp_width[0]  == 0 || 
+	    tabinfo->cp_width[0]  == 0 ||
             tabinfo->cp_width[1]  == 0 ||
-	    tabinfo->cp_offset[0] == 0 || 
+	    tabinfo->cp_offset[0] == 0 ||
             tabinfo->cp_offset[1] == 0) {
 	    printf ("ERROR    Column not found in APDESTAB\n");
 	    c_tbtclo (tabinfo->tp);

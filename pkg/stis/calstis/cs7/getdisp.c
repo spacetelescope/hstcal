@@ -90,12 +90,12 @@ DispRelation **disp  o: size and coordinate info for output
 	void FreeDisp (DispRelation **);
 
 	/* Open the dispersion coefficients table. */
-	if (status = OpenDSPTab (sts->disptab.name, &tabinfo))
+	if ((status = OpenDSPTab (sts->disptab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadDSPTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadDSPTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem and cenwave. */
@@ -104,8 +104,8 @@ DispRelation **disp  o: size and coordinate info for output
 		SameInt (tabrow.cenwave, sts->cenwave)) {
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->disptab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->disptab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->disptab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -116,13 +116,13 @@ DispRelation **disp  o: size and coordinate info for output
 		}
 
 		/* Read data from this row. */
-		if (status = ReadDSPArray (&tabinfo, row, disp))
+		if ((status = ReadDSPArray (&tabinfo, row, disp)))
 		    return (status);
 	    }
 	}
 
 	/* Get for duplicate a2center or non-duplicate ref_aper. */
-	if (status = CheckDisp (disp)) {
+	if ((status = CheckDisp (disp))) {
 	    FreeDisp (disp);
 	    if (status < 0) {
 		printf ("Warning  Matching row not found in DISPTAB %s; \\\n",
@@ -135,7 +135,7 @@ DispRelation **disp  o: size and coordinate info for output
 	    }
 	}
 
-	if (status = CloseDSPTab (&tabinfo))
+	if ((status = CloseDSPTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -244,7 +244,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 	}
 
 	/* Insert newrec into the disp list. */
-	if (status = NewDisp (disp, newrec))
+	if ((status = NewDisp (disp, newrec)))
 	    return (status);
 
 	free (newrec);

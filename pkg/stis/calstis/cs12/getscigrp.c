@@ -33,7 +33,7 @@ double *midpt    o: the time (MJD) of the middle of the exposure
 	double expstart, expend;
 	int no_default = 0;	/* missing keyword is fatal error */
 
-	if (status = Get_KeyD (hdr, "EXPTIME", no_default, 0., exptime))
+	if ((status = Get_KeyD (hdr, "EXPTIME", no_default, 0., exptime)))
 	    return (status);
 	if (*exptime < 0.) {
 	    printf ("ERROR    GetSciGrp:  exposure time = %.6g is invalid.\n",
@@ -43,9 +43,9 @@ double *midpt    o: the time (MJD) of the middle of the exposure
 
 	*exptime /= SECONDS_IN_A_DAY;
 
-	if (status = Get_KeyD (hdr, "EXPSTART", no_default, 0., &expstart))
+	if ((status = Get_KeyD (hdr, "EXPSTART", no_default, 0., &expstart)))
 	    return (status);
-	if (status = Get_KeyD (hdr, "EXPEND", no_default, 0., &expend))
+	if ((status = Get_KeyD (hdr, "EXPEND", no_default, 0., &expend)))
 	    return (status);
 
 	*midpt = (expstart + expend) / 2.;

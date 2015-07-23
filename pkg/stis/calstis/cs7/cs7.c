@@ -190,18 +190,18 @@ int main (int argc, char **argv) {
 		output[0] = '\0';
 
 	    status = 0;
-	    if (status = MkOutName (input, isuffix, osuffix, nsuffix,
-			output, STIS_LINE)) {
+	    if ((status = MkOutName (input, isuffix, osuffix, nsuffix,
+                                     output, STIS_LINE))) {
 		WhichError (status);
 		printf ("Skipping %s\n", input);
 		continue;
 	    }
 
 	    /* Calibrate the current input file. */
-	    if (status = CalStis7 (input, output,
+	    if ((status = CalStis7 (input, output,
 			sgeocorr, helcorr, fluxcorr, statcorr,
 			&refnames, printtime, verbose, center_target,
-			blazeshift, err_algorithm)) {
+                                    blazeshift, err_algorithm))) {
 		printf ("Error processing %s.\n", input);
 		WhichError (status);
 	    }

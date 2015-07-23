@@ -70,7 +70,7 @@ Hdr scihdr, errhdr, dqhdr   o: headers to receive modified coord parameters
 	    return (status);
 
 	/* Modify the coordinate parameters. */
-	if (status = BinUpdate (block, offset, ltm, ltv, cd, crpix))
+	if ((status = BinUpdate (block, offset, ltm, ltv, cd, crpix)))
 	    return (status);
 
 	/* Add or update the MWCS keywords in all three extensions. */

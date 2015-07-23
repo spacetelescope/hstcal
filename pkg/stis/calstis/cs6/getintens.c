@@ -95,13 +95,13 @@ IntensArray *inta     o: description of inta
 
 	/* Open the intensity/wavelength table. */
 	exptime = 1.0;
-	if (status = OpenIntensTab (sts->pxtab.name,
-			&tabinfo, &exptime, sts->fflux))
+	if ((status = OpenIntensTab (sts->pxtab.name,
+                                     &tabinfo, &exptime, sts->fflux)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadIntensTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadIntensTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (!SameInt (tabrow.sporder, sporder))
@@ -110,16 +110,16 @@ IntensArray *inta     o: description of inta
 	    foundit = 1;
 
 	    /* Get pedigree & descrip from the row. */
-	    if (status = RowPedigree (&sts->pxtab, row,
-	        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+	    if ((status = RowPedigree (&sts->pxtab, row,
+                    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 	        return (status);
 
 	    /* Read wavelengths and intensities into structure. */
-	    if (status = ReadIntensArray (sts, &tabinfo, row, inta, sporder))
+	    if ((status = ReadIntensArray (sts, &tabinfo, row, inta, sporder)))
 	        return (status);
 	}
 
-	if (status = CloseIntensTab (&tabinfo))
+            if ((status = CloseIntensTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {
@@ -137,7 +137,7 @@ IntensArray *inta     o: description of inta
 
 
 
-/* This routine opens the intensity table, finds the columns that we need, 
+/* This routine opens the intensity table, finds the columns that we need,
    and gets the total number of rows in the table. It also gets the
    EXPTIME keyword from the table header.
 */
@@ -203,7 +203,7 @@ static int ReadIntensTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
    and intensities are read into the arrays.
 */
 
-static int ReadIntensArray (StisInfo6 *sts, TblInfo *tabinfo, int row, 
+static int ReadIntensArray (StisInfo6 *sts, TblInfo *tabinfo, int row,
                             IntensArray *inta, int sporder) {
 
 	int status;
@@ -268,11 +268,11 @@ static int CloseIntensTab (TblInfo *tabinfo) {
 
 
 
-/*  Converts the FLUX array to net counts. 
+/*  Converts the FLUX array to net counts.
 
     This function performs the inverse operation in AbsFlux6: given the
-    flux values, convert then back to net counts/s. 
-    
+    flux values, convert then back to net counts/s.
+
     This function DOES NOT include the time-dependent sensitivity
     correction, since small errors in the derived net counts have
     negligible impact in the optimal extraction algorithm.
@@ -334,16 +334,16 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	    return (OPEN_FAILED);
 	closeImage (im);
 
-	/* Abort if both helcorr and dispcorr weren't performed. 
+	/* Abort if both helcorr and dispcorr weren't performed.
            The criterion is: if a keyword is set to either COMPLETE
            or PERFORM, we assume that the operation was performed.
            This is because UpdHdrSwitch in Do1Dx only updates the
            keywords to COMPLETE if they are set to PERFORM in the
            input file.  (note:  UpdHdrSwitch is no longer used)
         */
-	if (status = GetSwitch (&phdr, "DISPCORR", &dispc))
+	if ((status = GetSwitch (&phdr, "DISPCORR", &dispc)))
 	    return (status);
-	if (status = GetSwitch (&phdr, "HELCORR", &helc))
+	if ((status = GetSwitch (&phdr, "HELCORR", &helc)))
 	    return (status);
 	if (!((dispc == PERFORM || dispc == COMPLETE) &&
               (helc  == PERFORM || helc  == COMPLETE))) {
@@ -352,18 +352,18 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	}
 
 	/* Read header keywords. */
-	if (status = Get_KeyD (&phdr, "READNSE", 1, 0., &readnoise))
+	if ((status = Get_KeyD (&phdr, "READNSE", 1, 0., &readnoise)))
 	    return (status);
-	if (status = Get_KeyD (&phdr, "ATODGAIN", 1, 1., &atodgain))
+	if ((status = Get_KeyD (&phdr, "ATODGAIN", 1, 1., &atodgain)))
 	    return (status);
-	if (status = Get_KeyS (&phdr, "PHOTTAB", FATAL, "", 
-                              fsts.phottab.name, STIS_LINE))
+	if ((status = Get_KeyS (&phdr, "PHOTTAB", FATAL, "",
+                                fsts.phottab.name, STIS_LINE)))
 	    return (status);
-	if (status = Get_KeyS (&phdr, "APDESTAB", FATAL, "", 
-                              fsts.apdestab.name, STIS_LINE))
+	if ((status = Get_KeyS (&phdr, "APDESTAB", FATAL, "",
+                                fsts.apdestab.name, STIS_LINE)))
 	    return (status);
-	if (status = Get_KeyS (&phdr, "APERTAB", FATAL, "", 
-                              fsts.apertab.name, STIS_LINE))
+	if ((status = Get_KeyS (&phdr, "APERTAB", FATAL, "",
+                                fsts.apertab.name, STIS_LINE)))
 	    return (status);
 
 	/* Copy stuff from primary data structure into local one. */
@@ -377,11 +377,11 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 
 	/* Read the required reference info. */
 	dummy = 0;
-	if (status = GetAbsPhot6 (&fsts, sporder, &phot, 0, &dummy))
+	if ((status = GetAbsPhot6 (&fsts, sporder, &phot, 0, &dummy)))
 	    return (status);
-	if (status = GetApDes6 (&fsts, &slit))
+	if ((status = GetApDes6 (&fsts, &slit)))
 	    return (status);
-	 if (status = GetApThr6 (&fsts, &slit))
+        if ((status = GetApThr6 (&fsts, &slit)))
 	    return (status);
 
 	abs_starti = 1;				/* initial values */
@@ -389,9 +389,9 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 
 	/* Loop over flux array. */
 	for (i = 0;  i < inta->nelem;  i++) {
-	    response   = interp1d (inta->wave[i], phot.wl, phot.thru, 
+	    response   = interp1d (inta->wave[i], phot.wl, phot.thru,
                                    phot.nelem, &abs_starti);
-	    throughput = interp1d (inta->wave[i], slit.wl, slit.thr, 
+	    throughput = interp1d (inta->wave[i], slit.wl, slit.thr,
                                    slit.nelem, &thr_starti);
 	    if (i > 0)
 	        dispersion = inta->wave[i] - inta->wave[i-1];
@@ -406,8 +406,8 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	        return (ERROR_RETURN);
 	    }
 
-	    correction = (float) (photfactor / (response * throughput * 
-                         inta->wave[i] * dispersion * atodgain * 
+	    correction = (float) (photfactor / (response * throughput *
+                         inta->wave[i] * dispersion * atodgain *
                          CM_PER_ANGSTROM));
 
 	    inta->intens[i] = inta->intens[i] / correction;

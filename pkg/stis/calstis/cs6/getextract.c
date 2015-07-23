@@ -69,13 +69,13 @@ static int CloseXtractTab (TblInfo *);
 		XTRACALG: extraction algorithm (string)
 		MAXSRCH:  maximum search range for cross correlation (short)
 
-   The table is read to find all rows for which the values of APERTURE, 
-   OPT_ELEM and CENWAVE are the same as in the input image header. There 
-   should be one or more such rows, corresponding to different values of 
-   spectral order SPORDER.  All these rows are read into memory, pointed 
+   The table is read to find all rows for which the values of APERTURE,
+   OPT_ELEM and CENWAVE are the same as in the input image header. There
+   should be one or more such rows, corresponding to different values of
+   spectral order SPORDER.  All these rows are read into memory, pointed
    to by extract.  The minimum and maximum spectral order numbers are returned.
    It is an error to have duplicate values of SPORDER in the XTRACTAB table,
-   and all values between minorder and maxorder must be present. The XTRACTAB 
+   and all values between minorder and maxorder must be present. The XTRACTAB
    table need not be sorted.
 
    Note:
@@ -102,7 +102,7 @@ static int CloseXtractTab (TblInfo *);
                  any matching row (PH, IB)
 */
 
-int GetXtract (StisInfo6 *sts, XtractInfo **extract, int *minorder, 
+int GetXtract (StisInfo6 *sts, XtractInfo **extract, int *minorder,
                int *maxorder) {
 
 /* arguments:
@@ -120,12 +120,12 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	int RangeXtract (XtractInfo **, int *, int *);
 
 	/* Open the 1-D extraction table. */
-	if (status = OpenXtractTab (sts->xtrctab.name, &tabinfo))
+	if ((status = OpenXtractTab (sts->xtrctab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadXtractTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadXtractTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with aperture, opt_elem and cenwave. */
@@ -135,8 +135,8 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 		SameInt (tabrow.cenwave, sts->cenwave)) {
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->xtrctab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->xtrctab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->xtrctab.goodPedigree == DUMMY_PEDIGREE) {
 		    sts->x1d_o = DUMMY;
@@ -145,7 +145,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 		}
 
 		/* Read data from this row. */
-		if (status = ReadXtractArray (&tabinfo, row, extract))
+		if ((status = ReadXtractArray (&tabinfo, row, extract)))
 		    return (status);
 
 		/* This was added because the XTRACTAB may contain multiple
@@ -159,7 +159,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	}
 
 	/* Get the range of order numbers. */
-	if (status = RangeXtract (extract, minorder, maxorder)) {
+	if ((status = RangeXtract (extract, minorder, maxorder))) {
 	    if (status < 0) {
 		printf ("ERROR    Matching row not found in XTRACTAB %s\n",
 				sts->xtrctab.name);
@@ -171,7 +171,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	    }
 	}
 
-	if (status = CloseXtractTab (&tabinfo))
+	if ((status = CloseXtractTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -213,22 +213,22 @@ static int OpenXtractTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "XTRACALG", &tabinfo->cp_xtracalg);
 	c_tbcfnd1 (tabinfo->tp, "MAXSRCH",  &tabinfo->cp_maxsearch);
 
-	if (tabinfo->cp_opt_elem    == 0 || 
+	if (tabinfo->cp_opt_elem    == 0 ||
             tabinfo->cp_cenwave     == 0 ||
-	    tabinfo->cp_sporder     == 0 || 
+	    tabinfo->cp_sporder     == 0 ||
             tabinfo->cp_aperture    == 0 ||
-	    tabinfo->cp_extrsize    == 0 || 
+	    tabinfo->cp_extrsize    == 0 ||
             tabinfo->cp_bktcoeff    == 0 ||
             tabinfo->cp_ncoeffbk    == 0 ||
             tabinfo->cp_sltcoeff    == 0 ||
             tabinfo->cp_ncoeffsl    == 0 ||
-	    tabinfo->cp_bksize[0]   == 0 || 
+	    tabinfo->cp_bksize[0]   == 0 ||
             tabinfo->cp_bksize[1]   == 0 ||
-	    tabinfo->cp_bksize[0]   == 0 || 
+	    tabinfo->cp_bksize[0]   == 0 ||
             tabinfo->cp_bksize[1]   == 0 ||
-	    tabinfo->cp_bkoffset[0] == 0 || 
+	    tabinfo->cp_bkoffset[0] == 0 ||
             tabinfo->cp_bkoffset[1] == 0 ||
-	    tabinfo->cp_backord     == 0 || 
+	    tabinfo->cp_backord     == 0 ||
             tabinfo->cp_xtracalg    == 0 ||
 	    tabinfo->cp_maxsearch   == 0) {
 	    c_tbtclo (tabinfo->tp);
@@ -245,18 +245,18 @@ static int OpenXtractTab (char *tname, TblInfo *tabinfo) {
 
 
 
-/* This routine reads the columns (APERTURE, OPT_ELEM and CENWAVE) used 
+/* This routine reads the columns (APERTURE, OPT_ELEM and CENWAVE) used
    to select the correct row.
 */
 
 static int ReadXtractTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
-	c_tbegtt (tabinfo->tp, tabinfo->cp_aperture, row, tabrow->aperture, 
+	c_tbegtt (tabinfo->tp, tabinfo->cp_aperture, row, tabrow->aperture,
                   STIS_CBUF-1);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 
-	c_tbegtt (tabinfo->tp, tabinfo->cp_opt_elem, row, tabrow->opt_elem, 
+	c_tbegtt (tabinfo->tp, tabinfo->cp_opt_elem, row, tabrow->opt_elem,
                   STIS_CBUF-1);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
@@ -293,9 +293,9 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 	c_tbegtr (tabinfo->tp, tabinfo->cp_extrsize, row, &newd->extrsize);
 	c_tbegtr (tabinfo->tp, tabinfo->cp_bksize[0], row, &newd->bksize[0]);
 	c_tbegtr (tabinfo->tp, tabinfo->cp_bksize[1], row, &newd->bksize[1]);
-	c_tbegtr (tabinfo->tp, tabinfo->cp_bkoffset[0], row, 
+	c_tbegtr (tabinfo->tp, tabinfo->cp_bkoffset[0], row,
                   &newd->bkoffset[0]);
-	c_tbegtr (tabinfo->tp, tabinfo->cp_bkoffset[1], row, 
+	c_tbegtr (tabinfo->tp, tabinfo->cp_bkoffset[1], row,
                   &newd->bkoffset[1]);
 	c_tbegti (tabinfo->tp, tabinfo->cp_ncoeffsl, row, &newd->ncoeffsl);
 
@@ -330,7 +330,7 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 	    return (TABLE_ERROR);
 
 	/* Insert in the extract list. */
-	if (status = NewXtract (extract, newd))
+	if ((status = NewXtract (extract, newd)))
 	    return (status);
 
 	free (newd);

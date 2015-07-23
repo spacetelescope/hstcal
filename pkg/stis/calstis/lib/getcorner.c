@@ -35,7 +35,7 @@ int corner[2]    o: corner of subarray in X and Y
 	double ltv[2];		/* MWCS linear transformation vector */
 
 	/* Get the ltm and ltv values from the header. */
-	if (status = GetLT (hdr, ltm, ltv))
+	if ((status = GetLT (hdr, ltm, ltv)))
 	    return (status);
 
 	/* Compute the corner location and bin size from ltm & ltv. */

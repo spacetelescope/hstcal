@@ -153,10 +153,10 @@ double *shift       o: the shift, in pixels
 	/* Now we have the data in v, its flags in qv, and the 1-D
 	   coordinate parameters crpix, crval, and cdelt.  Find the shift.
 	*/
-	if (status = XCWave (sts, lamp->wl, lamp->flux, lamp->nelem,
-		v, qv, nwl, sts->sdqflags,
-		slitwidth,
-		disp, crpix, crval, cdelt, shift))
+	if ((status = XCWave (sts, lamp->wl, lamp->flux, lamp->nelem,
+                              v, qv, nwl, sts->sdqflags,
+                              slitwidth,
+                              disp, crpix, crval, cdelt, shift)))
 	    return (status);
 
 	free (qv);

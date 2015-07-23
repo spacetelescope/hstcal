@@ -142,14 +142,14 @@ int main (int argc, char **argv) {
 		output[0] = '\0';
 
 	    status = 0;
-	    if (status = MkOutName (inwav, isuffix, osuffix, nsuffix,
-			output, STIS_LINE)) {
+	    if ((status = MkOutName (inwav, isuffix, osuffix, nsuffix,
+                                     output, STIS_LINE))) {
 		WhichError (status);
 		printf ("Skipping %s\n", inwav);
 		continue;
 	    }
 
-	    if (status = CalStis11 (inwav, insci, output, printtime, verbose)) {
+	    if ((status = CalStis11 (inwav, insci, output, printtime, verbose))) {
 		printf ("Error processing %s.\n", inwav);
 		WhichError (status);
 	    }

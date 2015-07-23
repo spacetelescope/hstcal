@@ -42,41 +42,41 @@ Hdr *hdr        i: header of current imset
 	/* This should be SCIENCE or WAVECAL. */
 	if ((buf = calloc (STIS_FNAME+1, sizeof(char))) == NULL)
 	    return (OUT_OF_MEMORY);
-	if (status = Get_KeyS (hdr, "ASN_MTYP",
-			use_def, "unknown", buf, STIS_FNAME))
+	if ((status = Get_KeyS (hdr, "ASN_MTYP",
+                                use_def, "unknown", buf, STIS_FNAME)))
 	    return (status);
 	/* Possible values for wavecals are "AUTO-WAVECAL" and "GO-WAVECAL" */
 	sts->wavecal = (strstr (buf, "WAVECAL") != NULL);
 	free (buf);
 
-	if (status = Get_KeyD (hdr, "EXPTIME", no_default, 0., &sts->exptime))
+	if ((status = Get_KeyD (hdr, "EXPTIME", no_default, 0., &sts->exptime)))
 	    return (status);
 	if (sts->exptime < 0.) {
 	    printf ("ERROR    Exposure time %.6g is invalid.\n",
 		sts->exptime);
 	    return (GENERIC_ERROR_CODE);
 	}
-	if (status = Get_KeyD (hdr, "EXPSTART", no_default, 0., &sts->expstart))
+	if ((status = Get_KeyD (hdr, "EXPSTART", no_default, 0., &sts->expstart)))
 	    return (status);
-	if (status = Get_KeyD (hdr, "EXPEND", no_default, 0., &sts->expend))
+	if ((status = Get_KeyD (hdr, "EXPEND", no_default, 0., &sts->expend)))
 	    return (status);
 
 	/* Find out which data quality bits are considered serious;
 	   default value means all bits are serious.
 	*/
-	if (status = Get_KeyI (hdr, "SDQFLAGS", use_def, 32767, &sdqflags))
+	if ((status = Get_KeyI (hdr, "SDQFLAGS", use_def, 32767, &sdqflags)))
 	    return (status);
 	sts->sdqflags = (short) sdqflags;
 
 	/* Get the linear transformation (zero indexed) from the reference
 	   coordinate system to current image pixel coordinates.
 	*/
-	if (status = GetLT0 (hdr, sts->ltm, sts->ltv))
+	if ((status = GetLT0 (hdr, sts->ltm, sts->ltv)))
 	    return (status);
 
-	if (status = Get_KeyD (hdr, "CRPIX1", use_def, 0., &sts->crpix[0]))
+	if ((status = Get_KeyD (hdr, "CRPIX1", use_def, 0., &sts->crpix[0])))
 	    return (status);
-	if (status = Get_KeyD (hdr, "CRPIX2", use_def, 0., &sts->crpix[1]))
+	if ((status = Get_KeyD (hdr, "CRPIX2", use_def, 0., &sts->crpix[1])))
 	    return (status);
 	sts->crpix[0]--;	/* convert to zero-indexed */
 	sts->crpix[1]--;
@@ -99,16 +99,16 @@ Hdr *hdr        i: header of current imset
 
 	} else {
 
-	    if (status = Get_KeyD (hdr, "SHIFTA1",
-			use_def, 0., &sts->msm_slop[0]))
+	    if ((status = Get_KeyD (hdr, "SHIFTA1",
+                                    use_def, 0., &sts->msm_slop[0])))
 		return (status);
 
 	    if (sts->wx2dcorr == COMPLETE) {
 		/* shifta2 has already been accounted for by wx2d */
 		sts->msm_slop[1] = 0.;
 	    } else {
-		if (status = Get_KeyD (hdr, "SHIFTA2",
-				use_def, 0., &sts->msm_slop[1]))
+		if ((status = Get_KeyD (hdr, "SHIFTA2",
+                                        use_def, 0., &sts->msm_slop[1])))
 		    return (status);
 	    }
 	}
@@ -116,8 +116,8 @@ Hdr *hdr        i: header of current imset
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 
 	    /* Get the dispersion axis. */
-	    if (status = Get_KeyI (hdr, "DISPAXIS",
-			use_def, 1, &sts->dispaxis))
+	    if ((status = Get_KeyI (hdr, "DISPAXIS",
+                                    use_def, 1, &sts->dispaxis)))
 		return (status);
 	    if (sts->dispaxis < 1 || sts->dispaxis > 2) {
 		printf ("ERROR    Dispaxis = %d is invalid.\n", sts->dispaxis);

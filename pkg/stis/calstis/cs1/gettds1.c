@@ -80,12 +80,12 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	void FreeTds1 (TdsInfo *);
 
 	/* Open the time-dependent sensitivity table. */
-	if (status = OpenTdsTab1 (tabname, &tabinfo, tds))
+	if ((status = OpenTdsTab1 (tabname, &tabinfo, tds)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadTdsTab1 (&tabinfo, row, &tabrow))
+	    if ((status = ReadTdsTab1 (&tabinfo, row, &tabrow)))
 
 		return (status);
 
@@ -96,8 +96,8 @@ TdsInfo *tds     o: time-dependent sensitivity info
 		/* Get pedigree & descrip from the row. */
 	        InitRefTab (&tempreftab);
 	        strcpy (tempreftab.name, tabname);
-		if (status = RowPedigree (&tempreftab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&tempreftab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (tempreftab.goodPedigree == DUMMY_PEDIGREE) {
 		    status = CloseTdsTab1 (&tabinfo);
@@ -107,12 +107,12 @@ TdsInfo *tds     o: time-dependent sensitivity info
 		/* Read temperature-dependent sensitivity info into the
 		   tds structure.
 		*/
-		if (status = ReadTdsArray1 (&tabinfo, row, tds))
+		if ((status = ReadTdsArray1 (&tabinfo, row, tds)))
 		    return (status);
 	    }
 	}
 
-	if (status = CloseTdsTab1 (&tabinfo))
+	if ((status = CloseTdsTab1 (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {
@@ -187,7 +187,8 @@ static int ReadTdsTab1 (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
 static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
-	int nwl, nt, ns, ntemp, dim[2], ini, ndim, i;
+	int nwl, ntemp, i;
+        /*int nt, ns, ini, ndim, dim[2];*/
 	int status = 0;
 
 	/* Find out how many elements there are in the arrays. */
@@ -265,7 +266,7 @@ static int CloseTdsTab1 (TblInfo *tabinfo) {
 
 void FreeTds1 (TdsInfo *tds) {
 
-        int i;
+    /*int i;*/
 
         if (tds->allocated) {
             free (tds->wl);

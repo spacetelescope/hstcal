@@ -119,10 +119,10 @@ double *shift       o: the shift, in pixels
 	*/
 	if (sts->disp_type == PRISM_DISP) {
 
-	    if (status = CollapsePrism (trace, in,
+	    if ((status = CollapsePrism (trace, in,
 			jfirst, jlast, ifirst, ilast,
-			sts->ltm, sts->ltv, sts->sdqflags,
-			v, qv))
+                        sts->ltm, sts->ltv, sts->sdqflags,
+                        v, qv)))
 		return (status);
 
 	} else {		/* already 2-D rectified data */
@@ -242,7 +242,7 @@ static int CollapsePrism (SpTrace *trace, SingleGroup *in,
 		y = ((double)j - ltv[1]) / ltm[1];
 
 	    /* Interpolate to get the spectrum trace at j. */
-	    if (status = InterpTrace4 (&trace, y, &trace_y))
+	    if ((status = InterpTrace4 (&trace, y, &trace_y)))
 		return (status);
 
 	    for (i = ifirst;  i <= ilast;  i++) {	/* sum current row */

@@ -59,16 +59,16 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 	InitCmplxArray (&crosscorr);
 
 	/* Copy the input image (a subset of the SCI extension) into cwave. */
-	if (status = ReadRealImage (in, sts->wl_sect1, sts->wl_sect2, &cwave))
+	if ((status = ReadRealImage (in, sts->wl_sect1, sts->wl_sect2, &cwave)))
 	    return (status);
 
 	/* Take the forward Fourier transform of the input wavecal image. */
-	if (status = fft2d (&cwave))
+	if ((status = fft2d (&cwave)))
 	    return (status);
 
-	if (status = AllocCmplxArray (&crosscorr, cwave.nx, cwave.ny))
+	if ((status = AllocCmplxArray (&crosscorr, cwave.nx, cwave.ny)))
 	    return (status);
-	if (status = AllocCmplxArray (&clamp, cwave.nx, cwave.ny))
+	if ((status = AllocCmplxArray (&clamp, cwave.nx, cwave.ny)))
 	    return (status);
 
 	/* Copy coeff_save to coeff, in case the coefficients were modified
@@ -77,13 +77,13 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 	RestoreDispCoeff (disp);
 
 	/* Create the template image and take the Fourier transform. */
-	if (status = MakeTemplate (sts, lamp, disp, trace, &clamp, 0))
+	if ((status = MakeTemplate (sts, lamp, disp, trace, &clamp, 0)))
 	    return (status);
-	if (status = fft2d (&clamp))
+	if ((status = fft2d (&clamp)))
 	    return (status);
 
 	/* Take the cross correlation of clamp with cwave. */
-	if (status = XCWavecal (&clamp, &cwave, &crosscorr, shiftx, shifty))
+	if ((status = XCWavecal (&clamp, &cwave, &crosscorr, shiftx, shifty)))
 	    return (status);
 
 	/* Modify the coefficients to account for the skew due to shifty. */
@@ -94,11 +94,11 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 	   The final argument (writedebug = 1) means that a debug image
 	   will be written if one was specified.
 	*/
-	if (status = MakeTemplate (sts, lamp, disp, trace, &clamp, 1))
+	if ((status = MakeTemplate (sts, lamp, disp, trace, &clamp, 1)))
 	    return (status);
-	if (status = fft2d (&clamp))
+	if ((status = fft2d (&clamp)))
 	    return (status);
-	if (status = XCWavecal (&clamp, &cwave, &crosscorr, shiftx, shifty))
+	if ((status = XCWavecal (&clamp, &cwave, &crosscorr, shiftx, shifty)))
 	    return (status);
 
 	/* Free memory. */
@@ -136,7 +136,7 @@ static int A4corrAdjustDisp (StisInfo4 *sts, SpTrace *trace,
 	double a2center;	/* from the trace for order mref */
 	double r_shifta2;	/* shifta2 converted to reference pixel size */
 	int foundit;		/* true if we have found mref in trace */
-	int status;
+	/*int status;*/
 
 	if (disp->a4corr == 0.)
 	    return (0);		/* nothing further to do */

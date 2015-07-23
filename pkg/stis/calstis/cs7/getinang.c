@@ -87,12 +87,12 @@ InangInfo *iac     o: incidence-angle info
 	int foundit = 0;
 
 	/* Open the incidence-angle coefficients table. */
-	if (status = OpenIACTab (table->name, &tabinfo))
+	if ((status = OpenIACTab (table->name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadIACTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadIACTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem, cenwave, and sporder. */
@@ -104,8 +104,8 @@ InangInfo *iac     o: incidence-angle info
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (table, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (table, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (table->goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -116,7 +116,7 @@ InangInfo *iac     o: incidence-angle info
 		}
 
 		/* Read data from this row. */
-		if (status = ReadIACArray (&tabinfo, row, iac))
+                if ((status = ReadIACArray (&tabinfo, row, iac)))
 		    return (status);
 	    }
 	}
@@ -129,7 +129,7 @@ InangInfo *iac     o: incidence-angle info
 	    sts->x2dcorr_o = OMIT;
 	}
 
-	if (status = CloseIACTab (&tabinfo))
+	if ((status = CloseIACTab (&tabinfo)))
 	    return (status);
 
 	return (0);

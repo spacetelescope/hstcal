@@ -105,7 +105,7 @@ int CalStis8 (char *input, char *output, int printtime, int verbose) {
 	initHdr (&phdr);
 
 	/* Check whether the output file already exists. */
-	if (status = FileExists (sts.output))
+	if ((status = FileExists (sts.output)))
 	    return (status);
 
 	/* Open input image in order to read its primary header. */
@@ -118,13 +118,13 @@ int CalStis8 (char *input, char *output, int printtime, int verbose) {
 	closeImage (im);
 
 	/* Get keyword values from primary header. */
-	if (status = GetKeyInfo8 (&sts, &phdr))
+	if ((status = GetKeyInfo8 (&sts, &phdr)))
 	    return (status);
 
 	/* Read the input file to get SPORDER for each imset. */
 	if ((orders = malloc (sts.nimages * sizeof(int))) == NULL)
 	    return (OUT_OF_MEMORY);
-	if (status = GetSpOrder (&sts, orders, &minorder, &maxorder))
+	if ((status = GetSpOrder (&sts, orders, &minorder, &maxorder)))
 	    return (status);
 
 	freeHdr (&phdr);
@@ -136,7 +136,7 @@ int CalStis8 (char *input, char *output, int printtime, int verbose) {
 	    TimeStamp ("Begin processing", sts.rootname);
 
 	/* Sum imsets. */
-	if (status = SumGrps (&sts, orders, minorder, maxorder))
+	if ((status = SumGrps (&sts, orders, minorder, maxorder)))
 	    return (status);
 
 	free (orders);
@@ -190,38 +190,38 @@ Hdr *phdr       i: primary header
 	int use_default = 1;		/* use default if keyword is missing */
 
 	/* Have the data been converted from counts to absolute flux? */
-	if (status = GetSwitch (phdr, "FLUXCORR", &sts->fluxcorr))
+	if ((status = GetSwitch (phdr, "FLUXCORR", &sts->fluxcorr)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "ROOTNAME",
-			no_def, "", sts->rootname, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "ROOTNAME",
+                                no_def, "", sts->rootname, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "OBSMODE",
-			no_def, "", sts->obsmode, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OBSMODE",
+                                no_def, "", sts->obsmode, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "APERTURE",
-			no_def, "", sts->aperture, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "APERTURE",
+                                no_def, "", sts->aperture, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "OPT_ELEM",
-			no_def, "", sts->opt_elem, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OPT_ELEM",
+                                no_def, "", sts->opt_elem, STIS_CBUF)))
 	    return (status);
 
 	sts->echelle = sts->opt_elem[0] == 'E' || sts->opt_elem[0] == 'e';
 
-	if (status = Get_KeyS (phdr, "DETECTOR",
-			no_def, "", sts->det, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "DETECTOR",
+                                no_def, "", sts->det, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyI (phdr, "SDQFLAGS", use_default, 32767, &sdqflags))
+	if ((status = Get_KeyI (phdr, "SDQFLAGS", use_default, 32767, &sdqflags)))
 	    return (status);
 	sts->sdqflags = sdqflags;
 
 	/* Find out how many extensions there are in this file. */
-	if (status = Get_KeyI (phdr, "NEXTEND",
-			use_default, EXT_PER_GROUP, &nextend))
+	if ((status = Get_KeyI (phdr, "NEXTEND",
+                                use_default, EXT_PER_GROUP, &nextend)))
 	    return (status);
 
 	/* Convert number of extensions to number of SingleGroups. */
@@ -229,7 +229,7 @@ Hdr *phdr       i: primary header
 
 	/* Get NRPTEXP and compare with nimages. */
 	if (!sts->echelle) {
-	    if (status = Get_KeyI (phdr, "NRPTEXP", no_def, 0, &nrptexp))
+	    if ((status = Get_KeyI (phdr, "NRPTEXP", no_def, 0, &nrptexp)))
 		return (status);
 	    if (nrptexp != sts->nimages) {
 		printf (
@@ -290,7 +290,7 @@ int *maxorder    o: maximum value of sporder
 	    closeImage (im);
 
 	    /* Get sporder for current imset, and save in array. */
-	    if (status = Get_KeyI (&hdr, "SPORDER", use_default, -1, &sporder))
+	    if ((status = Get_KeyI (&hdr, "SPORDER", use_default, -1, &sporder)))
 		return (status);
 	    if (sporder <= 1) {
 		if (i == 0) {			/* first imset? */
@@ -376,7 +376,7 @@ static int SumGrps (StisInfo8 *sts, int *orders, int minorder, int maxorder) {
 	    oextver++;
 	    PrGrpBegin ("imset", oextver);
 
-	    if (status = SumOrder (sts, orders, sporder, oextver))
+	    if ((status = SumOrder (sts, orders, sporder, oextver)))
 		return (status);
 
 	    PrGrpEnd ("imset", oextver);
@@ -429,7 +429,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		return (OPEN_FAILED);
 
 	    /* get from x */
-	    if (status = GetGrpInfo8 (&x, &exptime, &expend, &imset_ok))
+	    if ((status = GetGrpInfo8 (&x, &exptime, &expend, &imset_ok)))
 		return (status);
 
 	    if (imset_ok) {
@@ -443,7 +443,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		sumexptime = exptime;
 		/* Weight x by the exposure time, if we have flux. */
 		if (sts->fluxcorr == COMPLETE) {
-		    if (status = multk2d (&x, (float)exptime))
+		    if ((status = multk2d (&x, (float)exptime)))
 			return (status);
 		}
 		/* Square the errors to convert to variance. */
@@ -466,7 +466,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		    return (OPEN_FAILED);
 
 		/* Update exposure time info from y. */
-		if (status = GetGrpInfo8 (&y, &exptime, &expend, &imset_ok))
+		if ((status = GetGrpInfo8 (&y, &exptime, &expend, &imset_ok)))
 		    return (status);
 		if (!imset_ok) {
 		    freeSingleGroup (&y);
@@ -477,7 +477,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 
 		/* Weight y by the exposure time. */
 		if (sts->fluxcorr == COMPLETE) {
-		    if (status = multk2d (&y, (float)exptime))
+		    if ((status = multk2d (&y, (float)exptime)))
 			return (status);
 		}
 		SquareErr (&y);				/* operate on y */
@@ -486,7 +486,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		    from add2d in that RptSum adds variances, rather than
 		    adding errors in quadrature.
 		*/
-		if (status = RptSum (&x, &y))
+		if ((status = RptSum (&x, &y)))
 		    return (status);
 
 		if (sts->printtime) {
@@ -512,7 +512,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		printf ("ERROR    Sum of EXPTIME = %.6g\n", sumexptime);
 		return (GENERIC_ERROR_CODE);
 	    }
-	    if (status = multk2d (&x, (float)(1./sumexptime)))
+	    if ((status = multk2d (&x, (float)(1./sumexptime))))
 		return (status);
 	}
 
@@ -520,7 +520,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	if (sts->statcorr == PERFORM) {
 	    printf ("\n");
 	    PrSwitch ("statflag", PERFORM);
-	    if (status = doStat (&x, sts->sdqflags))
+	    if ((status = doStat (&x, sts->sdqflags)))
 		return (status);
 	    PrSwitch ("statflag", COMPLETE);
 	    if (sts->printtime)
@@ -538,8 +538,8 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	   rather than sts->nrptexp, so the value can be different for
 	   each output imset.
 	*/
-	if (status = PutHdrInfo8 (&x, sts->statcorr,
-			sumexptime, expend, nrptexp))
+	if ((status = PutHdrInfo8 (&x, sts->statcorr,
+                                   sumexptime, expend, nrptexp)))
 	    return (status);
 
 	/* Update CAL_VER and FILENAME, then write output file. */
@@ -612,11 +612,11 @@ int *imset_ok     o: 1 is OK, 0 means the current imset either has zero exposure
 	int use_def = 1;	/* use default if keyword is missing */
 	Bool value;		/* value of IMSET_OK keyword */
 
-	if (status = Get_KeyD (&in->sci.hdr, "EXPTIME",
-			no_default, 0., exptime))
+	if ((status = Get_KeyD (&in->sci.hdr, "EXPTIME",
+                                no_default, 0., exptime)))
 	    return (status);
-	if (status = Get_KeyD (&in->sci.hdr, "EXPEND",
-			no_default, 0., expend))
+	if ((status = Get_KeyD (&in->sci.hdr, "EXPEND",
+                                no_default, 0., expend)))
 	    return (status);
 
 	/* Get IMSET_OK, which will be false if the current imset was
@@ -652,8 +652,8 @@ int nrptexp       i: the number of imsets that were combined
 	int status;
 
 	/* Set the switch to indicate that rptcorr has been done. */
-	if (status = Put_KeyS (out->globalhdr, "RPTCORR", "COMPLETE",
-			"add individual repeat observations"))
+	if ((status = Put_KeyS (out->globalhdr, "RPTCORR", "COMPLETE",
+                                "add individual repeat observations")))
 	    return (status);
 
 	/* Write history records.  Note that these will only be written
@@ -673,23 +673,23 @@ int nrptexp       i: the number of imsets that were combined
 	}
 
 	/* Update NEXTEND in primary header, to indicate only one imset. */
-	if (status = Put_KeyI (out->globalhdr, "NEXTEND", EXT_PER_GROUP,
-			"number of extensions"))
+	if ((status = Put_KeyI (out->globalhdr, "NEXTEND", EXT_PER_GROUP,
+                                "number of extensions")))
 	    return (status);
 
 	/* Update NCOMBINE in the SCI extension header, to tell how many
 	   imsets were combined into this one output imset.
 	*/
-	if (status = Put_KeyI (&out->sci.hdr, "NCOMBINE", nrptexp,
-			"number of imsets combined"))
+	if ((status = Put_KeyI (&out->sci.hdr, "NCOMBINE", nrptexp,
+                                "number of imsets combined")))
 	    return (status);
 
 	/* Update exposure time info in SCI extension header. */
-	if (status = Put_KeyD (&out->sci.hdr, "EXPTIME", sumexptime,
-			"exposure time"))
+	if ((status = Put_KeyD (&out->sci.hdr, "EXPTIME", sumexptime,
+                                "exposure time")))
 	    return (status);
-	if (status = Put_KeyD (&out->sci.hdr, "EXPEND", expend,
-			"exposure end time"))
+	if ((status = Put_KeyD (&out->sci.hdr, "EXPEND", expend,
+                                "exposure end time")))
 	    return (status);
 
 	return (0);

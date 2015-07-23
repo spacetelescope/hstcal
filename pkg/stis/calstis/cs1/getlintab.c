@@ -69,7 +69,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	int foundit;			/* detector name found in table? */
 
 	/* Open the MAMA linearity table and find columns. */
-	if (status = OpenLinTab (sts->mlin.name, &tabinfo))
+	if ((status = OpenLinTab (sts->mlin.name, &tabinfo)))
 	    return (status);
 
 	foundit = 0;
@@ -81,7 +81,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
 	    /* Read the current row into tabrow. */
-	    if (status = ReadLinTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadLinTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.detector, sts->det)) {
@@ -89,8 +89,8 @@ StisInfo1 *sts     io: calibration switches, etc
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->mlin, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->mlin, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->mlin.goodPedigree == DUMMY_PEDIGREE) {
 		    if (sts->glincorr == PERFORM)
@@ -116,7 +116,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	    return (TABLE_ERROR);
 	}
 
-	if (status = CloseLinTab (&tabinfo))		/* close the table */
+	if ((status = CloseLinTab (&tabinfo)))  /* close the table */
 	    return (status);
 
 	return (0);

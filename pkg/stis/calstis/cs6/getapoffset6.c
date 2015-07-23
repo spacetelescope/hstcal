@@ -78,20 +78,20 @@ double *delta    o: offset in dispersion direction, arcseconds
 	int foundit = 0;	/* true if aperture found in table */
 
 	/* Open the aperture description table. */
-	if (status = OpenApTab (sts->apdestab.name, &tabinfo))
+	if ((status = OpenApTab (sts->apdestab.name, &tabinfo)))
 	    return (status);
 
 	/* Check each row for a match with ref_aper. */
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadApTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadApTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.aperture, ref_aper)) {
 
 		foundit = 1;
-		if (status = CheckPedigree (&tabinfo, row, &pedigree))
+		if ((status = CheckPedigree (&tabinfo, row, &pedigree)))
 		    return (status);
 		if (pedigree == DUMMY_PEDIGREE) {
 	            sts->x1d_o = DUMMY;
@@ -111,7 +111,7 @@ double *delta    o: offset in dispersion direction, arcseconds
 	    }
 	}
 
-	if (status = CloseApTab (&tabinfo))
+	if ((status = CloseApTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {
@@ -180,7 +180,7 @@ static int CheckPedigree (TblInfo *tabinfo, int row, int *pedigree) {
 
 	if (tabinfo->cp_pedigree > 0) {
 
-	    if ((str_pedigree = (char *) calloc (STIS_LINE+1, 
+	    if ((str_pedigree = (char *) calloc (STIS_LINE+1,
                                          sizeof(char))) == NULL) {
 		printf ("ERROR    Out of memory.\n");
 		return (OUT_OF_MEMORY);

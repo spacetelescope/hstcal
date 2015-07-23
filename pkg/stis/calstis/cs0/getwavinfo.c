@@ -81,8 +81,8 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	/* Get detector name and compare with the science file.  It is
 	   an error if they do not match.
 	*/
-	if (status = Get_KeyS (&phdr, "DETECTOR",
-				no_def, "", buf, STIS_FITS_REC))
+	if ((status = Get_KeyS (&phdr, "DETECTOR",
+				no_def, "", buf, STIS_FITS_REC)))
 	    return (status);
 	mismatch = 0;
 	if (strcmp (buf, "NUV-MAMA") == 0) {
@@ -105,8 +105,8 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	}
 
 	/* Compare OBSTYPE in science and wavecal. */
-	if (status = Get_KeyS (&phdr, "OBSTYPE",
-				no_def, "", buf, STIS_FITS_REC))
+	if ((status = Get_KeyS (&phdr, "OBSTYPE",
+				no_def, "", buf, STIS_FITS_REC)))
 	    return (status);
 	mismatch = 0;
 	if (strcmp (buf, "SPECTROSCOPIC") == 0) {
@@ -127,12 +127,12 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	   DETECTOR, not gotten directly from a header switch.
 	*/
 	if (sts->detector == CCD_DETECTOR) {
-	    if (status = Get_KeyS (&phdr, "SCLAMP",
-				no_def, "", buf, STIS_FITS_REC))
+	    if ((status = Get_KeyS (&phdr, "SCLAMP",
+                                    no_def, "", buf, STIS_FITS_REC)))
 		return (status);
 	    if (strcmp (buf, "HITM1") == 0 || strcmp (buf, "HITM2") == 0) {
-		if (status = Get_KeyD (&phdr, "TEXPSTRT",
-				use_default, 0., &texpstrt))
+		if ((status = Get_KeyD (&phdr, "TEXPSTRT",
+                                        use_default, 0., &texpstrt)))
 		    return (status);
 		/* Later than this date the shutter was closed, so we don't
 		   need to subtract the science image from the wavecal.
@@ -143,29 +143,29 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	}
 
 	/* Check that the number of extensions is a multiple of three. */
-	if (status = Get_KeyI (&phdr, "NEXTEND",
-				use_default, EXT_PER_GROUP, &nextend))
+	if ((status = Get_KeyI (&phdr, "NEXTEND",
+				use_default, EXT_PER_GROUP, &nextend)))
 	    return (status);
 
 	/* Get binning and gain info.  We really only need this for the CCD. */
-	if (status = Get_KeyI (&phdr, "BINAXIS1",
-				use_default, 1, &sts->wavbin[0]))
+	if ((status = Get_KeyI (&phdr, "BINAXIS1",
+				use_default, 1, &sts->wavbin[0])))
 	    return (status);
-	if (status = Get_KeyI (&phdr, "BINAXIS2",
-				use_default, 1, &sts->wavbin[1]))
+	if ((status = Get_KeyI (&phdr, "BINAXIS2",
+				use_default, 1, &sts->wavbin[1])))
 	    return (status);
-	if (status = Get_KeyI (&phdr, "CCDGAIN", use_default, 1, &sts->wavgain))
+	if ((status = Get_KeyI (&phdr, "CCDGAIN", use_default, 1, &sts->wavgain)))
 	    return (status);
 	sts->samebin = (sts->scibin[0] == sts->wavbin[0] &&
 			sts->scibin[1] == sts->wavbin[1] &&
 			sts->scigain == sts->wavgain);
 
 	/* Get calibration switches. */
-	if (status = GetFlags (wav_sw, &phdr))
+	if ((status = GetFlags (wav_sw, &phdr)))
 	    return (status);
 
 	/* Get reference file names. */
-	if (status = WavFlags (sts, wav_sw, &phdr, wavref))
+	if ((status = WavFlags (sts, wav_sw, &phdr, wavref)))
 	    return (status);
 
 	freeHdr (&phdr);

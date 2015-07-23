@@ -157,8 +157,8 @@ int main (int argc, char **argv) {
 
 	    /* Calibrate the current input file. */
 	    status = 0;
-	    if (status = CalStis4 (input, dbgfile, &refnames,
-			printtime, verbose, slit_angle)) {
+	    if ((status = CalStis4 (input, dbgfile, &refnames,
+                                    printtime, verbose, slit_angle))) {
 		printf ("Error processing %s.\n", input);
 		WhichError (status);
 	    }

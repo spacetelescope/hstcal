@@ -58,7 +58,7 @@ int *oldname     o: true if name already present in list
 
 	/* Need more space for names? */
 	if (nnames >= maxnames) {
-	    if (status = ReallocNames())
+	    if ((status = ReallocNames()))
 		return (status);
 	}
 

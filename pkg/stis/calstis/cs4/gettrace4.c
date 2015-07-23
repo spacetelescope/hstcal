@@ -89,13 +89,13 @@ SpTrace **trace   o: list of spectral traces
 	void FreeTrace4 (SpTrace **);
 
 	/* Open the spectrum trace table. */
-	if (status = OpenTraceTab (sts->sptrctab.name, &tabinfo))
+	if ((status = OpenTraceTab (sts->sptrctab.name, &tabinfo)))
 	    return (status);
 
 	foundit = 0;
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadTraceTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadTraceTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem and cenwave. */
@@ -106,8 +106,8 @@ SpTrace **trace   o: list of spectral traces
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->sptrctab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->sptrctab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->sptrctab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -116,7 +116,7 @@ SpTrace **trace   o: list of spectral traces
 		}
 
 		/* Read data from this row. */
-		if (status = ReadTraceArray (&tabinfo, row, sts, trace))
+		if ((status = ReadTraceArray (&tabinfo, row, sts, trace)))
 		    return (status);
 	    }
 	}
@@ -133,7 +133,7 @@ SpTrace **trace   o: list of spectral traces
 	    return (status);
 	}
 
-	if (status = CloseTraceTab (&tabinfo))
+	if ((status = CloseTraceTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -242,7 +242,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo4* sts, SpTrace **
 	    c_tbegtd (tabinfo->tp, tabinfo->cp_degperyr, row, &degperyr);
 	    sts->trace_rotation = rotatetrace(sts->expstart, mjd, degperyr, newrec->a2displ, nelem);
 	}
-	
+
 	/* Convert a1center and a2center to zero-indexed. */
 	newrec->a1center--;
 	newrec->a2center--;
@@ -254,7 +254,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo4* sts, SpTrace **
 	}
 
 	/* Add newrec to the SpTrace list. */
-	if (status = NewTrace4 (trace, newrec))
+	if ((status = NewTrace4 (trace, newrec)))
 	    return (status);
 
 	return (0);

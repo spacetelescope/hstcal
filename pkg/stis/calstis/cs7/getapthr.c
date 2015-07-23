@@ -69,12 +69,12 @@ ApInfo *slit     o: description of slit
 	int foundit = 0;	/* true if parameters found in table */
 
 	/* Open the aperture throughput table. */
-	if (status = OpenThruTab (sts->apertab.name, &tabinfo))
+	if ((status = OpenThruTab (sts->apertab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadThruTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadThruTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.aperture, sts->aperture)) {
@@ -82,24 +82,24 @@ ApInfo *slit     o: description of slit
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->apertab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->apertab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
-		if (sts->apertab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
-			row, sts->apertab.name);
+                if (sts->apertab.goodPedigree == DUMMY_PEDIGREE) {
+                    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+                            row, sts->apertab.name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseThruTab (&tabinfo);
 		    return (0);
 		}
 
 		/* Read wavelengths and throughputs into slit structure. */
-		if (status = ReadThruArray (&tabinfo, row, slit))
-		    return (status);
+                if ((status = ReadThruArray (&tabinfo, row, slit)))
+                    return (status);
 	    }
 	}
 
-	if (status = CloseThruTab (&tabinfo))
+	if ((status = CloseThruTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {

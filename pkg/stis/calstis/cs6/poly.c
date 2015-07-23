@@ -4,7 +4,7 @@
 #include <math.h>
 #include <float.h>
 
-static int  Slfit (double *, double *, double *, int, double *, int *, int, 
+static int  Slfit (double *, double *, double *, int, double *, int *, int,
                    double **, void (*funcs)(double, double [], int));
 static int Sgaussj (double **, int, double **, int);
 static void Scovsrt (double **covar, int ma, int ia[], int mfit);
@@ -41,25 +41,25 @@ void poly (double x, double values[], int n) {
 
 	int i;
 
-	for (i = 1; i <= n; i++) 
+	for (i = 1; i <= n; i++)
 	    values[i] = pow ((double)x, (double)(i-1));
 }
 
 
 /*
-  Compute polynomial coefficients. The coefficient array must be allocated 
-  with two additional elements besides the ones necessary to hold the 
-  polynomial coefficients themselves. The first two elements in the array 
-  will hold the average of the input x and y arrays, respectively. The 
-  computed coefficients will describe a polynomial relative to these 
-  two averages. Function ComputePoly will properly take care of restoring 
+  Compute polynomial coefficients. The coefficient array must be allocated
+  with two additional elements besides the ones necessary to hold the
+  polynomial coefficients themselves. The first two elements in the array
+  will hold the average of the input x and y arrays, respectively. The
+  computed coefficients will describe a polynomial relative to these
+  two averages. Function ComputePoly will properly take care of restoring
   the offsets.
 
   The function value (status return) will be -1 if the number of input
   data points is less than 1 + the degree of the polynomial.
 */
 
-int FitPoly (double ix[], double iy[], double iw[], int ndat, 
+int FitPoly (double ix[], double iy[], double iw[], int ndat,
              int degree, double coeff[]) {
 
 /* arguments:
@@ -117,7 +117,7 @@ double coeff[];		o:  output coefficients
 	for (i = 1; i <= nterm; ia[i++] = 1);
 
 	/* Solve. */
-	if (status = Slfit (x, y, sig, ndat, a, ia, nterm, covar, poly))
+	if ((status = Slfit (x, y, sig, ndat, a, ia, nterm, covar, poly)))
 	    return (status);
 
 	/* Store coefficients. */
@@ -139,10 +139,10 @@ double coeff[];		o:  output coefficients
 
 
 /*
-  Compute fitted values. 
+  Compute fitted values.
 */
 
-void ComputePoly (double ix[], int ndat, double coeff[], int degree, 
+void ComputePoly (double ix[], int ndat, double coeff[], int degree,
                  double oy[]) {
 
 /* arguments:
@@ -163,19 +163,19 @@ double oy[];		o:  output values
 }
 
 
-/* 
-   Numerical Recipes code. 
+/*
+   Numerical Recipes code.
 
    This code was modified from its original form to:
 
-   - return an error code instead of aborting plain and simple. 
+   - return an error code instead of aborting plain and simple.
    - use double precision throughout.
    - chisq computation removed.
 */
 
 
-static int Slfit (double x[], double y[], double sig[], int ndat, double a[], 
-                  int ia[], int ma, double **covar, 
+static int Slfit (double x[], double y[], double sig[], int ndat, double a[],
+                  int ia[], int ma, double **covar,
                   void (*funcs)(double, double [], int))
 {
 	int i,j,k,l,m,mfit=0,status;
@@ -213,7 +213,7 @@ static int Slfit (double x[], double y[], double sig[], int ndat, double a[],
 	for (j=2;j<=mfit;j++)
 		for (k=1;k<j;k++)
 			covar[k][j]=covar[j][k];
-	if (status = Sgaussj(covar,mfit,beta,1))
+	if ((status = Sgaussj(covar,mfit,beta,1)))
 	    return (status);
 	for (j=0,l=1;l<=ma;l++)
 		if (ia[l]) a[l]=beta[++j][1];
@@ -267,7 +267,7 @@ static int Sgaussj (double **a, int n, double **b, int m)
 							icol=k;
 						}
 					} else if (ipiv[k] > 1) {
-	                                    printf 
+	                                    printf
                                            ("gaussj: Singular Matrix-1\n");
 	                                    return (1);
 	                                }
@@ -359,13 +359,13 @@ long nh,nl;
 	free((char*) (v+nl-1));
 }
 
-static void free_dmatrix(double **m, long nrl, long nrh, long ncl, long nch) 
+static void free_dmatrix(double **m, long nrl, long nrh, long ncl, long nch)
 {
 	free((char*) (m[nrl]+ncl-1));
 	free((char*) (m+nrl-1));
 }
 
-static void nrerror(char error_text[]) 
+static void nrerror(char error_text[])
 {
 	fprintf(stderr,"Numerical Recipes run-time error...\n");
 	fprintf(stderr,"%s\n",error_text);

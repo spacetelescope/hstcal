@@ -57,13 +57,13 @@ static int CloseSDistTab (TblInfo *);
    and all values between minorder and maxorder must be present.  The
    SDCTAB table need not be sorted.
 
-   Calstis6 basically needs from the SDCTAB table two quantities: the plate 
+   Calstis6 basically needs from the SDCTAB table two quantities: the plate
    scale value CDELT2 in the spatial (slit) direction, and the size of the
    rectified image in the A2 direction created by calstis7. The plate scale
-   is used for correcting offsets due to POSTARG2. The CDELT1 plate scale 
-   is not needed because offsets in the dispersion direction must be input 
-   directly in arcsec, the unit used by the incidence angle correction 
-   formula. The rectified image size is used by the scattered light 
+   is used for correcting offsets due to POSTARG2. The CDELT1 plate scale
+   is not needed because offsets in the dispersion direction must be input
+   directly in arcsec, the unit used by the incidence angle correction
+   formula. The rectified image size is used by the scattered light
    correction algorithm (IB).
 
    Note:
@@ -84,7 +84,7 @@ static int CloseSDistTab (TblInfo *);
                  any matching row (PH)
 */
 
-int GetSDC6 (StisInfo6 *sts, CoordInfo **coords, int *minorder, int *maxorder) 
+int GetSDC6 (StisInfo6 *sts, CoordInfo **coords, int *minorder, int *maxorder)
 {
 
 /* arguments:
@@ -102,12 +102,12 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	int RangeCoord6 (CoordInfo **, int *, int *);
 
 	/* Open the spectroscopic distortion information table. */
-	if (status = OpenSDistTab (sts->distntab.name, &tabinfo))
+	if ((status = OpenSDistTab (sts->distntab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadSDistTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadSDistTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem and cenwave. */
@@ -115,8 +115,8 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 		SameInt (tabrow.cenwave, sts->cenwave)) {
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->distntab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->distntab, row,
+                       tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->distntab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -127,7 +127,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 		}
 
 		/* Read data from this row. */
-		if (status = ReadSDistArray (&tabinfo, row, coords))
+		if ((status = ReadSDistArray (&tabinfo, row, coords)))
 		    return (status);
 
 		/* This was added because the SDCTAB may contain multiple
@@ -141,7 +141,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	}
 
 	/* Get the range of order numbers. */
-	if (status = RangeCoord6 (coords, minorder, maxorder)) {
+	if ((status = RangeCoord6 (coords, minorder, maxorder))) {
 	    if (status < 0) {
 		printf ("Warning  Matching row not found in SDCTAB %s; \\\n",
 				sts->distntab.name);
@@ -153,7 +153,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	    }
 	}
 
-	if (status = CloseSDistTab (&tabinfo))
+	if ((status = CloseSDistTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -245,7 +245,7 @@ static int ReadSDistArray (TblInfo *tabinfo, int row, CoordInfo **coords) {
 	    return (TABLE_ERROR);
 
 	/* Insert in the coords list. */
-	if (status = NewCoord6 (coords, newrec))
+	if ((status = NewCoord6 (coords, newrec)))
 	    return (status);
 
 	free (newrec);

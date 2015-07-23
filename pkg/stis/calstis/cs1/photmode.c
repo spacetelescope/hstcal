@@ -70,12 +70,12 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	    strcat (photstr, " CCD");
 
 	/* Include the central wavelength, if spectroscopic mode. */
-	if (status = Get_KeyS (x->globalhdr, "OBSTYPE",
-			use_default, "unknown", scratch, STIS_FITS_REC))
+	if ((status = Get_KeyS (x->globalhdr, "OBSTYPE",
+                use_default, "unknown", scratch, STIS_FITS_REC)))
 	    return (status);
 	if (strcmp (scratch, "SPECTROSCOPIC") == 0) {
-	    if (status = Get_KeyI (x->globalhdr, "CENWAVE",
-			use_default, -1, &cenwave))
+	    if ((status = Get_KeyI (x->globalhdr, "CENWAVE",
+                                    use_default, -1, &cenwave)))
 		return (status);
 	    if (cenwave > 0) {
 		sprintf (scratch, " %d", cenwave);
@@ -88,8 +88,8 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 	strcat (photstr, scratch);
 
 	/* Update PHOTMODE in the primary header. */
-	if (status = Put_KeyS (x->globalhdr, "PHOTMODE", photstr,
-			"list of components"))
+	if ((status = Put_KeyS (x->globalhdr, "PHOTMODE", photstr,
+                                "list of components")))
 	    return (status);
 
 	free (scratch);

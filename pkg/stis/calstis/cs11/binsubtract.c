@@ -70,9 +70,9 @@ int verbose         i: print info about first pixel and binning?
 	/* Get the linear transformation from reference coordinates
 	   to image pixel coordinates for the wavecal and science data.
 	*/
-	if (status = GetLT0 (&wav->sci.hdr, ltmW, ltvW)) /* zero indexed LTV */
+	if ((status = GetLT0 (&wav->sci.hdr, ltmW, ltvW))) /* zero indexed LTV */
 	    return (status);
-	if (status = GetLT0 (&sci->sci.hdr, ltmS, ltvS))
+	if ((status = GetLT0 (&sci->sci.hdr, ltmS, ltvS)))
 	    return (status);
 
 	if (ltmW[0] <= 0. || ltmS[0] <= 0. ||
@@ -114,15 +114,15 @@ int verbose         i: print info about first pixel and binning?
 	if (ltmW[0] == ltmS[0] && ltmW[1] == ltmS[1]) {
 
 	    /* Same binning, possibly different subset. */
-	    if (status = BinSameBin (wav, sci, ratio,
-			lower_left, upper_right, sci_start))
+	    if ((status = BinSameBin (wav, sci, ratio,
+                                      lower_left, upper_right, sci_start)))
 		return (status);
 
 	} else {
 
 	    /* different binning */
-	    if (status = BinSumBin (wav, sci, ratio,
-			lower_left, upper_right, sci_start, bin))
+	    if ((status = BinSumBin (wav, sci, ratio,
+                                     lower_left, upper_right, sci_start, bin)))
 		return (status);
 	}
 

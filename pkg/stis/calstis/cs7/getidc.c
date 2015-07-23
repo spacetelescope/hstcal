@@ -108,14 +108,14 @@ DistInfo *dist      o: distortion coefficients
 	int foundit = 0;	/* true if parameters found in table */
 
 	/* Open the distortion information table. */
-	if (status = OpenDistTab (sts->distntab.name, &tabinfo))
+	if ((status = OpenDistTab (sts->distntab.name, &tabinfo)))
 	    return (status);
 
 	/* Find the row for the inverse mapping. */
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadDistTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadDistTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.direction, "INVERSE") &&
@@ -125,8 +125,8 @@ DistInfo *dist      o: distortion coefficients
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->distntab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->distntab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->distntab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -136,7 +136,7 @@ DistInfo *dist      o: distortion coefficients
 		    return (0);
 		}
 
-		if (status = ReadCoefficients (&tabinfo, row, coords, dist))
+		if ((status = ReadCoefficients (&tabinfo, row, coords, dist)))
 		    return (status);
 
 		break;
@@ -151,7 +151,7 @@ DistInfo *dist      o: distortion coefficients
 	    sts->x2dcorr_o = OMIT;
 	}
 
-	if (status = CloseDistTab (&tabinfo))
+	if ((status = CloseDistTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -291,7 +291,7 @@ static int ReadCoefficients (TblInfo *tabinfo, int row,
 	newrec->crval[1] = 0.;
 
 	/* Insert in the coords list. */
-	if (status = NewCoord (coords, newrec))
+	if ((status = NewCoord (coords, newrec)))
 	    return (status);
 
 	free (newrec);

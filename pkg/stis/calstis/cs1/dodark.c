@@ -136,8 +136,8 @@ int sci_extver     i: IMSET number in input (science) file
 	   get same_size and high_res flags, and get info about
 	   binning and offset for use by bin2d.
 	*/
-	if (status = FindBin (sts, x, &y,
-		&same_size, &high_res, &rx, &ry, &x0, &y0))
+	if ((status = FindBin (sts, x, &y,
+                               &same_size, &high_res, &rx, &ry, &x0, &y0)))
 	    return (status);
 
 	/* Do we need to do Doppler convolution? */
@@ -158,13 +158,13 @@ int sci_extver     i: IMSET number in input (science) file
 	    nds = 2 * (sts->doppmag + 1) + 21;
 	    ds = (float *) calloc (nds, sizeof (float));
 
-	    if (status = MakeDopp (sts->doppzero, sts->doppmag, sts->orbitper,
-			sts->expstart, sts->exptime, sts->dispsign,
-			ds, &nds, &d0))
+	    if ((status = MakeDopp (sts->doppzero, sts->doppmag, sts->orbitper,
+                                    sts->expstart, sts->exptime, sts->dispsign,
+                                    ds, &nds, &d0)))
 		return (status);
 
 	    /* Convolve y with the Doppler smearing function. */
-	    if (status = DoppConv (&y, 0, ds, nds, d0))
+	    if ((status = DoppConv (&y, 0, ds, nds, d0)))
 		return (status);
 
 	    free (ds);
@@ -182,9 +182,9 @@ int sci_extver     i: IMSET number in input (science) file
 
 	if (sts->detector == NUV_MAMA_DETECTOR) {
 	    double mean_nuv_dark;
-	    if (status = meanNUVDark(&y, &mean_nuv_dark))
+	    if ((status = meanNUVDark(&y, &mean_nuv_dark)))
 	        return (status);
-	    if (status = GetTdcCorr(sts, mean_nuv_dark, &factor))
+	    if ((status = GetTdcCorr(sts, mean_nuv_dark, &factor)))
 	        return (status);
 	}
         else if (sts->detector == CCD_DETECTOR) {
@@ -202,11 +202,11 @@ int sci_extver     i: IMSET number in input (science) file
 
 	    /* No binning required. */
 
-	    if (status = multk2d (&y, factor * sts->exptime / sts->atodgain))
+	    if ((status = multk2d (&y, factor * sts->exptime / sts->atodgain)))
 		return (status);
-	    if (status = MedSciVal (&y, meandark))
+	    if ((status = MedSciVal (&y, meandark)))
 		return (status);
-	    if (status = sub2d (x, &y)) {
+	    if ((status = sub2d (x, &y))) {
 		printf ("ERROR    (darkcorr) size mismatch.\n");
 		return (status);
 	    }
@@ -218,17 +218,17 @@ int sci_extver     i: IMSET number in input (science) file
 
 	    initSingleGroup (&z);
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny);
-	    if (status = bin2d (&y, x0, y0, rx, ry, avg, &z)) {
+	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
 		printf ("ERROR    (darkcorr) size mismatch.\n");
 		return (status);
 	    }
 	    freeSingleGroup (&y);			/* done with y */
 
-	    if (status = multk2d (&z, factor * sts->exptime / sts->atodgain))
+	    if ((status = multk2d (&z, factor * sts->exptime / sts->atodgain)))
 		return (status);
-	    if (status = MedSciVal (&z, meandark))
+	    if ((status = MedSciVal (&z, meandark)))
 		return (status);
-	    if (status = sub2d (x, &z))
+	    if ((status = sub2d (x, &z)))
 		return (status);
 	    freeSingleGroup (&z);			/* done with z */
 	}
@@ -371,7 +371,7 @@ static int MedSciVal (SingleGroup *y, float *meandark) {
 
 static int meanNUVDark(SingleGroup *y, double *mean_nuv_dark) {
 
-	int status;
+    /*int status;*/
 	int numgood;		/* number of good pixels */
 	int i, j;
 	double sum, mean_value;

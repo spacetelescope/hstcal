@@ -125,16 +125,16 @@ double *shift       o: the shift, in pixels
 			sts->ltm[0], sts->ltv[0]);
 
 	/* Resample reference spectrum to match observed data. */
-	if (status = SumSpec (wl, flux, nelem,
+	if ((status = SumSpec (wl, flux, nelem,
 			sts->disp_type, disp->coeff, crpix, crval, cdelt,
 			sts->ltm[0], sts->ltv[0],
-			tspec, nwl)) {
+                        tspec, nwl))) {
 	    free (tspec);
 	    return (status);
 	}
 
 	/* Convolve the reference spectrum with the slit width. */
-	if (status = ConvSlit (slitwidth, tspec, nwl)) {
+	if ((status = ConvSlit (slitwidth, tspec, nwl))) {
 	    free (tspec);
 	    return (status);
 	}
@@ -159,8 +159,8 @@ double *shift       o: the shift, in pixels
 	}
 
 	/* Do the cross correlation and find the shift. */
-	if (status = XCPeak (sts, v, qv, tspec, nwl, range, sdqflags,
-			&c7_shift)) {
+	if ((status = XCPeak (sts, v, qv, tspec, nwl, range, sdqflags,
+                              &c7_shift))) {
 	    free (tspec);
 	    return (status);
 	}
@@ -287,10 +287,10 @@ short sdqflags     i: "serious" data quality flags
 	    }
 	}
 
-	first_good += CHOP_EXTRA;  
+	first_good += CHOP_EXTRA;
 	if (first_good >= nwl)
 	    return;
-	last_good -= CHOP_EXTRA;  
+	last_good -= CHOP_EXTRA;
 	if (last_good < 0)
 	    return;
 

@@ -24,7 +24,7 @@ static int GetRipple (Hdr *, char *, ScatterFunctions *);
 static int MakeFT (Image *, Image *, ScatterFunctions *, CmplxArray *,
                    CmplxArray *);
 
-static int Debug (char *, CmplxArray *);
+/*static int Debug (char *, CmplxArray *);*/ /* Not used */
 
 /*
    Read scattering functions and build kernels.
@@ -73,8 +73,8 @@ int verbose;            i: verbosity flag
 
         /* Get scattering functions. */
 
-        if (status = Get_KeyS (phdr, "ECHSCTAB", no_default, "",
-                               fname, STIS_LINE)) {
+        if ((status = Get_KeyS (phdr, "ECHSCTAB", no_default, "",
+                                fname, STIS_LINE))) {
             printf (
 "WARNING  The input file *might* not have the required keywords\n");
             printf (
@@ -86,79 +86,79 @@ int verbose;            i: verbosity flag
             printf ("Reading ECHSCTAB: %s\n", fname);
             fflush (stdout);
         }
-        if (status = GetScatter (fname, scf))
+        if ((status = GetScatter (fname, scf)))
             return (status);
 
         /* Get echelle x-disp spread function. */
 
-        if (status = Get_KeyS (phdr, "EXSTAB", no_default, "",
-                               fname, STIS_LINE))
+        if ((status = Get_KeyS (phdr, "EXSTAB", no_default, "",
+                                fname, STIS_LINE)))
             return (status);
         if (verbose) {
             printf ("Reading EXSTAB: %s\n", fname);
             fflush (stdout);
         }
-        if (status = GetEchelleScatter (fname, scf))
+        if ((status = GetEchelleScatter (fname, scf)))
             return (status);
 
         /* Get x-disp function. */
 
-        if (status = Get_KeyS (phdr, "CDSTAB", no_default, "",
-                               fname, STIS_LINE))
+        if ((status = Get_KeyS (phdr, "CDSTAB", no_default, "",
+                                fname, STIS_LINE)))
             return (status);
         if (verbose) {
             printf ("Reading CDSTAB: %s\n", fname);
             fflush (stdout);
         }
-        if (status = GetXDisp (fname, scf))
+        if ((status = GetXDisp (fname, scf)))
             return (status);
 
         /* Get echelle ripple functions. */
 
-        if (status = Get_KeyS (phdr, "RIPTAB", no_default, "",
-                               fname, STIS_LINE))
+        if ((status = Get_KeyS (phdr, "RIPTAB", no_default, "",
+                                fname, STIS_LINE)))
             return (status);
         if (verbose) {
             printf ("Reading RIPTAB: %s\n", fname);
             fflush (stdout);
         }
-        if (status = GetRipple (phdr, fname, scf))
+        if ((status = GetRipple (phdr, fname, scf)))
             return (status);
 
         /* Get wavelengths of halo and telescope PSF images. */
 
-        if (status = Get_KeyS (phdr, "SRWTAB", no_default, "",
-                               fname, STIS_LINE))
+        if ((status = Get_KeyS (phdr, "SRWTAB", no_default, "",
+                                fname, STIS_LINE)))
             return (status);
         if (verbose) {
             printf ("Reading SRWTAB: %s\n", fname);
             fflush (stdout);
         }
 
-        if (status = GetRefWave (phdr, fname, scf))
+        if ((status = GetRefWave (phdr, fname, scf)))
             return (status);
 
         /* Get halo and telescope psf images, and build FTs */
 
-        if (status = Get_KeyS (phdr, "HALOTAB", no_default, "",
-                               fname, STIS_LINE))
+        if ((status = Get_KeyS (phdr, "HALOTAB", no_default, "",
+                                fname, STIS_LINE)))
             return (status);
         if (verbose) {
             printf ("Reading HALOTAB: %s\n", fname);
             fflush (stdout);
         }
-        if (status = GetHalo (fname, scf, &halo1, &halo2, &halo3))
+        if ((status = GetHalo (fname, scf, &halo1, &halo2, &halo3)))
             return (status);
 
-        if (status = Get_KeyS (phdr, "TELTAB", no_default, "",
-                               fname, STIS_LINE))
+        if ((status = Get_KeyS (phdr, "TELTAB", no_default, "",
+                                fname, STIS_LINE)))
             return (status);
         if (verbose) {
             printf ("Reading TELTAB: %s\n", fname);
             fflush (stdout);
         }
-        if (status = GetPSF (fname, phdr, xsize, ysize, scf,
-                             &psf1, &psf2, &psf3))
+        if ((status = GetPSF (fname, phdr, xsize, ysize, scf,
+                              &psf1, &psf2, &psf3)))
             return (status);
 
         InitCmplxArray (&(scf->ft1));
@@ -174,7 +174,7 @@ int verbose;            i: verbosity flag
                      scf->kernw[0]);
             fflush (stdout);
         }
-        if (status = MakeFT (&halo1, &psf1, scf, &(scf->ft1), &(scf->fto1)))
+        if ((status = MakeFT (&halo1, &psf1, scf, &(scf->ft1), &(scf->fto1))))
             return (status);
 
         if (scf->nwave > 1) {
@@ -184,7 +184,7 @@ int verbose;            i: verbosity flag
                          scf->kernw[1]);
                 fflush (stdout);
             }
-            if (status = MakeFT (&halo2, &psf2, scf, &(scf->ft2), &(scf->fto2)))
+            if ((status = MakeFT (&halo2, &psf2, scf, &(scf->ft2), &(scf->fto2))))
                 return (status);
         }
 
@@ -195,7 +195,7 @@ int verbose;            i: verbosity flag
                          scf->kernw[2]);
                 fflush (stdout);
             }
-            if (status = MakeFT (&halo3, &psf3, scf, &(scf->ft3), &(scf->fto3)))
+            if ((status = MakeFT (&halo3, &psf3, scf, &(scf->ft3), &(scf->fto3))))
                 return (status);
         }
 
@@ -316,7 +316,7 @@ ScatterFunctions *scf;  o: data structure with reference wavelengths
 
         /* get reference CENWAVE. */
 
-        if (status = Get_KeyI (phdr, "CENWAVE", 0, 0, &cenwave))
+        if ((status = Get_KeyI (phdr, "CENWAVE", 0, 0, &cenwave)))
             return (status);
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
@@ -397,7 +397,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
 
         /* get reference CENWAVE. */
 
-        if (status = Get_KeyI (phdr, "CENWAVE", 0, 0, &cenwave))
+        if ((status = Get_KeyI (phdr, "CENWAVE", 0, 0, &cenwave)))
             return (status);
 
         /* Open table and get column pointers. */
@@ -655,21 +655,21 @@ Image *halo1,2,3;       o: halo images, previously initialized
                 */
                 switch (k) {
                 case 0:
-                    if (status = Alloc2DImage (halo1, haldim, haldim))
+                    if ((status = Alloc2DImage (halo1, haldim, haldim)))
                         return (status);
                     i = c_tbagtr (tp, cp_halo, row, halo1->pix, 1, halo1->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
                 case 1:
-                    if (status = Alloc2DImage (halo2, haldim, haldim))
+                    if ((status = Alloc2DImage (halo2, haldim, haldim)))
                         return (status);
                     i = c_tbagtr (tp, cp_halo, row, halo2->pix, 1, halo2->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
                 case 2:
-                    if (status = Alloc2DImage (halo3, haldim, haldim))
+                    if ((status = Alloc2DImage (halo3, haldim, haldim)))
                         return (status);
                     i = c_tbagtr (tp, cp_halo, row, halo3->pix, 1, halo3->npix);
                     if (c_iraferr())
@@ -753,7 +753,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
 
         /* See if uniformly illuminated aperture was used. */
 
-        if (status = Get_KeyS (phdr, "SCLAMP", 0, "", keyword, STIS_CBUF))
+        if ((status = Get_KeyS (phdr, "SCLAMP", 0, "", keyword, STIS_CBUF)))
             return (status);
         if (!streq_ic (keyword, "NONE")) {
             ml = (int)floor (ysize / yplate);
@@ -825,7 +825,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 c_tbegti (tp, cp_psfdim, row, &psfdim);
 
                 InitImage (&imtemp);
-                if (status = Alloc2DImage (&imtemp, psfdim, psfdim))
+                if ((status = Alloc2DImage (&imtemp, psfdim, psfdim)))
                     return (status);
                 i = c_tbagtr (tp, cp_telepsf, row, imtemp.pix, 1,
                               imtemp.npix);
@@ -859,7 +859,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 /* Extract sub-image. */
 
                 InitImage (&ospsf);
-                if (status = Alloc2DImage (&ospsf, s2 - s1 + 1, l2 - l1 + 1))
+                if ((status = Alloc2DImage (&ospsf, s2 - s1 + 1, l2 - l1 + 1)))
                     return (status);
                 k = 0;
                 /* location of braces looks like a typo, but harmless */
@@ -886,7 +886,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
 
                 /* Bin columns. */
 
-                if (status = Alloc2DImage (&imtemp, ms, nl))
+                if ((status = Alloc2DImage (&imtemp, ms, nl)))
                     return (status);
                 sbox = ns / (double)ms;
                 for (i = 0; i < ms; i++) {
@@ -911,7 +911,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 /* Bin rows. */
 
                 InitImage (&psf);
-                if (status = Alloc2DImage (&psf, ms, ml))
+                if ((status = Alloc2DImage (&psf, ms, ml)))
                     return (status);
                 lbox = nl / (double)ml;
                 for (j = 0; j < ml; j++) {
@@ -945,19 +945,19 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 */
                 switch (kk) {
                 case 0:
-                    if (status = Alloc2DImage (psf1, psf.nx, psf.ny))
+                    if ((status = Alloc2DImage (psf1, psf.nx, psf.ny)))
                         return (status);
                     for (i= 0 ; i < psf1->npix; i++)
                         psf1->pix[i] = psf.pix[i];
                     break;
                 case 1:
-                    if (status = Alloc2DImage (psf2, psf.nx, psf.ny))
+                    if ((status = Alloc2DImage (psf2, psf.nx, psf.ny)))
                         return (status);
                     for (i= 0 ; i < psf2->npix; i++)
                         psf2->pix[i] = psf.pix[i];
                     break;
                 case 2:
-                    if (status = Alloc2DImage (psf3, psf.nx, psf.ny))
+                    if ((status = Alloc2DImage (psf3, psf.nx, psf.ny)))
                         return (status);
                     for (i= 0 ; i < psf3->npix; i++)
                         psf3->pix[i] = psf.pix[i];
@@ -1012,14 +1012,14 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
            larger array so its size matches the halo array size.
         */
 
-        if (status = AllocCmplxArray (&ziso, iso->nx, iso->ny))
+        if ((status = AllocCmplxArray (&ziso, iso->nx, iso->ny)))
             return (status);
         for (j = 1; j < iso->ny - 1; j++) {
             for (i = 1; i < iso->nx - 1; i++)
                 RPIX2D (&ziso, i, j) = PPIX (iso, i-1, j-1);
         }
 
-        if (status = AllocCmplxArray (&zpsf, iso->nx, iso->ny))
+        if ((status = AllocCmplxArray (&zpsf, iso->nx, iso->ny)))
             return (status);
         /* The following code only works when both axis are simultaneously
            either even or odd-sized. Half-pixel shifting uses linear interp.
@@ -1079,7 +1079,7 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
 
         /* Convolve halo with telescope PSF. */
 
-        if (status = FFTConvolve (&zpsf, &ziso))
+        if ((status = FFTConvolve (&zpsf, &ziso)))
             return (status);
 
         /* Now convolve column-by-column with x-disp scattering function. */
@@ -1105,7 +1105,7 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
            No need to normalize !
         */
 
-        if (status = AllocCmplxArray (ft, 2 * iso->nx, 2 * iso->ny))
+        if ((status = AllocCmplxArray (ft, 2 * iso->nx, 2 * iso->ny)))
             return (status);
         /* Only works when both are even-sized. */
         i1 = iso->nx / 2;
@@ -1117,14 +1117,14 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
                 RPIX2D (ft, i, j) = RPIX2D (&zpsf, ki, kj);
         }
 
-        if (status = fft2d (ft))
+        if ((status = fft2d (ft)))
             return (status);
 
         /* Now build "object" FT (central 11 X 11 portion).
            No need to normalize !
         */
 
-        if (status = AllocCmplxArray (fto, 2 * iso->nx, 2 * iso->ny))
+        if ((status = AllocCmplxArray (fto, 2 * iso->nx, 2 * iso->ny)))
             return (status);
 
         wsize = 6;
@@ -1139,7 +1139,7 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
                 RPIX2D (fto, i, j) = RPIX2D (&zpsf, ki, kj);
         }
 
-        if (status = fft2d (fto))
+        if ((status = fft2d (fto)))
             return (status);
 
         FreeCmplxArray (&ziso);
@@ -1153,8 +1153,8 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
 /***************************************************************************/
 
 
-/* This function dumps a complex array as a FITS IMSET. */
-
+/* This function dumps a complex array as a FITS IMSET. (Not used) */
+/*
 static int Debug (char *name, CmplxArray *z) {
 
         SingleGroup out;
@@ -1179,3 +1179,4 @@ static int Debug (char *name, CmplxArray *z) {
 
         return (STIS_OK);
 }
+*/

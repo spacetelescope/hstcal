@@ -50,7 +50,7 @@ StisInfo *sts         i: calibration flags and other info
 	closeImage (im);
 
 	/* First check texptime. */
-	if (status = Get_KeyD (&phdr, "TEXPTIME", use_default, 0., &texptime))
+	if ((status = Get_KeyD (&phdr, "TEXPTIME", use_default, 0., &texptime)))
 	    return (status);
 	if (texptime <= 0.) {
 	    printf (
@@ -65,8 +65,8 @@ StisInfo *sts         i: calibration flags and other info
 	}
 
 	/* Get the number of extensions. */
-	if (status = Get_KeyI (&phdr, "NEXTEND",
-				use_default, EXT_PER_GROUP, &nextend))
+	if ((status = Get_KeyI (&phdr, "NEXTEND",
+				use_default, EXT_PER_GROUP, &nextend)))
 	    return (status);
 	nimsets = nextend / EXT_PER_GROUP;
 
@@ -86,7 +86,7 @@ StisInfo *sts         i: calibration flags and other info
 	    if (hstio_err())
 		return (OPEN_FAILED);
 	    hdr = &x.sci.hdr;
-	    if (status = Get_KeyD (hdr, "EXPTIME", use_default, 0., &exptime))
+	    if ((status = Get_KeyD (hdr, "EXPTIME", use_default, 0., &exptime)))
 		return (status);
 	    if (exptime > 0. && goodImage (&x)) {
 		all_bad = 0;

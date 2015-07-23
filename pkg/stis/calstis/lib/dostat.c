@@ -132,50 +132,50 @@ short sdqflags    i: "serious" data quality flags
 
 	/* Update header values for the science array. */
 
-	if (status = Put_KeyI (&out->sci.hdr, "NGOODPIX", numgood,
-			"number of good pixels"))
+	if ((status = Put_KeyI (&out->sci.hdr, "NGOODPIX", numgood,
+                                "number of good pixels")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->sci.hdr, "GOODMIN", (float) valmin,
-			"minimum good data value"))
+	if ((status = Put_KeyF (&out->sci.hdr, "GOODMIN", (float) valmin,
+                                "minimum good data value")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->sci.hdr, "GOODMAX", (float) valmax,
-			"maximum good data value"))
+	if ((status = Put_KeyF (&out->sci.hdr, "GOODMAX", (float) valmax,
+                                "maximum good data value")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->sci.hdr, "GOODMEAN", (float) valsum,
-			"average of good data values"))
+	if ((status = Put_KeyF (&out->sci.hdr, "GOODMEAN", (float) valsum,
+                                "average of good data values")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->sci.hdr, "SNRMIN", (float) snrmin,
-			"minimum S/N of good data values"))
+	if ((status = Put_KeyF (&out->sci.hdr, "SNRMIN", (float) snrmin,
+                                "minimum S/N of good data values")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->sci.hdr, "SNRMAX", (float) snrmax,
-			"maximum S/N of good data values"))
+	if ((status = Put_KeyF (&out->sci.hdr, "SNRMAX", (float) snrmax,
+                                "maximum S/N of good data values")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->sci.hdr, "SNRMEAN", (float) snrsum,
-			"mean S/N of good data values"))
+	if ((status = Put_KeyF (&out->sci.hdr, "SNRMEAN", (float) snrsum,
+                                "mean S/N of good data values")))
 	    return (status);
 
 	/* Update header values for the error array. */
 
-	if (status = Put_KeyI (&out->err.hdr, "NGOODPIX", numgood,
-			"number of good pixels"))
+	if ((status = Put_KeyI (&out->err.hdr, "NGOODPIX", numgood,
+                                "number of good pixels")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->err.hdr, "GOODMIN", (float) errmin,
-			"minimum sigma for good data"))
+	if ((status = Put_KeyF (&out->err.hdr, "GOODMIN", (float) errmin,
+                                "minimum sigma for good data")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->err.hdr, "GOODMAX", (float) errmax,
-			"maximum sigma for good data"))
+	if ((status = Put_KeyF (&out->err.hdr, "GOODMAX", (float) errmax,
+                                "maximum sigma for good data")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->err.hdr, "GOODMEAN", (float) errsum,
-			"average of sigma for good data"))
+	if ((status = Put_KeyF (&out->err.hdr, "GOODMEAN", (float) errsum,
+                                "average of sigma for good data")))
 	    return (status);
 
 	return (0);

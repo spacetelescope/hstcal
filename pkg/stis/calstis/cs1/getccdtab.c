@@ -88,7 +88,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	int foundit;		/* has the correct row been found? */
 
 	/* Open the CCD parameters table and find columns. */
-	if (status = OpenCCDTab (sts->ccdpar.name, &tabinfo))
+	if ((status = OpenCCDTab (sts->ccdpar.name, &tabinfo)))
 	    return (status);
 
 	/* Check each row for a match with ccdamp, ccdgain, ccdoffst,
@@ -99,7 +99,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
 	    /* Read the current row into tabrow. */
-	    if (status = ReadCCDTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadCCDTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.ccdamp, sts->ccdamp) &&
@@ -109,8 +109,8 @@ StisInfo1 *sts     io: calibration switches, etc
 		SameInt (tabrow.bin[1], sts->binaxis[1])) {
 
 		foundit = 1;
-		if (status = RowPedigree (&sts->ccdpar, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->ccdpar, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->ccdpar.goodPedigree == DUMMY_PEDIGREE)
 		    printf ("Warning  Row %d of CCDTAB is DUMMY.\n", row);
@@ -134,7 +134,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	    return (TABLE_ERROR);
 	}
 
-	if (status = CloseCCDTab (&tabinfo))		/* close the table */
+	if ((status = CloseCCDTab (&tabinfo)))  /* close the table */
 	    return (status);
 
 	return (0);

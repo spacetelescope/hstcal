@@ -68,7 +68,7 @@ double *shift      o: the shift, in pixels
 
 	/* lower edge of slit */
 	locn0 = slit_end;
-	if (status = FindEdge (sts, v, qv, nv, LOW_TO_HIGH, locn0, &locn)) {
+	if ((status = FindEdge (sts, v, qv, nv, LOW_TO_HIGH, locn0, &locn))) {
 	    if (status == NO_GOOD_DATA)		/* not fatal yet */
 		status = 0;
 	    else
@@ -86,7 +86,7 @@ double *shift      o: the shift, in pixels
 
 	/* upper edge of slit */
 	locn0 = slit_end + length / scale;
-	if (status = FindEdge (sts, v, qv, nv, HIGH_TO_LOW, locn0, &locn)) {
+	if ((status = FindEdge (sts, v, qv, nv, HIGH_TO_LOW, locn0, &locn))) {
 	    if (status == NO_GOOD_DATA)
 		status = 0;
 	    else

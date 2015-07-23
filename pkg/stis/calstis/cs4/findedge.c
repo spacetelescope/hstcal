@@ -168,7 +168,7 @@ double *locn     o: actual location of edge
 	    /* Location of peak of quadratic through xc[i], xc[i+1], xc[i+2],
 		relative to i+1.
 	    */
-	    if (status = PeakQuad3 (xc+i, &peak))
+	    if ((status = PeakQuad3 (xc+i, &peak)))
 		return (status);
 
 	    /* Add index of middle pixel to get location (zero indexed). */

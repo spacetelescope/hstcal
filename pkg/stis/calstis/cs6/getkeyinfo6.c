@@ -9,7 +9,7 @@
 # include "calstis6.h"
 # include "stiserr.h"
 
-/* 
+/*
    Get keyword values from the primary header.
 
 
@@ -46,10 +46,10 @@ Hdr *phdr       i: primary header
 
 	/* Get generic parameters. */
 
-	if (status = Get_KeyS (phdr, "ROOTNAME", no_def, "", sts->rootname, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "ROOTNAME", no_def, "", sts->rootname, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "DETECTOR", no_def, "", sts->det, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "DETECTOR", no_def, "", sts->det, STIS_CBUF)))
 	    return (status);
 	if (strcmp (sts->det, "NUV-MAMA") == 0)
 	    sts->detector = NUV_MAMA_DETECTOR;
@@ -61,20 +61,20 @@ Hdr *phdr       i: primary header
 	    sts->detector = UNKNOWN_DETECTOR;
 
 	/* Only spectra are meaningful for calstis6. */
-	if (status = Get_KeyS (phdr, "OBSTYPE",
-			no_def, "", sts->obsmode, STIS_FITS_REC))
+	if ((status = Get_KeyS (phdr, "OBSTYPE",
+                                no_def, "", sts->obsmode, STIS_FITS_REC)))
 	    return (status);
 	if (strcmp (sts->obsmode, "SPECTROSCOPIC") != 0)
 	    return (NOTHING_TO_DO);
 
 	/* This is required for _trl reporting only. */
-	if (status = Get_KeyS (phdr, "OBSMODE",
-			no_def, "", sts->obsmode, STIS_FITS_REC))
+	if ((status = Get_KeyS (phdr, "OBSMODE",
+                                no_def, "", sts->obsmode, STIS_FITS_REC)))
 	    return (status);
 
 	/* Find out how many extensions there are in this file. */
-	if (status = Get_KeyI (phdr, "NEXTEND",
-			use_default, EXT_PER_GROUP, &nextend))
+	if ((status = Get_KeyI (phdr, "NEXTEND",
+                                use_default, EXT_PER_GROUP, &nextend)))
 	    return (status);
 
 	/* Convert number of extensions to number of SingleGroups. */
@@ -86,50 +86,50 @@ Hdr *phdr       i: primary header
 	}
 
 	/* Target location. */
-	if (status = Get_KeyD (phdr, "RA_TARG", no_def, 0., &sts->ra_targ))
+	if ((status = Get_KeyD (phdr, "RA_TARG", no_def, 0., &sts->ra_targ)))
 	    return (status);
-	if (status = Get_KeyD (phdr, "DEC_TARG", no_def, 0., &sts->dec_targ))
+	if ((status = Get_KeyD (phdr, "DEC_TARG", no_def, 0., &sts->dec_targ)))
 	    return (status);
 
 	/* POSTARG */
-/*	if (status = Get_KeyD (phdr, "POSTARG1", no_def, 0., &sts->pos_targ[0]))
+/*	if ((status = Get_KeyD (phdr, "POSTARG1", no_def, 0., &sts->pos_targ[0])))
 	    return (status);
-	if (status = Get_KeyD (phdr, "POSTARG2", no_def, 0., &sts->pos_targ[1]))
+	if ((status = Get_KeyD (phdr, "POSTARG2", no_def, 0., &sts->pos_targ[1])))
 	    return (status);
 */
 	/* Get CCD-specific info. */
-	if (status = Get_KeyS (phdr, "CCDAMP",
-			use_default, "", sts->ccdamp, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "CCDAMP",
+                                use_default, "", sts->ccdamp, STIS_CBUF)))
 	    return (status);
-	if (status = Get_KeyD (phdr, "READNSE",
-			use_default, 0., &sts->readnse))
+	if ((status = Get_KeyD (phdr, "READNSE",
+                                use_default, 0., &sts->readnse)))
 	    return (status);
-	if (status = Get_KeyD (phdr, "ATODGAIN",
-			use_default, 1., &sts->atodgain))
+	if ((status = Get_KeyD (phdr, "ATODGAIN",
+                                use_default, 1., &sts->atodgain)))
 	    return (status);
- 	if (status = Get_KeyI (phdr, "CCDGAIN", use_default, 1, &sts->ccdgain))
+ 	if ((status = Get_KeyI (phdr, "CCDGAIN", use_default, 1, &sts->ccdgain)))
 	    return (status);
- 	if (status = Get_KeyI (phdr, "CCDOFFST", use_default, 1,
-                               &sts->ccdoffset))
+ 	if ((status = Get_KeyI (phdr, "CCDOFFST", use_default, 1,
+                                &sts->ccdoffset)))
 	    return (status);
- 	if (status = Get_KeyI (phdr, "BINAXIS1", use_default, 1,
-                               &(sts->binaxis[0])))
+ 	if ((status = Get_KeyI (phdr, "BINAXIS1", use_default, 1,
+                                &(sts->binaxis[0]))))
 	    return (status);
- 	if (status = Get_KeyI (phdr, "BINAXIS2", use_default, 1,
-                               &(sts->binaxis[1])))
+ 	if ((status = Get_KeyI (phdr, "BINAXIS2", use_default, 1,
+                                &(sts->binaxis[1]))))
 	    return (status);
- 	if (status = Get_KeyI (phdr, "CRSPLIT", use_default, 1, &sts->crsplit))
+ 	if ((status = Get_KeyI (phdr, "CRSPLIT", use_default, 1, &sts->crsplit)))
 	    return (status);
 
 	/* Get MAMA "dither", i.e. the deliberate offset to prevent
 	   exposures from always being at the same place.
 	*/
 	/*
-	if (status = Get_KeyD (phdr, "MOFFSET1", use_default, 0.,
-                     &sts->dither_offset[0]))
+	if ((status = Get_KeyD (phdr, "MOFFSET1", use_default, 0.,
+                     &sts->dither_offset[0])))
 	    return (status);
-	if (status = Get_KeyD (phdr, "MOFFSET2", use_default, 0.,
-                    &sts->dither_offset[1]))
+	if ((status = Get_KeyD (phdr, "MOFFSET2", use_default, 0.,
+                    &sts->dither_offset[1])))
 	    return (status);
 	*/
 
@@ -140,8 +140,8 @@ Hdr *phdr       i: primary header
 	/* Get calstis6-specific parameters. */
 
 	/* Slit name. */
-	if (status = Get_KeyS (phdr, "APERTURE",
-			no_def, "", sts->aperture, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "APERTURE",
+                                no_def, "", sts->aperture, STIS_CBUF)))
 	    return (status);
 
 	/* Unless a lamp was on, check whether PROPAPER ends in one of the
@@ -149,24 +149,24 @@ Hdr *phdr       i: primary header
 	   to APERTURE.  (The correct way to check for a wavecal is with
 	   ASN_MTYP, but that's in the extension header.)
 	*/
-	if (status = Get_KeyS (phdr, "SCLAMP",
-			use_default, "NONE", sclamp, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "SCLAMP",
+                                use_default, "NONE", sclamp, STIS_CBUF)))
 	    return (status);
 	if (strcmp (sclamp, "NONE") == 0) {	/* not a wavecal */
-	    if (status = Get_KeyS (phdr, "PROPAPER",
-			use_default, sts->aperture, propaper, STIS_CBUF))
+	    if ((status = Get_KeyS (phdr, "PROPAPER",
+                    use_default, sts->aperture, propaper, STIS_CBUF)))
 		return (status);
 	    /* Append a suffix to sts->aperture, if it's found on propaper. */
 	    pseudoap (propaper, sts->aperture, sts->verbose);
 	}
 
 	/* Grating name. */
-	if (status = Get_KeyS (phdr, "OPT_ELEM",
-			no_def, "", sts->opt_elem, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OPT_ELEM",
+                                no_def, "", sts->opt_elem, STIS_CBUF)))
 	    return (status);
 
 	/* Central wavelength. */
-	if (status = Get_KeyI (phdr, "CENWAVE", no_def, 0., &sts->cenwave))
+	if ((status = Get_KeyI (phdr, "CENWAVE", no_def, 0., &sts->cenwave)))
 	    return (status);
 
 	return (0);

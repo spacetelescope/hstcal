@@ -114,7 +114,7 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 	if (which_wavecal[0] != '\0') {
-	    if (status = WavOption (which_wavecal, &w_option))
+	    if ((status = WavOption (which_wavecal, &w_option)))
 		exit (status);
 	} else {
 	    w_option = STIS_LINEAR;
@@ -139,8 +139,8 @@ int main (int argc, char **argv) {
 	    j = c_imtgetim (s_imt, insci, STIS_LINE);
 
 	    status = 0;
-	    if (status = CalStis12 (inwav, insci,
-			w_option, printtime, verbose)) {
+	    if ((status = CalStis12 (inwav, insci,
+                                     w_option, printtime, verbose))) {
 		printf ("Error processing %s.\n", insci);
 		WhichError (status);
 	    }

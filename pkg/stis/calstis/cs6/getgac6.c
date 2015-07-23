@@ -80,7 +80,7 @@ ApInfo *slit    o: includes grating-aperture correction factors
 	int foundit = 0;	/* true if parameters found in table */
 
 	/* Open the grating-aperture correction table. */
-	if (status = OpenGacTab (sts, &tabinfo))
+	if ((status = OpenGacTab (sts, &tabinfo)))
 	    return (status);
 
 	/* Check each row for a match with keyword values, then read
@@ -89,7 +89,7 @@ ApInfo *slit    o: includes grating-aperture correction factors
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadGacTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadGacTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.opt_elem, sts->opt_elem) &&
@@ -99,8 +99,8 @@ ApInfo *slit    o: includes grating-aperture correction factors
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->gactab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)) {
+		if ((status = RowPedigree (&sts->gactab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))) {
 		    return (status);
 	        }
 
@@ -111,14 +111,14 @@ ApInfo *slit    o: includes grating-aperture correction factors
 		}
 
 		/* Read wavelengths and throughputs into slit. */
-		if (status = ReadGacData (&tabinfo, row, slit))
+		if ((status = ReadGacData (&tabinfo, row, slit)))
 		    return (status);
 
 		break;
 	    }
 	}
 
-	if (status = CloseGacTab (&tabinfo))
+	if ((status = CloseGacTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {

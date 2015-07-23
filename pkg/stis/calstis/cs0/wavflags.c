@@ -65,7 +65,7 @@ RefFileInfo wavref  io: list of keyword,filename pairs
 	int GetNewRef (Hdr *, char *, RefFileInfo *);
 
 	if (sts->detector == CCD_DETECTOR) {
-	    if (status = GetNewRef (phdr, "CCDTAB", wavref))
+	    if ((status = GetNewRef (phdr, "CCDTAB", wavref)))
 		return (status);
 	}
 
@@ -80,7 +80,7 @@ RefFileInfo wavref  io: list of keyword,filename pairs
 
 	if (wav_sw->dqicorr == PERFORM) {
 	    sts->wav_basic_2d = PERFORM;
-	    if (status = GetNewRef (phdr, "BPIXTAB", wavref))
+	    if ((status = GetNewRef (phdr, "BPIXTAB", wavref)))
 		return (status);
 	}
 
@@ -93,44 +93,44 @@ RefFileInfo wavref  io: list of keyword,filename pairs
 	    MAMASanity (sts->detector, "LFLGCORR");
 	}
 	if (wav_sw->glincorr == PERFORM || wav_sw->lflgcorr == PERFORM) {
-	    if (status = GetNewRef (phdr, "MLINTAB", wavref))
+	    if ((status = GetNewRef (phdr, "MLINTAB", wavref)))
 		return (status);
 	}
 
 	if (wav_sw->atodcorr == PERFORM) {
 	    sts->wav_basic_2d = PERFORM;
 	    CCDSanity (sts->detector, "ATODCORR");
-	    if (status = GetNewRef (phdr, "ATODTAB", wavref))
+	    if ((status = GetNewRef (phdr, "ATODTAB", wavref)))
 		return (status);
-	}	
+	}
 
 	if (wav_sw->biascorr == PERFORM) {
 	    sts->wav_basic_2d = PERFORM;   refimage_used = 1;
 	    CCDSanity (sts->detector, "BIASCORR");
-	    if (status = GetNewRef (phdr, "BIASFILE", wavref))
+	    if ((status = GetNewRef (phdr, "BIASFILE", wavref)))
 		return (status);
 	}
 
 	if (wav_sw->darkcorr == PERFORM) {
 	    sts->wav_basic_2d = PERFORM;   refimage_used = 1;
-	    if (status = GetNewRef (phdr, "DARKFILE", wavref))
+	    if ((status = GetNewRef (phdr, "DARKFILE", wavref)))
 		return (status);
 	}
 
 	if (wav_sw->flatcorr == PERFORM) {
 	    sts->wav_basic_2d = PERFORM;   refimage_used = 1;
-	    if (status = GetNewRef (phdr, "PFLTFILE", wavref))
+	    if ((status = GetNewRef (phdr, "PFLTFILE", wavref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "DFLTFILE", wavref))
+	    if ((status = GetNewRef (phdr, "DFLTFILE", wavref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "LFLTFILE", wavref))
+	    if ((status = GetNewRef (phdr, "LFLTFILE", wavref)))
 		return (status);
 	}
 
 	if (wav_sw->shadcorr == PERFORM) {
 	    sts->wav_basic_2d = PERFORM;   refimage_used = 1;
 	    CCDSanity (sts->detector, "SHADCORR");
-	    if (status = GetNewRef (phdr, "SHADFILE", wavref))
+	    if ((status = GetNewRef (phdr, "SHADFILE", wavref)))
 		return (status);
 	}
 
@@ -150,50 +150,50 @@ RefFileInfo wavref  io: list of keyword,filename pairs
 	    if (sts->obstype != IMAGING_TYPE)
 		printf (
 "Warning  PHOTCORR = PERFORM in wavecal, but OBSTYPE is not IMAGING.\n");
-	    if (status = GetNewRef (phdr, "IMPHTTAB", wavref))
+	    if ((status = GetNewRef (phdr, "IMPHTTAB", wavref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "APERTAB", wavref))
+	    if ((status = GetNewRef (phdr, "APERTAB", wavref)))
 		return (status);
 	}
 
 	/* We don't need to check the wavecorr switch!  These are the
 	   tables we need for wavecal processing.
 	*/
-	if (status = GetNewRef (phdr, "WCPTAB", wavref))
+	if ((status = GetNewRef (phdr, "WCPTAB", wavref)))
 	    return (status);
-	if (status = GetNewRef (phdr, "LAMPTAB", wavref))
+	if ((status = GetNewRef (phdr, "LAMPTAB", wavref)))
 	    return (status);
-	if (status = GetNewRef (phdr, "APDESTAB", wavref))
+	if ((status = GetNewRef (phdr, "APDESTAB", wavref)))
 	    return (status);
 
 	/* For echelle data, we need these for the wavecorr step;
 	   for first-order data, we need them for the x2dcorr step.
 	*/
-	if (status = GetNewRef (phdr, "DISPTAB", wavref))
+	if ((status = GetNewRef (phdr, "DISPTAB", wavref)))
 	    return (status);
-	if (status = GetNewRef (phdr, "INANGTAB", wavref))
+	if ((status = GetNewRef (phdr, "INANGTAB", wavref)))
 	    return (status);
-	if (status = GetNewRef (phdr, "SPTRCTAB", wavref))
+	if ((status = GetNewRef (phdr, "SPTRCTAB", wavref)))
 	    return (status);
 
 	/* For first-order data, we will do x2dcorr regardless of the
 	   wav_sw->x2dcorr value.
 	*/
 	if (!sts->echelle) {
-	    if (status = GetNewRef (phdr, "SDCTAB", wavref))
+	    if ((status = GetNewRef (phdr, "SDCTAB", wavref)))
 		return (status);
 	}
 
 	if (wav_sw->sgeocorr == PERFORM) {
-	    if (status = GetNewRef (phdr, "SDSTFILE", wavref))
+	    if ((status = GetNewRef (phdr, "SDSTFILE", wavref)))
 		return (status);
 	}
 	if (wav_sw->fluxcorr == PERFORM) {	/* really shouldn't be set */
-	    if (status = GetNewRef (phdr, "PHOTTAB", wavref))
+	    if ((status = GetNewRef (phdr, "PHOTTAB", wavref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "APERTAB", wavref))
+	    if ((status = GetNewRef (phdr, "APERTAB", wavref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "PCTAB", wavref))
+	    if ((status = GetNewRef (phdr, "PCTAB", wavref)))
 		return (status);
 	}
 

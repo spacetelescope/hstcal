@@ -11,7 +11,7 @@
 
 static int CheckRef (char *, RefTab *);
 
-/* 
+/*
    Check if names of reference files were provided in the command line,
    and use them to supersede names provided in the header. Also check
    the existence of the reference files and get pedigree and descrip.
@@ -32,10 +32,10 @@ int GetRefCommLine (StisInfo6 *sts) {
 
 	int status;
 
-	if (status = CheckRef (sts->profilefile, &(sts->pftab)))
+	if ((status = CheckRef (sts->profilefile, &(sts->pftab))))
 	    return (status);
 
-	if (status = CheckRef (sts->fluxfile, &(sts->pxtab)))
+	if ((status = CheckRef (sts->fluxfile, &(sts->pxtab))))
 	    return (status);
 
 	return (0);
@@ -54,7 +54,7 @@ static int CheckRef (char *filename, RefTab *table) {
 	    strcpy (table->name, filename);
 
 	    /* Check the table consistency. */
-	    if (status = TabPedigree (table))
+	    if ((status = TabPedigree (table)))
 	        return (status);
 
 	    /* If table cannot be found, abort. */

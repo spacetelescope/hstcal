@@ -61,8 +61,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	   get the same_size flag, and get info about binning and offset
 	   for use by bin2d.
 	*/
-	if (status = FindBin (sts, x, &y,
-		&same_size, &high_res, &rx, &ry, &x0, &y0))
+	if ((status = FindBin (sts, x, &y,
+                               &same_size, &high_res, &rx, &ry, &x0, &y0)))
 	    return (status);
 
 	/* Apply the shutter shading image to the input image. */
@@ -71,11 +71,11 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	    /* No binning required. */
 
-	    if (status = multk2d (&y, 1. / exptime))
+	    if ((status = multk2d (&y, 1. / exptime)))
 		return (status);
-	    if (status = addk2d (&y, 1.))
+	    if ((status = addk2d (&y, 1.)))
 		return (status);
-	    if (status = div2d (x, &y)) {
+	    if ((status = div2d (x, &y))) {
 		printf ("ERROR    (doShad) size mismatch.\n");
 		return (status);
 	    }
@@ -87,16 +87,16 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	    initSingleGroup (&z);
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny);
-	    if (status = bin2d (&y, x0, y0, rx, ry, avg, &z)) {
+	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
 		printf ("ERROR    (doShad) size mismatch.\n");
 		return (status);
 	    }
 	    freeSingleGroup (&y);			/* done with y */
-	    if (status = multk2d (&z, 1. / exptime))
+	    if ((status = multk2d (&z, 1. / exptime)))
 		return (status);
-	    if (status = addk2d (&z, 1.))
+	    if ((status = addk2d (&z, 1.)))
 		return (status);
-	    if (status = div2d (x, &z))
+	    if ((status = div2d (x, &z)))
 		return (status);
 	    freeSingleGroup (&z);			/* done with z */
 	}

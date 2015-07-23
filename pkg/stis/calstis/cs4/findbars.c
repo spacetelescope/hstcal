@@ -99,7 +99,7 @@ double *shift      o: the shift, in pixels
 	ScaleBars (barlocn, barwidth, nbars, crpix, cdelt, pbarlocn, pbarwidth);
 
 	/* Normalize and invert the slit pattern. */
-	if (status = InvertSlit (v, qv, nv, inv, sts->dbg))
+	if ((status = InvertSlit (v, qv, nv, inv, sts->dbg)))
 	    return (status);
 
 	/* Find each occulting bar. */
@@ -131,7 +131,7 @@ double *shift      o: the shift, in pixels
 	    }
 	}
 
-	if (status = AvgShifts (barshift, barweight, nbars, shift))
+	if ((status = AvgShifts (barshift, barweight, nbars, shift)))
 	    return (status);
 
 	free (pbarlocn);

@@ -48,7 +48,7 @@ static int UpdateCCDTemperature(StisInfo1 *, Hdr *);
 	Get CCD housing temperature from OCCDHTAV..
 
    Ivo Busko, 2002 Apr 03:
-        Get EXPSTART if NUV-MAMA and darkcor = perform. 
+        Get EXPSTART if NUV-MAMA and darkcor = perform.
 
    Phil Hodge, 2003 Jan 20:
 	Get EXPSTART and EXPEND.
@@ -59,10 +59,10 @@ static int UpdateCCDTemperature(StisInfo1 *, Hdr *);
 
    Paul Barrett, 2003 Sep 18:
         Get CCD housing temperature from Engineering Parameter Calibration
-        (EPC) file and calculate a time-averaged temperature.  Update 
+        (EPC) file and calculate a time-averaged temperature.  Update
         header keyword with new value. If EPC data is not available, use
         value from OCCDHTAV keyword.
-        
+
    Phil Hodge, 2004 Dec 27:
 	Use detector_temp instead of temperature and ccd_temperature.
 	Delete GetTemperature (replaced by GetDetTemp).
@@ -101,36 +101,36 @@ Hdr *hdr         i: header of current extension
 	*/
 	if ((buf = calloc (STIS_FNAME+1, sizeof(char))) == NULL)
 	    return (OUT_OF_MEMORY);
-	if (status = Get_KeyS (hdr, "ASN_MTYP",
-			use_def, "unknown", buf, STIS_FNAME))
+	if ((status = Get_KeyS (hdr, "ASN_MTYP",
+                                use_def, "unknown", buf, STIS_FNAME)))
 	    return (status);
 	/* Possible values for wavecals are "AUTO-WAVECAL" and "GO-WAVECAL" */
 	if (strstr (buf, "WAVECAL") != NULL)
 	    sts->wavecal = 1;
 	free (buf);
 
-	if (status = Get_KeyD (hdr, "EXPTIME", no_default, 0., &sts->exptime))
+	if ((status = Get_KeyD (hdr, "EXPTIME", no_default, 0., &sts->exptime)))
 	    return (status);
 	if (sts->exptime < 0.) {
 	    printf ("ERROR    Exposure time is invalid:  %14.6g.\n",
 		sts->exptime);
 	    return (GENERIC_ERROR_CODE);
 	}
-	if (status = Get_KeyD (hdr, "EXPSTART", no_default, 0., &sts->expstart))
+	if ((status = Get_KeyD (hdr, "EXPSTART", no_default, 0., &sts->expstart)))
 	    return (status);
-	if (status = Get_KeyD (hdr, "EXPEND", no_default, 0., &sts->expend))
+	if ((status = Get_KeyD (hdr, "EXPEND", no_default, 0., &sts->expend)))
 	    return (status);
 
 	/* Find out which data quality bits are considered serious;
 	   default value means all bits are serious.
 	*/
-	if (status = Get_KeyI (hdr, "SDQFLAGS", use_def, 32767, &sdqflags))
+	if ((status = Get_KeyI (hdr, "SDQFLAGS", use_def, 32767, &sdqflags)))
 	    return (status);
 	sts->sdqflags = (short) sdqflags;
 
 	/* Get the pixel size (ignore corner location) from ltm & ltv. */
 	rsize = (sts->detector == CCD_DETECTOR) ? 1 : 2;
-	if (status = GetCorner (hdr, rsize, sts->bin, corner))
+	if ((status = GetCorner (hdr, rsize, sts->bin, corner)))
 	    return (status);
 
 	/* For spectroscopic data, we want the dispersion axis and the
@@ -143,24 +143,24 @@ Hdr *hdr         i: header of current extension
 
 	if (strcmp (sts->obstype, "IMAGING") == 0) {
 
-	    if (status = Get_KeyD (hdr, "CD1_1", use_def, 1., &cd11))
+	    if ((status = Get_KeyD (hdr, "CD1_1", use_def, 1., &cd11)))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CD1_2", use_def, 0., &cd12))
+	    if ((status = Get_KeyD (hdr, "CD1_2", use_def, 0., &cd12)))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CD2_1", use_def, 0., &cd21))
+	    if ((status = Get_KeyD (hdr, "CD2_1", use_def, 0., &cd21)))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CD2_2", use_def, 1., &cd22))
+	    if ((status = Get_KeyD (hdr, "CD2_2", use_def, 1., &cd22)))
 		return (status);
 	    sts->cdelt[0] = sqrt (cd11 * cd11 + cd21 * cd21);
 	    sts->cdelt[1] = sqrt (cd12 * cd12 + cd22 * cd22);
 
 	} else if (strcmp (sts->obstype, "SPECTROSCOPIC") == 0) {
 
-	    if (status = Get_KeyI (hdr, "DISPAXIS", use_def, 1, &sts->dispaxis))
+	    if ((status = Get_KeyI (hdr, "DISPAXIS", use_def, 1, &sts->dispaxis)))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CD1_1", use_def, 1., &cd11))
+	    if ((status = Get_KeyD (hdr, "CD1_1", use_def, 1., &cd11)))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CD2_2", use_def, 1., &cd22))
+	    if ((status = Get_KeyD (hdr, "CD2_2", use_def, 1., &cd22)))
 		return (status);
 	    if (sts->dispaxis == 1) {
 		if (cd11 >= 0.)
@@ -186,8 +186,8 @@ Hdr *hdr         i: header of current extension
 	if (sts->detector == NUV_MAMA_DETECTOR ||
 	    sts->detector == FUV_MAMA_DETECTOR) {
 
-	    if (status = Get_KeyD (hdr, "GLOBRATE",
-			no_default, 0., &sts->globrate))
+	    if ((status = Get_KeyD (hdr, "GLOBRATE",
+                                    no_default, 0., &sts->globrate)))
 		return (status);
 
 	    /* Get info if we need to do Doppler convolution of ref files. */
@@ -195,28 +195,28 @@ Hdr *hdr         i: header of current extension
 	    if (sts->doppcorr == PERFORM) {
 
 		/* Was Doppler correction done on-board? */
-		if (status = Get_KeyI (hdr, "DOPPON", use_def, 0, &doppon))
+		if ((status = Get_KeyI (hdr, "DOPPON", use_def, 0, &doppon)))
 		    return (status);
 
 		/* doppon could be False in timetag mode. */
 		if (!doppon) {
 		    if (strcmp (sts->obsmode, "TIME-TAG") == 0) {
-			if (status = Get_KeyD (hdr, "DOPPMAG", use_def, -1.,
-				&sts->doppmag))
+			if ((status = Get_KeyD (hdr, "DOPPMAG", use_def, -1.,
+                                                &sts->doppmag)))
 			    return (status);
 			doppon = (sts->doppmag > 0.);
 		    }
 		}
 
 		if (doppon) {
-		    if (status = Get_KeyD (hdr, "DOPPZERO", no_default, 0.,
-				&sts->doppzero))
+		    if ((status = Get_KeyD (hdr, "DOPPZERO", no_default, 0.,
+                                            &sts->doppzero)))
 			return (status);
-		    if (status = Get_KeyD (hdr, "DOPPMAG", no_default, 0.,
-				&sts->doppmag))
+		    if ((status = Get_KeyD (hdr, "DOPPMAG", no_default, 0.,
+                                            &sts->doppmag)))
 			return (status);
-		    if (status = Get_KeyD (hdr, "ORBITPER", no_default, 0.,
-				&sts->orbitper))
+		    if ((status = Get_KeyD (hdr, "ORBITPER", no_default, 0.,
+                                            &sts->orbitper)))
 			return (status);
 		} else {
 		    /* Silently reset the switch. */
@@ -239,8 +239,8 @@ Hdr *hdr         i: header of current extension
 				    &occdhtav)) == 0) && (occdhtav >= 0.)) {
 		char expname[81], epcname[81];
 		expname[0] = epcname[0] = '\0';
-		if (status = Get_KeyS(hdr, "EXPNAME", no_default, "",
-				      expname, 80))
+		if ((status = Get_KeyS(hdr, "EXPNAME", no_default, "",
+                                       expname, 80)))
 		    return (status);
 		if (sts->crcorr != COMPLETE) {
 		    strncpy(epcname, expname, 8); epcname[8] = '\0';
@@ -250,7 +250,7 @@ Hdr *hdr         i: header of current extension
 		    if (status && status != OPEN_FAILED)
 			return (status);
 		}
-		if (status = UpdateCCDTemperature(sts, hdr))
+		if ((status = UpdateCCDTemperature(sts, hdr)))
 		    return (status);
 	    }
         }
@@ -269,7 +269,7 @@ Hdr *hdr         i: header of current extension
 	   (This isn't really a CCD-specific keyword, but it does only affect
 	   CCD data in the context of calstis1.)
 	*/
-	if (status = Get_KeyI (hdr, "NCOMBINE", use_def, 1, &sts->ncombine))
+	if ((status = Get_KeyI (hdr, "NCOMBINE", use_def, 1, &sts->ncombine)))
 	    return (status);
 
 	if (sts->ncombine < 1) {
@@ -291,7 +291,7 @@ Hdr *hdr         i: header of current extension
 */
 
 int UpdateCCDTemperature(StisInfo1 *sts, Hdr *hdr) {
-    
+
     /* arguments:
        StisInfo1 *sts  io: calibration switches and info
        Hdr *hdr i: header of current extension */

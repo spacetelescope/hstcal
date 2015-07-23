@@ -215,7 +215,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	}
 
 	/* Get the linear transformation between reference and input image. */
-	if (status = GetLT0 (&x->sci.hdr, ri_m, ri_v))	/* zero indexed LTV */
+	if ((status = GetLT0 (&x->sci.hdr, ri_m, ri_v))) /* zero indexed LTV */
 	    return (status);
 
 	/* Flag regions beyond the bounderies of the aperture, for CCD data. */
@@ -304,9 +304,9 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	    */
 	    nds = 2 * (sts->doppmag + 1) + 21;	/* reassigned by makeDopp */
 	    ds = (float *) calloc (nds, sizeof (float));
-	    if (status = MakeDopp (sts->doppzero, sts->doppmag, sts->orbitper,
-			sts->expstart, sts->exptime, sts->dispsign,
-			ds, &nds, &d0))
+	    if ((status = MakeDopp (sts->doppzero, sts->doppmag, sts->orbitper,
+                                    sts->expstart, sts->exptime, sts->dispsign,
+                                    ds, &nds, &d0)))
 		return (status);
 	    /* Find the range of non-zero elements in ds. */
 	    kmin = nds - 1;		/* initial values */
@@ -329,7 +329,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	}
 
 	/* Open the data quality initialization table, find columns, etc. */
-	if (status = OpenBpixTab (sts->bpix.name, &tabinfo))
+	if ((status = OpenBpixTab (sts->bpix.name, &tabinfo)))
 	    return (status);
 
 	/* Size of scratch image */
@@ -362,7 +362,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadBpixTab (&tabinfo, row, &tabrow)) {
+	    if ((status = ReadBpixTab (&tabinfo, row, &tabrow))) {
 		printf ("ERROR    Error reading BPIXTAB.\n");
 		return (status);
 	    }
@@ -392,7 +392,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	    }
 	}
 
-	if (status = CloseBpixTab (&tabinfo))	/* done with the table */
+	if ((status = CloseBpixTab (&tabinfo)))	/* done with the table */
 	    return (status);
 
 	if (!in_place) {
@@ -609,7 +609,7 @@ TblRow *tabrow       i: data quality info read from one row
 /* This routine assigns data quality values as specified in one row of
    the DQI table, for the case where the data quality array is binned
    in MAMA high-res pixels while the tabular values are low-res pixels.
-   The range of pixels to be flagged may be extended due to the Doppler 
+   The range of pixels to be flagged may be extended due to the Doppler
    shift.  The current value is ORed with any previous value.
 */
 

@@ -91,8 +91,8 @@ SingleGroup *out           o: output data
 		oy = (double) j;
 
 		/* Find the point [ix,iy] corresponding to [ox,oy]. */
-		if (status = GeoOnePoint (sts, ox, oy, dist,
-			ssgx, ssgy, &ix, &iy))
+		if ((status = GeoOnePoint (sts, ox, oy, dist,
+                                           ssgx, ssgy, &ix, &iy)))
 		    return (status);
 
 		/* interpolate */
@@ -108,12 +108,12 @@ SingleGroup *out           o: output data
 	/* Apply the mapping to CRPIXi, and update in output.
 	   (total_offset is currently zero)
 	*/
-	if (status = InverseMap (sts,
+	if ((status = InverseMap (sts,
 		sts->crpix[0] + sts->total_offset[0],
 		sts->crpix[1] + sts->total_offset[1],
-		dist, ssgx, ssgy, &crpix[0], &crpix[1]))
+                dist, ssgx, ssgy, &crpix[0], &crpix[1])))
 	    return (status);
-	if (status = UpdateCrpix (out, crpix))
+	if ((status = UpdateCrpix (out, crpix)))
 	    return (status);
 
 	return (0);
@@ -242,22 +242,22 @@ static int InverseMap (StisInfo7 *sts, double ix, double iy,
 	double x, y;
 
 	/* first approximation */
-	if (status = GeoOnePoint (sts, ix, iy, dist, ssgx, ssgy,
-			&tempx, &tempy))
+	if ((status = GeoOnePoint (sts, ix, iy, dist, ssgx, ssgy,
+                                   &tempx, &tempy)))
 	    return (status);
 	x = ix + (ix - tempx);
 	y = iy + (iy - tempy);
 
 	/* next iteration */
-	if (status = GeoOnePoint (sts, x, y, dist, ssgx, ssgy,
-			&tempx, &tempy))
+	if ((status = GeoOnePoint (sts, x, y, dist, ssgx, ssgy,
+                                   &tempx, &tempy)))
 	    return (status);
 	x = ix + (x - tempx);
 	y = iy + (y - tempy);
 
 	/* one more */
-	if (status = GeoOnePoint (sts, x, y, dist, ssgx, ssgy,
-			&tempx, &tempy))
+	if ((status = GeoOnePoint (sts, x, y, dist, ssgx, ssgy,
+                                   &tempx, &tempy)))
 	    return (status);
 	*ox = ix + (x - tempx);
 	*oy = iy + (y - tempy);
@@ -271,19 +271,19 @@ static int UpdateCrpix (SingleGroup *out, double crpix[]) {
 
 	/* Note:  add one to crpix to convert to one indexing. */
 
-	if (status = Put_KeyD (&out->sci.hdr, "CRPIX1", crpix[0]+1., ""))
+	if ((status = Put_KeyD (&out->sci.hdr, "CRPIX1", crpix[0]+1., "")))
 	    return (status);
-	if (status = Put_KeyD (&out->sci.hdr, "CRPIX2", crpix[1]+1., ""))
-	    return (status);
-
-	if (status = Put_KeyD (&out->err.hdr, "CRPIX1", crpix[0]+1., ""))
-	    return (status);
-	if (status = Put_KeyD (&out->err.hdr, "CRPIX2", crpix[1]+1., ""))
+	if ((status = Put_KeyD (&out->sci.hdr, "CRPIX2", crpix[1]+1., "")))
 	    return (status);
 
-	if (status = Put_KeyD (&out->dq.hdr, "CRPIX1", crpix[0]+1., ""))
+	if ((status = Put_KeyD (&out->err.hdr, "CRPIX1", crpix[0]+1., "")))
 	    return (status);
-	if (status = Put_KeyD (&out->dq.hdr, "CRPIX2", crpix[1]+1., ""))
+	if ((status = Put_KeyD (&out->err.hdr, "CRPIX2", crpix[1]+1., "")))
+	    return (status);
+
+	if ((status = Put_KeyD (&out->dq.hdr, "CRPIX1", crpix[0]+1., "")))
+	    return (status);
+	if ((status = Put_KeyD (&out->dq.hdr, "CRPIX2", crpix[1]+1., "")))
 	    return (status);
 
 	return (0);

@@ -22,24 +22,24 @@ Hdr *phdr         i: primary header
 	int no_def = 0;			/* missing keyword is fatal error */
 	int use_def = 1;		/* use default if keyword is missing */
 
-	if (status = Get_KeyS (phdr, "ROOTNAME",
-			no_def, "", sts->rootname, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "ROOTNAME",
+                                no_def, "", sts->rootname, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "OBSMODE",
-			no_def, "", sts->obsmode, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OBSMODE",
+                                no_def, "", sts->obsmode, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "APERTURE",
-			no_def, "", sts->aperture, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "APERTURE",
+                                no_def, "", sts->aperture, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "OPT_ELEM",
-			no_def, "", sts->opt_elem, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OPT_ELEM",
+                                no_def, "", sts->opt_elem, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "DETECTOR",
-			no_def, "", sts->det, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "DETECTOR",
+                                no_def, "", sts->det, STIS_CBUF)))
 	    return (status);
 
 	if (strcmp (sts->det, "NUV-MAMA") == 0)
@@ -52,12 +52,12 @@ Hdr *phdr         i: primary header
 	    sts->detector = UNKNOWN_DETECTOR;
 
 	/* Central wavelength. */
-	if (status = Get_KeyI (phdr, "CENWAVE", no_def, 0, &sts->cenwave))
+	if ((status = Get_KeyI (phdr, "CENWAVE", no_def, 0, &sts->cenwave)))
 	    return (status);
 
 	/* Find out how many extensions there are in this file. */
-	if (status = Get_KeyI (phdr, "NEXTEND", use_def, EXT_PER_GROUP,
-			&nextend))
+	if ((status = Get_KeyI (phdr, "NEXTEND", use_def, EXT_PER_GROUP,
+                                &nextend)))
 	    return (status);
 
 	/* Convert number of extensions to number of SingleGroups. */

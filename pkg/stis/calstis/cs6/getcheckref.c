@@ -31,7 +31,7 @@ int GetCheckRef (Hdr *phdr, char *keyword, RefTab *table, int *calswitch,
 	/* TabPedigree opens the table to verify that it exists, and if so,
 	   gets pedigree & descrip.
 	*/
-	if (status = TabPedigree (table))
+	if ((status = TabPedigree (table)))
 	    return (status);
 
 	if (table->exists != EXISTS_YES) {

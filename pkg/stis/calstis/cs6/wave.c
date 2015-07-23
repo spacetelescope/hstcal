@@ -39,7 +39,7 @@ RowContents rowc       io: row contents
 */
 
 	double rpix;		/* reference pixel */
-	double cenwave;		/* central wavelength */
+	/*double cenwave;*/     /* central wavelength */
 	double wl;		/* wavelength */
 	double wl_estimate;	/* estimate of wavelength */
 	double m=1.;		/* spectral order */

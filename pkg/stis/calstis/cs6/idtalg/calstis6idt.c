@@ -14,7 +14,6 @@
 # include "idtalg.h"
 
 static int AddGhost (Hdr *, float **, int, int);
-static double BLog (double);
 static void BuildTempNames (char *, char *, char *, char *);
 static int CheckIDT (Hdr *, StisInfo6 *, int *);
 static void FillArray (float **, float **, float **, int, int,
@@ -27,12 +26,15 @@ static double MedianRowsPerAngstrom (RowContents **, int);
 static int RedoX1DFile (char *, RowContents **, int);
 static double Select (unsigned long, unsigned long, double *);
 
+/* Not used */
+/*
+static double BLog (double);
 static int Debug (char *, float **, int, int);
 static int DDebug (char *, double *, int);
 static int CDebug (char *, CmplxArray *);
 static void CReport (CmplxArray *);
 static void Report (float **, int, int);
-
+*/
 
 /*
    calstis6idt -- IDT 1-D extraction with scattered light removal.
@@ -207,7 +209,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	void Float2Cmplx (float **, int, int, CmplxArray *);
 	int RebinData (SingleGroup *, SingleGroup *, RowContents **,
                        RowContents **, int, int);
-	int Splice (RowContents **, int, double, Spliced *);	
+	int Splice (RowContents **, int, double, Spliced *);
 	void StisInit6 (StisInfo6 *);
 	void Cmplx2Float (CmplxArray *, float **, int, int);
 	int CalStis6Std (char *, char *, int, int, int, int, int, int,
@@ -234,7 +236,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	/* Check whether output file already exist. */
 
-	if (status = FileExists (output))
+	if ((status = FileExists (output)))
 	    return (status);
 
 	/* Initialize. */
@@ -250,8 +252,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	/* Find out how many extensions there are in this file. */
 
-	if (status = Get_KeyI (phdr, "NEXTEND", use_def, EXT_PER_GROUP,
-                               &nextend))
+	if ((status = Get_KeyI (phdr, "NEXTEND", use_def, EXT_PER_GROUP,
+                                &nextend)))
 	    return (status);
 
 	/* Convert number of extensions to number of SingleGroups. */
@@ -274,7 +276,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	/* Get CENWAVE */
 
-	if (status = Get_KeyI (phdr, "CENWAVE", no_default, 0, &cenwave))
+	if ((status = Get_KeyI (phdr, "CENWAVE", no_default, 0, &cenwave)))
 	    return (status);
 
 	/* Check status of reference files specific of the IDT algorithm.
@@ -283,7 +285,7 @@ int bks_order;		i: backgr. smoothing polynomial order
         */
 	missing = 0;
 	sts_idt.idt = PERFORM;
-	if (status = CheckIDT (phdr, &sts_idt, &missing)) {
+	if ((status = CheckIDT (phdr, &sts_idt, &missing))) {
 	    if (status == KEYWORD_MISSING) {
 	        printf (
 "ERROR    Input file header may not have keywords specific to SC2DCORR.\n");
@@ -305,17 +307,17 @@ int bks_order;		i: backgr. smoothing polynomial order
            useful stuff, it is OK to use then here so the execution
            aborts before the time-consuming FT computation even starts.
         */
-	if (status = Get_KeyS (phdr, "OPT_ELEM", no_default, "",
-                               opt_elem, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OPT_ELEM", no_default, "",
+                                opt_elem, STIS_CBUF)))
 	    return (status);
 	strcpy (scf.opt_elem, opt_elem);
-	if (status = GetKeyInfo6 (&sts_idt, phdr))
+	if ((status = GetKeyInfo6 (&sts_idt, phdr)))
 	    return (status);
-	if (status = GetFlags6 (&sts_idt, phdr))
+	if ((status = GetFlags6 (&sts_idt, phdr)))
 	    return (status);
 	slit.allocated  = 0;
 	slit.gac_allocated  = 0;
-	if (status = GetApDes6 (&sts_idt, &slit))
+	if ((status = GetApDes6 (&sts_idt, &slit)))
 	    return (status);
 	ap_xsize = sts_idt.ap_xsize;
 	ap_ysize = sts_idt.ap_ysize;
@@ -326,7 +328,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    printf ("Read scattering functions and build kernels.\n");
 	    fflush (stdout);
 	}
-	if (status = EchScatRead (phdr, ap_xsize, ap_ysize, &scf, verbose))
+	if ((status = EchScatRead (phdr, ap_xsize, ap_ysize, &scf, verbose)))
 	    return (status);
 
 	/* Loop thru IMSETS in input file. */
@@ -368,7 +370,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        printf ("Begin extraction of 1-D data.\n");
 	        fflush (stdout);
 	    }
-	    if (status = CalStis6Std (input, temp_x1d, backcorr, dispcorr,
+	    if ((status = CalStis6Std (input, temp_x1d, backcorr, dispcorr,
                          OMIT, OMIT, sgeocorr, ctecorr, cl_a2center, maxsearch,
                          extrsize, bk1size, bk2size, bk1offset, bk2offset,
                          bktilt, bkord, sporder, xtracalg, printtime,
@@ -376,7 +378,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                          wstep, minsn, rejranges, profilefile, fluxfile, outw,
                          backval, backerr, variance, fflux, psclip, sclip,
                          lfilter, extver, pipeline, &ap_xsize, &ap_ysize, 1.0,
-                         blazeshift, bks_mode, bks_order, xoffset))
+                         blazeshift, bks_mode, bks_order, xoffset)))
 	        return (status);
 
 	    if (verbose) {
@@ -401,7 +403,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        printf ("Read 1-D data.\n");
 	        fflush (stdout);
 	    }
-	    if (status = OpenX1DTable (temp_x1d, 0, &tabptr))
+	    if ((status = OpenX1DTable (temp_x1d, 0, &tabptr)))
 	        return (status);
 
 	    /* Alloc memory for storing table contents. */
@@ -411,7 +413,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	    /* Get data from table and store in RowContents array. */
 
-	    if (status = GetX1DTable (&tabptr, x1d)) {
+	    if ((status = GetX1DTable (&tabptr, x1d))) {
 	        FreeX1DTable (x1d, tabptr.nrows);
 	        c_tbtclo (tabptr.tp);
 	        remove (temp_x1d);
@@ -440,10 +442,10 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	    /* Get image sampling and exposure time. */
 
-            if (status = GetLT0 (&in.sci.hdr, ltm, ltv))
+            if ((status = GetLT0 (&in.sci.hdr, ltm, ltv)))
                 return (status);
-	    if (status = Get_KeyD (&in.sci.hdr, "EXPTIME", no_default, 0.,
-                                   &exptime))
+	    if ((status = Get_KeyD (&in.sci.hdr, "EXPTIME", no_default, 0.,
+                                    &exptime)))
                 return (status);
 
 	    /* Rebin image and x1d data to handle hires data. */
@@ -472,13 +474,13 @@ int bks_order;		i: backgr. smoothing polynomial order
                doesn't get confused...
             */
 	    if (ltm[0] > 1.0) {
-	        if (status = Put_KeyD (&(win.sci.hdr), "LTV1", 0.0, ""))
+	        if ((status = Put_KeyD (&(win.sci.hdr), "LTV1", 0.0, "")))
 	            return (status);
-	        if (status = Put_KeyD (&(win.sci.hdr), "LTV2", 0.0, ""))
+	        if ((status = Put_KeyD (&(win.sci.hdr), "LTV2", 0.0, "")))
 	            return (status);
-	        if (status = Put_KeyD (&(win.sci.hdr), "LTM1_1", 1.0, ""))
+	        if ((status = Put_KeyD (&(win.sci.hdr), "LTM1_1", 1.0, "")))
 	            return (status);
-	        if (status = Put_KeyD (&(win.sci.hdr), "LTM2_2", 1.0, ""))
+	        if ((status = Put_KeyD (&(win.sci.hdr), "LTM2_2", 1.0, "")))
 	            return (status);
 	    }
 
@@ -693,7 +695,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    }
 
 	    /* Splice orders together. */
-	    if (status = Splice (wx1d, tabptr.nrows, exptime, &merge))
+	    if ((status = Splice (wx1d, tabptr.nrows, exptime, &merge)))
 	        return (status);
 
 	    /* Apply threshold to counts or c/sec ? */
@@ -1025,7 +1027,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	        Float2Cmplx (im_mod, nx, ny, &zhold);
 
-	        if (status = FFTConvolve2 (&zhold, &(scf.ft1)))
+	        if ((status = FFTConvolve2 (&zhold, &(scf.ft1))))
 	            return (status);
 
 	        Cmplx2Float (&zhold, im_mod1, nx, ny);
@@ -1036,7 +1038,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                fflush (stdout);
 	            }
 	            Float2Cmplx (im_mod, nx, ny, &zhold);
-	            if (status = FFTConvolve2 (&zhold, &(scf.ft2)))
+	            if ((status = FFTConvolve2 (&zhold, &(scf.ft2))))
 	                return (status);
 	            Cmplx2Float (&zhold, im_mod2, nx, ny);
 	        }
@@ -1046,7 +1048,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                fflush (stdout);
 	            }
 	            Float2Cmplx (im_mod, nx, ny, &zhold);
-	            if (status = FFTConvolve2 (&zhold, &(scf.ft3)))
+	            if ((status = FFTConvolve2 (&zhold, &(scf.ft3))))
 	                return (status);
 	            im_mod3 = Alloc2DArrayF (win.sci.data.nx, win.sci.data.ny);
 	            if (im_mod3 == NULL)
@@ -1069,7 +1071,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            if (o_mod1 == NULL)
 	                return (OUT_OF_MEMORY);
 	            Float2Cmplx (o_mod, nx, ny, &zhold);
-	            if (status = FFTConvolve2 (&zhold, &(scf.fto1)))
+	            if ((status = FFTConvolve2 (&zhold, &(scf.fto1))))
 	                return (status);
 	            Cmplx2Float (&zhold, o_mod1, nx, ny);
 
@@ -1083,7 +1085,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                    fflush (stdout);
 	                }
 	                Float2Cmplx (o_mod, nx, ny, &zhold);
-	                if (status = FFTConvolve2 (&zhold, &(scf.fto2)))
+	                if ((status = FFTConvolve2 (&zhold, &(scf.fto2))))
 	                    return (status);
 	                Cmplx2Float (&zhold, o_mod2, nx, ny);
 	            }
@@ -1097,7 +1099,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                    fflush (stdout);
 	                }
 	                Float2Cmplx (o_mod, nx, ny, &zhold);
-	                if (status = FFTConvolve2 (&zhold, &(scf.fto3)))
+	                if ((status = FFTConvolve2 (&zhold, &(scf.fto3))))
 	                    return (status);
 	                Cmplx2Float (&zhold, o_mod3, nx, ny);
 	            }
@@ -1178,8 +1180,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	        /* Add ghosts due to reflections from window above NUV MAMA. */
 
-	        if (status = AddGhost (phdr, im_mod, win.sci.data.nx,
-                                       win.sci.data.ny))
+	        if ((status = AddGhost (phdr, im_mod, win.sci.data.nx,
+                                        win.sci.data.ny)))
 	            return (status);
 
 	        /* If final iteration, clean up memory and leave main loop. */
@@ -1234,7 +1236,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            printf ("Begin extraction of 1-D data.\n");
 	            fflush (stdout);
 	        }
-	        if (status = CalStis6Std (temp_ima, temp_x1d, backcorr,
+	        if ((status = CalStis6Std (temp_ima, temp_x1d, backcorr,
                              dispcorr, OMIT, OMIT, sgeocorr, ctecorr,
                              cl_a2center, maxsearch, extrsize, bk1size,
                              bk2size, bk1offset, bk2offset, bktilt, bkord,
@@ -1243,7 +1245,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                              minsn, rejranges, profilefile, fluxfile, outw,
                              backval, backerr, variance, fflux, psclip, sclip,
                              lfilter, 1, pipeline, &dummy, &dummy, 1.0,
-                             blazeshift, bks_mode, bks_order, xoffset))
+                             blazeshift, bks_mode, bks_order, xoffset)))
 	            return (status);
 	        remove (temp_ima);
 
@@ -1258,7 +1260,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            printf ("Read 1-D data.\n");
 	            fflush (stdout);
 	        }
-	        if (status = OpenX1DTable (temp_x1d, 0, &tabptr))
+	        if ((status = OpenX1DTable (temp_x1d, 0, &tabptr)))
 	            return (status);
 
 	        /* Alloc memory for storing table contents. */
@@ -1268,7 +1270,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	        /* Get data from table and store in RowContents array. */
 
-	        if (status = GetX1DTable (&tabptr, wx1d2)) {
+	        if ((status = GetX1DTable (&tabptr, wx1d2))) {
 	            FreeX1DTable (wx1d2, tabptr.nrows);
 	            c_tbtclo (tabptr.tp);
 	            remove (temp_x1d);
@@ -1331,7 +1333,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	        /* Splice orders together and transform to counts. */
 
-	        if (status = Splice (wx1d2, tabptr.nrows, exptime, &merge))
+	        if ((status = Splice (wx1d2, tabptr.nrows, exptime, &merge)))
 	            return (status);
 
 	        /* Free memory in current iteration. */
@@ -1449,7 +1451,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	/* Reset the verbosity level. */
 
-	if (status = CalStis6Std (temp_ima1, output, backcorr, dispcorr,
+	if ((status = CalStis6Std (temp_ima1, output, backcorr, dispcorr,
                      fluxcorr, helcorr, sgeocorr, ctecorr, cl_a2center,
                      maxsearch, extrsize, bk1size, bk2size, bk1offset,
                      bk2offset, bktilt, bkord, sporder, xtracalg, printtime,
@@ -1457,7 +1459,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                      do_profile, pstep, wstep, minsn, rejranges, profilefile,
                      fluxfile, outw, backval, backerr, variance, fflux,
                      psclip, sclip, lfilter, 0, pipeline, &dummy, &dummy, 1.0,
-                     blazeshift, bks_mode, bks_order, xoffset))
+                     blazeshift, bks_mode, bks_order, xoffset)))
 	    return (status);
 
 	if (idtfile[0] != '\0') {
@@ -1489,8 +1491,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	    sprintf (temp_out, "%s[SCI,%d]", output, extver);
 
-	    if (status = RedoX1DFile (temp_out,
-				gx1d[extver0], gx1d_nrows[extver0])) {
+	    if ((status = RedoX1DFile (temp_out,
+                                       gx1d[extver0], gx1d_nrows[extver0]))) {
 	        return (status);
 	    }
 
@@ -1511,7 +1513,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	if (hstio_err())
 	    return (OPEN_FAILED);
 	Put_KeyS (&tphdr, "sc2dcorr", "COMPLETE", "");
-	if (status = History6 (&sts_idt, &tphdr, 1))
+	if ((status = History6 (&sts_idt, &tphdr, 1)))
 	    return (status);
 	putHeader (tdesc);
 	if (hstio_err())
@@ -1858,7 +1860,7 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	float **Alloc2DArrayF (int, int);
 	void Free2DArrayF (float **, int);
 
-	if (status = Get_KeyS (phdr, "OPT_ELEM", 0, "", opt_elem, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OPT_ELEM", 0, "", opt_elem, STIS_CBUF)))
 	    return (status);
 	if (!(streq_ic (opt_elem, "E230M") || streq_ic (opt_elem, "E230H")))
 	    return (STIS_OK);
@@ -1931,6 +1933,8 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 }
 
 
+/* Not used */
+/*
 static double BLog (double arg) {
 
 	double hold;
@@ -1938,6 +1942,7 @@ static double BLog (double arg) {
 	hold = (arg > 1.E-5) ? arg : 1.E-5;
 	return (log (arg));
 }
+*/
 
 
 /*
@@ -1958,7 +1963,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 	int OpenX1DTable (char *, int, TblDesc *);
 
 	tabptr.tp = NULL;
-	if (status = OpenX1DTable (output, 1, &tabptr))
+	if ((status = OpenX1DTable (output, 1, &tabptr)))
 	    return (status);
 
 	/* Get the required columns. */
@@ -2048,26 +2053,26 @@ int *missing    io: incremented if the file is missing
 	int status;
  	int GetCheckRef (Hdr *, char *, RefTab *, int *, int *, int);
 
-	if (status = GetCheckRef (phdr, "ECHSCTAB", &sts->echsctab,
-                                  &sts->idt, missing, FATAL))
+	if ((status = GetCheckRef (phdr, "ECHSCTAB", &sts->echsctab,
+                                   &sts->idt, missing, FATAL)))
 	    return (status);
-	if (status = GetCheckRef (phdr, "EXSTAB", &sts->exstab,
-                                  &sts->idt, missing, FATAL))
+	if ((status = GetCheckRef (phdr, "EXSTAB", &sts->exstab,
+                                   &sts->idt, missing, FATAL)))
 	    return (status);
-	if (status = GetCheckRef (phdr, "CDSTAB", &sts->cdstab,
-                                  &sts->idt, missing, FATAL))
+	if ((status = GetCheckRef (phdr, "CDSTAB", &sts->cdstab,
+                                   &sts->idt, missing, FATAL)))
 	    return (status);
-	if (status = GetCheckRef (phdr, "RIPTAB", &sts->riptab,
-                                  &sts->idt, missing, FATAL))
+	if ((status = GetCheckRef (phdr, "RIPTAB", &sts->riptab,
+                                   &sts->idt, missing, FATAL)))
 	    return (status);
-	if (status = GetCheckRef (phdr, "SRWTAB", &sts->srwtab,
-                                  &sts->idt, missing, FATAL))
+	if ((status = GetCheckRef (phdr, "SRWTAB", &sts->srwtab,
+                                   &sts->idt, missing, FATAL)))
 	    return (status);
-	if (status = GetCheckRef (phdr, "HALOTAB", &sts->halotab,
-                                  &sts->idt, missing, FATAL))
+	if ((status = GetCheckRef (phdr, "HALOTAB", &sts->halotab,
+                                   &sts->idt, missing, FATAL)))
 	    return (status);
-	if (status = GetCheckRef (phdr, "TELTAB", &sts->psftab,
-                                  &sts->idt, missing, FATAL))
+	if ((status = GetCheckRef (phdr, "TELTAB", &sts->psftab,
+                                   &sts->idt, missing, FATAL)))
 	    return (status);
 
 	if (sts->idt != PERFORM) {
@@ -2127,9 +2132,9 @@ static void BuildTempNames (char *basename, char *out1, char *out2, char *out3) 
 
 /* These functions dump arrays (float and complex) as IMSET images and
    write at stdout. They were used for debugging during development and
-   are kept in here just in case.
+   are kept in here just in case. (Not used)
 */
-
+/*
 static int Debug (char *name, float **array, int nx, int ny) {
 
 	SingleGroup out;
@@ -2154,8 +2159,6 @@ static int Debug (char *name, float **array, int nx, int ny) {
 	return (STIS_OK);
 }
 
-
-
 static int DDebug (char *name, double *array, int nx) {
 
 	SingleGroup out;
@@ -2177,8 +2180,6 @@ static int DDebug (char *name, double *array, int nx) {
 
 	return (STIS_OK);
 }
-
-
 
 static int CDebug (char *name, CmplxArray *z) {
 
@@ -2243,3 +2244,4 @@ static void Report (float **a, int nx, int ny) {
 	printf ("aver = %g  n = %d\n", sum, nx * ny);
 	fflush (stdout);
 }
+*/

@@ -63,14 +63,14 @@ int *x0, *y0      o: location of start of subimage in ref image
 
 	/* Get bin sizes of science and reference images from headers. */
 	rsize = (sts->detector == CCD_DETECTOR) ? 1 : 2;
-	if (status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+	if ((status = GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner)))
 	    return (status);
-	if (status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
+	if ((status = GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner)))
 	    return (status);
 
 	/* High-res is really only relevant for the MAMA detectors. */
-	*high_res = sts->dispaxis == 1 && ref_bin[0] == 1 ||
-		    sts->dispaxis == 2 && ref_bin[1] == 1;
+	*high_res = (sts->dispaxis == 1 && ref_bin[0] == 1) ||
+                    (sts->dispaxis == 2 && ref_bin[1] == 1);
 
 	if (sci_corner[0] == ref_corner[0] &&
 	    sci_corner[1] == ref_corner[1] &&

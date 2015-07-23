@@ -101,13 +101,13 @@ LampInfo *lamp    o: spectrum of calibration lamp
 	int foundit;		/* true if lamp name found in table */
 
 	/* Open the LAMPTAB table. */
-	if (status = OpenLampTab (sts->lamptab.name, &tabinfo))
+	if ((status = OpenLampTab (sts->lamptab.name, &tabinfo)))
 	    return (status);
 
 	foundit = 0;
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadLampTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadLampTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.lampset, sts->lampset) &&
@@ -117,8 +117,8 @@ LampInfo *lamp    o: spectrum of calibration lamp
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->lamptab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->lamptab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->lamptab.goodPedigree == DUMMY_PEDIGREE) {
 		    sts->wavecorr = DUMMY;
@@ -128,14 +128,14 @@ LampInfo *lamp    o: spectrum of calibration lamp
 		}
 
 		/* Read wavelengths and throughputs into lamp structure. */
-		if (status = ReadLampArray (&tabinfo, row, lamp))
+		if ((status = ReadLampArray (&tabinfo, row, lamp)))
 		    return (status);
 
 		break;
 	    }
 	}
 
-	if (status = CloseLampTab (&tabinfo))
+	if ((status = CloseLampTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {

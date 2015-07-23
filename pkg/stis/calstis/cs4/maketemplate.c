@@ -79,7 +79,7 @@ int writedebug      i: if true, a debug image could be written
 	trace_o = trace;
 	while (trace_o != NULL) {
 
-	    if (status = AddTrace (sts, lamp, disp, trace_o, slitwidth, clamp))
+	    if ((status = AddTrace (sts, lamp, disp, trace_o, slitwidth, clamp)))
 		return (status);
 
 	    trace_o = trace_o->next;
@@ -135,13 +135,13 @@ CmplxArray *clamp   o: 2-D complex array, values will be assigned
 	/* Integrate the template lamp spectrum over the pixels of
 	   the input image.
 	*/
-	if (status = ESumSpec (lamp->wl, lamp->flux, lamp->nelem,
+	if ((status = ESumSpec (lamp->wl, lamp->flux, lamp->nelem,
 		disp, trace->sporder,
-		sts->ltm[0], sts->ltv[0], sts->cenwave, tspec, sts->nx))
+                sts->ltm[0], sts->ltv[0], sts->cenwave, tspec, sts->nx)))
 	    return (status);
 
 	/* Convolve the integrated lamp spectrum with the slit width. */
-	if (status = ConvSlit (slitwidth[0], tspec, sts->nx))
+	if ((status = ConvSlit (slitwidth[0], tspec, sts->nx)))
 	    return (status);
 
 	/* Add the convolved, integrated template spectrum to the

@@ -72,10 +72,10 @@ static int ClosePhotTab (TblInfo *);
 		BSHIFT_OFFSET: zero point offset (double)
 
    The table is read to find the row for which the values of OPT_ELEM
-   and CENWAVE are the same as in the input image header. SPORDER must 
-   match the current spectral order being processed as well. For that 
-   row, the number of elements NELEM is read, memory is allocated in the 
-   phot structure for the arrays of wavelength and throughput, and those 
+   and CENWAVE are the same as in the input image header. SPORDER must
+   match the current spectral order being processed as well. For that
+   row, the number of elements NELEM is read, memory is allocated in the
+   phot structure for the arrays of wavelength and throughput, and those
    arrays are read. If existent, values associated with the blaze shift
    correction are then read.
 
@@ -122,7 +122,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	strcpy (phot->bunit, "erg /s /cm**2 /angstrom /arcsec**2");
 
 	/* Open the photometry table. */
-	if (status = OpenPhotTab (sts, &tabinfo, phot, warn))
+	if ((status = OpenPhotTab (sts, &tabinfo, phot, warn)))
 	    return (status);
 
 	/* Check each row for a match with keyword values, then read
@@ -131,7 +131,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadPhotTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadPhotTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (!SameInt (tabrow.cenwave, sts->cenwave) ||
@@ -143,8 +143,8 @@ int *warn	io: if set to zero, turn off blaze shift warning
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->phottab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)) {
+		if ((status = RowPedigree (&sts->phottab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))) {
 		    return (status);
 	        }
 
@@ -155,14 +155,14 @@ int *warn	io: if set to zero, turn off blaze shift warning
 		}
 
 		/* Read wavelengths and throughputs into phot. */
-		if (status = ReadPhotData (&tabinfo, row, phot))
+		if ((status = ReadPhotData (&tabinfo, row, phot)))
 		    return (status);
 
 		break;
 	    }
 	}
 
-	if (status = ClosePhotTab (&tabinfo))
+	if ((status = ClosePhotTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {
@@ -182,7 +182,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 /* This routine opens the throughput table, finds the columns that we
    need, and gets the total number of rows in the table.
-   
+
    It is not an error if the columns associated with the blaze function
    are not found.
 */
@@ -239,7 +239,7 @@ static int OpenPhotTab (StisInfo6 *sts, TblInfo *tabinfo, PhotInfo *phot,
 
                 phot->blazecorr = OMIT;
 
-                if (*warn) 
+                if (*warn)
                     printf (
 "Warning  PHOTTAB does not contain blaze shift information.\n");
 

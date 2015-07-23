@@ -212,7 +212,7 @@ int verbose      i: true --> print info in individual csN
 	   default name will be gotten from the science file header;
 	   the wavecal name will be printed.
 	*/
-	if (status = StisInit (&sts, &sci_sw, &wav_sw, &sciref, &wavref))
+	if ((status = StisInit (&sts, &sci_sw, &wav_sw, &sciref, &wavref)))
 	    return (status);
 
 	/* Copy switch values for calstis1 argument list. */
@@ -244,15 +244,15 @@ int verbose      i: true --> print info in individual csN
 	    /* First do atodcorr, dqicorr, and blevcorr (or copy the name). */
 	    if (sts.sci_basic_2d_a == PERFORM) {
 		/* This is calstis1a; note that we use cs1a_sci_sw. */
-		if (status = CalStis1 (sts.rawfile, sts.blv_tmp, "",
-			&cs1a_sci_sw, &sciref, printtime, verbose))
+		if ((status = CalStis1 (sts.rawfile, sts.blv_tmp, "",
+                         &cs1a_sci_sw, &sciref, printtime, verbose)))
 		    return (status);
 		ResetCs1Sw (&cs1a_sci_sw, &cs1_sci_sw);	/* reset switches */
 	    } else {
 		/* Copy the input file to blv_tmp.  We need to do this
 		   because calstis2 can modify the DQ flags in its input file.
 		*/
-		if (status = CopyFFile (sts.rawfile, sts.blv_tmp))
+		if ((status = CopyFFile (sts.rawfile, sts.blv_tmp)))
 		    return (status);
 	    }
 
@@ -265,21 +265,21 @@ int verbose      i: true --> print info in individual csN
 	    }
 
 	    /* Reject cosmic rays. */
-	    if (status = CalStis2_0 (sts.blv_tmp, sts.crj_tmp,
-				printtime, verbose))
+	    if ((status = CalStis2_0 (sts.blv_tmp, sts.crj_tmp,
+                                      printtime, verbose)))
 		return (status);
 
 	    if (sts.sci_basic_2d == PERFORM) {
 
 		/* Flat field the summed, cosmic ray rejected image. */
-		if (status = CalStis1 (sts.crj_tmp, sts.crjfile, "",
-			&cs1_sci_sw, &sciref, printtime, verbose))
+		if ((status = CalStis1 (sts.crj_tmp, sts.crjfile, "",
+                         &cs1_sci_sw, &sciref, printtime, verbose)))
 		    return (status);
 
 		if (sts.sci_expscorr == PERFORM) {
 		    /* Flat field the cosmic ray flagged but non-summed data. */
-		    if (status = CalStis1 (sts.blv_tmp, sts.fltfile, "",
-				&cs1_sci_sw, &sciref, printtime, verbose))
+		    if ((status = CalStis1 (sts.blv_tmp, sts.fltfile, "",
+                             &cs1_sci_sw, &sciref, printtime, verbose)))
 			return (status);
 		} else {
 		    fltexists = 0;	/* fltfile not created */
@@ -299,8 +299,8 @@ int verbose      i: true --> print info in individual csN
 
 	    /* Basic 2-D processing (flat field, etc). */
 
-	    if (status = CalStis1 (sts.rawfile, sts.fltfile, "",
-			&cs1_sci_sw, &sciref, printtime, verbose))
+	    if ((status = CalStis1 (sts.rawfile, sts.fltfile, "",
+                     &cs1_sci_sw, &sciref, printtime, verbose)))
 		return (status);
 
 	} else {
@@ -317,13 +317,13 @@ int verbose      i: true --> print info in individual csN
 		/* wavfile --> fwv_tmp */
 
 		if (sts.wav_basic_2d == PERFORM) {
-		    if (status = CalStis1 (sts.wavfile, sts.fwv_tmp, "",
-				&cs1_wav_sw, &wavref, printtime, verbose))
+		    if ((status = CalStis1 (sts.wavfile, sts.fwv_tmp, "",
+                            &cs1_wav_sw, &wavref, printtime, verbose)))
 			return (status);
 		} else {
 		    /* Copy the wavecal (or just its name) to fwv_tmp. */
 		    if (sts.echelle || sts.prism) {
-			if (status = CopyFFile (sts.wavfile, sts.fwv_tmp))
+			if ((status = CopyFFile (sts.wavfile, sts.fwv_tmp)))
 			    return (status);
 		    } else {
 			strcpy (sts.fwv_tmp, sts.wavfile);
@@ -344,8 +344,8 @@ int verbose      i: true --> print info in individual csN
 				sts.cwv_tmp, printtime, verbose);
 
 		    if (status == 0) {
-			if (status = CalStis7_0 (sts.cwv_tmp, sts.w2d_tmp,
-				&wav_sw, &wavref, printtime, verbose))
+			if ((status = CalStis7_0 (sts.cwv_tmp, sts.w2d_tmp,
+                                  &wav_sw, &wavref, printtime, verbose)))
 			    return (status);
 			if (!save_tmp)
 			    remove (sts.cwv_tmp);
@@ -354,8 +354,8 @@ int verbose      i: true --> print info in individual csN
 				the wavecal itself.
 			*/
 			status = 0;
-			if (status = CalStis7_0 (sts.fwv_tmp, sts.w2d_tmp,
-				&wav_sw, &wavref, printtime, verbose))
+			if ((status = CalStis7_0 (sts.fwv_tmp, sts.w2d_tmp,
+                                  &wav_sw, &wavref, printtime, verbose)))
 			    return (status);
 		    } else {
 			return (status);
@@ -363,8 +363,8 @@ int verbose      i: true --> print info in individual csN
 		} else {
 		    /* Rectify the wavecal, except for echelle or prism. */
 		    if (!sts.echelle && !sts.prism) {
-			if (status = CalStis7_0 (sts.fwv_tmp, sts.w2d_tmp,
-				&wav_sw, &wavref, printtime, verbose))
+			if ((status = CalStis7_0 (sts.fwv_tmp, sts.w2d_tmp,
+                                &wav_sw, &wavref, printtime, verbose)))
 			    return (status);
 		    }
 		}
@@ -377,18 +377,18 @@ int verbose      i: true --> print info in individual csN
 		else
 		    wavecal_file = sts.w2d_tmp;
 
-		if (status = CalStis4_0 (wavecal_file, &sciref,
-				printtime, verbose))
+		if ((status = CalStis4_0 (wavecal_file, &sciref,
+                                          printtime, verbose)))
 		    return (status);
 		if (sts.sci_crcorr == PERFORM) {
 		    /* Update header of crjfile. */
-		    if (status = CalStis12_0 (wavecal_file, sts.crjfile,
-				printtime, verbose))
+		    if ((status = CalStis12_0 (wavecal_file, sts.crjfile,
+                                               printtime, verbose)))
 			return (status);
 		}
 		if (fltexists) {
-		    if (status = CalStis12_0 (wavecal_file, sts.fltfile,
-				printtime, verbose))
+		    if ((status = CalStis12_0 (wavecal_file, sts.fltfile,
+                                               printtime, verbose)))
 			return (status);
 		}
 		if (!save_fwv)
@@ -401,12 +401,12 @@ int verbose      i: true --> print info in individual csN
 
 	    if (sts.sci_2d_rect == PERFORM) {
 		if (sts.sci_crcorr == PERFORM) {
-		    if (status = CalStis7_0 (sts.crjfile, sts.sx2file,
-				&sci_sw, &sciref, printtime, verbose))
+		    if ((status = CalStis7_0 (sts.crjfile, sts.sx2file,
+                              &sci_sw, &sciref, printtime, verbose)))
 			return (status);
 		} else {
-		    if (status = CalStis7_0 (sts.fltfile, sts.x2dfile,
-				&sci_sw, &sciref, printtime, verbose))
+		    if ((status = CalStis7_0 (sts.fltfile, sts.x2dfile,
+                              &sci_sw, &sciref, printtime, verbose)))
 			return (status);
 		    if (sts.sci_rptcorr == PERFORM) {
 			status = CalStis8 (sts.x2dfile, sts.sx2file,
@@ -427,18 +427,18 @@ int verbose      i: true --> print info in individual csN
 	    if (sts.sci_1d_extract == PERFORM) {
 
 		if (sts.sci_crcorr == PERFORM) {
-		    if (status = CalStis6_0 (sts.crjfile, sts.sx1file,
-				&sci_sw, printtime, verbose))
+		    if ((status = CalStis6_0 (sts.crjfile, sts.sx1file,
+                                              &sci_sw, printtime, verbose)))
 			return (status);
 		} else {
-		    if (status = CalStis6_0 (sts.fltfile, sts.x1dfile,
-				&sci_sw, printtime, verbose))
+		    if ((status = CalStis6_0 (sts.fltfile, sts.x1dfile,
+                                              &sci_sw, printtime, verbose)))
 			return (status);
 /*
 ### calstis13 is not written yet ...
 		    if (sts.sci_rptcorr == PERFORM) {
-			if (status = CalStis13 (sts.x1dfile, sts.sx1file,
-					printtime, verbose))
+			if ((status = CalStis13 (sts.x1dfile, sts.sx1file,
+					printtime, verbose)))
 			    return (status);
 		    }
 */
@@ -449,12 +449,12 @@ int verbose      i: true --> print info in individual csN
 
 	    /* 2-D rectification for image. */
 	    if (sts.sci_crcorr == PERFORM) {
-		if (status = CalStis7_0 (sts.crjfile, sts.sx2file,
-			&sci_sw, &sciref, printtime, verbose))
+		if ((status = CalStis7_0 (sts.crjfile, sts.sx2file,
+                        &sci_sw, &sciref, printtime, verbose)))
 		    return (status);
 	    } else {
-		if (status = CalStis7_0 (sts.fltfile, sts.x2dfile,
-			&sci_sw, &sciref, printtime, verbose))
+		if ((status = CalStis7_0 (sts.fltfile, sts.x2dfile,
+                        &sci_sw, &sciref, printtime, verbose)))
 		    return (status);
 		if (sts.sci_rptcorr == PERFORM) {
 		    status = CalStis8 (sts.x2dfile, sts.sx2file,
@@ -769,8 +769,8 @@ static int CalStis4_0 (char *input, RefFileInfo *refnames,
 	char dbgfile[] = "";		/* (not used by pipeline) */
 	double slit_angle = 0.;		/* (not used by pipeline) */
 
-	if (status = CalStis4 (input, dbgfile,
-			refnames, printtime, verbose, slit_angle))
+	if ((status = CalStis4 (input, dbgfile,
+                                refnames, printtime, verbose, slit_angle)))
 	    return (status);
 
 	return (0);
@@ -819,7 +819,7 @@ static int CalStis6_0 (char *input, char *output,
 	double xoffset = 0.;	/* offset for slitless data */
 	int pipeline = 1;	/* calstis6 is being run from the pipeline */
 
-	if (status = CalStis6 (input, output,
+	if ((status = CalStis6 (input, output,
 		sci_sw->backcorr, sci_sw->dispcorr, sci_sw->fluxcorr,
 		sci_sw->helcorr, sci_sw->sgeocorr, sci_sw->ctecorr,
                 sci_sw->sc2dcorr,
@@ -836,7 +836,7 @@ static int CalStis6_0 (char *input, char *output,
 		lfilter, idtfile,
 		subscale, blazeshift,
 		bks_mode, bks_order, xoffset,
-		pipeline))
+                pipeline)))
 	    return (status);
 
 	return (0);
@@ -852,11 +852,11 @@ static int CalStis7_0 (char *input, char *output,
 	int center_target = 0;	/* center target in output image */
 	int err_algorithm = WGT_VARIANCE;
 
-	if (status = CalStis7 (input, output,
+	if ((status = CalStis7 (input, output,
 			sci_sw->sgeocorr, sci_sw->helcorr,
 			sci_sw->fluxcorr, sci_sw->statcorr,
 			refnames, printtime, verbose, center_target,
-			NO_VALUE, err_algorithm))
+                        NO_VALUE, err_algorithm)))
 	    return (status);
 
 	return (0);
@@ -873,8 +873,8 @@ static int CalStis12_0 (char *wavecal, char *science,
 	/* linear interpolation, if there are multiple wavecal imsets */
 	int w_option = STIS_LINEAR;
 
-	if (status = CalStis12 (wavecal, science,
-			w_option, printtime, verbose))
+	if ((status = CalStis12 (wavecal, science,
+                                 w_option, printtime, verbose)))
 	    return (status);
 
 	return (0);

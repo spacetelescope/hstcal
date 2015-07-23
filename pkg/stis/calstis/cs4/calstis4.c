@@ -108,7 +108,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 	closeImage (im);
 
 	/* Get keyword values from primary header. */
-	if (status = GetKeyInfo4 (&sts, &phdr))
+	if ((status = GetKeyInfo4 (&sts, &phdr)))
 	    return (status);
 
 	/* Now we know whether we have echelle data or not.  If an echelle
@@ -151,7 +151,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 	PrHdrInfo (sts.obsmode, sts.aperture, sts.opt_elem, sts.det);
 
 	/* Get file names from input image header. */
-	if (status = GetFlags4 (&sts, &phdr))
+	if ((status = GetFlags4 (&sts, &phdr)))
 	    return (status);
 
 	freeHdr (&phdr);
@@ -160,7 +160,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 	    TimeStamp ("Begin processing", sts.rootname);
 
 	/* Do wavecal processing */
-	if (status = WaveCal (&sts))
+	if ((status = WaveCal (&sts)))
 	    return (status);
 
 	printf ("\n");

@@ -162,7 +162,7 @@ SingleGroup *out           o: output data
 	/* Get offset of slit from that used to measure the dispersion
 	   relation, from the APD again.
 	*/
-	if (status = GetApOffset (sts, slit, disp->ref_aper, &delta))
+	if ((status = GetApOffset (sts, slit, disp->ref_aper, &delta)))
 	    return (status);
 	if (sts->verbose)
 	    printf ("         Delta = %.6g arcsec.\n", delta);
@@ -175,15 +175,15 @@ SingleGroup *out           o: output data
         del_tan = tan(slit->angle*dtor) - tan(REF_ANGLE*dtor);
 
 	/* Get spectrum trace. */
-	if (status = GetTrace (sts, coord_o->sporder, &trace))
+	if ((status = GetTrace (sts, coord_o->sporder, &trace)))
 	    return (status);
-	
+
 	if (sts->verbose && sts->trace_rotation != 0.)
            printf ("         trace was rotated by = %.6g degree.\n",
-                       sts->trace_rotation); 
+                       sts->trace_rotation);
 
 	/* Get incidence-angle correction coefficients. */
-	if (status = GetInang (sts, &sts->inangtab, coord_o->sporder, &iac))
+	if ((status = GetInang (sts, &sts->inangtab, coord_o->sporder, &iac)))
 	    return (status);
 
 	/* Was the switch reset for the current spectral order due to
@@ -198,8 +198,8 @@ SingleGroup *out           o: output data
 	   Skip this test, however, if a first-order grating was used.
 	*/
 	if (!sts->first_order) {
-	    if (status = CheckBoundary (sts, coord_o, &trace,
-		in->sci.data.nx, in->sci.data.ny)) {
+	    if ((status = CheckBoundary (sts, coord_o, &trace,
+                                         in->sci.data.nx, in->sci.data.ny))) {
 		if (status > 0)			/* a real error */
 		    return (status);
 		printf ("Info     Spectral order %d is outside the image.\n",
@@ -220,7 +220,7 @@ SingleGroup *out           o: output data
 			coord_o->a2center + sts->total_offset[1];
 
 	    /* Interpolate to get the dispersion coefficients at line0. */
-	    if (status = InterpDisp (&disp, line0, &disp_y))
+	    if ((status = InterpDisp (&disp, line0, &disp_y)))
 		return (status);
 
             /* Correct each row for slit tilt */
@@ -230,7 +230,7 @@ SingleGroup *out           o: output data
 	    AdjustDisp (sts, disp_y, delta, &iac, &warn1, &warn2);
 
 	    /* Interpolate to get the spectrum trace at line0. */
-	    if (status = InterpTrace (&trace, line0, &trace_y))
+	    if ((status = InterpTrace (&trace, line0, &trace_y)))
 		return (status);
 
 	    for (i = 0;  i < out->sci.data.nx;  i++) {
@@ -278,7 +278,7 @@ SingleGroup *out           o: output data
 	}
 
 	/* Flag areas that are beyond the slit or behind an occulting bar. */
-	if (status = DataMasked (sts, coord_o, slit, out))
+	if ((status = DataMasked (sts, coord_o, slit, out)))
 	    return (status);
 
 	FreeInang (&iac);
@@ -327,7 +327,7 @@ int nx, ny          i: size of input image
 
 	/* Interpolate to get the spectrum trace at line0. */
 	trace_y = NULL;
-	if (status = InterpTrace (trace, line0, &trace_y))
+	if ((status = InterpTrace (trace, line0, &trace_y)))
 	    return (status);
 
 	/* Get ydispl at the middle of the input image.

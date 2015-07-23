@@ -134,7 +134,7 @@ CmplxArray *z       io: complex array
 
 	/* Allocate a 1-D array for a column.  Note that scr.nx = z->ny. */
 	InitCmplxArray (&scr);
-	if (status = AllocCmplxArray (&scr, ny, 1))
+	if ((status = AllocCmplxArray (&scr, ny, 1)))
 	    return (status);
 
 	for (j = 0;  j < ny;  j++)	/* transform each line */
@@ -178,7 +178,7 @@ CmplxArray *z       io: complex array
 
 	/* Allocate a 1-D array for a column. */
 	InitCmplxArray (&scr);
-	if (status = AllocCmplxArray (&scr, ny, 1))
+	if ((status = AllocCmplxArray (&scr, ny, 1)))
 	    return (status);
 
 	for (j = 0;  j < ny;  j++)	/* transform each line */

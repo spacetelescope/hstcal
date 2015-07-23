@@ -78,7 +78,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	int GetNewRef (Hdr *, char *, RefFileInfo *);
 
 	if (sts->detector == CCD_DETECTOR) {
-	    if (status = GetNewRef (phdr, "CCDTAB", sciref))
+	    if ((status = GetNewRef (phdr, "CCDTAB", sciref)))
 		return (status);
 	}
 
@@ -98,7 +98,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	/* Note that we set sci_basic_2d_a rather than sci_basic_2d. */
 	if (sci_sw->dqicorr == PERFORM) {
 	    sts->sci_basic_2d_a = PERFORM;
-	    if (status = GetNewRef (phdr, "BPIXTAB", sciref))
+	    if ((status = GetNewRef (phdr, "BPIXTAB", sciref)))
 		return (status);
 	}
 
@@ -111,7 +111,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	    MAMASanity (sts->detector, "LFLGCORR");
 	}
 	if (sci_sw->glincorr == PERFORM || sci_sw->lflgcorr == PERFORM) {
-	    if (status = GetNewRef (phdr, "MLINTAB", sciref))
+	    if ((status = GetNewRef (phdr, "MLINTAB", sciref)))
 		return (status);
 	}
 
@@ -144,7 +144,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	}
 
 	if (sts->sci_crcorr == PERFORM) {
-	    if (status = GetNewRef (phdr, "CRREJTAB", sciref))
+	    if ((status = GetNewRef (phdr, "CRREJTAB", sciref)))
 		return (status);
 	}
 
@@ -161,7 +161,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->atodcorr == PERFORM) {
 	    sts->sci_basic_2d_a = PERFORM;
 	    CCDSanity (sts->detector, "ATODCORR");
-	    if (status = GetNewRef (phdr, "ATODTAB", sciref))
+	    if ((status = GetNewRef (phdr, "ATODTAB", sciref)))
 		return (status);
 	}
 
@@ -169,30 +169,30 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->biascorr == PERFORM) {
 	    sts->sci_basic_2d_a = PERFORM;   refimage_used = 1;
 	    CCDSanity (sts->detector, "BIASCORR");
-	    if (status = GetNewRef (phdr, "BIASFILE", sciref))
+	    if ((status = GetNewRef (phdr, "BIASFILE", sciref)))
 		return (status);
 	}
 
 	if (sci_sw->darkcorr == PERFORM) {
 	    sts->sci_basic_2d = PERFORM;   refimage_used = 1;
-	    if (status = GetNewRef (phdr, "DARKFILE", sciref))
+	    if ((status = GetNewRef (phdr, "DARKFILE", sciref)))
 		return (status);
 	}
 
 	if (sci_sw->flatcorr == PERFORM) {
 	    sts->sci_basic_2d = PERFORM;   refimage_used = 1;
-	    if (status = GetNewRef (phdr, "PFLTFILE", sciref))
+	    if ((status = GetNewRef (phdr, "PFLTFILE", sciref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "DFLTFILE", sciref))
+	    if ((status = GetNewRef (phdr, "DFLTFILE", sciref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "LFLTFILE", sciref))
+	    if ((status = GetNewRef (phdr, "LFLTFILE", sciref)))
 		return (status);
 	}
 
 	if (sci_sw->shadcorr == PERFORM) {
 	    sts->sci_basic_2d = PERFORM;   refimage_used = 1;
 	    CCDSanity (sts->detector, "SHADCORR");
-	    if (status = GetNewRef (phdr, "SHADFILE", sciref))
+	    if ((status = GetNewRef (phdr, "SHADFILE", sciref)))
 		return (status);
 	}
 
@@ -214,62 +214,62 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	    if (sts->obstype != IMAGING_TYPE)
 		printf (
 	"Warning  PHOTCORR = PERFORM, but OBSTYPE is not IMAGING.\n");
-	    if (status = GetNewRef (phdr, "IMPHTTAB", sciref))
+	    if ((status = GetNewRef (phdr, "IMPHTTAB", sciref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "APERTAB", sciref))
+	    if ((status = GetNewRef (phdr, "APERTAB", sciref)))
 		return (status);
 	}
 
 	/* These are the tables we need for wavecal processing. */
 	if (sci_sw->wavecorr == PERFORM) {
 	    sts->sci_wavecorr = PERFORM;
-	    if (status = GetNewRef (phdr, "WCPTAB", sciref))
+	    if ((status = GetNewRef (phdr, "WCPTAB", sciref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "LAMPTAB", sciref))
+	    if ((status = GetNewRef (phdr, "LAMPTAB", sciref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "APDESTAB", sciref))
+	    if ((status = GetNewRef (phdr, "APDESTAB", sciref)))
 		return (status);
 	}
 
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 	    if (sci_sw->x2dcorr == PERFORM) {
 		sts->sci_2d_rect = PERFORM;
-		if (status = GetNewRef (phdr, "SDCTAB", sciref))
+		if ((status = GetNewRef (phdr, "SDCTAB", sciref)))
 		    return (status);
 		if (sci_sw->fluxcorr == PERFORM) {
 		    /* We look for PHOTTAB and APERTAB later. */
-		    if (status = GetNewRef (phdr, "PCTAB", sciref))
+		    if ((status = GetNewRef (phdr, "PCTAB", sciref)))
 			return (status);
 		}
 	    }
 	} else {
 	    if (sci_sw->geocorr == PERFORM) {
 		sts->sci_geocorr = PERFORM;
-		if (status = GetNewRef (phdr, "IDCTAB", sciref))
+		if ((status = GetNewRef (phdr, "IDCTAB", sciref)))
 		    return (status);
 	    }
 	}
 
 	if (sci_sw->x1dcorr == PERFORM) {
 	    sts->sci_1d_extract = PERFORM;
-	    if (status = GetNewRef (phdr, "XTRACTAB", sciref))
+	    if ((status = GetNewRef (phdr, "XTRACTAB", sciref)))
 		return (status);
-	    if (status = GetNewRef (phdr, "SDCTAB", sciref))
+	    if ((status = GetNewRef (phdr, "SDCTAB", sciref)))
 		return (status);
 	    if (sci_sw->sc2dcorr == PERFORM) {
-		if (status = GetNewRef (phdr, "CDSTAB", sciref))
+		if ((status = GetNewRef (phdr, "CDSTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "ECHSCTAB", sciref))
+		if ((status = GetNewRef (phdr, "ECHSCTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "EXSTAB", sciref))
+		if ((status = GetNewRef (phdr, "EXSTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "HALOTAB", sciref))
+		if ((status = GetNewRef (phdr, "HALOTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "TELTAB", sciref))
+		if ((status = GetNewRef (phdr, "TELTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "RIPTAB", sciref))
+		if ((status = GetNewRef (phdr, "RIPTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "SRWTAB", sciref))
+		if ((status = GetNewRef (phdr, "SRWTAB", sciref)))
 		    return (status);
 	    }
 	}
@@ -279,32 +279,32 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	*/
 	if (sts->sci_2d_rect == PERFORM || sts->sci_1d_extract == PERFORM) {
 
-	    if (status = GetNewRef (phdr, "SPTRCTAB", sciref))
+	    if ((status = GetNewRef (phdr, "SPTRCTAB", sciref)))
 		return (status);
 
 	    if (sci_sw->dispcorr == PERFORM || sts->sci_2d_rect == PERFORM) {
-		if (status = GetNewRef (phdr, "APDESTAB", sciref))
+		if ((status = GetNewRef (phdr, "APDESTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "DISPTAB", sciref))
+		if ((status = GetNewRef (phdr, "DISPTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "INANGTAB", sciref))
+		if ((status = GetNewRef (phdr, "INANGTAB", sciref)))
 		    return (status);
 	    }
 
 	    if (sci_sw->fluxcorr == PERFORM) {
-		if (status = GetNewRef (phdr, "PHOTTAB", sciref))
+		if ((status = GetNewRef (phdr, "PHOTTAB", sciref)))
 		    return (status);
-		if (status = GetNewRef (phdr, "APERTAB", sciref))
+		if ((status = GetNewRef (phdr, "APERTAB", sciref)))
 		    return (status);
 	    }
 	}
 
 	/* Also used by geometric correction of images. */
-	if (sts->sci_2d_rect == PERFORM || sts->sci_geocorr == PERFORM || 
+	if (sts->sci_2d_rect == PERFORM || sts->sci_geocorr == PERFORM ||
 	    sts->sci_1d_extract == PERFORM) {
 
 	    if (sci_sw->sgeocorr == PERFORM) {
-		if (status = GetNewRef (phdr, "SDSTFILE", sciref))
+		if ((status = GetNewRef (phdr, "SDSTFILE", sciref)))
 		    return (status);
 	    }
 	}

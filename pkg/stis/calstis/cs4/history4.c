@@ -35,12 +35,12 @@ Hdr *phdr        io: header to receive history records
 
 	logit = 0;
 	if (sts->wavecorr == PERFORM) {
-	    if (status = Put_KeyS (phdr, "WAVECORR", "COMPLETE", ""))
+	    if ((status = Put_KeyS (phdr, "WAVECORR", "COMPLETE", "")))
 		return (status);
 	    addHistoryKw (phdr, "WAVECORR complete ...");
 	    logit = 1;
 	} else if (sts->wavecorr == DUMMY) {
-	    if (status = Put_KeyS (phdr, "WAVECORR", "SKIPPED", ""))
+	    if ((status = Put_KeyS (phdr, "WAVECORR", "SKIPPED", "")))
 		return (status);
 	    addHistoryKw (phdr,
 			"WAVECORR skipped due to dummy reference file ...");
@@ -50,24 +50,24 @@ Hdr *phdr        io: header to receive history records
 	    if (hstio_err())
 		return (HEADER_PROBLEM);
 	    if (sts->wcptab.exists == EXISTS_YES) {
-		if (status = TabHistory (&sts->wcptab, phdr))
+		if ((status = TabHistory (&sts->wcptab, phdr)))
 		    return (status);
 	    }
-	    if (status = TabHistory (&sts->lamptab, phdr))
+	    if ((status = TabHistory (&sts->lamptab, phdr)))
 		return (status);
-	    if (status = TabHistory (&sts->apdestab, phdr))
+	    if ((status = TabHistory (&sts->apdestab, phdr)))
 		return (status);
 	    if (sts->disp_type == ECHELLE_DISP ||
 		sts->disp_type == PRISM_DISP) {
-		if (status = TabHistory (&sts->disptab, phdr))
+		if ((status = TabHistory (&sts->disptab, phdr)))
 		    return (status);
-		if (status = TabHistory (&sts->inangtab, phdr))
+		if ((status = TabHistory (&sts->inangtab, phdr)))
 		    return (status);
-		if (status = TabHistory (&sts->sptrctab, phdr))
+		if ((status = TabHistory (&sts->sptrctab, phdr)))
 		    return (status);
 	    }
 	    if (sts->disp_type == PRISM_DISP) {
-		if (status = TabHistory (&sts->sdctab, phdr))
+		if ((status = TabHistory (&sts->sdctab, phdr)))
 		    return (status);
 	    }
 	}

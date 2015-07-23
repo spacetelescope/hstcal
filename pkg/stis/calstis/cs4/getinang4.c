@@ -77,13 +77,13 @@ double angle         i: incidence angle
 	int foundit = 0;
 
 	/* Open the incidence-angle coefficients table. */
-	if (status = OpenIACTab (sts->inangtab.name, &tabinfo))
+	if ((status = OpenIACTab (sts->inangtab.name, &tabinfo)))
 	    return (status);
 
 	iac.allocated = 0;
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadIACTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadIACTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem, cenwave. */
@@ -94,8 +94,8 @@ double angle         i: incidence angle
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->inangtab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->inangtab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->inangtab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -103,7 +103,7 @@ double angle         i: incidence angle
 		}
 
 		/* Read data from this row. */
-		if (status = ReadIACArray (&tabinfo, row, &iac))
+		if ((status = ReadIACArray (&tabinfo, row, &iac)))
 		    return (status);
 
 		/* Modify the dispersion coefficients. */
@@ -121,7 +121,7 @@ double angle         i: incidence angle
 	    return (TABLE_ERROR);
 	}
 
-	if (status = CloseIACTab (&tabinfo))
+	if ((status = CloseIACTab (&tabinfo)))
 	    return (status);
 
 	FreeInang (&iac);

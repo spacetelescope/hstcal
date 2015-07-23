@@ -55,9 +55,9 @@ static int PCDummy (PhotInfo *);
 		THROUGHPUT:  array of factors (float)
 
 
-   The table is read to find the row for which both CENWAVE and APERTURE 
-   are the same as in the input image header. The third row matching 
-   criterion is based on the 'extrsize' argument. If set to zero, then the 
+   The table is read to find the row for which both CENWAVE and APERTURE
+   are the same as in the input image header. The third row matching
+   criterion is based on the 'extrsize' argument. If set to zero, then the
    row is selected that has EXTRHEIGHT equal to the table header keyword
    MAXHGHT. If set to anything larger than zero, then the row is selected
    that has EXTRHEIGHT closest to an entry in the table. In this case a
@@ -120,7 +120,7 @@ int warn	i: warning message control
 
 	if (sts->pctcorr != PERFORM) {
 	    /* Allocate memory for phot->pcorr and set the values to 1. */
-	    if (status = PCDummy (phot))
+	    if ((status = PCDummy (phot)))
 		return (status);
 	    else {
 	        if (warn == WARN) {
@@ -133,7 +133,7 @@ printf ("Warning  correct the flux-calibrated result.\n");
 	}
 
 	/* Open the PCTAB table. */
-	if (status = OpenPCTab (sts->pctab.name, &tabinfo))
+	if ((status = OpenPCTab (sts->pctab.name, &tabinfo)))
 	    return (status);
 
 	/* Select proper height to look for. */
@@ -145,7 +145,7 @@ printf ("Warning  correct the flux-calibrated result.\n");
 	mindist = 2000;
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadPCTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadPCTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.aperture, sts->aperture) &&
@@ -155,21 +155,21 @@ printf ("Warning  correct the flux-calibrated result.\n");
 		foundit = 0;  /* this is an exact match */
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->pctab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->pctab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->pctab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
 		            row, sts->pctab.name);
 		    sts->pctcorr = DUMMY;
-		    if (status = PCDummy (phot))
+		    if ((status = PCDummy (phot)))
 			return (status);
 		    ClosePCTab (&tabinfo);
 		    return (0);
 		}
 
 		/* Read wavelengths and throughputs into phot. */
-		if (status = ReadPCArray (&tabinfo, row, phot))
+		if ((status = ReadPCArray (&tabinfo, row, phot)))
 		    return (status);
 
 		break;
@@ -180,29 +180,28 @@ printf ("Warning  correct the flux-calibrated result.\n");
 	               SameInt (tabrow.cenwave, sts->cenwave)) {
 	        if (mindist > abs (tabrow.extrheight - mheight)) {
 	            mindist = abs (tabrow.extrheight - mheight);
-		    if (status = ReadPCArray (&tabinfo, row, phot))
+		    if ((status = ReadPCArray (&tabinfo, row, phot)))
 		        return (status);
 	            foundit = tabrow.extrheight;
 	        }
 	    }
 	}
 
-	if (status = ClosePCTab (&tabinfo))
+	if ((status = ClosePCTab (&tabinfo)))
 	    return (status);
 
 	if (foundit == -1) {
 	    printf ("Warning  No appropriate row found in PCTAB %s; \\\n",
 			sts->pctab.name);
-	    printf (
-	"Warning  APERTURE %s, CENWAVE %d, EXTRHEIGHT %d.\n",
+	    printf ("Warning  APERTURE %s, CENWAVE %d, EXTRHEIGHT %d.\n",
 		sts->aperture, sts->cenwave, tabinfo.maxhght);
 	    sts->pctcorr = OMIT;
-	    if (status = PCDummy (phot))
+	    if ((status = PCDummy (phot)))
 		return (status);
 	} else if (foundit > 0) {
-	    printf 
+	    printf
             ("Warning  No exact extraction box height match in PCTAB.\n");
-	    printf 
+	    printf
             ("Warning  Using entry for height %d\n", foundit);
 	}
 
@@ -324,10 +323,10 @@ static int ReadPCArray (TblInfo *tabinfo, int row, PhotInfo *phot) {
 	    return (TABLE_ERROR);
 	}
 
-	/* Allocate space for the interpolated correction factors. 
+	/* Allocate space for the interpolated correction factors.
            If the array was allocated in a previous execution of this
            function, de-allocate it first. This can happen when multiple
-           table rows satisfy the approximate distance criterion. 
+           table rows satisfy the approximate distance criterion.
         */
 	if (phot->pcorr != NULL)
 	    free (phot->pcorr);
@@ -339,8 +338,8 @@ static int ReadPCArray (TblInfo *tabinfo, int row, PhotInfo *phot) {
 	}
 
 	/* Interpolate. */
-	if (status = splint_nr (wl, pc, nelem,
-			phot->wl, phot->pcorr, phot->nelem)) {
+	if ((status = splint_nr (wl, pc, nelem,
+                                 phot->wl, phot->pcorr, phot->nelem))) {
 	    free (wl);
 	    free (pc);
 	    return (status);

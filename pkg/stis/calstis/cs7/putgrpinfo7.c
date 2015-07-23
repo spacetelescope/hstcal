@@ -77,16 +77,16 @@ int obstype        i: spectroscopic or imaging
 	/* Update keyword values. */
 
 	if (obstype == SPECTROSCOPIC_TYPE) {
-	    if (status = Put_KeyI (&out->sci.hdr, "SPORDER", coords->sporder,
-			"spectral order number"))
+	    if ((status = Put_KeyI (&out->sci.hdr, "SPORDER", coords->sporder,
+                                    "spectral order number")))
 	    return (status);
 	}
 
-	if (status = PutGrpHdr7 (&out->sci.hdr, coords, obstype))
+	if ((status = PutGrpHdr7 (&out->sci.hdr, coords, obstype)))
 	    return (status);
-	if (status = PutGrpHdr7 (&out->err.hdr, coords, obstype))
+	if ((status = PutGrpHdr7 (&out->err.hdr, coords, obstype)))
 	    return (status);
-	if (status = PutGrpHdr7 (&out->dq.hdr, coords, obstype))
+	if ((status = PutGrpHdr7 (&out->dq.hdr, coords, obstype)))
 	    return (status);
 
 	return (0);
@@ -105,33 +105,33 @@ int obstype        i: spectroscopic or imaging
 	int status;
 
 	/* Set the offset LTV to zero, but leave the scale LTM unchanged. */
-	if (status = Put_KeyD (hdr, "LTV1", 0., ""))
+	if ((status = Put_KeyD (hdr, "LTV1", 0., "")))
 	    return (status);
-	if (status = Put_KeyD (hdr, "LTV2", 0., ""))
+	if ((status = Put_KeyD (hdr, "LTV2", 0., "")))
 	    return (status);
 
 	if (obstype == SPECTROSCOPIC_TYPE) {
 
 	    /* Note:  add one to crpix to convert to one indexing. */
-	    if (status = Put_KeyD (hdr, "CRPIX1", coords->crpix[0]+1., ""))
+	    if ((status = Put_KeyD (hdr, "CRPIX1", coords->crpix[0]+1., "")))
 		return (status);
-	    if (status = Put_KeyD (hdr, "CRPIX2", coords->crpix[1]+1., ""))
+	    if ((status = Put_KeyD (hdr, "CRPIX2", coords->crpix[1]+1., "")))
 		return (status);
-	    if (status = Put_KeyD (hdr, "CRVAL1", coords->crval[0], ""))
+	    if ((status = Put_KeyD (hdr, "CRVAL1", coords->crval[0], "")))
 		return (status);
-	    if (status = Put_KeyD (hdr, "CRVAL2", coords->crval[1], ""))
+	    if ((status = Put_KeyD (hdr, "CRVAL2", coords->crval[1], "")))
 		return (status);
-	    if (status = Put_KeyD (hdr, "CD1_1", coords->cdelt[0], ""))
+	    if ((status = Put_KeyD (hdr, "CD1_1", coords->cdelt[0], "")))
 		return (status);
-	    if (status = Put_KeyD (hdr, "CD1_2", 0., ""))
+	    if ((status = Put_KeyD (hdr, "CD1_2", 0., "")))
 		return (status);
-	    if (status = Put_KeyD (hdr, "CD2_1", 0., ""))
+	    if ((status = Put_KeyD (hdr, "CD2_1", 0., "")))
 		return (status);
-	    if (status = Put_KeyD (hdr, "CD2_2",
-			coords->cdelt[1] * ARCSEC_TO_DEGREES, ""))
+	    if ((status = Put_KeyD (hdr, "CD2_2",
+                                    coords->cdelt[1] * ARCSEC_TO_DEGREES, "")))
 		return (status);
-	    if (status = Put_KeyS (hdr, "CUNIT1", "angstrom",
-			"units for first axis coordinates"))
+	    if ((status = Put_KeyS (hdr, "CUNIT1", "angstrom",
+                                    "units for first axis coordinates")))
 		return (status);
 	}
 

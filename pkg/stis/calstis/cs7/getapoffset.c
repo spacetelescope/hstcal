@@ -66,20 +66,20 @@ double *delta    o: offset in dispersion direction, arcseconds
 	int foundit = 0;	/* true if aperture found in table */
 
 	/* Open the aperture description table. */
-	if (status = OpenApTab (sts->apdestab.name, &tabinfo))
+	if ((status = OpenApTab (sts->apdestab.name, &tabinfo)))
 	    return (status);
 
 	/* Check each row for a match with ref_aper. */
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadApTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadApTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.aperture, ref_aper)) {
 
 		foundit = 1;
-		if (status = CheckPedigree (&tabinfo, row, &pedigree))
+		if ((status = CheckPedigree (&tabinfo, row, &pedigree)))
 		    return (status);
 		if (pedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
@@ -101,7 +101,7 @@ double *delta    o: offset in dispersion direction, arcseconds
 	    }
 	}
 
-	if (status = CloseApTab (&tabinfo))
+	if ((status = CloseApTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {

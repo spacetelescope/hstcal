@@ -102,7 +102,7 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 	}
 
 	/* Take the inverse Fourier transform of the product. */
-	if (status = ifft2d (crosscorr))
+	if ((status = ifft2d (crosscorr)))
 	    return (status);
 
 	/* Find the peak. */

@@ -66,7 +66,7 @@ Hdr *hdr        i: header of current imset
 	    sts->imset_ok = 0;
 
 	/* Get the dispersion axis. */
-	if (status = Get_KeyI (hdr, "DISPAXIS", use_def, 1, &sts->dispaxis))
+	if ((status = Get_KeyI (hdr, "DISPAXIS", use_def, 1, &sts->dispaxis)))
 	    return (status);
 	if (sts->dispaxis < 1 || sts->dispaxis > 2) {
 	    printf (
@@ -79,7 +79,7 @@ Hdr *hdr        i: header of current imset
 	   serious.  Note that we reset some bits, so that we can include
 	   pixels that are flagged with these conditions.
 	*/
-	if (status = Get_KeyI (hdr, "SDQFLAGS", use_def, 32767, &sdqflags))
+	if ((status = Get_KeyI (hdr, "SDQFLAGS", use_def, 32767, &sdqflags)))
 	    return (status);
 	sdqflags &= ~DATAMASKED;	/* behind occulting bar */
 	sdqflags &= ~HOTPIX;		/* hot (but probably just warm) pixel */
@@ -87,7 +87,7 @@ Hdr *hdr        i: header of current imset
 	sts->sdqflags = (short) sdqflags;
 
 	/* Get the LTMi_i and LTVi keywords, converted to zero indexing. */
-	if (status = GetLT0 (hdr, sts->ltm, sts->ltv))
+	if ((status = GetLT0 (hdr, sts->ltm, sts->ltv)))
 	    return (status);
 	sts->scale[0] = 1. / sts->ltm[0];
 	sts->scale[1] = 1. / sts->ltm[1];
@@ -105,17 +105,17 @@ Hdr *hdr        i: header of current imset
 
 	} else {
 
-	    if (status = Get_KeyD (hdr, "CRPIX1", use_def, 0., &sts->crpix[0]))
+	    if ((status = Get_KeyD (hdr, "CRPIX1", use_def, 0., &sts->crpix[0])))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CRPIX2", use_def, 0., &sts->crpix[1]))
+	    if ((status = Get_KeyD (hdr, "CRPIX2", use_def, 0., &sts->crpix[1])))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CRVAL1", use_def, 0., &sts->crval[0]))
+	    if ((status = Get_KeyD (hdr, "CRVAL1", use_def, 0., &sts->crval[0])))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CRVAL2", use_def, 0., &sts->crval[1]))
+	    if ((status = Get_KeyD (hdr, "CRVAL2", use_def, 0., &sts->crval[1])))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CD1_1", use_def, 1., &sts->cdelt[0]))
+	    if ((status = Get_KeyD (hdr, "CD1_1", use_def, 1., &sts->cdelt[0])))
 		return (status);
-	    if (status = Get_KeyD (hdr, "CD2_2", use_def, 1., &sts->cdelt[1]))
+	    if ((status = Get_KeyD (hdr, "CD2_2", use_def, 1., &sts->cdelt[1])))
 		return (status);
 	    /* Convert CRPIX to zero index. */
 	    sts->crpix[0]--;
@@ -125,11 +125,11 @@ Hdr *hdr        i: header of current imset
 	/* We only need the exposure time to verify that it's greater
 	   than zero.  That's why the default is zero.
 	*/
-	if (status = Get_KeyD (hdr, "EXPTIME", use_def, 0., &sts->exptime))
+	if ((status = Get_KeyD (hdr, "EXPTIME", use_def, 0., &sts->exptime)))
 	    return (status);
 
 	/* Exposure start time is needed for trace rotation */
-	if (status = Get_KeyD (hdr, "EXPSTART", 0, 0., &sts->expstart))
+	if ((status = Get_KeyD (hdr, "EXPSTART", 0, 0., &sts->expstart)))
 	  return (status);
 
 	return (0);

@@ -179,14 +179,14 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    TimeStamp ("Input read into memory", sts->rootname);
 
 	/* Get header info that varies from imset to imset. */
-	if (status = GetGrpInfo1 (sts, &x->sci.hdr))
+	if ((status = GetGrpInfo1 (sts, &x->sci.hdr)))
 	    return (status);
 
 	if (strcmp (sts->obstype, "SPECTROSCOPIC") == 0 && !sts->wavecal) {
 	    v_helio = RadialVel (sts->ra_targ, sts->dec_targ,
 			(sts->expstart + sts->expend) / 2.);
-	    if (status = Put_KeyD (&x->sci.hdr, "V_HELIO", v_helio,
-			"heliocentric radial velocity (km/s)"))
+	    if ((status = Put_KeyD (&x->sci.hdr, "V_HELIO", v_helio,
+                                    "heliocentric radial velocity (km/s)")))
 		return (status);
 	    if (sts->verbose) {
 		printf ("         Heliocentric radial velocity = %.3f (km/s)\n",
@@ -245,26 +245,26 @@ int ngood_extver   io: incremented unless the current imset has zero
 	*/
 	if (sts->detector == CCD_DETECTOR && *ngood_extver == 1) {
 
-	    if (status = Put_KeyF (x->globalhdr, "ATODGAIN",
-			sts->atodgain, ""))
+	    if ((status = Put_KeyF (x->globalhdr, "ATODGAIN",
+                                    sts->atodgain, "")))
 		return (status);
-	    if (status = Put_KeyF (x->globalhdr, "READNSE",
-			sts->readnoise, ""))
+	    if ((status = Put_KeyF (x->globalhdr, "READNSE",
+                                    sts->readnoise, "")))
 		return (status);
 	    printf ("\n");
 	    PrRefInfo ("ccdtab", sts->ccdpar.name, sts->ccdpar.pedigree,
 		sts->ccdpar.descrip, sts->ccdpar.descrip2);
-	    if (status = CCDHistory (sts, x->globalhdr))
+	    if ((status = CCDHistory (sts, x->globalhdr)))
 		return (status);
 
 	    if (sts->nimages == 1) {		/* only one imset? */
-		if (status = GetSwitch (x->globalhdr, "CRCORR", &crcorr))
+		if ((status = GetSwitch (x->globalhdr, "CRCORR", &crcorr)))
 		    return (status);
 		if (crcorr == PERFORM) {
 		    printf (
 	"Warning  Only one imset, so CRCORR will be reset to SKIPPED.\n");
-		    if (status = Put_KeyS (x->globalhdr,
-				"CRCORR", "SKIPPED", ""))
+		    if ((status = Put_KeyS (x->globalhdr,
+                                            "CRCORR", "SKIPPED", "")))
 			return (status);
 		}
 	    }
@@ -279,15 +279,15 @@ int ngood_extver   io: incremented unless the current imset has zero
 	/* Data quality initialization and (for the CCD) check saturation. */
 	dqiMsg (sts, *ngood_extver);
 	if ((sts->dqicorr == PERFORM) ||
-	    (sts->dqicorr == DUMMY) && (sts->detector == CCD_DETECTOR)) {
-	    if (status = doDQI (sts, x))
+	    ((sts->dqicorr == DUMMY) && (sts->detector == CCD_DETECTOR))) {
+	    if ((status = doDQI (sts, x)))
 		return (status);
 	    PrSwitch ("dqicorr", COMPLETE);
 	    if (sts->printtime)
 		TimeStamp ("DQICORR complete", sts->rootname);
 	}
 	if (*ngood_extver == 1 && !OmitStep (sts->dqicorr))
-	    if (status = dqiHistory (sts, x->globalhdr))
+	    if ((status = dqiHistory (sts, x->globalhdr)))
 		return (status);
 	if (sts->dqicorr == PERFORM && sts->doppcorr == PERFORM)
 	    DoppMsg (doppstr, &doppcount, "DQICORR");
@@ -295,14 +295,14 @@ int ngood_extver   io: incremented unless the current imset has zero
 	/* Analog to digital correction. */
 	AtoDMsg (sts, *ngood_extver);
 	if (sts->atodcorr == PERFORM) {
-	    if (status = doAtoD (sts, x))
+	    if ((status = doAtoD (sts, x)))
 		return (status);
 	    PrSwitch ("atodcorr", COMPLETE);
 	    if (sts->printtime)
 		TimeStamp ("ATODCORR complete", sts->rootname);
 	}
 	if (*ngood_extver == 1 && !OmitStep (sts->atodcorr))
-	    if (status = atodHistory (sts, x->globalhdr))
+	    if ((status = atodHistory (sts, x->globalhdr)))
 		return (status);
 
 	/* Subtract bias level, as determined from overscan regions.
@@ -310,11 +310,11 @@ int ngood_extver   io: incremented unless the current imset has zero
 	*/
 	BlevMsg (sts);
 	if (sts->blevcorr == PERFORM) {
-	    if (status = doBlev (sts, &x, extver,
-			&meanblev, &done, &driftcorr))
+	    if ((status = doBlev (sts, &x, extver,
+                                  &meanblev, &done, &driftcorr)))
 		return (status);
-	    if (status = Put_KeyF (&x->sci.hdr, "MEANBLEV", meanblev,
-			"mean of bias levels subtracted"))
+	    if ((status = Put_KeyF (&x->sci.hdr, "MEANBLEV", meanblev,
+                                    "mean of bias levels subtracted")))
 		return (status);
 	    if (done) {
 		printf (
@@ -344,16 +344,16 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    sts->err_init_bias = sts->ccdbias;
 	}
 	if (*ngood_extver == 1 && !OmitStep (sts->blevcorr))
-	    if (status = blevHistory (sts, x->globalhdr, done, driftcorr))
+	    if ((status = blevHistory (sts, x->globalhdr, done, driftcorr)))
 		return (status);
 
 	/* Fill in the error array, if it currently contains all zeros. */
 	if (sts->noisecorr == PERFORM) {
-	    if (status = doNoise (sts, x, &done))
+	    if ((status = doNoise (sts, x, &done)))
 		return (status);
 	    if (done) {
 		if (*ngood_extver == 1) {
-		    if (status = noiseHistory (x->globalhdr))
+		    if ((status = noiseHistory (x->globalhdr)))
 			return (status);
 		}
 		printf ("         Uncertainty array initialized");
@@ -378,11 +378,11 @@ int ngood_extver   io: incremented unless the current imset has zero
 	*/
 	LoResMsg (sts);
 	if (sts->lorscorr == PERFORM) {
-	    if (status = doLoRes (sts, &x, &done))
+	    if ((status = doLoRes (sts, &x, &done)))
 		return (status);
 	    if (done) {
 		if (*ngood_extver == 1) {	/* update PLATESC keyword */
-		    if (status = UpdatePlateSc (sts, x))
+		    if ((status = UpdatePlateSc (sts, x)))
 			return (status);
 		}
 		PrSwitch ("lorscorr", COMPLETE);
@@ -392,14 +392,14 @@ int ngood_extver   io: incremented unless the current imset has zero
 		PrSwitch ("lorscorr", SKIPPED);
 	    }
 	    if (*ngood_extver == 1)
-		if (status = loresHistory (sts, x->globalhdr, done))
+		if ((status = loresHistory (sts, x->globalhdr, done)))
 		    return (status);
 	}
 
 	/* Check (possibly correct) for nonlinearity. */
 	NonLinMsg (sts, *ngood_extver);
 	if (sts->glincorr == PERFORM || sts->lflgcorr == PERFORM) {
-	    if (status = doNonLin (sts, x, &gsat, &lsat))
+	    if ((status = doNonLin (sts, x, &gsat, &lsat)))
 		return (status);
 	    if (sts->glincorr == PERFORM)
 		PrSwitch ("glincorr", COMPLETE);
@@ -410,14 +410,14 @@ int ngood_extver   io: incremented unless the current imset has zero
 	}
 	if (!OmitStep (sts->glincorr) || !OmitStep (sts->lflgcorr)) {
 	    if (*ngood_extver == 1)
-		if (status = nonlinHistory (sts, x->globalhdr))
+		if ((status = nonlinHistory (sts, x->globalhdr)))
 		    return (status);
 	}
 
 	/* Subtract bias image. */
 	BiasMsg (sts, *ngood_extver);
 	if (sts->biascorr == PERFORM) {
-	    if (status = doBias (sts, x))
+	    if ((status = doBias (sts, x)))
 		return (status);
 	    if (sts->biascorr == PERFORM) {	/* not reset to SKIPPED? */
 		PrSwitch ("biascorr", COMPLETE);
@@ -428,23 +428,23 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    }
 	}
 	if (*ngood_extver == 1 && !OmitStep (sts->biascorr))
-	    if (status = biasHistory (sts, x->globalhdr))
+	    if ((status = biasHistory (sts, x->globalhdr)))
 		return (status);
 
 	/* Subtract dark image. */
 	DarkMsg (sts, *ngood_extver);
 	if (sts->darkcorr == PERFORM) {
-	    if (status = doDark (sts, x, &meandark, extver))
+	    if ((status = doDark (sts, x, &meandark, extver)))
 		return (status);
-	    if (status = Put_KeyF (&x->sci.hdr, "MEANDARK", meandark,
-			"mean of dark values subtracted"))
+	    if ((status = Put_KeyF (&x->sci.hdr, "MEANDARK", meandark,
+                                    "mean of dark values subtracted")))
 		return (status);
 	    PrSwitch ("darkcorr", COMPLETE);
 	    if (sts->printtime)
 		TimeStamp ("DARKCORR complete", sts->rootname);
 	}
 	if (*ngood_extver == 1 && !OmitStep (sts->darkcorr))
-	    if (status = darkHistory (sts, x->globalhdr))
+	    if ((status = darkHistory (sts, x->globalhdr)))
 		return (status);
 	if (sts->darkcorr == PERFORM && sts->doppcorr == PERFORM)
 	    DoppMsg (doppstr, &doppcount, "DARKCORR");
@@ -452,14 +452,14 @@ int ngood_extver   io: incremented unless the current imset has zero
 	/* Multiply by flat field(s). */
 	FlatMsg (sts, *ngood_extver);
 	if (sts->flatcorr == PERFORM) {
-	    if (status = doFlat (sts, x))
+	    if ((status = doFlat (sts, x)))
 		return (status);
 	    PrSwitch ("flatcorr", COMPLETE);
 	    if (sts->printtime)
 		TimeStamp ("FLATCORR complete", sts->rootname);
 	}
 	if (*ngood_extver == 1 && !OmitStep (sts->flatcorr))
-	    if (status = flatHistory (sts, x->globalhdr))
+	    if ((status = flatHistory (sts, x->globalhdr)))
 		return (status);
 	if (sts->flatcorr == PERFORM && sts->doppcorr == PERFORM)
 	    DoppMsg (doppstr, &doppcount, "FLATCORR");
@@ -467,14 +467,14 @@ int ngood_extver   io: incremented unless the current imset has zero
 	/* Apply shutter shading correction. */
 	ShadMsg (sts, *ngood_extver);
 	if (sts->shadcorr == PERFORM) {
-	    if (status = doShad (sts, x))
+	    if ((status = doShad (sts, x)))
 		return (status);
 	    PrSwitch ("shadcorr", COMPLETE);
 	    if (sts->printtime)
 		TimeStamp ("SHADCORR complete", sts->rootname);
 	}
 	if (*ngood_extver == 1 && !OmitStep (sts->shadcorr))
-	    if (status = shadHistory (sts, x->globalhdr))
+	    if ((status = shadHistory (sts, x->globalhdr)))
 		return (status);
 
 	/* Assign values to photometry keywords.
@@ -483,13 +483,13 @@ int ngood_extver   io: incremented unless the current imset has zero
 	*/
 	if (*ngood_extver == 1) {
 	    /* Update the PHOTMODE keyword regardless of PHOTCORR. */
-	    if (status = PhotMode (sts, x))
+	    if ((status = PhotMode (sts, x)))
 		return (status);
 
 	    printf ("\n");
 	    PrSwitch ("photcorr", sts->photcorr);
 	    if (sts->photcorr == PERFORM) {
-		if (status = doPhot (sts, x))
+		if ((status = doPhot (sts, x)))
 		    return (status);
 		PhotMsg (sts);
 		if (sts->photcorr == PERFORM || sts->photcorr == COMPLETE) {
@@ -503,7 +503,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 		}
 	    }
 	    if (!OmitStep (sts->photcorr))
-		if (status = photHistory (sts, x->globalhdr))
+		if ((status = photHistory (sts, x->globalhdr)))
 		    return (status);
 	}
 
@@ -523,7 +523,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	if (sts->statcorr == PERFORM) {
 	    printf ("\n");
 	    PrSwitch ("statflag", PERFORM);
-	    if (status = doStat (x, sts->sdqflags))
+	    if ((status = doStat (x, sts->sdqflags)))
 		return (status);
 	    PrSwitch ("statflag", COMPLETE);
 	    if (sts->printtime)
@@ -757,13 +757,13 @@ SingleGroup *x   i: image that was binned
 	int use_def = 1;	/* use default if missing keyword */
 
 	/* Get the CD matrix from the SCI header. */
-	if (status = Get_KeyD (&x->sci.hdr, "CD1_1", use_def, 1., &cd[0]))
+	if ((status = Get_KeyD (&x->sci.hdr, "CD1_1", use_def, 1., &cd[0])))
 	    return (status);
-	if (status = Get_KeyD (&x->sci.hdr, "CD1_2", use_def, 0., &cd[1]))
+	if ((status = Get_KeyD (&x->sci.hdr, "CD1_2", use_def, 0., &cd[1])))
 	    return (status);
-	if (status = Get_KeyD (&x->sci.hdr, "CD2_1", use_def, 0., &cd[2]))
+	if ((status = Get_KeyD (&x->sci.hdr, "CD2_1", use_def, 0., &cd[2])))
 	    return (status);
-	if (status = Get_KeyD (&x->sci.hdr, "CD2_2", use_def, 1., &cd[3]))
+	if ((status = Get_KeyD (&x->sci.hdr, "CD2_2", use_def, 1., &cd[3])))
 	    return (status);
 
 	if (sts->opt_elem[0] == 'G' || sts->opt_elem[0] == 'E' ||
@@ -791,8 +791,8 @@ SingleGroup *x   i: image that was binned
 	}
 
 	/* Update the value in the primary header. */
-	if (status = Put_KeyF (x->globalhdr, "PLATESC", scale,
-			"plate scale (arcsec/pixel)"))
+	if ((status = Put_KeyF (x->globalhdr, "PLATESC", scale,
+                                "plate scale (arcsec/pixel)")))
 	    return (status);
 
 	return (0);

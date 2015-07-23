@@ -26,7 +26,7 @@
 # include "stiserr.h"
 # include "idtalg.h"
 
-static int CDebug (char *, CmplxArray *);
+/*static int CDebug (char *, CmplxArray *);*/ /* Not used */
 
 
 /* Copies the array data into the real part of z->data, centering it.
@@ -108,9 +108,9 @@ CmplxArray *z2    o: FT of input z2
 	ny = z1->ny;
 
 	/* Take the forward Fourier transform of each input array, in-place. */
-	if (status = fft2d (z1))
+	if ((status = fft2d (z1)))
 	    return (status);
-	if (status = fft2d (z2))
+	if ((status = fft2d (z2)))
 	    return (status);
 
 	/* Multiply the two complex arrays, leaving the product in z1. */
@@ -129,7 +129,7 @@ CmplxArray *z2    o: FT of input z2
 	FFTShift (z1);
 
 	/* Take the inverse Fourier transform of z1, in-place. */
-	if (status = ifft2d (z1))
+	if ((status = ifft2d (z1)))
 	    return (status);
 
 	return (0);
@@ -153,7 +153,7 @@ CmplxArray *z1    o: convolution of 1 and 2 in real part of array
 
 	/* Take the forward Fourier transform of 1st input array, in-place. */
 
-	if (status = fft2d (z1))
+	if ((status = fft2d (z1)))
 	    return (status);
 
 	/* Multiply the two complex arrays, leaving the product in z1. */
@@ -175,7 +175,7 @@ CmplxArray *z1    o: convolution of 1 and 2 in real part of array
 
 	/* Take the inverse Fourier transform of z1, in-place. */
 
-	if (status = ifft2d (z1))
+	if ((status = ifft2d (z1)))
 	    return (status);
 
 	return (0);
@@ -184,7 +184,8 @@ CmplxArray *z1    o: convolution of 1 and 2 in real part of array
 
 /**************************************************************************/
 
-
+/* Not used */
+/*
 static int CDebug (char *name, CmplxArray *z) {
 
 	SingleGroup out;
@@ -210,3 +211,4 @@ static int CDebug (char *name, CmplxArray *z) {
 
 	return (STIS_OK);
 }
+*/

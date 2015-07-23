@@ -83,13 +83,13 @@ StisInfo4 *sts    i: calibration switches and info
 	int foundit;		/* true if detector name found in table */
 
 	/* Open the WCPTAB table. */
-	if (status = OpenWCPTab (sts->wcptab.name, &tabinfo))
+	if ((status = OpenWCPTab (sts->wcptab.name, &tabinfo)))
 	    return (status);
 
 	foundit = 0;
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadWCPTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadWCPTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.detector, sts->det) &&
@@ -98,8 +98,8 @@ StisInfo4 *sts    i: calibration switches and info
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->wcptab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->wcptab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->wcptab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  WCPTAB has PEDIGREE = DUMMY; \\\n");
@@ -108,14 +108,14 @@ StisInfo4 *sts    i: calibration switches and info
 		}
 
 		/* Read parameters into sts. */
-		if (status = ReadWCPArray (&tabinfo, row, sts))
+		if ((status = ReadWCPArray (&tabinfo, row, sts)))
 		    return (status);
 
 		break;
 	    }
 	}
 
-	if (status = CloseWCPTab (&tabinfo))
+	if ((status = CloseWCPTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {

@@ -76,8 +76,8 @@ int *lsat         o: > 0 if locally saturated pixels found
 	    /* Find the global count rate, and update the header keyword. */
 	    if (sts->exptime > 0) {
 		sts->globrate = FindGlobRate (x, sts->exptime);
-		if (status = Put_KeyD (&x->sci.hdr, "GLOBRATE", sts->globrate,
-				    "global count rate"))
+		if ((status = Put_KeyD (&x->sci.hdr, "GLOBRATE", sts->globrate,
+                                        "global count rate")))
 		    return (status);
 	    }
 
@@ -87,8 +87,8 @@ int *lsat         o: > 0 if locally saturated pixels found
 
 		/* Global nonlinearity is excessive; set GLOBLIM. */
 
-		if (status = Put_KeyS (&x->sci.hdr, "GLOBLIM", "EXCEEDED",
-				    "global count rate exceeded"))
+		if ((status = Put_KeyS (&x->sci.hdr, "GLOBLIM", "EXCEEDED",
+                                        "global count rate exceeded")))
 		    return (status);
 
 	    } else if (sts->glincorr == PERFORM) {
@@ -96,7 +96,7 @@ int *lsat         o: > 0 if locally saturated pixels found
 		/* Correct global nonlinearity. */
 
 		ratio = FindRate (sts->globrate, sts->tau);
-		if (status = multk2d (x, ratio))
+		if ((status = multk2d (x, ratio)))
 		    return (status);
 	    }
 	}

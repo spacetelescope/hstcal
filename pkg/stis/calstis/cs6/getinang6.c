@@ -71,7 +71,7 @@ static int CloseIACTab (TblInfo *);
                  - explicit cast for calloc and malloc-returned pointer.
    02 May 97  -  Set x1d_o flag for rows with DUMMY pedigree (IB)
    08 May 97  -  Conform to new _trl standard (IB)
-                 
+
 */
 
 int GetInang6 (StisInfo6 *sts, RefTab *table, int sporder, InangInfo *iac) {
@@ -92,12 +92,12 @@ InangInfo *iac     o: incidence-angle info
 	int foundit = 0;
 
 	/* Open the incidence-angle coefficients table. */
-	if (status = OpenIACTab (table->name, &tabinfo))
+	if ((status = OpenIACTab (table->name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadIACTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadIACTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem, cenwave, and sporder. */
@@ -109,8 +109,8 @@ InangInfo *iac     o: incidence-angle info
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (table, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (table, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (table->goodPedigree == DUMMY_PEDIGREE) {
 		    sts->x1d_o = DUMMY;
@@ -119,7 +119,7 @@ InangInfo *iac     o: incidence-angle info
 		}
 
 		/* Read data from this row. */
-		if (status = ReadIACArray (&tabinfo, row, iac))
+		if ((status = ReadIACArray (&tabinfo, row, iac)))
 		    return (status);
 	    }
 	}
@@ -131,7 +131,7 @@ InangInfo *iac     o: incidence-angle info
 	    return (ROW_NOT_FOUND);
 	}
 
-	if (status = CloseIACTab (&tabinfo))
+	if ((status = CloseIACTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -217,7 +217,7 @@ static int ReadIACArray (TblInfo *tabinfo, int row, InangInfo *iac) {
 	iac->ncoeff2 = ncoeff2;
 
 	if (ncoeff1 > 0) {
-	    if ((iac->coeff1 = (double *) malloc (iac->ncoeff1 * 
+	    if ((iac->coeff1 = (double *) malloc (iac->ncoeff1 *
                                                   sizeof(double))) == NULL)
 		return (OUT_OF_MEMORY);
 	    /* replace ncoeff1 with actual number of elements read */
@@ -227,7 +227,7 @@ static int ReadIACArray (TblInfo *tabinfo, int row, InangInfo *iac) {
 		return (TABLE_ERROR);
 	}
 	if (ncoeff2 > 0) {
-	    if ((iac->coeff2 = (double *) malloc (iac->ncoeff2 * 
+	    if ((iac->coeff2 = (double *) malloc (iac->ncoeff2 *
                                                   sizeof(double))) == NULL)
 		return (OUT_OF_MEMORY);
 	    ncoeff2 = c_tbagtd (tabinfo->tp, tabinfo->cp_coeff2, row,

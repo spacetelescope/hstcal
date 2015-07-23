@@ -141,30 +141,30 @@ StisInfo4 *sts    i: calibration switches and info
 
 	/* Get parameters that control wavecal processing. */
 	if (sts->wcptab.exists == EXISTS_YES) {
-	    if (status = GetWCP (sts))
+	    if ((status = GetWCP (sts)))
 		return (status);
 	}
 	if (sts->verbose)
 	    PrintWCP (sts);
 
 	/* Get the reference spectrum for the calibration lamp used. */
-	if (status = GetLamp (sts, &lamp))
+	if ((status = GetLamp (sts, &lamp)))
 	    return (status);
 
 	if (sts->disp_type == ECHELLE_DISP || sts->disp_type == PRISM_DISP) {
 
 	    /* get dispersion relation, and get reference aperture name */
-	    if (status = GetDisp4 (sts, &disp, ref_aper))
+	    if ((status = GetDisp4 (sts, &disp, ref_aper)))
 		return (status);
 
 	    /* get incidence angle from apdestab */
-	    if (status = GetAngle4 (sts, ref_aper, &angle))
+	    if ((status = GetAngle4 (sts, ref_aper, &angle)))
 		return (status);
 
 	    /* Get incidence angle coefficients, and update the dispersion coeff
 	       for the current angle.  The disp coeff are modified in-place.
 	    */
-	    if (status = GetInang4 (sts, &disp, angle))
+	    if ((status = GetInang4 (sts, &disp, angle)))
 		return (status);
 	}
 
@@ -173,7 +173,7 @@ StisInfo4 *sts    i: calibration switches and info
 	if (sts->disp_type != ECHELLE_DISP) {
 
 	    /* Get aperture description from apdestab. */
-	    if (status = GetApDes4 (sts, &slit))
+	    if ((status = GetApDes4 (sts, &slit)))
 		return (status);
 	}
 
@@ -196,13 +196,13 @@ StisInfo4 *sts    i: calibration switches and info
 	    sts->ny = in.sci.data.ny;
 
 	    /* Get keyword values from extension header. */
-	    if (status = GetGrpInfo4 (sts, &in.sci.hdr))
+	    if ((status = GetGrpInfo4 (sts, &in.sci.hdr)))
 		return (status);
 
 	    if (sts->disp_type == ECHELLE_DISP ||
 		sts->disp_type == PRISM_DISP) {
 		/* Get the list of spectral traces, one for each order. */
-		if (status = GetTrace4 (sts, &trace))
+		if ((status = GetTrace4 (sts, &trace)))
 		    return (status);
 		if (sts->verbose && sts->trace_rotation != 0.) {
 		  printf ("         trace was rotated by = %.6g degree.\n",
@@ -230,31 +230,31 @@ StisInfo4 *sts    i: calibration switches and info
 			sts->sdqflags & DATAREJECT) {
 		    printf ("\n");
 		    PrSwitch ("flagcr", PERFORM);
-		    if (status = FlagCR (sts, &in, extver))
+		    if ((status = FlagCR (sts, &in, extver)))
 			return (status);
 		    PrSwitch ("flagcr", COMPLETE);
 		}
 
 		if (sts->disp_type == ECHELLE_DISP) {
 
-		    if (status = EchShift (sts, &in,
+		    if ((status = EchShift (sts, &in,
 				&lamp, &disp, trace,
-				&w_shift, &s_shift))
+                                &w_shift, &s_shift)))
 			return (status);
 
 		} else {	/* first order data */
 
 		    /* Determine the shifts in each direction separately. */
-		    if (status = WaveShift (sts, &slit, &disp, &lamp, &in,
-				&specweight, &w_shift)) {
+		    if ((status = WaveShift (sts, &slit, &disp, &lamp, &in,
+                                             &specweight, &w_shift))) {
 			if (status != NO_GOOD_DATA)
 			    return (status);
 			status = 0;
 			w_shift = UNDEFINED_SHIFT;
 		    }
-		    if (status = SpatialShift (sts, &slit, trace, &in,
-				specweight, &s_shift)) {
-			if (status != NO_GOOD_DATA)
+		    if ((status = SpatialShift (sts, &slit, trace, &in,
+                                                specweight, &s_shift))) {
+			if ((status != NO_GOOD_DATA))
 			    return (status);
 			status = 0;			/* not fatal */
 			s_shift = UNDEFINED_SHIFT;
@@ -300,7 +300,7 @@ StisInfo4 *sts    i: calibration switches and info
 	    PrSwitch ("wavecorr", COMPLETE);
 
 	    /* Update current SCI extension header with the shift values. */
-	    if (status = UpdateShift (sts, extver, w_shift, s_shift))
+	    if ((status = UpdateShift (sts, extver, w_shift, s_shift)))
 		return (status);
 
 	    /* Write history records to primary header. */
@@ -309,7 +309,7 @@ StisInfo4 *sts    i: calibration switches and info
 		iim = openUpdateImage (sts->input, "", 0, &phdr);
 		if (hstio_err())
 		    return (OPEN_FAILED);
-		if (status = History4 (sts, &phdr))
+		if ((status = History4 (sts, &phdr)))
 		    return (status);
 		putHeader (iim);
 		if (hstio_err())

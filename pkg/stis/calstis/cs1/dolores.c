@@ -73,7 +73,7 @@ int *done         o: true if input image has been binned
 	    return (OUT_OF_MEMORY);
 
 	/* Bin the data, putting the result in out. */
-	if (status = bin2d (in, 0, 0, mx, my, avg, out))
+	if ((status = bin2d (in, 0, 0, mx, my, avg, out)))
 	    return (status);
 
 	/* Free x, and copy out to x. */

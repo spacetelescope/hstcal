@@ -26,18 +26,18 @@ int extver        i: used to find index for storing info in wav
 
 	index = extver - 1;
 
-	if (status = Get_KeyD (hdr, "EXPSTART", use_def, 0., &expstart))
+	if ((status = Get_KeyD (hdr, "EXPSTART", use_def, 0., &expstart)))
 	    return (status);
-	if (status = Get_KeyD (hdr, "EXPEND", use_def, 0., &expend))
+	if ((status = Get_KeyD (hdr, "EXPEND", use_def, 0., &expend)))
 	    return (status);
 
 	wav->midpt[index] = (expstart + expend) / 2.;
 
-	if (status = Get_KeyD (hdr, "SHIFTA1",
-			use_def, 0., &wav->shift1[index]))
+	if ((status = Get_KeyD (hdr, "SHIFTA1",
+                                use_def, 0., &wav->shift1[index])))
 	    return (status);
-	if (status = Get_KeyD (hdr, "SHIFTA2",
-			use_def, 0., &wav->shift2[index]))
+	if ((status = Get_KeyD (hdr, "SHIFTA2",
+                                use_def, 0., &wav->shift2[index])))
 	    return (status);
 
 	return (0);

@@ -50,7 +50,7 @@ static void MissingFile (char *, char *, int *);
 
    Phil Hodge, 2004 Aug 2:
 	In checkDark, there was an "} else" that apparently should have
-	been "} else {" with a closing brace later, based on the indentation.  
+	been "} else {" with a closing brace later, based on the indentation.
 	This actually did the right thing, but fix it anyway.
 
   Phil Hodge, 2011 May 9:
@@ -73,39 +73,39 @@ int GetFlags1 (StisInfo1 *sts, Hdr *phdr) {
 
 	/* Check each reference file that we need. */
 
-	if (status = checkDQI (phdr, sts, &missing, &nsteps))
+	if ((status = checkDQI (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = checkAtoD (phdr, sts, &missing, &nsteps))
+	if ((status = checkAtoD (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = checkBlev (phdr, sts, &nsteps))	/* no reference file */
+	if ((status = checkBlev (phdr, sts, &nsteps))) /* no reference file */
 	    return (status);
 
 	if (sts->detector == CCD_DETECTOR) {
-	    if (status = checkCCD (phdr, sts, &missing))
+	    if ((status = checkCCD (phdr, sts, &missing)))
 		return (status);
 	}
 
 	if (sts->lorscorr == PERFORM)
 	    nsteps++;
 
-	if (status = checkNonLin (phdr, sts, &missing, &nsteps))
+	if ((status = checkNonLin (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = checkBias (phdr, sts, &missing, &nsteps))
+	if ((status = checkBias (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = checkDark (phdr, sts, &missing, &nsteps))
+	if ((status = checkDark (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = checkFlat (phdr, sts, &missing, &nsteps))
+	if ((status = checkFlat (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = checkShad (phdr, sts, &missing, &nsteps))
+	if ((status = checkShad (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = checkPhot (phdr, sts, &missing, &nsteps))
+	if ((status = checkPhot (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
 	if (missing) {
@@ -139,7 +139,7 @@ int *nsteps      io: incremented if this step can be performed
 	/* Are we supposed to do this step? */
 	if (sts->atodcorr == PERFORM) {
 
-	    if (status = GetSwitch (phdr, "ATODCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "ATODCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE) {
 		sts->atodcorr = OMIT;
@@ -149,8 +149,8 @@ int *nsteps      io: incremented if this step can be performed
 	    /* Get the table name, check that the file exists, and get
 		pedigree and descrip.
 	    */
-	    if (status = GetTabRef (sts->refnames, phdr,
-			"ATODTAB", &sts->atod, &sts->atodcorr))
+	    if ((status = GetTabRef (sts->refnames, phdr,
+                                     "ATODTAB", &sts->atod, &sts->atodcorr)))
 		return (status);
 	    if (sts->atod.exists != EXISTS_YES)
 		MissingFile ("ATODTAB", sts->atod.name, missing);
@@ -182,15 +182,15 @@ int *nsteps      io: incremented if this step can be performed
 	/* Are we supposed to do this step? */
 	if (sts->biascorr == PERFORM) {
 
-	    if (status = GetSwitch (phdr, "BIASCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "BIASCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE) {
 		sts->biascorr = OMIT;
 		return (0);
 	    }
 
-	    if (status = GetImageRef (sts->refnames, phdr,
-			"BIASFILE", &sts->bias, &sts->biascorr))
+	    if ((status = GetImageRef (sts->refnames, phdr,
+                                       "BIASFILE", &sts->bias, &sts->biascorr)))
 		return (status);
 	    if (sts->bias.exists != EXISTS_YES)
 		MissingFile ("BIASFILE", sts->bias.name, missing);
@@ -219,7 +219,7 @@ int *nsteps      io: incremented if this step can be performed
 	/* Are we supposed to do this step? */
 	if (sts->blevcorr == PERFORM) {
 
-	    if (status = GetSwitch (phdr, "BLEVCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "BLEVCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE)
 		sts->blevcorr = OMIT;
@@ -254,8 +254,8 @@ int *missing     io: incremented if the table is missing
 	if (sts->detector != CCD_DETECTOR)
 	    return (0);
 
-	if (status = GetTabRef (sts->refnames, phdr, "CCDTAB",
-                                &sts->ccdpar, &calswitch))
+	if ((status = GetTabRef (sts->refnames, phdr, "CCDTAB",
+                                 &sts->ccdpar, &calswitch)))
 	    return (status);
 
 	if (sts->ccdpar.exists != EXISTS_YES) {
@@ -274,7 +274,7 @@ int *missing     io: incremented if the table is missing
 /* If this step is to be performed, check for the existence of the
    dark file.  If it exists, get the pedigree and descrip keyword values.
    This function also checks for the existence of the tdc table in the case
-   of a NUV MAMA detector. 
+   of a NUV MAMA detector.
 */
 
 static int checkDark (Hdr *phdr, StisInfo1 *sts, int *missing, int *nsteps) {
@@ -290,23 +290,23 @@ int *nsteps      io: incremented if this step can be performed
 
 	if (sts->darkcorr == PERFORM) {
 
-	    if (status = GetSwitch (phdr, "DARKCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "DARKCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE) {
 		sts->darkcorr = OMIT;
 		return (status = 0);
 	    }
 
-	    if (status = GetImageRef (sts->refnames, phdr,
-			"DARKFILE", &sts->dark, &sts->darkcorr))
+	    if ((status = GetImageRef (sts->refnames, phdr,
+                                       "DARKFILE", &sts->dark, &sts->darkcorr)))
 		return (status);
 	    if (sts->dark.exists != EXISTS_YES)
 		MissingFile ("DARKFILE", sts->dark.name, missing);
 
             if (sts->detector == NUV_MAMA_DETECTOR) {
 
-		if (status = GetTabRef (sts->refnames, phdr,
-		                        "TDCTAB", &sts->tdctab, &calswitch))
+		if ((status = GetTabRef (sts->refnames, phdr,
+                                         "TDCTAB", &sts->tdctab, &calswitch)))
 		    return (status);
 
 		if (sts->tdctab.exists != EXISTS_YES) {
@@ -316,7 +316,7 @@ int *nsteps      io: incremented if this step can be performed
 		} else if (sts->tdctab.goodPedigree != GOOD_PEDIGREE) {
 
                     (*missing)++;
-                    printf ("ERROR    TDCTAB `%s' is a dummy table.\n", 
+                    printf ("ERROR    TDCTAB `%s' is a dummy table.\n",
                          sts->tdctab.name);
 		}
 	    }
@@ -357,8 +357,8 @@ int *nsteps      io: incremented if this step can be performed
 
 	if (sts->dqicorr == PERFORM) {
 
-	    if (status = GetTabRef (sts->refnames, phdr,
-			"BPIXTAB", &sts->bpix, &sts->dqicorr))
+	    if ((status = GetTabRef (sts->refnames, phdr,
+                                     "BPIXTAB", &sts->bpix, &sts->dqicorr)))
 		return (status);
 
 	    if (sts->bpix.exists != EXISTS_YES) {
@@ -398,7 +398,7 @@ int *nsteps      io: incremented if this step can be performed
 	/* Are we supposed to do this step? */
 	if (sts->flatcorr == PERFORM) {
 
-	    if (status = GetSwitch (phdr, "FLATCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "FLATCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE) {
 		sts->flatcorr = OMIT;
@@ -410,8 +410,8 @@ int *nsteps      io: incremented if this step can be performed
 	    sts->dfltcorr = PERFORM;
 	    sts->lfltcorr = PERFORM;
 
-	    if (status = GetImageRef (sts->refnames, phdr,
-			"PFLTFILE", &sts->pflt, &sts->pfltcorr))
+	    if ((status = GetImageRef (sts->refnames, phdr,
+                                       "PFLTFILE", &sts->pflt, &sts->pfltcorr)))
 		return (status);
 	    if (sts->pflt.exists != EXISTS_YES) {
 		if (GotFileName (sts->pflt.name)) {	/* name specified? */
@@ -421,8 +421,8 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    }
 
-	    if (status = GetImageRef (sts->refnames, phdr,
-			"DFLTFILE", &sts->dflt, &sts->dfltcorr))
+	    if ((status = GetImageRef (sts->refnames, phdr,
+                                       "DFLTFILE", &sts->dflt, &sts->dfltcorr)))
 		return (status);
 	    if (sts->dflt.exists != EXISTS_YES) {
 		if (GotFileName (sts->dflt.name)) {
@@ -432,8 +432,8 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    }
 
-	    if (status = GetImageRef (sts->refnames, phdr,
-			"LFLTFILE", &sts->lflt, &sts->lfltcorr))
+	    if ((status = GetImageRef (sts->refnames, phdr,
+                                       "LFLTFILE", &sts->lflt, &sts->lfltcorr)))
 		return (status);
 	    if (sts->lflt.exists != EXISTS_YES) {
 		if (GotFileName (sts->lflt.name)) {
@@ -486,12 +486,12 @@ int *nsteps      io: incremented if this step can be performed
 
 	if (sts->glincorr == PERFORM || sts->lflgcorr == PERFORM) {
 
-	    if (status = GetSwitch (phdr, "GLINCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "GLINCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE)
 		sts->glincorr = OMIT;
 
-	    if (status = GetSwitch (phdr, "LFLGCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "LFLGCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE)
 		sts->lflgcorr = OMIT;
@@ -503,8 +503,8 @@ int *nsteps      io: incremented if this step can be performed
 		and check whether it exists.  calswitch is ignored;
 		glincorr and lflgcorr may be reset to DUMMY below.
 	    */
-	    if (status = GetTabRef (sts->refnames, phdr,
-			"MLINTAB", &sts->mlin, &calswitch))
+	    if ((status = GetTabRef (sts->refnames, phdr,
+                                     "MLINTAB", &sts->mlin, &calswitch)))
 		return (status);
 	    if (sts->mlin.exists != EXISTS_YES)
 		MissingFile ("MLINTAB", sts->mlin.name, missing);
@@ -550,8 +550,8 @@ int *nsteps      io: incremented if this step can be performed
 	    }
 
 	    /* Get the name of the _pht throughput table. */
-	    if (status = GetTabRef (sts->refnames, phdr,
-			"IMPHTTAB", &sts->phot, &sts->photcorr))
+	    if ((status = GetTabRef (sts->refnames, phdr,
+                                     "IMPHTTAB", &sts->phot, &sts->photcorr)))
 		return (status);
 	    if (sts->phot.exists != EXISTS_YES) {
 		MissingFile ("IMPHTTAB", sts->phot.name, missing);
@@ -559,8 +559,8 @@ int *nsteps      io: incremented if this step can be performed
 	    }
 
 	    /* Get the name of the _tds sensitivity table */
-	    if (status = GetTabRef(sts->refnames, phdr, "TDSTAB",
-				   &sts->tdstab, &sts->tdscorr))
+	    if ((status = GetTabRef(sts->refnames, phdr, "TDSTAB",
+                                    &sts->tdstab, &sts->tdscorr)))
 		return (status);
 	    if (sts->tdstab.exists != EXISTS_YES) {
 		if (GotFileName (sts->tdstab.name))
@@ -595,15 +595,15 @@ int *nsteps      io: incremented if this step can be performed
 
 	if (sts->shadcorr == PERFORM) {
 
-	    if (status = GetSwitch (phdr, "SHADCORR", &calswitch))
+	    if ((status = GetSwitch (phdr, "SHADCORR", &calswitch)))
 		return (status);
 	    if (calswitch == COMPLETE) {
 		sts->shadcorr = OMIT;
 		return (0);
 	    }
 
-	    if (status = GetImageRef (sts->refnames, phdr,
-			"SHADFILE", &sts->shad, &sts->shadcorr))
+	    if ((status = GetImageRef (sts->refnames, phdr,
+                                       "SHADFILE", &sts->shad, &sts->shadcorr)))
 		return (status);
 	    if (sts->shad.exists != EXISTS_YES)
 		MissingFile ("SHADFILE", sts->shad.name, missing);
@@ -627,13 +627,13 @@ static int GetImageRef (RefFileInfo *refnames, Hdr *phdr,
 	int status;
 
 	/* Get the reference image name. */
-	if (status = GetRefName (refnames, phdr, keyword, image->name))
+	if ((status = GetRefName (refnames, phdr, keyword, image->name)))
 	    return (status);
 
 	/* ImgPedigree opens the image to verify that it exists, and if so,
 	   gets pedigree & descrip.
 	*/
-	if (status = ImgPedigree (image))
+	if ((status = ImgPedigree (image)))
 	    return (status);
 	if (image->exists == EXISTS_YES) {
 	    if (image->goodPedigree != GOOD_PEDIGREE)
@@ -655,13 +655,13 @@ static int GetTabRef (RefFileInfo *refnames, Hdr *phdr,
 	int status;
 
 	/* Get the reference table name. */
-	if (status = GetRefName (refnames, phdr, keyword, table->name))
+	if ((status = GetRefName (refnames, phdr, keyword, table->name)))
 	    return (status);
 
 	/* TabPedigree opens the table to verify that it exists, and if so,
 	   gets pedigree & descrip.
 	*/
-	if (status = TabPedigree (table))
+	if ((status = TabPedigree (table)))
 	    return (status);
 
 	if (table->exists == EXISTS_YES) {

@@ -86,7 +86,7 @@ int verbose            i: print additional info?
 	closeImage (imSci);
 
 	/* Get keyword values from science data primary header. */
-	if (status = GetKeyInfo12 (&scidata, &phdrSci))
+	if ((status = GetKeyInfo12 (&scidata, &phdrSci)))
 	    return (status);
 
 	/* Print information about the science image. */
@@ -106,7 +106,7 @@ int verbose            i: print additional info?
 	closeImage (imWav);
 
 	/* Get keyword values from wavecal primary header. */
-	if (status = GetKeyInfo12 (&wavecal, &phdrWav))
+	if ((status = GetKeyInfo12 (&wavecal, &phdrWav)))
 	    return (status);
 
 	freeHdr (&phdrWav);
@@ -126,7 +126,7 @@ int verbose            i: print additional info?
 	    TimeStamp ("Begin processing", scidata.rootname);
 
 	/* Update the target position keywords in the science file header. */
-	if (status = AddShifts (&scidata, &wavecal, w_option))
+	if ((status = AddShifts (&scidata, &wavecal, w_option)))
 	    return (status);
 
 	if (scidata.printtime)

@@ -215,13 +215,13 @@ StisInfo7 *sts    i: calibration switches and info
 
 	/* Get aperture description from APD. */
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
-	    if (status = GetApDes7 (sts, &slit))
+	    if ((status = GetApDes7 (sts, &slit)))
 		return (status);
 	}
 
 	/* Get aperture throughput info. */
 	if (sts->fluxcorr == PERFORM) {
-	    if (status = GetApThr (sts, &slit))
+	    if ((status = GetApThr (sts, &slit)))
 		return (status);
 	}
 
@@ -236,18 +236,18 @@ StisInfo7 *sts    i: calibration switches and info
 
 	if (sts->sgeocorr == PERFORM) {
 	    /* Read the small-scale distortion data into memory. */
-	    if (status = OpenSGeo (sts->sdstfile.name, &ssgx, &ssgy))
+	    if ((status = OpenSGeo (sts->sdstfile.name, &ssgx, &ssgy)))
 		return (status);
 	}
 
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 
 	    /* Get output coordinate parameters for all spectral orders. */
-	    if (status = GetSDC (sts, &coords, &minorder, &maxorder))
+	    if ((status = GetSDC (sts, &coords, &minorder, &maxorder)))
 		return (status);
 
 	    /* Get dispersion coefficients from the DSPTAB table. */
-	    if (status = GetDisp (sts, &disp))
+	    if ((status = GetDisp (sts, &disp)))
 		return (status);
 	}
 
@@ -256,7 +256,7 @@ StisInfo7 *sts    i: calibration switches and info
 	    /* Get output coordinate parameters and distortion; should be
 		the same for all imsets.
 	    */
-	    if (status = GetIDC (sts, &coords, &dist))
+	    if ((status = GetIDC (sts, &coords, &dist)))
 		return (status);
 	    minorder = 1;  maxorder = 1;	/* loop limits */
 	}
@@ -287,7 +287,7 @@ StisInfo7 *sts    i: calibration switches and info
 		return (OPEN_FAILED);
 
 	    /* Get keyword values from extension header. */
-	    if (status = GetGrpInfo7 (sts, &in->sci.hdr))
+	    if ((status = GetGrpInfo7 (sts, &in->sci.hdr)))
 		return (status);
 
 	    /* If exptime = 0, don't do fluxcorr. */
@@ -308,7 +308,7 @@ StisInfo7 *sts    i: calibration switches and info
 	    if (extver == 1) {
 		if (sts->obstype == SPECTROSCOPIC_TYPE && !sts->first_order) {
 		    /* Adjust dispersion coefficients to account for offset. */
-		    if (status = MOCAdjustDisp (sts, disp))
+		    if ((status = MOCAdjustDisp (sts, disp)))
 			return (status);
 		}
 	    }
@@ -316,7 +316,7 @@ StisInfo7 *sts    i: calibration switches and info
 	    /* Transpose the input data, if a cross disperser was used. */
 /* ...
 	    if (sts->dispaxis == 2) {
-		if (status = Transpose (&in))
+		if ((status = Transpose (&in)))
 		    return (status);
 	    }
 ... */
@@ -332,8 +332,8 @@ StisInfo7 *sts    i: calibration switches and info
 		PrSwitch ("helcorr", PERFORM);
 		sts->hfactor = HelioFactor (sts, &v_helio);
 		/* Note:  written to input in memory, copied later to output */
-		if (status = Put_KeyD (&in->sci.hdr, "V_HELIO", v_helio,
-			"heliocentric radial velocity (km/s)"))
+		if ((status = Put_KeyD (&in->sci.hdr, "V_HELIO", v_helio,
+                                        "heliocentric radial velocity (km/s)")))
 		    return (status);
 		PrSwitch ("helcorr", COMPLETE);
 	    } else {
@@ -377,7 +377,7 @@ StisInfo7 *sts    i: calibration switches and info
 	        if (mref > 0) {
 
 	            /* Get the trace for the reference order */
-	            if (status = GetTrace (sts, mref, &trace))
+	            if ((status = GetTrace (sts, mref, &trace)))
 	                return (status);
 	            ypos = trace->a2center;
 	            FreeTrace (&trace);
@@ -390,12 +390,12 @@ StisInfo7 *sts    i: calibration switches and info
 	               correction will take place, so the wpos and ddisp values
 	               will never get used.
 	            */
-	            if (status = GetApOffset (sts, &slit, disp->ref_aper,
-	                                      &delta))
+	            if ((status = GetApOffset (sts, &slit, disp->ref_aper,
+                                               &delta)))
 	                return (status);
-	            if (status = GetInang (sts, &sts->inangtab, mref, &iac))
+	            if ((status = GetInang (sts, &sts->inangtab, mref, &iac)))
 	                return (status);
-	            if (status = InterpDisp (&disp, ypos, &disp_y))
+	            if ((status = InterpDisp (&disp, ypos, &disp_y)))
 	                return (status);
 
 	            warn1 = 0;  warn2 = 0;
@@ -426,14 +426,14 @@ StisInfo7 *sts    i: calibration switches and info
 		}
 
 		/* Extract the CoordInfo record for this order. */
-		if (status = ReturnCoord (&coords, sporder, &coord_o))
+		if ((status = ReturnCoord (&coords, sporder, &coord_o)))
 		    return (status);
 
 		/* Scale some values (in-place in coord_o) according to
 		   binning, and update plate_scale in sts.
 		*/
-		if (status = ScaleWCS (sts,
-			in->sci.data.nx, in->sci.data.ny, coord_o))
+		if ((status = ScaleWCS (sts,
+                        in->sci.data.nx, in->sci.data.ny, coord_o)))
 		    return (status);
 
 		/* If center_target is true, reset CRPIX2 so the output
@@ -454,16 +454,16 @@ StisInfo7 *sts    i: calibration switches and info
 		   mode, update order number and coordinates.  For imaging
 		   mode, GeoCorr7 will update crpix.
 		*/
-		if (status = PutGrpInfo7 (in, out,
-			coord_o, extver, sts->obstype))
+		if ((status = PutGrpInfo7 (in, out,
+                                           coord_o, extver, sts->obstype)))
 		    return (status);
 
 		/* Perform geometric correction.
 		   (incl &ssgx, &ssgy in call for small-scale distortion)
 		*/
 		if (sts->obstype == SPECTROSCOPIC_TYPE) {
-		    if (status = X2DCorr7 (sts, coord_o, disp, &slit,
-				o_extver, in, out)) {
+		    if ((status = X2DCorr7 (sts, coord_o, disp, &slit,
+                                            o_extver, in, out))) {
 			if (status > 0)
 			    return (status);		/* a real error */
 			status = 0;
@@ -473,8 +473,8 @@ StisInfo7 *sts    i: calibration switches and info
 			continue;
 		    }
 		} else if (sts->obstype == IMAGING_TYPE) {
-		    if (status = GeoCorr7 (sts, &dist, &ssgx, &ssgy, in, out))
-			return (status);
+                        if ((status = GeoCorr7 (sts, &dist, &ssgx, &ssgy, in, out)))
+                            return (status);
 		}
 
 		x2dMsg (sts, o_extver);
@@ -484,10 +484,10 @@ StisInfo7 *sts    i: calibration switches and info
 
 		/* Convert to absolute flux. */
 		if (fluxcorr_extver == PERFORM) {
-		    if (status = GetAbsPhot (sts, sporder, &phot, 1, &warn))
+		    if ((status = GetAbsPhot (sts, sporder, &phot, 1, &warn)))
 			return (status);
 		    /* PCT is actually indpendent of sporder. */
-		    if (status = GetPCT (sts, &phot))
+		    if ((status = GetPCT (sts, &phot)))
 			return (status);
 		    FluxMsg (sts, o_extver);
 		    if (sts->x2dcorr_o != PERFORM) {
@@ -515,10 +515,10 @@ StisInfo7 *sts    i: calibration switches and info
 	                phot.disp = 0.0;
 	            }
 
-		    if (status = AbsFlux (sts, out, coord_o, &phot, &slit, &tds,
+		    if ((status = AbsFlux (sts, out, coord_o, &phot, &slit, &tds,
 				sts->plate_scale, sts->atodgain,
 				sts->exptime, sts->hfactor, sporder,
-				&blazeshift))
+                                &blazeshift)))
 			return (status);
 		    PrSwitch ("fluxcorr", COMPLETE);
 		    if (sts->printtime)
@@ -527,7 +527,7 @@ StisInfo7 *sts    i: calibration switches and info
 
 		/* Compute statistics and add to output headers. */
 		if (sts->statcorr == PERFORM) {
-		    if (status = doStat (out, sts->sdqflags))
+		    if ((status = doStat (out, sts->sdqflags)))
 			return (status);
 		    if (sts->printtime)
 			TimeStamp ("STATFLAG complete", sts->rootname);
@@ -536,9 +536,9 @@ StisInfo7 *sts    i: calibration switches and info
 		/* Write blazeshif info. */
 
                 if (blazeshift != NO_VALUE) {
-	            if (status = Put_KeyF (&out->sci.hdr, "BLZSHIFT",
-	                               (float) blazeshift,
-                                      "Blaze shift (in pixels)")) {
+	            if ((status = Put_KeyF (&out->sci.hdr, "BLZSHIFT",
+                                            (float) blazeshift,
+                                            "Blaze shift (in pixels)"))) {
 	                return (status);
 	            }
 	        }
@@ -549,7 +549,7 @@ StisInfo7 *sts    i: calibration switches and info
 		if (o_extver == 1) {
 		    UCalVer (out->globalhdr);
 		    UFilename (sts->output, out->globalhdr);
-		    if (status = History7 (sts, out->globalhdr))
+		    if ((status = History7 (sts, out->globalhdr)))
 			return (status);
 		}
 
@@ -610,8 +610,8 @@ StisInfo7 *sts    i: calibration switches and info
 	    oim = openUpdateImage (sts->output, "", 0, &phdr);
 	    if (hstio_err())
 		return (OPEN_FAILED);
-	    if (status = Put_KeyI (&phdr, "NEXTEND", o_extver * EXT_PER_GROUP,
-			"number of extensions"))
+	    if ((status = Put_KeyI (&phdr, "NEXTEND", o_extver * EXT_PER_GROUP,
+                                    "number of extensions")))
 		return (status);
 	    putHeader (oim);
 	    if (hstio_err())
@@ -663,14 +663,14 @@ static int MOCAdjustDisp (StisInfo7 *sts, DispRelation *disp) {
 	trace = NULL;
 
 	/* Get MAMA offset parameters from the dispersion coeff. table. */
-	if (status = GetMOC (&sts->disptab, sts->opt_elem, sts->cenwave,
-			&mref, &yref, &a4corr))
+	if ((status = GetMOC (&sts->disptab, sts->opt_elem, sts->cenwave,
+                              &mref, &yref, &a4corr)))
 	    return (status);
 	if (a4corr == 0.)
 	    return (0);		/* nothing further to do */
 
 	/* Get the trace for spectral order mref, and get its a2center. */
-	if (status = GetTrace (sts, mref, &trace))
+	if ((status = GetTrace (sts, mref, &trace)))
 	    return (status);
 	a2center = trace->a2center;
 

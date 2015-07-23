@@ -99,7 +99,7 @@
 int AbsFlux (StisInfo7 *sts, SingleGroup *out, CoordInfo *coord_o,
 		PhotInfo *phot, ApInfo *slit, TdsInfo *tds,
 		double *plate_scale, double atodgain,
-		double exptime, double hfactor, int sporder, 
+		double exptime, double hfactor, int sporder,
 		double *blazeshift) {
 
 /* arguments:
@@ -182,10 +182,10 @@ double *blazeshift;    o: blaze shift value actually used
 	for (i = 0;  i < phot->nelem; i++)
 	    wlt[i] = phot->wl[i];
 
-	/* Get dispersion from data. This is required in the case the 
-	   reference values from the _pht table are invalid, AND we are 
-	   passing a blazeshift value thru the command line. In this case, 
-	   we use the dispersion at the mid point in the current spectral 
+	/* Get dispersion from data. This is required in the case the
+	   reference values from the _pht table are invalid, AND we are
+	   passing a blazeshift value thru the command line. In this case,
+	   we use the dispersion at the mid point in the current spectral
 	   order.
 	*/
 	i = out->sci.data.nx / 2;
@@ -196,7 +196,7 @@ double *blazeshift;    o: blaze shift value actually used
 	dispersion /= hfactor;
 
 	if (phot->wpos != 0.0 || sts->blazeshift != NO_VALUE) {
-	    BlazeCorr (phot, sts->expstart, sts->expend, sporder, 
+	    BlazeCorr (phot, sts->expstart, sts->expend, sporder,
                        sts->blazeshift, blazeshift, dispersion);
 	}
 
@@ -224,7 +224,7 @@ double *blazeshift;    o: blaze shift value actually used
 	    throughput = interp1d (wl, slit->wl, slit->thr,
 			 slit->nelem, &thr_starti);
 	    if (sts->tdscorr == PERFORM)
-	        tds_factor  = interp1d (wl, tds->wl, tds_factors, 
+	        tds_factor  = interp1d (wl, tds->wl, tds_factors,
 	                                tds->nwl, &tds_starti);
 	    else
 	        tds_factor = 1;
@@ -259,29 +259,29 @@ double *blazeshift;    o: blaze shift value actually used
 	throughput = sum / (double)(out->sci.data.nx);
 
 	/* Update BUNIT in the science and error extension headers. */
-	if (status = Put_KeyS (&out->sci.hdr, "BUNIT", phot->bunit,
-		"units for flux-calibrated data"))
+	if ((status = Put_KeyS (&out->sci.hdr, "BUNIT", phot->bunit,
+                                "units for flux-calibrated data")))
 	    return (status);
-	if (status = Put_KeyS (&out->err.hdr, "BUNIT", phot->bunit,
-		"units for flux-calibrated data"))
+	if ((status = Put_KeyS (&out->err.hdr, "BUNIT", phot->bunit,
+                                "units for flux-calibrated data")))
 	    return (status);
 
 	if (throughput > 0.)
 	    diff_pt /= throughput;
 	else
 	    diff_pt = -9999.;
-	if (status = Put_KeyF (&out->sci.hdr, "DIFF2PT", diff_pt,
-		"diffuse to point source conversion factor"))
+	if ((status = Put_KeyF (&out->sci.hdr, "DIFF2PT", diff_pt,
+                                "diffuse to point source conversion factor")))
 	    return (status);
 
-	if (status = Put_KeyF (&out->sci.hdr, "CONT2EML", cont_eml,
-		"continuum to emission line conversion factor"))
+	if ((status = Put_KeyF (&out->sci.hdr, "CONT2EML", cont_eml,
+                                "continuum to emission line conversion factor")))
 	    return (status);
-	if (status = Put_KeyF (&out->sci.hdr, "SCALE_A1", plate_scale[0],
-		"arcsec / pixel in dispersion direction"))
+	if ((status = Put_KeyF (&out->sci.hdr, "SCALE_A1", plate_scale[0],
+                                "arcsec / pixel in dispersion direction")))
 	    return (status);
-	if (status = Put_KeyD (&out->sci.hdr, "OMEGAPIX",
-		plate_scale[0] * plate_scale[1], "pixel area, arcsec^2"))
+	if ((status = Put_KeyD (&out->sci.hdr, "OMEGAPIX",
+                plate_scale[0] * plate_scale[1], "pixel area, arcsec^2")))
 	    return (status);
 
 	if (sts->tdscorr == PERFORM)

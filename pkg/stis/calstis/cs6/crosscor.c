@@ -107,7 +107,7 @@ int avoid1, avoid2; i:  Lya region to avoid (in physical pixels)
 	for (y_nom = low_end; y_nom <= high_end; y_nom += 1.0) {
 
 	    /* Interpolate in trace table. */
-	    if (status = InterpTrace6 (&trc, y_nom, &trace_y))
+	    if ((status = InterpTrace6 (&trc, y_nom, &trace_y)))
 	        return (status);
 
 	    /* Loop over image pixels in the A1 direction. */

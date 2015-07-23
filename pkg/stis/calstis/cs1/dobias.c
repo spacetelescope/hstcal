@@ -56,8 +56,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	   get the same_size flag, and get info about binning and offset
 	   for use by bin2d.
 	*/
-	if (status = FindBin (sts, x, &y,
-		&same_size, &high_res, &rx, &ry, &x0, &y0)) {
+	if ((status = FindBin (sts, x, &y,
+                &same_size, &high_res, &rx, &ry, &x0, &y0))) {
 	    if (status == REF_TOO_SMALL && sts->wavecal) {
 		printf (
 	"Warning  BIASFILE is binned more than the input wavecal, \\\n");
@@ -77,9 +77,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* No binning required. */
 
 	    /* scale bias by number of images that were combined */
-	    if (status = multk2d (&y, (float)(sts->ncombine)))
+	    if ((status = multk2d (&y, (float)(sts->ncombine))))
 		return (status);
-	    if (status = sub2d (x, &y)) {
+	    if ((status = sub2d (x, &y))) {
 		printf ("ERROR    (biascorr) size mismatch.\n");
 		return (status);
 	    }
@@ -91,16 +91,16 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	    initSingleGroup (&z);
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny);
-	    if (status = bin2d (&y, x0, y0, rx, ry, avg, &z)) {
+	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
 		printf ("ERROR    (biascorr) size mismatch.\n");
 		return (status);
 	    }
 	    freeSingleGroup (&y);			/* done with y */
 
 	    /* scale the bias */
-	    if (status = multk2d (&z, (float)(sts->ncombine)))
+	    if ((status = multk2d (&z, (float)(sts->ncombine))))
 		return (status);
-	    if (status = sub2d (x, &z))
+	    if ((status = sub2d (x, &z)))
 		return (status);
 	    freeSingleGroup (&z);			/* done with z */
 

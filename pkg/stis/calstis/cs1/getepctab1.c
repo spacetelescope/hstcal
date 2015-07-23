@@ -27,7 +27,7 @@ static int OpenEPCTab(char *, TblInfo *);
 static int ReadEPCTab(TblInfo *, int, TblRow *);
 static int CloseEPCTab(TblInfo *);
 
-/* 
+/*
   This routine gets the mjd and temperature from the EPC parameters
   calibration table (keyword name EPCTAB).
 
@@ -73,11 +73,11 @@ StisInfo1 *sts     io: calibration switches, etc
         return (0);
 
     /*  Open the EPC parameters table and find columns. */
-    if (status = OpenEPCTab(sts->epctab.name, &tabinfo))
+    if ((status = OpenEPCTab(sts->epctab.name, &tabinfo)))
         return (status);
 
     /*  Alloc memory  */
-    
+
     mjd  = (double *) malloc(tabinfo.nrows * sizeof(double));
     temp = (double *) malloc(tabinfo.nrows * sizeof(double));
     if (mjd == NULL || temp == NULL)
@@ -93,7 +93,7 @@ StisInfo1 *sts     io: calibration switches, etc
     for (row = 1; row <= tabinfo.nrows; row++) {
 
         /* Read the current row into tabrow. */
-        if (status = ReadEPCTab(&tabinfo, row, &tabrow))
+        if ((status = ReadEPCTab(&tabinfo, row, &tabrow)))
             return (status);
 
         mjd[row-1]  = tabrow.mjd;
@@ -109,7 +109,7 @@ StisInfo1 *sts     io: calibration switches, etc
         d2 = temp[row] - ((row > tabinfo.nrows-2) ? temp[row]: temp[row+1]);
         p1 = exp(-0.5*d1*d1/sigma/sigma);
         p2 = exp(-0.5*d2*d2/sigma/sigma);
-        /*  Check for invalid temperature range or discrepant 
+        /*  Check for invalid temperature range or discrepant
          *  temperature readings.
          */
         if (!((temp[row] < 15. || temp[row] > 25.) ||
@@ -121,8 +121,8 @@ StisInfo1 *sts     io: calibration switches, etc
             sts->epc_rows++;
         }
     }
-    
-    if (status = CloseEPCTab(&tabinfo))		/* close the table */
+
+    if ((status = CloseEPCTab(&tabinfo))) /* close the table */
         return (status);
 
     free(temp);
@@ -132,7 +132,7 @@ StisInfo1 *sts     io: calibration switches, etc
 }
 
 /* This routine opens the EPC parameters table, finds the columns that we
-   need, and gets the total number of rows in the table.  The columns are 
+   need, and gets the total number of rows in the table.  The columns are
    TIME and VALUE.
 */
 

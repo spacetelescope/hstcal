@@ -53,7 +53,7 @@ double shift1, shift2  i: shift to be assigned to SHIFTAi keywords
 	    return (OPEN_FAILED);
 
 	/* Update SHIFTAi. */
-	if (status = UpdateShift (&hdr, shift1, shift2))
+	if ((status = UpdateShift (&hdr, shift1, shift2)))
 	    return (status);
 
 	putHeader (im);
@@ -68,7 +68,7 @@ double shift1, shift2  i: shift to be assigned to SHIFTAi keywords
 	if (hstio_err())
 	    return (OPEN_FAILED);
 
-	if (status = UpdateShift (&hdr, shift1, shift2))
+	if ((status = UpdateShift (&hdr, shift1, shift2)))
 	    return (status);
 
 	putHeader (im);
@@ -83,7 +83,7 @@ double shift1, shift2  i: shift to be assigned to SHIFTAi keywords
 	if (hstio_err())
 	    return (OPEN_FAILED);
 
-	if (status = UpdateShift (&hdr, shift1, shift2))
+	if ((status = UpdateShift (&hdr, shift1, shift2)))
 	    return (status);
 
 	putHeader (im);

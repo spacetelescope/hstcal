@@ -112,7 +112,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 	/* Get values from the TDS table */
 	if (sts->tdscorr == PERFORM && sts->photcorr == PERFORM) {
-	    if (status = GetTds1(sts->tdstab.name, sts->opt_elem, &tds))
+	    if ((status = GetTds1(sts->tdstab.name, sts->opt_elem, &tds)))
 		return (status);
 	    obs.photflam /= tempFactor(&tds, obs.photplam, sts->detector_temp);
 	    FreeTds1 (&tds);
@@ -206,7 +206,7 @@ factor                  divide photflam by this factor
 
 	double sensitivity, factor;
 	int starti;
-	int i;
+	/*int i;*/
 
 	if (temperature >= 0.) {
 	    starti = 0;

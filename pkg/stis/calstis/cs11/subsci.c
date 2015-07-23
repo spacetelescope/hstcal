@@ -121,7 +121,7 @@ StisInfo11 *scidata  i: info for science data
 
 	    /* Find the appropriate imset in science file. */
 	    option = STIS_NEAREST;
-	    if (status = MatchSci (wavecal, scidata, option, &extverSci))
+	    if ((status = MatchSci (wavecal, scidata, option, &extverSci)))
 		return (status);
 	    index = extverSci - 1;		/* array index for exptime */
 
@@ -136,7 +136,7 @@ StisInfo11 *scidata  i: info for science data
 			scidata->gain / wavecal->gain;
 
 	    /* Do the subtraction (in-place in wav). */
-	    if (status = BinSubtract (&wav, &sci, ratio, scidata->verbose))
+	    if ((status = BinSubtract (&wav, &sci, ratio, scidata->verbose)))
 		return (status);
 
 	    freeSingleGroup (&sci);

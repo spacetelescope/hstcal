@@ -365,7 +365,7 @@ int debug;             i: debug control
         yy = y1;
         isize = NINT(size);
 	for (k = 0;  k < isize;  k++) {
-	
+
 	    /* Interpolate, checking for out of bounds. */
 	    Interp2D (in, sts->sdqflags, xx, yy, 1.0, WGT_VARIANCE,
 			&oSci, &oErr, &oDQ);
@@ -455,10 +455,10 @@ int SmoothBack (StisInfo6 *sts, RowContents *row_contents) {
 	    BoxcarFilter (row_contents->back, row_contents->npts, 9,
                           sts->bks_mode);
 
-	    if (status = PolynomialFilter (row_contents->back,
+	    if ((status = PolynomialFilter (row_contents->back,
                                            row_contents->npts,
                                            sts->bks_order,
-                                           0, 0, 0, 0)) {
+                                            0, 0, 0, 0))) {
 	        return (status);
 	    }
 

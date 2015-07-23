@@ -39,8 +39,8 @@ char *refname     o: directory name and reference file name
 	FindRefFile (ref, keyword, refname, &foundit);
 
 	if (!foundit) {
-	    if (status = Get_KeyS (phdr, keyword,
-			use_default, "", refname, STIS_LINE))
+	    if ((status = Get_KeyS (phdr, keyword,
+                                    use_default, "", refname, STIS_LINE)))
 		return (status);
 	}
 

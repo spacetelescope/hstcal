@@ -15,19 +15,19 @@
 # define BOX_UPPER	1
 
 static double BoxTilt (XtractInfo *, int);
-static void AccumPix (StisInfo6 *, SingleGroup *, int, int, double, double *, 
-                       double *, double *, double *, double *, double *, 
-                       double *, short *, int *, int, int, double *, double *, 
+static void AccumPix (StisInfo6 *, SingleGroup *, int, int, double, double *,
+                       double *, double *, double *, double *, double *,
+                       double *, short *, int *, int, int, double *, double *,
                        short *, double, double *, short, double *, int);
-static void AccPixUnw (StisInfo6 *, SingleGroup *, int, int, double, double *, 
+static void AccPixUnw (StisInfo6 *, SingleGroup *, int, int, double, double *,
                        double *, double *, double *, double *, double *,
-                       short *, int *, int, int, double *, short *, double, 
+                       short *, int *, int, int, double *, short *, double,
                        double, double *, int);
-static void AccPixOpt (StisInfo6 *, SingleGroup *, int, int, double *, 
+static void AccPixOpt (StisInfo6 *, SingleGroup *, int, int, double *,
                        double *, double *, double *, double *, double *,
-                       double *, short *, int *, int, int, double *, 
+                       double *, short *, int *, int, int, double *,
                        double, double, double, double *, short, int);
-static void CleanPixel (StisInfo6 *, SingleGroup *, int, int, double *, 
+static void CleanPixel (StisInfo6 *, SingleGroup *, int, int, double *,
                         int, double, SingleGroup *, int);
 static void CleanPixels (StisInfo6 *, SingleGroup *, int, int, int,
                         double *, int, double, SingleGroup *, int);
@@ -35,7 +35,7 @@ static void ComputeBack (StisInfo6 *, int, double *, double *, double *, int);
 static void ReplaceBack (StisInfo6 *, double, double, double *, double *);
 static void UpdateProfile (float, double *, double *,short *, int, int);
 
-/*  
+/*
    Perform the actual 1-D extraction, including background subtraction
    and optional profile generation.
 
@@ -50,9 +50,9 @@ static void UpdateProfile (float, double *, double *,short *, int, int);
    11 Apr 97  -  OPR 33787: replaced flagged pixels by interpolated value (IB).
    11 Apr 97  -  OPR 33790: flag extracted pixels that had more than 10%
                  of their flux affected by input flagged pixels (IB).
-   16 Apr 97  -  Revised OPR 33787 and 33790: do not replace flagged pixels by 
+   16 Apr 97  -  Revised OPR 33787 and 33790: do not replace flagged pixels by
                  interpolated value, just omit them and set the flag (IB)
-   17 Apr 97  -  Replaced scalar bktilt by a polynomial description. 
+   17 Apr 97  -  Replaced scalar bktilt by a polynomial description.
                  NO tilted spectrum box !! (IB)
    17 Jul 97  -  Background is in counts/sec (IB)
    18 Aug 97  -  Turn off data quality flag checking. This counteracts the
@@ -78,12 +78,12 @@ static void UpdateProfile (float, double *, double *,short *, int, int);
    02 Dec 99  -  xxx_FILL constants moved to calstis6.h file  (IB)
    07 Dec 99  -  Rejection flag in profile builder (IB)
    13 Dec 99  -  Deviant pixel cleaning in optimal extraction (IB)
-   16 Dec 99  -  Weights image updated with rejection flags (IB) 
+   16 Dec 99  -  Weights image updated with rejection flags (IB)
    17 Dec 99  -  Flux normalization factor in opt. extr. rejection (IB)
    17 Jan 00  -  Scattered light correction algorithm (IB)
    11 Apr 00  -  Interpolate profile so it is one pixel smaller (IB)
    25 Apr 00  -  Fixed box computation for binned data (IB)
-   16 Jun 00  -  2-D array with profile Y positions (IB) 
+   16 Jun 00  -  2-D array with profile Y positions (IB)
    13 Jul 00  -  Redefined extrsize as double (IB)
    31 Oct 00  -  Profile centered on centroid instead of trace (IB)
    01 Nov 00  -  Profile offset (IB)
@@ -96,9 +96,9 @@ static void UpdateProfile (float, double *, double *,short *, int, int);
 
 */
 
-int X1DSpec (StisInfo6 *sts, SpTrace *trc, XtractInfo *xtr, 
-             double extrsize, SingleGroup *in, SingleGroup *outw, 
-             FloatHdrData *ssgx, FloatHdrData *ssgy, 
+int X1DSpec (StisInfo6 *sts, SpTrace *trc, XtractInfo *xtr,
+             double extrsize, SingleGroup *in, SingleGroup *outw,
+             FloatHdrData *ssgx, FloatHdrData *ssgy,
              IntensArray *inta, RowContents *row_cont) {
 
 
@@ -144,13 +144,13 @@ RowContents *row_cont  o:  output row arrays
 	double x1, x2;
 	int ix1, ix2, ix;
 
-	int CalcBack (StisInfo6 *, XtractInfo *, SingleGroup *, 
+	int CalcBack (StisInfo6 *, XtractInfo *, SingleGroup *,
                        FloatHdrData *, FloatHdrData *, int, double, int);
 
 	/* Output extraction info (in image, not reference, pixels) */
 
 	if (sts->extrloc) {
-	    row_cont->a2center = sts->cc_a2center * 
+	    row_cont->a2center = sts->cc_a2center *
                                  sts->ltm[1] + sts->ltv[1] + 1.0;
 	    row_cont->extrsize = extrsize * sts->ltm[1];
 	    /* See if there are command-line overrides. */
@@ -179,12 +179,12 @@ RowContents *row_cont  o:  output row arrays
 	/* Alloc memory for interpolated profile. This must be always
            done, to avoid a rui exception.
         */
-	if ((iprofile = (double *) malloc ((sts->profile_y + 1) * 
+	if ((iprofile = (double *) malloc ((sts->profile_y + 1) *
                                   sizeof(double))) == NULL)
 	    return (OUT_OF_MEMORY);
 
-	/* If building a profile, DQ array associated with the profile 
-           raw array must be reset. 
+	/* If building a profile, DQ array associated with the profile
+           raw array must be reset.
         */
 	if (sts->do_profile) {
 	for (ipix = 0; ipix < in->sci.data.nx ; ipix++)
@@ -195,10 +195,10 @@ RowContents *row_cont  o:  output row arrays
 	/* Allocate memory for profile positions array. This array will
            store individual pixel (column) offsets that will be later used
            to compute the centroid. The centroid in turn is used to correct
-           the final offset value that is passed to the drizzle routine. 
+           the final offset value that is passed to the drizzle routine.
         */
 	if (sts->do_profile) {
-	    if ((profile_yabs = (double *) malloc ((sts->profile_y + 1) * 
+	    if ((profile_yabs = (double *) malloc ((sts->profile_y + 1) *
                                 sizeof(double))) == NULL)
 	        return (OUT_OF_MEMORY);
 	}
@@ -223,13 +223,13 @@ RowContents *row_cont  o:  output row arrays
 	    if (sts->bktilt != NO_TILT)
 	        bktilt = sts->bktilt;
 
-	    /* Compute once and for all the tilted background box 
+	    /* Compute once and for all the tilted background box
                projections.
             */
 	    sts->sin_bktilt = sin (bktilt / 180.0 * PI);
 	    sts->cos_bktilt = cos (bktilt / 180.0 * PI);
 
-	    /* Add trace curve to cross-correlation result  
+	    /* Add trace curve to cross-correlation result
                to get actual position of trace. This is the
                extraction box center.
             */
@@ -243,18 +243,18 @@ RowContents *row_cont  o:  output row arrays
 	    if (sts->extrloc)
 	        row_cont->extrlocy[ipix] = extrlocy;
 
-	    /* Compute nominal endpoints of spectrum extraction box. 
+	    /* Compute nominal endpoints of spectrum extraction box.
                This must be performed in reference pixel coordinates.
             */
-	    ilow_end   = (y_box * sts->ltm[1] + sts->ltv[1]) - 
+	    ilow_end   = (y_box * sts->ltm[1] + sts->ltv[1]) -
                          extrsize * sts->ltm[1] / 2.0;
-	    ihigh_end = (y_box * sts->ltm[1] + sts->ltv[1]) + 
+	    ihigh_end = (y_box * sts->ltm[1] + sts->ltv[1]) +
                          extrsize * sts->ltm[1] / 2.0;
 
 	    /* Compute background coefficients. */
-	    if (sts->backcorr == PERFORM || sts->optimal) { 
-	        if (status = CalcBack (sts, xtr, in, ssgx, ssgy, ipix,
-                                       y_box, debug))
+	    if (sts->backcorr == PERFORM || sts->optimal) {
+	        if ((status = CalcBack (sts, xtr, in, ssgx, ssgy, ipix,
+                                        y_box, debug)))
 	            return (status);
 	    }
 
@@ -277,7 +277,7 @@ RowContents *row_cont  o:  output row arrays
 	    s1 = 0.5 - (ilow_end - j1);
 	    s2 = 0.5 + ihigh_end - j2;
 
-	    /* Offset to be added to integer pixel locations to get back 
+	    /* Offset to be added to integer pixel locations to get back
                the actual Y pixel location. This is used to build the array
                of Y locations associated with the profile data (01/18/01, IB)
             */
@@ -301,10 +301,10 @@ RowContents *row_cont  o:  output row arrays
 	            /* Compute where in subpixel array the edges of
                        the current pixel are.
                     */
-	            x1 = (j - (int)(sts->profile_y / 2) - 0.5 - offset) * 
+	            x1 = (j - (int)(sts->profile_y / 2) - 0.5 - offset) *
                           sts->subscale + (int)(sts->subprof_size / 2);
 
-	            x2 = (j - (int)(sts->profile_y / 2) + 0.5 - offset) * 
+	            x2 = (j - (int)(sts->profile_y / 2) + 0.5 - offset) *
                           sts->subscale + (int)(sts->subprof_size / 2);
 
 	            ix1 = (int)x1;
@@ -312,9 +312,9 @@ RowContents *row_cont  o:  output row arrays
 
 	            /* Add contributions from edge areas. */
 
-	            iprofile[j] += sts->subprof[ipix][ix1] * 
+	            iprofile[j] += sts->subprof[ipix][ix1] *
                                              (1.0 - x1 + ix1);
-	            iprofile[j] += sts->subprof[ipix][ix2] * 
+	            iprofile[j] += sts->subprof[ipix][ix2] *
                                              (x2 - ix2);
 
 	            /* Add contributions from subpixels in between. */
@@ -332,7 +332,7 @@ RowContents *row_cont  o:  output row arrays
 
 	        /* Clean up pixels based on the expected profile. */
 
-	        CleanPixels (sts, in, ipix, j1, j2, iprofile, (int)ilow_end, 
+	        CleanPixels (sts, in, ipix, j1, j2, iprofile, (int)ilow_end,
                              intens, outw, debug);
 	    }
 
@@ -357,13 +357,13 @@ RowContents *row_cont  o:  output row arrays
                 */
 	        if (sts->optimal)
 	            pmask = DQPix (outw->dq.data, ipix, j1);
-	        AccumPix (sts, in, ipix, j1, s1, &sum, &sumback, 
-                          &sumnet, &sump, &err, &wei, &sum_discarded, &oDQ, 
-                          &discarded, BOX_LOWER, j1, iprofile, 
+	        AccumPix (sts, in, ipix, j1, s1, &sum, &sumback,
+                          &sumnet, &sump, &err, &wei, &sum_discarded, &oDQ,
+                          &discarded, BOX_LOWER, j1, iprofile,
                           sts->profile[ipix], sts->profile_dq[ipix],
                           intens, &weight, pmask, &pix_back, debug);
 	        if (sts->do_profile)
-	            UpdateProfile ((float)pix_back, 
+	            UpdateProfile ((float)pix_back,
                                    sts->profile[ipix], profile_yabs,
                                    sts->profile_dq[ipix], 0, j1);
 	        if (sts->optimal)
@@ -373,25 +373,25 @@ RowContents *row_cont  o:  output row arrays
 	    if (j2 > j1 && j2 > 0 && j2 < in->sci.data.ny) {
 	        if (sts->optimal)
 	            pmask = DQPix (outw->dq.data, ipix, j2);
-	        AccumPix (sts, in, ipix, j2, s2, &sum, &sumback, 
-                          &sumnet, &sump, &err, &wei, &sum_discarded, &oDQ, 
-                          &discarded, BOX_UPPER, j1, iprofile, 
+	        AccumPix (sts, in, ipix, j2, s2, &sum, &sumback,
+                          &sumnet, &sump, &err, &wei, &sum_discarded, &oDQ,
+                          &discarded, BOX_UPPER, j1, iprofile,
                           sts->profile[ipix], sts->profile_dq[ipix],
                           intens, &weight, pmask, &pix_back, debug);
 
 	        if (sts->do_profile)
 	            UpdateProfile ((float)pix_back,
                                    sts->profile[ipix], profile_yabs,
-                                   sts->profile_dq[ipix], 
+                                   sts->profile_dq[ipix],
                                    (sts->profile_y)-1, j2);
 	        if (sts->optimal)
 	            Pix (outw->sci.data, ipix, j2) = weight;
 	    }
 
-	    /* Reset pixel pointers at bottom and top of extraction 
+	    /* Reset pixel pointers at bottom and top of extraction
                box to point to the first and last integral pixels in
-               box. Perform the summation and update profile. If optimal 
-               extraction, store weights in weight image. 
+               box. Perform the summation and update profile. If optimal
+               extraction, store weights in weight image.
             */
 	    if (j2 > (j1 + 1)) {
 	        j1++;
@@ -401,10 +401,10 @@ RowContents *row_cont  o:  output row arrays
 	            if (j > 0 && j < in->sci.data.ny) {
 	                if (sts->optimal)
 	                    pmask = DQPix (outw->dq.data, ipix, j);
-	                AccumPix (sts, in, ipix, j, 1.0, &sum, 
-                                  &sumback, &sumnet, &sump, &err, &wei, 
-                                  &sum_discarded, &oDQ, &discarded, 
-                                  BOX_MID, j1-1, iprofile, 
+	                AccumPix (sts, in, ipix, j, 1.0, &sum,
+                                  &sumback, &sumnet, &sump, &err, &wei,
+                                  &sum_discarded, &oDQ, &discarded,
+                                  BOX_MID, j1-1, iprofile,
                                   sts->profile[ipix], sts->profile_dq[ipix],
                                   intens, &weight, pmask, &pix_back, debug);
 
@@ -431,7 +431,7 @@ RowContents *row_cont  o:  output row arrays
 	                if (j > 0 && j < in->sci.data.ny) {
                             profile_yabs[k] -= y_box;
 	                    if (sts->profile[ipix][k] != PIX_FILL) {
-                                centroid += sts->profile[ipix][k] * 
+                                centroid += sts->profile[ipix][k] *
                                             profile_yabs[k];
                                 centnorm += sts->profile[ipix][k];
 	                    }
@@ -462,9 +462,9 @@ RowContents *row_cont  o:  output row arrays
 	    /*  }                                                      */
 
 	    /* OPRs were revised but the code that fixes bad data is still
-               in place. The following code is to enforce the new OPR, and 
-               replaces the above commented-out lines. The output spectrum 
-               value will still be fixed in the way described in function 
+               in place. The following code is to enforce the new OPR, and
+               replaces the above commented-out lines. The output spectrum
+               value will still be fixed in the way described in function
                AccPixUnw, which should work quite well in most cases.
             */
 	    if (discarded)
@@ -540,13 +540,13 @@ RowContents *row_cont  o:  output row arrays
     in both algorithms, is computed here too.
 */
 
-static void AccumPix (StisInfo6 *sts, SingleGroup *in, int i, int j, 
-                      double area, double *sum, double *sumback, 
+static void AccumPix (StisInfo6 *sts, SingleGroup *in, int i, int j,
+                      double area, double *sum, double *sumback,
                       double *sumnet, double *sump, double *err, double *wei,
                       double *sum_discarded, short *oDQ,
-                      int *discarded, int box_pos, int ilow_end, 
+                      int *discarded, int box_pos, int ilow_end,
                       double *iprofile, double *profile, short *profile_dq,
-                      double intens, double *weight, short pmask, 
+                      double intens, double *weight, short pmask,
                       double *pix_back, int debug) {
 
 /* arguments:
@@ -585,21 +585,21 @@ int debug;             i:  debug flag / pixel index
            extraction uses the background error, not the variance.
         */
 	if (sts->optimal)
-	    AccPixOpt (sts, in, i, j, sum, sumback, sumnet, sump,  
+	    AccPixOpt (sts, in, i, j, sum, sumback, sumnet, sump,
                           err, wei, sum_discarded, oDQ, discarded,
-                          box_pos, ilow_end, iprofile, back, backerr, 
+                          box_pos, ilow_end, iprofile, back, backerr,
                           intens, weight, pmask, debug);
 	else
-	    AccPixUnw (sts, in, i, j, area, sum, sumback, sumnet, 
+	    AccPixUnw (sts, in, i, j, area, sum, sumback, sumnet,
                        err, wei, sum_discarded, oDQ, discarded,
-                       box_pos, ilow_end, profile, profile_dq, back, 
+                       box_pos, ilow_end, profile, profile_dq, back,
                        backvar, pix_back, debug);
 }
 
 
 
 
-/*  The following two routines are the core of calstis6. They perform the 
+/*  The following two routines are the core of calstis6. They perform the
     actual extraction, either in unweighted mode with background
     subtraction, or in optimal mode.
 */
@@ -614,8 +614,8 @@ int debug;             i:  debug flag / pixel index
     keep track of the number of discarded pixels.
 */
 
-static void AccPixOpt (StisInfo6 *sts, SingleGroup *in, int i, int j, 
-                       double *sum, double *sumback, 
+static void AccPixOpt (StisInfo6 *sts, SingleGroup *in, int i, int j,
+                       double *sum, double *sumback,
                        double *sumnet, double *sump, double *err, double *wei,
                        double *sum_discarded, short *oDQ, int *discarded,
                        int box_pos, int ilow_end, double *profile,
@@ -643,8 +643,8 @@ int debug;             i:  debug flag / pixel index
 	double pix, p, var, mask;
 	double back2, backerr2;
 
-	/* Replace background by command-line overriding values. 
-           Note that these overriding values are applicable only in 
+	/* Replace background by command-line overriding values.
+           Note that these overriding values are applicable only in
            the case of optimal extraction, hence a separate function.
         */
 	ReplaceBack (sts, back, backerr, &back2, &backerr2);
@@ -683,8 +683,8 @@ int debug;             i:  debug flag / pixel index
 	        (*discarded)++;
 	        *weight = 0.0;
 
-	        /* *err contains the accumulated profile values actually 
-                   used. Here we accumulate all the existing good profile 
+	        /* *err contains the accumulated profile values actually
+                   used. Here we accumulate all the existing good profile
                    values that were left behind by the calculation above.
                    These correspond to pixels with good data quality but
                    which were rejected by the profile sigma-clip cleaning.
@@ -716,18 +716,18 @@ Turned off by Brian's request 3/23/01
 
     This routine updates the accumulators with the proper quantities
     depending on the value of the BACKCORR switch. Note that the error
-    is computed based on the ERR array value. 
+    is computed based on the ERR array value.
 
     This routine also supports the profile generator, by depositing each
     pixel into the appropriate element of the 1-D profile array.
 */
 
-static void AccPixUnw (StisInfo6 *sts, SingleGroup *in, int i, int j, 
-                       double area, double *sum, double *sumback, 
+static void AccPixUnw (StisInfo6 *sts, SingleGroup *in, int i, int j,
+                       double area, double *sum, double *sumback,
                        double *sumnet, double *err, double *wei,
                        double *sum_discarded, short *oDQ, int *discarded,
                        int box_pos, int ilow_end, double *profile,
-                       short *profile_dq, double back, double backvar, 
+                       short *profile_dq, double back, double backvar,
                        double *pix_back, int debug) {
 
 /* arguments:
@@ -810,7 +810,7 @@ int debug;             i:  debug flag / pixel index
 	        }
 	        if (nint > 0) {
 	            pix /= nint;
-	            perr = sqrt (perr / nint); 
+	            perr = sqrt (perr / nint);
 	        } else {
 	            pix  = PIX_FILL;
 	            perr = ERR_FILL;
@@ -846,12 +846,12 @@ int debug;             i:  debug flag / pixel index
     SingleGroup image. The DQ array of the weights image is also
     updated.
 
-    The code in this routine partialy duplicates code found elsewhere 
+    The code in this routine partialy duplicates code found elsewhere
     in this file. This is a consequence of the later inclusion of this
     algorithm in the optimal extraction suite.
 */
 
-static void CleanPixels (StisInfo6 *sts, SingleGroup *in, int ipix, 
+static void CleanPixels (StisInfo6 *sts, SingleGroup *in, int ipix,
                          int j1, int j2, double *iprofile, int ilow_end,
                          double intens, SingleGroup *outw, int debug) {
 
@@ -870,15 +870,15 @@ int debug;             i:  debug control
 
 	/* First clean the two extreme pixels. */
 	if (j1 > 0 && j1 < in->sci.data.ny)
-	    CleanPixel (sts, in, ipix, j1, iprofile, ilow_end, intens, 
+	    CleanPixel (sts, in, ipix, j1, iprofile, ilow_end, intens,
                         outw, debug);
 	if (j2 > 0 && j2 < in->sci.data.ny)
-	    CleanPixel (sts, in, ipix, j2, iprofile, ilow_end, intens, 
+	    CleanPixel (sts, in, ipix, j2, iprofile, ilow_end, intens,
                         outw, debug);
 
-	/* Then the remaining ones. Reset pixel pointers at bottom and 
-           top of extraction box to point to the first and last integral 
-           pixels in box. 
+	/* Then the remaining ones. Reset pixel pointers at bottom and
+           top of extraction box to point to the first and last integral
+           pixels in box.
         */
 	j3 = j1;
 	j4 = j2;
@@ -886,20 +886,20 @@ int debug;             i:  debug control
 	    j3++;
 	    j4--;
 	    for (j = j3; j <= j4; j++)
-	        CleanPixel (sts, in, ipix, j, iprofile, ilow_end, intens, 
+	        CleanPixel (sts, in, ipix, j, iprofile, ilow_end, intens,
                             outw, debug);
 	}
 }
 
 
-/*  Flags a single deviant pixel based on the expected profile. This 
+/*  Flags a single deviant pixel based on the expected profile. This
     is used by the optimal extraction code.
 
     The main output of this function is in the DQ array of the input
     SingleGroup image. The DQ array of the weights image is also
     updated.
 
-    The code in this routine partialy duplicates code found elsewhere 
+    The code in this routine partialy duplicates code found elsewhere
     in this file. This is a consequence of the later inclusion of this
     algorithm in the optimal extraction suite.
 */
@@ -924,7 +924,7 @@ int debug;             i:  debug control
 	double	back, backvar, backerr, back2, backerr2;
 
 	/* Compute background and eventually replace by command
-           line overriding values. 
+           line overriding values.
         */
 	ComputeBack (sts, j, &back, &backvar, &backerr, debug);
 	ReplaceBack (sts, back, backerr, &back2, &backerr2);
@@ -933,12 +933,12 @@ int debug;             i:  debug control
 	pix = Pix (in->sci.data, ipix, j);
 	dq  = DQPix (in->dq.data, ipix, j) & sts->sdqflags;
 
-        /* Compute relevant quantities and flag pixel. Both input and 
-           output SingleGroups receive the flag. The output weights image 
+        /* Compute relevant quantities and flag pixel. Both input and
+           output SingleGroups receive the flag. The output weights image
            will be used for diagnostic purposes. The input SingleGroup
            must get the flags as well, since the data will be extracted
            from it. Note that the rejection flag in the input SingleGroup
-           is ORed with whatever is already set in the DQ array. 
+           is ORed with whatever is already set in the DQ array.
         */
 	if (((j - ilow_end) < sts->profile_y) &&  !dq) {
 	    p    = iprofile[j - ilow_end];
@@ -975,12 +975,12 @@ static void UpdateProfile (float pix, double *profile, double *profile_y,
 
 
 
-/*  
-    Compute background value at a given pixel position in the 
+/*
+    Compute background value at a given pixel position in the
     extraction box.
 */
 
-static void ComputeBack (StisInfo6 *sts, int j, double *back, 
+static void ComputeBack (StisInfo6 *sts, int j, double *back,
                          double *backvar, double *backerr, int debug) {
 
 	double ix[1], iy[1];
@@ -1014,14 +1014,14 @@ static void ComputeBack (StisInfo6 *sts, int j, double *back,
 
 
 
-/*  
+/*
     Replace background values by command line overrides.
 */
 
 static void ReplaceBack (StisInfo6 *sts, double back, double backerr,
                          double *back2, double *backerr2) {
 
-	/* If background value was supplied in command line, use it. 
+	/* If background value was supplied in command line, use it.
            If only value, but no error, was supplied, variance is
            set to zero.
         */
@@ -1043,7 +1043,7 @@ static void ReplaceBack (StisInfo6 *sts, double back, double backerr,
     position in the A1 direction. Pixel position is expressed wrt
     the physical array edge, *not* its center, and starts with 1,
     not zero. These choices depend on the definitions used to build
-    the XTRACTAB reference table. 
+    the XTRACTAB reference table.
 */
 
 static double BoxTilt (XtractInfo *xtr, int pix) {

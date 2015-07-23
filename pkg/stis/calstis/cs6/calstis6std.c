@@ -226,11 +226,11 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
 	closeImage (im);
 
 	/* Get keyword values from primary header. */
-	if (status = GetKeyInfo6 (&sts, &phdr))
+	if ((status = GetKeyInfo6 (&sts, &phdr)))
 	    return (status);
 
 	/* Check whether output file already exist. */
-	if (status = FileExists (sts.output))
+	if ((status = FileExists (sts.output)))
 	    return (status);
 
 	/* Get calibration flags and file names from input image header.
@@ -240,7 +240,7 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
            combinations. Nothing related to optimal extraction is
            handled yet.
         */
-	if (status = GetFlags6 (&sts, &phdr))
+	if ((status = GetFlags6 (&sts, &phdr)))
 	    return (status);
 
 	/* See if reference file names were supplied in the command line.
@@ -249,7 +249,7 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
            Currently this handles only the file names associated with
            optimal extraction.
         */
-	if (status = GetRefCommLine (&sts))
+	if ((status = GetRefCommLine (&sts)))
 	    return (status);
 
 	/* Check consistency of all information associated with optimal
@@ -258,7 +258,7 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
            available only at the point where extraction information is
            retrieved from XTRACTAB for each particular spectral order.
         */
-	if (status = CheckOptimal (&sts))
+	if ((status = CheckOptimal (&sts)))
 	    return (status);
 
 	/* Create output's primary header, update FILENAME and CAL_VER
@@ -269,7 +269,7 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
         */
 	UFilename (sts.output, &phdr);
 	UCalVer (&phdr);
-	if (status = History6 (&sts, &phdr, 0))
+	if ((status = History6 (&sts, &phdr, 0)))
 	    return (status);
 
 	/* Print information about the input file. */
@@ -282,7 +282,7 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
 	}
 
 	/* Do 1-D spectral extraction. */
-	if (status = Do1Dx (&sts, &phdr))
+	if ((status = Do1Dx (&sts, &phdr)))
 	    return (status);
 
 	/* These are used by the IDT algorithm. */

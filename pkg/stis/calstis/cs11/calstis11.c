@@ -72,7 +72,7 @@ int CalStis11 (char *inwav, char *insci, char *output,
 	initHdr (&phdrSci);
 
 	/* Check whether the output file already exists. */
-	if (status = FileExists (wavecal.output))
+	if ((status = FileExists (wavecal.output)))
 	    return (status);
 
 	/* Read primary header of input wavecal. */
@@ -85,7 +85,7 @@ int CalStis11 (char *inwav, char *insci, char *output,
 	closeImage (imWav);
 
 	/* Get keyword values from wavecal primary header. */
-	if (status = GetKeyInfo11 (&wavecal, &phdrWav))
+	if ((status = GetKeyInfo11 (&wavecal, &phdrWav)))
 	    return (status);
 
 	freeHdr (&phdrWav);
@@ -132,7 +132,7 @@ int CalStis11 (char *inwav, char *insci, char *output,
 	    TimeStamp ("Begin processing", wavecal.rootname);
 
 	/* Get keyword values from science file primary header. */
-	if (status = GetKeyInfo11 (&scidata, &phdrSci))
+	if ((status = GetKeyInfo11 (&scidata, &phdrSci)))
 	    return (status);
 
 	freeHdr (&phdrSci);
@@ -151,7 +151,7 @@ int CalStis11 (char *inwav, char *insci, char *output,
 	}
 
 	/* Subtract the science image from the wavecal. */
-	if (status = SubSci (&wavecal, &scidata))
+	if ((status = SubSci (&wavecal, &scidata)))
 	    return (status);
 
 	printf ("\n");

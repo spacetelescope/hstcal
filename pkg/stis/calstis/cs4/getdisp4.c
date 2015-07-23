@@ -99,7 +99,7 @@ char *ref_aper       o: name of aperture used to measure dispersion relation
 	double min_a2diff;	/* min value of a2diff */
 
 	/* Open the dispersion coefficients table. */
-	if (status = OpenDSPTab (sts->disptab.name, &tabinfo))
+	if ((status = OpenDSPTab (sts->disptab.name, &tabinfo)))
 	    return (status);
 
 	best_row = -1;			/* initial values */
@@ -107,7 +107,7 @@ char *ref_aper       o: name of aperture used to measure dispersion relation
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadDSPTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadDSPTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem and cenwave. */
@@ -132,19 +132,19 @@ char *ref_aper       o: name of aperture used to measure dispersion relation
 	}
 
 	/* Read data from the most appropriate row. */
-	if (status = ReadDSPArray (&tabinfo, best_row, disp, ref_aper))
+	if ((status = ReadDSPArray (&tabinfo, best_row, disp, ref_aper)))
 	    return (status);
 
 	/* Get pedigree & descrip from this row. */
-	if (status = RowPedigree (&sts->disptab, best_row,
-	    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+	if ((status = RowPedigree (&sts->disptab, best_row,
+                tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 	    return (status);
 	if (sts->disptab.goodPedigree == DUMMY_PEDIGREE) {
 	    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
 		best_row, sts->disptab.name);
 	}
 
-	if (status = CloseDSPTab (&tabinfo))
+	if ((status = CloseDSPTab (&tabinfo)))
 	    return (status);
 
 	return (0);

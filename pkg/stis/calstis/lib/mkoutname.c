@@ -84,7 +84,7 @@ int maxch          i: maximum size of output
 	    /* Find the extension (if any) on the input name. */
 	    dotlocn = FindExtn (input);
 
-	    if (status = strcatN (output, input, maxch))
+	    if ((status = strcatN (output, input, maxch)))
 		return (status);
 
 	    if (dotlocn >= 0) {
@@ -104,7 +104,7 @@ int maxch          i: maximum size of output
 		if (tr_len >= is_len) {
 		    if (strcmp (output+tr_len-is_len, isuffix[i]) == 0) {
 			output[tr_len-is_len] = '\0';
-			if (status = strcatN (output, osuffix[i], maxch))
+			if ((status = strcatN (output, osuffix[i], maxch)))
 			    return (status);
 			break;
 		    }
@@ -114,10 +114,10 @@ int maxch          i: maximum size of output
 		was found.
 	    */
 	    if (i >= nsuffix) {
-		if (status = strcatN (output, osuffix[0], maxch))
+		if ((status = strcatN (output, osuffix[0], maxch)))
 		    return (status);
 	    }
-	    if (status = strcatN (output, extn, maxch))
+	    if ((status = strcatN (output, extn, maxch)))
 		return (status);
 	    free (extn);
 
@@ -128,7 +128,7 @@ int maxch          i: maximum size of output
 	    */
 	    dotlocn = FindExtn (output);
 	    if (dotlocn < 0) {
-		if (status = strcatN (output, FITS_EXTN, maxch))
+		if ((status = strcatN (output, FITS_EXTN, maxch)))
 		    return (status);
 	    }		/* else the output name is OK as is */
 	}

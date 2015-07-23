@@ -30,29 +30,29 @@ Hdr *phdr        i: primary header
 	int no_def = 0;			/* missing keyword is fatal error */
 	int use_def = 1;		/* use default if keyword is missing */
 
-	if (status = Get_KeyS (phdr, "ROOTNAME",
-			no_def, "", sts->rootname, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "ROOTNAME",
+                                no_def, "", sts->rootname, STIS_CBUF)))
 	    return (status);
 
 	/* Name of calibration lamp (should be HITM1 or HITM2). */
-	if (status = Get_KeyS (phdr, "SCLAMP",
-			no_def, "", sts->sclamp, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "SCLAMP",
+                                no_def, "", sts->sclamp, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "OBSMODE",
-			no_def, "", sts->obsmode, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OBSMODE",
+                                no_def, "", sts->obsmode, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "APERTURE",
-			no_def, "", sts->aperture, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "APERTURE",
+                                no_def, "", sts->aperture, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "OPT_ELEM",
-			no_def, "", sts->opt_elem, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OPT_ELEM",
+                                no_def, "", sts->opt_elem, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "DETECTOR",
-			no_def, "", sts->det, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "DETECTOR",
+                                no_def, "", sts->det, STIS_CBUF)))
 	    return (status);
 
 	if (strcmp (sts->det, "NUV-MAMA") == 0)
@@ -65,12 +65,12 @@ Hdr *phdr        i: primary header
 	    sts->detector = UNKNOWN_DETECTOR;
 
 	/* Central wavelength. */
-	if (status = Get_KeyI (phdr, "CENWAVE", no_def, 0, &sts->cenwave))
+	if ((status = Get_KeyI (phdr, "CENWAVE", no_def, 0, &sts->cenwave)))
 	    return (status);
 
 	/* Find out how many extensions there are in this file. */
-	if (status = Get_KeyI (phdr, "NEXTEND",
-			use_def, EXT_PER_GROUP, &nextend))
+	if ((status = Get_KeyI (phdr, "NEXTEND",
+                                use_def, EXT_PER_GROUP, &nextend)))
 	    return (status);
 
 	/* Convert number of extensions to number of SingleGroups. */
@@ -80,16 +80,16 @@ Hdr *phdr        i: primary header
 	   the wavecal header, and only for a CCD HITM exposure, to check
 	   whether the external shutter is closed.
 	*/
-	if (status = Get_KeyD (phdr, "TEXPSTRT", use_def, 0., &sts->texpstrt))
+	if ((status = Get_KeyD (phdr, "TEXPSTRT", use_def, 0., &sts->texpstrt)))
 	    return (status);
 
 	/* Get the gain.  If the ATODGAIN keyword is not found or is
 	   less than or equal to zero, get CCDGAIN instead.
 	*/
-	if (status = Get_KeyD (phdr, "ATODGAIN", use_def, 0., &sts->gain))
+	if ((status = Get_KeyD (phdr, "ATODGAIN", use_def, 0., &sts->gain)))
 	    return (status);
 	if (sts->gain <= 0.) {
-	    if (status = Get_KeyD (phdr, "CCDGAIN", use_def, 1., &sts->gain))
+	    if ((status = Get_KeyD (phdr, "CCDGAIN", use_def, 1., &sts->gain)))
 		return (status);
 	}
 

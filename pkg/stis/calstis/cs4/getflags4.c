@@ -52,14 +52,14 @@ int GetFlags4 (StisInfo4 *sts, Hdr *phdr) {
 	sts->wavecorr = PERFORM;	/* initial value; may be reset below */
 
 	/* Check the X2DCORR switch. */
-	if (status = CheckX2D (phdr, sts))
+	if ((status = CheckX2D (phdr, sts)))
 	    return (status);
 
 	if (sts->wavecorr != PERFORM)
 	    return (NOTHING_TO_DO);
 
 	/* Check the reference files. */
-	if (status = CheckWave (phdr, sts, &missing, &nsteps))
+	if ((status = CheckWave (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
 	if (missing) {
@@ -91,14 +91,14 @@ int *nsteps     io: incremented if this step can be performed
 	   We're not using GetCheckRef4 for wcptab because it's OK for
 	   the keyword to not exist or for the name to be left blank.
 	*/
-	if (status = GetRefName (sts->refnames, phdr,
-			"WCPTAB", sts->wcptab.name))
+	if ((status = GetRefName (sts->refnames, phdr,
+                                  "WCPTAB", sts->wcptab.name)))
 	    return (status);
 
 	/* Open the table to verify that it exists, and if it does,
 	    get pedigree & descrip.
 	*/
-	if (status = TabPedigree (&sts->wcptab))
+	if ((status = TabPedigree (&sts->wcptab)))
 	    return (status);
 	if (sts->wcptab.exists != EXISTS_YES) {
 	    if (GotFileName (sts->wcptab.name)) {
@@ -112,37 +112,37 @@ int *nsteps     io: incremented if this step can be performed
 	}
 
 	/* Spectrum of calibration lamp. */
-	if (status = GetCheckRef4 (sts->refnames, phdr,
-			"LAMPTAB", &sts->lamptab, &sts->wavecorr, missing))
+	if ((status = GetCheckRef4 (sts->refnames, phdr,
+                "LAMPTAB", &sts->lamptab, &sts->wavecorr, missing)))
 	    return (status);
 
 	/* Aperture description table. */
-	if (status = GetCheckRef4 (sts->refnames, phdr,
-			"APDESTAB", &sts->apdestab, &sts->wavecorr, missing))
+	if ((status = GetCheckRef4 (sts->refnames, phdr,
+                "APDESTAB", &sts->apdestab, &sts->wavecorr, missing)))
 	    return (status);
 
 	/* We need additional reference tables for echelle or prism data. */
 	if (sts->disp_type == ECHELLE_DISP || sts->disp_type == PRISM_DISP) {
 
 	    /* Dispersion coefficients. */
-	    if (status = GetCheckRef4 (sts->refnames, phdr,
-			"DISPTAB", &sts->disptab, &sts->wavecorr, missing))
+	    if ((status = GetCheckRef4 (sts->refnames, phdr,
+                    "DISPTAB", &sts->disptab, &sts->wavecorr, missing)))
 		return (status);
 
 	    /* Incidence-angle correction table. */
-	    if (status = GetCheckRef4 (sts->refnames, phdr,
-			"INANGTAB", &sts->inangtab, &sts->wavecorr, missing))
+	    if ((status = GetCheckRef4 (sts->refnames, phdr,
+                    "INANGTAB", &sts->inangtab, &sts->wavecorr, missing)))
 		return (status);
 
 	    /* 1-D spectrum trace table. */
-	    if (status = GetCheckRef4 (sts->refnames, phdr,
-			"SPTRCTAB", &sts->sptrctab, &sts->wavecorr, missing))
+	    if ((status = GetCheckRef4 (sts->refnames, phdr,
+                    "SPTRCTAB", &sts->sptrctab, &sts->wavecorr, missing)))
 		return (status);
 	}
 
 	if (sts->disp_type == PRISM_DISP) {
-	    if (status = GetCheckRef4 (sts->refnames, phdr,
-			"SDCTAB", &sts->sdctab, &sts->wavecorr, missing))
+	    if ((status = GetCheckRef4 (sts->refnames, phdr,
+                    "SDCTAB", &sts->sdctab, &sts->wavecorr, missing)))
 		return (status);
 	}
 
@@ -169,7 +169,7 @@ StisInfo4 *sts  i: switches, file names, etc
 
 	int x2dcorr;
 
-	if (status = GetSwitch (phdr, "X2DCORR", &x2dcorr))
+	if ((status = GetSwitch (phdr, "X2DCORR", &x2dcorr)))
 	    return (status);
 
 	if (sts->disp_type == ECHELLE_DISP) {
@@ -214,13 +214,13 @@ static int GetCheckRef4 (RefFileInfo *refnames, Hdr *phdr,
 	int status;
 
 	/* Get the reference table name. */
-	if (status = GetRefName (refnames, phdr, keyword, table->name))
+	if ((status = GetRefName (refnames, phdr, keyword, table->name)))
 	    return (status);
 
 	/* TabPedigree opens the table to verify that it exists, and if so,
 	   gets pedigree & descrip.
 	*/
-	if (status = TabPedigree (table))
+	if ((status = TabPedigree (table)))
 	    return (status);
 
 	if (table->exists == EXISTS_YES) {

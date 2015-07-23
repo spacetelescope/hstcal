@@ -117,14 +117,14 @@ PhotInfo *phot  o: phot->pcorr is the array of factors to correct
 
 	if (sts->pctcorr != PERFORM) {
 	    /* Allocate memory for phot->pcorr and set the values to 1. */
-	    if (status = PCDummy (phot))
+	    if ((status = PCDummy (phot)))
 		return (status);
 	    else
 		return (0);
 	}
 
 	/* Open the PCTAB table. */
-	if (status = OpenPCTab (sts->pctab.name, &tabinfo))
+	if ((status = OpenPCTab (sts->pctab.name, &tabinfo)))
 	    return (status);
 
 	/* Check each row for a match with keyword values, then read
@@ -133,7 +133,7 @@ PhotInfo *phot  o: phot->pcorr is the array of factors to correct
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadPCTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadPCTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    if (SameString (tabrow.aperture, sts->aperture) &&
@@ -143,28 +143,28 @@ PhotInfo *phot  o: phot->pcorr is the array of factors to correct
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->pctab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->pctab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->pctab.goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
 			row, sts->pctab.name);
 		    sts->pctcorr = DUMMY;
-		    if (status = PCDummy (phot))
+		    if ((status = PCDummy (phot)))
 			return (status);
 		    ClosePCTab (&tabinfo);
 		    return (0);
 		}
 
 		/* Read wavelengths and throughputs into phot. */
-		if (status = ReadPCArray (&tabinfo, row, phot))
+		if ((status = ReadPCArray (&tabinfo, row, phot)))
 		    return (status);
 
 		break;
 	    }
 	}
 
-	if (status = ClosePCTab (&tabinfo))
+	if ((status = ClosePCTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {
@@ -174,7 +174,7 @@ PhotInfo *phot  o: phot->pcorr is the array of factors to correct
 	"Warning  APERTURE %s, CENWAVE %d, EXTRHEIGHT %d.\n",
 		sts->aperture, sts->cenwave, tabinfo.maxhght);
 	    sts->pctcorr = OMIT;
-	    if (status = PCDummy (phot))
+	    if ((status = PCDummy (phot)))
 		return (status);
 	}
 
@@ -294,8 +294,8 @@ static int ReadPCArray (TblInfo *tabinfo, int row, PhotInfo *phot) {
 	    return (OUT_OF_MEMORY);
 
 	/* Interpolate. */
-	if (status = splint_nr (wl, pc, nelem,
-			phot->wl, phot->pcorr, phot->nelem))
+	if ((status = splint_nr (wl, pc, nelem,
+                                 phot->wl, phot->pcorr, phot->nelem)))
 	    return (status);
 
 	free (wl);

@@ -91,16 +91,16 @@ TdsInfo *tds     o: time-dependent sensitivity info
 
 	int row;		/* loop index */
 	int foundit = 0;	/* true if parameters found in table */
-	
+
 	RefTab tempreftab;	/* holding place for table name */
 
 	/* Open the time-dependent sensitivity table. */
-	if (status = OpenTdsTab (tabname, &tabinfo, tds))
+	if ((status = OpenTdsTab (tabname, &tabinfo, tds)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadTdsTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadTdsTab (&tabinfo, row, &tabrow)))
 
 		return (status);
 
@@ -115,8 +115,8 @@ TdsInfo *tds     o: time-dependent sensitivity info
 		*/
 	        InitRefTab (&tempreftab);
 	        strcpy (tempreftab.name, tabname);
-		if (status = RowPedigree (&tempreftab, row,
-			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&tempreftab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (tempreftab.goodPedigree == DUMMY_PEDIGREE) {
 		    status = CloseTdsTab (&tabinfo);
@@ -124,12 +124,12 @@ TdsInfo *tds     o: time-dependent sensitivity info
 		}
 
 		/* Read time-dependent sensitivity info into tds structure. */
-		if (status = ReadTdsArray (&tabinfo, row, tds))
+		if ((status = ReadTdsArray (&tabinfo, row, tds)))
 		    return (status);
 	    }
 	}
 
-	if (status = CloseTdsTab (&tabinfo))
+	if ((status = CloseTdsTab (&tabinfo)))
 	    return (status);
 
 	if (!foundit) {
@@ -175,7 +175,7 @@ static int OpenTdsTab (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 	}
 
 	/* Find the columns. */
-	
+
 	c_tbcfnd1 (tabinfo->tp, "OPT_ELEM",   &tabinfo->cp_optelem);
 	c_tbcfnd1 (tabinfo->tp, "WAVELENGTH", &tabinfo->cp_wl);
 	c_tbcfnd1 (tabinfo->tp, "TIME",       &tabinfo->cp_time);
@@ -268,8 +268,8 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	        return (OUT_OF_MEMORY);
 	    }
 	}
-	
-	tds->allocated = 1;		
+
+	tds->allocated = 1;
 
         /* Read 1-D arrays first. */
 

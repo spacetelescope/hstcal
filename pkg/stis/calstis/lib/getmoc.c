@@ -86,7 +86,7 @@ double *a4corr     o: correction factor read from table
 	*a4corr = 0.;
 
 	/* Open the dispersion coefficients table. */
-	if (status = OpenMOCTab (disptab->name, &tabinfo)) {
+	if ((status = OpenMOCTab (disptab->name, &tabinfo))) {
 	    if (status < 0)
 		status = 0;
 	    return (status);
@@ -108,8 +108,8 @@ double *a4corr     o: correction factor read from table
 		foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (disptab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (disptab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (disptab->goodPedigree == DUMMY_PEDIGREE) {
 		    printf ("Warning  DUMMY pedigree in row %d of %s. \\\n",
@@ -120,7 +120,7 @@ double *a4corr     o: correction factor read from table
 		}
 
 		/* Read data from this row. */
-		if (status = ReadMOCArray (&tabinfo, row, mref, yref, a4corr))
+		if ((status = ReadMOCArray (&tabinfo, row, mref, yref, a4corr)))
 		    return (status);
 	    }
 	}
@@ -133,7 +133,7 @@ double *a4corr     o: correction factor read from table
 	    printf ("Warning  MAMA offset coefficient set to zero.\n");
 	}
 
-	if (status = CloseMOCTab (&tabinfo))
+	if ((status = CloseMOCTab (&tabinfo)))
 	    return (status);
 
 	return (0);

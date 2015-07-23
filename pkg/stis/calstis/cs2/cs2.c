@@ -36,7 +36,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* Reject cosmic rays. */
-	if (status = CalStis2 (input, output, &par, newpar)) {
+	if ((status = CalStis2 (input, output, &par, newpar))) {
 	    printf ("Error processing %s.\n", input);
 	}
 

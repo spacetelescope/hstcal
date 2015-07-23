@@ -310,15 +310,15 @@ StisInfo6 *sts    i: calibration switches and info
 	profa       = NULL;
 
      	/* Get aperture description. */
-	if (status = GetApDes6 (sts, &slit))
+	if ((status = GetApDes6 (sts, &slit)))
 	    return (status);
 
 	/* Get aperture throughput info and grating-aperture correction. */
 	if (sts->fluxcorr == PERFORM) {
-	    if (status = GetApThr6 (sts, &slit))
+	    if ((status = GetApThr6 (sts, &slit)))
 		return (status);
 	    if (sts->gaccorr == PERFORM) {
-		if (status = GetGAC6 (sts, &slit))
+		if ((status = GetGAC6 (sts, &slit)))
 		    return (status);
 	    }
 	}
@@ -335,7 +335,7 @@ StisInfo6 *sts    i: calibration switches and info
 	/* Read the small-scale distortion data into memory. */
 	if (sts->sgeocorr == PERFORM) {
 	    /* Read the small-scale distortion data into memory. */
-	    if (status = OpenSGeo (sts->sdstfile.name, &ssgx, &ssgy))
+	    if ((status = OpenSGeo (sts->sdstfile.name, &ssgx, &ssgy)))
 		return (status);
 	}
 
@@ -358,7 +358,7 @@ StisInfo6 *sts    i: calibration switches and info
            The extraction table is the main driver that controls the
            scanning of spectral orders in echelle data.
         */
-	if (status = GetXtract (sts, &extract, &minorder, &maxorder))
+	if ((status = GetXtract (sts, &extract, &minorder, &maxorder)))
 	    return (status);
         if (sts->x1d_o == DUMMY) {
 	    printf ("ERROR    DUMMY pedigree entry in extraction table.\n");
@@ -457,7 +457,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        printf ("         Input read into memory.\n");
 
 	    /* Get keyword values from image extension header. */
-	    if (status = GetGrpInfo6 (sts, &in.sci.hdr))
+	    if ((status = GetGrpInfo6 (sts, &in.sci.hdr)))
 		return (status);
 
 
@@ -476,7 +476,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    /* Alloc memory for output data. */
 	    otable.array_size = in.sci.data.nx;
 	    row_contents.npts = in.sci.data.nx;
-	    if (status = AllocOutArrays (&row_contents)) {
+	    if ((status = AllocOutArrays (&row_contents))) {
 		printf ("ERROR    Cannot allocate output arrays.\n");
 	        return (status);
 	    }
@@ -544,9 +544,9 @@ StisInfo6 *sts    i: calibration switches and info
                extraction algorithm. Notice that this only works because
                of the new requirement imposed by OPR 37810.
             */
-	    if (status = ReturnXtract (&extract, minorder, &extract_a))
+	    if ((status = ReturnXtract (&extract, minorder, &extract_a)))
 		return (status);
-	    if (status = SelectAlg (sts, extract_a)) {
+	    if ((status = SelectAlg (sts, extract_a))) {
 	        FreeXtract (&extract_a);
 		return (status);
 	    }
@@ -566,13 +566,13 @@ StisInfo6 *sts    i: calibration switches and info
                 correction in the A2 direction.
             */
 	    if (sts->dispcorr == PERFORM) {
-	        if (status = GetDisp6 (sts, &disp))
+	        if ((status = GetDisp6 (sts, &disp)))
 	            return (status);
 	        if (sts->echelle) {
 
 	            /* Could this be a problem for the MSM/blaze correction ? */
 
-	            if (status = MOCAdjustDisp (sts, disp))
+	            if ((status = MOCAdjustDisp (sts, disp)))
 	                return (status);
 	        }
 	    }
@@ -631,8 +631,8 @@ StisInfo6 *sts    i: calibration switches and info
                more than one order is being extracted.
             */
 	    if (minorder != maxorder) {
-	        if (status = GCrossCorr (sts, &in, minorder, maxorder,
-                              &(sts->gcrscroff), mref, &ypos)) {
+	        if ((status = GCrossCorr (sts, &in, minorder, maxorder,
+                                          &(sts->gcrscroff), mref, &ypos))) {
 	            printf ("ERROR    Cannot compute global offset.\n");
 	            return (status);
 	        }
@@ -677,7 +677,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    if (sts->fluxcorr == PERFORM && mref > 0) {
 
 	        /* Get the trace for the reference order */
-	        if (status = GetTrace6 (sts, mref, &trace))
+	        if ((status = GetTrace6 (sts, mref, &trace)))
 	            return (status);
 
 	        /* Add all pertinent offsets. */
@@ -694,12 +694,12 @@ StisInfo6 *sts    i: calibration switches and info
 		    double dshift;	/* on-board Doppler shift (low-res) */
 		    double ix;		/* pixel number, could be a fraction */
 		    double p, q;	/* weights for linear interpolation */
-	            if (status = GetInang6 (sts, &sts->inangtab, mref, &iac))
+	            if ((status = GetInang6 (sts, &sts->inangtab, mref, &iac)))
 	                return (status);
-	            if (status = GetApOffset6 (sts, slit.ap_offset,
-	                                       disp->ref_aper, &delta))
+	            if ((status = GetApOffset6 (sts, slit.ap_offset,
+                                                disp->ref_aper, &delta)))
 	                return (status);
-	            if (status = InterpDisp6 (&disp, ypos, &disp_y))
+	            if ((status = InterpDisp6 (&disp, ypos, &disp_y)))
 	                return (status);
                     AdjustDisp6 (sts, disp_y, delta, &iac);
 	            row_contents.sporder = mref;
@@ -762,8 +762,8 @@ StisInfo6 *sts    i: calibration switches and info
 	        sts->x1d_o = PERFORM;
 
 		/* Get the XtractInfo record for this order. */
-		if (status = ReturnXtract (&extract, row_contents.sporder,
-			&extract_o))
+		if ((status = ReturnXtract (&extract, row_contents.sporder,
+                                            &extract_o)))
 		    return (status);
 
 	        /* Select extraction algorithm for this order. If no
@@ -777,10 +777,10 @@ StisInfo6 *sts    i: calibration switches and info
                    The use of minorder to extract the extraction record
                    presumes a sorted (by sporder) extraction table.
                 */
-		if (status = ReturnXtract (&extract, minorder, &extract_a))
+		if ((status = ReturnXtract (&extract, minorder, &extract_a)))
 		    return (status);
-	        if (status = SelectAlg (sts, extract_a)) {
-	            if (status == CAL_FILE_MISSING) {
+	        if ((status = SelectAlg (sts, extract_a))) {
+	            if ((status == CAL_FILE_MISSING)) {
 	                status = 0;
 	                printf ("Warning  Skipping order.\n");
 	                FreeXtract (&extract_a);
@@ -900,7 +900,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        /* sts->nm_a2center += sts->pos_targ[1] / coord_o->cdelt2;   */
 
 	        /* Interpolate in the trace table. */
-	        if (status = InterpTrace6 (&trace, sts->nm_a2center, &trace_y))
+	        if ((status = InterpTrace6 (&trace, sts->nm_a2center, &trace_y)))
 	            return (status);
 	        sts->nm_a2center = trace_y->a2center;
 
@@ -1049,8 +1049,8 @@ StisInfo6 *sts    i: calibration switches and info
                 */
 	        if (!sts->echelle) {
 	            FreeTrace6 (&trace_y);
-	            if (status = InterpTrace6 (&trace, sts->cc_a2center,
-				&trace_y))
+	            if ((status = InterpTrace6 (&trace, sts->cc_a2center,
+                                                &trace_y)))
 	                return (status);
 	        }
 
@@ -1132,7 +1132,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        /* Alloc memory for profile storage. This is used both
                    for optimal extractions and for profile building.
                 */
-	        if (status = AllocProfile (sts, in.sci.data.nx, extrsize))
+	        if ((status = AllocProfile (sts, in.sci.data.nx, extrsize)))
 	            return (status);
 
 	        /* Print background switch status. The switch is
@@ -1164,7 +1164,7 @@ StisInfo6 *sts    i: calibration switches and info
 	            }
 
 	            /* Generate profile array. */
-	            if (status = BuildOptProf (sts, &profa))
+	            if ((status = BuildOptProf (sts, &profa)))
 	                return (status);
 
 	            /* Compute constants. */
@@ -1197,8 +1197,8 @@ StisInfo6 *sts    i: calibration switches and info
                    background extraction regions.
                 */
 	        if (sts->scatter) {
-	            if (status = DefineBackRegions (sts, trace_y, coord_o, &in,
-                             &ssgx, &ssgy, &ilow_end, &ihigh_end)) {
+	            if ((status = DefineBackRegions (sts, trace_y, coord_o, &in,
+                            &ssgx, &ssgy, &ilow_end, &ihigh_end))) {
 
 	                if (status == ERROR_RETURN) {
 	                    status = 0;
@@ -1223,12 +1223,12 @@ StisInfo6 *sts    i: calibration switches and info
 	        /* Background smoothing must be done right
                    after it is extracted.
                  */
-	        if (status = SmoothBack (sts, &row_contents))
+	        if ((status = SmoothBack (sts, &row_contents)))
 	            return (status);
 
 	        /* Filter background if correcting for scatterd light. */
 	        if (sts->scatter && sts->lfilter > 1) {
-	            if (status = Lee (sts, &row_contents))
+	            if ((status = Lee (sts, &row_contents)))
 	                return (status);
 	        }
 
@@ -1310,7 +1310,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
                         sporder. However, we keep this comment-out code in
                         here for the time beign, just in case.
 
-	            if (status = GetDisp6 (sts, row_contents.sporder, &disp)) {
+	            if ((status = GetDisp6 (sts, row_contents.sporder, &disp))) {
 	                if (status == ROW_NOT_FOUND) {
 	                    FreeDisp6 (&disp);
 	                    FreeTrace6 (&trace);
@@ -1331,8 +1331,8 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 
 	            */
 
-	            if (status = GetInang6 (sts, &sts->inangtab,
-				row_contents.sporder, &iac)) {
+	            if ((status = GetInang6 (sts, &sts->inangtab,
+                                             row_contents.sporder, &iac))) {
 	                /* Just skip order if row not found. */
 	                if (status == ROW_NOT_FOUND) {
 	                    FreeInang6 (&iac);
@@ -1355,8 +1355,8 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	            /* Get offset of slit from that used to measure the
                        dispersion relation.
                     */
-	            if (status = GetApOffset6 (sts,
-				slit.ap_offset, disp->ref_aper, &delta)) {
+	            if ((status = GetApOffset6 (sts,
+                            slit.ap_offset, disp->ref_aper, &delta))) {
 	                /* Just skip order if row not found. */
 	                if (status == ROW_NOT_FOUND) {
 	                    FreeInang6 (&iac);
@@ -1379,7 +1379,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	                printf ("         Delta = %.6g arcsec.\n", delta);
 
 	            /* Interpolate the dispersion relation. */
-	            if (status = InterpDisp6 (&disp, sts->cc_a2center, &disp_y))
+	            if ((status = InterpDisp6 (&disp, sts->cc_a2center, &disp_y)))
 	                return (status);
 
 	            /* Modify the dispersion coefficients using IAC and MSM. */
@@ -1428,8 +1428,8 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	                if (sts->verbose == 1 || sts->verbose == 2)
 	                    Message6 (sts, FLUX_INFO);
 
-	                if (status = GetAbsPhot6 (sts,
-				row_contents.sporder, &phot, 1, &warn)) {
+	                if ((status = GetAbsPhot6 (sts,
+                                row_contents.sporder, &phot, 1, &warn))) {
 	                    /* Just skip order if row not found. */
 	                    if (status == ROW_NOT_FOUND) {
 	                        FreePhot6 (&phot);
@@ -1482,12 +1482,12 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
                                the photometry correction for the maximum
                                box height available in the table.
                             */
-		            if (status = GetPCT6 (sts, &phot, 0.0, WARN)) {
+		            if ((status = GetPCT6 (sts, &phot, 0.0, WARN))) {
 	                        FreePhot6 (&phot);
 			        return (status);
 	                    }
-		            if (status = GetPCT6 (sts, &photc, extrsize,
-                                                  NO_WARN)) {
+		            if ((status = GetPCT6 (sts, &photc, extrsize,
+                                                   NO_WARN))) {
 	                        FreePhot6 (&phot);
 	                        FreePhot6 (&photc);
 			        return (status);
@@ -1601,10 +1601,10 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 			first_extver = 0;		/* false */
 	            }
 	            if (!sts->do_profile) {
-	                if (status = CreaTable (sts, extver, &otable))
+	                if ((status = CreaTable (sts, extver, &otable)))
 	                    return (status);
 	            } else {
-	                if (status = CreaProfTable (sts, &optable))
+	                if ((status = CreaProfTable (sts, &optable)))
 	                    return (status);
 	            }
 	            ext_ready = 1;
@@ -1766,23 +1766,23 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 
 	/* Update headers. */
 	if (phu_ready) {
-	    if (status = intUpdateHeader (sts->output, "NEXTEND", o_ext,
-                                 "number of extensions", 0))
+	    if ((status = intUpdateHeader (sts->output, "NEXTEND", o_ext,
+                                           "number of extensions", 0)))
 	        return (status);
 	    if (!(sts->do_profile)) {
 	        if (sts->optimal) {
-	            if (status = strUpdateHeader (sts->output, "XTRACALG",
-				 OPTIMAL, "extraction algorithm", 0))
+	            if ((status = strUpdateHeader (sts->output, "XTRACALG",
+                            OPTIMAL, "extraction algorithm", 0)))
 	                return (status);
 	        } else {
-	            if (status = strUpdateHeader (sts->output, "XTRACALG",
-				 UNWEIGHTED, "extraction algorithm", 0))
+	            if ((status = strUpdateHeader (sts->output, "XTRACALG",
+                            UNWEIGHTED, "extraction algorithm", 0)))
 	                return (status);
 	        }
 	    }
 	    if (sts->dispcorr == PERFORM && sts->heliocorr == PERFORM) {
                 sprintf (str, "Heliocentric correction = %g km/s", radvel);
-	        if (status = HistoryAddHeader (sts->output, str))
+	        if ((status = HistoryAddHeader (sts->output, str)))
 	            return (status);
 	    }
 	}
@@ -1815,14 +1815,14 @@ static int MOCAdjustDisp (StisInfo6 *sts, DispRelation *disp) {
 	trace = NULL;
 
 	/* Get parameters from dispersion table. */
-	if (status = GetMOC (&sts->disptab, sts->opt_elem, sts->cenwave,
-			&mref, &yref, &a4corr))
+	if ((status = GetMOC (&sts->disptab, sts->opt_elem, sts->cenwave,
+                              &mref, &yref, &a4corr)))
 	    return (status);
 	if (a4corr == 0.)
 	    return (0);		/* nothing further to do */
 
 	/* Get the trace for spectral order mref, and get its a2center. */
-	if (status = GetTrace6 (sts, mref, &trace))
+	if ((status = GetTrace6 (sts, mref, &trace)))
 	    return (status);
 	a2center = trace->a2center;
 

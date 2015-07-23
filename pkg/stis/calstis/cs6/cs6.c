@@ -104,7 +104,7 @@ int main (int argc, char **argv) {
 	double xoffset;		/* an offset in dispersion direction */
 	int bks_mode;		/* back. smooth mode */
 	int bks_order;		/* back. smooth polynomila order */
-	int bks_size;		/* back. smooth box size */
+	/*int bks_size;*/	/* back. smooth box size */
 	int ifile;
 
 	char *isuffix[]  = {"_flt"};  /* default suffixes */
@@ -180,7 +180,7 @@ int main (int argc, char **argv) {
 
 	    /* Extract 1-D STIS data. */
 
-	    if (status = CalStis6 (finput, foutput,
+	    if ((status = CalStis6 (finput, foutput,
 			  backcorr, dispcorr, fluxcorr, helcorr, sgeocorr,
                           ctecorr, idt, cl_a2center, maxsearch, extrsize,
                           bk1size, bk2size, bk1offset, bk2offset, bktilt,
@@ -189,7 +189,7 @@ int main (int argc, char **argv) {
                           wstep, minsn, rejranges, profilefile, fluxfile,
                           foutw, backval, backerr, variance, fflux, psclip,
                           sclip, lfilter, idtfile, subscale, blazeshift,
-                          bks_mode, bks_order, xoffset, 0)) {
+                          bks_mode, bks_order, xoffset, 0))) {
 	        printf ("Error processing %s.\n", finput);
 	        WhichError (status);
 	    }

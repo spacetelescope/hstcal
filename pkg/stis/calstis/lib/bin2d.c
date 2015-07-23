@@ -61,7 +61,7 @@ SingleGroup *b        o: output data
 		ycorner + ny*biny > a->sci.data.ny) {
 	    printf ("ERROR    (bin2d)  subset is out of bounds: \\\n");
 	    printf ("         input is %d x %d, output is %d x %d \\\n",
-		a->sci.data.nx, a->sci.data.ny, 
+		a->sci.data.nx, a->sci.data.ny,
 		b->sci.data.nx, b->sci.data.ny);
 	    printf ("         start = (%d,%d), binx = %d, biny = %d.\n",
 		xcorner+1, ycorner+1, binx, biny);
@@ -117,7 +117,7 @@ SingleGroup *b        o: output data
 		    sum_err = 0.;
 		    for (j = j0;  j < j0+biny;  j++)
 			for (i = i0;  i < i0+binx;  i++)
-			    sum_err += Pix (a->err.data, i, j) * 
+			    sum_err += Pix (a->err.data, i, j) *
 				       Pix (a->err.data, i, j);
 		    if (avg)
 			Pix (b->err.data, m, n) = sqrt (sum_err) / weight;
@@ -159,8 +159,8 @@ SingleGroup *b        o: output data
 	    return (HEADER_PROBLEM);
 
 	/* Update the coordinate parameters that depend on the binning. */
-	if (status = BinCoords (&a->sci.hdr, block, offset,
-		&b->sci.hdr, &b->err.hdr, &b->dq.hdr))
+	if ((status = BinCoords (&a->sci.hdr, block, offset,
+                                 &b->sci.hdr, &b->err.hdr, &b->dq.hdr)))
 	    return (status);
 
 	return (0);

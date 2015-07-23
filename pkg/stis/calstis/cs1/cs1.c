@@ -268,16 +268,16 @@ int main (int argc, char **argv) {
 		outblev[0] = '\0';
 
 	    status = 0;
-	    if (status = MkOutName (input, isuffix, osuffix, nsuffix,
-			output, STIS_LINE)) {
+	    if ((status = MkOutName (input, isuffix, osuffix, nsuffix,
+                                     output, STIS_LINE))) {
 		WhichError (status);
 		printf ("Skipping %s\n", input);
 		continue;
 	    }
 
 	    /* Calibrate the current input file. */
-	    if (status = CalStis1 (input, output, outblev,
-		&cs1_sw, &refnames, printtime, verbose)) {
+	    if ((status = CalStis1 (input, output, outblev,
+                                    &cs1_sw, &refnames, printtime, verbose))) {
 		printf ("Error processing %s.\n", input);
 		WhichError (status);
 	    }

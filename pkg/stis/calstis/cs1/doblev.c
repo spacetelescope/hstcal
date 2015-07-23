@@ -146,7 +146,7 @@ int *driftcorr    o: true means correction for drift along lines was applied
 
 	/* Copy out the non-overscan portion of x, putting the result in out.
 	*/
-	if (status = bin2d (in, trimx1, trimy1, 1, 1, avg, out))
+	if ((status = bin2d (in, trimx1, trimy1, 1, 1, avg, out)))
 	    return (status);
 
 	/* Create an output file for individual bias levels, if requested. */
@@ -166,8 +166,8 @@ int *driftcorr    o: true means correction for drift along lines was applied
 	/* Fit a line to the virtual overscan region as a function of
 	   column number.
 	*/
-	if (status = BlevDrift (in, sts->sdqflags,
-			vx, vy, trimx1, biassect, sts->blev_clip, driftcorr))
+	if ((status = BlevDrift (in, sts->sdqflags,
+                vx, vy, trimx1, biassect, sts->blev_clip, driftcorr)))
 	    return (status);
 
 	/* Evaluate the fit for each line, and subtract from the data. */

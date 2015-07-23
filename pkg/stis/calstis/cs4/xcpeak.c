@@ -49,7 +49,7 @@ double *shift      o: pixel shift from tspec to v
 	if (xc == NULL)
 	    return (OUT_OF_MEMORY);
 
-	if (status = CrossCorr4 (v, qv, tspec, nv, sdqflags, xc, range)) {
+	if ((status = CrossCorr4 (v, qv, tspec, nv, sdqflags, xc, range))) {
 	    free (xc);
 	    return (status);
 	}
@@ -82,7 +82,7 @@ double *shift      o: pixel shift from tspec to v
 	    /* Location of peak of quadratic through xc[i], xc[i+1], xc[i+2],
 		relative to i+1.
 	    */
-	    if (status = PeakQuad3 (xc+i, &peak)) {
+	    if ((status = PeakQuad3 (xc+i, &peak))) {
 		free (xc);
 		return (status);
 	    }

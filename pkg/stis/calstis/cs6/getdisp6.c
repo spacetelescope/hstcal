@@ -50,9 +50,9 @@ static int CloseDSPTab (TblInfo *);
 
    The table is read to find all rows for which the values of OPT_ELEM and
    CENWAVE are the same as in the input image header.  There can be several
-   such rows, each with a different value of A2CENTER. All these rows are 
-   read into memory, pointed to by disp. It is an error to have duplicate 
-   values of A2CENTER in the DISPTAB table. The DISPTAB table need not be 
+   such rows, each with a different value of A2CENTER. All these rows are
+   read into memory, pointed to by disp. It is an error to have duplicate
+   values of A2CENTER in the DISPTAB table. The DISPTAB table need not be
    sorted.
 
    Note:
@@ -92,12 +92,12 @@ DispRelation **disp  o: size and coordinate info for output
 	void FreeDisp6 (DispRelation **);
 
 	/* Open the dispersion coefficients table. */
-	if (status = OpenDSPTab (sts->disptab.name, &tabinfo))
+	if ((status = OpenDSPTab (sts->disptab.name, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadDSPTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadDSPTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem and cenwave. */
@@ -106,8 +106,8 @@ DispRelation **disp  o: size and coordinate info for output
 		SameInt (tabrow.cenwave, sts->cenwave)) {
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->disptab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->disptab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->disptab.goodPedigree == DUMMY_PEDIGREE) {
 		    sts->x1d_o = DUMMY;
@@ -116,13 +116,13 @@ DispRelation **disp  o: size and coordinate info for output
 		}
 
 		/* Read data from this row. */
-		if (status = ReadDSPArray (&tabinfo, row, disp))
+		if ((status = ReadDSPArray (&tabinfo, row, disp)))
 		    return (status);
 	    }
 	}
 
 	/* Get for duplicate a2center or non-duplicate ref_aper. */
-	if (status = CheckDisp6 (disp)) {
+	if ((status = CheckDisp6 (disp))) {
 	    FreeDisp6 (disp);
 	    if (status < 0) {
 		printf ("ERROR    Matching row not found in DISPTAB %s\n",
@@ -135,7 +135,7 @@ DispRelation **disp  o: size and coordinate info for output
 	    }
 	}
 
-	if (status = CloseDSPTab (&tabinfo))
+	if ((status = CloseDSPTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -243,7 +243,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 	}
 
 	/* Insert newd into the disp list. */
-	if (status = NewDisp6 (disp, newd))
+	if ((status = NewDisp6 (disp, newd)))
 	    return (status);
 
 	free (newd);

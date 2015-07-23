@@ -50,16 +50,16 @@ Hdr *phdr       i: primary header
 	int no_def = 0;			/* missing keyword is fatal error */
 	int use_default = 1;		/* use default if keyword is missing */
 
-	if (status = Get_KeyS (phdr, "ROOTNAME",
-			no_def, "", sts->rootname, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "ROOTNAME",
+                                no_def, "", sts->rootname, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "OBSMODE",
-			no_def, "", sts->obsmode, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OBSMODE",
+                                no_def, "", sts->obsmode, STIS_CBUF)))
 	    return (status);
 
-	if (status = Get_KeyS (phdr, "DETECTOR",
-			no_def, "", sts->det, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "DETECTOR",
+                                no_def, "", sts->det, STIS_CBUF)))
 	    return (status);
 	if (strcmp (sts->det, "NUV-MAMA") == 0)
 	    sts->detector = NUV_MAMA_DETECTOR;
@@ -70,7 +70,7 @@ Hdr *phdr       i: primary header
 	else
 	    sts->detector = UNKNOWN_DETECTOR;
 
-	if (status = Get_KeyS (phdr, "OBSTYPE", no_def, "", buf, STIS_FITS_REC))
+	if ((status = Get_KeyS (phdr, "OBSTYPE", no_def, "", buf, STIS_FITS_REC)))
 	    return (status);
 
 	if (strcmp (buf, "SPECTROSCOPIC") == 0)
@@ -81,13 +81,13 @@ Hdr *phdr       i: primary header
 	    sts->obstype = UNKNOWN_TYPE;
 
 	/* Slit or aperture name, and aperture name from the proposal. */
-	if (status = Get_KeyS (phdr, "APERTURE",
-			no_def, "", sts->aperture, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "APERTURE",
+                                no_def, "", sts->aperture, STIS_CBUF)))
 	    return (status);
 
 	/* Name of filter. */
-	if (status = Get_KeyS (phdr, "FILTER",
-			use_default, "CLEAR", sts->filter, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "FILTER",
+                                use_default, "CLEAR", sts->filter, STIS_CBUF)))
 	    return (status);
 	for (i = 0, ch = 1;  ch != 0;  i++) {
 	    ch = sts->filter[i];
@@ -100,38 +100,38 @@ Hdr *phdr       i: primary header
 	   to APERTURE.  (The correct way to check for a wavecal is with
 	   ASN_MTYP, but that's in the extension header.)
 	*/
-	if (status = Get_KeyS (phdr, "SCLAMP",
-			use_default, "NONE", sclamp, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "SCLAMP",
+                                use_default, "NONE", sclamp, STIS_CBUF)))
 	    return (status);
 	if (strcmp (sclamp, "NONE") == 0) {	/* not a wavecal */
-	    if (status = Get_KeyS (phdr, "PROPAPER",
-			use_default, sts->aperture, propaper, STIS_CBUF))
+	    if ((status = Get_KeyS (phdr, "PROPAPER",
+                    use_default, sts->aperture, propaper, STIS_CBUF)))
 		return (status);
 	    /* Append a suffix to sts->aperture, if it's found on propaper. */
 	    pseudoap (propaper, sts->aperture, sts->verbose);
 	}
 
 	/* Grating name. */
-	if (status = Get_KeyS (phdr, "OPT_ELEM",
-			no_def, "", sts->opt_elem, STIS_CBUF))
+	if ((status = Get_KeyS (phdr, "OPT_ELEM",
+                                no_def, "", sts->opt_elem, STIS_CBUF)))
 	    return (status);
 
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 
 	    /* Central wavelength. */
-	    if (status = Get_KeyI (phdr, "CENWAVE", no_def, 0, &sts->cenwave))
+	    if ((status = Get_KeyI (phdr, "CENWAVE", no_def, 0, &sts->cenwave)))
 		return (status);
 
 	    /* Target location. */
-	    if (status = Get_KeyD (phdr, "RA_TARG", no_def, 0., &sts->ra_targ))
+	    if ((status = Get_KeyD (phdr, "RA_TARG", no_def, 0., &sts->ra_targ)))
 		return (status);
-	    if (status = Get_KeyD (phdr, "DEC_TARG", no_def, 0., &sts->dec_targ))
+	    if ((status = Get_KeyD (phdr, "DEC_TARG", no_def, 0., &sts->dec_targ)))
 		return (status);
 	}
 
 	/* Find out how many extensions there are in this file. */
-	if (status = Get_KeyI (phdr, "NEXTEND",
-			use_default, EXT_PER_GROUP, &nextend))
+	if ((status = Get_KeyI (phdr, "NEXTEND",
+                                use_default, EXT_PER_GROUP, &nextend)))
 	    return (status);
 
 	/* Convert number of extensions to number of SingleGroups. */
@@ -140,12 +140,12 @@ Hdr *phdr       i: primary header
 	if (sts->detector == CCD_DETECTOR) {
 
 	    /* Get CCD-specific info. */
-	    if (status = Get_KeyD (phdr, "ATODGAIN",
-			use_default, -1., &sts->atodgain))
+	    if ((status = Get_KeyD (phdr, "ATODGAIN",
+                                    use_default, -1., &sts->atodgain)))
 		return (status);
 	    if (sts->atodgain < 0.) {	/* keyword wasn't found in header */
-		if (status = Get_KeyI (phdr, "CCDGAIN",
-			use_default, 1, &ccdgain))
+		if ((status = Get_KeyI (phdr, "CCDGAIN",
+                                        use_default, 1, &ccdgain)))
 		    return (status);
 		sts->atodgain = (double)ccdgain;
 	    }

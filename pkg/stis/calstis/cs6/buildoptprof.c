@@ -10,14 +10,14 @@
 # include "stiserr.h"
 
 
-/* 
+/*
    This routine is used to build the actual cross-dispersion profiles
    used in optimal extraction. It basically fills up the subsampled
-   profile 2-D array by interpolating the subsampled profiles read 
+   profile 2-D array by interpolating the subsampled profiles read
    from OPROFTAB.
 
-   This routine assumes that memory for the 2-D subsampled profile that 
-   lives in the StisInfo6 structure was previously allocated. 
+   This routine assumes that memory for the 2-D subsampled profile that
+   lives in the StisInfo6 structure was previously allocated.
 
 
 
@@ -53,8 +53,8 @@ ProfileArray **profa i:  list with profiles read from OPROFTAB
 
 	    /* Get interpolated profile at current X coordinate. */
 
-	    if (status = InterpProfile (profa, i, &profa_x, 
-                                        &(sts->profile_offset[i])))
+	    if ((status = InterpProfile (profa, i, &profa_x,
+                                         &(sts->profile_offset[i]))))
 	        return (status);
 
 	    for (j = 0; j < profa_x->npts; j++)

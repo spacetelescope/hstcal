@@ -72,7 +72,7 @@ int w_option         i: option for selecting wavecal
 	    if (hstio_err())
 		return (OPEN_FAILED);
 	    closeImage (im);
-	    if (status = GetWavGrp (wavecal, &hdr, extverWav))
+	    if ((status = GetWavGrp (wavecal, &hdr, extverWav)))
 		return (status);
 	    freeHdr (&hdr);
 	}
@@ -139,21 +139,21 @@ int w_option         i: option for selecting wavecal
 	    getHeader (im, &hdr);
 	    if (hstio_err())
 		return (OPEN_FAILED);
-	    if (status = GetSciGrp (&hdr, &exptime, &midpt))
+	    if ((status = GetSciGrp (&hdr, &exptime, &midpt)))
 		return (status);
 	    closeImage (im);
 	    freeHdr (&hdr);
 
 	    /* Get the shift in each axis for the current science file imset. */
-	    if (status = MatchWav (wav_midpt1, wav_shift1, n1,
-			midpt, w_option, &shift1))
+	    if ((status = MatchWav (wav_midpt1, wav_shift1, n1,
+                                    midpt, w_option, &shift1)))
 		return (status);
-	    if (status = MatchWav (wav_midpt2, wav_shift2, n2,
-			midpt, w_option, &shift2))
+	    if ((status = MatchWav (wav_midpt2, wav_shift2, n2,
+                                    midpt, w_option, &shift2)))
 		return (status);
 
 	    /* Record the shifts in SHIFTA1 & SHIFTA2. */
-	    if (status = TargPos (scidata, extverSci, shift1, shift2))
+	    if ((status = TargPos (scidata, extverSci, shift1, shift2)))
 		return (status);
 
 	    if (extverSci == 1) {		/* update primary header */
@@ -161,7 +161,7 @@ int w_option         i: option for selecting wavecal
 		im = openUpdateImage (scidata->input, "", 0, &phdr);
 		if (hstio_err())
 		    return (OPEN_FAILED);
-		if (status = History12 (&phdr, wavecal->input))
+		if ((status = History12 (&phdr, wavecal->input)))
 		    return (status);
 		putHeader (im);
 		if (hstio_err())

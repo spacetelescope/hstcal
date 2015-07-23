@@ -101,13 +101,13 @@ SpTrace **trace   o: size and coordinate info for output
 	void FreeTrace6 (SpTrace **);
 
 	/* Open the spectrum trace table. */
-	if (status = OpenTraceTab (sts->sptrctab.name, &tabinfo))
+	if ((status = OpenTraceTab (sts->sptrctab.name, &tabinfo)))
 	    return (status);
 
 	found_trace = 0;
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
-	    if (status = ReadTraceTab (&tabinfo, row, &tabrow))
+	    if ((status = ReadTraceTab (&tabinfo, row, &tabrow)))
 		return (status);
 
 	    /* Check for a match with opt_elem, cenwave, and sporder. */
@@ -116,8 +116,8 @@ SpTrace **trace   o: size and coordinate info for output
 		SameInt (tabrow.sporder, sporder)) {
 
 		/* Get pedigree & descrip from the row. */
-		if (status = RowPedigree (&sts->sptrctab, row,
-		    tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
+		if ((status = RowPedigree (&sts->sptrctab, row,
+                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->sptrctab.goodPedigree == DUMMY_PEDIGREE) {
 		    sts->x1d_o = DUMMY;
@@ -126,7 +126,7 @@ SpTrace **trace   o: size and coordinate info for output
 		}
 
 		/* Read data from this row. */
-		if (status = ReadTraceArray (&tabinfo, row, sts, trace))
+		if ((status = ReadTraceArray (&tabinfo, row, sts, trace)))
 		    return (status);
 	        found_trace = 1;
 	    }
@@ -135,17 +135,17 @@ SpTrace **trace   o: size and coordinate info for output
 
 	/* If nothing found, return silently. */
 	if (!found_trace) {
-	    if (status = CloseTraceTab (&tabinfo))
+	    if ((status = CloseTraceTab (&tabinfo)))
 	        return (status);
 	    return (NO_TRACE);
 	}
 
-	/* Get for duplicate a2center or non-duplicate a1center. 
-           An empty trace table is not an error. 
+	/* Get for duplicate a2center or non-duplicate a1center.
+           An empty trace table is not an error.
         */
 	i = CheckTrace6 (trace);
 	if (i == NO_TRACE) {
-	    if (status = CloseTraceTab (&tabinfo))
+	    if ((status = CloseTraceTab (&tabinfo)))
 	        return (status);
 	    return (NO_TRACE);
 	} else if (i == ERROR_TRACE) {
@@ -153,7 +153,7 @@ SpTrace **trace   o: size and coordinate info for output
 	    return (ERROR_TRACE);
 	}
 
-	if (status = CloseTraceTab (&tabinfo))
+	if ((status = CloseTraceTab (&tabinfo)))
 	    return (status);
 
 	return (0);
@@ -241,11 +241,11 @@ static int ReadTraceTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo6* sts, SpTrace **trace) {
 
 	int status;
-	
+
 	int nelem;		/* number of elements read from table */
 	double mjd;             /* MJD */
 	double degperyr;        /* rate of trace rotation */
-	
+
 	SpTrace *newd;
 	int NewTrace6 (SpTrace **, SpTrace *);
 
@@ -274,7 +274,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo6* sts, SpTrace **
 	    c_tbegtd (tabinfo->tp, tabinfo->cp_degperyr, row, &degperyr);
 	    sts->trace_rotation = rotatetrace(sts->expstart, mjd, degperyr, newd->a2displ, nelem);
 	}
-	
+
 	/* Convert a1center and a2center to zero-indexed. */
 	newd->a1center--;
 	newd->a2center--;
@@ -286,7 +286,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo6* sts, SpTrace **
 	}
 
 	/* Insert newd into the SpTrace list. */
-	if (status = NewTrace6 (trace, newd))
+	if ((status = NewTrace6 (trace, newd)))
 	    return (status);
 
 	free (newd);

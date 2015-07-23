@@ -57,24 +57,24 @@ int GetFlags7 (StisInfo7 *sts, Hdr *phdr) {
 
 	/* Check each reference file. */
 
-	if (status = CheckX2D (phdr, sts, &missing, &nsteps))
+	if ((status = CheckX2D (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
-	if (status = CheckSmGeo (phdr, sts, &missing, &nsteps))
+	if ((status = CheckSmGeo (phdr, sts, &missing, &nsteps)))
 	    return (status);
 
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 
-	    if (status = CheckWave (phdr, sts))		/* just check flag */
+	    if ((status = CheckWave (phdr, sts))) /* just check flag */
 		return (status);
 
-	    if (status = CheckWX2D (phdr, sts))		/* wx2dcorr done? */
+	    if ((status = CheckWX2D (phdr, sts))) /* wx2dcorr done? */
 		return (status);
 
 	    if (sts->heliocorr == PERFORM)
 		nsteps++;
 
-	    if (status = CheckFlux (phdr, sts, &missing, &nsteps))
+	    if ((status = CheckFlux (phdr, sts, &missing, &nsteps)))
 		return (status);
 
 	} else {
@@ -106,7 +106,7 @@ StisInfo7 *sts  i: switches, file names, etc
 
 	int status;
 
-	if (status = GetSwitch (phdr, "WAVECORR", &sts->wavecorr))
+	if ((status = GetSwitch (phdr, "WAVECORR", &sts->wavecorr)))
 	    return (status);
 
 	return (0);
@@ -125,7 +125,7 @@ StisInfo7 *sts  i: switches, file names, etc
 
 	int status;
 
-	if (status = GetSwitch (phdr, "WX2DCORR", &sts->wx2dcorr))
+	if ((status = GetSwitch (phdr, "WX2DCORR", &sts->wx2dcorr)))
 	    return (status);
 
 	return (0);
@@ -149,36 +149,36 @@ int *nsteps     io: incremented if this step can be performed
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 
 	    /* distntab = SDCTAB */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"SDCTAB", &sts->distntab, &sts->x2dcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "SDCTAB", &sts->distntab, &sts->x2dcorr)))
 		return (status);
 	    if (sts->distntab.exists != EXISTS_YES)
 		MissingFile ("SDCTAB", sts->distntab.name, missing);
 
 	    /* Aperture description table. */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"APDESTAB", &sts->apdestab, &sts->x2dcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "APDESTAB", &sts->apdestab, &sts->x2dcorr)))
 		return (status);
 	    if (sts->apdestab.exists != EXISTS_YES)
 		MissingFile ("APDESTAB", sts->apdestab.name, missing);
 
 	    /* Dispersion coefficients. */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"DISPTAB", &sts->disptab, &sts->x2dcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "DISPTAB", &sts->disptab, &sts->x2dcorr)))
 		return (status);
 	    if (sts->disptab.exists != EXISTS_YES)
 		MissingFile ("DISPTAB", sts->disptab.name, missing);
 
 	    /* Incidence-angle correction table. */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"INANGTAB", &sts->inangtab, &sts->x2dcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "INANGTAB", &sts->inangtab, &sts->x2dcorr)))
 		return (status);
 	    if (sts->inangtab.exists != EXISTS_YES)
 		MissingFile ("INANGTAB", sts->inangtab.name, missing);
 
 	    /* Spectrum trace table. */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"SPTRCTAB", &sts->sptrctab, &sts->x2dcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "SPTRCTAB", &sts->sptrctab, &sts->x2dcorr)))
 		return (status);
 	    if (sts->sptrctab.exists != EXISTS_YES)
 		MissingFile ("SPTRCTAB", sts->sptrctab.name, missing);
@@ -186,9 +186,9 @@ int *nsteps     io: incremented if this step can be performed
 	} else {			/* imaging mode */
 
 	    /* distntab = IDCTAB */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"IDCTAB", &sts->distntab, &sts->x2dcorr))
-	    return (status);
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "IDCTAB", &sts->distntab, &sts->x2dcorr)))
+                return (status);
 	    if (sts->distntab.exists != EXISTS_YES)
 		MissingFile ("IDCTAB", sts->distntab.name, missing);
 	}
@@ -226,14 +226,14 @@ int *nsteps     io: incremented if this step can be performed
 	if (sts->sgeocorr == PERFORM) {
 
 	    /* Small-scale distortion file. */
-	    if (status = GetRefName (sts->refnames, phdr, "SDSTFILE",
-			sts->sdstfile.name))
+	    if ((status = GetRefName (sts->refnames, phdr, "SDSTFILE",
+                                      sts->sdstfile.name)))
 		return (status);
 
 	    /* Open the image to verify that it exists, and if it does,
 		get pedigree & descrip.
 	    */
-	    if (status = ImgPedigree (&sts->sdstfile))
+	    if ((status = ImgPedigree (&sts->sdstfile)))
 		return (status);
 	    if (sts->sdstfile.exists != EXISTS_YES) {
 		(*missing)++;
@@ -272,15 +272,15 @@ int *nsteps     io: incremented if this step can be performed
 	if (sts->fluxcorr == PERFORM) {
 
 	    /* Throughput table. */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"PHOTTAB", &sts->phottab, &sts->fluxcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "PHOTTAB", &sts->phottab, &sts->fluxcorr)))
 		return (status);
 	    if (sts->phottab.exists != EXISTS_YES)
 		MissingFile ("PHOTTAB", sts->phottab.name, missing);
 
 	    /* Relative aperture throughput table. */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"APERTAB", &sts->apertab, &sts->fluxcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "APERTAB", &sts->apertab, &sts->fluxcorr)))
 		return (status);
 	    if (sts->apertab.exists != EXISTS_YES)
 		MissingFile ("APERTAB", sts->apertab.name, missing);
@@ -288,8 +288,8 @@ int *nsteps     io: incremented if this step can be performed
 	    /* Table for corrections for slit height.  Note that we pass
 		pctcorr instead of fluxcorr.
 	    */
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"PCTAB", &sts->pctab, &sts->pctcorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "PCTAB", &sts->pctab, &sts->pctcorr)))
 		return (status);
 	    if (sts->pctab.exists != EXISTS_YES) {
 		/* Only print an error message if a name was specified. */
@@ -300,8 +300,8 @@ int *nsteps     io: incremented if this step can be performed
 
 	    /* Time-dependent sensitivity table. Handled like pct. */
 	    sts->tdscorr = PERFORM;
-	    if (status = GetCheckRef (sts->refnames, phdr,
-			"TDSTAB", &sts->tdstab, &sts->tdscorr))
+	    if ((status = GetCheckRef (sts->refnames, phdr,
+                    "TDSTAB", &sts->tdstab, &sts->tdscorr)))
 		return (status);
 	    if (sts->tdstab.exists != EXISTS_YES) {
 		/* Only print an error message if a name was specified. */
@@ -323,13 +323,13 @@ static int GetCheckRef (RefFileInfo *refnames, Hdr *phdr,
 	int status;
 
 	/* Get the reference table name. */
-	if (status = GetRefName (refnames, phdr, keyword, table->name))
+	if ((status = GetRefName (refnames, phdr, keyword, table->name)))
 	    return (status);
 
 	/* TabPedigree opens the table to verify that it exists, and if so,
 	   gets pedigree & descrip.
 	*/
-	if (status = TabPedigree (table))
+	if ((status = TabPedigree (table)))
 	    return (status);
 	if (table->exists == EXISTS_YES) {
 	    if (table->goodPedigree != GOOD_PEDIGREE)

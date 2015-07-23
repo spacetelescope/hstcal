@@ -34,18 +34,18 @@ double w_shift, s_shift  i: the shifts that were determined
 	    return (HEADER_PROBLEM);
 
 	if (sts->dispaxis == 1) {
-	    if (status = Put_KeyD (&hdr, "SHIFTA1", w_shift,
-				"MSM shift in dispersion direction"))
+	    if ((status = Put_KeyD (&hdr, "SHIFTA1", w_shift,
+                                    "MSM shift in dispersion direction")))
 		return (status);
-	    if (status = Put_KeyD (&hdr, "SHIFTA2", s_shift,
-				"MSM shift in spatial direction"))
+	    if ((status = Put_KeyD (&hdr, "SHIFTA2", s_shift,
+                                    "MSM shift in spatial direction")))
 		return (status);
 	} else if (sts->dispaxis == 2) {
-	    if (status = Put_KeyD (&hdr, "SHIFTA1", s_shift,
-				"MSM shift in spatial direction"))
+	    if ((status = Put_KeyD (&hdr, "SHIFTA1", s_shift,
+                                    "MSM shift in spatial direction")))
 		return (status);
-	    if (status = Put_KeyD (&hdr, "SHIFTA2", w_shift,
-				"MSM shift in dispersion direction"))
+	    if ((status = Put_KeyD (&hdr, "SHIFTA2", w_shift,
+                                    "MSM shift in dispersion direction")))
 		return (status);
 	}
 
