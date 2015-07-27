@@ -1,3 +1,6 @@
+### 27-Jul-2015 - PLL -- Version 8.3.3
+    ACSREJ can now process input list of any length (as allowed by memory).
+
 ### 02-Mar-2015 - PLL -- Version 8.3.2
     ACSREJ can now process longer input list (up to 509 characters).
 
