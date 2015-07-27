@@ -61,6 +61,7 @@ int parseObsDateVal (char *dateobs, time_t *date) {
     stime.tm_min = 0;
     stime.tm_hour = 0;
     stime.tm_sec = 0;
+    stime.tm_isdst = -1;
 
     /* Parse out values for year, month, and day from DATE-OBS string */
     cp = strdup (dateobs);                /* Make writable copy.  */
@@ -73,6 +74,9 @@ int parseObsDateVal (char *dateobs, time_t *date) {
 
     /* Convert the stime structure into a real number */
     *date = mktime(&stime);
+
+    /* Free memory allocated by strdup() */
+    free(cp);
 
     return (status);
 }
