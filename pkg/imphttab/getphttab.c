@@ -433,6 +433,18 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     c_tbcfnd1 (tabinfo->tp, "PEDIGREE", &tabinfo->cp_pedigree);
     c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
 
+    /* Free memory */
+    for (i=0; i <= tabinfo->parnum; i++){
+        free(colnames[i]);
+        free(ecolnames[i]);
+        free(pncolnames[i]);
+        free(pvcolnames[i]);
+    }
+    free(colnames);
+    free(ecolnames);
+    free(pncolnames);
+    free(pvcolnames);
+    free(nocol);
 
     return (status);
 }
@@ -449,7 +461,7 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
     int tok;
     int indx;
     char *loc;
-    char *chtok,*chval;
+    char *chtok,*chval,*chtmp;
     char **obsnames;
     int obselems;
 
@@ -511,7 +523,10 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
         /* Now, parse each of the stored parameter strings from the obsmode
            into parnames and  parvalues. */
         for (i=0;i<numpar;i++) {
-            chtok = strtok(obs->parnames[i],"#");
+            chtmp = (char *) calloc(strlen(obs->parnames[i]) + 1, sizeof(char));
+            strcpy(chtmp, obs->parnames[i]);
+
+            chtok = strtok(chtmp,"#");
             chval = strtok(NULL,"#");
             /* Replace parnames[i] with just the par name */
             strcpy(obs->parnames[i],chtok);
@@ -519,6 +534,8 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
             obs->parvalues[i] = atof(chval);
             /* concatentate the '#'  back to the end of the parname */
             strcat(obs->parnames[i],"#");
+
+            free(chtmp);
         }
 
         /* Now build up the new obsmode string for comparison with the
