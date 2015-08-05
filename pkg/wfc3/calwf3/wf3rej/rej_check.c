@@ -48,7 +48,6 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     int         detector;
     multiamp    gn, ron;
     char        ccdamp[NAMPS+1], ccdamp0[NAMPS+1];
-    char        normal[]="NORMAL";
     char        mixed[]="MIXED";
     char        expflag[24];
     int         k, n;

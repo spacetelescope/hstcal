@@ -151,9 +151,9 @@ static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
 
 	/* Compute subarray offsets, if any, between ref data
 	** science data. */
-	if (status = GetCorner(&input->sci.hdr, rsize, sci_bin, sci_corner))
+	if ( (status = GetCorner(&input->sci.hdr, rsize, sci_bin, sci_corner)))
 	    return (status);
-	if (status = GetCorner(&nlin->coeff[0].hdr, rsize, ref_bin, ref_corner))
+	if ( (status = GetCorner(&nlin->coeff[0].hdr, rsize, ref_bin, ref_corner)))
 	    return (status);
 
 	/* Initialize saturated pixel counter */

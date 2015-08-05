@@ -143,6 +143,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     freeFloatData(&sinkraz);
     freeFloatHdrData(&sinkref);
     trlmessage("Finished Sink pixel flagging");
+    return(status);
 }
 
 

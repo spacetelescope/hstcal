@@ -1,3 +1,8 @@
+/*
+ MLS 2015 This code  pulls keyword switches for the CTE routines
+
+*/
+
 # include <stdio.h>
 # include "hstio.h"
 # include "wf3.h"
@@ -16,7 +21,6 @@ int GetCTESwitch (WF3Info *wf3, Hdr *phdr){
     extern int status;
     FitsKw key;       
      
-    trlmessage("looking for pctecorr");
     key = findKw (phdr, "PCTECORR");
     if (key == NotFound) {
         sprintf(MsgText, "PCTECORR keyword not found...");
@@ -25,7 +29,6 @@ int GetCTESwitch (WF3Info *wf3, Hdr *phdr){
     if (GetSw(phdr, "PCTECORR", &wf3->pctecorr))
         return (status);
         
-    trlmessage("Looking for biascorr");
     
     key = findKw (phdr, "BIASCORR");
     if (key == NotFound) {

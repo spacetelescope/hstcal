@@ -1,3 +1,24 @@
+### 05-Aug-2015 MLS -- Version 3.3
+    - Updates related to #1193, #1205
+    - Clean up of getphttab.c file for unused variables
+    - Clean up function references and unused variables in wfc3 code
+    - photometry keyword update in all headers (#1101 addition) except for the remaining team decisions and how to deal with photplam and photbw-
+    - photfnu is now calculated based on the chip value for phtflam[chip]
+    - fix for association trailer file naming and concatination, see #1209
+    - removed reference to save_crj because it really was just save_tmp
+    - fix for crj tmp files not being removed when asked to delete
+
+###  22-Jul-2015 MLS -- Version 3.3 
+    - Full-frame CTE correction for UVIS images is enabled. This can be run stand-alone by calling wf3cte.e and turned on and off using the PCTECORR switch. Many new reference files were created and delivered to be used with this step and users should re-retrieve their raw datasets from the archive to make sure they get the most up-to-date science and reference files.
+    - Photometry scaling via the FLUXCORR step is fully implemented. New reference files were created and delivered to be used with this step and users should re-retrieve their raw datasets from the archive to make sure they get the most up-to-date science and reference files.
+    - The pipeline now runs twice by default, once with the CTE correction on and once with the CTE correction off. All output files are saved with *??c specifiers when the CTE correction has been applied to the data.
+    - The CTE portion of the pipeline can be run with or without multithreading turned on. Having it on will greatly speed up the processing time for multicore machines.
+    - As a separate step which is keyed on DQICORR, pixels in the science image which can be identified as sink pixels  (See ISR WFC3-2014-19) will be marked in the DQ extension of the output image. Sink pixel flagging will take place whether or not CTE correction is done. The header keyword which contains the sink pixel reference file is SNKCFILE, sink pixels are flagged in the rotated amp read format that the CTE correction also uses.
+    - The default CRCORR behavior for IR SCAN data has been changed. It will now be omitted by default so that the resulting calibrated image is first-last instead of the fit to the ramp
+    - All IR scan related keywords formerly in the SPT file will also be present in the FLT file.
+    - For UVIS and IR, a copy of the CSMID keyword, formerly in the SPT file will also be in the FLT ile, CSMID lists the channel select mechanism ID.
+    - see #1193 for extensive changes
+
 ### 31-May-2015 - MLS -- Version 3.3
     UVIS 2.0 added to pipeline, including CTE, Sink Pixel and Photometry updates.
     

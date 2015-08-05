@@ -836,7 +836,7 @@ int GetAsnTable (AsnInfo *asn) {
 	    asn->rptcorr = DUMMY;
 	}
 
-	/* Copy information read in into ASN structure now... */
+	/* Copy information read-in into ASN structure now... */
 	for (row = 0; row < nrows; row++) {
 	     if (exp[row].posid != MEMABSENT) {
 		 if ((asn->process != FULL && exp[row].posid == procprod) ||
@@ -891,16 +891,17 @@ int GetAsnTable (AsnInfo *asn) {
 			      /* Fill-in sub-product information for EXP-DTH
 			      ** exposures which don't create sub-products */
 			      if (strstr(exp[row].type, "exp-dth") != NULL) {
-			      if (!MkName (exp[row].memname, "_raw", "_flt", "",
-				  asn->product[prodid].subprod[posid].spname,
-				  SZ_LINE) ) {
-				  strcpy(asn->product[prodid].subprod[posid].name,
-					 exp[row].memname);
-				  strcpy(asn->product[prodid].subprod[posid].mtype,
-					 exp[row].type);
-				  asn->product[prodid].subprod[posid].posid =
-					 exp[row].posid;
-			      }
+			        if (!MkName (exp[row].memname, "_raw", "_flt", "",
+				        asn->product[prodid].subprod[posid].spname,
+				        SZ_LINE) ) {
+				  
+                    strcpy(asn->product[prodid].subprod[posid].name,
+					    exp[row].memname);
+				    strcpy(asn->product[prodid].subprod[posid].mtype,
+					    exp[row].type);
+				    asn->product[prodid].subprod[posid].posid =
+					    exp[row].posid;
+			        }
 			      }
 
 			      /* Increment that counter for next exposure's id
@@ -911,43 +912,43 @@ int GetAsnTable (AsnInfo *asn) {
 		      /* If neither, it must be a sub-product */
 		      } else {
  
-			  if (spmems[posid] > 0) {
+			      if (spmems[posid] > 0) {
 
-			  strcpy(asn->product[prodid].subprod[posid].name,
-				 exp[row].memname);
-			  strcpy(asn->product[prodid].subprod[posid].mtype,
-				 exp[row].type);
-			  asn->product[prodid].subprod[posid].prsnt =
-				 exp[row].prsnt;
-			  asn->product[prodid].subprod[posid].asnrow = row+1;
+		              strcpy(asn->product[prodid].subprod[posid].name,
+			             exp[row].memname);
+		              strcpy(asn->product[prodid].subprod[posid].mtype,
+			             exp[row].type);
+		              asn->product[prodid].subprod[posid].prsnt =
+			             exp[row].prsnt;
+		              asn->product[prodid].subprod[posid].asnrow = row+1;
 
 
-			  /* Create full file name for this image for 
-			  ** DTHCORR input */
-			  spname_ext[0] = '\0';
-			  if (asn->crcorr || asn->rptcorr) {
-			      strcpy (spname_ext, "_crj");
-			  } else {
-			      strcpy (spname_ext, "_sfl");
-			  }
+		              /* Create full file name for this image for 
+		              ** DTHCORR input */
+		              spname_ext[0] = '\0';
+		              if (asn->crcorr || asn->rptcorr) {
+			              strcpy (spname_ext, "_crj");
+		              } else {
+			              strcpy (spname_ext, "_sfl");
+		              }
 
-			  if (MkName (exp[row].memname, "_raw", spname_ext, "",
-			      asn->product[prodid].subprod[posid].spname,
-			      SZ_LINE)) {
+		              if (MkName (exp[row].memname, "_raw", spname_ext, "",
+			              asn->product[prodid].subprod[posid].spname,
+			              SZ_LINE)) {
 
-			      strcpy(asn->product[prodid].subprod[posid].spname,
-				     exp[row].memname);
-			      strcat(asn->product[prodid].subprod[posid].spname,
-				     spname_ext);		
-			      strcat(asn->product[prodid].subprod[posid].spname,
-				     ".fits");		
-			  }
+			              strcpy(asn->product[prodid].subprod[posid].spname,
+				             exp[row].memname);
+			              strcat(asn->product[prodid].subprod[posid].spname,
+				             spname_ext);		
+			              strcat(asn->product[prodid].subprod[posid].spname,
+				             ".fits");		
+		              }
 
-			  asn->product[prodid].subprod[posid].numexp =
-				spmems[posid];
-			  asn->product[prodid].subprod[posid].posid = posid;
+		              asn->product[prodid].subprod[posid].numexp =
+			            spmems[posid];
+		              asn->product[prodid].subprod[posid].posid = posid;
 
-			  }
+			      }
 		      }
 		 }
 	     } /* Process only those exposures where MEMPRSNT == YES */
@@ -1175,8 +1176,6 @@ int GetGlobalInfo (AsnInfo *asn) {
 	Hdr phdr;               /* primary header */
 	
 	char detector[SZ_FITS_REC+1];
-	int dthcorr;		/* Read in DTHCORR from header and decide 
-				what should actually be done */
 								
 	/* Function definitions */
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
@@ -1498,6 +1497,7 @@ static int UpdateHdr (char *output) {
 	im = openUpdateImage (output, "", 0, &phdr);				
 	if (hstio_err()) {
 	    trlopenerr (output);
+        closeImage(im);
 	    return (status = OPEN_FAILED);
 	}
     

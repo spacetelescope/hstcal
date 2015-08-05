@@ -13,6 +13,7 @@ static int checkBlev (Hdr *, WF3Info *, int *, int *);
 static int checkCCD  (Hdr *, WF3Info *, int *);
 static int checkDQI  (Hdr *, WF3Info *, int *, int *);
 static int checkFlash(Hdr *, WF3Info *, int *, int *);
+int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 
 /* This routine gets the names of reference images and tables from the
    primary header and checks for dummy pedigree.
@@ -148,7 +149,6 @@ int *nsteps      io: incremented if this step can be performed
 
 	int calswitch;
 	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 	void MissingFile (char *, char *, int *);
 	void CheckImgType (RefImage *, char *, char *, int *);
 	int CheckGain (char *, float, char *, int *);
@@ -235,7 +235,6 @@ int *nsteps      io: incremented if this step can be performed
 
 	int calswitch;
 	int GetSwitch (Hdr *, char *, int *);
-	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 	void MissingFile (char *, char *, int *);
 	void CheckImgType (RefImage *, char *, char *, int *);
 

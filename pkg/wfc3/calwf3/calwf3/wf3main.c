@@ -64,7 +64,7 @@ int main (int argc, char **argv) {
 				} else if (argv[i][j] == 'v') {
 					verbose = YES;
 				} else if (argv[i][j] == 'd') {
-					debug = YES;
+					debug = NO;
 				} else if (argv[i][j] == 'q') {
 					quiet = YES;
 				} else if (argv[i][j] == '1'){

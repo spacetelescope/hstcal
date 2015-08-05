@@ -21,15 +21,18 @@ static int getArgT (char **, int, int *, char *);
    Revision history:
    ----------------
    27 Aug 98  -  Adapted from CALSTIS2 cs2_command.c (WJ Hack)
+   
+   31  Jul 2015 - propagated memory fix from calacs (MLS)
+   
 */
 
-int rej_command (int argc, char **argv, char *input, char *output,
+int rej_command (int argc, char **argv, char **input, char *output,
                 clpar *par, int newpar[]) {
 
 /* arguments
 int argc;           i: number of input command-line parameters
 char **argv;	    i: input command-line parameters
-char *input;        o: input file name or file list
+char **input;        o: input file name or file list
 char *output;       o: output file name
 clpar *par;         o: user specified parameters
 int newpar[];       o: array of parameters set by the user
@@ -67,7 +70,7 @@ int newpar[];       o: array of parameters set by the user
     }       
 
     /* Get names of input and output files. These are mandatory. */
-    strcpy (input,  argv[1]);
+    strcpy (*input,  argv[1]);
     strcpy (output, argv[2]);
 
     /* Scan remaining parameters. */

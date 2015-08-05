@@ -50,6 +50,9 @@
    the number of threads/cpus that are used during parallel processing for CTE correction.
    (see #1193 UVIS2.0 update)
    
+   M. Sosey, 2015: fixed some logic associated with crcorr processing and 
+   removing the tmp files
+    
  */
 
 int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {
@@ -61,7 +64,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     CCD_Switch wf3ccd_sci_sw;  	/* WF3CCD switches for science file */
     CCD_Switch wf32d_sci_sw;   	/* WF32D  switches for science file */
     CCD_Switch wf3cte_sci_sw;   /* CTE switches for science file */
-    int save_crj;			    /* don't delete crj_tmp file? */
 
     int prod;			        /* which CR-split/Rptobs product 
                                            are we working with?	*/
@@ -93,7 +95,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     int  InsertWF3Suffix (WF3Info *);
     int  updateAsnTable (AsnInfo *, int, int);
 
-    save_crj = *save_tmp;		/* initial value; */	
 
     posid=0;	/* initial value; */	
 
@@ -118,7 +119,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
             }
 
             /*  Allocate space for WF3REJ NON-CTE input image list */
-            if (asn->crcorr == PERFORM || asn->rptcorr == PERFORM) {
+            if (asn->crcorr == PERFORM ) {
                 
                 nchars = asn->spmems[posid] * (SZ_FNAME+1);
                 wf3rej_input = (char *) calloc( nchars + 1, sizeof(char));
@@ -154,7 +155,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     } else {	
                         if (GetAsnMember (asn, prod, posid, expid,
                                     wf3hdr)) 
-
                             return (status);
                     } 
 
@@ -164,8 +164,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (CCDRefInit (wf3hdr, &sci_sw, &sciref))
                         return (status);
 
-
-                    /* MAKE SURE 'SAVE_TMP' AND 'SAVE_CRJ' ARE NO LONGER
+                    /* MAKE SURE 'SAVE_TMP' NO LONGER
                      ** SET TO 'DUMMY'. 
                      **
                      ** IF SAVE_TMP WAS SET FROM THE COMMAND-LINE, THEN 
@@ -174,7 +173,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                     if (*save_tmp == DUMMY) {
                         *save_tmp = NO;
-                        save_crj = *save_tmp;
                     }
 
                     if (asn->verbose) {
@@ -289,7 +287,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                     
                     /* WE ARE NOW WORKING WITH BLC_TMP HERE... */
-                    /* COPY BLV_TMP NAME TO WF3REJ_INPUT STRING */
+                    /* COPY BLC_TMP NAME TO WF3REJ_INPUT STRING */
                     if (wf3hdr->sci_crcorr == PERFORM ||  wf3hdr->sci_rptcorr == PERFORM) {
                         strcat (wf3rej_cte_input, wf3hdr->blc_tmp);
                         if (expid < asn->spmems[posid]) {
@@ -297,7 +295,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             strcat(wf3rej_cte_input, ",");
                         }
 
-                        /* ALSO ADD BLV_TMP TO LIST OF FILES TO BE DELETED */
+                        /* ALSO ADD BLC_TMP TO LIST OF FILES TO BE DELETED */
                         strcpy (asn->product[prod].subprod[posid].exp[expid].blc_tmp,
                                 wf3hdr->blc_tmp);
                     }
@@ -392,13 +390,13 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             return (status);				
 
                     } else {/* REMEMBER BLC_TMP AS FINAL OUTPUT...*/
-                        if (wf3hdr->sci_basic_2d == OMIT && wf3hdr->sci_basic_cte == PERFORM){
+                        if ( wf3hdr->sci_basic_cte == PERFORM){
                             if (CopyFFile (wf3hdr->blc_tmp, wf3hdr->flcfile))
                                 return (status);
                         }
                     }/*END PROCESS CTE WITH WF32D*/ 
 
-                    if (*save_tmp != YES){
+                    if (*save_tmp == NO){
                         if (wf3hdr->sci_basic_cte == PERFORM) {
                             remove (wf3hdr->blc_tmp);
                         }
@@ -444,6 +442,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 trlmessage (MsgText);
                 
                 }
+                
                 /* SET UP THE CORRECT VALUE OF ASN_MTYP FOR WF3REJ
                    OUTPUT IMAGE. EXP-CRJ*/                
                 if (strncmp (wf3hdr->asn_table, wf3hdr->crj_tmp, 9) ) {
@@ -457,7 +456,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     strcpy (wf3hdr->mtype, asn->product[prod].mtype);
                 }   
 
-                /* REJECT COSMIC RAYS FOR NON-CTE DATA AND UPDATE TH OUTPUT SPT */
+                /* REJECT COSMIC RAYS FOR NON-CTE DATA AND UPDATE THE OUTPUT SPT */
                 if (WF3Rej_0 (wf3rej_input, wf3hdr->crj_tmp,
                             wf3hdr->mtype, printtime, asn->verbose,1)) {
                     if (status == NO_GOOD_DATA || status == NOTHING_TO_DO) {
@@ -492,7 +491,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                         wf3rej_msgtext = calloc(strlen(wf3rej_cte_input)+25,
                                 sizeof(char));
-                        sprintf (wf3rej_msgtext, "%s", wf3rej_cte_input);
+                        sprintf (wf3rej_msgtext, "wf3rej_cte_input=%s", wf3rej_cte_input);
                         trlmessage (wf3rej_msgtext);
                         free(wf3rej_msgtext);
                         sprintf (MsgText,"Output from WF3REJ is: %s",
@@ -523,13 +522,13 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     
                 }/*END REJ FOR CTE DATA*/
 
-                trlmessage("Finishing with WF32D");
+                trlmessage("Starting WF32D");
 
                 /* MOVE ON TO WF32D */
 
                 if (wf3hdr->sci_basic_2d == PERFORM &&  wf3hdr->sci_crcorr == PERFORM) { 
 
-                   /* Flatfield the summed, cosmic ray rejected image. */
+                   /* FLATFIELD THE SUMMED, COSMIC RAY REJECTED IMAGE. */
                         
                     if (WF32d (wf3hdr->crj_tmp, wf3hdr->crjfile,
                                 &wf32d_sci_sw, &sciref, printtime, asn->verbose))
@@ -542,25 +541,27 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             return (status);
                     }
                
-                } else if (wf3hdr->sci_crcorr == PERFORM && wf3hdr->sci_basic_2d == OMIT){
+                } else if ( wf3hdr->sci_crcorr == PERFORM){
 
                     if (wf3hdr->sci_basic_cte == PERFORM) {
                         /* REMEMBER CR-COMBINED IMAGE AS FINAL OUTPUT NAME,
                          ** SINCE WF32D WAS NOT RUN. */
                         if (CopyFFile (wf3hdr->crc_tmp, wf3hdr->crcfile))
-                            return (status);
-                            
-                        /* REMEMBER WHAT CRC_TMP FILES TO DELETE */
-                        strcpy (asn->product[prod].subprod[posid].crc_tmp,
-                                wf3hdr->crc_tmp);
+                            return (status);                            
                     } 
-                    if (CopyFFile (wf3hdr->crj_tmp, wf3hdr->crjfile)) {
-                        return (status);
-                        /* REMEMBER WHAT CRC_TMP FILES TO DELETE */
-                        strcpy (asn->product[prod].subprod[posid].crj_tmp,
-                                wf3hdr->crj_tmp);
-                    }
+                    
+                    if (CopyFFile (wf3hdr->crj_tmp, wf3hdr->crjfile)) 
+                        return (status);                    
                 }
+                
+                /* REMEMBER WHAT CRC_TMP FILES TO DELETE */
+                if (wf3hdr->sci_basic_cte == PERFORM) {
+                    strcpy (asn->product[prod].subprod[posid].crc_tmp,
+                        wf3hdr->crc_tmp);
+                }
+                        
+                /* REMEMBER WHAT CRJ_TMP FILES TO DELETE */
+                strcpy (asn->product[prod].subprod[posid].crj_tmp,   wf3hdr->crj_tmp);
                 
                 trlmessage("Starting EXPSCORR loops...");
                 
@@ -584,7 +585,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                         if (wf3hdr->sci_basic_2d == PERFORM){
                             SetTrlPrefaceMode(YES);
                                     
-                            /* Reset switches*/
+                            /* RESET SWITCHES*/
                             ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
                             
                             /* Basic 2-D processing (flat field, etc). */
@@ -602,7 +603,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                         } else {
 
-                            /* Save blv_tmp as final output */
+                            /* SAVE BLV_TMP AS FINAL OUTPUT */
                             if (CopyFFile (wf3hdr->blv_tmp,
                                         wf3hdr->fltfile))
                                 return (status);
@@ -614,12 +615,12 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             }
                         }
 
-                    } /* End loop over indivdual exposures */
-                } /* End of EXPSCORR processing */
+                    } /* END LOOP OVER INDIVDUAL EXPOSURES */
+                } /* END OF EXPSCORR PROCESSING */
 
 
-                /* Delete intermediate files */
-                if (*save_tmp != YES) {
+                /* DELETE INTERMEDIATE FILES */
+                if (*save_tmp == NO) {
                     for (expid=1; expid <= asn->spmems[posid]; expid++) {
                         if (asn->debug) {
                             sprintf (MsgText, "Deleting %s...",
@@ -632,41 +633,44 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                 if (wf3hdr->sci_basic_cte == PERFORM) {
                     /* Delete intermediate files */
-                    if (*save_tmp != YES) {
+                    if (*save_tmp == NO) {
                         for (expid=1; expid <= asn->spmems[posid]; expid++) {
-                            if (asn->debug) {
                                 sprintf (MsgText, "Deleting %s...",
                                         asn->product[prod].subprod[posid].exp[expid].blc_tmp);
                                 trlmessage (MsgText);
-                            }
                             remove (asn->product[prod].subprod[posid].exp[expid].blc_tmp);
                         }
                     }    
-                 }            
-
-            } /* End of CRCORR/RPTCORR processing */	
-
-        }  /* End of processing for SINGLE/PARTIAL product */
-
-        /* Done with the tmp files.... */
-        if (asn->process != SINGLE) {
-            /* We only have something to delete if process != SINGLE */
-            if ((save_crj != YES ) && (wf3hdr->sci_crcorr == PERFORM ||
-                        wf3hdr->sci_rptcorr == PERFORM)) {
-                for (posid = 1; posid <= asn->numsp; posid++) {
-                    remove (asn->product[prod].subprod[posid].crj_tmp);
-                }
-                if (wf3hdr->sci_basic_cte == PERFORM){
-                    for (posid = 1; posid <= asn->numsp; posid++){
-                        remove (asn->product[prod].subprod[posid].crc_tmp);
+                 }
+                if (asn->process != SINGLE) {
+                    /* We only have something to delete if process != SINGLE */
+                    if ((*save_tmp == NO ) && (wf3hdr->sci_crcorr == PERFORM ||
+                                wf3hdr->sci_rptcorr == PERFORM)) {
+                        for (posid = 1; posid <= asn->numsp; posid++) {
+                            sprintf(MsgText,"Prod: %i Posid: %i  Deleting %s ...\n",prod,posid,asn->product[prod].subprod[posid].crj_tmp);
+                            trlmessage(MsgText);
+                            remove (asn->product[prod].subprod[posid].crj_tmp);
+                        }
+                        if (wf3hdr->sci_basic_cte == PERFORM){
+                            for (posid = 1; posid <= asn->numsp; posid++){
+                                sprintf(MsgText,"Prod: %i  Posid: %i  Deleting %s ...\n",prod,posid,asn->product[prod].subprod[posid].crc_tmp);
+                                trlmessage(MsgText);
+                                remove (asn->product[prod].subprod[posid].crc_tmp);
+                            }
+                        }
                     }
-                }
-            }
-        } /*end remove tmp files*/
+                } /*END REMOVE TMP FILES*/
+             
+             } /* End of CRCORR/RPTCORR processing*/
 
-    } /* End loop over CCD products here...		*/
+            /* DONE WITH THE TMP FILES..DELETE AS ORDERED */
 
-    /* Done with lists of reference file keywords and names. */
+        }  /* End of processing for SINGLE/PARTIAL product, END POSID */
+
+
+    } /* END LOOP OVER CCD PRODUCTS HERE...	END PROD	*/
+
+    /* DONE WITH LISTS OF REFERENCE FILE KEYWORDS AND NAMES. */
     FreeRefFile (&sciref);
     return (status);
 }

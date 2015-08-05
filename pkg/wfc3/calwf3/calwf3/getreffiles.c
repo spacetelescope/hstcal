@@ -28,23 +28,29 @@ static void IRSanity  (int, char *);
 
    Howard Bushouse, 2000 Aug 24:
     Adapted for use with WFC3
+  
    H.Bushouse, 2001 May 8:
     Revised to add Post-Flash processing step.
+ 
    H.Bushouse, 2001 Nov 16:
     Replaced APERTAB and PHOTTAB with GRAPHTAB and COMPTAB.
+ 
    H.Bushouse, 2002 May 21:
     Removed call to CCDSanity for BLEVCORR step in GetCCDRef because that
     is a valid step for IR processing. Added call to IRSanity for NLINCORR
     step in GetIRRef because that is not a valid step for UVIS processing.
+ 
    H.Bushouse, 2003 Apr 25:
     Modified GetCCDRef so that CRREJTAB reference table is loaded if
     either CRCORR or RPTCORR is enabled, because it will be used by both
     processes for WFC3. Also modified GetIRRef to load CRREJTAB if
     RPTCORR is enabled.
+  
    H.Bushouse, 2010 Sep 30:
     Modified GetIRRef to always check CCDTAB and OSCNTAB, because their
     contents are used in so many steps, and also add checks for zoffcorr,
     unitcorr, and crcorr switches. (PR #66081; Trac #608)
+
    H.Bushouse, 2011 Sep 7:
     Updated GetCCDRef and GetIRRef to use new IMPHTTAB instead of synphot 
     GRAPHTAB and CoMPTAB.
@@ -120,7 +126,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 
 	if (wf3->sci_crcorr == PERFORM || wf3->sci_rptcorr == PERFORM) {
 	    if (GetNewRef (phdr, "CRREJTAB", sciref))
-		return (status);
+		    return (status);
 	}
 
 
@@ -129,51 +135,51 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	    wf3->sci_basic_ccd = PERFORM;
 	    CCDSanity (wf3->detector, "ATODCORR");
 	    if (GetNewRef (phdr, "ATODTAB", sciref))
-		return (status);
+		    return (status);
 	}
 
 	if (sci_sw->biascorr == PERFORM) {
 	    wf3->sci_basic_ccd = PERFORM;   refimage_used = 1;
 	    CCDSanity (wf3->detector, "BIASCORR");
 	    if (GetNewRef (phdr, "BIASFILE", sciref))
-		return (status);
+		    return (status);
 	}
 
 	if (sci_sw->flashcorr == PERFORM) {
 	    wf3->sci_basic_ccd = PERFORM;   refimage_used = 1;
 	    CCDSanity (wf3->detector, "FLSHCORR");
 	    if (GetNewRef (phdr, "FLSHFILE", sciref))
-		return (status);
+		    return (status);
 	}
 
 	if (sci_sw->darkcorr == PERFORM) {
 	    wf3->sci_basic_2d = PERFORM;   refimage_used = 1;
 	    if (GetNewRef (phdr, "DARKFILE", sciref))
-		return (status);
+		    return (status);
 	}
 
 	if (sci_sw->flatcorr == PERFORM) {
 	    wf3->sci_basic_2d = PERFORM;   refimage_used = 1;
 	    if (GetNewRef (phdr, "PFLTFILE", sciref))
-		return (status);
+		    return (status);
 	    if (GetNewRef (phdr, "DFLTFILE", sciref))
-		return (status);
+		    return (status);
 	    if (GetNewRef (phdr, "LFLTFILE", sciref))
-		return (status);
+		    return (status);
 	}
 
 	if (sci_sw->shadcorr == PERFORM) {
 	    wf3->sci_basic_2d = PERFORM;   refimage_used = 1;
 	    CCDSanity (wf3->detector, "SHADCORR");
 	    if (GetNewRef (phdr, "SHADFILE", sciref))
-		return (status);
+		    return (status);
 	}
 
 	/* Note that we set sci_basic_ccd rather than sci_basic_2d. */
 	if (sci_sw->blevcorr == PERFORM) {
 	    wf3->sci_basic_ccd = PERFORM;
 	    if (GetNewRef (phdr, "OSCNTAB", sciref))
-		return (status);
+		    return (status);
 	} else if (sci_sw->blevcorr == OMIT && refimage_used) {
 	    /* Dark, flat, etc., assume the overscan has been subtracted. */
 	    trlwarn 
@@ -185,7 +191,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->photcorr == PERFORM) {
 	    wf3->sci_basic_2d = PERFORM;
 	    if (GetNewRef (phdr, "IMPHTTAB", sciref))
-		return (status);
+		    return (status);
 	}
 
 	if (sci_sw->fluxcorr == PERFORM) {

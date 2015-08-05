@@ -292,7 +292,7 @@ static int ReadAtoDArray (TblInfo *tabinfo, int row, TblArray *tabarray) {
 
 	nret = c_tbagtr (tabinfo->tp, tabinfo->cp_atod, row,
 			tabarray->atod, 1, tabarray->nelem);
-	if (status = c_iraferr())
+	if ( (status = c_iraferr()) )
 	    return (status = TABLE_ERROR);
 
 	if (nret < tabarray->nelem) {

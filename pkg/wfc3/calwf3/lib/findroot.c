@@ -3,7 +3,7 @@
 
 # include "msg.h"
 
-# define NSUF	15
+# define NSUF	16
 
 void FindAsnRoot (char *input, char *root) {
 
@@ -20,7 +20,8 @@ void FindAsnRoot (char *input, char *root) {
         "_crc", "_crc_tmp",
         "_flc",
 		"_flt", "_sfl",
-		"_drz", 
+		"_drz",
+        "_drc", 
 		".fit"
 	};
 

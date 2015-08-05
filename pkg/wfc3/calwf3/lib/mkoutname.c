@@ -62,7 +62,7 @@ static int strcatN (char *, char *, int);
    Added calls to free() to clean up memory on error exits.
    */
 
-int MkOutName (  char *input, char **isuffix, char **osuffix, int nsuffix,
+int MkOutName (char *input, char **isuffix, char **osuffix, int nsuffix,
          char *output, int maxch) {
 
     /* arguments:

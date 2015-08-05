@@ -14,19 +14,29 @@
    If users don't wish to perform the correction then they set FLUXCORR OMIT and can use
    the values of PHTFLAM1 and PHTFLAM2 to correct the flux in the respective chips
 
-MLS Dec 6, 2013
+    MLS Dec 6, 2013
 
-Update: Nov 2014
-This step takes place after all the WF32d steps and after the FLT file has been initially 
-written to disk. This is necessary because of how the pipeline is setup to process the chips,
-which chip is getting corrected here, and where the data is - we need information from the header
-of both imsets to process chip2 correctly.
+    Update: Nov 2014
+    This step takes place after all the WF32d steps and after the FLT file has been initially 
+    written to disk. This is necessary because of how the pipeline is setup to process the chips,
+    which chip is getting corrected here, and where the data is - we need information from the header
+    of both imsets to process chip2 correctly.
 
-MLS June 24, 2015:
+    MLS June 24, 2015:
 
-Added more code to deal with correct scaling of subarray images
+    Added more code to deal with correct scaling of subarray images
 
 */
+
+/*prototypes*/
+
+void FluxMsg(WF3Info *);
+int doFlux(WF3Info *);
+int doStat(SingleGroup *, short);
+int TimeStamp(char *, char *);
+int PutKeyDbl(Hdr *, char *, double, char *);
+int UpdateSwitch(char *, int, Hdr*, int*);
+int GetKeyDbl (Hdr *, char *, int, double, double *);
 
 void FluxMsg (WF3Info *wf32d) {
 
@@ -39,6 +49,7 @@ void FluxMsg (WF3Info *wf32d) {
 		PrSwitch ("fluxcorr", wf32d->fluxcorr);
 	}
 }
+
 
 int doFlux (WF3Info *wf32d){
 
@@ -55,7 +66,6 @@ int doFlux (WF3Info *wf32d){
 	int logit;
 	int multk1d (SingleGroupLine *a, float k);
 	int i,j;
-	void FluxMsg (WF3Info *);
     
 
 	if (wf32d->fluxcorr != PERFORM)

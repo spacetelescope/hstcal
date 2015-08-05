@@ -1,4 +1,5 @@
 # include "c_iraf.h"  /* For Bool type */
+# include "xtables.h" /* for SZ_COLNAME*/
 
 /* Constants and Definitions for use with IMPHTTAB library */
 /* Definitions based on those defined in acs.h */
@@ -82,11 +83,6 @@ int status;
 
 # define MAXPARS 3          /* Max number of parameterizations supported + 1 */
 
-/* The following definition needs to be kept updated with MAXPARS */
-static char colnames[9][12] = {"OBSMODE", "DATACOL", "RESULT", "NELEM1", "NELEM2", "PAR1VALUES", "PAR2VALUES", "RESULT1", "RESULT2"};
-
-static char *photnames[6] = {"PHOTZPT","PHOTFLAM", "PHOTPLAM", "PHOTBW","PHTFLAM1","PHTFLAM2"};
-
 
 typedef struct {
     char name[SZ_LINE+1];            /* name of table */
@@ -116,6 +112,44 @@ typedef struct {
     double phtflam2;
 
 } PhotPar;
+
+
+typedef struct {
+    IRAFPointer tp;            /* pointer to table descriptor */
+    IRAFPointer cp_obsmode;        /* column descriptors */
+    IRAFPointer cp_datacol;
+    IRAFPointer cp_result[MAXPARS+1];
+    IRAFPointer cp_nelem[MAXPARS];
+    IRAFPointer cp_parnames[MAXPARS];
+    IRAFPointer cp_parvalues[MAXPARS];
+    IRAFPointer cp_pedigree;
+    IRAFPointer cp_descrip;
+    char photvar[SZ_COLNAME]; /* photometric parameter in this table */
+    int nrows;            /* number of rows in table */
+    int ncols;          /* number of columns in table */
+    int parnum;         /* number of parameterized variables in tables */
+} PhtCols;
+
+typedef struct {
+    char obsmode[SZ_FITS_REC];  /* obsmode string read from table row */
+    char datacol[SZ_FITS_REC];
+    char **parnames; /* record the par. variable names for comparison with obsmode string */
+    int parnum;      /* number of parameterized variables */
+    double *results;  /* results[telem] or results[nelem1*nelem2*...] */
+    int telem;     /* total number of parameterized variable values */
+    int *nelem;    /* multiple paramerized variables will each N values */
+    double **parvals; /* need to support multiple parameterized variables */
+} PhtRow;
+
+
+typedef struct {
+    int    ndim;   /* number of dimensions for each position */
+    double *index; /* array index along each axis,
+              used to determine which axis is being interpolated */
+    double *pos;   /* value of each axis at position given by index */
+    double value;  /* value at position */
+} BoundingPoint;
+
 
 
 /* Prototypes for IMPHTTAB functions */

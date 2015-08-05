@@ -118,6 +118,7 @@ typedef struct {
     int detector;                   /* integer code for detector */
     int chip;
     double chip1_flam;              /*the flam for chip1 from imphttab*/
+    double chip2_flam;              /*the flam for chip2 from the imphttab*/
     int ncombine;                   /* number previously summed together */
     int nimsets;                    /* number of "groups" in file */
     int members;                /* # of members associated with this exposure */

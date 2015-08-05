@@ -1,3 +1,7 @@
+Updates for Version 3.3  21-July-2015 MLS
+    -Debugged version of the CTE code committed.
+    -see #1193 ticket for extensive changes
+
 Updates for Version 3.3  31-May-2015 MLS
     UVIS 2.0 added, including CTE correction, Sink Pixel and Photometry updates
     (#1011) New photometry correction for UVIS. This includes a delivery of new flatfields for all filters in CDBS

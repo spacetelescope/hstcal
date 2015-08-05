@@ -3,8 +3,8 @@
    
 /* structure to hold CTE parameters from the reference files */
 typedef struct {
-    char cte_name; /*name of cte algorithm */
-    char cte_ver; /*version of algorithm */
+    char cte_name[SZ_LINE]; /*name of cte algorithm */
+    char cte_ver[SZ_LINE]; /*version of algorithm */
     double cte_date0; /*date of uvis install on hst in mjd*/
     double cte_date1; /*date of cte model pinning mjd*/
     int cte_len; /*max length of cte trail */
@@ -23,7 +23,7 @@ typedef struct {
     float scale1024[RAZ_COLS];/*scaling appropriate at row 1024 */
     float scale1536[RAZ_COLS];/*scaling appropriate at row 1536 */
     float scale2048[RAZ_COLS];/*scaling appropriate at row 2048 */
-    char descrip2; /*descrip from table row, not read in for cte purposes*/
+    char descrip2[SZ_LINE]; /*descrip from table row, not read in for cte purposes*/
     int fix_rocr; /*make allowance for readout cosmic rays*/
     FloatHdrData *rprof; /*differential trail profile as image*/
     FloatHdrData *cprof; /*cummulative trail profile as image*/

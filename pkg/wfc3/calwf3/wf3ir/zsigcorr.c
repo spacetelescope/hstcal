@@ -148,9 +148,9 @@ static int zsigcorr (WF3Info *wf3, MultiNicmosGroup *input, NlinData *nlin,
 
 	/* Compute subarray offsets, if any, between ref data
 	** and science data. */
-	if (status = GetCorner(&zsig->sci.hdr, rsize, sci_bin, sci_corner))
+	if ((status = GetCorner(&zsig->sci.hdr, rsize, sci_bin, sci_corner)))
 	    return (status);
-	if (status = GetCorner(&nlin->coeff[0].hdr, rsize, ref_bin, ref_corner))
+	if ( (status = GetCorner(&nlin->coeff[0].hdr, rsize, ref_bin, ref_corner)))
 	    return (status);
 
 	/* Set loop limits; this automatically handles subarrays because

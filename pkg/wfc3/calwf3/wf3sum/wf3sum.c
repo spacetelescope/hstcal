@@ -620,7 +620,7 @@ static void InitSumTrl (char *input, char *output) {
 	char *trlsuffix[] = {"", ""};
 	int nsuffix = 2;
 	
-	int MkOutName (const char *, char **, char **, int, char *, int);
+	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 

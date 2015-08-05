@@ -9,7 +9,9 @@
 # include "rej.h"
 # include "wf3info.h"
 
-static void InitRejTrl (char *, char *, int); 
+static void InitRejTrl (char *, char *); 
+
+int MkOutName (char *, char **, char **, int, char *,int);
 
 /*  WF3REJ -- cosmic ray rejection with shading correction and 
     section-by-section checking for WF3
@@ -29,6 +31,7 @@ REJ product not created (CALACS changes).
 status gets passed up for use in caller.
 (PR 68593; Trac #722)
 06-10-2015  M. Sosey, updates for CTE addtion, #1193 
+08-01-2015 M. Sosey, removed detector dependence on InitRejTrl
 */
 
 int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], int makespt) 
@@ -85,8 +88,8 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     /* Determine input and output trailer files, then initialize
      ** output file by combining inputs into output file */
      
-     
-    InitRejTrl(in_list, output, wf3.detector);
+    
+    InitRejTrl(in_list, output);
         
     /* Quit on error condition */
     if (status)
@@ -172,7 +175,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
 /*                          InitRejTrl                               */
 /* ------------------------------------------------------------------*/
 
-static void InitRejTrl (char *input, char *output, int detector) {
+static void InitRejTrl (char *input, char *output) {
 
     extern int  status;
     IRAFPointer tpin;
@@ -181,24 +184,24 @@ static void InitRejTrl (char *input, char *output, int detector) {
 
     char        *trl_in;            /* trailer filename for input */
     char        trl_out[SZ_LINE+1]; /* output trailer filename */
-    char        in_name[SZ_FNAME+1];
-    char        out_name[SZ_FNAME+1];
+    char        in_name[SZ_FNAME];
+    char        out_name[SZ_FNAME];
 
     int         trl_len;
 
 
     /* Input and output suffixes for uvis. */
-    char *isuffix[] = {"_blv_tmp", "_blc_tmp","_flt","_flc"};
-    char *osuffix[] = {"_crj_tmp", "_crc_tmp","_crj","_crc"};
-    char *trlsuffix[] = {"_blv_tmp", "_blc_tmp","_flt","_flc"};
-    int nsuffix = 4;
-
+    char *isuffix[] = {"_blv_tmp", "_blc_tmp","_flt","_flc","_crj","_crc","_crj_tmp","_crc_tmp"};
+	char *trlsuffix[] = {"", "", "", "", "", "", "", ""};
+    int nsuffix=8;
+    
     int MkName (char *, char *, char *, char *, char *, int);
+    int MkNewExtn(char *, char *);
     void WhichError (int);
 
     /* ----------------------------- Begin ------------------------------*/
 
-    trl_in =  realloc (NULL, (SZ_LINE +1));
+    trl_in = (char *) calloc(SZ_LINE+ 1, sizeof(char));
     trl_len = SZ_LINE + 1;
 
     if (trl_in == NULL) {
@@ -210,6 +213,8 @@ static void InitRejTrl (char *input, char *output, int detector) {
     /* Initialize TRL filenames */
     trl_in[0]  = '\0';
     trl_out[0] = '\0';
+    in_name[0] = '\0';
+    out_name[0]= '\0';
 
     /* Open the input file template */
     tpin = c_imtopen (input);
@@ -220,29 +225,32 @@ static void InitRejTrl (char *input, char *output, int detector) {
         c_imtgetim (tpin, in_name, SZ_FNAME);
 
         /* Start by stripping off suffix from input/output filenames */
-        if (MkOutName (in_name, isuffix, trlsuffix, nsuffix, out_name, SZ_LINE)) {
+        if (MkOutName (in_name, isuffix, trlsuffix, nsuffix , out_name, SZ_FNAME)) {
 	        WhichError (status);
-	        sprintf (MsgText, "Couldn't determine trailer filename for %s",
-		         input);
+	        sprintf (MsgText, "Couldn't determine trailer filename for %s",in_name);
 	        trlmessage (MsgText);
         }
 
-        if ((strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
-            trl_len += strlen(out_name)*(nfiles-n);
-            trl_in = realloc (trl_in, trl_len);
-        }
-
+        if (MkNewExtn (out_name,TRL_EXTN)){   
+ 	        WhichError (status);
+	        sprintf (MsgText, "Couldn't create trailer filename for %s",out_name);
+	        trlmessage (MsgText);
+	    }
+                
         /* Append each filename to create list of input trailer files */
-        strcat(trl_in, out_name);
+        strcat(trl_in,out_name );
 
         /* Put a comma after all but the last filename */
         if (n < (nfiles-1)) strcat (trl_in, ",");		
     }
-
-	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
-	    WhichError (status);
-	    sprintf (MsgText, "Couldn't create trailer filename for %s",
-		     output);
+    
+    if (MkOutName(output,isuffix,trlsuffix,nsuffix,trl_out,SZ_FNAME)){
+        WhichError(status);
+        sprintf(MsgText,"Couldn't create trailer filename for %s",output);
+    }
+    if (MkNewExtn (trl_out,TRL_EXTN)){   
+ 	    WhichError (status);
+	    sprintf (MsgText, "Couldn't create trailer filename for %s",out_name);
 	    trlmessage (MsgText);
 	}
 

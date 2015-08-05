@@ -158,8 +158,6 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	int row;		/* loop index for row number */
 	int dimx, dimy;
 	int nrows;		/* number of rows applied to DQ array */
-	short dq_fill = 64;	/* default fill value when no flags applied */
-	int xpos, ypos;
 	int sameamp, samegain, samechip;
 
 	int GetLT0 (Hdr *, double *, double *);
@@ -317,15 +315,6 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	    sprintf (MsgText, "No rows from BPIXTAB applied to DQ array.");
 	    trlwarn (MsgText);
 
-	    /* This code will mark the first pixel with a value of 64 to
-	       prevent CALWF3 from crashing when no pixels are marked bad. *
-	    sprintf (MsgText, "Inserting single pixel DQ place-holder at (1,1).");
-	    trlwarn (MsgText);
-	    xpos = (int)ri_v[0];
-	    ypos = (int)ri_v[1];
-	    sum_dq = DQPix (x->dq.data, xpos, ypos) | dq_fill;
-	    DQSetPix (x->dq.data, xpos, ypos, sum_dq);
-	    */
 	}
 
 	/* Copy scratch contents into input DQ array */

@@ -269,8 +269,8 @@ SingleGroup *b        o: output data
 	/* Update the coordinate parameters that depend on the binning. */
 	block[0] = 1. / (double)binx;
 	block[1] = 1. / (double)biny;
-	if (status = BinCoords (&a->sci.hdr, block, offset,
-		&b->sci.hdr, &b->err.hdr, &b->dq.hdr))
+	if ( (status = BinCoords (&a->sci.hdr, block, offset,
+		&b->sci.hdr, &b->err.hdr, &b->dq.hdr)))
 	    return (status);
 
 	return (status = 0);
@@ -643,8 +643,8 @@ SingleNicmosGroup *b        o: output data
 	/* Update the coordinate parameters that depend on the binning. */
 	block[0] = 1. / (double)binx;
 	block[1] = 1. / (double)biny;
-	if (status = BinCoordsIR (&a->sci.hdr, block, offset, &b->sci.hdr,
-	    &b->err.hdr, &b->dq.hdr, &b->smpl.hdr, &b->intg.hdr))
+	if ( (status = BinCoordsIR (&a->sci.hdr, block, offset, &b->sci.hdr,
+	    &b->err.hdr, &b->dq.hdr, &b->smpl.hdr, &b->intg.hdr)))
 	    return (status);
 
 	return (status = 0);

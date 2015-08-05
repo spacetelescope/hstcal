@@ -23,6 +23,12 @@
 */
 
 
+/*function prototypes*/
+
+int GetCorner (Hdr *, int, int *, int *);
+
+
+
 /*convert  floating point arrays into raz format*/
 int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
 
@@ -200,4 +206,5 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
    return(status);      
 
 }
+
 

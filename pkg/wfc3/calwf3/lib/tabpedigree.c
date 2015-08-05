@@ -55,7 +55,7 @@ int TabPedigree (RefTab *ref) {
 	strcpy (filename, ref->name);
 	strcat (filename, "[0]");
 	tp = c_tbtopn (filename, IRAF_READ_ONLY, 0);
-	if (status = c_iraferr()) {
+	if ( (status = c_iraferr()) ) {
 	    ref->exists = EXISTS_NO;
 	    clear_cvoserr();
 	    status = 0;
@@ -67,14 +67,14 @@ int TabPedigree (RefTab *ref) {
 	   that's not an error in this case.
 	*/
 	c_tbhgtt (tp, "PEDIGREE", ref->pedigree, SZ_FITS_REC);
-	if (status = c_iraferr()) {
+	if ( (status = c_iraferr())) {
 	    ref->pedigree[0] = '\0';
 	    clear_cvoserr();
 	    status = 0;
 	}
 
 	c_tbhgtt (tp, "DESCRIP", ref->descrip, SZ_FITS_REC);
-	if (status = c_iraferr()) {
+	if ( (status = c_iraferr())) {
 	    ref->descrip[0] = '\0';
 	    clear_cvoserr();
 	    status = 0;
@@ -91,7 +91,7 @@ int TabPedigree (RefTab *ref) {
 	   error message. 
 	*/
 	c_tbhgtt (tp, "FILETYPE", ref->type, SZ_FITS_REC);
-	if (status = c_iraferr()) {
+	if ( (status = c_iraferr()) ) {
 	    ref->type[0] = '\0';
 	    clear_cvoserr();
 	    status = 0;

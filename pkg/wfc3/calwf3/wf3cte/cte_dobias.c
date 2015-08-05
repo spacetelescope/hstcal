@@ -15,6 +15,8 @@
    follows the same format as other reference bias images. The bias subtraction
    is done before the RAZ image is made. Instead of calling the regular routine.
    The regular bias subtraction is still performed.
+   
+   Megan Sosey, 2015
 
  */
 

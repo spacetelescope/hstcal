@@ -341,14 +341,15 @@ int DoCCD (WF3Info *wf3, int extver) {
     /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
      IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE
      PROCESSED IN THE RAZ FORMAT JAY USES, THOUGH ONLY ONE CHIP DONE HERE
+     
+     IF THE IMAGE IS A SUBARRAY THEN IT MUST BE PLACED INSIDE A FULL FRAME
+     ARRAY FOR SINK PIXEL DETECTION
     */
      
     if (dqicorr == COMPLETE) {
         if (wf3->subarray == NO){
             if (SinkDetect(wf3, &x))
                 return(status);          
-        } else {
-            trlmessage("Sink Pixel detection turned off for subarrays");
         }
     }   
 

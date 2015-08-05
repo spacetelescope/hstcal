@@ -201,9 +201,11 @@ float brent(float ax, float bx, float cx, float (*f)(float), float tol,
 			}
 		}
 	}
-	sprintf (MsgText, "Too many iterations in brent");
+	sprintf (MsgText, "Too many iterations in brent, returning 0");
 	trlerror (MsgText);
+    return(0);
 }
+
 #undef ITMAX
 #undef CGOLD
 #undef ZEPS

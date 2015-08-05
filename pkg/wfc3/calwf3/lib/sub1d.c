@@ -87,7 +87,6 @@ In this case the size of *a does NOT match the size of *b
 	int i,j;
 	float da, db;		/* errors for a and b */
 	short dqa, dqb, dqab;	/* data quality for a, b, combined */
-	int dimx;
     int sizea;
     int sizeb;
     

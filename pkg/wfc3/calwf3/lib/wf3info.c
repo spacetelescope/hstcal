@@ -63,6 +63,9 @@
     
   M. sosey 2014
     Added pctecorr switches for new CTE correction
+
+  M. Sosey 2015
+    Added chip keyowrds to fully support all phot keys in all headers
 */
 
 void WF3Init (WF3Info *wf3) {
@@ -87,6 +90,7 @@ void WF3Init (WF3Info *wf3) {
 	wf3->detector = UNKNOWN_DETECTOR;
 	wf3->chip = 1;
     wf3->chip1_flam=1.;
+    wf3->chip2_flam=1.;
 	wf3->ncombine = 1;
 	wf3->nimsets = 1;
 	wf3->members = 1;

@@ -796,8 +796,8 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][SZ_FNAME+1],
     /* Use this marker to allow easier clean-up after an error condition 
     An error condition will have already set status to something else
     that should be passed on...
-    */
-    cleanup: ;
+    
+    cleanup: ;*/
 
 
     /* free memory */

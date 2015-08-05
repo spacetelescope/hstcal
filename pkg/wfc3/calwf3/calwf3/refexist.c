@@ -73,14 +73,13 @@ int *missing       o: a count of missing (or blank) reference files
 	       }
 
 	       if (exist != EXISTS_YES) {
-
-		   /* If this is a "special" keyword, treat it individually;
-		   ** otherwise, log it as missing. */
-		   if (!SpecialCheck (current->keyword, current->filename,
-		       detector, &flat_not_specified, missing)) {
-		       MissingFile (current->keyword, current->filename,
-				    missing);
-		   }
+           	   /* If this is a "special" keyword, treat it individually;
+		       ** otherwise, log it as missing. */
+		       if (!SpecialCheck (current->keyword, current->filename,
+		           detector, &flat_not_specified, missing)) {
+		           MissingFile (current->keyword, current->filename,
+				        missing);
+		       } 
 	       }
 
 	       current = current->next;

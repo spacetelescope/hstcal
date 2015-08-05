@@ -99,7 +99,6 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 		      /* Initialize this string to NULL */
 		      wf3rej_input[0] = '\0';
 		  }
-
 		  for (expid=1; expid <= asn->spmems[posid]; expid++) { 
 
 		       /* From this point on, we are working with ONE image

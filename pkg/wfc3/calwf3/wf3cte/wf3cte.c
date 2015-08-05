@@ -1,7 +1,8 @@
 /* WFC3 -- CTE loss correction for UVIS 
 
    M. sosey  Aug-2014  Adapted for the pipeline from Jay Andersons CTE correction code for wfc3 UVIS
-   raw2raz_wfc3uv.F. 
+   raw2raz_wfc3uv.F , an edited file was delivered december 2014, and both are different from the 
+   fortran code currently served on the wfc3 website.
 
 */
 
@@ -220,25 +221,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     */
     if (CompareCTEParams(&cd, &cte_pars)){
         return (status);
-    }
-
-
-    FILE *cp;
-    FILE *rp;
-    cp=fopen("cprof_check.dat","w+");
-    rp=fopen("rprof_check.dat","w+");
-    
-    for (j=0;j<999;j++){
-        for (i=0;i<100;i++){
-            fprintf(cp,"%i %i %f\n",i,j,cte_pars.cprof->data,i,j);
-            fprintf(rp,"%i %i %f\n",i,j,cte_pars.rprof->data,i,j);
-        }
-    }
-    fclose(rp);
-    fclose(cp);
-    sprintf(MsgText,"CHECK OF *PROF IMAGES saved to *_check.dat ");
-    trlmessage(MsgText);
-    
+    }    
 
     /***SUBTRACT THE BIAS FROM BOTH CHIPS IN PLACE***/
     if (doCteBias(&wf3,&cd)){
@@ -1070,11 +1053,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEParams *cte, int verbose, double expstart){
     
     extern int status;
-    
-    /*for testing*/
-    FILE *fp;
-    int k;
-    
+        
     /*looping vars*/
     int NREDO, REDO;
     int NITINV, NITCTE; 

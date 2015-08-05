@@ -11,6 +11,9 @@ MLS, 12/2013 Updated to account for new WFC3 UVIS PHTFLAM1 and PHTFLAM2,
 PLL, 12/2013 Allow MJD extrapolation using simple straight line from
              last 2 data points, if and only if EXTRAP exists in
              IMPHTTAB primary header and is set to True.
+
+MLS: 07/2015 Cleand up for unused variables and warning
+
 */
 # include <stdio.h>
 # include <string.h>
@@ -18,47 +21,10 @@ PLL, 12/2013 Allow MJD extrapolation using simple straight line from
 # include <ctype.h>
 # include <math.h>
 
-# include "c_iraf.h"
 # include "hstio.h"
 # include "xtables.h"
 # include "imphttab.h"
-
-
-typedef struct {
-    IRAFPointer tp;            /* pointer to table descriptor */
-    IRAFPointer cp_obsmode;        /* column descriptors */
-    IRAFPointer cp_datacol;
-    IRAFPointer cp_result[MAXPARS+1];
-    IRAFPointer cp_nelem[MAXPARS];
-    IRAFPointer cp_parnames[MAXPARS];
-    IRAFPointer cp_parvalues[MAXPARS];
-    IRAFPointer cp_pedigree;
-    IRAFPointer cp_descrip;
-    char photvar[SZ_COLNAME]; /* photometric parameter in this table */
-    int nrows;            /* number of rows in table */
-    int ncols;          /* number of columns in table */
-    int parnum;         /* number of parameterized variables in tables */
-} PhtCols;
-
-typedef struct {
-    char obsmode[SZ_FITS_REC];  /* obsmode string read from table row */
-    char datacol[SZ_FITS_REC];
-    char **parnames; /* record the par. variable names for comparison with obsmode string */
-    int parnum;      /* number of parameterized variables */
-    double *results;  /* results[telem] or results[nelem1*nelem2*...] */
-    int telem;     /* total number of parameterized variable values */
-    int *nelem;    /* multiple paramerized variables will each N values */
-    double **parvals; /* need to support multiple parameterized variables */
-} PhtRow;
-
-typedef struct {
-    int    ndim;   /* number of dimensions for each position */
-    double *index; /* array index along each axis,
-              used to determine which axis is being interpolated */
-    double *pos;   /* value of each axis at position given by index */
-    double value;  /* value at position */
-} BoundingPoint;
-
+# include "c_iraf.h"  /* For Bool type */
 
 /* Internal functions to be used to interpret IMPHTTAB ref tables */
 static int OpenPhotTab (char *, char *, PhtCols *);
@@ -71,6 +37,7 @@ static int CompareObsModes(char *obsmode1, char *obsmode2);
 static int PhotRowPedigree (PhotPar *, int , IRAFPointer, IRAFPointer, IRAFPointer);
 static void ClosePhotRow (PhtRow *);
 
+static char *photnames[6] = {"PHOTZPT","PHOTFLAM","PHOTPLAM","PHOTBW","PHTFLAM1","PHTFLAM2"};
 
 /* This routine gets the values from IMPHTTAB.
 
@@ -120,17 +87,13 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     PhtRow tabrow;        /* values read from a table row */
 
     int row;        /* loop index */
-    int i;
     int extn;
     char phdrname[SZ_FNAME];
     IODescPtr im;        /* descriptor for primary header unit */
     Hdr tphdr;        /* primary header */
     FitsKw key;        /* location of keyword in header */
     char pname[SZ_COLNAME];
-    int parnum,numpar;
     double value;
-    int npar;
-    int plen, n;
     int numkeys;
 
     int foundit;        /* has the correct row been found? */
@@ -185,25 +148,6 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
         tabinfo.parnum = getIntKw(key);
     }
 
-    /* commented out because this keyword doesn't seem to be part of the phottab
-       anymore. MRD 4/4/2011 */
-    /*
-      tabinfo.parnames = (char **)calloc(tabinfo.parnum+1, sizeof(char *));
-      for (i=0; i<=tabinfo.parnum; i++){
-        tabinfo.parnames[i] = (char *) calloc (SZ_COLNAME, sizeof(char));
-      }
-        if (tabinfo.parnames == NULL)
-        return (OUT_OF_MEMORY);
-    */
-    /* For each parameterized value that went into this obsmode,
-       read in the column name for that value */
-    /*
-      for (parnum = 1; parnum <= tabinfo.parnum; parnum++){
-        sprintf(pname,"PAR%dNAME",parnum);
-        key = findKw (&tphdr, pname);
-        getStringKw (key, tabinfo.parnames[parnum], SZ_COLNAME);
-      }
-    */
 
     /* Read in PHOTZPT keyword value from Primary header */
     key = findKw (&tphdr, "PHOTZPT");
@@ -274,7 +218,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
                 }
 
                 /* Read in photometry values from table row */
-                if ((status = ReadPhotArray(&tabinfo, row, &tabrow))) {
+                if ( (status = ReadPhotArray(&tabinfo, row, &tabrow))) {
                     printf("*** Error in ReadPhotArray\n");
                     return (status);
                 }
@@ -338,14 +282,13 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 
     extern int status;
 
-    int colnum, datatype, lendata, lenfmt;
     char tname[SZ_FNAME];
     char **colnames, **ecolnames, **pncolnames, **pvcolnames;
 
     int *nocol;
     int i, j, missing;
     int parnum;
-
+    
     int PrintMissingCols_IMPHTTAB (int, int, int *, char **, char *, IRAFPointer);
     int buildTabName (char *, char *, char *);
 
@@ -456,7 +399,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
    variable values from the PHOTMODE string as outputs parnames, parvalues.
 */
 static int InterpretPhotmode(char *photmode, PhotPar *obs){
-    int i,j;
+    int i;
     int numpar, n;
     int tok;
     int indx;
@@ -473,6 +416,8 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
     int AllocPhotPar(PhotPar *, int);
 
     numpar = 0;
+    n=0;
+    
     /* scan entire photmode string and count how many # symbols are found */
     obselems = 0;
     strcpy(tempmode,photmode);
@@ -674,13 +619,15 @@ static int ReadPhotTab (PhtCols *tabinfo, int row, PhtRow *tabrow) {
  */
 static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
 
-    int nwl, nthru;        /* number of elements actually read */
     int len_datacol, len_photvar;
     char col_nelem[SZ_COLNAME];
     char col_parval[SZ_COLNAME]="PAR";
     int nret;
-    int parnum;
     int n, col, i;
+    
+    n=0;
+    col=0;
+    i=0;
 
     extern int status;
 
@@ -789,7 +736,6 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
      */
 
     double value;
-    int parnum;
     int n,p, nx, ndim;
     double *out;
     double *obsindx; /* index of each obsmode par value in tabrow->parvals */
@@ -797,9 +743,6 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
 
     int *ndpos;
     int **bounds; /* [ndim,2] array for bounds around obsvals values */
-    double resvals[2]; /* Values from tabrow->results for interpolation */
-    double resindx[2]; /* 1-D indices into tabrow->results for bounding positions*/
-    int posindx;      /* N dimensional array of indices for a position */
     int indx,pdim,ppos,xdim,xpos;
     int tabparlen;
     /*
@@ -1066,7 +1009,6 @@ double linterp(double *x, int nx, double *fx, double xpos) {
 
     int i0, i1;  /* x values that straddle xpos */
 
-    int n;
     double value;
 
     void computebounds (double *, int, double , int *, int *);
@@ -1213,7 +1155,7 @@ static int ClosePhotTab (PhtCols *tabinfo){
 
 /* Initialize the array of BoundingPoint objects */
 BoundingPoint **InitBoundingPointArray(int npoints, int ndim){
-    int i,j;
+    int i;
     int pdim;
     void InitBoundingPoint(BoundingPoint *, int);
     BoundingPoint **points;

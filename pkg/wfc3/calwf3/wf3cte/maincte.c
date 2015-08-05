@@ -1,4 +1,12 @@
-/* WFC3CTE -- CTE loss correction */
+/* WFC3CTE -- CTE loss correction 
+
+This is the routine for running the CTE correction standalone,
+as you would wf3ccd or wf32d
+
+MLS 2015
+
+
+*/
 
 # include <stdio.h>
 # include <stdlib.h>		/* calloc */
@@ -20,12 +28,15 @@
 # endif
 
 static void FreeNames (char *, char *, char *, char *);
+void FreeRefFile (RefFileInfo *);
+void InitRefFile (RefFileInfo *);
 int WF3cte (char *, char *, CCD_Switch *, RefFileInfo *, int, int, int);
 int MkName (char *, char *, char *, char *, char *, int);
 void WhichError (int);
 int CompareNumbers (int, int, char *);
 int LoadHdr (char *, Hdr *);
 int GetSwitch (Hdr *, char *, int *);
+void initCCDSwitches (CCD_Switch *);
 
 /* 
 

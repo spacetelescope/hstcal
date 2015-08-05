@@ -59,6 +59,28 @@
        
 */
 
+
+/*Prototypes*/
+void FluxMsg(WF3Info *);
+int Do2D (WF3Info *, int);
+int FileExists (char *);
+int Get2dFlags (WF3Info *, Hdr *);
+int GetKeys (WF3Info *, Hdr *);
+void Sanity2d (WF3Info *);
+void TimeStamp (char *, char *);
+int LoadHdr (char *, Hdr *);
+void WF3Init (WF3Info *);
+void PrBegin (char *label);
+void PrEnd (char *label);
+void PrFileName (char *label, char *filename);
+void PrHdrInfo (char *aperture, char *filter, char *detector);
+void PrGrpBegin (char *label, int n);
+void PrGrpEnd (char *label, int n);
+void Init2DTrl (char *, char *);
+int doFlux (WF3Info *);
+void Init2DTrl (char *, char *);
+void PrSwitch (char *, int);
+
 int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 	   RefFileInfo *refnames, int printtime, int verbose) {
 
@@ -69,22 +91,6 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 	Hdr phdr;		/* primary header for input image */
 
-	int Do2D (WF3Info *, int);
-	int FileExists (char *);
-	int Get2dFlags (WF3Info *, Hdr *);
-	int GetKeys (WF3Info *, Hdr *);
-	void Sanity2d (WF3Info *);
-	void TimeStamp (char *, char *);
-	int LoadHdr (char *, Hdr *);
-	void WF3Init (WF3Info *);
-	void PrBegin (char *label);
-	void PrEnd (char *label);
-	void PrFileName (char *label, char *filename);
-	void PrHdrInfo (char *aperture, char *filter, char *detector);
-	void PrGrpBegin (char *label, int n);
-	void PrGrpEnd (char *label, int n);
-	void Init2DTrl (char *, char *);
-    int doFlux (WF3Info *);
  	
 /* ----------------------- Start Code --------------------------------*/
 
@@ -196,7 +202,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
                 return(status);
         }
     
-        FluxMsg(wf32d);
+        FluxMsg(&wf32d);
         PrSwitch ("fluxcorr", COMPLETE);
         if (wf32d.printtime)
             TimeStamp ("FLUXCORR complete", wf32d.rootname);    

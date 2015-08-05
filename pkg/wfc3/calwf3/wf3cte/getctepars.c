@@ -1,4 +1,7 @@
-/*read in the CTE parameters from the PCTETAB file */
+/*
+MLS 2015: read in the CTE parameters from the PCTETAB file 
+
+*/
 
 # include <time.h>
 # include <string.h>
@@ -18,8 +21,8 @@
 void initCTEParams(CTEParams *pars){
     int i;
 
-    pars->cte_name='\0';
-    pars->cte_ver='\0';
+    pars->cte_name[0]='\0';
+    pars->cte_ver[0]='\0';
     pars->cte_date0=0.;
     pars->cte_date1=0.;
     pars->cte_traps=0.;
@@ -30,7 +33,7 @@ void initCTEParams(CTEParams *pars){
     pars->scale_frac=0.; /*will be updated during routine run*/
     pars->noise_mit=0; 
     pars->thresh=0.;
-    pars->descrip2='\0';
+    pars->descrip2[0]='\0';
 
     /*static scheduling is faster when there are no dependent loop variables
       for dependent variables inside the main loop switch to dynamic so that 
@@ -125,22 +128,22 @@ No.    Name         Type      Cards   Dimensions   Format
 	}
 
 	/* GET CTE_NAME KEYWORD */
-	if (GetKeyStr (&hdr_ptr, "CTE_NAME", NO_DEFAULT, "", &pars->cte_name, SZ_CBUF)) {
+	if (GetKeyStr (&hdr_ptr, "CTE_NAME", NO_DEFAULT, "", pars->cte_name, SZ_CBUF)) {
 		cteerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"CTE_NAME: %s",&pars->cte_name);
+	sprintf(MsgText,"\nCTE_NAME: %s",pars->cte_name);
 	trlmessage(MsgText);
 
 	/* GET VERSION NUMBER  */
-	if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", &pars->cte_ver, SZ_CBUF)) {
+	if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", pars->cte_ver, SZ_CBUF)) {
 		cteerror("(pctecorr) Error reading CTE_VER keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
-	sprintf(MsgText,"CTE_VER: %s",&pars->cte_ver);
+	sprintf(MsgText,"CTE_VER: %s",pars->cte_ver);
 	trlmessage(MsgText);
 
 	/* GET DATE OF UVIS INSTALLATION IN HST */
@@ -227,9 +230,13 @@ No.    Name         Type      Cards   Dimensions   Format
         status = KEYWORD_MISSING;
         return status;
     }
+    
+    /*
 	sprintf(MsgText,"FIXROCR: %d",pars->fix_rocr);
 	trlmessage(MsgText);
-
+    */
+    
+    
 	/* DONE READING STUFF FROM THE PRIMARY HEADER */
 	freeHdr(&hdr_ptr);
 
@@ -320,10 +327,12 @@ No.    Name         Type      Cards   Dimensions   Format
     /*IF CTRAPS EVER OVERFLOWS INT THIS NEEDS TO BE CHANGED*/
     pars->cte_traps=(int)ctraps;
 
+    /*
 	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
             pars->wcol_data[19],pars->qlevq_data[19], pars->dpdew_data[19], pars->cte_traps);
 	trlmessage(MsgText);
-
+    */
+    
 	/* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
 	c_tbtclo(tbl_ptr);
 
@@ -425,10 +434,11 @@ No.    Name         Type      Cards   Dimensions   Format
 
 
 	}
+    /* for testing
 	sprintf(MsgText,"(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d %g\t%g\t%g\t%g\ntotal traps = %i",
             j,pars->iz_data[j-1],pars->scale512[j-1],pars->scale1024[j-1],pars->scale1536[j-1],pars->scale2048[j-1],pars->cte_traps);
 	trlmessage(MsgText);
-
+    */
    
 	/* close CTE parameters file for extension 2*/
 	c_tbtclo(tbl_ptr);
@@ -500,15 +510,15 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     int n_par;
     int fix_rocr;
 
-    trlmessage("COMPARING CTE PARAMS");
+    trlmessage("COMPARING CTE PARAMS FROM TABLE WITH HEADER");
     
     /*always put the cte_name  and cte_ver from the reference file in*/
-    if (PutKeyStr(group->globalhdr,"CTE_NAME", &pars->cte_name, "CTE algorithm name")){
+    if (PutKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")){
         trlmessage("(pctecorr) Error updating CTE_NAME keyword in image header");
         return (status=HEADER_PROBLEM);
     }
     
-    if(PutKeyStr(group->globalhdr,"CTE_VER", &pars->cte_ver, "CTE algorithm version")){
+    if(PutKeyStr(group->globalhdr,"CTE_VER", pars->cte_ver, "CTE algorithm version")){
         trlmessage("(pctecorr) Error updating CTE_VER keyword in image header");
         return (status=HEADER_PROBLEM);
     }

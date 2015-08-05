@@ -18,6 +18,7 @@ int status = 0;			/* zero is OK */
 # include "wf3version.h"
 
 static void FreeNames (char *, char *, char *, char *);
+int MkOutName (const char *, char **, char **, int, char *, int);
 
 /* This is the main module for WF3CCD.  It gets the input and output
    file names, calibration switches, and flags, and then calls WF3ccd.
@@ -49,7 +50,6 @@ int main (int argc, char **argv) {
 	/* Input and output suffixes. */
 	char *isuffix[] = {"_raw", "_rac"};
 	char *osuffix[] = {"_blv_tmp", "_blc_tmp"};
-	char *trlsuffix[] = {"", ""};
 
 	int nsuffix = 2;
 

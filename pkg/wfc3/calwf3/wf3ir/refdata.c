@@ -251,7 +251,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		}
 		
 		/* Resample lflt into dflt by linear interpolation */
-		if (status = unbin2d_ir (&lflt, &dflt))
+		if ( (status = unbin2d_ir (&lflt, &dflt)))
 		    return (status);
 		freeSingleNicmosGroup (&lflt);
 
@@ -285,7 +285,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		    return (status = 1);
 		}
 
-		if (status = unbin2d_ir (&lflt, flat))
+		if ( (status = unbin2d_ir (&lflt, flat)))
 		    return (status);
 		freeSingleNicmosGroup (&lflt);
 
@@ -678,14 +678,14 @@ int RebinRef (SingleNicmosGroup *in, SingleNicmosGroup *ref, int avg) {
 	/* Compare binning and dimensions of science and reference image;
 	** get same_size flag, and get info about binning and offset
 	** for use by bin2d. */
-	if (status = FindBinIR (in, ref, &same_size, &rx, &ry, &x0, &y0))
+	if ( (status = FindBinIR (in, ref, &same_size, &rx, &ry, &x0, &y0)))
 	    return (status);
 
 	/* Rebin or extract subarray of reference image, if necessary */
 	if (!same_size) {
 	    initSingleNicmosGroup (&z);
 	    allocSingleNicmosGroup (&z, in->sci.data.nx, in->sci.data.ny);
-	    if (status = bin2d_ir (ref, x0, y0, rx, ry, avg, &z)) {
+	    if ( (status = bin2d_ir (ref, x0, y0, rx, ry, avg, &z))) {
 		trlerror ("Reference image size mismatch.");
 		return (status);
 	    }
@@ -755,7 +755,6 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
     int             i, nrows, nmatch, row;
     int             crsplit_in, crsplit, maxcrsplit, irramp;
     float           exp_in, meanexp, mindiff, diff;
-    char            maskstr[SZ_CBUF+1];
 
     void    PrRefInfo (char *, char *, char *, char *, char *);
     void    WhichError (int);
@@ -956,16 +955,6 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 */
         sprintf (MsgText," input bad bits value = %d", par->badinpdq);
         trlmessage (MsgText);
-/*
-        
-        if (par->mask == 1) {
-            strcpy (maskstr,"YES");
-        } else {
-            strcpy (maskstr, "NO");
-        }
-        sprintf (MsgText," reset crmask = %s\n", maskstr);
-        trlmessage (MsgText);
-*/
     }
     return (status);
 }

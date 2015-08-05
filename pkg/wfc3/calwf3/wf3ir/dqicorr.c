@@ -207,28 +207,11 @@ static int dqicorr (WF3Info *wf3, SingleNicmosGroup *input,
 **	mask	 i: mask image
 */
 
-	/* Local variables */
-	int i, j;			/* loop indexes */
-
 	/* Function definitions */
 	void aor (SingleNicmosGroup *, SingleNicmosGroup *);
 
 	/* Combine the DQ mask with the input DQ */
 	aor (input, mask);
-
-    /*this was removed by the team per #980
-	as there a TDF transition during the exposure?
-	if (wf3->tdftrans[wf3->group-1] > 0) {
-
-	    Set the DETECTORPROB value in the entire DQ array
-	    for (j = 0; j < input->dq.data.ny; j++) {
-		 for (i = 0; i < input->dq.data.nx; i++) {
-		      DQSetPix (input->dq.data,i,j,
-				DQPix(input->dq.data,i,j) | DETECTORPROB);
-		 }
-	    }
-	}
-    */
 
 	/* Successful return */
 	return (status = 0);

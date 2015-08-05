@@ -47,8 +47,8 @@ int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 	if (wf3->photcorr == PERFORM) {
 
 	/* Extract photmode from sci extension header */
-	if (status=GetKeyStr (input->group[0].globalhdr, "PHOTMODE", USE_DEFAULT, "",
-		       photmode, SZ_LINE))
+	if ( (status=GetKeyStr (input->group[0].globalhdr, "PHOTMODE", USE_DEFAULT, "",
+		       photmode, SZ_LINE)))
 	    return (status);
 
 	/* Convert PHOTMODE string into synphot OBSMODE syntax */

@@ -17,11 +17,13 @@
 
    Howard A. Bushouse, 2000 August 22:
    Initial version (adapted from calacs.c by W. Hack)
+   
    H.Bushouse, 2001 May 8:
    Modified to keep in sync with changes to calacs:
    Added post-flash processing step;
    Corrected bugs dealing with dither associations that have only
    single images at each pointing.
+   
    H.Bushouse, 2002 June 20:
    Modified to keep in sync with changes to calacs:
    Changed so that when no calibration switches are set to PERFORM, it
@@ -32,36 +34,44 @@
    PERFORM. If only RPTCORR is on, then it will not stop but copy raw
    files and sum them with WF3SUM. Update DQICORR for CRJ product so that
    doDQI is not run again in WF32D.
+   
    H.Bushouse, 2002 Nov 26:
    Modified to keep in sync with changes to calacs:
    Corrected memory usage error in BuildSumInput.
    Corrected a bug where RPT-OBS sub-products MTYPE was getting overwritten
    by the PROD-DTH MTYPE in dithered RPT-OBS associations.
    Fix involved using subprod.mtype instead of prod.mtype.
+   
    H.Bushouse, 2003 Apr 25:
    Removed all handling of RPTCORR processing from CalWf3Run, because
    WFC3 repeat-obs images will be cr-combined (using WF3REJ) from
    within the ProcessCCD and ProcessIR routines, just like CR-SPLITs.
    Also modified SetCCDSw routine to treat RPTCORR and CRCORR the same.
+   
    H.Bushouse, 2006 June 20:
    Modified to keep in sync with CALACS calacs.c changes:
    Removed any reference to updateAsnStat, since only OPUS should update
    the ASN_STAT keyword in the ASN table header.
+   
    H.Bushouse, 2010 Oct 20:
    Modified BuildDthInput to skip processing for sub-products that have
    < 2 members. Also modified the DTH processing portion of CalWf3Run
    to skip processing for products that have no members. Both of these
    are for handling associations with missing members.  (PR 66366)
+  
    H.Bushouse, 2011 Jan 14:
    Updated CopyFFile to update the FILENAME keyword in the output file.
    (PR 67225, Trac #646)
+   
    H.Bushouse, 2012 Mar 21:
    Upgraded BuildDthInput to handle situations where no sub-product
    (i.e. _crj file) has been produced, which means the trailer file for
    the final (asn level) product must be built from the trailers of the
    individual asn members. (PR 70922, Trac #869)
+   
    M.Sosey, 2012 May 07:
    added the option "-r" to print the current version and exit cleanly
+   
    M. Sosey, 2012 June 26:
    There were some missed updates from the iraf version, namely 
 
@@ -78,8 +88,12 @@
    Added double process to include fully CTE calibrated output files
    as well as NON-CTE calibrated output files. Different versions of the files
    need to be specified so there's a bunch of code replication #1154
-   phew. The double looping is actually controlled in proccd
+   phew. The double looping is actually controlled in procccd
 
+   M. Sosey, July 2015:
+   Updated BuildDthInput return value changed to int to avoid leaks
+   Removed BuildSumInput because it's no longer used
+   
  */
 
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug, int onecpu) {
@@ -90,7 +104,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	   int save_tmp	i: true --> save temporary files
 	   int verbose	i: true --> print info during processing
 	   int debug	i: true --> print debugging info during processing
-       int onecpu      i: true --> turn off use of OpenMP during processing
+       int onecpu   i: true --> turn off use of OpenMP during processing
 	 */
 
 	extern int status;
@@ -113,7 +127,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	int ProcessCCD (AsnInfo *, WF3Info *, int *, int, int);
 	int ProcessIR  (AsnInfo *, WF3Info *, int);	
 	int Wf3Dth (char *, char *, int, int, int);
-	char *BuildDthInput (AsnInfo *, int);
+	int BuildDthInput (AsnInfo *, int, char *);
 	int updateAsnTable (AsnInfo *, int, int);
 	void InitDthTrl (const char *, char *);
 
@@ -218,15 +232,11 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 		/* For each DTH product... */
 		wf3dth_input = NULL;
+        
 		for (prod = 0; prod < asn.numprod; prod++) {
 
-			/* Create empty DTH product, header only */
-			/* This uses only one sub-product for the header template,
-			 ** but later versions should use a function similar to
-			 ** BuildSumInput to create list of subproducts as inputs...
-			 */
-
-			wf3dth_input = BuildDthInput (&asn, prod);
+            wf3dth_input = ( char *) calloc( 1, 1 );
+			BuildDthInput (&asn, prod, wf3dth_input);
 
 			/* Skip this product if the input list is empty */
 			if (wf3dth_input == NULL) continue;
@@ -236,13 +246,12 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 			 ** not. So we set up the trailer file based on the association
 			 ** file name itself. */
 
-			InitDthTrl (wf3dth_input, asn.rootname);
-
-			/* } */
-
+ 			InitDthTrl (wf3dth_input, asn.rootname);
+            
 			/* Check if we have a PROD-DTH specified */
+            
 			if (strcmp(asn.product[prod].prodname,"") != 0) {
-
+                
 				if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
 					if (Wf3Dth (wf3dth_input,
 								asn.product[prod].prodname, asn.dthcorr,
@@ -260,8 +269,9 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 					/* status = WF3_OK; */
 				}
 			}
-			free (wf3dth_input);
+            free (wf3dth_input);
 		}
+
 	} /* End DTHCORR Processing */
 
 	if (asn.verbose) {
@@ -282,68 +292,12 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 }
 
-char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
+int BuildDthInput (AsnInfo *asn, int prod, char *wf3dth_input) {
 
-	int wf3sum_len;
-	int i;
-	char *wf3sum_input;
-	char tmpexp[SZ_LINE+1];
-	char tmpflt[SZ_LINE+1];
-	int MkName (char *, char *, char *, char *, char *, int);
-
-	/* Determine how long this string needs to be... */
-	/*nchars = asn->spmems[posid] * (SZ_FNAME+1);*/
-
-	/* Keep track of individual filename lengths and total length */
-	wf3sum_len = 0;
-
-	/* Now, lets search the association table for all inputs... */
-	for (i=1; i <= asn->spmems[posid]; i++) {
-		strcpy(tmpexp, asn->product[prod].subprod[posid].exp[i].expname);
-
-		if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, SZ_LINE)) {
-			strcpy (tmpflt, asn->product[prod].subprod[posid].exp[i].name);
-			strcat (tmpflt, "_flt.fits");
-		}
-
-		/* Sum together lengths of all filenames to be used as
-		 ** input to WF3SUM. */
-		wf3sum_len += strlen(tmpflt)+1;
-	}
-
-	/* Now that we know how long it will be, allocate space for
-	 ** input string */
-	wf3sum_input = (char *) calloc(wf3sum_len + 1, sizeof(char));
-
-	/* Go back through the association table to string all inputs together*/
-	for (i=1; i <= asn->spmems[posid]; i++) {
-		strcpy (tmpexp, asn->product[prod].subprod[posid].exp[i].expname);
-
-		if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, SZ_LINE)) {
-			strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);
-			strcat (tmpflt, "_flt.fits");
-		}
-		strcat(wf3sum_input, tmpflt);
-
-		/* Don't add a comma to the end of the last filename*/
-		if (i < (asn->spmems[posid])) {
-			strcat(wf3sum_input, ",");
-		}
-	}
-	strcat (wf3sum_input, "\0");
-
-	return(wf3sum_input);
-}
-
-
-char *BuildDthInput (AsnInfo *asn, int prod) {
-
-	int nchars;
 	int i, j;
-	char *wf3dth_input;
-	char tmpexp[SZ_LINE+1];
 	int MkName (char *, char *, char *, char *, char *, int);
-
+    extern int status;
+    
 	/* 
 	 * allocate 1 byte - we will realloc every time we append
 	 * to the string.  Note that the reallocs ask for a little
@@ -352,7 +306,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 	 * commas.  The length of the string is re-adjusted each time
 	 * through the loop, so +10 is good enough.
 	 */
-	wf3dth_input = ( char *) calloc( 1, 1 );
+	
 
 	/* Now, lets search the association table for all inputs... */
 	for (i=1; i <= asn->numsp; i++) {
@@ -371,7 +325,8 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 			for (j=1; j <= asn->spmems[i]; j++) {
 				char *t = asn->product[prod].subprod[i].exp[j].name;
 				static char u[] = "_flt.fits";
-				/* realloc for the new string length + some extra to avoid counting carefully */
+                
+				/* REALLOC FOR THE NEW STRING LENGTH + SOME EXTRA TO AVOID COUNTING CAREFULLY */
 				wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + sizeof(u) + 10 ) );
 				strcat(wf3dth_input, t);
 				strcat(wf3dth_input, u);
@@ -379,7 +334,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 					strcat(wf3dth_input, ",");
 			}
 
-		} else {
+		} else {            
 			/* Otherwise just use the sub-product name */
 			char *t = asn->product[prod].subprod[i].spname;
 			wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
@@ -392,7 +347,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 		}
 	}
 
-	return(wf3dth_input);
+	return(status);
 }
 
 
@@ -507,14 +462,19 @@ void ResetCCDSw (CCD_Switch *wf3ccd_sci_sw, CCD_Switch *wf32d_sci_sw) {
 
 	if (wf3ccd_sci_sw->dqicorr == PERFORM)
 		wf32d_sci_sw->dqicorr = OMIT;
+
 	if (wf3ccd_sci_sw->atodcorr == PERFORM)
 		wf32d_sci_sw->atodcorr = OMIT;
+
 	if (wf3ccd_sci_sw->blevcorr == PERFORM)
 		wf32d_sci_sw->blevcorr = OMIT;
+
 	if (wf3ccd_sci_sw->biascorr == PERFORM)
 		wf32d_sci_sw->biascorr = OMIT;
+
 	if (wf3ccd_sci_sw->pctecorr == PERFORM)
 		wf32d_sci_sw->pctecorr == OMIT;
+        
 }
 
 
