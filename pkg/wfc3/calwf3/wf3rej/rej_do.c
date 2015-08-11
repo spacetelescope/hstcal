@@ -51,6 +51,8 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
   30-Aug-12       M. Sosey        Checks the value of EXPFLAG in all the input image and if
                             any one image contains something other than NORMAL, it reports
                             the value as MIXED in the output crj header. PR #72001
+
+  11-Aug-15      M. Sosey  REJ_RATE was being reported wrong because nrej wasn't initialized
 */
 
 int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
@@ -137,7 +139,9 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     void    FindAsnRoot (char *, char *);
     void    initmulti (multiamp *);
     char    expflagFinal[]="NORMAL"; /*24 char keyword max in header */
-
+    
+    nrej=0;
+    
     /* -------------------------------- begin ------------------------------- */
 
     /* Initialize necessary structures */
@@ -216,6 +220,8 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     /* Calculate the total exposure time */
     exptot = 0.;
+    texpt = 0.;
+    
     non_zero = 0;
     for (n = 0; n < nimgs; ++n) {
         exptot += efac[n];
@@ -383,6 +389,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		   "computed exposure start time (Modified Julian Date)");
         PutKeyDbl (sg.globalhdr, "EXPEND", expend,
 		   "exposure end time (Modified Julian Date)");
+           
 	/* Upgraded to use 'texpt' as a safe value when EXPTIME=0 for
 	** all members. */
         PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej/texpt, 

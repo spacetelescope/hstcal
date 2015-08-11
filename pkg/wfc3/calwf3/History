@@ -1,4 +1,6 @@
 ### 05-Aug-2015 MLS -- Version 3.3
+    - WF3Rej for IR images, REJ_RATE reported in header wrong because nrej wasn't being initialized, see #1214
+### 05-Aug-2015 MLS -- Version 3.3
     - Updates related to #1193, #1205
     - Clean up of getphttab.c file for unused variables
     - Clean up function references and unused variables in wfc3 code
