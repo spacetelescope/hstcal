@@ -1,5 +1,8 @@
 ### 05-Aug-2015 MLS -- Version 3.3
     - WF3Rej for IR images, REJ_RATE reported in header wrong because nrej wasn't being initialized, see #1214
+    - fix for #1216, the BIACFILE name was not being populated for bias images with BIASCORR == OMIT
+    - I also went ahead and added a clean exit for images going to PCTECORR which already have BIASCORR complete
+
 ### 05-Aug-2015 MLS -- Version 3.3
     - Updates related to #1193, #1205
     - Clean up of getphttab.c file for unused variables

@@ -18,6 +18,10 @@ static int checkBiac (Hdr *, WF3Info *, int *);
 
    M.Sosey, 2014 August
    Updated to include the new PCTETAB for the CTE uvis correction
+   
+   M.Sose, 2015 August
+   Updated to check BIASC filename based on PCTECORR and added check
+   for BIASCORR complete with clean exit, #1216
  */
 
 int GetCTEFlags (WF3Info *wf3, Hdr *phdr) {
@@ -115,27 +119,32 @@ int *missing     io: incremented if the file is missing
     int GotFileName(char *);
     
 	/* Are we supposed to do this step? */
-	if (wf3->biascorr == PERFORM) {
-
-	    if (GetSwitch (phdr, "BIASCORR", &calswitch))
-		    return (status);
-	    if (calswitch == COMPLETE) {
-		    return (status);
-	    }
+	if (wf3->pctecorr == PERFORM) {
 
 	    if (GetImageRef (wf3->refnames, phdr, "BIACFILE", &wf3->biac, 
 			     &wf3->biascorr))
-    		return (status);
+    		return (status=CAL_FILE_MISSING);
 	            
         if (wf3->biac.exists != EXISTS_YES) {
     		if (GotFileName (wf3->biac.name)) {
                 MissingFile ("BIACFILE", wf3->biac.name, missing);
+                return (status=CAL_FILE_MISSING);
             }
 	    } else {
 
 		    /* Is the FILETYPE appropriate for a BIAS file? */
 		    CheckImgType (&wf3->biac, "CTEBIAS", "BIACFILE", missing);
         }
+
+        /*check if the user has already performed biascorr on the data*/
+	    if (GetSwitch (phdr, "BIASCORR", &calswitch))
+		    return (status);
+	    if (calswitch == COMPLETE) {
+            sprintf(MsgText,"\n *** BIASCORR already performed, stopping, cannot run PCTECORR with BIASCORR == COMPLETE");
+            trlmessage(MsgText);
+		    return (status=ERROR_RETURN);
+	    }
+
     }
 	return (status);
 }

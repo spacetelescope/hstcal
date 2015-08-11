@@ -1,5 +1,7 @@
 Updates for Version 3.3 11-Aug-2015 MLS
     -nrej initialized in wf3rej so that REJ_RATE reported consistently correct, see #1214
+    -fix for #1216, the BIACFILE name was not being populated for bias images with BIASCORR == OMIT
+    -I also went ahead and added a clean exit for images going to PCTECORR which already have BIASCORR complete
 
 Updates for Version 3.3  21-July-2015 MLS
     -Debugged version of the CTE code committed.
