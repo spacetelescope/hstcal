@@ -1,3 +1,6 @@
+12-Aug-2015 - MLS -- Version 3.3
+    - fix for #1215 binned data detection for sink pixel seg faults
+
 11-Aug-2015 - MLS -- Version 3.3
     -REJ_RATE reported consistently now with nrej initialized in wf3rej
     -fix for #1216, the BIACFILE name was not being populated for bias images with BIASCORR == OMIT

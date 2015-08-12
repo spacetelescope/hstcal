@@ -38,14 +38,14 @@
    added message info giving mean bias level for each amp (CALACS
    changes).
 
-
    M. Sosey, 2013 July 3
    Addded new FLUXCORR step to scale flux units in both chips to
    the same scale using the ratio of PHTFLAM1/PHTFLAM2 ->PHTRATIO 
    
    M. Sosey June 2015
    If DQICORR is performed, then the SINK pixel mask is also propgated
-   This is part of the UVIS 2 update
+   This is part of the UVIS 2 update. SINK pixels are not currently 
+   detected for subarrays or binned data.
     
  */
 
@@ -62,6 +62,7 @@ static void BiasMsg (WF3Info *, int);
 static void FlashMsg (WF3Info *, int);
 static void BlevMsg (WF3Info *, int);
 static void dqiMsg  (WF3Info *, int);
+int checkBinned (SingleGroup *);
 
 int DoCCD (WF3Info *wf3, int extver) {
 
@@ -83,7 +84,6 @@ int DoCCD (WF3Info *wf3, int extver) {
     int i, j, x1, dx;		/* loop index */
     int overscan;
     int blevcorr;
-    int dqicorr;
     char buff[SZ_FITS_REC+1];
     Bool subarray;
 
@@ -113,6 +113,10 @@ int DoCCD (WF3Info *wf3, int extver) {
     int GetCCDTab (WF3Info *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
     int SinkDetect (WF3Info *, SingleGroup *);
+    
+    int *corner=0;
+    int *bin=0;
+    int rsize=0;
 
     /*========================Start Code here =======================*/	
     initSingleGroup (&x);
@@ -244,17 +248,13 @@ int DoCCD (WF3Info *wf3, int extver) {
 
     /* DATA QUALITY INITIALIZATION AND (FOR THE CCDS) CHECK SATURATION. */
     dqiMsg (wf3, extver);
-    dqicorr=PERFORM;
     if (wf3->dqicorr == PERFORM || wf3->dqicorr == DUMMY) {
         if (doDQI (wf3, &x))
             return (status);
         PrSwitch ("dqicorr", COMPLETE);
         if (wf3->printtime)
             TimeStamp ("DQICORR complete", wf3->rootname);
-        dqicorr=COMPLETE;
-    }
-    
-        
+    }        
     if (extver == 1 && !OmitStep (wf3->dqicorr))
         if (dqiHistory (wf3, x.globalhdr))
             return (status);
@@ -336,21 +336,27 @@ int DoCCD (WF3Info *wf3, int extver) {
     if (extver == 1 && !OmitStep (wf3->biascorr))
         if (biasHistory (wf3, x.globalhdr))
             return (status);
-
-
+    
     /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
      IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE
      PROCESSED IN THE RAZ FORMAT JAY USES, THOUGH ONLY ONE CHIP DONE HERE
      
      IF THE IMAGE IS A SUBARRAY THEN IT MUST BE PLACED INSIDE A FULL FRAME
      ARRAY FOR SINK PIXEL DETECTION
-    */
      
-    if (dqicorr == COMPLETE) {
+     BINNED IMAGES ARE NOT SUPPORTED AT ALL
+    */
+    if (wf3->dqicorr == PERFORM) {
         if (wf3->subarray == NO){
-            if (SinkDetect(wf3, &x))
-                return(status);          
-        }
+            /*also check to see if the data is binned*/
+            if (checkBinned(&x)){
+                sprintf(MsgText,"Binned data not supported for Sink Pixel detection");
+                trlmessage(MsgText);
+            } else {
+                if (SinkDetect(wf3, &x))
+                    return(status);          
+                }
+            }
     }   
 
     /* SUBTRACT POST-FLASH IMAGE. */
@@ -474,6 +480,28 @@ int DoCCD (WF3Info *wf3, int extver) {
     freeSingleGroup (&x);
 
     return (status);
+}
+
+
+/*check and see if the image is binned at all, return 1 if binned*/
+int checkBinned (SingleGroup *x){
+    int rsize=1;
+    int bin[2];
+    int corner[2];
+    int i;
+    
+    /*initialize*/
+    for(i=0;i<=1;i++){
+        bin[i]=0;
+        corner[i]=0;
+    }
+    GetCorner(&x->sci.hdr, rsize, bin, corner);
+    if (bin[0] > 1 || bin[1] > 1){
+        return 1;
+    } else {
+        return 0;
+    }
+
 }
 
 static void AtoDMsg (WF3Info *wf3, int extver) {
