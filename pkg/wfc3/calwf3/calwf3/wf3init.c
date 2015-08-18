@@ -123,7 +123,6 @@ void WF3Defaults (WF3Info *wf3) {
 	wf3->scibin[1] = 0;
 	wf3->scigain   = 0;
 	wf3->samebin   = 0;
-    
 
 	/* INITIALIZE FLAGS TO NOT PERFORM THE STEP. */
 	wf3->sci_basic_ccd = OMIT;

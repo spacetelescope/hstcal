@@ -9,9 +9,9 @@
 # include "rej.h"
 # include "wf3info.h"
 
-static void InitRejTrl (char *, char *); 
-
+int InitRejTrl (char *, char *); 
 int MkOutName (char *, char **, char **, int, char *,int);
+void WhichError (int);
 
 /*  WF3REJ -- cosmic ray rejection with shading correction and 
     section-by-section checking for WF3
@@ -32,6 +32,9 @@ status gets passed up for use in caller.
 (PR 68593; Trac #722)
 06-10-2015  M. Sosey, updates for CTE addtion, #1193 
 08-01-2015 M. Sosey, removed detector dependence on InitRejTrl
+08-18-2015 M. Sosey, variable size array allocation for input list and made return from
+   InitRejTrl an int for error checking
+
 */
 
 int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], int makespt) 
@@ -65,7 +68,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     if (LoadHdr (in_name, &phdr)) {
         sprintf (MsgText, "Could not load header from %s", in_name);
         trlerror (MsgText);
-        return (status);
+        return (status=ERROR_RETURN);
     }
     if (GetKeyStr (&phdr, "DETECTOR", NO_DEFAULT, "", det, SZ_CBUF)) {
         trlkwerr ("DETECTOR", in_name);
@@ -88,8 +91,10 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     /* Determine input and output trailer files, then initialize
      ** output file by combining inputs into output file */
      
-    
-    InitRejTrl(in_list, output);
+    if (InitRejTrl(in_list, output)){
+        WhichError(status);
+        return (status);
+    }
         
     /* Quit on error condition */
     if (status)
@@ -175,7 +180,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
 /*                          InitRejTrl                               */
 /* ------------------------------------------------------------------*/
 
-static void InitRejTrl (char *input, char *output) {
+int InitRejTrl (char *input, char *output) {
 
     extern int  status;
     IRAFPointer tpin;
@@ -187,8 +192,6 @@ static void InitRejTrl (char *input, char *output) {
     char        in_name[SZ_FNAME];
     char        out_name[SZ_FNAME];
 
-    int         trl_len;
-
 
     /* Input and output suffixes for uvis. */
     char *isuffix[] = {"_blv_tmp", "_blc_tmp","_flt","_flc","_crj","_crc","_crj_tmp","_crc_tmp"};
@@ -199,17 +202,11 @@ static void InitRejTrl (char *input, char *output) {
     int MkNewExtn(char *, char *);
     void WhichError (int);
 
-    /* ----------------------------- Begin ------------------------------*/
-
-    trl_in = (char *) calloc(SZ_LINE+ 1, sizeof(char));
-    trl_len = SZ_LINE + 1;
-
-    if (trl_in == NULL) {
-        printf ("Out of memory: Couldn't allocate for CR_TMP trailer file.");
-        status = OUT_OF_MEMORY;
-        trl_len = 0;
-    }	
-
+    if ((trl_in =  calloc(strlen(input)+ 1, sizeof(char)))== NULL){
+        printf("\nCannot allocate memory for input string\n");
+        return (status=OUT_OF_MEMORY);
+    }
+    
     /* Initialize TRL filenames */
     trl_in[0]  = '\0';
     trl_out[0] = '\0';
@@ -261,5 +258,6 @@ static void InitRejTrl (char *input, char *output) {
     /* Deallocate memory */
     free(trl_in);
     c_imtclose (tpin);
+    return(status);
 }
 

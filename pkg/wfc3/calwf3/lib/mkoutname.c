@@ -75,14 +75,13 @@ int MkOutName (char *input, char **isuffix, char **osuffix, int nsuffix,
        */
 
     extern int status;
-
     char *extn;		/* extension on input (or default) */
 
     int is_len;		/* length of current isuffix */
     int tr_len;		/* length of truncated input name */
     int i;			/* loop index */
     int dotlocn;		/* location of '.' in input name */
-
+    
     if (output[0] == '\0') {
 
         extn = calloc (1 + strlen(input) + strlen(FITS_EXTN), sizeof(char));
@@ -179,7 +178,7 @@ int DefaultExtn (char *input, int maxch) {
    value.  fname may begin with '.'.
    */
 
-static int FindExtn ( char *fname) {
+static int FindExtn (char *fname) {
 
     int dotlocn = -1;
     int i;

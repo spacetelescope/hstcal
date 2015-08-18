@@ -61,10 +61,11 @@
 
   M Sosey, 2015 May: 
       Updated for UVIS2
+      
 */
 
 
-int Wf3Dth (char *in_list, char *output, int dthcorr, int printtime,
+int Wf3Dth ( char *in_list, char *output, int dthcorr, int printtime,
 	    int verbose){
 	
 	extern int status;
@@ -86,7 +87,7 @@ int Wf3Dth (char *in_list, char *output, int dthcorr, int printtime,
 	if (printtime)
 	    TimeStamp ("WF3DTH started", "");
 
-	sprintf (MsgText, "The task PyDrizzle needs to be run in order to generate");
+	sprintf (MsgText, "Astrodrizzle needs to be run in order to generate");
 	trlmessage (MsgText);
 	sprintf (MsgText, "a geometrically corrected, drizzle-combined product.");
 	trlmessage (MsgText);
@@ -130,7 +131,7 @@ void InitDthTrl (char *inlist, char *output) {
 	int nsuffix = 6;
 	
 	int MkOutName (char *, char **, char **, int, char *, int);
-	int MkNewExtn (char *, char *);
+	int MkNewExtn ( char *, char *);
 	void WhichError (int);
 
 	/* Allocate space for trailer file input list */
@@ -141,14 +142,14 @@ void InitDthTrl (char *inlist, char *output) {
 	trl_in[0]  = '\0';
 	trl_out[0] = '\0';
 	out_name[0] = '\0';
-
 	tpin = c_imtopen(inlist);
 	nfiles = c_imtlen(tpin);
 
 	/* If the input list is null, then just return */
 	if (nfiles == 0) {
-	    free(trl_in);
 	    c_imtclose (tpin);
+	    free(trl_in);
+        printf("\nNothing in DTH input list\n");
 	    return;
 	}
 

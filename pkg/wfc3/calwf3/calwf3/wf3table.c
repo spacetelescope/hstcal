@@ -65,6 +65,7 @@ typedef struct {
 
 static int IsProduct (char *);
 static int UpdateHdr (char *);
+int checkGlobalInfo (AsnInfo *);
 
 # define NCOLS	3	/* number of columns in ASNTAB */
 
@@ -1244,6 +1245,9 @@ int GetGlobalInfo (AsnInfo *asn) {
 	/* Close the ASN table's primary header here. */
 	freeHdr (&phdr);
 
+
+    checkGlobalInfo(asn);
+
 	if (asn->debug) {
 	    trlmessage ("GetGlobalInfo: Detector and Instrument determined");
 	}	
@@ -1262,7 +1266,7 @@ int checkGlobalInfo (AsnInfo *asn) {
 	extern int status;
 	
 	/* Check instrument = WF3 */
-	if (strncmp (asn->instr, "WF3", 3) != 0 ) {
+	if (strncmp (asn->instr, "WFC3", 4) != 0 ) {
 	    sprintf (MsgText, 
 		     "INSTRUME keyword value \"%s\" not valid in %s",
 		     asn->instr, asn->filename);

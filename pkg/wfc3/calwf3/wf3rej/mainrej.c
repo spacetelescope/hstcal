@@ -12,7 +12,6 @@
 # include "wf3rej.h"
 
 int status = 0;             /* zero is OK */
-static void FreeNames (char *);
 
 int main (int argc, char **argv) {
 
@@ -41,7 +40,6 @@ int main (int argc, char **argv) {
     
     /* Get input and output file names and switches in the command line. */
     if (rej_command (argc, argv, &input, output, &par, newpar)){
-        FreeNames(input);
         exit (ERROR_RETURN);
     }
 
@@ -56,15 +54,9 @@ int main (int argc, char **argv) {
 
     if (status) {
         WhichError (status);
-        FreeNames(input);
         exit (ERROR_RETURN);
     } else{
-        FreeNames(input);
-        exit (0);
+        exit (status);
     }
 }
 
-static void FreeNames(char *input){
-    if (input != NULL) 
-        free(input);
-}

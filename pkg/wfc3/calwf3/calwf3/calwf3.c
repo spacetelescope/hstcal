@@ -94,6 +94,14 @@
    Updated BuildDthInput return value changed to int to avoid leaks
    Removed BuildSumInput because it's no longer used
    
+   M. Sosey, August 2015:
+   Had to add a double pass through the DTH EXP-PRT/EXP-DTH association
+   processing for UVIS to account for both CTE and non-CTE corrected data
+   because the input image names are BUILT from the rootnames in the association
+   file. This meant making the pass for IR data separate as well.
+   Put back the const char* return for BuildDthInput because it was the only
+   way I could get to consistently work in all cases :/
+   
  */
 
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug, int onecpu) {
@@ -109,9 +117,9 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 	extern int status;
 
-	WF3Info wf3hdr;		/* calibration switches, etc */
-	AsnInfo	asn;		/* association table data    */
-	char *wf3dth_input;	/* Input list for WF3DTH */
+	WF3Info wf3hdr;		 /* calibration switches, etc */
+	AsnInfo	asn;		 /* association table data    */
+	char *wf3dth_input; /* Input list for WF3DTH */
 
 	int prod;
 
@@ -126,11 +134,15 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	int LoadAsn (AsnInfo *);
 	int ProcessCCD (AsnInfo *, WF3Info *, int *, int, int);
 	int ProcessIR  (AsnInfo *, WF3Info *, int);	
-	int Wf3Dth (char *, char *, int, int, int);
-	int BuildDthInput (AsnInfo *, int, char *);
+	int Wf3Dth (const char *, char *, int, int, int);
+	char* BuildDthInput (AsnInfo *, int, char *);
 	int updateAsnTable (AsnInfo *, int, int);
 	void InitDthTrl (const char *, char *);
 
+    /*because DTH had this hard coded and it varies with UVIS for CTE*/
+    char suffix_flt[]="_flt.fits";
+    char suffix_flc[]="_flc.fits";
+    
 	/* Post error handler */
 	push_hstioerr (errchk);
 
@@ -149,15 +161,15 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		trlmessage ("Initialized Association data ... ");
 	}
 
-	/* Copy Input filename to ASN structure	*/
+	/* COPY INPUT FILENAME TO ASN STRUCTURE	*/
 	strcpy (asn.input, input);
 
-	/* Print image name. */
+	/* PRINT IMAGE NAME. */
 	trlmessage ("\n");
 
 	PrFileName ("input", asn.input);
 
-	/* Set verbose flag... */
+	/* SET VERBOSE FLAG... */
 	asn.verbose = verbose;
 	asn.debug = debug;
 
@@ -191,9 +203,8 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		trlmessage (MsgText);
 	}
 
-	/* Determine what detector we are working with...	*/
+	/* DETERMINE WHAT DETECTOR WE ARE WORKING WITH AND RUN BASICS...	*/
 	if (asn.detector == CCD_DETECTOR ) { /* Process CCD data ... */
-
 		if (asn.verbose) {
 			trlmessage ("CALWF3: processing a UVIS product");
 		}
@@ -203,12 +214,10 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 			} else {
 				trlerror ("Couldn't process CCD data");
 			}
-			freeAsnInfo(&asn);
 			return (status);			
 		}		
 
 	} else { /* Process IR observations here */
-
 		if (asn.verbose) {
 			trlmessage ("CALWF3: processing an IR product");
 		}
@@ -218,62 +227,162 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 			} else {
 				trlerror ("Couldn't process IR data");
 			}
-			freeAsnInfo(&asn);
 			return (status);			
 		}			
 	}
 
 
-	/* Add DTH processing here... */
-	if (asn.process == FULL) {
-		if (asn.verbose) {
-			trlmessage ("CALWF3: Building DTH products");
-		}
+	if (asn.detector == CCD_DETECTOR ) { /* Process CCD data ... */
 
-		/* For each DTH product... */
-		wf3dth_input = NULL;
-        
-		for (prod = 0; prod < asn.numprod; prod++) {
+        if (asn.process == FULL) {
+	        if (asn.verbose) {
+		        trlmessage ("CALWF3: Building DTH products....");
+	        }
 
-            wf3dth_input = ( char *) calloc( 1, 1 );
-			BuildDthInput (&asn, prod, wf3dth_input);
-
-			/* Skip this product if the input list is empty */
-			if (wf3dth_input == NULL) continue;
-
-			/* We always want to create a final concatenated trailer file
-			 ** for the entire association whether there is a product or
-			 ** not. So we set up the trailer file based on the association
-			 ** file name itself. */
-
- 			InitDthTrl (wf3dth_input, asn.rootname);
-            
-			/* Check if we have a PROD-DTH specified */
-            
-			if (strcmp(asn.product[prod].prodname,"") != 0) {
+            /*have to do this twice for CTE and non-CTE data in UVIS*/
+            if (wf3hdr.sci_basic_cte == PERFORM){
                 
-				if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
-					if (Wf3Dth (wf3dth_input,
-								asn.product[prod].prodname, asn.dthcorr,
-								printtime, asn.verbose) )
-						return (status);
+                printf("\nCTECORR is Perform, processing DTH for CTE data...\n");
 
-					/* Pass posid=0 to indicate a PRODUCT is to
-					 ** be updated */
-					updateAsnTable(&asn, prod, NOPOSID);
+	            /* For each DTH product with CTE ... */                
 
-				} else {
+	            for (prod = 0; prod < asn.numprod; prod++) {
+                    wf3dth_input = NULL;
+		            wf3dth_input = BuildDthInput (&asn, prod, suffix_flc);
 
-					trlwarn
-						("No DTH product name specified. No product created.");
-					/* status = WF3_OK; */
-				}
-			}
-            free (wf3dth_input);
-		}
+		            /* Skip this product if the input list is empty */
+		            if (wf3dth_input == NULL) {
+                        printf("\nProduct %i input list empty, continuing..\n",prod);
+                        continue;
+                    }
 
-	} /* End DTHCORR Processing */
+		            /* We always want to create a final concatenated trailer file
+		             ** for the entire association whether there is a product or
+		             ** not. So we set up the trailer file based on the association
+		             ** file name itself. */
+ 		            InitDthTrl (wf3dth_input, asn.rootname);
+		            /* Check if we have a PROD-DTH specified */
 
+		            if (strcmp(asn.product[prod].prodname,"") != 0) {
+
+			            if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
+				            if (Wf3Dth (wf3dth_input,
+							            asn.product[prod].prodname, asn.dthcorr,
+							            printtime, asn.verbose) )
+					            return (status);
+
+				            /* Pass posid=0 to indicate a PRODUCT is to
+				             ** be updated */
+				            updateAsnTable(&asn, prod, NOPOSID);
+
+			            } else {
+
+				            trlwarn
+					            ("No DTH product name specified. No product created.");
+				            /* status = WF3_OK; */
+			            }
+		            }
+
+	            }
+
+            }
+	        /* For each DTH product in UVIS without CTE... */
+            printf("\nProcessing DTH for non-CTE data ...\n");
+
+	        for (prod = 0; prod < asn.numprod; prod++) {
+		        wf3dth_input = BuildDthInput (&asn, prod, suffix_flt);
+
+		        /* Skip this product if the input list is empty */
+		        if (wf3dth_input == NULL) {
+                    printf("\nProduct %i input list empty, continuing..\n",prod);
+                    continue;
+                }
+
+		        /* We always want to create a final concatenated trailer file
+		         ** for the entire association whether there is a product or
+		         ** not. So we set up the trailer file based on the association
+		         ** file name itself. */
+ 		        InitDthTrl (wf3dth_input, asn.rootname);
+
+		        /* Check if we have a PROD-DTH specified */
+
+		        if (strcmp(asn.product[prod].prodname,"") != 0) {
+
+			        if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
+				        if (Wf3Dth (wf3dth_input,
+							        asn.product[prod].prodname, asn.dthcorr,
+							        printtime, asn.verbose) )
+					        return (status);
+
+				        /* Pass posid=0 to indicate a PRODUCT is to
+				         ** be updated */
+				        updateAsnTable(&asn, prod, NOPOSID);
+
+			        } else {
+
+				        trlwarn
+					        ("No DTH product name specified. No product created.");
+				        /* status = WF3_OK; */
+			        }
+		        }
+
+	        }             
+            
+             
+      }  /* End DTHCORR UVIS Processing */
+
+    } else { /*process the IR data*/
+        /* Add DTH processing for IR here... */        
+        if (asn.process == FULL) {
+        
+	        if (asn.verbose) {
+		        trlmessage ("CALWF3: Building DTH products for IR Data");
+	        }
+
+	        for (prod = 0; prod < asn.numprod; prod++) {
+		        wf3dth_input=BuildDthInput (&asn, prod, suffix_flt);
+
+		        /* Skip this product if the input list is empty */
+		        if (wf3dth_input == NULL) {
+                    printf("\nProduct %i input list empty, continuing..\n",prod);
+                    continue;
+                }
+
+		        /* We always want to create a final concatenated trailer file
+		         ** for the entire association whether there is a product or
+		         ** not. So we set up the trailer file based on the association
+		         ** file name itself. */
+ 		        InitDthTrl (wf3dth_input, asn.rootname);
+                
+		        /* Check if we have a PROD-DTH specified */
+
+		        if (strcmp(asn.product[prod].prodname,"") != 0) {
+
+			        if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
+				        if (Wf3Dth (wf3dth_input,
+							        asn.product[prod].prodname, asn.dthcorr,
+							        printtime, asn.verbose) )
+					        return (status);
+
+				        /* Pass posid=0 to indicate a PRODUCT is to
+				         ** be updated */
+				        updateAsnTable(&asn, prod, NOPOSID);
+
+			        } else {
+
+				        trlwarn
+					        ("No DTH product name specified. No product created.");
+				        /* status = WF3_OK; */
+			        }
+		        }
+
+	        }
+
+        } /* End DTHCORR IR Processing */
+    
+    
+    }
+    
 	if (asn.verbose) {
 		trlmessage ("CALWF3: Finished processing product ");
 	}
@@ -292,7 +401,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 }
 
-int BuildDthInput (AsnInfo *asn, int prod, char *wf3dth_input) {
+char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 
 	int i, j;
 	int MkName (char *, char *, char *, char *, char *, int);
@@ -306,11 +415,12 @@ int BuildDthInput (AsnInfo *asn, int prod, char *wf3dth_input) {
 	 * commas.  The length of the string is re-adjusted each time
 	 * through the loop, so +10 is good enough.
 	 */
-	
-
+	char *wf3dth_input;
+    
+    wf3dth_input = (char *) calloc(1,sizeof(char*)); 
+    
 	/* Now, lets search the association table for all inputs... */
 	for (i=1; i <= asn->numsp; i++) {
-
 		/* Skip CR and RPT sub-products that only have 1 member */
 		if ((asn->crcorr==PERFORM || asn->crcorr==DUMMY ||
 					asn->rptcorr==PERFORM || asn->rptcorr==DUMMY) && 
@@ -319,17 +429,15 @@ int BuildDthInput (AsnInfo *asn, int prod, char *wf3dth_input) {
 
 		/* Check to see if a sub-product was produced */
 		if (!asn->product[prod].subprod[i].prsnt) {
-
 			/* If the sub-product wasn't produced, we have to build the
 			 ** list of names from the individual asn members */
 			for (j=1; j <= asn->spmems[i]; j++) {
 				char *t = asn->product[prod].subprod[i].exp[j].name;
-				static char u[] = "_flt.fits";
                 
 				/* REALLOC FOR THE NEW STRING LENGTH + SOME EXTRA TO AVOID COUNTING CAREFULLY */
-				wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + sizeof(u) + 10 ) );
+				wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + strlen(suffix_name) + 10 ) );
 				strcat(wf3dth_input, t);
-				strcat(wf3dth_input, u);
+				strcat(wf3dth_input, suffix_name);
 				if (j < asn->spmems[i])
 					strcat(wf3dth_input, ",");
 			}
@@ -347,7 +455,7 @@ int BuildDthInput (AsnInfo *asn, int prod, char *wf3dth_input) {
 		}
 	}
 
-	return(status);
+	return(wf3dth_input);
 }
 
 
@@ -473,7 +581,7 @@ void ResetCCDSw (CCD_Switch *wf3ccd_sci_sw, CCD_Switch *wf32d_sci_sw) {
 		wf32d_sci_sw->biascorr = OMIT;
 
 	if (wf3ccd_sci_sw->pctecorr == PERFORM)
-		wf32d_sci_sw->pctecorr == OMIT;
+		wf32d_sci_sw->pctecorr =OMIT;
         
 }
 
@@ -609,7 +717,6 @@ int WF3Rej_0 (char *input, char *output, char *mtype, int printtime,
 	rej_reset (&par, newpar);
 	par.printtime = printtime;
 	par.verbose = verbose;
-
 	status = Wf3Rej (input, output, mtype, &par, newpar, makespt);
 
 	return (status);

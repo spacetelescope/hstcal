@@ -231,7 +231,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                 }   
 
-                if (wf3hdr->sci_basic_cte == PERFORM) {
+                if (wf3hdr->sci_basic_cte == PERFORM ) {
 
                     /*correct for CTE issues and THEN complete the calibration
                       also run through the pipeline completely without CTE corr after,
@@ -249,7 +249,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                       happens after acsccd and the blevcorr step.
 
                      */
-
+                    
                     if ( WF3cte(wf3hdr->rawfile, wf3hdr->rac_tmp, &sci_sw, &sciref, printtime, asn->verbose, onecpu) )
                         return (status);                
 
@@ -300,7 +300,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                                 wf3hdr->blc_tmp);
                     }
 
-                } /*END CTE PROCESSING TO BLC_TMP LEVEL*/
+                }  /*END CTE PROCESSING TO BLC_TMP LEVEL*/
                 
                 
                 /*ALWAYS REPEAT THE PROCESS WITHOUT THE CTE CORRECTION SO BOTH ARE PRODUCED*/

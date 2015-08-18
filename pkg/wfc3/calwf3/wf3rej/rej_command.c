@@ -32,7 +32,7 @@ int rej_command (int argc, char **argv, char **input, char *output,
 /* arguments
 int argc;           i: number of input command-line parameters
 char **argv;	    i: input command-line parameters
-char **input;        o: input file name or file list
+char **input;        o: input file name or file list, not asn
 char *output;       o: output file name
 clpar *par;         o: user specified parameters
 int newpar[];       o: array of parameters set by the user
@@ -68,8 +68,12 @@ int newpar[];       o: array of parameters set by the user
             exit(ERROR_RETURN);
         }
     }       
-
     /* Get names of input and output files. These are mandatory. */
+    if ((*input = calloc(strlen(argv[1]) + 1, sizeof(char)))== NULL){
+        printf("Cannot allocate memory for input\n");
+        return(status=OUT_OF_MEMORY);
+    }
+    
     strcpy (*input,  argv[1]);
     strcpy (output, argv[2]);
 

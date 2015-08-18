@@ -18,7 +18,7 @@ int status = 0;			/* zero is OK */
 # include "wf3version.h"
 
 static void FreeNames (char *, char *, char *, char *);
-int MkOutName (const char *, char **, char **, int, char *, int);
+int MkOutName (char *, char **, char **, int, char *, int);
 
 /* This is the main module for WF3CCD.  It gets the input and output
    file names, calibration switches, and flags, and then calls WF3ccd.

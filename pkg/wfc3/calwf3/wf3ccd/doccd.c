@@ -63,6 +63,7 @@ static void FlashMsg (WF3Info *, int);
 static void BlevMsg (WF3Info *, int);
 static void dqiMsg  (WF3Info *, int);
 int checkBinned (SingleGroup *);
+int GetCorner (Hdr *, int , int *, int *);
 
 int DoCCD (WF3Info *wf3, int extver) {
 
@@ -114,10 +115,6 @@ int DoCCD (WF3Info *wf3, int extver) {
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
     int SinkDetect (WF3Info *, SingleGroup *);
     
-    int *corner=0;
-    int *bin=0;
-    int rsize=0;
-
     /*========================Start Code here =======================*/	
     initSingleGroup (&x);
     if (wf3->printtime)

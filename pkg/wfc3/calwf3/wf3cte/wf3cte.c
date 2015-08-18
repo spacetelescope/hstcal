@@ -170,6 +170,39 @@ CTE correction in ACS which occurs later in the process after basic structures a
         return (status);
     }
 
+    /* OPEN THE INPUT IMAGES AND GET THE  SCIENCE EXTENSIONS  */
+    initSingleGroup (&cd);
+    getSingleGroup (wf3.input, 1, &cd);
+    if (hstio_err())
+        return (status = OPEN_FAILED);
+
+    /*** MAKE SURE THIS IS NOT A SUBARRAY ***/
+    if (GetKeyBool (cd.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
+        return (status=KEYWORD_MISSING);
+
+    if (subarray) {
+        sprintf(MsgText,"\n**SUBARRAY FOUND!; SUBARRAY images are not yet supported for CTE**\n");
+        trlmessage(MsgText);
+        status=ERROR_RETURN;
+        return(status);
+    }
+    
+    
+    initSingleGroup (&ab);
+    getSingleGroup (wf3.input, 2, &ab);
+    if (hstio_err())
+        return (status = OPEN_FAILED);
+
+    if (GetKeyBool (ab.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
+        return (status=KEYWORD_MISSING);
+
+    if (subarray) {
+        sprintf(MsgText,"SUBARRAY FOUND; **SUBARRAY images are not yet supported for CTE**\n");
+        trlmessage(MsgText);
+        status=ERROR_RETURN;
+        return(status);
+    }
+
     /*READ IN THE CTE PARAMETER TABLE*/
     initCTEParams(&cte_pars);
     if (GetCTEPars (wf3.pctetab.name,&cte_pars))
@@ -180,41 +213,6 @@ CTE correction in ACS which occurs later in the process after basic structures a
                 wf3.pctetab.descrip, wf3.pctetab.descrip2);
     }
     
-
-    /* OPEN THE INPUT IMAGES AND GET THE  SCIENCE EXTENSIONS  */
-    initSingleGroup (&cd);
-    initSingleGroup (&ab);
-
-    getSingleGroup (wf3.input, 1, &cd);
-    if (hstio_err())
-        return (status = OPEN_FAILED);
-
-    getSingleGroup (wf3.input, 2, &ab);
-    if (hstio_err())
-        return (status = OPEN_FAILED);
-
-
-    /*** MAKE SURE THIS IS NOT A SUBARRAY ***/
-    if (GetKeyBool (cd.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
-        return (status);
-
-    if (subarray) {
-        sprintf(MsgText,"SUBARRAY= %i; **SUBARRAY images are not yet supported for CTE**\n",wf3.subarray);
-        trlmessage(MsgText);
-        status=ERROR_RETURN;
-        return(status);
-    }
-
-    if (GetKeyBool (ab.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
-        return (status);
-
-    if (subarray) {
-        sprintf(MsgText,"SUBARRAY= %i; **SUBARRAY images are not yet supported for CTE**\n",wf3.subarray);
-        trlmessage(MsgText);
-        status=ERROR_RETURN;
-        return(status);
-    }
-
     /*Save the PCTETABLE information to the header of the science image
       after checking to see if the user has specified any changes to the
       CTE code variables.
