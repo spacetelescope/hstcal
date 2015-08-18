@@ -1,3 +1,14 @@
+18-Aug-2015 - MLS -- Version 3.3
+    - BuildDthInput has to create the input filename from the asn root, but this can be either FLT or FLC now, have to figure out which one to use.
+    - Had to add separate DTH pass for IR data and double DTH pass for UVIS data because the input filename for RPTCORR/EXPCORR associations are built in the code from the data rootnames in the ASN table. So the UVIS data coming out of procccd has to take a double pass through DTH when PCTECORR is PERFORM.
+    - changed the checking order for subarrays in the PCTECORR routine so that it errors out cleanly (has to do with 1 group of images for subarrays)
+    - added the check for INSTRUMENT == WFC3 back to the code, actually related to a user complainging that calwf3 didn't tell them it couldn't reduce ACS data.
+    - had to update the procir call to wf3rej_0 signature for the asn update I added to uvis
+    - updated the mainrej.e calls which were segfaulting (calling wf3rej standalone on input list of images)
+    - added dynamic memory allocation for trailer file list to initrejtrl
+    - updated text in wf3rej to report that Astrodrizzle should be used to align images instead of PyDrizzle since that's how it's advertised to users 
+    - found a problem (even in the released version of calwf3) with output file for associations with multiple products, created #1220
+
 12-Aug-2015 - MLS -- Version 3.3
     - fix for #1215 binned data detection for sink pixel seg faults
 
