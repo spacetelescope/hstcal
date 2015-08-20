@@ -213,9 +213,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
                 wf3.pctetab.descrip, wf3.pctetab.descrip2);
     }
     
-    /*Save the PCTETABLE information to the header of the science image
-      after checking to see if the user has specified any changes to the
-      CTE code variables.
+    /*SAVE THE PCTETABLE INFORMATION TO THE HEADER OF THE SCIENCE IMAGE
+      AFTER CHECKING TO SEE IF THE USER HAS SPECIFIED ANY CHANGES TO THE
+      CTE CODE VARIABLES.
     */
     if (CompareCTEParams(&cd, &cte_pars)){
         return (status);
@@ -302,12 +302,12 @@ CTE correction in ACS which occurs later in the process after basic structures a
     }
 
 
-    /***CONVERT the READNOISE SMNOOTHED IMAGE TO RSC IMAGE
+    /***CONVERT THE READNOISE SMNOOTHED IMAGE TO RSC IMAGE
         THIS IS WHERE THE CTE GETS CALCULATED         ***/
     if (verbose)
         trlmessage("CTE: Converting RSZ to RSC\n");
 
-    /*rsc image is hardset to 0 */
+    /*RSC IMAGE IS HARDSET TO 0 */
     initSingleGroup(&rsc);
     allocSingleGroup(&rsc, RAZ_COLS, RAZ_ROWS);
     float hardset=0.0000000;
@@ -388,7 +388,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     PutKeyFlt (cd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"cte scaling fraction based on expstart");
     trlmessage("PCTEFRAC saved to header");
     
-    /*SAVE THE NEW RAW FILE WITH UPDATED SCIENCE ARRAYS AND PRIMARY HEADER*/
+    /*SAVE THE NEW RAW FILE WITH UPDATED SCIENCE ARRAYS AND PRIMARY HEADER TO RAC*/
     sprintf(MsgText,"Writing cd[sci,%i] to %s",cd.group_num,output);
     trlmessage(MsgText);
     putSingleGroup(output,cd.group_num, &cd,0);
@@ -663,7 +663,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
     int i, j, NIT; /*loop variables*/
     int imid;
     float d;
-    float  rms, rmsu;
+    double  rms, rmsu;
     int nrms, nrmsu;
     float hardset=0;
     
@@ -797,7 +797,8 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
             nrms += nrmsu;}
         }
         rms = sqrt(rms/(double)nrms);
-
+        
+        /*make this a tolerance comparison for better floating point comparison?*/
         if ( rms >  rnsig) break; /*this exits the NIT for loop*/
      } /*end NIT*/
 

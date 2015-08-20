@@ -104,6 +104,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
         asn->rptcorr = OMIT;
     }
 
+
     /* LOOP OVER THE PRODUCTS/POSITIONS FOR EACH CR-SPLIT/REPEAT-OBS SET. */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose){
@@ -428,19 +429,18 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     trlmessage (MsgText);
                 
 
-                /* NEED TO ALLOCATE MEMORY FOR A SEPARATE STRING TO
-                 ** BE LONG ENOUGH TO HOLD ALL INPUT NAMES WHEN
-                 ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
-                 ** OTHERWISE. HAB 20-JUN-2004 */
-                wf3rej_msgtext = calloc(strlen(wf3rej_input)+25,
-                        sizeof(char));
-                sprintf (wf3rej_msgtext, "%s", wf3rej_input);
-                trlmessage (wf3rej_msgtext);
-                free (wf3rej_msgtext);
-                sprintf (MsgText,"Output from WF3REJ is: %s",
-                        wf3hdr->crj_tmp);
-                trlmessage (MsgText);
-                
+                    /* NEED TO ALLOCATE MEMORY FOR A SEPARATE STRING TO
+                     ** BE LONG ENOUGH TO HOLD ALL INPUT NAMES WHEN
+                     ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
+                     ** OTHERWISE. HAB 20-JUN-2004 */
+                    wf3rej_msgtext = calloc(strlen(wf3rej_input)+25,
+                            sizeof(char));
+                    sprintf (wf3rej_msgtext, "%s", wf3rej_input);
+                    trlmessage (wf3rej_msgtext);
+                    free (wf3rej_msgtext);
+                    sprintf (MsgText,"Output from WF3REJ is: %s",
+                            wf3hdr->crj_tmp);
+                    trlmessage (MsgText);
                 }
                 
                 /* SET UP THE CORRECT VALUE OF ASN_MTYP FOR WF3REJ
@@ -491,12 +491,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                         wf3rej_msgtext = calloc(strlen(wf3rej_cte_input)+25,
                                 sizeof(char));
-                        sprintf (wf3rej_msgtext, "wf3rej_cte_input=%s", wf3rej_cte_input);
-                        trlmessage (wf3rej_msgtext);
                         free(wf3rej_msgtext);
-                        sprintf (MsgText,"Output from WF3REJ is: %s",
-                                wf3hdr->crc_tmp);
-                        trlmessage (MsgText);
                     }
                     
                         /*the mtype was already set in the non-cte loop to EXP-CRJ*/
@@ -622,11 +617,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 /* DELETE INTERMEDIATE FILES */
                 if (*save_tmp == NO) {
                     for (expid=1; expid <= asn->spmems[posid]; expid++) {
-                        if (asn->debug) {
-                            sprintf (MsgText, "Deleting %s...",
-                                    asn->product[prod].subprod[posid].exp[expid].blv_tmp);
-                            trlmessage (MsgText);
-                        }
                         remove (asn->product[prod].subprod[posid].exp[expid].blv_tmp);
                     }
                 }                
@@ -635,38 +625,30 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     /* Delete intermediate files */
                     if (*save_tmp == NO) {
                         for (expid=1; expid <= asn->spmems[posid]; expid++) {
-                                sprintf (MsgText, "Deleting %s...",
-                                        asn->product[prod].subprod[posid].exp[expid].blc_tmp);
-                                trlmessage (MsgText);
                             remove (asn->product[prod].subprod[posid].exp[expid].blc_tmp);
                         }
                     }    
                  }
-                if (asn->process != SINGLE) {
-                    /* We only have something to delete if process != SINGLE */
-                    if ((*save_tmp == NO ) && (wf3hdr->sci_crcorr == PERFORM ||
-                                wf3hdr->sci_rptcorr == PERFORM)) {
-                        for (posid = 1; posid <= asn->numsp; posid++) {
-                            sprintf(MsgText,"Prod: %i Posid: %i  Deleting %s ...\n",prod,posid,asn->product[prod].subprod[posid].crj_tmp);
-                            trlmessage(MsgText);
-                            remove (asn->product[prod].subprod[posid].crj_tmp);
-                        }
-                        if (wf3hdr->sci_basic_cte == PERFORM){
-                            for (posid = 1; posid <= asn->numsp; posid++){
-                                sprintf(MsgText,"Prod: %i  Posid: %i  Deleting %s ...\n",prod,posid,asn->product[prod].subprod[posid].crc_tmp);
-                                trlmessage(MsgText);
-                                remove (asn->product[prod].subprod[posid].crc_tmp);
-                            }
-                        }
-                    }
-                } /*END REMOVE TMP FILES*/
              
              } /* End of CRCORR/RPTCORR processing*/
 
-            /* DONE WITH THE TMP FILES..DELETE AS ORDERED */
-
         }  /* End of processing for SINGLE/PARTIAL product, END POSID */
+        /* DONE WITH THE TMP FILES..DELETE AS ORDERED */
 
+        if (asn->process != SINGLE) {
+            /* We only have something to delete if process != SINGLE */
+            if ((*save_tmp == NO ) && (wf3hdr->sci_crcorr == PERFORM ||
+                        wf3hdr->sci_rptcorr == PERFORM)) {
+                for (posid = 1; posid <= asn->numsp; posid++) {
+                    remove (asn->product[prod].subprod[posid].crj_tmp);
+                }
+                if (wf3hdr->sci_basic_cte == PERFORM){
+                    for (posid = 1; posid <= asn->numsp; posid++){
+                        remove (asn->product[prod].subprod[posid].crc_tmp);
+                    }
+                }
+            }
+        } /*END REMOVE TMP FILES*/
 
     } /* END LOOP OVER CCD PRODUCTS HERE...	END PROD	*/
 

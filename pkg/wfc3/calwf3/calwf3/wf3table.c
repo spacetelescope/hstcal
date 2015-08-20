@@ -25,7 +25,7 @@
 **		Modified GetAsnTable to turn off CRCORR/RPTCORR processing if
 **		there aren't any sub-products with > 1 member. (PR 66366)
 **  M. Sosey 2015
-**      Updates for CTE calibration code, see #1193
+**      Updates for CTE calibration code, see #1193 
 */
 
 # include <ctype.h>
@@ -100,6 +100,13 @@ int LoadAsn (AsnInfo *asn) {
 	    sprintf (MsgText,"LoadAsn:  Processing SINGLE exposure");
 	}
 	trlmessage (MsgText);
+
+	/* Read in global info from ASN table's primary header */	
+	if (GetGlobalInfo (asn)) {
+	    trlerror (" Problem getting primary header information.");
+	    return (status);
+	}
+    
 	
 	/* Read in ASN table, and load appropriate members info into memory */
 	if (asn->process == SINGLE) {
@@ -116,11 +123,6 @@ int LoadAsn (AsnInfo *asn) {
 	    trlmessage (MsgText);
 	}
 	
-	/* Read in global info from ASN table's primary header */	
-	if (GetGlobalInfo (asn)) {
-	    trlerror (" Problem getting primary header information.");
-	    return (status);
-	}
 		
 	/* Print a summary of information about the association */
 	if (asn->verbose)
@@ -1227,6 +1229,8 @@ int GetGlobalInfo (AsnInfo *asn) {
 	    return (status = HEADER_PROBLEM);
 	}
 	
+    checkGlobalInfo(asn);
+    
 	/* You can NOT create a summed image with only 1 input */
 	if (asn->process == SINGLE) {
 	    asn->rptcorr = OMIT;
@@ -1246,7 +1250,6 @@ int GetGlobalInfo (AsnInfo *asn) {
 	freeHdr (&phdr);
 
 
-    checkGlobalInfo(asn);
 
 	if (asn->debug) {
 	    trlmessage ("GetGlobalInfo: Detector and Instrument determined");
