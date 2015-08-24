@@ -297,7 +297,7 @@ char *outstr  o: string with only the first letter capitalized
 int maxch     i: allocated length of outstr (including EOS)
 */
 
-	int i;
+	int i=0;
 
 	if (PAD_SIZE >= maxch) {
 	    strcpy (outstr, "*****");

@@ -596,7 +596,7 @@ int CopyFFile (char *infile, char *outfile) {
 	}
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-		sprintf ("Can't open %s.", infile);
+		sprintf ("Can't open %s", infile);
 		trlerror (MsgText);
 		fclose (ofp);
 		remove (outfile);

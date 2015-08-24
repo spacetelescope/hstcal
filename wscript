@@ -80,10 +80,10 @@ def _determine_mac_osx_fortran_flags(conf):
         # do not use any of the other features of platform.  They
         # do not work reliably across all the python interpreters
         # that we have.  Ask system_profiler because it always knows.
-        f = platform.popen("/usr/sbin/system_profiler | sed -n 's/System Version: Mac OS X//p' ")
+        f = platform.popen("/usr/bin/sw_vers -productVersion")
         s = f.read()
 
-        # this is going to look something like "       10.5.8 (9L31a)\n"
+        # this is going to look something like "       10.5.8 \n"
         s = s.strip()
 
         # break out just the OS version number
@@ -109,7 +109,7 @@ def _determine_mac_osx_fortran_flags(conf):
             conf.end_msg(conf.env.MAC_OS_NAME, 'GREEN')
         else:
             conf.end_msg(
-                "Do not recognize this Mac OS only know 10.5-10.7",
+                "Do not recognize this Mac OS only know 10.5-10.9",
                 'YELLOW')
 
     if conf.env.MAC_OS_NAME in ('snowleopard', 'lion','mavericks') :

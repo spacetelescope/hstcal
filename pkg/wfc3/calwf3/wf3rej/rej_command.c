@@ -40,7 +40,7 @@ int newpar[];       o: array of parameters set by the user
 
     extern int status;
     
-    int ctoken;     /* current command-line token being processed */
+    int ctoken=0;     /* current command-line token being processed */
 
     /* Reset the parameters */
     rej_reset (par, newpar); 

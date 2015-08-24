@@ -1,3 +1,7 @@
+Updates for Version 3.3 24-Aug-2015 MLS
+    - updated the mac os version check in wscript to use sw_vers, the old way was returning junk and we need it for adding the 64bit flags to the compile
+    - added some initializations the clang compiler complained about
+
 Updates for Version 3.3 20-Aug-2015 MLS
     - I changed a float to double in wf3cte readnoise section for added precision
     - moved GetGlobalInfo and checkGlobal info higher in the code to reject non-wfc3 datasets

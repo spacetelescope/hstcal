@@ -13,6 +13,7 @@ PLL, 12/2013 Allow MJD extrapolation using simple straight line from
              IMPHTTAB primary header and is set to True.
 
 MLS: 07/2015 Cleand up for unused variables and warning
+MLS: 08/2015 Added some initializations the clang complained about
 
 */
 # include <stdio.h>
@@ -745,6 +746,8 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     int **bounds; /* [ndim,2] array for bounds around obsvals values */
     int indx,pdim,ppos,xdim,xpos;
     int tabparlen;
+   
+    xdim=0;
     /*
        intermediate products used in iterating over dims
      */
@@ -1106,7 +1109,7 @@ void byteconvert(int val, int *result, int ndim) {
 */
 int computedeltadim(BoundingPoint *pos1, BoundingPoint *pos2){
     int p;
-    int xdim;
+    int xdim=0;
     double diff;
 
     for (p=0; p < pos1->ndim; p++) {

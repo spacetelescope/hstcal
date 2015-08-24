@@ -84,7 +84,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     SingleGroup chg; /*part of the conversion to rac*/
     
     int i,j; /*loop var*/
-    int max_threads;
+    int max_threads=1;
     
     Bool subarray; /* to verify that no subarray is being used, it's not implemented yet*/
 
