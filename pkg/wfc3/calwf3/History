@@ -1,3 +1,6 @@
+### 25-Aug-2015 MLS -- Version 3.3
+    - changed pow() to powf() in the readnoise calculation to deal with memory overrun producing nans in some cases
+
 ### 24-Aug-2015 MLS -- Version 3.3
     - updated the mac os version check in wscript to use sw_vers, the old way was returning junk and we need it for adding the 64bit flags to the compile
     - added some initializations the clang compiler complained about
