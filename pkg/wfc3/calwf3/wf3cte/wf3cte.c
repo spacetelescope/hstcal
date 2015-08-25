@@ -152,12 +152,16 @@ CTE correction in ACS which occurs later in the process after basic structures a
     }
     
     /* CHECK WHETHER THE OUTPUT FILE ALREADY EXISTS. */
-    if (FileExists (wf3.output))
-        return (status);
+    if (FileExists (wf3.output)){
+        WhichError(status);
+        return (ERROR_RETURN);
+    }
 
     /* OPEN INPUT IMAGE IN ORDER TO READ ITS PRIMARY HEADER. */
-    if (LoadHdr (wf3.input, &phdr) )
-        return (status);
+    if (LoadHdr (wf3.input, &phdr) ){
+        WhichError(status);
+        return (ERROR_RETURN);
+    }
 
     /* GET KEYWORD VALUES FROM PRIMARY HEADER. */
     if (GetKeys (&wf3, &phdr)) {
@@ -635,7 +639,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
 }
 
 
-int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int max_threads){
+int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int max_threads){
     /*
        This routine will read in a RAZ image and will output the smoothest
        image that is consistent with being the observed image plus readnoise. (RSZ image) 
@@ -665,7 +669,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
     float d;
     double  rms, rmsu;
     int nrms, nrmsu;
-    float hardset=0;
+    float hardset=0.;
     
     /*1D ARRAYS FOR CENTRAL AND NEIGHBORING RAZ_COLS*/
     float obs_loc[3][RAZ_ROWS] ; /*all elements to zero*/
@@ -788,7 +792,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
                 if ( (fabs(Pix(raz->sci.data,i,j)) > 0.1) || 
                      (fabs(Pix(rsz->sci.data,i,j)) > 0.1) ){
 
-                    rmsu  +=  pow( (Pix(raz->sci.data,i,j) - Pix(rsz->sci.data,i,j)),2) ;
+                    rmsu  +=  powf( (Pix(raz->sci.data,i,j) -  Pix(rsz->sci.data,i,j)),2) ;
                     nrmsu += 1;
                 }
             }
@@ -850,6 +854,19 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
     float    dmod1, dmod1u, w1;
     float    dmod2, dmod2u, w2;
 
+    dval0=0.;
+    dval0u=0.;
+    w0=0.;
+    dval9=0.;
+    dval9u=0.;
+    w9=0.;
+    dmod1=0.;
+    dmod1u=0.;
+    w1=0.;
+    dmod2=0.;
+    dmod2u=0.;
+    w2=0.;
+    
     mval = rszloc[i][j];
     dval0  = obsloc[i][j] - mval;
     dval0u = dval0;
@@ -1058,7 +1075,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     int NITINV, NITCTE; 
     int i;
     int j,jj;
-    double dmod;
+    float dmod;
     int jmax;
     
     float cte_ff; /*cte scaling based on observation date*/
@@ -1068,6 +1085,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     NITCTE=1;
     cte_ff=0.0;
     jmax=0;
+    dmod=0.;
     
     /*LOCAL IMAGES TO PLAY WITH, THEY WILL REPLACE THE INPUTS*/
     SingleGroup rz; /*pixz_raz*/
@@ -1170,9 +1188,9 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                 /*DAMPEN THE ADJUSTMENT IF IT IS CLOSE TO THE READNOISE, THIS IS
                   AN ADDITIONAL AID IN MITIGATING THE IMPACT OF READNOISE*/
                 for (j=0; j< RAZ_ROWS; j++){
-                    dmod = pix_obsd[j] - pix_read[j];
+                    dmod =  (pix_obsd[j] - pix_read[j]);
                     if (NITINV < cte->n_forward){ 
-                        dmod *= (dmod*dmod) /((dmod*dmod) + pow(cte->rn_amp , 2));
+                        dmod *= (dmod*dmod) /((dmod*dmod) + powf(cte->rn_amp , 2));
                     }
                     pix_modl[j] += dmod; /*dampen each pixel as the best is determined*/
                 }
@@ -1432,7 +1450,6 @@ int initCTETrl (char *input, char *output) {
 
 
     int MkName (char *, char *, char *, char *, char *, int);
-    void WhichError (int);
     int TrlExists (char *);
     void SetTrlOverwriteMode (int);
 

@@ -49,7 +49,7 @@ void TimeStamp (char *, char *);
 int  FileExists (char *);
 void PrRefInfo (char *, char *,char *, char *, char *);
 void PrSwitch (char *, int );
-
+void WhichError (int);
 int sub1d (SingleGroup *, int, SingleGroupLine *);
 int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
 int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
@@ -72,7 +72,7 @@ int doCteBias (WF3Info *, SingleGroup *);
 int GetCTEFlags (WF3Info *, Hdr *);
 int a2d_raz(WF3Info *);
 int raw2raz(WF3Info *, SingleGroup *, SingleGroup *, SingleGroup *);
-int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, double , int );
+int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, float , int );
 int findPostScanBias(SingleGroup *, float *, float *);
 int findPreScanBias(SingleGroup *, float *, float *);
 int find_dadj(int ,int , float [][RAZ_ROWS], float [][RAZ_ROWS], float , float *);
