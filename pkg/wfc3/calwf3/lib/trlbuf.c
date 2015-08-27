@@ -124,7 +124,7 @@ static struct _TrlBuf {
     char *preface;          /* CALWF3 comments common to all inputs */
     int usepref;            /* Switch to specify whether preface is used */
     int init;
-} trlbuf = { 0 } ;
+} trlbuf = {0} ;
 
 /* 
     This initialization function sets up the trailer file to be used

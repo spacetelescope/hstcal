@@ -141,7 +141,6 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
     /*because DTH had this hard coded and it varies with UVIS for CTE*/
     char suffix_flt[]="_flt.fits";
-    char suffix_flc[]="_flc.fits";
     
 	/* Post error handler */
 	push_hstioerr (errchk);
@@ -231,6 +230,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		}			
 	}
 
+    /* WF3 DTH PROCESSING - RUNS ON CALIBRATED EXPOSURES */
 
 	if (asn.detector == CCD_DETECTOR ) { /* Process CCD data ... */
 
@@ -239,53 +239,6 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		        trlmessage ("CALWF3: Building DTH products....");
 	        }
 
-            /*have to do this twice for CTE and non-CTE data in UVIS*/
-            if (wf3hdr.sci_basic_cte == PERFORM){
-                
-                printf("\nCTECORR is Perform, processing DTH for CTE data...\n");
-
-	            /* For each DTH product with CTE ... */                
-
-	            for (prod = 0; prod < asn.numprod; prod++) {
-                    wf3dth_input = NULL;
-		            wf3dth_input = BuildDthInput (&asn, prod, suffix_flc);
-
-		            /* Skip this product if the input list is empty */
-		            if (wf3dth_input == NULL) {
-                        printf("\nProduct %i input list empty, continuing..\n",prod);
-                        continue;
-                    }
-
-		            /* We always want to create a final concatenated trailer file
-		             ** for the entire association whether there is a product or
-		             ** not. So we set up the trailer file based on the association
-		             ** file name itself. */
- 		            InitDthTrl (wf3dth_input, asn.rootname);
-		            /* Check if we have a PROD-DTH specified */
-
-		            if (strcmp(asn.product[prod].prodname,"") != 0) {
-
-			            if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
-				            if (Wf3Dth (wf3dth_input,
-							            asn.product[prod].prodname, asn.dthcorr,
-							            printtime, asn.verbose) )
-					            return (status);
-
-				            /* Pass posid=0 to indicate a PRODUCT is to
-				             ** be updated */
-				            updateAsnTable(&asn, prod, NOPOSID);
-
-			            } else {
-
-				            trlwarn
-					            ("No DTH product name specified. No product created.");
-				            /* status = WF3_OK; */
-			            }
-		            }
-
-	            }
-
-            }
 	        /* For each DTH product in UVIS without CTE... */
             printf("\nProcessing DTH for non-CTE data ...\n");
 
@@ -307,8 +260,8 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		        /* Check if we have a PROD-DTH specified */
 
 		        if (strcmp(asn.product[prod].prodname,"") != 0) {
-
-			        if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
+			        
+                    if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
 				        if (Wf3Dth (wf3dth_input,
 							        asn.product[prod].prodname, asn.dthcorr,
 							        printtime, asn.verbose) )
@@ -326,8 +279,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 			        }
 		        }
 
-	        }             
-            
+	        }                         
              
       }  /* End DTHCORR UVIS Processing */
 
@@ -644,7 +596,7 @@ int CopyFFile (char *infile, char *outfile) {
 	}
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-		sprintf ("Can't open %s.", infile);
+		sprintf ("Can't open %s", infile);
 		trlerror (MsgText);
 		fclose (ofp);
 		remove (outfile);

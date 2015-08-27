@@ -1,3 +1,15 @@
+### 25-Aug-2015 MLS -- Version 3.3
+    - changed pow() to powf() in the readnoise calculation to deal with memory overrun producing nans in some cases
+
+### 24-Aug-2015 MLS -- Version 3.3
+    - updated the mac os version check in wscript to use sw_vers, the old way was returning junk and we need it for adding the 64bit flags to the compile
+    - added some initializations the clang compiler complained about
+
+### 20-Aug-2015 MLS -- Version 3.3
+    - I changed a float to double in wf3cte readnoise section for added precision
+    - moved GetGlobalInfo and checkGlobal info higher in the code to reject non-wfc3 datasets
+    - moved a delete section further out in the logic and that seemed to fix #1220, tests on cte and non-cte data seemed happy
+
 ### 18-Aug-2015 MLS -- Version 3.3
     - BuildDthInput has to create the input filename from the asn root, but this can be either FLT or FLC now, have to figure out which one to use.
     - Had to add separate DTH pass for IR data and double DTH pass for UVIS data because the input filename for RPTCORR/EXPCORR associations are built in the code from the data rootnames in the ASN table. So the UVIS data coming out of procccd has to take a double pass through DTH when PCTECORR is PERFORM.
