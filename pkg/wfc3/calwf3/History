@@ -1,3 +1,7 @@
+### 28-Aug-2015 MLS -- Version 3.3
+    - These updates appear to fix the nan issue in the readnoise step that we ran into with some images
+    - I also made the cte code a bit more tidy and organized
+
 ### 25-Aug-2015 MLS -- Version 3.3
     - changed pow() to powf() in the readnoise calculation to deal with memory overrun producing nans in some cases
 
