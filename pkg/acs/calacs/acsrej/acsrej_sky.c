@@ -1,21 +1,30 @@
 # include   <stdio.h>
 # include   <string.h>
 # include   <stdlib.h>
-# include   "hstio.h"
 # include   <limits.h>
+# include   <math.h>
 
+# include   "hstio.h"
 # include   "acs.h"    /* for message output */
 # include   "acserr.h"
 
 # define    MINVAL      -15000
 # define    BIN_WIDTH   1
 # define    MIN_BINS    1000
+# define    MAX_BINS	10000
 
-/* crrej_sky -- Calculate the sky for an image. */
+/* acsrej_sky -- Calculate the sky for an image. */
 
-void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], 
-        int nimgs, short badinpdq, float skyval[])
-{
+void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
+                 short badinpdq, float skyval[]) {
+
+/* Revision history:
+**
+** P.L. Lim    02-Sep-2015    Made bin width checking more robust.
+**                            Avoid arithmetic overflow in binning
+**                            calculations. (Following CALWF3 changes.)
+*/
+
     extern int status;
 
     int         *histgrm;   /* pointer to the histogram */
@@ -34,7 +43,8 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 
     float   cr_mode (int *, int, float, float);
 
-    /* -------------------------------- begin ---------------------------------- */
+    /* -------------------------------- begin ------------------------------- */
+
     /* decide what to do according to sky */
     if (strcmp (sky, "none") == 0) {
         for (k = 0; k < nimgs; ++k) {
@@ -51,25 +61,22 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
     dimx = getNaxis1(ipsci[0]);
     dimy = getNaxis2(ipsci[0]);
 
-
     a = (float *) calloc (dimx, sizeof(float));
     b = (short *) calloc (dimx, sizeof(short));
     if (a == NULL || b == NULL) {
         trlerror ("Couldn't allocate memory for sky arrays");
         status = OUT_OF_MEMORY;
-        return; 
+        return;
     }
 
-
     /* compute MIN and MAX values for data */
-    /* use the minimum and twice of the mean to determine the data 
-    range */
+    /* use the minimum and twice of the mean to determine the data range */
     data_min = INT_MAX;
     sum = 0.;
     npt = 0;
-    
+
     initHdr(&dqhdr);
-    getHeader(ipdq[0],&dqhdr);
+    getHeader(ipdq[0], &dqhdr);
 
     for (line = 0; line < dimy; line++) {
 
@@ -78,7 +85,7 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
         getShortLine (ipdq[0], line, b);
 
         for (i = 0; i < dimx; ++i) {
-            if ( (b[i] & badinpdq) == ACS_OK) {
+            if ( (b[i] & badinpdq) == ACS_OK ) {
                 data_min = (a[i] < data_min) ? a[i] : data_min;
                 sum += a[i];
                 npt++;
@@ -87,52 +94,54 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
     } /* End of loop over lines */
 
     freeHdr(&dqhdr);
-    
+
     /* Compute min and max for histogram.
-        MIN is min of good data or MINVAL, which ever is greater
-        DELTA is difference between mean of data and MIN
-        MAX is mean plus DELTA
-        This insures that the mean falls in the center of the range
-            between min and max.
-    */
+       MIN is min of good data or MINVAL, which ever is greater
+       DELTA is difference between mean of data and MIN
+       MAX is mean plus DELTA
+       This insures that the mean falls in the center of the range
+       between min and max. */
     if (npt == 0) npt = 1;
     min = (data_min < MINVAL) ? MINVAL : data_min;
     mean = (sum > 0.) ? (int) ( (sum / (float)npt) + 1) : 1;
     max = 2 * mean - min;
-    
-    /* use the mode as sky value, use the bin size of 1 (DN) */
-    nbins = max - min + 1; 
 
-    
+    /* use the mode as sky value, use the bin size of 1 (DN) */
+    nbins = max - min + 1;
+
+
     /* Insure that there are at least MIN_BINS in the histogram
-        and reset the width accordingly.
-    */ 
+       and reset the width accordingly. */
     if (nbins < MIN_BINS) {
         nbins = MIN_BINS;
         hwidth = (float) nbins / (float)MIN_BINS;
+    } else if (nbins > MAX_BINS) {
+        hwidth = (float) nbins / (float)MAX_BINS;
+        nbins = MAX_BINS;
     } else {
         hwidth = 1.;
     }
     hmin = (float) min;
 
     /*
-    sprintf(MsgText,"sky computed using min %d, max %d, mean %g, and bins %d",min,max,mean,nbins);
+    sprintf(MsgText,
+    "sky computed using min %d, max %d, mean %g, bins %d, and width %g",
+    min, max, mean, nbins, hwidth);
     trlmessage(MsgText);
     */
 
+    /* Now loop over the input images, computing the sky value for each image */
     for (k = 0; k < nimgs; ++k) {
-        /*  
-            set up a new histogram array for each image
-        */
+        /* set up a new histogram array for each image */
         histgrm = calloc (nbins, sizeof(int));
         if (histgrm == NULL){
             trlerror ("Couldn't allocate memory for sky histogram array");
             status = OUT_OF_MEMORY;
-            return;   
+            return;
         }
 
         initHdr(&dqhdr);
-        getHeader(ipdq[k],&dqhdr);
+        getHeader(ipdq[k], &dqhdr);
         for (line = 0; line < dimy; line++) {
 
             /* read the data in */
@@ -143,20 +152,20 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
             for (i = 0; i < dimx; ++i) {
                 if (b[i] == ACS_OK) {
                     /* adjust the bin position by the width of each bin */
-                    h = (int) ((a[i] - min) / hwidth);
-
-	                if (h >= 0 && h < nbins)
-                        histgrm[h]++;
-	            }
+                    if ( fabs((a[i] - min) / hwidth) < INT_MAX ) {
+                        h = (int) ((a[i] - min) / hwidth);
+                        if (h >= 0 && h < nbins)
+                            histgrm[h]++;
+                    }
+                }
             }
         } /* End of loop over lines */
         freeHdr(&dqhdr);
-        
+
         /* calculate the mode from the histogram */
         skyval[k] = cr_mode (histgrm, nbins, hwidth, hmin);
 
         free (histgrm);
-
     }
     free(a);
     free(b);
