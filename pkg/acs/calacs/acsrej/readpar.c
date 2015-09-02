@@ -2,6 +2,7 @@
 # include   <string.h>
 # include   <stdlib.h>
 # include <ctype.h>
+
 #include "hstcal.h"
 # include   "hstio.h"
 # include   "xtables.h"
@@ -14,12 +15,12 @@
 
 static int strtor (char *, float []);
 
-/*  rejpar_in -- Read parameters either from user input or table.
+/* rejpar_in -- Read parameters either from user input or table.
 
   Description:
   ------------
   Reads CL parameters and does necessary checkings
-  
+
   Input parameters from crrej reference table:
   -------------------------------------------
   Col. Name     Parameter
@@ -32,15 +33,12 @@ static int strtor (char *, float []);
   "badinpdq"    badinpdq    Data quality pset
   "crmask"      mask        flag CR-rejected pixels in input files?
 
-  Input parameters from input image primary header:
-  ------------------------------------------------
-
-
   Date          Author          Description
   ----          ------          -----------
-  24-Sep-1998   W.J. Hack       Initial ACS Version	
+  24-Sep-1998   W.J. Hack       Initial ACS Version
 */
-int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, float sigma[])
+int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
+               float sigma[])
 {
     extern int status;
 
@@ -54,23 +52,23 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
     void    PrRefInfo (char *, char *, char *, char *, char *);
     void    WhichError (int);
 
-/* -------------------------------- begin ---------------------------------- */
+    /* ------------------------------ begin -------------------------------- */
 
     crsplit_in = nimgs;
 
     exp_in = exptot / (float) crsplit_in;
     par->meanexp = exp_in;
 
-    /* if all parameters are specified by the user, no need to open the 
-	    reference CRREJ table */
+    /* if all parameters are specified by the user, no need to open the
+       reference CRREJ table */
     if (newpar[0] < MAX_PAR) {
 
         tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
-            if (c_iraferr() != 0) {
-                sprintf (MsgText,"CRREJTAB table '%s' does not exist", par->tbname);
-                trlerror (MsgText);
-                return (status = TABLE_ERROR);
-            }
+        if (c_iraferr() != 0) {
+            sprintf (MsgText,"CRREJTAB table '%s' does not exist", par->tbname);
+            trlerror (MsgText);
+            return (status = TABLE_ERROR);
+        }
         nrows = c_tbpsta (tp, TBL_NROWS);
 
         /* read the columns CRSPLIT and MEANEXP */
@@ -81,7 +79,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
         }
         c_tbcfnd1 (tp, "meanexp", &colptr1);
         if (colptr1 == 0) {
-            trlerror ("column MEANEXP does not exist in CRREJTAB\n");
+            trlerror ("column MEANEXP does not exist in CRREJTAB");
             return (status = COLUMN_NOT_FOUND);
         }
         nmatch = 0;
@@ -90,8 +88,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
         for (i = 1; i <= nrows; i++) {
             c_tbegti (tp, colptr, i, &crsplit);
             if (i == 1) maxcrsplit = crsplit;
-            if (crsplit > maxcrsplit)
-            maxcrsplit = crsplit;
+            if (crsplit > maxcrsplit) maxcrsplit = crsplit;
         }
         if (crsplit_in >= maxcrsplit) crsplit_in = maxcrsplit;
 
@@ -114,7 +111,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
             return (status = ROW_NOT_FOUND);
         }
 
-        /* read the sigmas parameter */ 
+        /* read the sigmas parameter */
         if (newpar[CRSIGMAS] == 0) {
             c_tbcfnd1 (tp, "crsigmas", &colptr);
             if (colptr == 0) {
@@ -152,7 +149,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
             c_tbegtr (tp, colptr, row, &par->thresh);
         }
 
-            /* figure out how to do initial comparison image */
+        /* figure out how to do initial comparison image */
         if (newpar[INITGUES] == 0) {
             c_tbcfnd1 (tp, "initgues", &colptr);
             if (colptr == 0) {
@@ -194,14 +191,14 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
     }
 
     PrRefInfo ("crrejtab", par->tbname, "", "", "");
-    
+
     /* parse the sigmas string into numbers */
     *niter = strtor (par->sigmas, sigma);
     if (status != ACS_OK) {
         WhichError (status);
         return (status);
     }
-    
+
     if (*niter > MAX_ITER) {
         sprintf (MsgText,"No more than %d iterations permitted.", MAX_ITER);
         trlerror (MsgText);
@@ -215,7 +212,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
     /* other fixed (for now) parameters */
     par->crval = (short) DATAREJECT;
     par->fillval = 0.;
-    
+
     /* print out which parameter are used */
     if (par->verbose) {
         sprintf (MsgText,"\n number of images = %d", nimgs);
@@ -238,7 +235,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
         trlmessage (MsgText);
         sprintf (MsgText," input bad bits value = %d", par->badinpdq);
         trlmessage (MsgText);
-        
+
         if (par->mask == 1) {
             strcpy (maskstr,"YES");
         } else {
@@ -250,7 +247,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
     return (status);
 }
 
-/*  strtor -- convert a string of real numbers into a real array 
+/* strtor -- convert a string of real numbers into a real array
 
   Description:
   ------------
@@ -262,63 +259,63 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter, fl
   (i.e. no value specified).  However, a null substring (e.g. repeated
   separators) is an error.
 
-  Date		Author		Description
-  ----		------		-----------
-  09-May-1996  J.-C. Hsu	Adapt from the SPP code strtor.x
-  10-Feb-2000  Phil Hodge	Replace exit (2) with return (0).
-  20-Mar-2002  Ivo Busko	Move to library, return -1 on error;
-				support multiple separators.
-  24-Jan-2005  Phil Hodge	Fix indexing error.
+  Date        Author        Description
+  ----        ------        -----------
+  09-May-1996 J.-C. Hsu     Adapt from the SPP code strtor.x
+  10-Feb-2000 Phil Hodge    Replace exit (2) with return (0).
+  20-Mar-2002 Ivo Busko     Move to library, return -1 on error;
+                            support multiple separators.
+  24-Jan-2005 Phil Hodge    Fix indexing error.
 */
 int strtor (char *str, float arr[])
 {
-	/* indexes in the string; the substring to be copied to tmp (from
-	   which a numerical value will be read) runs from ip0 to ip
-	*/
-	int	ip0, ip;
-	int	n, i;
-	int	done;
-	char	tmp[100];
+    /* indexes in the string; the substring to be copied to tmp (from
+       which a numerical value will be read) runs from ip0 to ip
+    */
+    int    ip0, ip;
+    int    n, i;
+    int    done;
+    char    tmp[100];
 
-	n = 0;
-	ip0 = 0;
-	ip = 0;
+    n = 0;
+    ip0 = 0;
+    ip = 0;
 
-	while (str[ip0] == ' ') {
-	    ip0++;
-	    ip++;
+    while (str[ip0] == ' ') {
+        ip0++;
+        ip++;
+    }
+    if (str[ip0] == '\0')
+        return (0);
+
+    done = 0;
+    while (!done) {
+        if (str[ip] == ',' || str[ip] == ';' || str[ip] == '/' ||
+        str[ip] == ' ' || str[ip] == '\0') {
+        for (i = 0; i < (ip-ip0); ++i)
+                tmp[i] = str[ip0+i];
+        tmp[ip-ip0] = '\0';
+        if (!(isdigit (tmp[0]) || tmp[0] == '-' || tmp[0] == '.')) {
+            printf ("illegal input string '%s'\n", str);
+            return (-1);
         }
-	if (str[ip0] == '\0')
-	    return (0);
+            arr[n] = (float) atof(tmp);
+        ++n;
+            if (str[ip] == '\0')
+            break;
+        ip++;            /* increment past the separator */
+        ip0 = ip;
 
-	done = 0;
-	while (!done) {
-	    if (str[ip] == ',' || str[ip] == ';' || str[ip] == '/' || 
-		str[ip] == ' ' || str[ip] == '\0') {
-		for (i = 0; i < (ip-ip0); ++i)
-	    	    tmp[i] = str[ip0+i];
-		tmp[ip-ip0] = '\0';
-		if (!(isdigit (tmp[0]) || tmp[0] == '-' || tmp[0] == '.')) {
-		    printf ("illegal input string '%s'\n", str);
-		    return (-1);
-		}
-	    	arr[n] = (float) atof(tmp);
-		++n;
-	        if (str[ip] == '\0')
-		    break;
-		ip++;			/* increment past the separator */
-		ip0 = ip;
+        while (str[ip0] == ' ') {
+            ip0++;
+            ip++;
+            }
+        } else {
+        ++ip;
+        }
+        if (str[ip0] == '\0')
+        break;
+    }
 
-		while (str[ip0] == ' ') {
-		    ip0++;
-		    ip++;
-	        }
-	    } else {
-		++ip;
-	    }
-	    if (str[ip0] == '\0')
-		break;
-	}
-
-	return (n);
+    return (n);
 }

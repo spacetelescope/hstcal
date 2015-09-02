@@ -11,12 +11,12 @@
 
 # define    OK          (short)0
 
-/*  acsrej_init -- get the initial average pixel values
+
+/* acsrej_init -- get the initial average pixel values
 
   Description:
   ------------
   Get the initial average according to the specified scheme
-  This function
 
   Date          Author          Description
   ----          ------          -----------
@@ -27,266 +27,156 @@
                                 also added ERR array for median image.
   26-Aug-2002   J. Blakeslee    Modified threshhold for minimum to use SCALENSE
                                 only with sky-subtracted pixels.
+  01-Dec-2015   P.L. Lim        Calculations now entirely in electrons.
+  13-Jan-2016   P.L. Lim        Removed variance init and cleaned up function.
 */
+int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
+                 int dim_x, int dim_y, float efac[], float skyval[],
+                 SingleGroup *sg, float *work) {
+    /*
+      Parameters:
 
-int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int dim_x, int dim_y,
-    multiamp noise, multiamp gain, float efac[], float skyval[],
-    SingleGroup *sg, float *work)
-{
-
+      ipsci   i: Array of pointers to SCI extension of the given EXTVER,
+                 each pointer is an input image. Unit now in electrons.
+      ipdq    i: Array of pointers to DQ extension of the given EXTVER,
+                 each pointer is an input image.
+      par     i: User specified parameters.
+      nimgs   i: Number of input images.
+      dim_x, dim_y  i: Image dimension taken from the first input image.
+                       All images must have the same dimension.
+      efac    i: Array of EXPTIME for each image. If all inputs have
+                 EXPTIME=0 (all biases), then the values are all set to 1.
+      skyval  i: Array of sky values for each input image.
+                 Unit now in electrons.
+      sg      o: Its "sci" component is the average image used for
+                 comparison during CR rejection. Unit is e/s.
+                 This is really the median or minimum depending on
+                 "initgues" provided by the user.
+      work    o: Intermediate result used to calculate sg but not used
+                 outside this function.
+    */
     extern int status;
 
-    float       scale, val, raw, raw0, signal0;
-    float       *buf;
-    short       *bufdq;
-    float       *exp2;
-    int         i, j, n;
-    int         dum;
-    int         *npts, *ipts;
-    float       noise2[NAMPS], rog2[NAMPS];
-    float       gain2[NAMPS];
-    float       nse[2], gn[2];
-    int         ampx, ampy, detector, chip;
-    int         k, p;
-    short       dqpat;
-    float       exp2n, expn;
-    int         non_zero;
-    Hdr         dqhdr;
-    int         readnoise_only;
+    float     val, raw, dumf;
+    int       i, j, n, p, dum;
+    float     *buf;
+    short     *bufdq;
+    int       *npts, *ipts;
+    short     dqpat;
+    Hdr       dqhdr;
 
-    void        ipiksrt (float [], int, int[]);
-    void        get_nsegn (int, int, int, int, float *, float*, float *, float *);
+    void      ipiksrt (float [], int, int[]);
 
-    /* -------------------------------- begin ---------------------------------- */
+    /* -------------------------------- begin ------------------------------- */
 
-    scale = par->scalense / 100.;
-    ampx = gain.colx;
-    ampy = gain.coly;
-    detector = gain.detector;
-    chip = gain.chip;
     dqpat = par->badinpdq;
-    readnoise_only = par->readnoise_only;
 
     ipts = calloc (nimgs, sizeof(int));
     npts = calloc (dim_x, sizeof(int));
     buf = calloc (dim_x, sizeof(float));
-    exp2 = (float *) calloc (nimgs, sizeof(float));
     bufdq = calloc (dim_x, sizeof(short));
 
-    for (k = 0; k < NAMPS; k++) {
-        gain2[k] = 0.;
-        noise2[k] = 0.;
-        /* Assumption: ALL images have the same noise/gain values */
-        rog2[k] = SQ(noise.val[k]);
-    }
-
-    non_zero = 0;
-    for (n = 0; n < nimgs; n++) {
-        exp2[n] = SQ(efac[n]);
-        if (efac[n] > 0.) non_zero++;
-    }
-    get_nsegn (detector, chip, ampx, ampy, gain.val, rog2, gain2, noise2);
-
-
-    /* use the stack median to construct the initial average */
+    /* Use the stack median to construct the initial average. */
     if (strncmp(par->initgues, "median", 3) == 0) {
         for (j = 0; j < dim_y; j++) {
             memset (npts, 0, dim_x*sizeof(int));
-            /* Set up the gain and noise values used for this line in ALL images */
-            if (j < ampy ) {
-                gn[0] = gain2[AMP_C];
-                gn[1] = gain2[AMP_D];
-                nse[0] = noise2[AMP_C];
-                nse[1] = noise2[AMP_D];
-            } else {
-                gn[0] = gain2[AMP_A];
-                gn[1] = gain2[AMP_B];
-                nse[0] = noise2[AMP_A];
-                nse[1] = noise2[AMP_B];
-            }
 
             for (n = 0; n < nimgs; n++) {
                 initHdr(&dqhdr);
-                getHeader(ipdq[n],&dqhdr);
-                getFloatLine (ipsci[n], j, buf);
+                getHeader(ipdq[n], &dqhdr);
+                getFloatLine (ipsci[n], j, buf);  /* electrons */
                 getShortLine (ipdq[n], j, bufdq);
                 freeHdr(&dqhdr);
 
-                for (i = 0; i < ampx; i++) {
-                    if (efac[n] > 0.){
-                        /* Only use GOOD pixels to build initial image */
+                /* Only use GOOD pixels to build initial image.
+                   work array is already initialized to zeroes in acsrej_do.c */
+                if (efac[n] > 0.) {
+                    for (i = 0; i < dim_x; i++) {
                         if ((bufdq[i] & dqpat) == OK) {
-                            PIX(work,npts[i],i,nimgs) = (buf[i] - skyval[n]) / efac[n] / gn[0];
+                            PIX(work, npts[i], i, nimgs) =
+                                (buf[i] - skyval[n]) / efac[n];  /* e/s */
                             npts[i] += 1;
                         }
-                    } else {
-                        PIX(work,npts[i],i,nimgs) = 0.;
                     }
                 }
-                for (i = ampx; i < dim_x; i++) {
-                    if (efac[n] > 0.){
-                        /* Only use GOOD pixels to build initial image */
-                        if ((bufdq[i] & dqpat) == OK) {
-                            PIX(work,npts[i],i,nimgs) = (buf[i] - skyval[n]) / efac[n] / gn[1];
-                            npts[i] += 1;
-                        }
-                    } else {
-                        PIX(work,npts[i],i,nimgs) = 0.;
-                    }
-                }
-            }
+            }  /* End of nimgs loop */
 
-            for (i = 0; i < ampx; i++) {
-                dum = npts[i];
+            /* ALL AMPS */
+            for (i = 0; i < dim_x; i++) {
+                dum = npts[i];  /* Number of good data points */
                 if (dum == 0)
-                    Pix(sg->sci.data,i,j) = 0.0F;
+                    Pix(sg->sci.data, i, j) = 0.0F;
                 else {
                     /* Setup index array for sorting... */
                     for (p=0; p < nimgs; p++) ipts[p] = p;
                     /* Sort pixel stack and corresponding index array. */
-                    ipiksrt (&PIX(work,0,i,nimgs), dum, ipts);
-                    /* Even number of input images for this pixel */
-                    /*
-                        Use sorted index array to match proper exptimes to
-                        selected pixels for use in ERR array calculation.
-                    */
-                    if ((dum/2)*2 == dum) {
-                        Pix(sg->sci.data,i,j) = (PIX(work,dum/2-1,i,nimgs) + PIX(work,dum/2,i,nimgs))/2.;
-                        expn = (exp2[ipts[dum/2-1]] + exp2[ipts[dum/2]]) / 2.;
+                    ipiksrt (&PIX(work, 0, i, nimgs), dum, ipts);
+                     /* Even number of input images for this pixel */
+                    if ((dum / 2) * 2 == dum) {
+                        Pix(sg->sci.data, i, j) =
+                            (PIX(work, dum / 2 - 1, i, nimgs) +
+                             PIX(work, dum / 2, i, nimgs)) / 2.;
                     } else {
-                        Pix(sg->sci.data,i,j) = PIX(work,dum/2,i,nimgs);
-                        expn = exp2[ipts[dum/2]];
+                        Pix(sg->sci.data, i, j) = PIX(work, dum / 2, i, nimgs);
                     }
                 }
-                raw0 = Pix(sg->sci.data,i,j);
-                exp2n = (expn > 0.) ? expn : 1.;
-                if (readnoise_only == 0) {
-                    Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2n;
-                } else {
-                    Pix(sg->err.data,i,j) = (nse[0]) / exp2n;
-                }
-            } /* End loop over FIRST AMP used on pixels in the line */
-
-            for (i = ampx; i < dim_x; i++) {
-                dum = npts[i];
-                if (dum == 0)
-                    Pix(sg->sci.data,i,j) = 0.0F;
-                else {
-                    for (p=0; p < nimgs; p++) ipts[p] = p;
-                    ipiksrt (&PIX(work,0,i,nimgs), dum, ipts);
-                    /* Even number of input images for this pixel */
-                    if ((dum/2)*2 == dum) {
-                        Pix(sg->sci.data,i,j) = (PIX(work,dum/2-1,i,nimgs) + PIX(work,dum/2,i,nimgs))/2.;
-                        expn = (exp2[ipts[dum/2-1]] + exp2[ipts[dum/2]]) / 2.;
-                    } else {
-                        Pix(sg->sci.data,i,j) = PIX(work,dum/2,i,nimgs);
-                        expn = exp2[ipts[dum/2]];
-                    }
-                }
-
-                raw0 = Pix(sg->sci.data,i,j);
-                exp2n = (expn > 0.) ? expn : 1.;
-                if (readnoise_only == 0){
-                    Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*raw0)) / exp2n;
-                } else {
-                    Pix(sg->err.data,i,j) = (nse[1]) / exp2n;
-                }
-            } /* End loop over SECOND AMP used on pixels in the line */
+            } /* End loop over ALL AMPS used on pixels in the line */
         } /* End loop over lines */
 
     /* use the minimum to construct the initial average */
     } else {
         if (strncmp(par->initgues, "minimum", 3) != 0) {
-            sprintf (MsgText,"Invalid INITGUES value %s, reset it to 'minimum'", par->initgues);
+            sprintf (MsgText,
+                     "Invalid INITGUES value %s, reset it to 'minimum'",
+                     par->initgues);
             trlwarn (MsgText);
             strcpy (par->initgues, "minimum");
         }
 
         for (n = 0; n < nimgs; n++) {
             initHdr(&dqhdr);
-            getHeader(ipdq[n],&dqhdr);
-            for (j = 0; j < dim_y; j++) {
-                /* Set up the gain and noise values used for this line in ALL images */
-                if (j < ampy ) {
-                    gn[0] = gain2[AMP_C];
-                    gn[1] = gain2[AMP_D];
-                    nse[0] = noise2[AMP_C];
-                    nse[1] = noise2[AMP_D];
-                } else {
-                    gn[0] = gain2[AMP_A];
-                    gn[1] = gain2[AMP_B];
-                    nse[0] = noise2[AMP_A];
-                    nse[1] = noise2[AMP_B];
-                }
+            getHeader(ipdq[n], &dqhdr);
 
-                getFloatLine (ipsci[n], j, buf);
+            for (j = 0; j < dim_y; j++) {
+                getFloatLine (ipsci[n], j, buf);  /* electrons */
                 getShortLine (ipdq[n], j, bufdq);
 
-                /* AMPS C and D */
-                for (i = 0; i < ampx; i++) {
-
-                    raw = buf[i] / gn[0];
-                    raw0 = (raw > 0.) ? raw : 0.;
-                    signal0 = ((raw - skyval[n] / gn[0]) > 0.) ? (raw - skyval[n] / gn[0]) : 0.;
+                /* ALL AMPS */
+                for (i = 0; i < dim_x; i++) {
+                    raw = buf[i];  /* e */
+                    dumf = raw - skyval[n];  /* e */
 
                     if (efac[n] > 0.) {
-                        val = (raw - skyval[n] / gn[0]) / efac[n];
+                        /* Can be negative */
+                        val = dumf / efac[n];  /* e/s */
                     } else {
                         val = 0.;
                     }
 
-                    if ( (n == 0) || (val < Pix(sg->sci.data,i,j)) ) {
+                    if ( (n == 0) || (val < Pix(sg->sci.data, i, j)) ) {
+                        /* If this pixel is bad in the first image,
+                           then the min is automatically set to 0. As a
+                           result, only negative val is going to be stored and
+                           valid positive min is ignored.
+                           SLIGHTLY BUGGY HERE??? */
                         if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
-                            Pix(sg->sci.data,i,j) = val;
-                            /*Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2[n];*/
-                            if (readnoise_only == 0){
-                                Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*signal0)) / exp2[n];
-                            } else {
-                                Pix(sg->err.data,i,j) = (nse[0]) / exp2[n];
-                            }
+                            Pix(sg->sci.data, i, j) = val;  /* e/s */
                         } else {
-                            Pix(sg->sci.data,i,j) = 0.;
-                            Pix(sg->err.data,i,j) = 0.;
+                            Pix(sg->sci.data, i, j) = 0.;
                         }
                     }
-                } /* End of loop over FIRST AMP for this line in each image */
-
-                for (i = ampx; i < dim_x; i++) {
-
-                    raw = buf[i] / gn[1];
-                    raw0 = (raw > 0.)? raw : 0.;
-                    signal0 = ((raw - skyval[n] / gn[1]) > 0.) ? (raw - skyval[n] / gn[1]) : 0.;
-
-                    if (efac[n] > 0.) {
-                        val = (raw - skyval[n] / gn[1]) / efac[n];
-                    } else {
-                        val = 0.;
-                    }
-
-                    if ( (n == 0) || (val < Pix(sg->sci.data,i,j) && ((bufdq[i] & dqpat) == OK)) ) {
-                        Pix(sg->sci.data,i,j) = val;
-                        if (efac[n] > 0.) {
-                            if (readnoise_only == 0){
-                                Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*signal0)) / exp2[n];
-                            } else {
-                                Pix(sg->err.data,i,j) = (nse[1]) / exp2[n];
-                            }
-                        } else {
-                            Pix(sg->err.data,i,j) = 0.;
-                        }
-                    }
-                } /* End of loop over SECOND AMP for this line in each image */
-
+                } /* End of loop over ALL AMPS for this line in each image */
             } /* End of loop over lines in image (y) */
+
             freeHdr(&dqhdr);
         } /* End of loop over images in set */
     }
 
     /* free the memory */
-    free (exp2);
     free (ipts);
     free (npts);
     free (buf);
     free (bufdq);
+
     return (status);
 }
