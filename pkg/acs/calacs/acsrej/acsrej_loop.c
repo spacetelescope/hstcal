@@ -76,10 +76,10 @@ Code Outline:
                 Calculate the threshold for each pixel above which a cosmic ray would stand out
                     - Use either 'minimum' or 'median' method here
                 Mark SPILL pixels as EXCLUDE
-                For each pixel in the line, compare pixel value with thresshold
+                For each pixel in the line, compare pixel value with threshold
                     - for each detected pixel, mark as HIT
                     - mark surrounding pixels out to RADIUS as SPILL if above a
-                    more stringent threshhold value
+                    more stringent threshold value
                 Accumulate the counts for each good pixel in this line from
                     this image into the output image buffer.
                 On the last iteration:
@@ -514,7 +514,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                     /* calculate the threshold for each pixel
                        If initgues is set to minimum, calculate threshhold based
                        on the sigma for this iteration times the variance
-                       Otherwise, compute the threshhold based on the pixel
+                       Otherwise, compute the threshold based on the pixel
                        values directly corrected by amp gain/noise and
                        shading correction.
                     */
