@@ -15,7 +15,6 @@
   Description:
   ------------
   Get the initial average according to the specified scheme
-  This function
 
   Date          Author          Description
   ----          ------          -----------

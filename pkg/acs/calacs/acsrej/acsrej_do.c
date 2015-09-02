@@ -28,6 +28,8 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
                                   for cr_scaling using tpin directly
     14-Sep-1999   W.J. Hack       Cleaned up SHADCORR usage. Added check for max
                                   number of files here.
+    02-Sep-2015   P.L. Lim        Initialize nrej and texpt like CALWF3.
+                                  nrej is used to calculate REJ_RATE.
 */
 int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int newpar[])
 {
@@ -109,6 +111,9 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     void    PrSwitch (char *, int);
     void    FindAsnRoot (char *, char *);
     void    initmulti (multiamp *);
+
+    nrej = 0;
+
     /* -------------------------------- begin ---------------------------------- */
     /* Initialize necessary structures */
     InitRefImg (&shadref);
@@ -186,6 +191,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
 
     /* calculate the total exposure time */
     exptot = 0.;
+    texpt = 0.;
     non_zero = 0;
     for (n = 0; n < nimgs; ++n) {
         exptot += efac[n];
