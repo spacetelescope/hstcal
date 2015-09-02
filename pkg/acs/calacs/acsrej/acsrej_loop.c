@@ -19,8 +19,7 @@
 # define    ABS(x)      ((x>0.) ? x : -x)
 
 /* Local routines for dealing with arrays of pointers to
-   arrays.
-*/
+**   arrays.  */
 
 static float **allocFloatBuff (int, int);
 static short **allocShortBuff (int, int);
@@ -118,6 +117,10 @@ Code Outline:
   24-Sep-2001   W.J. Hack   Made allocation of zl in getShadBuff more robust
   14-Dec-2012   P.L. Lim    Fixed ERR calculations for data in ELECTRONS.
   17-Dec-2012   P.L. Lim    Fixed DQ propagations to FLTs.
+  02-Sep-2015   P.L. Lim    Fixed bug in test to exclude flagged pixels from
+                            being tested for CR hits so that pixels marked
+                            previously as SPILL still get tested for CR
+                            (following CALWF3 changes).
 */
 
 int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
@@ -586,7 +589,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                        Also, if pixels are marked with a SERIOUS DQ flag
                        in the input, reject it as well. */
                     for (i = 0; i < dim_x; i++) {
-                        if ((bufdq[i] & dqpat) != OK) {
+                        if (((bufdq[i] & dqpat) != OK) && (bufdq[i]!=SPILL)) {
                             mask[n][width][i] = EXCLUDE;
                         }
                     }
