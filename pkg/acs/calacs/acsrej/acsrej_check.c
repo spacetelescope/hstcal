@@ -20,22 +20,30 @@ static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
   ------------
   Open and check input images/masks to have consistent dimensions and number
   of groups.
-  
+
   Date      Author          Description
   ----      ------          -----------
   22-Sep-98 W. Hack         Initial version using multiamp noise,gain
   13-Sep-99 W.J. Hack       Simplified logic to only read in values from
                                 first image where possible.
   20-Oct-99 W.J. Hack       getACSnsegn function revised to use 'for' loop
-                            to read keywords.  
+                            to read keywords.
 */
 
-int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpar[],  
-            char imgname[][CHAR_FNAME_LENGTH], int grp[], 
-            IODescPtr ipsci[],IODescPtr ipdq[], 
-            multiamp *noise, multiamp *gain, int *dim_x, int *dim_y, 
+int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpar[],
+            char imgname[][CHAR_FNAME_LENGTH], int grp[],
+            IODescPtr ipsci[],IODescPtr ipdq[],
+            multiamp *noise, multiamp *gain, int *dim_x, int *dim_y,
             int nimgs)
 {
+    /*
+      Parameters:
+
+      noise   o: Calibrated readnoise converted to DN. Noise value in electrons
+                 for each amp is read from primary header keyword READNSE[AMP],
+                 where [AMP] can be A, B, C, or D.
+    */
+
     extern int status;
 
     IODescPtr   ip;
@@ -69,8 +77,13 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
     for (k = 0; k < nimgs; ++k) {
 
         /* read the next input image name in the template list */
+<<<<<<< a0f73892c66d9c0695bd52ae673f60da11b4da2e
         c_imtgetim (tpin, fdata, CHAR_FNAME_LENGTH);
         
+=======
+        c_imtgetim (tpin, fdata, ACS_FNAME);
+
+>>>>>>> Added doc to clarify readnoise treatment in ACSREJ calculations.
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
         if (hstio_err()) {
@@ -93,15 +106,15 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
             return(status = KEYWORD_MISSING);
         }
 
-        /* Read in keywords from first image */        
+        /* Read in keywords from first image */
         if (k == 0) {
-            /* read the CRREJ reference table name from the first file, 
+            /* read the CRREJ reference table name from the first file,
             if necessary */
             if (newpar[0] < MAX_PAR && par->tbname[0] == '\0') {
                 if(GetKeyStr (&prihdr, "CRREJTAB", NO_DEFAULT, "", par->tbname, CHAR_FNAME_LENGTH) ) {
                     trlkwerr ("CRREJTAB", fdata);
                     return(status = KEYWORD_MISSING);
-                
+
                 }
             }
 
@@ -123,7 +136,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
             strcpy(ccdamp0, ccdamp);
 
             /* Start by opening the inputted extension of the first image */
-            n = extver;		
+            n = extver;
 
             /* Read in READNOISE and ATODGN values from first image */
             initmulti (&ron);
@@ -133,10 +146,10 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
             if (checkgn (gn, fdata)) {
                 return (status);
             }
-        
+
         /* END CHECK ON FIRST (k=0) IMAGE HEADER INFO */
         } else {
-        
+
             /* Make sure each image has the same value of CCDAMP */
             if (!streq_ic(ccdamp,ccdamp0) ) {
                 sprintf (MsgText, "%s uses different CCDAMP", fdata);
@@ -144,21 +157,21 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
                 return (status = INVALID_VALUE);
             }
 
-            /* 
-            ** Determine which extension corresponds to desired chip 
-            ** for the remainder of the images 
+            /*
+            ** Determine which extension corresponds to desired chip
+            ** for the remainder of the images
             */
             if (DetCCDChip(fdata, chip, ngrps, &n) ) {
                 return (status);
             }
-                
+
         }
-        
+
         grp[k] = n;
         ipsci[k] = openInputImage (fdata, "SCI", n);
         ipdq[k]  = openInputImage (fdata, "DQ",  n);
 
-        /* use the first image's attributes to compare with the rest of 
+        /* use the first image's attributes to compare with the rest of
          the files */
         if (k == 0) {
             *dim_x = getNaxis1(ipsci[k]);
@@ -170,11 +183,11 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
 
             /* Which CHIP corresponds to the input extension?
             ** This chip ID will be used for the remainder of
-            ** the images in the list 
-            */			
+            ** the images in the list
+            */
             if (GetKeyInt (&scihdr, "CCDCHIP", USE_DEFAULT, 1, &chip))
                 chip = 1;
-            
+
             /* Now we need to read in CCDTAB file to get AMP regions */
             if (getACSampxy (&prihdr, detector, chip, ccdamp, *dim_x, *dim_y, &ampx, &ampy) )
                 return (status);
@@ -192,14 +205,14 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
         /* Keep memory clean... */
         closeImage (ip);
         freeHdr (&prihdr);
-    } /* End loop over k (images in input list) */	
+    } /* End loop over k (images in input list) */
 
     /* Record noise and gain values for use in rest of ACSREJ */
     for (i = 0; i < NAMPS; i++) {
         if (gn.val[i] == 0. ) {
-	        noise->val[i] = 0.;
+            noise->val[i] = 0.;
         } else {
-	        noise->val[i] = ron.val[i]/gn.val[i];
+            noise->val[i] = ron.val[i]/gn.val[i];
         }
         gain->val[i]  = gn.val[i];
     }
@@ -212,7 +225,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
     noise->chip = chip;
     gain->chip = chip;
     noise->detector = detector;
-    gain->detector = detector;						
+    gain->detector = detector;
 
 
     return (status);
@@ -223,22 +236,22 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
 static int getACSnsegn (Hdr *hdr, char *fdata, multiamp *ron, multiamp *gn) {
 
     extern int status;
-    
+
     char    *nsekeyw[NAMPS] = { "READNSEA", "READNSEB", "READNSEC", "READNSED" };
     char    *gnkeyw[NAMPS] = { "ATODGNA", "ATODGNB", "ATODGNC", "ATODGND" };
     int     i;
-    
+
     int     GetKeyFlt (Hdr *, char *, int, float, float *);
 
     /* get the readout noise values from the SCI header */
-    for (i = 0; i < NAMPS; i++){    
+    for (i = 0; i < NAMPS; i++){
         if (GetKeyFlt (hdr, nsekeyw[i], USE_DEFAULT, 0., &ron->val[i]) != 0) {
             trlkwerr (nsekeyw[i], fdata);
             return (status = KEYWORD_MISSING);
         }
     }
     /* get the A-to-D gain values from the SCI header*/
-    for (i = 0; i < NAMPS; i++){    
+    for (i = 0; i < NAMPS; i++){
         if (GetKeyFlt (hdr, gnkeyw[i], USE_DEFAULT, 0., &gn->val[i]) != 0) {
             trlkwerr (gnkeyw[i], fdata);
             return (status = KEYWORD_MISSING);
@@ -249,14 +262,14 @@ static int getACSnsegn (Hdr *hdr, char *fdata, multiamp *ron, multiamp *gn) {
 
 static int checkgn (multiamp gn, char *fdata) {
     extern int  status;
-    
+
     int         i;
     int         ampset = 0;
-    
+
     for (i = 0; i < NAMPS; i++){
         if (gn.val[i] > 0.) ampset++;
-    }   
-    
+    }
+
     if (ampset == 0) {
         sprintf (MsgText, "All ATODGN values in file %s are 0.\n", fdata);
         trlerror (MsgText);
@@ -278,16 +291,16 @@ static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int
     int GetCCDTab (ACSInfo *, int, int);
 
     ACSInit (&acsrej);
-    
+
     tabname[0] = '\0';
 
     acsrej.detector = det;
     acsrej.chip = chip;
     strcpy(acsrej.ccdamp, ccdamp);
 
-    /* Now, we need to read in CCDGAIN, CCDOFST[A-D], and BINAXIS[1,2] 
-        from hdr as selection criteria for row from CCDTAB. 
-        Get keyword values from primary header using same function 
+    /* Now, we need to read in CCDGAIN, CCDOFST[A-D], and BINAXIS[1,2]
+        from hdr as selection criteria for row from CCDTAB.
+        Get keyword values from primary header using same function
         used in ACSCCD.
     */
     if (GetACSKeys (&acsrej, hdr)) {
