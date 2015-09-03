@@ -32,6 +32,13 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
     multiamp noise, multiamp gain, float efac[], float skyval[],
     SingleGroup *sg, float *work)
 {
+    /*
+      Parameters:
+
+      noise   i: Calibrated readnoise converted to DN in acsrej_check.c.
+                 It is squared in this function as rog2 and then copied to
+                 noise2 (using get_nsegn) and subsequently nse.
+    */
 
     extern int status;
 
