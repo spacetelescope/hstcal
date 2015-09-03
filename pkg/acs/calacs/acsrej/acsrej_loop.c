@@ -131,6 +131,14 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
             FloatTwoDArray *avevar, float *efacsum,
             ShortTwoDArray *dq, int *nrej, char *shadfile)
 {
+    /*
+      Parameters:
+
+      noise   i: Calibrated readnoise converted to DN in acsrej_check.c.
+                 It is squared in this function as rog2 and then copied to
+                 noise2 (using get_nsegn) and subsequently nse.
+    */
+
     extern int status;
 
     Hdr     dqhdr;              /* data quality header structure */
