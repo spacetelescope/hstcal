@@ -31,8 +31,8 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
     02-Sep-2015   P.L. Lim        Initialize nrej and texpt like CALWF3.
                                   nrej is used to calculate REJ_RATE.
 */
-int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int newpar[])
-{
+int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
+               int newpar[]) {
     extern int  status;
 
     IODescPtr   ipsci[MAX_FILES];   /* science image descriptor */
@@ -228,6 +228,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
         PrSwitch ("shadcorr", par->shadcorr);
 
         /* read in the parameters */
+        /* newpar is useless after this */
         if (rejpar_in (par, newpar, nimgs, exptot,   &niter, sigma) )
             return(status);
 
