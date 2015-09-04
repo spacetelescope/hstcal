@@ -1,3 +1,6 @@
+Updates for Version 3.3 03-Sep-2015 MLS
+    - One more precision change needed for the nans in the readnoise section
+
 Updates for Version 3.3 28-Aug-2015 MLS
     - These updates appear to fix the nan issue in the readnoise step that we ran into with some images
     - I also made the cte code a bit more tidy and organized

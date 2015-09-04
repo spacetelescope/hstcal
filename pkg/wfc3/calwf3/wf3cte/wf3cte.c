@@ -676,8 +676,9 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
     int imid;
     float dptr=0.;
     double  rms=0.0;
-    double  rmsu=0.0;
-    double nrms, nrmsu;
+    float  rmsu=0.0;
+    double nrms;
+    float nrmsu;
     float hardset=0.0000000;
     double dblzero=0.00000000;
 
@@ -734,7 +735,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
 
     sprintf(MsgText,"RNSIG=%3.2f\nNIT\tCHGrms\t\ticol\tORIG\t\tDIFF\t\tRSZ\n",rnsig);
     trlmessage(MsgText);
-    memcpy(&rms,&dblzero,sizeof(double));
+    rms=dblzero;
     for(NIT=1; NIT<=100; NIT++){ 
         #pragma omp parallel for schedule(dynamic) \
            private(i,j,imid,obs_loc,rsz_loc,dptr)\
@@ -782,23 +783,22 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
             }                
         }
 
-        memcpy(&rms,&dblzero,sizeof(double));
-        memcpy(&nrms,&dblzero,sizeof(double));
+        rms=dblzero;
+        nrms=dblzero;
                
-       #pragma omp parallel for schedule(static) \
+       #pragma omp parallel for schedule(dynamic) \
         private(i,j,rmsu,nrmsu) \
         shared(raz,rsz,rms,rnsig,nrms)
        for(j=0; j<RAZ_ROWS; j++){
-            memcpy(&nrmsu,&dblzero,sizeof(double));
-            memcpy(&rmsu,&dblzero,sizeof(double));
+            nrmsu=hardset;
+            rmsu=hardset;
             for(i = 0;i<RAZ_COLS; i++){
                 if ( (fabs(Pix(raz->sci.data,i,j)) > 0.1) || 
                      (fabs(Pix(rsz->sci.data,i,j)) > 0.1) ){
-                    rmsu  += (double) (Pix(rnz.sci.data,i,j) *  Pix(rnz.sci.data,i,j));
+                    rmsu  +=   Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j);
                     nrmsu += 1.;
                 }
             }
-            
             #pragma omp critical (rms)
             {rms  += rmsu;
             nrms += nrmsu;}
@@ -851,7 +851,7 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
 
     extern int status;
 
-    double mval;
+    double mval=0.0;
     double    dval0, dval0u, w0;
     double    dval9, dval9u, w9;
     double    dmod1, dmod1u, w1;
@@ -939,10 +939,10 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
     that neighbor has less of an ability to
     pull it)*/   
     
-    *d = (dval0u * w0 * 0.25) + /* desire to keep the original pixel value */
+    *d = (float)((dval0u * w0 * 0.25) + /* desire to keep the original pixel value */
     (dval9u*w9*0.25) + /* desire to keep the original sum over 3x3*/
     (dmod1u*w1*0.25) + /*desire to get closer to the pixel below*/
-    (dmod2u*w2*0.25) ; /*desire to get closer to the pixel above*/
+    (dmod2u*w2*0.25)) ; /*desire to get closer to the pixel above*/
 
     return(status);
 }
@@ -951,7 +951,6 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
 /*** THIS ROUTINE PERFORMS THE CTE CORRECTIONS 
      rsz is the readnoise smoothed image
      rsc is the output image
-     
      rac = raw + (rsc-rsz) / gain 
      
 ***/
