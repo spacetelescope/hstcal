@@ -124,13 +124,12 @@ Code Outline:
 */
 
 int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
-            char imgname[][ACS_FNAME], int grp [], int nimgs,
-            clpar *par, int niter, int dim_x, int dim_y,
-            float sigma[], multiamp noise, multiamp gain,
-            float efac[], float skyval[], FloatTwoDArray *ave,
-            FloatTwoDArray *avevar, float *efacsum,
-            ShortTwoDArray *dq, int *nrej, char *shadfile)
-{
+                 char imgname[][ACS_FNAME], int grp [], int nimgs,
+                 clpar *par, int niter, int dim_x, int dim_y,
+                 float sigma[], multiamp noise, multiamp gain,
+                 float efac[], float skyval[], FloatTwoDArray *ave,
+                 FloatTwoDArray *avevar, float *efacsum,
+                 ShortTwoDArray *dq, int *nrej, char *shadfile) {
     /*
       Parameters:
 
