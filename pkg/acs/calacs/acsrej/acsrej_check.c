@@ -39,9 +39,24 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
     /*
       Parameters:
 
+      tpin    i: Pointer of image list.
+      extver  i: EXTVER to process. For WFC, 1 is CD and 2 is AB.
+      ngrps   i: Total number of EXTVER.
+      par, newpar  i: user specified parameters
+      imagename  o: Array of image names.
+      grp     o: Array of EXTVER for each input image.
+      ipsci   o: Array of pointers to SCI extension of the given EXTVER,
+                 each pointer is an input image. Unit now in electrons.
+      ipdq    o: Array of pointers to DQ extension of the given EXTVER,
+                 each pointer is an input image. Unit now in electrons.
       noise   o: Calibrated readnoise converted to DN. Noise value in electrons
                  for each amp is read from primary header keyword READNSE[AMP],
                  where [AMP] can be A, B, C, or D.
+      gain    o: Calibrated gain in e/DN from primary header keyword
+                 ATODGN[AMP], where [AMP] can be A, B, C, or D.
+      dim_x, dim_y  o: Image dimension taken from the first input image.
+                       All images must have the same dimension.
+      nimgs   i: Number of input images.
     */
 
     extern int status;

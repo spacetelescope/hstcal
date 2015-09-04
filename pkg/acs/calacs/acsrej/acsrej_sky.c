@@ -19,12 +19,25 @@
 void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
                  short badinpdq, float skyval[]) {
 
-/* Revision history:
-**
-** P.L. Lim    02-Sep-2015    Made bin width checking more robust.
-**                            Avoid arithmetic overflow in binning
-**                            calculations. (Following CALWF3 changes.)
-*/
+    /*
+      Parameters:
+
+      sky     i: Calculation algorithm ("none" or "mode" only).
+      ipsci   i: Array of pointers to SCI extension of the given EXTVER,
+                 each pointer is an input image. Unit now in electrons.
+      ipdq    i: Array of pointers to DQ extension of the given EXTVER,
+                 each pointer is an input image. Unit now in electrons.
+      nimgs   i: Number of input images.
+      badinpdq  i: Data quality pset.
+      skyval  o: Array of sky values for each input image.
+                 Unit now in electrons.
+
+      Revision history:
+
+      P.L. Lim    02-Sep-2015    Made bin width checking more robust.
+                                 Avoid arithmetic overflow in binning
+                                 calculations. (Following CALWF3 changes.)
+    */
 
     extern int status;
 
