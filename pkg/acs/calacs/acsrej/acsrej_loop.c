@@ -132,8 +132,10 @@ Code Outline:
                             previously as SPILL still get tested for CR
                             (following CALWF3 changes).
   15-Sep-2015   P.L. Lim    Added doc. Cleaned up codes.
-                            Fixed bug where gain improperly applied to convert
-                            sumvar from DN^2 to electrons in the final iter.
+  21-Sep-2015   P.L. Lim    Fixed scrolling buffers [#1224]. Removed unnecessary
+                            processing by skipping images with zero exposure
+                            time. Removed duplicate buffer re-initializations.
+                            Cleaned up codes.
 */
 int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
             char imgname[][CHAR_FNAME_LENGTH], int grp [], int nimgs,
