@@ -38,7 +38,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
       ipsci   i: Array of pointers to SCI extension of the given EXTVER,
                  each pointer is an input image. Unit now in electrons.
       ipdq    i: Array of pointers to DQ extension of the given EXTVER,
-                 each pointer is an input image. Unit now in electrons.
+                 each pointer is an input image.
       par     i: User specified parameters.
       nimgs   i: Number of input images.
       dim_x, dim_y  i: Image dimension taken from the first input image.
@@ -52,7 +52,11 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                  EXPTIME=0 (all biases), then the values are all set to 1.
       skyval  i: Array of sky values for each input image.
                  Unit now in electrons.
-      sg      o: Average image for comparison during CR rejection.
+      sg      o: Its "sci" component is the average image used for
+                 comparison during CR rejection. Unit is DN/s.
+                 This is really the median or minimum depending on
+                 "initgues" provided by the user. It also has a "err"
+                 component that contains the variance (DN/s)^2.
       work    o: Intermediate result used to calculate sg but not used
                  outside this function.
     */
@@ -65,6 +69,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
     float     *exp2;
     int       i, j, n;
     int       dum;
+    float     dumf;
     int       *npts, *ipts;
     float     noise2[NAMPS], rog2[NAMPS];
     float     gain2[NAMPS];
@@ -109,7 +114,6 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
         if (efac[n] > 0.) non_zero++;
     }
     get_nsegn (detector, chip, ampx, ampy, gain.val, rog2, gain2, noise2);
-
 
     /* use the stack median to construct the initial average */
     if (strncmp(par->initgues, "median", 3) == 0) {
@@ -289,12 +293,12 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 for (i = 0; i < ampx; i++) {
                     raw = buf[i] / gn[0];  /* DN */
                     raw0 = (raw > 0.) ? raw : 0.;  /* DN */
-                    signal0 = ((raw - (skyval[n] / gn[0])) > 0.) ?
-                        (raw - (skyval[n] / gn[0])) : 0.;  /* DN */
+                    dumf = raw - (skyval[n] / gn[0]);
+                    signal0 = (dumf > 0.) ? dumf : 0.;  /* DN */
 
                     if (efac[n] > 0.) {
-                        /* Why not just use signal0? */
-                        val = (raw - (skyval[n] / gn[0])) / efac[n];  /* DN/s */
+                        /* Can be negative */
+                        val = dumf / efac[n];  /* DN/s */
                     } else {
                         val = 0.;
                     }
@@ -330,20 +334,21 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 for (i = ampx; i < dim_x; i++) {
                     raw = buf[i] / gn[1];  /* DN */
                     raw0 = (raw > 0.) ? raw : 0.;  /* DN */
-                    signal0 = ((raw - (skyval[n] / gn[1])) > 0.) ?
-                        (raw - (skyval[n] / gn[1])) : 0.;  /* DN */
+                    dumf = raw - (skyval[n] / gn[1]);
+                    signal0 = (dumf > 0.) ? dumf : 0.;  /* DN */
 
                     if (efac[n] > 0.) {
-                        /* Why not just use signal0? */
-                        val = (raw - (skyval[n] / gn[1])) / efac[n];  /* DN/s */
+                        /* Can be negative */
+                        val = dumf / efac[n];  /* DN/s */
                     } else {
                         val = 0.;
                     }
 
-                    if ( (n == 0) || (val < Pix(sg->sci.data, i, j) &&
-                                      ((bufdq[i] & dqpat) == OK)) ) {
-                        Pix(sg->sci.data, i, j) = val;  /* DN/s */
-                        if (efac[n] > 0.) {
+                    if ( (n == 0) || (val < Pix(sg->sci.data, i, j)) ) {
+                        if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
+                            Pix(sg->sci.data, i, j) = val;  /* DN/s */
+                            /*Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] +
+                              SQ(scale*raw0)) / exp2[n];*/  /* NOT USED */
                             if (newbias == 0){
                                 /* This is the 2nd term in DHB formula.
                        ERR = (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
@@ -361,7 +366,8 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                                 Pix(sg->err.data, i, j) = (nse[1]) / exp2[n];
                             }
                         } else {
-                            Pix(sg->err.data,i,j) = 0.;
+                            Pix(sg->sci.data, i, j) = 0.;
+                            Pix(sg->err.data, i, j) = 0.;
                         }
                     }
                 } /* End of loop over SECOND AMP for this line in each image */
