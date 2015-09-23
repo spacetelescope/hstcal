@@ -115,7 +115,9 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
     }
     get_nsegn (detector, chip, ampx, ampy, gain.val, rog2, gain2, noise2);
 
-    /* use the stack median to construct the initial average */
+    /* use the stack median to construct the initial average.
+       For median, sg->err is calculated (and wrong) but NOT USED in
+       acsrej_loop.c !!! */
     if (strncmp(par->initgues, "median", 3) == 0) {
         for (j = 0; j < dim_y; j++) {
             memset (npts, 0, dim_x*sizeof(int));
@@ -198,10 +200,10 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 exp2n = (expn > 0.) ? expn : 1.;  /* s^2 */
                 if (newbias == 0) {
                     /* This is the 2nd term in DHB formula.
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
                        ERR = (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
                        nse is DN^2
-                       raw0 is DN/s - why divided by gn?
-                                      is /s supposed to be there?
+                       raw0 is DN/s - is /s supposed to be there?
                        exp2n is s^2
                     */
                     Pix(sg->err.data, i, j) =
@@ -242,10 +244,10 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 exp2n = (expn > 0.) ? expn : 1.;  /* s^2 */
                 if (newbias == 0){
                     /* This is the 2nd term in DHB formula.
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
                        ERR = (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
                        nse is DN^2
-                       raw0 is DN/s - why divided by gn?
-                                      is /s supposed to be there?
+                       raw0 is DN/s - is /s supposed to be there?
                        exp2n is s^2
                     */
                     Pix(sg->err.data, i, j) =
@@ -310,9 +312,10 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                               SQ(scale*raw0)) / exp2[n];*/  /* NOT USED */
                             if (newbias == 0){
                                 /* This is the 2nd term in DHB formula.
-                       ERR = (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
+                       ERR = (READNSE^2 + VAL/GN + (SCALE * VAL)^2) / EXPTIME^2
                        nse is DN^2
-                       raw0 is DN - with sky; why divided by gn?
+                       raw0 is DN - with sky; should be sky subtracted?
                        signal0 is DN - sky subtracted
                        exp2n is s^2
                                 */
@@ -351,9 +354,10 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                               SQ(scale*raw0)) / exp2[n];*/  /* NOT USED */
                             if (newbias == 0){
                                 /* This is the 2nd term in DHB formula.
-                       ERR = (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
+                       ERR = (READNSE^2 + VAL/GN + (SCALE * VAL)^2) / EXPTIME^2
                        nse is DN^2
-                       raw0 is DN - with sky; why divided by gn?
+                       raw0 is DN - with sky; should be sky subtracted?
                        signal0 is DN - sky subtracted
                        exp2n is s^2
                                 */
