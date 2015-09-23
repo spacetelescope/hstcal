@@ -738,8 +738,9 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 
                                 if (newbias == 0) {
                                     /* Variance term like DHB without SCALENSE
-                                       nse is DN^2
-                                       val is DN (with sky) - why div by gn?
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
+                                nse is DN^2
+                                val is DN (with sky) - should be sky subtracted?
                                     */
                                     sumvar[i] += nse[0] + (val / gn[0]);
                                 } else {
@@ -761,8 +762,9 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 
                                 if (newbias == 0) {
                                     /* Variance term like DHB without SCALENSE
-                                       nse is DN^2
-                                       val is DN (with sky) - why div by gn?
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
+                                nse is DN^2
+                                val is DN (with sky) - should be sky subtracted?
                                     */
                                     sumvar[i] += nse[1] + (val / gn[1]);
                                 } else {
@@ -1056,7 +1058,10 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
 
             /* clip the data at zero */
             val = (dum > 0.) ? dum : 0.;  /* DN */
-            val_dn2 = val / gn[0];  /* DN^2/e? */
+
+            /* Signal variance in DN^2
+               https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10 */
+            val_dn2 = val / gn[0];
 
             /* compute sky subtracted pixel value for use with SCALENSE */
             pixsky = (dum_nosky > 0.) ? dum_nosky : 0.;  /* DN */
@@ -1067,7 +1072,7 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
           This is the threshold in DHB formula.
           THRESH = SIGMA^2 * (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
           nse is DN^2
-          val is DN^2/e? (sky added back in); why divided by gn?
+          val is DN^2/e? (sky added back in); should be sky subtracted?
           pixsky is DN (sky subtracted)
           exp2n is s^2
             */
@@ -1079,7 +1084,7 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
 
           SPTHRESH = SIGMA^2 * (READNSE^2 + VAL/GN?) / EXPTIME^2
           nse is DN^2
-          val is DN^2/e? (sky added back in); why divided by gn?
+          val is DN^2/e? (sky added back in); should be sky subtracted?
           exp2n is s^2
             */
             spthresh_n[width][i] = sig2 * (nse[0] + val_dn2) / exp2n;
@@ -1099,7 +1104,10 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
 
             /* clip the data at zero */
             val = (dum > 0.) ? dum : 0.;  /* DN */
-            val_dn2 = val / gn[1];  /* DN^2/e? */
+
+            /* Signal variance in DN^2
+               https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10 */
+            val_dn2 = val / gn[1];
 
             /* compute sky subtracted pixel value for use with SCALENSE */
             pixsky = (dum_nosky > 0.) ? dum_nosky : 0.;  /* DN */
@@ -1110,7 +1118,7 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
           This is the threshold in DHB formula.
           THRESH = SIGMA^2 * (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
           nse is DN^2
-          val is DN^2/e? (sky added back in); why divided by gn?
+          val is DN^2/e? (sky added back in); should be sky subtracted?
           pixsky is DN (sky subtracted)
           exp2n is s^2
             */
@@ -1122,7 +1130,7 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
 
           SPTHRESH = SIGMA^2 * (READNSE^2 + VAL/GN?) / EXPTIME^2
           nse is DN^2
-          val is DN^2/e? (sky added back in); why divided by gn?
+          val is DN^2/e? (sky added back in); should be sky subtracted?
           exp2n is s^2
             */
             spthresh_n[width][i] = sig2 * (nse[1] + val_dn2) / exp2n;
