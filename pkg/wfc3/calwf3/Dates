@@ -1,4 +1,9 @@
+24-Sep-2015 - MLS -- Version 3.3
+    - fix for machine dependent precision bug
+
 03-Sep-2015 - MLS -- Version 3.3
+    - One more precision change needed for the nans in the readnoise section
+
 28-Aug-2015 - MLS -- Version 3.3
     - These updates appear to fix the nan issue in the readnoise step that we ran into with some images
     - I also made the cte code a bit more tidy and organized

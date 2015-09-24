@@ -177,13 +177,13 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* GET READ NOISE CLIPPING LEVEL */
-	if (GetKeyFlt(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
+	if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
 		cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"PCTERNOI: %g",pars->rn_amp);
+	sprintf(MsgText,"PCTERNOI: %f",pars->rn_amp);
 	trlmessage(MsgText);
 
 	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
@@ -504,7 +504,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 
 	extern int status;
 
-	float rn_amp;
+	double rn_amp;
     int cte_len;
     int n_forward;
     int n_par;
@@ -561,7 +561,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     }
     
     /*check the PCTERNOI keyword in header*/
-	if (GetKeyFlt(group->globalhdr, "PCTERNOI", NO_DEFAULT, -999, &rn_amp)) {
+	if (GetKeyDbl(group->globalhdr, "PCTERNOI", NO_DEFAULT, -999, &rn_amp)) {
 		trlmessage("(pctecorr) Error reading PCTERNOI keyword from header");
 		status = HEADER_PROBLEM;
 		return status;
@@ -570,7 +570,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     if ( (rn_amp >1.) && (rn_amp != pars->rn_amp)){
         pars->rn_amp=rn_amp;
     } else {
-        if(PutKeyFlt(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")){
+        if(PutKeyDbl(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")){
             trlmessage("(pctecorr) Error updating PCTERNOI in header");
             status= HEADER_PROBLEM;
             return status;

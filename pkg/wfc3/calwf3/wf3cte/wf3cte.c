@@ -647,7 +647,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
 }
 
 
-int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int max_threads){
+int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int max_threads){
     /*
        This routine will read in a RAZ image and will output the smoothest
        image that is consistent with being the observed image plus readnoise. (RSZ image) 
@@ -678,7 +678,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
     double  rms=0.0;
     float  rmsu=0.0;
     double nrms;
-    float nrmsu;
+    double nrmsu;
     float hardset=0.0000000;
     double dblzero=0.00000000;
 
@@ -686,8 +686,8 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
     float obs_loc[3][RAZ_ROWS] ; 
     float rsz_loc[3][RAZ_ROWS] ;
         
-    nrms=0.;
-    nrmsu=0.;
+    nrms=dblzero;
+    nrmsu=dblzero;
     NIT=1;
     
     /*ALL ELEMENTS TO ZERO*/
@@ -770,7 +770,6 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
                             fminf(Pix(rsz->sci.data,i,j), comparison));
                         trlmessage(MsgText);
                     }
-                 
             }
         } /*end the parallel for*/
     
@@ -790,17 +789,17 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
         private(i,j,rmsu,nrmsu) \
         shared(raz,rsz,rms,rnsig,nrms)
        for(j=0; j<RAZ_ROWS; j++){
-            nrmsu=hardset;
+            nrmsu=dblzero;
             rmsu=hardset;
             for(i = 0;i<RAZ_COLS; i++){
                 if ( (fabs(Pix(raz->sci.data,i,j)) > 0.1) || 
                      (fabs(Pix(rsz->sci.data,i,j)) > 0.1) ){
-                    rmsu  +=   Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j);
+                    rmsu  +=  Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j);
                     nrmsu += 1.;
                 }
             }
             #pragma omp critical (rms)
-            {rms  += rmsu;
+            {rms  += (double) rmsu;
             nrms += nrmsu;}
         }
         
@@ -833,7 +832,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, float rnsig, int m
     return (status);
 }
 
-int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], float rnsig, float *d){
+int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], double rnsig, float *d){
 /*
    This function determines for a given pixel how it can
    adjust in a way that is not inconsistent with its being
@@ -856,7 +855,7 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
     double    dval9, dval9u, w9;
     double    dmod1, dmod1u, w1;
     double    dmod2, dmod2u, w2;
-
+    
     dval0=0.;
     dval0u=0.;
     w0=0.;
@@ -943,7 +942,7 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
     (dval9u*w9*0.25) + /* desire to keep the original sum over 3x3*/
     (dmod1u*w1*0.25) + /*desire to get closer to the pixel below*/
     (dmod2u*w2*0.25)) ; /*desire to get closer to the pixel above*/
-
+    
     return(status);
 }
 
@@ -1123,7 +1122,12 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         trlmessage(MsgText);
     }
     
-    /*SET UP THE SCALING ARRAY WITH INPUT DATA*/
+    /*SET UP THE SCALING ARRAY WITH INPUT DATA
+      Megan note: I think the equation here setting pixz_fff should
+      be changed to Pix(fff,i,j) instead of the j+1 sections
+      so that the reference file can be used, otherwise the reference
+      file is ignored.
+    */
     for (i=0; i<RAZ_COLS; i++){
         for (j=0; j< RAZ_ROWS; j++){
             memcpy(&Pix(rz.sci.data,i,j), &Pix(rsz->sci.data,i,j),sizeof(float));

@@ -1,3 +1,6 @@
+Updates for Version 3.3 24-Sep-2015 MLS
+    - fix for machine dependent precision bug
+
 Updates for Version 3.3 03-Sep-2015 MLS
     - One more precision change needed for the nans in the readnoise section
 
