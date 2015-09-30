@@ -1,3 +1,11 @@
+Updates for Version 3.3 29-Sep-2015 MLS
+    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with.      
+
+    - I also changed the way the code uses the SCLBYCOL reference file (as called in Jays fortran). The way the fortran code is structured, the reference file information never actually gets used in the calculation. This doesn't make a numerical difference at the moment because the reference file values are all ones, ie. there is no additional scaling done on the CTE pixel other than by using the CTE scaling fraction and the column location. However, if the science team ever delivers a new reference file which has these values updated, they wont actually get used by the code un
+less this change is implemented.
+
+   - Reformatted some code for readability, and fixed SEGFAULT error in reference file checking when iref environment variable not set by user, so can't find file (also when can't find file in general). I made RefExist exit clean the first time it found a missing file, HSTIO was barfing any other way.
+
 Updates for Version 3.3 24-Sep-2015 MLS
     - fix for machine dependent precision bug
 
@@ -24,7 +32,7 @@ Updates for Version 3.3 18-Aug-2015 MLS
     -BuildDthInput has to create the input filename from the asn root, but this can be either FLT or FLC now, have to figure out which one to use.
     -Had to add separate DTH pass for IR data and double DTH pass for UVIS data because the input filename for RPTCORR/EXPCORR associations are built in the code from the data rootnames in the ASN table. So the UVIS data coming out of procccd has to take a double pass through DTH when PCTECORR is PERFORM.
     -changed the checking order for subarrays in the PCTECORR routine so that it errors out cleanly (has to do with 1 group of images for subarrays)
-    -added the check for INSTRUMENT == WFC3 back to the code, actually related to a user complainging that calwf3 didn't tell them it couldn't reduce ACS data.
+    -added the check for INSTRUMENT == WFC3 back to the code, actually related to a user complaining that calwf3 didn't tell them it couldn't reduce ACS data.
     -had to update the procir call to wf3rej_0 signature for the asn update I added to uvis
     -updated the mainrej.e calls which were segfaulting (calling wf3rej standalone on input list of images)
     -added dynamic memory allocation for trailer file list to initrejtrl

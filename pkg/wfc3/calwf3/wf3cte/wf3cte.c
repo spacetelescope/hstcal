@@ -80,12 +80,13 @@ CTE correction in ACS which occurs later in the process after basic structures a
     SingleGroup raz; /* THE LARGE FORMAT COMBINATION OF CDAB*/
     SingleGroup rsz; /* LARGE FORMAT READNOISE CORRECTED IMAGE */
     SingleGroup rsc; /* CTE CORRECTED*/
-    SingleGroup rzc; /*part of the conversion to rac*/
-    SingleGroup chg; /*part of the conversion to rac*/
+    SingleGroup rzc; /* FINAL CTE CORRECTED IMAGE */
+    SingleGroup chg; /* THE CHANGE DUE TO CTE  */
+    SingleGroup raw; /* THE RAW IMAGE IN RAZ FORMAT */
     
-    int i,j; /*loop var*/
+    int i,j; /*loop vars*/
     int max_threads=1;
-    float hardset=0.0000000;
+    float hardset=0.000000;
 
     Bool subarray; /* to verify that no subarray is being used, it's not implemented yet*/
 
@@ -219,6 +220,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
                 wf3.pctetab.descrip, wf3.pctetab.descrip2);
     }
     
+    
     /*SAVE THE PCTETABLE INFORMATION TO THE HEADER OF THE SCIENCE IMAGE
       AFTER CHECKING TO SEE IF THE USER HAS SPECIFIED ANY CHANGES TO THE
       CTE CODE VARIABLES.
@@ -226,6 +228,42 @@ CTE correction in ACS which occurs later in the process after basic structures a
     if (CompareCTEParams(&cd, &cte_pars)){
         return (status);
     }    
+
+
+    /*SET UP THE ARRAYS WHICH WILL BE PASSED AROUND*/  
+    initSingleGroup(&raz);
+    allocSingleGroup(&raz, RAZ_COLS, RAZ_ROWS);
+
+    initSingleGroup(&rsz);
+    allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS);
+
+    initSingleGroup(&rsc);
+    allocSingleGroup(&rsc, RAZ_COLS, RAZ_ROWS);
+
+    initSingleGroup(&rzc);
+    allocSingleGroup(&rzc, RAZ_COLS, RAZ_ROWS);
+    
+    initSingleGroup(&raw);
+    allocSingleGroup(&raw, RAZ_COLS, RAZ_ROWS);
+    
+    initSingleGroup(&chg);    
+    allocSingleGroup(&chg, RAZ_COLS, RAZ_ROWS);
+
+    /*INITIALIZE ARRAYS*/
+    for (i=0;i<RAZ_COLS;i++){
+        for(j=0;j<RAZ_ROWS;j++){
+            memcpy(&Pix(raw.sci.data,i,j),&hardset,sizeof(float));
+            memcpy(&Pix(rsz.sci.data,i,j),&hardset,sizeof(float));
+            memcpy(&Pix(raz.sci.data,i,j),&hardset,sizeof(float));            
+            memcpy(&Pix(rsc.sci.data,i,j),&hardset,sizeof(float));
+            memcpy(&Pix(rzc.sci.data,i,j),&hardset,sizeof(float));
+            memcpy(&Pix(chg.sci.data,i,j),&hardset,sizeof(float));
+        }
+    }
+
+
+    /* SAVE A COPY OF THE RAW IMAGE FOR LATER */
+    makesciRAZ(&cd,&ab,&raw);
 
     /***SUBTRACT THE CTE BIAS FROM BOTH CHIPS IN PLACE***/
     if (doCteBias(&wf3,&cd)){
@@ -262,34 +300,6 @@ CTE correction in ACS which occurs later in the process after basic structures a
         trlmessage(MsgText);
     }
       
-    /*SET UP THE ARRAYS WHICH WILL BE PASSED AROUND*/  
-    initSingleGroup(&raz);
-    allocSingleGroup(&raz, RAZ_COLS, RAZ_ROWS);
-
-    initSingleGroup(&rsz);
-    allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS);
-
-    initSingleGroup(&rsc);
-    allocSingleGroup(&rsc, RAZ_COLS, RAZ_ROWS);
-
-    initSingleGroup(&rzc);
-    allocSingleGroup(&rzc, RAZ_COLS, RAZ_ROWS);
-    
-    /*THIS IS THE CHANGE IMAGE FOR VALIDATION*/
-    initSingleGroup(&chg);    
-    allocSingleGroup(&chg, RAZ_COLS, RAZ_ROWS);
-
-    /*INITIALIZE ARRAYS*/
-    for (i=0;i<RAZ_COLS;i++){
-        for(j=0;j<RAZ_ROWS;j++){
-            memcpy(&Pix(rsz.sci.data,i,j),&hardset,sizeof(float));
-            memcpy(&Pix(raz.sci.data,i,j),&hardset,sizeof(float));            
-            memcpy(&Pix(rsc.sci.data,i,j),&hardset,sizeof(float));
-            memcpy(&Pix(rzc.sci.data,i,j),&hardset,sizeof(float));
-            memcpy(&Pix(chg.sci.data,i,j),&hardset,sizeof(float));
-        }
-    }
-
 
     /*CONVERT TO RAZ FORMAT AND CORRECT FOR GAIN*/
     if (raw2raz(&wf3, &cd, &ab, &raz))
@@ -360,8 +370,8 @@ CTE correction in ACS which occurs later in the process after basic structures a
     /*** CREATE THE FINAL CTE CORRECTED IMAGE, PUT IT BACK INTO ORIGNAL RAW FORMAT***/
     for (i=0;i<RAZ_COLS;i++){
         for(j=0; j<RAZ_ROWS; j++){
-            Pix(rzc.sci.data,i,j) = Pix(raz.sci.data,i,j) + (Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j));
-            Pix(chg.sci.data,i,j) = Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j);
+            Pix(chg.sci.data,i,j) = (Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j))/wf3.ccdgain;
+            Pix(rzc.sci.data,i,j) =  Pix(raw.sci.data,i,j) + Pix(chg.sci.data,i,j);
         }
     }
     
@@ -373,7 +383,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
         putHeader(out);
         putFloatData(out,&chg.sci.data);
         closeImage(out);
-        sprintf(MsgText,"CTE: Saved CHANGE image: %s\n",tmpout);
+        sprintf(MsgText,"CTE: Saved CHANGE image (IN DNs): %s\n",tmpout);
         trlmessage(MsgText);
      
         /*WRITE OUT THE RZC IMAGE FOR CHECKING*/
@@ -386,14 +396,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
         sprintf(MsgText,"CTE: Saved RZC image to check: %s\n",tmpout);
         trlmessage(MsgText);
     }
-    
-    /*REMOVE THE  GAIN*/
-   for (i=0;i<RAZ_COLS;i++){
-        for(j=0; j<RAZ_ROWS; j++){
-            Pix(rzc.sci.data,i,j) /= wf3.ccdgain;
-        }
-    }
-    
+        
     /*BACK TO NORMAL FORMATTING*/
     undosciRAZ(&cd,&ab,&rzc);
     
@@ -417,6 +420,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     freeSingleGroup(&chg);
     freeSingleGroup(&raz);
     freeSingleGroup(&rsz);
+    freeSingleGroup(&raw);
     
     PrSwitch("pctecorr", COMPLETE);
     if(wf3.printtime)
@@ -950,7 +954,7 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
 /*** THIS ROUTINE PERFORMS THE CTE CORRECTIONS 
      rsz is the readnoise smoothed image
      rsc is the output image
-     rac = raw + (rsc-rsz) / gain 
+     rac = raw + ((rsc-rsz) / gain )
      
 ***/
 int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
@@ -1131,7 +1135,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     for (i=0; i<RAZ_COLS; i++){
         for (j=0; j< RAZ_ROWS; j++){
             memcpy(&Pix(rz.sci.data,i,j), &Pix(rsz->sci.data,i,j),sizeof(float));
-            Pix(pixz_fff.sci.data,i,j) = cte_ff * (float)(j+1)/2048.; /*j+1 so not zero*/
+            Pix(pixz_fff.sci.data,i,j) = cte_ff * Pix(fff->sci.data,i,j);
         }          
     }
     
