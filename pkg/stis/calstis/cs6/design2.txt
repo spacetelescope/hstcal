@@ -1,0 +1,335 @@
+
+                    calstis6 design
+                    ---------------
+
+
+Author:
+------
+I. Busko
+
+
+
+Revision history:
+----------------
+01/27/97 - Includes 1-D extraction and background subtraction only
+
+
+
+
+1 - Introduction:
+    ------------
+
+This design is largely based on calstis7, since both programs handle 
+similar tasks and data. The main difference is that calstis6 generates 
+extracted 1-D spectra as arrays in 3-D tables, while calstis7 generates 
+spectra as 2-D images. The main difference in internal algorithms is 
+that calstis7 can freely interpolate in the input pixel array, while 
+calstis6 is forbidden to interpolate alongside the dispersion axis.
+
+The idea is to use the code being developed for calstis7 as a guide for 
+calstis6, using common modules and include files whenever possible, to 
+ensure both commonality of low-level algorithms and data formats, as
+well as to ease maintenance. In particular, calstis6 will make use of the 
+"general-purpose" library functions in stis/cal/lib whenever appropriate.
+
+The science requirements are described in STIS ISR 97-036.
+
+
+
+2 - Data structures:
+    ---------------
+
+Data structures in calstis6 will be patterned in a very similar way as in
+calstis7. The main difference is that there is no distortion table in
+calstis6, but there is the extraction table with extraction parameters.
+This will use the same linked-list approach used in calstis7.
+
+/* XtractInfo stores extraction parameters, read from the _1dx table. */
+
+typedef struct xtract *XtractPtr;
+
+typedef struct xtract {
+	int sporder;		/* order number */
+	float extrsize;		/* size of spectrum extraction box */
+	float bk1size;		/* size of background extraction box # 1 */
+	float bk2size;		/* size of background extraction box # 2 */
+	float bk1offset;	/* offset of back. box 1 from spect. box */
+	float bk2offset;	/* offset of back. box 2 from spect. box */
+	float bktilt;		/* angle of back. boxes with axis 2 */
+	short backord;		/* order of polynomial to fit background */
+	char xtracalg[STIS_CBUF]/* extraction algorithm */
+	short maxsearch;	/* maximum search range for crosscorr */
+	XtractPtr next;		/* pointer to next struct in list */
+} XtractInfo;
+
+There will be two additional data structures which will store the 
+extracted spectrum and related information corresponding to a single row 
+in the output table, as well as column descriptors for the output table:
+
+/* This stores the table descriptors for the output table, including
+   the main table pointer and pointers to each column descriptor.
+*/
+
+typedef struct {
+	IRAFPointer tp;			/* pointer to table descriptor */
+	int nrows;			/* number of rows in table */
+	int array_size;			/* number of elements in array */
+	IRAFPointer sporder;
+	IRAFPointer npts;
+	IRAFPointer wave;
+	IRAFPointer gross;
+	IRAFPointer back;
+	IRAFPointer net;
+	IRAFPointer flux;
+	IRAFPointer error;
+	IRAFPointer dq;
+} TblDesc;
+
+/* This stores the output row contents that go into each row of the
+   output table, that is, the actual product of calstis6. 
+*/
+
+typedef struct {
+	short	sporder;
+	short	npts;
+	double	*wave;
+	float	*gross;
+	float	*back;
+	float	*net;
+	float	*flux;
+	float	*error;
+	short	*dq;
+} RowContents;
+
+
+
+3 - Pseudo-code:
+    -----------
+
+The code will conform to the calstis module structure, in which a main
+module can be linked into the CalStis6 function to make it a standalone 
+program. In the following, most modules that are not described are either
+trivial, or are going to be patterned in a very similar way as the module 
+with same name in calstis7. In general they will end up as slightly 
+simpler versions of modules in calstis7, since the pixel mapping and 
+interpolation requirements in calstis6 are not the same as in calstis7. 
+In particular, calstis6 will make use of similar routines as the "new..." 
+routines in calstis7 to manage tabular data from the reference tables.
+
+* - denotes preliminary code is in place.
+% - denotes that the function is only partially coded.
+
+
+CalStis6:
+--------
+* Print startup message.
+* Initialize structure (StisInit6).
+* Store command-line parameters.
+* Open and get input primary header (openOutputImage, getHeader, 
+  closeImage).
+* Read keyword values (GetKeyInfo6).
+* Check existence of output file.
+* Read calibration flags and reference file names (GetFlags6).
+* Create output primary header (openOutputImage, closeImage).
+* Add HISTORY to output primary header (History).
+* Print info.
+* Do the extraction (Do1Dx).
+
+
+GetKeyInfo6:
+-----------
+* Read OBSTYPE. If not SPECTROSCOPIC, abort.
+* Read ROOTNAME.
+* Read DETECTOR and check against expected values (NUV-MAMA, FUV-MAMA, 
+  CCD).
+* If CCD, read CCDAMP and CCDGAIN.
+* If MAMA, read dither from MOFFSET1, MOFFSET2.
+* Read OPT_ELEM, APERTURE, CENWAVE keyword values.
+* Read target coordinates from RA_TARG, DEC_TARG.
+* Convert NEXTEND to number of SingleGroups.
+
+
+GetFlags6:
+----------
+* Read reference file names: SPTRCTAB, XTRCTAB.
+* Get BACKCORR switch. 
+* Get DISPCORR switch. IF PERFORM:
+   * Read reference file names: DISPTAB, INANGTAB, APDESTAB, ESPTAB
+   * IF MAMA:
+      * Read name of offset correction table MOFFTAB, 
+   * ENDIF
+* ENDIF
+* Get FLUXCORR switch. IF PERFORM:
+   * Read reference file names: APERTAB, PHOTTAB
+* ENDIF
+* Get HELCORR switch.
+* IF MAMA:
+   * Get SGEOCORR switch. IF PERFORM:
+      * Read reference file name: SDSTFILE
+   * ENDIF
+* ENDIF
+
+
+Do1Dx:
+-----
+* Set flags to indicate that memory has not been allocated yet.
+* Print names of reference files and calibration steps to be performed.
+* If FLUXCORR, get aperture throughput info (GetApThr).
+* If DISPCORR, get aperture description (GetApDes6, subset of GetApDes7).
+* If SGEOCORR, read small-scale distortion data (OpenSGeo).
+* Get extraction parameters for all orders (GetXtract, similar to GetSDC).
+* LOOP over extver in input file.
+   * Initilaize input hstio data structure (initSingleGroup).
+   * Initilaize output data structures (InitTblDesc, InitRowContents).
+   * Alloc memory for output arrays (AllocOutArrays).
+   * Create current output table extension (CreaTable).
+   * Read current input image (getSingleGroup).
+   * Get keyword values from extension header (GetGrpInfo).
+   - IF HELIOCORR:
+      - Compute heliocentric correction factor (HelioFactor).
+   - ENDIF
+   * LOOP over spectral order in input image (and output row number).
+      * Get the ExtracInfo record for this order (ReturnExtrac, as in
+        ReturnCoord).
+      * Get spectrum trace info for this order (GetTrace). This uses
+        the linked-list approach (as in calstis7) just to ensure that 
+        there are no duplicate A2CENTER values for a given spectral 
+        order (there will be no interpolation in trace position). 
+      * Compute total offset in Y direction (AddOffsets).
+      * Refine Y position by cross correlation (CrossCorr).
+      * Extract spectrum and subtract background (X1DSpec).
+      * IF DISPCORR: 
+         * Get dispersion coefficients (GetDisp). This uses the 
+           linked-list approach (as in calstis7) to allow interpolation
+           of coefficients in the A2CENTER variable.
+         * Get incidence-angle correction coefficients (GetInang).
+         - IF echelle:
+            - Get echelle tilt (GetTilt).
+         - ENDIF
+         -  IF MAMA: 
+            - Get dither correction from MOFFTAB (GetInang).
+         - ENDIF
+         * Assign wavelengths (Compwave).
+         % Free memory (FreeDisp, FreeTilt, FreeInang).
+      * ENDIF
+      * IF FLUXCORR:
+         * Get photometric conversion info (GetAbsPhot).
+         - Flux-calibrate (AbsFlux).
+         - Free memory (FreePhot).
+      * ENDIF
+      - If HELCORR: 
+         - Apply heliocentric correction (HelioCorr).
+      - ENDIF
+      * Write results into output table's current row (WriteRow).
+      * Print log message.
+      * Free memory (FreeTrace)
+   * ENDLOOP
+   * Close current output table extension (c_tbtclo).
+   * Free output arrays (FreeOutArrays)
+   * Free current input image (freeSingleGroup).
+* ENDLOOP
+* Free memory (FreeThroughput, FreeXtract, freeFloatHdrData).
+* Update nextend in primary header.
+
+
+CreaTable:
+---------
+* Open table (c_tbtopn).
+* Define columns (c_tbcdef1 for the 9 output columns).
+* Create table (c_tbtcre).
+
+
+CrossCorr:
+---------
+* Create and clear arrays for crosscor function. 
+* LOOP over the crosscor range in 1 pixel steps.
+   * Zero sum and weight.
+   * LOOP over actual image pixels in 1 pixel steps in the A1 axis.
+      * Compute position of output pixel on input data array.
+      - Add A2 offset due to small-scale geometric distortion.
+      * Extract one pixel by interpolation in A2 axis (interp7).
+      * Update sum and weight, taking care of flagged pixels. No need
+        tp propagate errors here. Use plain or weighted sum ?
+   * ENDLOOP
+* ENDLOOP
+* Use inverse parabolic interpolation to get the maximum.
+* IF successful fit, update A2CENTER.
+* Write CRSCROFF into table (science) header.
+
+
+X1DSpec:
+-------
+* LOOP over actual image pixels in 1 pixel steps in the A1 axis.
+   * Compute A2 center of extraction box.
+   * Compute endpoints of extraction box.
+   * IF BACKCORR:
+      * Compute background coefficients (CalcBackground).
+   * ENDIF
+   * Zero sum and weight.
+   * Extract fractional pixel content at bottom of extraction box (apply
+     small-scale geom. correction in the Y direction only). 
+   * IF BACKCORR:
+      * Compute and subtract background (SubBackground).
+   * ENDIF
+   * Update sum and weight. Take care of flagged pixels and propagate 
+     the errors.
+   * Extract fractional pixel content at top of extraction box (apply
+     small-scale geom. correction in the Y direction only). 
+   * IF BACKCORR:
+      * Compute and subtract background (SubBackground).
+   * ENDIF
+   * Update sum and weight. Take care of flagged pixels and propagate 
+     the errors.
+   * Reset pixel pointers at bottom and top of extraction box to the
+     first and last integer pixel indices (full pixels).
+   * LOOP from bottom to top pixel pointers in 1 pixel steps.
+      * Get whole pixel.
+      * IF BACKCORR:
+         * Subtract background (SubBackground).
+      * ENDIF
+      * Add to sum and weight, taking care of flagged pixels and 
+        propagating the errors.
+   * ENDLOOP
+   * Compute weighted sum = sum / weight.
+   * Compute error.
+   * Compute data quality flag (how ?).
+   * Store result into output spectrum arrays (gross, net, back, error, dq).
+* ENDLOOP
+
+
+CalcBackground:
+----------------
+This version will *not* use the background tilt angle to rotate the
+pixels themselves. The angle will be used only to position each box
+pixel on top of the image pixels. This is a reasonable approach since
+the maximum angle seen in the reference extraction tables is ~2 degrees,
+which translates to a maximum error in area overlap of ~1.5 percent.
+If needed in the future, more accurate sampling could be done using
+the boxer code. 
+
+* Zero sum and weight.
+* Compute end points of first background box.
+* Extract background info (X1DBack).
+* Compute end points of second background box.
+* Extract background info (X1DBack).
+* Compute background fit coefficients (either a constant or a 
+  constant plus slope).
+
+
+X1DBack
+-------
+* Compute background box end points.
+* LOOP over pixels in background extraction box.
+   - Apply offsets due to small-scale geometric distortion.
+   * Extract one pixel by interpolation (interp7).
+   * Update sums. Take care of flagged pixels and propagate
+     the errors.
+* ENDLOOP
+
+
+SubBack:
+-------
+* Compute pixel position in the spectrum extraction box.
+* Compute background level at that position, and its error.
+* Subtract from gross spectrum.
+* Add gross and background errors in quadrature.
