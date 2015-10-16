@@ -1,3 +1,7 @@
+16-Oct-2015 - MLS -- Version 3.3
+    - machine dependent bug, some images were getting nan values on linux machines
+    - I also removed the temporary image saves we were using for the CTE routines
+
 29-Sep-2015 - MLS -- Version 3.3
     - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with.      
 

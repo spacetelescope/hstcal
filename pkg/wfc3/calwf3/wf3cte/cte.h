@@ -75,7 +75,7 @@ int raw2raz(WF3Info *, SingleGroup *, SingleGroup *, SingleGroup *);
 int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, double , int );
 int findPostScanBias(SingleGroup *, float *, float *);
 int findPreScanBias(SingleGroup *, float *, float *);
-int find_dadj(int ,int , float [][RAZ_ROWS], float [][RAZ_ROWS], double , float *);
+int find_dadj(int ,int , double [][RAZ_ROWS], double [][RAZ_ROWS], double , double *);
 int rsz2rsc(WF3Info *, SingleGroup *, SingleGroup *, CTEParams * );
 int inverse_cte_blur(SingleGroup *, SingleGroup *, SingleGroup *, CTEParams *, int, double);
 int sim_colreadout_l(float *, float *, float *, CTEParams *);

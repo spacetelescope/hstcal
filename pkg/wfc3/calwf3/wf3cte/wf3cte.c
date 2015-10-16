@@ -92,7 +92,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
 
     /*CONTAIN PARALLEL PROCESSING TO A SINGLE THREAD AS USER OPTION*/
 #   ifdef _OPENMP
-    trlmessage("\nUsing parallel processing provided by OpenMP inside CTE routine\n");
+    trlmessage("\nCTE: Using parallel processing provided by OpenMP inside CTE routine\n");
     if (onecpu){
         omp_set_dynamic(0);
         max_threads=1;
@@ -104,14 +104,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     }
     omp_set_num_threads(max_threads);
     trlmessage(MsgText);
-#   endif
-
-    /*JUST FOR VERIFICIATION IMAGES*/
-    Hdr junkhdr;
-    initHdr(&junkhdr);
-    IODescPtr out=0;
-    char tmpout[SZ_LINE+1]; 
-   
+#   endif   
 
     /* COPY COMMAND-LINE ARGUMENTS INTO WF3. */ 
     WF3Init (&wf3);
@@ -140,15 +133,15 @@ CTE correction in ACS which occurs later in the process after basic structures a
     PrFileName ("output", wf3.output);
 
     if (wf3.biascorr == COMPLETE){
-        trlmessage("BIASCORR complete for input image, CTE can't be performed");
+        trlmessage("CTE: BIASCORR complete for input image, CTE can't be performed");
         return(ERROR_RETURN);
     }
     if (wf3.darkcorr == COMPLETE){
-        trlmessage("DARKCORR complete for input image, CTE can't be performed");
+        trlmessage("CTE: DARKCORR complete for input image, CTE can't be performed");
         return(ERROR_RETURN);
     }
     if (wf3.blevcorr == COMPLETE){
-        trlmessage("BLEVCORR complete for input image, CTE can't be performed");
+        trlmessage("CTE: BLEVCORR complete for input image, CTE can't be performed");
         return(ERROR_RETURN);
     }
 
@@ -189,7 +182,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
         return (status=KEYWORD_MISSING);
 
     if (subarray) {
-        sprintf(MsgText,"\n**SUBARRAY FOUND!; SUBARRAY images are not yet supported for CTE**\n");
+        sprintf(MsgText,"\nCTE: **SUBARRAY FOUND!; SUBARRAY images are not yet supported for CTE**\n");
         trlmessage(MsgText);
         status=ERROR_RETURN;
         return(status);
@@ -204,7 +197,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
         return (status=KEYWORD_MISSING);
 
     if (subarray) {
-        sprintf(MsgText,"SUBARRAY FOUND; **SUBARRAY images are not yet supported for CTE**\n");
+        sprintf(MsgText,"CTE: SUBARRAY FOUND; **SUBARRAY images are not yet supported for CTE**\n");
         trlmessage(MsgText);
         status=ERROR_RETURN;
         return(status);
@@ -270,97 +263,35 @@ CTE correction in ACS which occurs later in the process after basic structures a
         freeSingleGroup(&cd);
         return(status);
     }
-
-    /*SAVE THE OUTPUT BIAS SUBTRACTED IMAGE FOR TEST VERIFICATION*/
-    if (verbose) {
-        strcpy(tmpout,wf3.rootname);
-        strcat(tmpout,"_bsub_cd.fits");
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&cd.sci.data);
-        closeImage(out);
-        sprintf(MsgText,"Bias subtracted image for amps cd written to %s\n",tmpout);
-        trlmessage(MsgText);
-    }
     
     if (doCteBias(&wf3,&ab)){
         freeSingleGroup(&ab);
         return(status);
-    }
-
-    /*SAVE THE OUTPUT BIAS SUBTRACTED IMAGE FOR TEST VERIFICATION*/
-    if (verbose) {
-        strcpy(tmpout,wf3.rootname);
-        strcat(tmpout,"_bsub_ab.fits");
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&ab.sci.data);
-        closeImage(out);
-        sprintf(MsgText,"Bias subtracted image for amps ab written to %s\n",tmpout);
-        trlmessage(MsgText);
-    }
-      
+    }      
 
     /*CONVERT TO RAZ FORMAT AND CORRECT FOR GAIN*/
     if (raw2raz(&wf3, &cd, &ab, &raz))
         return (status);
 
-    /*SAVE CORRECTED RAZ AS TEMPORARY FILE FOR USER TO EXAMINE */
-    if (verbose) {
-        strcpy(tmpout,wf3.rootname);
-        strcat(tmpout,"_raz_gaincorr.fits");
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&raz.sci.data);
-        closeImage(out);
-        sprintf(MsgText,"RAZ format gain (%f) corrected image to check: %s\n",wf3.ccdgain,tmpout);
-        trlmessage(MsgText);
-    }    
-
     /***CALCULATE THE SMOOTH READNOISE IMAGE***/
-    trlmessage("CTE: Calculating smooth readnoise image\n");
+    trlmessage("CTE: Calculating smooth readnoise image");
     
     /***CREATE THE NOISE MITIGATION MODEL ***/
     if (cte_pars.noise_mit == 0) {
         if (raz2rsz(&wf3, &raz, &rsz, cte_pars.rn_amp, max_threads))
             return (status);
-
-        if (verbose) {
-            strcpy(tmpout,wf3.rootname);
-            strcat(tmpout,"_rsz.fits");
-            out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-            putHeader(out);
-            putFloatData(out,&rsz.sci.data);
-            closeImage(out);
-            sprintf(MsgText,"RSZ (input for rsz2rsc) format image to check: %s\n",tmpout);
-            trlmessage(MsgText);
-        }
     } else {
-        trlmessage("Only noise model 0 implemented!");
+        trlmessage("CTE: Only noise model 0 implemented!");
         return (status=ERROR_RETURN);
     }
 
 
     /***CONVERT THE READNOISE SMNOOTHED IMAGE TO RSC IMAGE
         THIS IS WHERE THE CTE GETS CALCULATED         ***/
-    if (verbose)
-        trlmessage("CTE: Converting RSZ to RSC\n");
 
     if (rsz2rsc(&wf3, &rsz, &rsc, &cte_pars))
         return (status);
-    
-    
-    if (verbose) {
-        strcpy(tmpout,wf3.rootname);
-        strcat(tmpout,"_rsc.fits");
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&rsc.sci.data);
-        closeImage(out);
-        sprintf(MsgText,"CTE: Saved RSC (cte corrected) image to check: %s\n",tmpout);
-        trlmessage(MsgText);
-    }
-    
+        
 
     /*** SAVE USEFULL HEADER INFORMATION ***/
     if (cteHistory (&wf3, cd.globalhdr))
@@ -374,35 +305,13 @@ CTE correction in ACS which occurs later in the process after basic structures a
             Pix(rzc.sci.data,i,j) =  Pix(raw.sci.data,i,j) + Pix(chg.sci.data,i,j);
         }
     }
-    
-    /*WRITE OUT THE CHG  and RZC IMAGES FOR CHECKING*/
-    if (verbose){
-        strcpy(tmpout,wf3.rootname);
-        strcat(tmpout,"_chg.fits");
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&chg.sci.data);
-        closeImage(out);
-        sprintf(MsgText,"CTE: Saved CHANGE image (IN DNs): %s\n",tmpout);
-        trlmessage(MsgText);
-     
-        /*WRITE OUT THE RZC IMAGE FOR CHECKING*/
-        strcpy(tmpout,wf3.rootname);
-        strcat(tmpout,"_rzc.fits");
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&rzc.sci.data);
-        closeImage(out);
-        sprintf(MsgText,"CTE: Saved RZC image to check: %s\n",tmpout);
-        trlmessage(MsgText);
-    }
-        
+            
     /*BACK TO NORMAL FORMATTING*/
     undosciRAZ(&cd,&ab,&rzc);
     
     /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
     PutKeyFlt (cd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-    trlmessage("PCTEFRAC saved to header");
+    trlmessage("CTE: PCTEFRAC saved to header");
     
     /*SAVE THE NEW RAW FILE WITH UPDATED SCIENCE ARRAYS AND PRIMARY HEADER TO RAC*/
     sprintf(MsgText,"Writing cd[sci,%i] to %s",cd.group_num,output);
@@ -492,31 +401,10 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
         bsig_pre[i]=0.;
     }
     
-    
-    if (wf3->verbose)
-        trlmessage("CTE: Converting RAW to RAZ format\n");
-
     gain=wf3->ccdgain;
     
     /*REFORMAT TO RAZ*/
     makesciRAZ(cd,ab,raz);
-
-    /*SAVE A COPY OF THE RAZ FILE TO DISK FOR VALIDATING*/
-    if (wf3->verbose){
-        IODescPtr out;
-        char razout[SZ_LINE+1];
-        Hdr junkhdr;
-        initHdr (&junkhdr);
-        strcpy(razout,wf3->rootname);
-        strcat(razout,"_raz_nogain.fits");
-        out = openOutputImage(razout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&raz->sci.data);
-        closeImage(out);
-        sprintf(MsgText,"RAZ format conversion image to check: %s\n",razout);
-        trlmessage(MsgText);
-        freeHdr(&junkhdr);
-    }
     
     findPostScanBias(raz, bias_post, bsig_post);
 
@@ -670,25 +558,21 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
 */
 
     extern int status;
-    char tmpout[SZ_LINE+1];
     float comparison=999.9;
-    
-    if (wf3->verbose)
-        trlmessage("Starting RAZ -> RSZ\n");
-    
+        
     int i, j, NIT; /*loop variables*/
     int imid;
-    float dptr=0.;
+    double dptr=0.;
     double  rms=0.0;
-    float  rmsu=0.0;
+    double  rmsu=0.0;
     double nrms;
     double nrmsu;
     float hardset=0.0000000;
     double dblzero=0.00000000;
 
     /*1D ARRAYS FOR CENTRAL AND NEIGHBORING RAZ_COLS*/
-    float obs_loc[3][RAZ_ROWS] ; 
-    float rsz_loc[3][RAZ_ROWS] ;
+    double obs_loc[3][RAZ_ROWS] ; 
+    double rsz_loc[3][RAZ_ROWS] ;
         
     nrms=dblzero;
     nrmsu=dblzero;
@@ -697,8 +581,8 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
     /*ALL ELEMENTS TO ZERO*/
     for(i=0;i<3;i++){
         for (j=0; j<RAZ_ROWS; j++){
-            obs_loc[i][j]=hardset;
-            rsz_loc[i][j]=hardset;
+            obs_loc[i][j]=dblzero;
+            rsz_loc[i][j]=dblzero;
         }
     }
         
@@ -756,17 +640,17 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
 
             /*COPY THE MIDDLE AND NEIGHBORING PIXELS FOR ANALYSIS*/    
             for(j=0; j<RAZ_ROWS; j++){
-                memcpy(&obs_loc[0][j],&Pix(raz->sci.data,imid-1,j),sizeof(float));
-                memcpy(&obs_loc[1][j],&Pix(raz->sci.data,imid,j),sizeof(float));
-                memcpy(&obs_loc[2][j],&Pix(raz->sci.data,imid+1,j),sizeof(float));
+                obs_loc[0][j] = (double) Pix(raz->sci.data,imid-1,j);
+                obs_loc[1][j] = (double) Pix(raz->sci.data,imid,j);
+                obs_loc[2][j] = (double) Pix(raz->sci.data,imid+1,j);
 
-                memcpy(&rsz_loc[0][j],&Pix(rsz->sci.data,imid-1,j),sizeof(float));
-                memcpy(&rsz_loc[1][j],&Pix(rsz->sci.data,imid,j),sizeof(float));
-                memcpy(&rsz_loc[2][j],&Pix(rsz->sci.data,imid+1,j),sizeof(float));
+                rsz_loc[0][j] = (double) Pix(rsz->sci.data,imid-1,j);
+                rsz_loc[1][j] = (double) Pix(rsz->sci.data,imid,j);
+                rsz_loc[2][j] = (double) Pix(rsz->sci.data,imid+1,j);
             }
             for (j=0; j<RAZ_ROWS; j++){  
                 find_dadj(1+i-imid,j, obs_loc, rsz_loc, rnsig, &dptr);
-                memcpy(&Pix(zadj.sci.data,i,j),&dptr,sizeof(float));
+                    Pix(zadj.sci.data,i,j)= (float) dptr;
                     if (j==1999 && i==19){
                         sprintf(MsgText,"%2i\t%8.4f\t%4i\t%8.4f\t%8.4f\t%8.4f",NIT,rms,i+1,
                             fminf(Pix(raz->sci.data,i,j),comparison),
@@ -794,16 +678,16 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
         shared(raz,rsz,rms,rnsig,nrms)
        for(j=0; j<RAZ_ROWS; j++){
             nrmsu=dblzero;
-            rmsu=hardset;
+            rmsu=dblzero;
             for(i = 0;i<RAZ_COLS; i++){
                 if ( (fabs(Pix(raz->sci.data,i,j)) > 0.1) || 
                      (fabs(Pix(rsz->sci.data,i,j)) > 0.1) ){
-                    rmsu  +=  Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j);
+                    rmsu  +=  (double) (Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j));
                     nrmsu += 1.;
                 }
             }
             #pragma omp critical (rms)
-            {rms  += (double) rmsu;
+            {rms  +=  rmsu;
             nrms += nrmsu;}
         }
         
@@ -812,23 +696,6 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
         if ( (rnsig-rms) < 0.) break; /*this exits the NIT for loop*/
      } /*end NIT*/
 
-
-    /*write the rnz image for validation*/
-    if (wf3->verbose){
-        IODescPtr out;
-        Hdr junkhdr;
-        initHdr(&junkhdr);
-        strcpy(tmpout,wf3->rootname);
-        strcat(tmpout,"_rnz.fits");
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-        putHeader(out);
-        putFloatData(out,&rnz.sci.data);
-        closeImage(out);
-        sprintf(MsgText,"Wrote RNZ (readnoise) file for verification  %s",tmpout);
-        trlmessage(MsgText);
-        freeHdr(&junkhdr);
-    }            
-
     freeSingleGroup(&zadj);
     freeSingleGroup(&rnz);
  
@@ -836,7 +703,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
     return (status);
 }
 
-int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], double rnsig, float *d){
+int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS], double rnsig, double *d){
 /*
    This function determines for a given pixel how it can
    adjust in a way that is not inconsistent with its being
@@ -873,8 +740,8 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
     dmod2u=0.;
     w2=0.;
     
-    mval = (double)rszloc[i][j];
-    dval0  = (double)obsloc[i][j] - mval;
+    mval = rszloc[i][j];
+    dval0  = obsloc[i][j] - mval;
     dval0u = dval0;
 
     if (dval0u >1.0)
@@ -898,7 +765,7 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
                 obsloc[i+1][j+1]- rszloc[i+1][j+1];
     }
 
-    dval9 =(double)dval9 / 9.;
+    dval9 =dval9 / 9.;
     dval9u = dval9;
 
     if (dval9u > (rnsig*0.33)) 
@@ -918,7 +785,7 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
 
     dmod2 = 0.;
     if (j < RAZ_ROWS-1) 
-        dmod2 =  (double)rszloc[i][j+1] - mval;
+        dmod2 = rszloc[i][j+1] - mval;
 
     dmod2u = dmod2;
     if (dmod2u > rnsig*0.33) 
@@ -942,7 +809,7 @@ int find_dadj(int i ,int j, float obsloc[][RAZ_ROWS], float rszloc[][RAZ_ROWS], 
     that neighbor has less of an ability to
     pull it)*/   
     
-    *d = (float)((dval0u * w0 * 0.25) + /* desire to keep the original pixel value */
+    *d = ((dval0u * w0 * 0.25) + /* desire to keep the original pixel value */
     (dval9u*w9*0.25) + /* desire to keep the original sum over 3x3*/
     (dmod1u*w1*0.25) + /*desire to get closer to the pixel below*/
     (dmod2u*w2*0.25)) ; /*desire to get closer to the pixel above*/
@@ -967,7 +834,6 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     float ro=0;
     int io=0;
     float ff_by_col[RAZ_COLS][4];
-    char tmpout[SZ_LINE+1]; /*to write validation images*/
     float hardset=0.;
     
     /*These are already in the parameter structure
@@ -978,11 +844,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     float   rprof_wt[TRAPS][100]; the emission probability as fn of downhill pixel, TRAPS=999
     float   cprof_wt[TRAPS][100]; the cumulative probability cprof_t( 1)  = 1. - rprof_t(1)
     */
-    
-    if (wf3->verbose){
-        trlmessage("Starting RSZ to RSC ...");
-    }
-    
+        
     SingleGroup pixz_fff;
     initSingleGroup(&pixz_fff);
     allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS);
@@ -1036,22 +898,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
             cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (ro-(float)io);
             Pix(pixz_fff.sci.data,i,j) = cte_i*cte_j;
         }
-    }
-
-    /*write the fff image for validation*/
-    IODescPtr out;
-    Hdr junkhdr;
-    initHdr(&junkhdr);
-    strcpy(tmpout,wf3->rootname);
-    strcat(tmpout,"_pixz_fff.fits");
-    out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE);
-    putHeader(out);
-    putFloatData(out,&pixz_fff.sci.data);
-    closeImage(out);
-    sprintf(MsgText,"Wrote FFF file for verification (CTE scalings)  %s",tmpout);
-    trlmessage(MsgText);
-    freeHdr (&junkhdr);
-    
+    }   
 
     /*THIS IS RAZ2RAC_PAR IN JAYS CODE - MAIN CORRECTION LOOP IN HERE*/    
     inverse_cte_blur(rsz, rsc, &pixz_fff, cte, wf3->verbose,wf3->expstart);
@@ -1138,12 +985,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             Pix(pixz_fff.sci.data,i,j) = cte_ff * Pix(fff->sci.data,i,j);
         }          
     }
-    
-    if (verbose){
-        sprintf(MsgText,"cte->thresh=%5.3g, cte->fix_rocr=%i, n_for=%i, n_par=%i",cte->thresh,cte->fix_rocr,cte->n_forward,cte->n_par);
-        trlmessage(MsgText);
-    }
-    
+        
     trlmessage("Col\n[2000]  orig\tcorr\tdiff");
 
     /*DEFINE TO MAKE PRIVATE IN PARALLEL RUN*/
