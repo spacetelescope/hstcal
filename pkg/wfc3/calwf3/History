@@ -1,3 +1,17 @@
+### 16-Oct-2015 MLS -- Version 3.3
+   - machine dependent bug, some images were getting nan values on linux machines
+    - I also removed the temporary image saves we were using for the CTE routines
+
+### 29-Sep-2015 MLS -- Version 3.3
+    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with. 
+
+    - I also changed the way the code uses the SCLBYCOL reference file (as called in Jays fortran). The way the fortran code is structured, the reference file information never actually gets used in the calculation. This doesn't make a numerical difference at the moment because the reference file values are all ones, ie. there is no additional scaling done on the CTE pixel other than by using the CTE scaling fraction and the column location. However, if the science team ever delivers a new reference file which has these values updated, they wont actually get used by the code unless this change is implemented.
+
+   - Reformatted some code for readability, and fixed SEGFAULT error in reference file checking when iref environment variable not set by user, so can't find file (also when can't find file in general). I made RefExist exit clean the first time it found a missing file, HSTIO was barfing any other way.
+
+### 24-Sep-2015 MLS -- Version 3.3
+    - fix for machine dependent precision bug 
+
 ### 03-Sep-2015 MLS -- Version 3.3
     - One more precision change needed for the nans in the readnoise section
 

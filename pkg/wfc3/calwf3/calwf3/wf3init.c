@@ -48,7 +48,8 @@ RefFileInfo *sciref o: reference file name and info
 	missing = 0;			/* initial value */
     
 	RefExist (sciref, wf3->detector, &missing);	/* for science file */
-	if (missing > 0) {
+    
+	if (missing) {
         sprintf (MsgText, "%d reference file(s) missing.", missing);
         trlerror (MsgText);
     	return (status = CAL_FILE_MISSING);

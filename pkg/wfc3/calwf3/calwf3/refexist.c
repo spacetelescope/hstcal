@@ -43,6 +43,12 @@ int DoesFileExist (char *);
    H.Bushouse, 2006 June 20:
     Revised to track CALACS changes: In addition to checking for reference
     file name keyword values of "N/A" also check for "" (null).
+    
+  M. Sosey, 2015 Sept 29:
+    Reformatted for readability, and fixed SEGFAULT error in reference file
+    checking when iref environment variable not set by user, so can't find
+    file (also when can't find file in general). I made RefExist exit clean 
+    the first time it found a missing file, HSTIO was barfing any other way.
 
 */
 
@@ -60,31 +66,33 @@ int *missing       o: a count of missing (or blank) reference files
 	int streq_ic (char *, char *);	/* strings equal? (case insensitive) */
 
 	current = ref->next;		/* skip dummy first record */
-	while (current != NULL) {
+    while (current != NULL) {
+        exist = EXISTS_NO;
+        /* Handle missing filenames, rather than searching for
+        ** the file 'N/A' */
+        if (streq_ic (current->filename, "N/A") ||
+            streq_ic (current->filename, "") ) {
+            exist = EXISTS_NO;
+        } else {
+            /* Check if file exists. */
+            exist = DoesFileExist (current->filename);
+        }
 
-	       /* Handle missing filenames, rather than searching for
-	       ** the file 'N/A' */
-	       if (streq_ic (current->filename, "N/A") ||
-		   streq_ic (current->filename, "") ) {
-		   exist = EXISTS_NO;
-	       } else {
-		   /* Check if file exists. */
-		   exist = DoesFileExist (current->filename);
-	       }
-
-	       if (exist != EXISTS_YES) {
-           	   /* If this is a "special" keyword, treat it individually;
-		       ** otherwise, log it as missing. */
-		       if (!SpecialCheck (current->keyword, current->filename,
-		           detector, &flat_not_specified, missing)) {
-		           MissingFile (current->keyword, current->filename,
-				        missing);
-		       } 
-	       }
-
-	       current = current->next;
-	}
-
+        if (exist == EXISTS_NO) {
+            /* If this is a "special" keyword, treat it individually;
+            ** otherwise, log it as missing. */
+            if (!SpecialCheck (current->keyword, current->filename,
+                detector, &flat_not_specified, missing)) {
+                MissingFile (current->keyword, current->filename, missing);
+	       } 
+        }
+        if (*missing) {
+            exit(CAL_FILE_MISSING);
+        } else {
+            current = current->next;
+        }
+    }
+    
 	/* All three flats not specified?  That's not OK. */
 	if (flat_not_specified == 3) {
 	    (*missing)++;
@@ -110,21 +118,26 @@ int DoesFileExist (char *filename) {
 	int flag;
 	IODescPtr im;		/* descriptor for reference image */
 	IRAFPointer tp;		/* for checking if file exists */
-
-	/* First try to open it as an image */
-	im = openInputImage (filename, "", 0);
-	if (hstio_err()) {
+    flag = EXISTS_NO;
+	
+    /* First try to open it as an image */
+    if (filename != NULL){
+    	im = openInputImage (filename, "", 0);
+	} else {
+        return(flag);
+    }
+    
+    if (hstio_err()) {
 
 	    /* Now try to open it as a table */
 	    clear_cvoserr();
 	    clear_hstioerr();
 	    tp = c_tbtopn (filename, IRAF_READ_ONLY, 0);
 	    if (c_iraferr()) {
-		flag = EXISTS_NO;
-		clear_cvoserr();
+		    clear_cvoserr();
 	    } else {
-		flag = EXISTS_YES;
-		c_tbtclo (tp);
+		    flag = EXISTS_YES;
+		    c_tbtclo (tp);
 	    }
 
 	} else {

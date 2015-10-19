@@ -39,7 +39,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	int update;
     
 
-	sprintf(MsgText,"CTE: Subtracting BIACFILE: %s for group %d \n",wf3->biac.name, x->group_num);
+	sprintf(MsgText,"CTE: Subtracting BIACFILE: %s for group %d",wf3->biac.name, x->group_num);
 	trlmessage(MsgText);
 
 	initSingleGroupLine (&y);

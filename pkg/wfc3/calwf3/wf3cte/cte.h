@@ -8,7 +8,7 @@ typedef struct {
     double cte_date0; /*date of uvis install on hst in mjd*/
     double cte_date1; /*date of cte model pinning mjd*/
     int cte_len; /*max length of cte trail */
-    float   rn_amp; /*read noise amplitude for clipping */
+    double   rn_amp; /*read noise amplitude for clipping */
     int n_forward; /* number of forward modeling iterations */
     int n_par; /*numver of iterations in parallel transfer */
     float scale_frac; /*scaling of cte model relative to ctedate1*/
@@ -72,10 +72,10 @@ int doCteBias (WF3Info *, SingleGroup *);
 int GetCTEFlags (WF3Info *, Hdr *);
 int a2d_raz(WF3Info *);
 int raw2raz(WF3Info *, SingleGroup *, SingleGroup *, SingleGroup *);
-int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, float , int );
+int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, double , int );
 int findPostScanBias(SingleGroup *, float *, float *);
 int findPreScanBias(SingleGroup *, float *, float *);
-int find_dadj(int ,int , float [][RAZ_ROWS], float [][RAZ_ROWS], float , float *);
+int find_dadj(int ,int , double [][RAZ_ROWS], double [][RAZ_ROWS], double , double *);
 int rsz2rsc(WF3Info *, SingleGroup *, SingleGroup *, CTEParams * );
 int inverse_cte_blur(SingleGroup *, SingleGroup *, SingleGroup *, CTEParams *, int, double);
 int sim_colreadout_l(float *, float *, float *, CTEParams *);
