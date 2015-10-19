@@ -177,13 +177,13 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* GET READ NOISE CLIPPING LEVEL */
-	if (GetKeyFlt(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
+	if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
 		cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"PCTERNOI: %g",pars->rn_amp);
+	sprintf(MsgText,"PCTERNOI: %f",pars->rn_amp);
 	trlmessage(MsgText);
 
 	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
@@ -445,7 +445,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/****************************************************************************/
 	/*  extension 3: differential trail profile as image */
-	ctemessage("Reading in image from extension 3\n");
+	ctemessage("Reading in image from extension 3");
 
 	/* Get the coefficient images from the PCTETAB */
 	pars->rprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
@@ -462,7 +462,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/****************************************************************************/
 	/* ext number 4 : cummulative trail profile as image */
-	ctemessage("Reading in image from extension 4\n");
+	ctemessage("Reading in image from extension 4");
 
 	pars->cprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->cprof == NULL){
@@ -504,7 +504,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 
 	extern int status;
 
-	float rn_amp;
+	double rn_amp;
     int cte_len;
     int n_forward;
     int n_par;
@@ -525,55 +525,47 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
    
 	if (PutKeyDbl(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of UVIS installation")) {
 		trlmessage("(pctecorr) Error putting CTEDATE0 keyword in header");
-		status = HEADER_PROBLEM;
-		return status;
+        return (status=HEADER_PROBLEM);
 	}
 
 	if (PutKeyDbl(group->globalhdr, "PCTETRSH", pars->thresh,"cte oversubtraction threshold")) {
 		trlmessage("(pctecorr) Error putting PCTETRSH keyword in header");
-		status = HEADER_PROBLEM;
-		return status;
+        return (status=HEADER_PROBLEM);
 	}
 
 
 	if (PutKeyDbl(group->globalhdr, "CTEDATE1", pars->cte_date1, "Date of CTE model pinning")) {
 		trlmessage("(pctecorr) Error putting CTEDATE1 keyword in header");
-		status = HEADER_PROBLEM;
-		return status;
+        return (status=HEADER_PROBLEM);
 	}
     
     /*check the PCTEDIM keyword in header*/
 	if (GetKeyInt(group->globalhdr, "PCTETLEN", NO_DEFAULT, -999, &cte_len)) {
 		trlmessage("(pctecorr) Error reading PCTETLEN keyword from header");
-		status = HEADER_PROBLEM;
-		return status;
+        return (status=HEADER_PROBLEM);
 	}
-    
 
     if ( (cte_len != pars->cte_len) && (cte_len > 1) ){
         pars->cte_len=cte_len;
     } else {
         if (PutKeyInt(group->globalhdr,"PCTETLEN",pars->cte_len,"max length of CTE trail")){
             trlmessage("(pctecorr) Error updating PCTETLEN in header");
-            status=HEADER_PROBLEM;
-            return status;
+        return (status=HEADER_PROBLEM);
         }
     }
     
     /*check the PCTERNOI keyword in header*/
-	if (GetKeyFlt(group->globalhdr, "PCTERNOI", NO_DEFAULT, -999, &rn_amp)) {
+	if (GetKeyDbl(group->globalhdr, "PCTERNOI", NO_DEFAULT, -999, &rn_amp)) {
 		trlmessage("(pctecorr) Error reading PCTERNOI keyword from header");
-		status = HEADER_PROBLEM;
-		return status;
+        return (status=HEADER_PROBLEM);
 	}
         
     if ( (rn_amp >1.) && (rn_amp != pars->rn_amp)){
         pars->rn_amp=rn_amp;
     } else {
-        if(PutKeyFlt(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")){
+        if(PutKeyDbl(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")){
             trlmessage("(pctecorr) Error updating PCTERNOI in header");
-            status= HEADER_PROBLEM;
-            return status;
+        return (status=HEADER_PROBLEM);
         }
     }
     
@@ -581,8 +573,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 	/* get number of iterations used in forward model */
 	if (GetKeyInt(group->globalhdr, "PCTENFOR", NO_DEFAULT, -999, &n_forward)) {
 		trlmessage("(pctecorr) Error reading PCTENFOR keyword from header");
-		status = HEADER_PROBLEM;
-		return status;
+        return (status=HEADER_PROBLEM);
 	}
     
     if (n_forward > 1 && n_forward != pars->n_forward){
@@ -590,8 +581,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     } else {
         if (PutKeyInt(group->globalhdr, "PCTENFOR",pars->n_forward,"Number of iter in forward model")){
             trlmessage("(pctecorr) Error updating PCTENFOR in header");
-            status=HEADER_PROBLEM;
-            return status;
+            return (status=HEADER_PROBLEM);
         }
     }
     
@@ -599,8 +589,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 	/* get number of iterations used in parallel transfer*/
 	if (GetKeyInt(group->globalhdr, "PCTENPAR", NO_DEFAULT, -999, &n_par)) {
 		trlmessage("(pctecorr) Error reading PCTENPAR keyword from header");
-		status = KEYWORD_MISSING;
-		return status;
+        return (status=HEADER_PROBLEM);
 	}
     
     
@@ -609,8 +598,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     } else {
         if (PutKeyInt(group->globalhdr, "PCTENPAR",pars->n_par,"Number of iter in parallel transfer")){
             trlmessage("(pctecorr) Error updating PCTENPAR in header");
-            status=HEADER_PROBLEM;
-            return status;
+            return (status=HEADER_PROBLEM);
         }
     }
                        
@@ -618,20 +606,16 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     /*fix the readout Cr's? */
     if (GetKeyInt(group->globalhdr, "FIXROCR", NO_DEFAULT, -999, &fix_rocr)){
         trlmessage("(pctecorr) Error reading FIXROCR keyword from header");
-        status = KEYWORD_MISSING;
-        return status;
+        return(status = KEYWORD_MISSING);
     }
     if (0> fix_rocr && fix_rocr <=  1 && fix_rocr != pars->fix_rocr){
         pars->fix_rocr = fix_rocr;
     } else {
         if (PutKeyInt(group->globalhdr,"FIXROCR",pars->fix_rocr,"fix readout cosmic rays")){
             trlmessage("(pctecorr) Error updating FIXROCR keyword in header");
-            status = KEYWORD_MISSING;
-            return status;
+            return (status = KEYWORD_MISSING);
         }
     }
-            
-
 	return status;
 }
 

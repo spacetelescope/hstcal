@@ -201,9 +201,12 @@ int main (int argc, char **argv) {
         if (GetSwitch (&phdr, "BLEVCORR", &cte_sw.blevcorr)) {
             WhichError (status);
         }
+        if (GetSwitch (&phdr, "DARKCORR", &cte_sw.darkcorr)){
+            WhichError (status);
+        }
 
         /*SIMPLE CHECK*/
-        if (cte_sw.biascorr == COMPLETE || cte_sw.blevcorr == COMPLETE){
+        if (cte_sw.biascorr == COMPLETE || cte_sw.blevcorr == COMPLETE || cte_sw.darkcorr == COMPLETE){
             sprintf(MsgText,"An uncalibrated, RAW file must be used as input to CTE corr, skipping %s", input);
             trlmessage(MsgText);
             exit(ERROR_RETURN);
