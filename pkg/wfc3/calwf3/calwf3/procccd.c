@@ -251,10 +251,10 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                      */
                     
+                    
                     if ( WF3cte(wf3hdr->rawfile, wf3hdr->rac_tmp, &sci_sw, &sciref, printtime, asn->verbose, onecpu) )
                         return (status);                
-
-
+                     
                     if (wf3hdr->sci_basic_ccd == PERFORM) {
 
                         /* THIS IS CALWF3CCD; NOTE WE USE WF3CCD_SCI_SW. */
@@ -400,6 +400,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (*save_tmp == NO){
                         if (wf3hdr->sci_basic_cte == PERFORM) {
                             remove (wf3hdr->blc_tmp);
+                            remove (wf3hdr->rac_tmp);
                         }
                         remove (wf3hdr->blv_tmp);
                     }                

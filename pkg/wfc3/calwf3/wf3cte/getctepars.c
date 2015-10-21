@@ -510,7 +510,6 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     int n_par;
     int fix_rocr;
 
-    trlmessage("COMPARING CTE PARAMS FROM TABLE WITH HEADER");
     
     /*always put the cte_name  and cte_ver from the reference file in*/
     if (PutKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")){

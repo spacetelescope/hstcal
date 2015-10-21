@@ -1,3 +1,7 @@
+### 21-Oct-2015 MLS -- Version 3.3
+    - Editing text for the screen and trailer files
+    - Formally removed the rac file before the routine ends since archive isn't expecting it
+
 ### 16-Oct-2015 MLS -- Version 3.3
    - machine dependent bug, some images were getting nan values on linux machines
     - I also removed the temporary image saves we were using for the CTE routines
