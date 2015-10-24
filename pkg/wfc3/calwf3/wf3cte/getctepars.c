@@ -215,7 +215,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage(MsgText);
 
 	/* GET OVER SUBTRACTION THRESHOLD */
-	if (GetKeyFlt(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
+	if (GetKeyDbl(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
 		cteerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
@@ -299,7 +299,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		}
                 
 		/* GET QLEVQ FROM THIS ROW */
-		c_tbegtr(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
+		c_tbegtd(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qlevq);
 			cteerror(MsgText);
@@ -311,7 +311,7 @@ No.    Name         Type      Cards   Dimensions   Format
             ctraps+=1;
         
 		/* GET DPDEW FROM THIS ROW */
-		c_tbegtr(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
+		c_tbegtd(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dpdew);
 			cteerror(MsgText);
@@ -406,26 +406,26 @@ No.    Name         Type      Cards   Dimensions   Format
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
-		c_tbegtr(tbl_ptr, sens512_ptr, j+1, &pars->scale512[j]);
+		c_tbegtd(tbl_ptr, sens512_ptr, j+1, &pars->scale512[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens512);
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
 
-		c_tbegtr(tbl_ptr, sens1024_ptr, j+1, &pars->scale1024[j]);
+		c_tbegtd(tbl_ptr, sens1024_ptr, j+1, &pars->scale1024[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1024);
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
-		c_tbegtr(tbl_ptr, sens1536_ptr, j+1, &pars->scale1536[j]);
+		c_tbegtd(tbl_ptr, sens1536_ptr, j+1, &pars->scale1536[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1536);
 			cteerror(MsgText);
 			return (status = TABLE_ERROR);
 		}
-		c_tbegtr(tbl_ptr, sens2048_ptr, j+1, &pars->scale2048[j]);
+		c_tbegtd(tbl_ptr, sens2048_ptr, j+1, &pars->scale2048[j]);
 		if (c_iraferr()) {
 			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens2048);
 			cteerror(MsgText);

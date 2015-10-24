@@ -1,3 +1,8 @@
+24-Oct-2015 - MLS -- Version 3.3
+    - The nightly build is specifying a higher level of optimization through to the compiler than the debug mode that I have been using for my testing. Building calwf3 with the lower optimization produced no errors or warnings and ran through cleanly, but the high optimization brought on a segfault inside the CTE code in the first openmp section. This was only happening on the Linux cluster, the MAC builds showed no issue. I went back 2 versions of the wf3cte.c code and redid the changes by hand step by step. The problem area seemed to be a set of arrays which would rather be doubles than floats. I also changed the remaining floats to doubles, where I could, and removed more of the memcpy statements, making them regular array assignments. These things seem to have cleared the issues, and hopefully preventing new ones for now.
+    - I also removed a superfluous openmp print statement from maincte.c and cleaned up some more informational print statements.
+    - I added a time measurement, with verbose on the code prints how long the CTE section took to run, with the specification of number of threads/cpus.
+    
 21-Oct-2015 - MLS -- Version 3.3
     - Editing text for the screen and trailer files
     - Formally removed the rac file before the routine ends since archive isn't expecting it
