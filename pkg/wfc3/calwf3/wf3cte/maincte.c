@@ -63,7 +63,6 @@ int main (int argc, char **argv) {
     char *output;		/* name of output file */
     int n_in, n_out;	/* number of files in each list */
     int n;
-    int max_threads; /*for parallel processing*/
     
 	/* Initialize status to OK and MsgText to null */
 	status     = WF3_OK;

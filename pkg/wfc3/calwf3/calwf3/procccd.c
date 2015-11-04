@@ -95,9 +95,11 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     int  InsertWF3Suffix (WF3Info *);
     int  updateAsnTable (AsnInfo *, int, int);
 
-
-    posid=0;	/* initial value; */	
-
+    /* initial value; */
+    posid=0;		
+    wf3rej_input='\0';
+    wf3rej_cte_input='\0';
+    
     /* Reset RPTCORR setting from ASN table to use CRCORR for UVIS */
     if (asn->rptcorr == PERFORM) {
         asn->crcorr = PERFORM;

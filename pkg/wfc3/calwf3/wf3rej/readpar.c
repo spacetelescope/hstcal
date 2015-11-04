@@ -59,7 +59,11 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 /* -------------------------------- begin ---------------------------------- */
 
     crsplit_in = nimgs;
-
+    maxcrsplit=0;
+    row=0;
+    mindiff=0.0f;
+    diff=0.0f;
+    
     exp_in = exptot / (float) crsplit_in;
     par->meanexp = exp_in;
 

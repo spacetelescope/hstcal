@@ -23,16 +23,16 @@ void initCTEParams(CTEParams *pars){
 
     pars->cte_name[0]='\0';
     pars->cte_ver[0]='\0';
-    pars->cte_date0=0.;
-    pars->cte_date1=0.;
-    pars->cte_traps=0.;
+    pars->cte_date0=0.0f;
+    pars->cte_date1=0.0f;
+    pars->cte_traps=0.0f;
     pars->cte_len=0;
-    pars->rn_amp=0.; 
+    pars->rn_amp=0.0f; 
     pars->n_forward=0; 
     pars->n_par=0;
-    pars->scale_frac=0.; /*will be updated during routine run*/
+    pars->scale_frac=0.0f; /*will be updated during routine run*/
     pars->noise_mit=0; 
-    pars->thresh=0.;
+    pars->thresh=0.0f;
     pars->descrip2[0]='\0';
 
     /*static scheduling is faster when there are no dependent loop variables
@@ -41,16 +41,16 @@ void initCTEParams(CTEParams *pars){
     */
     for (i=0; i<TRAPS;i++){
         pars->wcol_data[i]=0;  
-        pars->qlevq_data[i]=0.;
-        pars->dpdew_data[i]=0.;
+        pars->qlevq_data[i]=0.0f;
+        pars->dpdew_data[i]=0.0f;
     }
 
     for (i=0;i<RAZ_ROWS; i++){
         pars->iz_data[i]=0;
-        pars->scale512[i]=0.;
-        pars->scale1024[i]=0.;
-        pars->scale1536[i]=0.;
-        pars->scale2048[i]=0.;
+        pars->scale512[i]=0.0f;
+        pars->scale1024[i]=0.0f;
+        pars->scale1536[i]=0.0f;
+        pars->scale2048[i]=0.0f;
     }
     pars->rprof = NULL; /*differential trail profile as image*/
     pars->cprof = NULL; /*cummulative trail profile as image*/

@@ -214,6 +214,8 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][SZ_FNAME+1],
 
     /********************************** Begin Code ****************************/
     /* Initialization */
+    ipshad=NULL;
+    shadf_x=0;
     crflag = par->crval;
     dqpat = par->badinpdq;
     scale = par->scalense/100.;

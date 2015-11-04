@@ -1,5 +1,7 @@
 /* Data quality flags for CALWF3. */
-/* 2009-01-28 	H.Bushouse	New WFC3 DQ assignments (PR 61741). */
+/* 2009-01-28 	H.Bushouse	New WFC3 DQ assignments (PR 61741). 
+   2015  M. Sosey               Sink pixels added to the mask, see #1093
+*/
 
 # define GOODPIXEL         0    /* OK */
 # define SOFTERR           1    /* Reed-Solomon decoding error */

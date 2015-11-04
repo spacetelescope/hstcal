@@ -74,6 +74,9 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
     int  updateAsnTable (AsnInfo *, int, int);
     void PrSwitch (char *, int);
 
+    wf3rej_input='\0';
+    wf3rej_msgtext='\0';
+    
     /* Loop over the products/positions for each
      ** Repeat-Obs or Repeat-Obs/DITHER set.
      ** PRODID/prod starts at 0, while numprod starts at 1... */

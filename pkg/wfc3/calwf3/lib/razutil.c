@@ -39,16 +39,16 @@ int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
     if (group == 1){
         for (i=0; i<subcol; i++){
             for (j=0;j<RAZ_ROWS; j++){
-                memcpy( &PPix(raz,i,j), &PPix(x,i,j), sizeof(float));
-                memcpy( &PPix(raz,i+subcol,j), &PPix(x,subcol*2-i-1,j),sizeof(float));
+                PPix(raz,i,j) = PPix(x,i,j);
+                PPix(raz,i+subcol,j) = PPix(x,subcol*2-i-1,j);
             }
         }
     } else {
         if (group == 2){
             for (i=0; i<subcol; i++){
                 for (j=0;j<RAZ_ROWS; j++){
-                    memcpy( &PPix(raz,i,j), &PPix(x,i,RAZ_ROWS-j-1),sizeof( float));
-                    memcpy( &PPix(raz,i+subcol,j), &PPix(x,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(float));
+                    PPix(raz,i,j) = PPix(x,i,RAZ_ROWS-j-1);
+                    PPix(raz,i+subcol,j) =PPix(x,subcol*2-i-1,RAZ_ROWS-j-1);
                 }
             }
         } else {
@@ -69,10 +69,10 @@ int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
 
         for (i=0; i<subcol; i++){
             for (j=0; j<RAZ_ROWS; j++){
-                memcpy( &Pix(raz->sci.data,i,j), &Pix(cd->sci.data,i,j), sizeof(float));
-                memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(cd->sci.data,subcol*2-i-1,j),sizeof(float));
-                memcpy( &Pix(raz->sci.data,i+2*subcol,j), &Pix(ab->sci.data,i,RAZ_ROWS-j-1),sizeof(float));
-                memcpy( &Pix(raz->sci.data,i+3*subcol,j), &Pix(ab->sci.data,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(float));
+                Pix(raz->sci.data,i,j)=Pix(cd->sci.data,i,j);
+                Pix(raz->sci.data,i+subcol,j)=Pix(cd->sci.data,subcol*2-i-1,j);
+                Pix(raz->sci.data,i+2*subcol,j)=Pix(ab->sci.data,i,RAZ_ROWS-j-1);
+                Pix(raz->sci.data,i+3*subcol,j)=Pix(ab->sci.data,subcol*2-i-1,RAZ_ROWS-j-1);
             }
         }
         
@@ -91,10 +91,10 @@ int undosciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
     /*REVERSE THE AMPS TO THE RAW FORMAT*/
     for (i=0; i< subcol; i++){
         for (j=0; j<RAZ_ROWS; j++){
-             memcpy( &Pix(cd->sci.data,i,j), &Pix(raz->sci.data,i,j), sizeof(float));
-             memcpy( &Pix(cd->sci.data,subcol*2-i-1,j), &Pix(raz->sci.data,i+subcol,j),sizeof(float));
-             memcpy( &Pix(ab->sci.data,i,RAZ_ROWS-j-1), &Pix(raz->sci.data,i+2*subcol,j),sizeof(float));
-             memcpy( &Pix(ab->sci.data,subcol*2-i-1,RAZ_ROWS-j-1), &Pix(raz->sci.data,i+3*subcol,j), sizeof(float));
+             Pix(cd->sci.data,i,j) = Pix(raz->sci.data,i,j);
+             Pix(cd->sci.data,subcol*2-i-1,j) = Pix(raz->sci.data,i+subcol,j);
+             Pix(ab->sci.data,i,RAZ_ROWS-j-1) = Pix(raz->sci.data,i+2*subcol,j);
+             Pix(ab->sci.data,subcol*2-i-1,RAZ_ROWS-j-1) = Pix(raz->sci.data,i+3*subcol,j);
         }
     }
     return (status);
@@ -115,8 +115,8 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
     if (x->group_num == 1){
         for (i=0; i<subcol; i++){
             for (j=0;j<RAZ_ROWS; j++){
-                memcpy( &Pix(raz->dq.data,i,j), &Pix(x->dq.data,i,j), sizeof(short));
-                memcpy( &Pix(raz->dq.data,i+subcol,j), &Pix(x->dq.data,subcol*2-i-1,j),sizeof(short));
+                Pix(raz->dq.data,i,j) = Pix(x->dq.data,i,j);
+                Pix(raz->dq.data,i+subcol,j) = Pix(x->dq.data,subcol*2-i-1,j);
             }
         }
     
@@ -124,8 +124,8 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
         if (x->group_num == 2){
             for (i=0; i<subcol; i++){
                 for (j=0;j<RAZ_ROWS; j++){
-                    memcpy( &Pix(raz->dq.data,i,j), &Pix(x->dq.data,i,RAZ_ROWS-j-1),sizeof(short));
-                    memcpy( &Pix(raz->dq.data,i+subcol,j), &Pix(x->dq.data,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(short));
+                    Pix(raz->dq.data,i,j) = Pix(x->dq.data,i,RAZ_ROWS-j-1);
+                    Pix(raz->dq.data,i+subcol,j) = Pix(x->dq.data,subcol*2-i-1,RAZ_ROWS-j-1);
                 }
             }
         
@@ -150,16 +150,16 @@ int undodqRAZ(SingleGroup *x, SingleGroup *raz){
     if (x->group_num == 1){
         for (i=0; i< subcol; i++){
             for (j=0; j<RAZ_ROWS; j++){
-                 memcpy( &Pix(x->dq.data,i,j), &Pix(raz->dq.data,i,j), sizeof(short));
-                 memcpy( &Pix(x->dq.data,2*subcol-i-1,j), &Pix(raz->dq.data,i+subcol,j),sizeof(short));
+                 Pix(x->dq.data,i,j) = Pix(raz->dq.data,i,j);
+                 Pix(x->dq.data,2*subcol-i-1,j) = Pix(raz->dq.data,i+subcol,j);
             }
         }
     } else {
         if (x->group_num == 2){
             for (i=0; i< subcol; i++){
                 for (j=0; j<RAZ_ROWS; j++){
-                     memcpy( &Pix(x->dq.data,i,RAZ_ROWS-j-1), &Pix(raz->dq.data,i,j), sizeof(short));
-                     memcpy( &Pix(x->dq.data,subcol*2-i-1,RAZ_ROWS-j-1), &Pix(raz->dq.data,i+subcol,j),sizeof(short));
+                     Pix(x->dq.data,i,RAZ_ROWS-j-1) = Pix(raz->dq.data,i,j);
+                     Pix(x->dq.data,subcol*2-i-1,RAZ_ROWS-j-1) = Pix(raz->dq.data,i+subcol,j);
                 }
             }
         } else {
@@ -183,8 +183,8 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
     if (x->group_num == 1){
         for (i=0; i<subcol; i++){
             for (j=0;j<RAZ_ROWS; j++){
-                memcpy( &Pix(raz->sci.data,i,j), &Pix(x->sci.data,i,j), sizeof(float));
-                memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(x->sci.data,subcol*2-i-1,j),sizeof(float));
+                Pix(raz->sci.data,i,j) = Pix(x->sci.data,i,j);
+                Pix(raz->sci.data,i+subcol,j) = Pix(x->sci.data,subcol*2-i-1,j);
             }
         }
     
@@ -192,8 +192,8 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
         if (x->group_num == 2){
             for (i=0; i<subcol; i++){
                 for (j=0;j<RAZ_ROWS; j++){
-                    memcpy( &Pix(raz->sci.data,i,j), &Pix(x->sci.data,i,RAZ_ROWS-j-1),sizeof(float));
-                    memcpy( &Pix(raz->sci.data,i+subcol,j), &Pix(x->sci.data,subcol*2-i-1,RAZ_ROWS-j-1), sizeof(float));
+                    Pix(raz->sci.data,i,j) = Pix(x->sci.data,i,RAZ_ROWS-j-1);
+                    Pix(raz->sci.data,i+subcol,j) = Pix(x->sci.data,subcol*2-i-1,RAZ_ROWS-j-1);
                 }
             }
         

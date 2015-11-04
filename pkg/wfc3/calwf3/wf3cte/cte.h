@@ -3,27 +3,27 @@
    
 /* structure to hold CTE parameters from the reference files */
 typedef struct {
-    char cte_name[SZ_LINE]; /*name of cte algorithm */
-    char cte_ver[SZ_LINE]; /*version of algorithm */
-    double cte_date0; /*date of uvis install on hst in mjd*/
-    double cte_date1; /*date of cte model pinning mjd*/
-    int cte_len; /*max length of cte trail */
-    double   rn_amp; /*read noise amplitude for clipping */
-    int n_forward; /* number of forward modeling iterations */
-    int n_par; /*number of iterations in parallel transfer */
-    double scale_frac; /*scaling of cte model relative to ctedate1*/
-    int noise_mit; /*read noise mitigation algorithm*/
-    double thresh; /*over subtraction threshold*/        
-    int cte_traps; /*number of valid TRAPS in file for reallocation*/
-    int wcol_data[TRAPS]; /*trap number, insync with number of traps*/
-    double qlevq_data[TRAPS];/*charge packet size in electrons*/
-    double dpdew_data[TRAPS];/*trap size in electrons*/  
-    int   iz_data[RAZ_COLS]; /*column number in raz format*/
     double scale512[RAZ_COLS]; /*scaling appropriate at row 512 */
     double scale1024[RAZ_COLS];/*scaling appropriate at row 1024 */
     double scale1536[RAZ_COLS];/*scaling appropriate at row 1536 */
     double scale2048[RAZ_COLS];/*scaling appropriate at row 2048 */
-    char descrip2[SZ_LINE]; /*descrip from table row, not read in for cte purposes*/
+    double qlevq_data[TRAPS];/*charge packet size in electrons*/
+    double dpdew_data[TRAPS];/*trap size in electrons*/  
+    double cte_date0; /*date of uvis install on hst in mjd*/
+    double cte_date1; /*date of cte model pinning mjd*/
+    double   rn_amp; /*read noise amplitude for clipping */
+    double scale_frac; /*scaling of cte model relative to ctedate1*/
+    double thresh; /*over subtraction threshold*/        
+    char descrip2[SZ_LINE+SZ_LINE]; /*descrip from table row, not read in for cte purposes*/
+    char cte_name[SZ_LINE+SZ_LINE]; /*name of cte algorithm */
+    char cte_ver[SZ_LINE+SZ_LINE]; /*version of algorithm */
+    int cte_len; /*max length of cte trail */
+    int n_forward; /* number of forward modeling iterations */
+    int n_par; /*number of iterations in parallel transfer */
+    int noise_mit; /*read noise mitigation algorithm*/
+    int cte_traps; /*number of valid TRAPS in file for reallocation*/
+    int wcol_data[TRAPS]; /*trap number, insync with number of traps*/
+    int   iz_data[RAZ_COLS]; /*column number in raz format*/
     int fix_rocr; /*make allowance for readout cosmic rays*/
     FloatHdrData *rprof; /*differential trail profile as image*/
     FloatHdrData *cprof; /*cummulative trail profile as image*/
