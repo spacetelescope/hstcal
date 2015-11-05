@@ -88,11 +88,10 @@ CTE correction in ACS which occurs later in the process after basic structures a
     int max_threads=1;
     clock_t begin;
     double  time_spent;
-    double hardset=0.0f;
+    float hardset=0.0;
 
     begin = (double)clock();
-    printf("clock: %.2f\n",begin);
-    
+        
     Bool subarray; /* to verify that no subarray is being used, it's not implemented yet*/
 
     /*CONTAIN PARALLEL PROCESSING TO A SINGLE THREAD AS USER OPTION*/
@@ -281,10 +280,10 @@ CTE correction in ACS which occurs later in the process after basic structures a
     if (raw2raz(&wf3, &cd, &ab, &raz))
         return (status);
 
-
     /***CALCULATE THE SMOOTH READNOISE IMAGE***/
     trlmessage("CTE: Calculating smooth readnoise image");
     
+ 
     /***CREATE THE NOISE MITIGATION MODEL ***/
     if (cte_pars.noise_mit == 0) {
         if (raz2rsz(&wf3, &raz, &rsz, cte_pars.rn_amp, max_threads))
@@ -293,6 +292,24 @@ CTE correction in ACS which occurs later in the process after basic structures a
         trlmessage("Only noise model 0 implemented!");
         return (status=ERROR_RETURN);
     }
+
+
+    if (verbose) { 
+        Hdr junkhdr; 
+        initHdr(&junkhdr); 
+        IODescPtr out=0; 
+        char tmpout[SZ_LINE+1];          
+        strcpy(tmpout,wf3.rootname); 
+        strcat(tmpout,"_rsz.fits"); 
+        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE); 
+        putHeader(out); 
+        putFloatData(out,&rsz.sci.data); 
+        closeImage(out); 
+        sprintf(MsgText,"rsz image written to %s\n",tmpout); 
+        trlmessage(MsgText); 
+    } 
+
+
 
     /***CONVERT THE READNOISE SMNOOTHED IMAGE TO RSC IMAGE
         THIS IS WHERE THE CTE GETS CALCULATED         ***/
@@ -449,11 +466,11 @@ int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
     
     int i,j,k;              /*Looping variables */
     float plist[55377];  /*bias bpixels to measure*/
-    float min=0.0f;
-    float max=0.0f;
-    float rmean=0.0f;
-    float rsigma=0.0f;
-    float sigreg =7.5f; /*sigma clip*/
+    float min=0.0;
+    float max=0.0;
+    float rmean=0.0;
+    float rsigma=0.0;
+    float sigreg =7.5; /*sigma clip*/
     
 
     int subcol = RAZ_COLS/4;
@@ -498,11 +515,11 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
     
     int i,j,k;              /*Looping variables */
     float plist[55377];    /*bias pixels to measure*/
-    float min=0.0f;
-    float max=0.0f;
+    float min=0.0;
+    float max=0.0;
     float rmean;
     float rsigma;
-    float sigreg =7.5f; /*sigma clip*/
+    float sigreg =7.5; /*sigma clip*/
     
     int subcol = RAZ_COLS/4;
     int npix=0; /*track array size for resistant mean*/
@@ -548,19 +565,19 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
        amplification.  Strategy #2 will be to not iterate when the deblurring
        is less than the readnoise.
 
-
 */
 
     extern int status;
         
     int i, j, NIT; /*loop variables*/
     int imid;
-    double dptr=0.0f;
-    double  rms=0.0f;
-    double  rmsu=0.0f;
-    double nrms=0.0f;
-    double nrmsu=0.0f;
+    double dptr=0.0;
+    double  rms=0.0;
+    double  rmsu=0.0;
+    double nrms=0.0;
+    double nrmsu=0.0;
     float hardset=0.0f;
+    double setdbl=0.0;
 
     /*1D ARRAYS FOR CENTRAL AND NEIGHBORING RAZ_COLS*/
     double obs_loc[3][RAZ_ROWS] ; 
@@ -571,8 +588,8 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
     /*ALL ELEMENTS TO ZERO*/
     for(i=0;i<3;i++){
         for (j=0; j<RAZ_ROWS; j++){
-            obs_loc[i][j]=hardset;
-            rsz_loc[i][j]=hardset;
+            obs_loc[i][j]=setdbl;
+            rsz_loc[i][j]=setdbl;
         }
     }
         
@@ -598,7 +615,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
     
 
     /*THE RSZ IMAGE JUST GETS UPDATED AS THE RAZ IMAGE IN THIS CASE*/
-    if (rnsig < 0.1f){
+    if (rnsig < 0.1){
         trlmessage("rnsig < 0.1, No read-noise mitigation needed");
         return(status); 
     }
@@ -610,14 +627,14 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
       DOWN THE LINE.
     */
              
-    rms=hardset;
+    rms=setdbl;
+    
     for(NIT=1; NIT<=100; NIT++){ 
         #pragma omp parallel for schedule(dynamic) \
            private(i,j,imid,obs_loc,rsz_loc,dptr)\
            shared(raz, rsz, rnsig,rms,nrms, zadj)        
         for(i=0; i<RAZ_COLS; i++){
             imid=i;
-            dptr=0.0f;
 
             /*RESET TO MIDDLE RAZ_COLS AT ENDPOINTS*/
             if (imid < 1)
@@ -627,21 +644,21 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
 
             /*COPY THE MIDDLE AND NEIGHBORING PIXELS FOR ANALYSIS*/    
             for(j=0; j<RAZ_ROWS; j++){
-                obs_loc[0][j] = (double)Pix(raz->sci.data,imid-1,j);
-                obs_loc[1][j] = (double)Pix(raz->sci.data,imid,j);
-                obs_loc[2][j] = (double)Pix(raz->sci.data,imid+1,j);
+                obs_loc[0][j] = Pix(raz->sci.data,imid-1,j);
+                obs_loc[1][j] = Pix(raz->sci.data,imid,j);
+                obs_loc[2][j] = Pix(raz->sci.data,imid+1,j);
 
-                rsz_loc[0][j] = (double)Pix(rsz->sci.data,imid-1,j);
-                rsz_loc[1][j] = (double)Pix(rsz->sci.data,imid,j);
-                rsz_loc[2][j] = (double)Pix(rsz->sci.data,imid+1,j);
+                rsz_loc[0][j] = Pix(rsz->sci.data,imid-1,j);
+                rsz_loc[1][j] = Pix(rsz->sci.data,imid,j);
+                rsz_loc[2][j] = Pix(rsz->sci.data,imid+1,j);
             }
             for (j=0; j<RAZ_ROWS; j++){  
                 find_dadj(1+i-imid,j, obs_loc, rsz_loc, rnsig, &dptr);
-                    Pix(zadj.sci.data,i,j) = (float) dptr;
+                Pix(zadj.sci.data,i,j) = dptr;
             }
         } /*end the parallel for*/
-    
-
+     
+            
         /*NOW GO OVER ALL THE RAZ_COLS AND RAZ_ROWS AGAIN TO SCALE THE PIXELS */
         for(i=0; i<RAZ_COLS;i++){
             for(j=0; j<RAZ_ROWS; j++){
@@ -649,36 +666,34 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
                 Pix(rnz.sci.data,i,j) = (Pix(raz->sci.data,i,j) - Pix(rsz->sci.data,i,j));
             }                
         }
-
-        rms=hardset;
-        nrms=hardset;
+        
+        rms=setdbl;
+        nrms=setdbl;
                
        #pragma omp parallel for schedule(dynamic)\
         private(i,j,rmsu,nrmsu) \
         shared(raz,rsz,rms,rnsig,nrms)
        for(j=0; j<RAZ_ROWS; j++){
-            nrmsu=hardset;
-            rmsu=hardset;
+            nrmsu=setdbl;
+            rmsu=setdbl;
             for(i = 0;i<RAZ_COLS; i++){
                 if ( (fabs(Pix(raz->sci.data,i,j)) > 0.1) || 
                      (fabs(Pix(rsz->sci.data,i,j)) > 0.1) ){
-                    rmsu  +=  ((double)Pix(rnz.sci.data,i,j) * (double)Pix(rnz.sci.data,i,j));
-                    nrmsu += 1.0f;
+                    rmsu  +=  ( Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j) );
+                    nrmsu += 1.0;
                 }
             }
             #pragma omp critical (rms)
-            rms  += rmsu;
-            nrms += nrmsu;
+            {   rms  += rmsu;
+                nrms += nrmsu;
+            }
         }
-        
         rms = sqrt(rms/nrms);
+        
         /*epsilon type comparison*/
-        if ( (rnsig-rms) < 0.) break; /*this exits the NIT for loop*/
+        if ( (rnsig-rms) < 0.00001) break; /*this exits the NIT for loop*/
      } /*end NIT*/
-
-
-    /*write the rnz image for validation*/
-
+    
     freeSingleGroup(&zadj);
     freeSingleGroup(&rnz);
  
@@ -726,10 +741,10 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
     dval0  = obsloc[i][j] - mval;
     dval0u = dval0;
 
-    if (dval0u >1.0f)
-        dval0u =  1.0f;
-    if (dval0u <-1.0f)
-        dval0u = -1.0f;
+    if (dval0u >1.0)
+        dval0u =  1.0;
+    if (dval0u <-1.0)
+        dval0u = -1.0;
 
     dval9 = 0.;
     
@@ -750,30 +765,30 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
     dval9 =dval9 / 9.;
     dval9u = dval9;
 
-    if (dval9u > (rnsig*0.33f)) 
-        dval9u =  rnsig*0.33f;
-    if (dval9u <  rnsig*-0.33f) 
-        dval9u = rnsig*-0.33f;
+    if (dval9u > (rnsig*0.33)) 
+        dval9u =  rnsig*0.33;
+    if (dval9u <  rnsig*-0.33) 
+        dval9u = rnsig*-0.33;
 
     dmod1 = 0.;
     if (j>0) 
         dmod1 = rszloc[i][j-1] - mval;
 
     dmod1u = dmod1;
-    if (dmod1u > rnsig*0.33f)
-        dmod1u =  rnsig*0.33f;
-    if (dmod1u < rnsig*-0.33f) 
-        dmod1u = rnsig*-0.33f;
+    if (dmod1u > rnsig*0.33)
+        dmod1u =  rnsig*0.33;
+    if (dmod1u < rnsig*-0.33) 
+        dmod1u = rnsig*-0.33;
 
     dmod2 = 0.;
     if (j < RAZ_ROWS-1) 
         dmod2 =  rszloc[i][j+1] - mval;
 
     dmod2u = dmod2;
-    if (dmod2u > rnsig*0.33f) 
-        dmod2u =  rnsig*0.33f;
-    if (dmod2u < rnsig*-0.33f) 
-        dmod2u = rnsig*-0.33f;
+    if (dmod2u > rnsig*0.33) 
+        dmod2u =  rnsig*0.33;
+    if (dmod2u < rnsig*-0.33) 
+        dmod2u = rnsig*-0.33;
 
 
     /*
@@ -781,10 +796,10 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
        TEND TO TREAT AS READNOISE; IF IT'S FARTHER OFF
        THAN THAT, THEN DOWNWEIGHT THE INFLUENCE
        */
-    w0 =   (dval0*dval0) / ((dval0*dval0)+ 4.0f*(rnsig*rnsig));
-    w9 =   (dval9*dval9) / ((dval9*dval9)+ 18.0f*(rnsig*rnsig));
-    w1 = (4*rnsig*rnsig) / ((dmod1*dmod1)+4.0f*(rnsig*rnsig));
-    w2 = (4*rnsig*rnsig) / ((dmod2*dmod2)+4.0f*(rnsig*rnsig));
+    w0 =   (dval0*dval0) / ((dval0*dval0)+ 4.0*(rnsig*rnsig));
+    w9 =   (dval9*dval9) / ((dval9*dval9)+ 18.0*(rnsig*rnsig));
+    w1 = (4*rnsig*rnsig) / ((dmod1*dmod1)+4.0*(rnsig*rnsig));
+    w2 = (4*rnsig*rnsig) / ((dmod2*dmod2)+4.0*(rnsig*rnsig));
 
     /*(note that with the last two, if a pixel
     is too discordant with its upper or lower
@@ -811,12 +826,12 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     extern int status;
     
     int i,j;
-    double cte_i=0.0f;
-    double cte_j=0.0f;
+    double cte_i=0.0;
+    double cte_j=0.0;
     double ro=0;
     int io=0;
     double ff_by_col[RAZ_COLS][4];
-    float hardset=0.0f;
+    float hardset=0.0;
     
     /*These are already in the parameter structure
     int     Ws              the number of traps < 999999, taken from pctetab read 
@@ -872,13 +887,13 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     */
     for (i=0; i<RAZ_COLS; i++){
         for (j=0;j<RAZ_ROWS; j++){
-            ro = (double)j/512.0f; /*ro can be zero, it's an index*/
+            ro = j/512.0; /*ro can be zero, it's an index*/
             if (ro <0 ) ro=0.;
-            if (ro > 2.999) ro=2.999f; /*only 4 quads, 0 to 3*/
+            if (ro > 2.999) ro=2.999; /*only 4 quads, 0 to 3*/
             io = (int) floor(ro); /*force truncation towards 0 for pos numbers*/
-            cte_j= (double)(j+1) / 2048.0f; 
-            cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (ro-(double)io);
-            Pix(pixz_fff.sci.data,i,j) = (float) (cte_i*cte_j);
+            cte_j= (j+1) / 2048.0; 
+            cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (ro-io);
+            Pix(pixz_fff.sci.data,i,j) =  (cte_i*cte_j);
         }
     }
     
@@ -921,13 +936,22 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     float hardset=0.0f;
     
     double cte_ff; /*cte scaling based on observation date*/
+    double setdbl=0.0;
+    
+    /*DEFINE TO MAKE PRIVATE IN PARALLEL RUN*/    
+    double *pix_obsd=&setdbl;   
+    double *pix_modl=&setdbl;      
+    double *pix_curr=&setdbl;   
+    double *pix_init=&setdbl;   
+    double *pix_read=&setdbl;   
+    double *pix_ctef=&setdbl;   
     
     /*STARTING DEFAULTS*/
     NITINV=1;
     NITCTE=1;
-    cte_ff=0.0f;
+    cte_ff=0.0;
     jmax=0;
-    dmod=0.0f;
+    dmod=0.0;
     
     /*LOCAL IMAGES TO PLAY WITH, THEY WILL REPLACE THE INPUTS*/
     SingleGroup rz; /*pixz_raz*/
@@ -969,19 +993,10 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     for (i=0; i<RAZ_COLS; i++){
         for (j=0; j< RAZ_ROWS; j++){
             Pix(rz.sci.data,i,j) = Pix(rsz->sci.data,i,j);
-            Pix(pixz_fff.sci.data,i,j) = (float) cte_ff * Pix(fff->sci.data,i,j);
+            Pix(pixz_fff.sci.data,i,j) =  cte_ff * Pix(fff->sci.data,i,j);
         }          
     }
             
-    double setdbl=0.0f;
-    
-    /*DEFINE TO MAKE PRIVATE IN PARALLEL RUN*/    
-    double *pix_obsd=&setdbl;   
-    double *pix_modl=&setdbl;      
-    double *pix_curr=&setdbl;   
-    double *pix_init=&setdbl;   
-    double *pix_read=&setdbl;   
-    double *pix_ctef=&setdbl;   
   
     #pragma omp parallel for schedule (dynamic,1) \
         private(dmod,i,j,jj,jmax,REDO,NREDO, \
@@ -1000,7 +1015,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     
         /*HORIZONTAL PRE/POST SCAN POPULATION */
         for (j=0; j< RAZ_ROWS; j++){
-            pix_obsd[j] =(double) Pix(rz.sci.data,i,j); /*starts as input RAZ*/
+            pix_obsd[j] = Pix(rz.sci.data,i,j); /*starts as input RAZ*/
         }
         
         NREDO=0; /*START OUT NOT NEEDING TO MITIGATE CRS*/
@@ -1008,8 +1023,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         do { /*replacing goto 9999*/
             /*STARTING WITH THE OBSERVED IMAGE AS MODEL, ADOPT THE SCALING FOR THIS COLUMN*/
             for (j=0; j<RAZ_ROWS; j++){
-                pix_modl[j] = (double) Pix(rz.sci.data,i,j);
-                pix_ctef[j] = (double) Pix(pixz_fff.sci.data,i,j);     
+                pix_modl[j] =  Pix(rz.sci.data,i,j);
+                pix_ctef[j] =  Pix(pixz_fff.sci.data,i,j);     
             }
             /*START WITH THE INPUT ARRAY BEING THE LAST OUTPUT
               IF WE'VE CR-RESCALED, THEN IMPLEMENT CTEF*/
@@ -1017,7 +1032,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                 for (j=0; j<RAZ_ROWS; j++){
                     pix_curr[j]=pix_modl[j];
                     pix_read[j]=pix_modl[j];
-                    pix_ctef[j]=(double) Pix(pixz_fff.sci.data,i,j);
+                    pix_ctef[j]=Pix(pixz_fff.sci.data,i,j);
                  }
                                   
                 /*TAKE EACH PIXEL DOWN THE DETECTOR IN NCTENPAR=7*/
@@ -1098,7 +1113,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         
         #pragma omp critical (cte)        
         for (j=0; j< RAZ_ROWS; j++){
-             Pix(rc.sci.data,i,j)=(float) pix_modl[j]; 
+             Pix(rc.sci.data,i,j)= pix_modl[j]; 
         }         
 
     free(pix_obsd);
@@ -1236,7 +1251,7 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
                     padd_3 = 0.0;
                     prem_3 = 0.0;
                     if ( pix_1 >= cte->qlevq_data[w] ){
-                        prem_3 =  cte->dpdew_data[w] / (double)cte->n_par * pixf[j];  /*dpdew is 1 in file */                      
+                        prem_3 =  cte->dpdew_data[w] / cte->n_par * pixf[j];  /*dpdew is 1 in file */                      
                         if (ttrap < cte->cte_len)
                             padd_3 = Pix(cprof->data,w,ttrap-1)*ftrap;
                         ttrap=0;

@@ -97,8 +97,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
     /* initial value; */
     posid=0;		
-    wf3rej_input='\0';
-    wf3rej_cte_input='\0';
     
     /* Reset RPTCORR setting from ASN table to use CRCORR for UVIS */
     if (asn->rptcorr == PERFORM) {
@@ -436,8 +434,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                      ** BE LONG ENOUGH TO HOLD ALL INPUT NAMES WHEN
                      ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
                      ** OTHERWISE. HAB 20-JUN-2004 */
-                    wf3rej_msgtext = calloc(strlen(wf3rej_input)+25,
-                            sizeof(char));
+                    wf3rej_msgtext = (char *) calloc(strlen(wf3rej_input)+25,sizeof(char));
                     sprintf (wf3rej_msgtext, "%s", wf3rej_input);
                     trlmessage (wf3rej_msgtext);
                     free (wf3rej_msgtext);
@@ -492,8 +489,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                          ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
                          ** OTHERWISE. HAB 20-JUN-2004 */
 
-                        wf3rej_msgtext = calloc(strlen(wf3rej_cte_input)+25,
-                                sizeof(char));
+                        wf3rej_msgtext = (char *) calloc(strlen(wf3rej_cte_input)+25,sizeof(char));
                         free(wf3rej_msgtext);
                     }
                     

@@ -184,9 +184,11 @@ def configure(conf):
         if conf.check_cc(cflags='-Wall'):
             conf.env.append_value('CFLAGS','-Wall')
     else:
-        if conf.check_cc(cflags='-O1'):
-            conf.env.append_value('CFLAGS','-O1')
+        if conf.check_cc(cflags='-O2'):
+            conf.env.append_value('CFLAGS','-O2')
+        if conf.check_cc(cflags='-Wall'):
             conf.env.append_value('CFLAGS','-Wall')
+        if conf.check_cc(cflags='-fstack-protector-all'):
             conf.env.append_value('CFLAGS','-fstack-protector-all')
 
 

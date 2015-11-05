@@ -202,7 +202,7 @@ int InitRejTrl (char *input, char *output) {
     int MkNewExtn(char *, char *);
     void WhichError (int);
 
-    if ((trl_in =  calloc(strlen(input)+ 1, sizeof(char)))== NULL){
+    if ((trl_in =  (char *) calloc(strlen(input)+ 1, sizeof(char)))== NULL){
         printf("\nCannot allocate memory for input string\n");
         return (status=OUT_OF_MEMORY);
     }

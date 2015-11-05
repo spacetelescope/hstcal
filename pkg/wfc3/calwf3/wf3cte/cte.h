@@ -14,9 +14,6 @@ typedef struct {
     double   rn_amp; /*read noise amplitude for clipping */
     double scale_frac; /*scaling of cte model relative to ctedate1*/
     double thresh; /*over subtraction threshold*/        
-    char descrip2[SZ_LINE+SZ_LINE]; /*descrip from table row, not read in for cte purposes*/
-    char cte_name[SZ_LINE+SZ_LINE]; /*name of cte algorithm */
-    char cte_ver[SZ_LINE+SZ_LINE]; /*version of algorithm */
     int cte_len; /*max length of cte trail */
     int n_forward; /* number of forward modeling iterations */
     int n_par; /*number of iterations in parallel transfer */
@@ -25,6 +22,9 @@ typedef struct {
     int wcol_data[TRAPS]; /*trap number, insync with number of traps*/
     int   iz_data[RAZ_COLS]; /*column number in raz format*/
     int fix_rocr; /*make allowance for readout cosmic rays*/
+    char descrip2[SZ_LINE+1]; /*descrip from table row, not read in for cte purposes*/
+    char cte_name[SZ_LINE+1]; /*name of cte algorithm */
+    char cte_ver[SZ_LINE+1]; /*version of algorithm */
     FloatHdrData *rprof; /*differential trail profile as image*/
     FloatHdrData *cprof; /*cummulative trail profile as image*/
 } CTEParams;
