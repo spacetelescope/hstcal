@@ -293,24 +293,6 @@ CTE correction in ACS which occurs later in the process after basic structures a
         return (status=ERROR_RETURN);
     }
 
-
-    if (verbose) { 
-        Hdr junkhdr; 
-        initHdr(&junkhdr); 
-        IODescPtr out=0; 
-        char tmpout[SZ_LINE+1];          
-        strcpy(tmpout,wf3.rootname); 
-        strcat(tmpout,"_rsz.fits"); 
-        out = openOutputImage(tmpout,"",0,&junkhdr,0,0,FITSBYTE); 
-        putHeader(out); 
-        putFloatData(out,&rsz.sci.data); 
-        closeImage(out); 
-        sprintf(MsgText,"rsz image written to %s\n",tmpout); 
-        trlmessage(MsgText); 
-    } 
-
-
-
     /***CONVERT THE READNOISE SMNOOTHED IMAGE TO RSC IMAGE
         THIS IS WHERE THE CTE GETS CALCULATED         ***/
     if (rsz2rsc(&wf3, &rsz, &rsc, &cte_pars))

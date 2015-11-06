@@ -35,6 +35,8 @@ char *rootname  i: root name to include in printed string
 	int i;
 	time_t *tp, now;
     
+    uc_rootname=NULL;
+    
 	/* Initialize output string */
 	MsgText[0] = '\0';
 	
