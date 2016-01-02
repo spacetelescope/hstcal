@@ -1,0 +1,17 @@
+# vim: set syntax=python:
+
+LIBRARIES = [
+    'calstis'
+    ]
+
+def build(bld):
+    for library in LIBRARIES:
+        bld.recurse(library)
+
+    bld(name='stis',
+        depends_on=[
+            'cs0.e',
+            'cs1.e',
+            'cs2.e',
+            'cs6.e'],
+        always=True)
