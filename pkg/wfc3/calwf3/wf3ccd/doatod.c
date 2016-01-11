@@ -109,6 +109,9 @@ SingleGroup *x	io: image to be calibrated; written to in-place
 	int SameFlt (float, float);
 	int SameString (char *, char *);
 
+    row_min=0;
+    dt_min=0.0f;
+    
 	if (wf3->atodcorr != PERFORM)
 	    return (status);
 

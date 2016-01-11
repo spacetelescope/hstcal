@@ -7,7 +7,7 @@
 # include "wf3err.h"
 
 /* This routine scales CHIP2 in the UVIS data so that the flux correction over both chips
-   is uniform. It uses the ratio of PHTFLAM1 / PHTFLAM2 and saves that value for reference
+   is uniform. It uses the ratio of PHTFLAM2 / PHTFLAM1 and saves that value for reference
    in the header as PHTRATIO. This will be performed by default in the pipeline and the
    previous PHOTFLAM keyword will be valid for both chips after the correction.
 

@@ -62,6 +62,15 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 
     /* -------------------------------- begin ------------------------------- */
 
+    nbins=0;
+    min=0;
+    max=0;
+    hwidth=0.0f;
+    hmin=0.0f;
+    npt=0;
+    histgrm=NULL;
+    skyarr=NULL;
+
     /* decide what to do according to sky */
     if (strcmp (sky, "none") == 0) {
         for (k = 0; k < nimgs; ++k) {
@@ -167,10 +176,10 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 
 	if (mode) {
 	    /*  set up a new histogram array for each image */
-	    histgrm = calloc (nbins, sizeof(int));
+	    histgrm = (int *) calloc (nbins, sizeof(int));
 	    if (histgrm == NULL){
-		trlerror ("Couldn't allocate memory for sky histogram array");
-		status = OUT_OF_MEMORY;
+		    trlerror ("Couldn't allocate memory for sky histogram array");
+		    status = OUT_OF_MEMORY;
 		return;   
 	    }
 	} else if (rmean) {

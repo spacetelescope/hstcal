@@ -71,7 +71,8 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     ccdamp0[0] = '\0';
     expflag[0]='\0';
     chip = 0;
-
+    detector = UNKNOWN_DETECTOR;
+    
     /* loop over all input files */
     for (k = 0; k < nimgs; ++k) {
 

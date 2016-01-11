@@ -256,6 +256,8 @@ float findMode (float *arr, int npts) {
 	float diff, dmin;
 	float mode;
 
+    ipos=1;
+    
 	/* Check for trivial cases */
 	if (npts == 0)
 	    mode = 0.0;

@@ -116,15 +116,15 @@ static void CatTrlFile (FILE *ip, FILE *op);
 static int  AppendTrlFile();
 
 static struct _TrlBuf {
-    char trlfile[SZ_LINE+1]; /* name of output trailer file */
     int overwrite;          /* overwrite previous comments or append */
     int quiet;              /* Suppress STDOUT output? */
-    FILE *fp;               /* pointer to open trailer file */
-    char *buffer;
-    char *preface;          /* CALWF3 comments common to all inputs */
     int usepref;            /* Switch to specify whether preface is used */
     int init;
-} trlbuf = {0} ;
+    char *buffer;
+    char *preface;          /* CALWF3 comments common to all inputs */
+    char trlfile[SZ_LINE+1]; /* name of output trailer file */
+    FILE *fp;               /* pointer to open trailer file */
+} trlbuf = { 0 } ;
 
 /* 
     This initialization function sets up the trailer file to be used

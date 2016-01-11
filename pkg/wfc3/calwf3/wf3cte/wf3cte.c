@@ -42,8 +42,8 @@ reference file.
 These are taken from the PCTETAB
 CTE_NAME - name of cte algorithm
 CTE_VER - version number of cte algorithm
-CTEDATE0 - date of wfc3/uvis installation in HST, in fractional years
-CTEDATE1 - reference date of CTE model pinning, in fractional years
+CTEDATE0 - date of wfc3/uvis installation in HST, in MJD
+CTEDATE1 - reference date of CTE model pinning, in MJD
 
 PCTETLEN - max length of CTE trail
 PCTERNOI - readnoise amplitude for clipping
@@ -86,13 +86,17 @@ CTE correction in ACS which occurs later in the process after basic structures a
     
     int i,j; /*loop vars*/
     int max_threads=1;
-    float hardset=0.000000;
+    clock_t begin;
+    double  time_spent;
+    float hardset=0.0;
 
+    begin = (double)clock();
+        
     Bool subarray; /* to verify that no subarray is being used, it's not implemented yet*/
 
     /*CONTAIN PARALLEL PROCESSING TO A SINGLE THREAD AS USER OPTION*/
 #   ifdef _OPENMP
-    trlmessage("\nCTE: Using parallel processing provided by OpenMP inside CTE routine\n");
+    trlmessage("Using parallel processing provided by OpenMP inside CTE routine");
     if (onecpu){
         omp_set_dynamic(0);
         max_threads=1;
@@ -100,11 +104,12 @@ CTE correction in ACS which occurs later in the process after basic structures a
     } else {
         omp_set_dynamic(0);
         max_threads = omp_get_num_procs(); /*be nice, use 1 less than avail?*/
-        sprintf(MsgText,"Setting max threads to %i of %i cpus\n",max_threads, omp_get_num_procs()); 
+        sprintf(MsgText,"Setting max threads to %i of %i cpus",max_threads, omp_get_num_procs()); 
     }
     omp_set_num_threads(max_threads);
     trlmessage(MsgText);
-#   endif   
+#   endif
+   
 
     /* COPY COMMAND-LINE ARGUMENTS INTO WF3. */ 
     WF3Init (&wf3);
@@ -133,15 +138,15 @@ CTE correction in ACS which occurs later in the process after basic structures a
     PrFileName ("output", wf3.output);
 
     if (wf3.biascorr == COMPLETE){
-        trlmessage("CTE: BIASCORR complete for input image, CTE can't be performed");
+        trlmessage("BIASCORR complete for input image, CTE can't be performed");
         return(ERROR_RETURN);
     }
     if (wf3.darkcorr == COMPLETE){
-        trlmessage("CTE: DARKCORR complete for input image, CTE can't be performed");
+        trlmessage("DARKCORR complete for input image, CTE can't be performed");
         return(ERROR_RETURN);
     }
     if (wf3.blevcorr == COMPLETE){
-        trlmessage("CTE: BLEVCORR complete for input image, CTE can't be performed");
+        trlmessage("BLEVCORR complete for input image, CTE can't be performed");
         return(ERROR_RETURN);
     }
 
@@ -174,6 +179,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     /* OPEN THE INPUT IMAGES AND GET THE  SCIENCE EXTENSIONS  */
     initSingleGroup (&cd);
     getSingleGroup (wf3.input, 1, &cd);
+    
     if (hstio_err())
         return (status = OPEN_FAILED);
 
@@ -182,7 +188,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
         return (status=KEYWORD_MISSING);
 
     if (subarray) {
-        sprintf(MsgText,"\nCTE: **SUBARRAY FOUND!; SUBARRAY images are not yet supported for CTE**\n");
+        sprintf(MsgText,"**SUBARRAY FOUND!; SUBARRAY images are not yet supported for CTE**");
         trlmessage(MsgText);
         status=ERROR_RETURN;
         return(status);
@@ -197,7 +203,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
         return (status=KEYWORD_MISSING);
 
     if (subarray) {
-        sprintf(MsgText,"CTE: SUBARRAY FOUND; **SUBARRAY images are not yet supported for CTE**\n");
+        sprintf(MsgText,"SUBARRAY FOUND; **SUBARRAY images are not yet supported for CTE**");
         trlmessage(MsgText);
         status=ERROR_RETURN;
         return(status);
@@ -242,17 +248,16 @@ CTE correction in ACS which occurs later in the process after basic structures a
     initSingleGroup(&chg);    
     allocSingleGroup(&chg, RAZ_COLS, RAZ_ROWS);
 
-    /*INITIALIZE ARRAYS*/
-    for (i=0;i<RAZ_COLS;i++){
-        for(j=0;j<RAZ_ROWS;j++){
-            memcpy(&Pix(raw.sci.data,i,j),&hardset,sizeof(float));
-            memcpy(&Pix(rsz.sci.data,i,j),&hardset,sizeof(float));
-            memcpy(&Pix(raz.sci.data,i,j),&hardset,sizeof(float));            
-            memcpy(&Pix(rsc.sci.data,i,j),&hardset,sizeof(float));
-            memcpy(&Pix(rzc.sci.data,i,j),&hardset,sizeof(float));
-            memcpy(&Pix(chg.sci.data,i,j),&hardset,sizeof(float));
+    for (i=0;i<RAZ_COLS;i++){ 
+        for(j=0;j<RAZ_ROWS;j++){ 
+            Pix(raw.sci.data,i,j)=hardset;
+            Pix(rsz.sci.data,i,j)=hardset;
+            Pix(raz.sci.data,i,j)=hardset;
+            Pix(rsc.sci.data,i,j)=hardset;
+            Pix(rzc.sci.data,i,j)=hardset;
+            Pix(chg.sci.data,i,j)=hardset;
         }
-    }
+    }            
 
 
     /* SAVE A COPY OF THE RAW IMAGE FOR LATER */
@@ -263,11 +268,13 @@ CTE correction in ACS which occurs later in the process after basic structures a
         freeSingleGroup(&cd);
         return(status);
     }
+
     
     if (doCteBias(&wf3,&ab)){
         freeSingleGroup(&ab);
         return(status);
-    }      
+    }
+      
 
     /*CONVERT TO RAZ FORMAT AND CORRECT FOR GAIN*/
     if (raw2raz(&wf3, &cd, &ab, &raz))
@@ -276,27 +283,24 @@ CTE correction in ACS which occurs later in the process after basic structures a
     /***CALCULATE THE SMOOTH READNOISE IMAGE***/
     trlmessage("CTE: Calculating smooth readnoise image");
     
+ 
     /***CREATE THE NOISE MITIGATION MODEL ***/
     if (cte_pars.noise_mit == 0) {
         if (raz2rsz(&wf3, &raz, &rsz, cte_pars.rn_amp, max_threads))
             return (status);
     } else {
-        trlmessage("CTE: Only noise model 0 implemented!");
+        trlmessage("Only noise model 0 implemented!");
         return (status=ERROR_RETURN);
     }
 
-
     /***CONVERT THE READNOISE SMNOOTHED IMAGE TO RSC IMAGE
         THIS IS WHERE THE CTE GETS CALCULATED         ***/
-
     if (rsz2rsc(&wf3, &rsz, &rsc, &cte_pars))
         return (status);
-        
-
+       
     /*** SAVE USEFULL HEADER INFORMATION ***/
     if (cteHistory (&wf3, cd.globalhdr))
         return (status);
-
     
     /*** CREATE THE FINAL CTE CORRECTED IMAGE, PUT IT BACK INTO ORIGNAL RAW FORMAT***/
     for (i=0;i<RAZ_COLS;i++){
@@ -310,16 +314,11 @@ CTE correction in ACS which occurs later in the process after basic structures a
     undosciRAZ(&cd,&ab,&rzc);
     
     /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
-    PutKeyFlt (cd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-    trlmessage("CTE: PCTEFRAC saved to header");
+    PutKeyDbl(cd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
+    trlmessage("PCTEFRAC saved to header");
     
     /*SAVE THE NEW RAW FILE WITH UPDATED SCIENCE ARRAYS AND PRIMARY HEADER TO RAC*/
-    sprintf(MsgText,"Writing cd[sci,%i] to %s",cd.group_num,output);
-    trlmessage(MsgText);
     putSingleGroup(output,cd.group_num, &cd,0);
-    
-    sprintf(MsgText,"Writing ab[sci,%i] to %s",ab.group_num,output);
-    trlmessage(MsgText);
     putSingleGroup(output,ab.group_num, &ab,0);
 
 
@@ -331,6 +330,12 @@ CTE correction in ACS which occurs later in the process after basic structures a
     freeSingleGroup(&rsz);
     freeSingleGroup(&raw);
     
+    time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
+    if (verbose){
+        sprintf(MsgText,"CTE run time: %.2f(s) with %i procs/threads\n",time_spent,max_threads);
+        trlmessage(MsgText);
+    }
+
     PrSwitch("pctecorr", COMPLETE);
     if(wf3.printtime)
         TimeStamp("PCTECORR Finished",wf3.rootname);
@@ -412,7 +417,7 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
     for (k=1;k<=4;k++){
         for (i=0; i<subcol;i++){
             for (j=0;j<RAZ_ROWS; j++){
-                Pix(raz->sci.data,i+(k-1)*subcol,j) -= bias_post[k];
+                Pix(raz->sci.data,i+(k-1)*subcol,j) -=  bias_post[k];
             }
         }   
     }
@@ -443,32 +448,27 @@ int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
     
     int i,j,k;              /*Looping variables */
     float plist[55377];  /*bias bpixels to measure*/
-    float min=0;
-    float max=0;
-    float rmean;
-    float rsigma;
+    float min=0.0;
+    float max=0.0;
+    float rmean=0.0;
+    float rsigma=0.0;
     float sigreg =7.5; /*sigma clip*/
     
 
     int subcol = RAZ_COLS/4;
-    int npix; /*track array size for resistant mean*/
-    rmean=0.;
-    rsigma=0.;
-    npix=0;
+    int npix=0; /*track array size for resistant mean*/
 
     /*init plist*/
     for (i=0;i<55377;i++){
         plist[i]=0.;
     }
-    
-    trlmessage("\nPost scan bias measures:\n");
-    
+        
     for (k=1;k<=4;k++){  /*for each quadrant cdab = 0123*/
         npix=0;
         for (i=RAZ_ROWS+5;i<= subcol-1; i++){ /*specific area for post scan bias pixels*/
             for (j=0; j<2051; j++){
                 if (npix < 55377){
-                    memcpy(&plist[npix], &Pix(raz->sci.data,i+(k-1)*subcol,j),sizeof(float));
+                    plist[npix] = Pix(raz->sci.data,i+(k-1)*subcol,j);
                     npix+=1;
                 }
             }
@@ -477,8 +477,6 @@ int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
         resistmean(plist, npix, sigreg, &rmean, &rsigma, &min, &max);
         mean[k]= rmean;
         sigma[k] = rsigma;
-        sprintf(MsgText,"mean=%f\tsigma=%f",rmean,rsigma);
-        trlmessage(MsgText);
         
     }
     return status;
@@ -499,8 +497,8 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
     
     int i,j,k;              /*Looping variables */
     float plist[55377];    /*bias pixels to measure*/
-    float min=0;
-    float max=0;
+    float min=0.0;
+    float max=0.0;
     float rmean;
     float rsigma;
     float sigreg =7.5; /*sigma clip*/
@@ -515,14 +513,12 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
         plist[i]=0.;
     }
     
-    trlmessage("\nPrescan residual bias measures:\n");
-
     for (k=1;k<=4;k++){  /*for each quadrance cdab*/
         npix=0;
         for (i=5;i<25; i++){ /*specific area fr post scan bias pixels*/
             for (j=0; j<2051; j++){
                 if (npix < 55377 ){
-                    memcpy(&plist[npix], &Pix(raz->sci.data,i+(k-1)*subcol,j),sizeof(float));
+                    plist[npix] = Pix(raz->sci.data,i+(k-1)*subcol,j);
                     npix+=1;
                 }
             }
@@ -530,10 +526,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
         
         resistmean(plist, npix, sigreg, &rmean, &rsigma, &min, &max);
         mean[k]= rmean;
-        sigma[k] = rsigma;
-        sprintf(MsgText,"mean=%f\tsigma=%f",rmean,rsigma);
-        trlmessage(MsgText);
-        
+        sigma[k] = rsigma;        
     }
     return status;
 }
@@ -554,35 +547,31 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
        amplification.  Strategy #2 will be to not iterate when the deblurring
        is less than the readnoise.
 
-
 */
 
     extern int status;
-    float comparison=999.9;
         
     int i, j, NIT; /*loop variables*/
     int imid;
-    double dptr=0.;
+    double dptr=0.0;
     double  rms=0.0;
     double  rmsu=0.0;
-    double nrms;
-    double nrmsu;
-    float hardset=0.0000000;
-    double dblzero=0.00000000;
+    double nrms=0.0;
+    double nrmsu=0.0;
+    float hardset=0.0f;
+    double setdbl=0.0;
 
     /*1D ARRAYS FOR CENTRAL AND NEIGHBORING RAZ_COLS*/
     double obs_loc[3][RAZ_ROWS] ; 
     double rsz_loc[3][RAZ_ROWS] ;
         
-    nrms=dblzero;
-    nrmsu=dblzero;
     NIT=1;
     
     /*ALL ELEMENTS TO ZERO*/
     for(i=0;i<3;i++){
         for (j=0; j<RAZ_ROWS; j++){
-            obs_loc[i][j]=dblzero;
-            rsz_loc[i][j]=dblzero;
+            obs_loc[i][j]=setdbl;
+            rsz_loc[i][j]=setdbl;
         }
     }
         
@@ -600,9 +589,9 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
       AND INITIALIZE THE OTHER IMAGES*/
     for(i=0;i<RAZ_COLS;i++){
         for (j=0;j<RAZ_ROWS;j++){
-            memcpy( &Pix(rsz->sci.data,i,j), &Pix(raz->sci.data,i,j),sizeof(float) );
-            memcpy( &Pix(rnz.sci.data,i,j), &hardset, sizeof(float));
-            memcpy( &Pix(zadj.sci.data,i,j), &hardset, sizeof(float));
+            Pix(rsz->sci.data,i,j) = Pix(raz->sci.data,i,j);
+            Pix(rnz.sci.data,i,j) = hardset;
+            Pix(zadj.sci.data,i,j) = hardset;
         }
     }
     
@@ -620,15 +609,12 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
       DOWN THE LINE.
     */
              
-
-    sprintf(MsgText,"RNSIG=%3.2f\nNIT\tCHGrms\t\ticol\tORIG\t\tDIFF\t\tRSZ\n",rnsig);
-    trlmessage(MsgText);
-    rms=dblzero;
+    rms=setdbl;
+    
     for(NIT=1; NIT<=100; NIT++){ 
         #pragma omp parallel for schedule(dynamic) \
            private(i,j,imid,obs_loc,rsz_loc,dptr)\
-           shared(raz, rsz, rnsig,rms,nrms, zadj)
-        
+           shared(raz, rsz, rnsig,rms,nrms, zadj)        
         for(i=0; i<RAZ_COLS; i++){
             imid=i;
 
@@ -640,66 +626,59 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
 
             /*COPY THE MIDDLE AND NEIGHBORING PIXELS FOR ANALYSIS*/    
             for(j=0; j<RAZ_ROWS; j++){
-                obs_loc[0][j] = (double) Pix(raz->sci.data,imid-1,j);
-                obs_loc[1][j] = (double) Pix(raz->sci.data,imid,j);
-                obs_loc[2][j] = (double) Pix(raz->sci.data,imid+1,j);
+                obs_loc[0][j] = Pix(raz->sci.data,imid-1,j);
+                obs_loc[1][j] = Pix(raz->sci.data,imid,j);
+                obs_loc[2][j] = Pix(raz->sci.data,imid+1,j);
 
-                rsz_loc[0][j] = (double) Pix(rsz->sci.data,imid-1,j);
-                rsz_loc[1][j] = (double) Pix(rsz->sci.data,imid,j);
-                rsz_loc[2][j] = (double) Pix(rsz->sci.data,imid+1,j);
+                rsz_loc[0][j] = Pix(rsz->sci.data,imid-1,j);
+                rsz_loc[1][j] = Pix(rsz->sci.data,imid,j);
+                rsz_loc[2][j] = Pix(rsz->sci.data,imid+1,j);
             }
             for (j=0; j<RAZ_ROWS; j++){  
                 find_dadj(1+i-imid,j, obs_loc, rsz_loc, rnsig, &dptr);
-                    Pix(zadj.sci.data,i,j)= (float) dptr;
-                    if (j==1999 && i==19){
-                        sprintf(MsgText,"%2i\t%8.4f\t%4i\t%8.4f\t%8.4f\t%8.4f",NIT,rms,i+1,
-                            fminf(Pix(raz->sci.data,i,j),comparison),
-                            (Pix(raz->sci.data,i,j) - Pix(rsz->sci.data,i,j)),
-                            fminf(Pix(rsz->sci.data,i,j), comparison));
-                        trlmessage(MsgText);
-                    }
+                Pix(zadj.sci.data,i,j) = dptr;
             }
         } /*end the parallel for*/
-    
-
+     
+            
         /*NOW GO OVER ALL THE RAZ_COLS AND RAZ_ROWS AGAIN TO SCALE THE PIXELS */
         for(i=0; i<RAZ_COLS;i++){
             for(j=0; j<RAZ_ROWS; j++){
-                Pix(rsz->sci.data,i,j) += Pix(zadj.sci.data,i,j)*0.75;
+                Pix(rsz->sci.data,i,j) +=  (Pix(zadj.sci.data,i,j)*0.75);
                 Pix(rnz.sci.data,i,j) = (Pix(raz->sci.data,i,j) - Pix(rsz->sci.data,i,j));
             }                
         }
-
-        rms=dblzero;
-        nrms=dblzero;
+        
+        rms=setdbl;
+        nrms=setdbl;
                
-       #pragma omp parallel for schedule(dynamic) \
+       #pragma omp parallel for schedule(dynamic)\
         private(i,j,rmsu,nrmsu) \
         shared(raz,rsz,rms,rnsig,nrms)
        for(j=0; j<RAZ_ROWS; j++){
-            nrmsu=dblzero;
-            rmsu=dblzero;
+            nrmsu=setdbl;
+            rmsu=setdbl;
             for(i = 0;i<RAZ_COLS; i++){
                 if ( (fabs(Pix(raz->sci.data,i,j)) > 0.1) || 
                      (fabs(Pix(rsz->sci.data,i,j)) > 0.1) ){
-                    rmsu  +=  (double) (Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j));
-                    nrmsu += 1.;
+                    rmsu  +=  ( Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j) );
+                    nrmsu += 1.0;
                 }
             }
             #pragma omp critical (rms)
-            {rms  +=  rmsu;
-            nrms += nrmsu;}
+            {   rms  += rmsu;
+                nrms += nrmsu;
+            }
         }
-        
         rms = sqrt(rms/nrms);
+        
         /*epsilon type comparison*/
-        if ( (rnsig-rms) < 0.) break; /*this exits the NIT for loop*/
+        if ( (rnsig-rms) < 0.00001) break; /*this exits the NIT for loop*/
      } /*end NIT*/
-
+    
     freeSingleGroup(&zadj);
     freeSingleGroup(&rnz);
  
-    
     return (status);
 }
 
@@ -785,7 +764,7 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
 
     dmod2 = 0.;
     if (j < RAZ_ROWS-1) 
-        dmod2 = rszloc[i][j+1] - mval;
+        dmod2 =  rszloc[i][j+1] - mval;
 
     dmod2u = dmod2;
     if (dmod2u > rnsig*0.33) 
@@ -799,20 +778,20 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
        TEND TO TREAT AS READNOISE; IF IT'S FARTHER OFF
        THAN THAT, THEN DOWNWEIGHT THE INFLUENCE
        */
-    w0 =   (dval0*dval0) / ((dval0*dval0)+ 4.*(rnsig*rnsig));
-    w9 =   (dval9*dval9) / ((dval9*dval9)+ 18.*(rnsig*rnsig));
-    w1 = (4*rnsig*rnsig) / ((dmod1*dmod1)+4.*(rnsig*rnsig));
-    w2 = (4*rnsig*rnsig) / ((dmod2*dmod2)+4.*(rnsig*rnsig));
+    w0 =   (dval0*dval0) / ((dval0*dval0)+ 4.0*(rnsig*rnsig));
+    w9 =   (dval9*dval9) / ((dval9*dval9)+ 18.0*(rnsig*rnsig));
+    w1 = (4*rnsig*rnsig) / ((dmod1*dmod1)+4.0*(rnsig*rnsig));
+    w2 = (4*rnsig*rnsig) / ((dmod2*dmod2)+4.0*(rnsig*rnsig));
 
     /*(note that with the last two, if a pixel
     is too discordant with its upper or lower
     that neighbor has less of an ability to
     pull it)*/   
     
-    *d = ((dval0u * w0 * 0.25) + /* desire to keep the original pixel value */
-    (dval9u*w9*0.25) + /* desire to keep the original sum over 3x3*/
-    (dmod1u*w1*0.25) + /*desire to get closer to the pixel below*/
-    (dmod2u*w2*0.25)) ; /*desire to get closer to the pixel above*/
+    *d = ((dval0u * w0 * 0.25f) + /* desire to keep the original pixel value */
+    (dval9u*w9*0.25f) + /* desire to keep the original sum over 3x3*/
+    (dmod1u*w1*0.25f) + /*desire to get closer to the pixel below*/
+    (dmod2u*w2*0.25f)) ; /*desire to get closer to the pixel above*/
     
     return(status);
 }
@@ -829,12 +808,12 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     extern int status;
     
     int i,j;
-    float cte_i=0.;
-    float cte_j=0.;
-    float ro=0;
+    double cte_i=0.0;
+    double cte_j=0.0;
+    double ro=0;
     int io=0;
-    float ff_by_col[RAZ_COLS][4];
-    float hardset=0.;
+    double ff_by_col[RAZ_COLS][4];
+    float hardset=0.0;
     
     /*These are already in the parameter structure
     int     Ws              the number of traps < 999999, taken from pctetab read 
@@ -851,7 +830,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     
     for(i=0; i<RAZ_COLS;i++){
         for(j=0; j<RAZ_ROWS; j++){
-            memcpy(&Pix(pixz_fff.sci.data,i,j),&hardset,sizeof(float));
+            Pix(pixz_fff.sci.data,i,j)=hardset;
         }
     }
     
@@ -875,7 +854,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     }
         
     for (i=0;i<RAZ_COLS;i++){
-        j=(int) cte->iz_data[i]; /*which column to scale*/
+        j= cte->iz_data[i]; /*which column to scale*/
         ff_by_col[j][0]=cte->scale512[i];
         ff_by_col[j][1]=cte->scale1024[i];
         ff_by_col[j][2]=cte->scale1536[i];
@@ -890,16 +869,16 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     */
     for (i=0; i<RAZ_COLS; i++){
         for (j=0;j<RAZ_ROWS; j++){
-            ro = (float)j/512.; /*ro can be zero, it's an index*/
+            ro = j/512.0; /*ro can be zero, it's an index*/
             if (ro <0 ) ro=0.;
             if (ro > 2.999) ro=2.999; /*only 4 quads, 0 to 3*/
             io = (int) floor(ro); /*force truncation towards 0 for pos numbers*/
-            cte_j= (float)(j+1) / 2048.; 
-            cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (ro-(float)io);
-            Pix(pixz_fff.sci.data,i,j) = cte_i*cte_j;
+            cte_j= (j+1) / 2048.0; 
+            cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (ro-io);
+            Pix(pixz_fff.sci.data,i,j) =  (cte_i*cte_j);
         }
-    }   
-
+    }
+    
     /*THIS IS RAZ2RAC_PAR IN JAYS CODE - MAIN CORRECTION LOOP IN HERE*/    
     inverse_cte_blur(rsz, rsc, &pixz_fff, cte, wf3->verbose,wf3->expstart);
     freeSingleGroup(&pixz_fff);
@@ -934,17 +913,27 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     int NITINV, NITCTE; 
     int i;
     int j,jj;
-    float dmod;
+    double dmod;
     int jmax;
+    float hardset=0.0f;
     
-    float cte_ff; /*cte scaling based on observation date*/
+    double cte_ff; /*cte scaling based on observation date*/
+    double setdbl=0.0;
+    
+    /*DEFINE TO MAKE PRIVATE IN PARALLEL RUN*/    
+    double *pix_obsd=&setdbl;   
+    double *pix_modl=&setdbl;      
+    double *pix_curr=&setdbl;   
+    double *pix_init=&setdbl;   
+    double *pix_read=&setdbl;   
+    double *pix_ctef=&setdbl;   
     
     /*STARTING DEFAULTS*/
     NITINV=1;
     NITCTE=1;
     cte_ff=0.0;
     jmax=0;
-    dmod=0.;
+    dmod=0.0;
     
     /*LOCAL IMAGES TO PLAY WITH, THEY WILL REPLACE THE INPUTS*/
     SingleGroup rz; /*pixz_raz*/
@@ -959,71 +948,65 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     initSingleGroup(&pixz_fff);
     allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS);
         
+    for (i=0;i<RAZ_COLS;i++){ 
+        for(j=0;j<RAZ_ROWS;j++){ 
+            Pix(rc.sci.data,i,j)=hardset;
+            Pix(rz.sci.data,i,j)=hardset;
+            Pix(pixz_fff.sci.data,i,j)=hardset;
+        }
+    }            
+        
+        
     /*USE EXPSTART YYYY-MM-DD TO DETERMINE THE CTE SCALING
     APPROPRIATE FOR THE GIVEN DATE. WFC3/UVIS WAS
     INSTALLED AROUND MAY 11,2009 AND THE MODEL WAS
     CONSTRUCTED TO BE VALID AROUND SEP 3, 2012, A LITTLE
     OVER 3 YEARS AFTER INSTALLATION*/
 
-    cte_ff= (float) (expstart - cte->cte_date0)/ (cte->cte_date1 - cte->cte_date0);    
+    cte_ff=  (expstart - cte->cte_date0)/ (cte->cte_date1 - cte->cte_date0);    
     cte->scale_frac=cte_ff;   /*save to param structure for header update*/ 
     
     if(verbose){
-        sprintf(MsgText,"cte_ff (scaling fraction by date) = %f",cte_ff);
+        sprintf(MsgText,"CTE_FF (scaling fraction by date) = %g",cte_ff);
         trlmessage(MsgText);
     }
     
-    /*SET UP THE SCALING ARRAY WITH INPUT DATA
-      Megan note: I think the equation here setting pixz_fff should
-      be changed to Pix(fff,i,j) instead of the j+1 sections
-      so that the reference file can be used, otherwise the reference
-      file is ignored.
-    */
+    /*SET UP THE SCALING ARRAY WITH INPUT DATA*/
     for (i=0; i<RAZ_COLS; i++){
         for (j=0; j< RAZ_ROWS; j++){
-            memcpy(&Pix(rz.sci.data,i,j), &Pix(rsz->sci.data,i,j),sizeof(float));
-            Pix(pixz_fff.sci.data,i,j) = cte_ff * Pix(fff->sci.data,i,j);
+            Pix(rz.sci.data,i,j) = Pix(rsz->sci.data,i,j);
+            Pix(pixz_fff.sci.data,i,j) =  cte_ff * Pix(fff->sci.data,i,j);
         }          
     }
-        
-    trlmessage("Col\n[2000]  orig\tcorr\tdiff");
-
-    /*DEFINE TO MAKE PRIVATE IN PARALLEL RUN*/
-    float setzero=0.;
-    
-    float *pix_obsd = &setzero;   
-    float *pix_modl = &setzero;   
-    float *pix_curr = &setzero;   
-    float *pix_init = &setzero;   
-    float *pix_read = &setzero;   
-    float *pix_ctef = &setzero;   
-
+            
+  
     #pragma omp parallel for schedule (dynamic,1) \
         private(dmod,i,j,jj,jmax,REDO,NREDO, \
           pix_obsd,pix_modl,pix_curr,pix_init,\
           pix_read,pix_ctef,NITINV,NITCTE)\
         shared(rc,rz,cte,pixz_fff)
-
+        
     for (i=0; i< RAZ_COLS; i++){           
-       pix_obsd = (float *) calloc(RAZ_ROWS, sizeof(float));   
-       pix_modl = (float *) calloc(RAZ_ROWS, sizeof(float));   
-       pix_curr = (float *) calloc(RAZ_ROWS, sizeof(float));   
-       pix_init = (float *) calloc(RAZ_ROWS, sizeof(float));   
-       pix_read = (float *) calloc(RAZ_ROWS, sizeof(float));   
-       pix_ctef = (float *) calloc(RAZ_ROWS, sizeof(float));   
-
+       
+       pix_obsd = (double *) calloc(RAZ_ROWS, sizeof(double));   
+       pix_modl = (double *) calloc(RAZ_ROWS, sizeof(double));   
+       pix_curr = (double *) calloc(RAZ_ROWS, sizeof(double));   
+       pix_init = (double *) calloc(RAZ_ROWS, sizeof(double));   
+       pix_read = (double *) calloc(RAZ_ROWS, sizeof(double));   
+       pix_ctef = (double *) calloc(RAZ_ROWS, sizeof(double));   
+    
         /*HORIZONTAL PRE/POST SCAN POPULATION */
         for (j=0; j< RAZ_ROWS; j++){
             pix_obsd[j] = Pix(rz.sci.data,i,j); /*starts as input RAZ*/
         }
         
-        NREDO=0; /*start out not needing to mitigate CRs*/
-        REDO=0; /*false*/
+        NREDO=0; /*START OUT NOT NEEDING TO MITIGATE CRS*/
+        REDO=0; /*FALSE*/
         do { /*replacing goto 9999*/
             /*STARTING WITH THE OBSERVED IMAGE AS MODEL, ADOPT THE SCALING FOR THIS COLUMN*/
             for (j=0; j<RAZ_ROWS; j++){
-                pix_modl[j] = Pix(rz.sci.data,i,j);
-                pix_ctef[j] = Pix(pixz_fff.sci.data,i,j);     
+                pix_modl[j] =  Pix(rz.sci.data,i,j);
+                pix_ctef[j] =  Pix(pixz_fff.sci.data,i,j);     
             }
             /*START WITH THE INPUT ARRAY BEING THE LAST OUTPUT
               IF WE'VE CR-RESCALED, THEN IMPLEMENT CTEF*/
@@ -1049,7 +1032,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
                 for (j=0; j< RAZ_ROWS; j++){
                     dmod =  (pix_obsd[j] - pix_read[j]);
                     if (NITINV < cte->n_forward){ 
-                        dmod *= (dmod*dmod) /((dmod*dmod) + powf(cte->rn_amp , 2));
+                        dmod *= (dmod*dmod) /((dmod*dmod) + (cte->rn_amp * cte->rn_amp));
                     }
                     pix_modl[j] += dmod; /*dampen each pixel as the best is determined*/
                 }
@@ -1112,33 +1095,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         
         #pragma omp critical (cte)        
         for (j=0; j< RAZ_ROWS; j++){
-             Pix(rc.sci.data,i,j)=pix_modl[j]; 
+             Pix(rc.sci.data,i,j)= pix_modl[j]; 
         }         
-        
-        if (i ==0){
-            sprintf(MsgText,"%15s AMPLIFIER C %2s","*****","*****");
-            trlmessage(MsgText);
-        }
-        if (i==2104){
-            sprintf(MsgText,"%15s AMPLIFIER D %2s","*****","*****");
-            trlmessage(MsgText);
-        }
-        if (i==4206){
-            sprintf(MsgText,"%15s AMPLIFIER A %2s","*****","*****");
-            trlmessage(MsgText);
-        }
-        if (i==6309){
-            sprintf(MsgText,"%15s AMPLIFIER B %2s","*****","*****");
-            trlmessage(MsgText);
-        }
-
-        if ((i+1)%100 == 0){
-            sprintf(MsgText,"%d\t%d\t%d\t%d",i+1, 
-                   (int) roundf(pix_obsd[1999]), 
-                    (int) roundf(pix_modl[1999]), 
-                    (int)(roundf(pix_modl[1999]) - roundf(pix_obsd[1999])));
-            trlmessage(MsgText);
-        }
 
     free(pix_obsd);
     free(pix_modl);
@@ -1153,9 +1111,9 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
 
     for (i=0; i< RAZ_COLS; i++){
         for (j=0; j< RAZ_ROWS; j++){
-            memcpy(&Pix(rsz->sci.data,i,j), &Pix(rz.sci.data,i,j),sizeof(float));
-            memcpy(&Pix(rsc->sci.data,i,j), &Pix(rc.sci.data,i,j),sizeof(float));
-            memcpy(&Pix(fff->sci.data,i,j), &Pix(pixz_fff.sci.data,i,j),sizeof(float));
+            Pix(rsz->sci.data,i,j) = Pix(rz.sci.data,i,j);
+            Pix(rsc->sci.data,i,j) = Pix(rc.sci.data,i,j);
+            Pix(fff->sci.data,i,j) = Pix(pixz_fff.sci.data,i,j);
         }
     }
     
@@ -1194,20 +1152,20 @@ These are already in the parameter structure CTEParams
    the ttrap reference to the image array has to be -1 for C
 */
 
-int sim_colreadout_l(float *pixi, float *pixo, float *pixf, CTEParams *cte){
+int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
 
     extern int status;
     int j;
     int ttrap;
         
     int w;
-    float ftrap;
-    float pix_1;
-    float padd_2;
-    float padd_3;
-    float prem_3;
-    float pmax;
-    float fcarry;
+    double ftrap;
+    double pix_1;
+    double padd_2;
+    double padd_3;
+    double prem_3;
+    double pmax;
+    double fcarry;
     
     padd_3=0.0;
     prem_3=0.0;
@@ -1241,10 +1199,7 @@ int sim_colreadout_l(float *pixi, float *pixo, float *pixf, CTEParams *cte){
       AND SEE WHEN THEY GET FILLED AND EMPTIED, ADJUST THE PIXELS ACCORDINGLY*/
     for (w = cte->cte_traps-1; w>=0; w--){  
         if ( cte->qlevq_data[w] <= pmax ) {
-            
-            /*sprintf(MsgText,"QPROF[%i]=%f\t pmax=%f\n",w,cte->qlevq_data[w],pmax);
-            trlmessage(MsgText);*/
-            
+                        
             ftrap = 0.0e0;
             ttrap = cte->cte_len; /*for referencing the image at 0*/
             fcarry = 0.0e0;
@@ -1273,8 +1228,6 @@ int sim_colreadout_l(float *pixi, float *pixo, float *pixf, CTEParams *cte){
                     if (ttrap <cte->cte_len){
                         ttrap += 1;
                         padd_2 = Pix(rprof->data,w,ttrap-1) *ftrap;
-                        /*sprintf(MsgText,"rprof(w:%i,ttr:%i)=%f\tpadd_2=%f\tftrap=%f\n",w,ttrap-1,Pix(rprof->data,w,ttrap-1),padd_2,ftrap);
-                        trlmessage(MsgText);*/
                     }
 
                     padd_3 = 0.0;

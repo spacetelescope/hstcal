@@ -45,6 +45,13 @@ short sdqflags     i: "serious" data quality flags
 
 	/* Statistics for the science data. */
 	numgood = 0;
+    valmin=0.0f;
+    valmax=0.0f;
+    errmin=0.0f;
+    errmax=0.0f;
+    snrmin=0.0f;
+    snrmax=0.0f;
+    
 	num_bad_stddev = 0;
 	valsum = 0.;
 	errsum = 0.;

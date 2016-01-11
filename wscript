@@ -186,6 +186,11 @@ def configure(conf):
     else:
         if conf.check_cc(cflags='-O2'):
             conf.env.append_value('CFLAGS','-O2')
+        if conf.check_cc(cflags='-Wall'):
+            conf.env.append_value('CFLAGS','-Wall')
+        if conf.check_cc(cflags='-fstack-protector-all'):
+            conf.env.append_value('CFLAGS','-fstack-protector-all')
+
 
 def build(bld):
     bld(name='lib', always=True)

@@ -67,7 +67,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
     void get_nsegn (int, int, int, int, float *, float*, float *, float *);
 
     /* -------------------------------- begin ------------------------------ */
-
+    expn=0.0f;
     scale = par->scalense / 100.;
     ampx = gain.colx;
     ampy = gain.coly;
