@@ -302,6 +302,9 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                         /* ALSO ADD BLC_TMP TO LIST OF FILES TO BE DELETED */
                         strcpy (asn->product[prod].subprod[posid].exp[expid].blc_tmp,
                                 wf3hdr->blc_tmp);
+                        strcpy (asn->product[prod].subprod[posid].exp[expid].rac_tmp,
+                                wf3hdr->rac_tmp);
+                                
                     }
 
                 }  /*END CTE PROCESSING TO BLC_TMP LEVEL*/
@@ -628,6 +631,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (*save_tmp == NO) {
                         for (expid=1; expid <= asn->spmems[posid]; expid++) {
                             remove (asn->product[prod].subprod[posid].exp[expid].blc_tmp);
+                            remove (asn->product[prod].subprod[posid].exp[expid].rac_tmp);
                         }
                     }    
                  }

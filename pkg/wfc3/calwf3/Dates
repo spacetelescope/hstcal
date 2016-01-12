@@ -1,3 +1,6 @@
+08-Jan-2016 - MLS -- Version 3.3
+    - changed the name of the output rac file to rac_tmp so that archive could handle deleting it better
+
 05-Nov-2015 - MLS -- Version 3.3
     - removed explicit downcasts and added calloc returns in procccd
 

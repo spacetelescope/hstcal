@@ -18,6 +18,7 @@
    H.Bushouse, 2002-Nov-26: Removed use of sflfile (following CALACS changes).
    H.Bushouse, 2008-Aug-20: Changed dithfile suffix from "dth" to "drz".
    M. Sosey, 2015 June: Updates for CTE implementation with UVIS 2.0
+   M. Sosey, 2016 Jan: changed name of rac file to rac_tmp
 */
 
 int CCDRefInit (WF3Info *wf3, CCD_Switch *sci_sw, RefFileInfo *sciref) {
@@ -155,10 +156,10 @@ int InsertWF3Suffix (WF3Info *wf3) {
     if (MkName (wf3->crc_root, "_crc", "_crc_tmp", "", wf3->crc_tmp, SZ_LINE))
         return (status);
             
-    if (MkName (wf3->rootname, "_raw","_rac","", wf3->rac_tmp, SZ_LINE))
+    if (MkName (wf3->rootname, "_raw","_rac_tmp","", wf3->rac_tmp, SZ_LINE))
         return(status);
         		
-	if (MkName (wf3->rootname, "_rac", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
+	if (MkName (wf3->rootname, "_rac_tmp", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
 	    return (status);
 
 	if (MkName (wf3->rootname, "_raw", "_ima", "", wf3->imafile, SZ_LINE))
