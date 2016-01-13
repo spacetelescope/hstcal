@@ -90,7 +90,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     acsrej_check (IRAFPointer, int, int, clpar *, int [],
                           char [][ACS_FNAME], int [], IODescPtr [],
                           IODescPtr [], multiamp *, multiamp *, int *, int *,
-                          int);
+                          int, float []);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
                         double *);
     int     rejpar_in(clpar *, int [], int, float, int *, float []);
@@ -232,7 +232,8 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
         /* open input files and temporary files, check the parameters */
         if (acsrej_check (tpin, extver, numext, par, newpar, imgname, ext,
-                          ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs)) {
+                          ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs,
+                          efac)) {
             WhichError (status);
             return(status);
         }
