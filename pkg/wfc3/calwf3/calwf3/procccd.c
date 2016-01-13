@@ -95,9 +95,12 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     int  InsertWF3Suffix (WF3Info *);
     int  updateAsnTable (AsnInfo *, int, int);
 
-
-    posid=0;	/* initial value; */	
-
+    /* initial value; */
+    posid=0;
+    wf3rej_input=NULL;
+    wf3rej_cte_input=NULL;
+    wf3rej_msgtext=NULL;		
+    
     /* Reset RPTCORR setting from ASN table to use CRCORR for UVIS */
     if (asn->rptcorr == PERFORM) {
         asn->crcorr = PERFORM;
@@ -251,10 +254,10 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                      */
                     
+                    
                     if ( WF3cte(wf3hdr->rawfile, wf3hdr->rac_tmp, &sci_sw, &sciref, printtime, asn->verbose, onecpu) )
                         return (status);                
-
-
+                     
                     if (wf3hdr->sci_basic_ccd == PERFORM) {
 
                         /* THIS IS CALWF3CCD; NOTE WE USE WF3CCD_SCI_SW. */
@@ -400,6 +403,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (*save_tmp == NO){
                         if (wf3hdr->sci_basic_cte == PERFORM) {
                             remove (wf3hdr->blc_tmp);
+                            remove (wf3hdr->rac_tmp);
                         }
                         remove (wf3hdr->blv_tmp);
                     }                
@@ -433,8 +437,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                      ** BE LONG ENOUGH TO HOLD ALL INPUT NAMES WHEN
                      ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
                      ** OTHERWISE. HAB 20-JUN-2004 */
-                    wf3rej_msgtext = calloc(strlen(wf3rej_input)+25,
-                            sizeof(char));
+                    wf3rej_msgtext = (char *) calloc(strlen(wf3rej_input)+25,sizeof(char));
                     sprintf (wf3rej_msgtext, "%s", wf3rej_input);
                     trlmessage (wf3rej_msgtext);
                     free (wf3rej_msgtext);
@@ -489,8 +492,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                          ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
                          ** OTHERWISE. HAB 20-JUN-2004 */
 
-                        wf3rej_msgtext = calloc(strlen(wf3rej_cte_input)+25,
-                                sizeof(char));
+                        wf3rej_msgtext = (char *) calloc(strlen(wf3rej_cte_input)+25,sizeof(char));
                         free(wf3rej_msgtext);
                     }
                     

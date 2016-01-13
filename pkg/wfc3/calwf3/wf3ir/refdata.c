@@ -400,6 +400,9 @@ int getDarkImage (WF3Info *wf3, SingleNicmosGroup *dark1, int ngroup) {
 			  double, double, double);
 	void dark_extrap (SingleNicmosGroup *, double, double);
 
+    etime_lower=0.0f;
+    etime_upper=0.0f;
+    
 	/* Initialize frame interpolation information */
 	wf3->DarkType   = 0;
 	wf3->darkframe1 = 0;
@@ -760,7 +763,8 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
     void    WhichError (int);
 
 /* -------------------------------- begin ---------------------------------- */
-
+    row=0;
+    mindiff=0.0f;
     crsplit_in = nimgs;
 
     exp_in = exptot;

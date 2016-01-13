@@ -34,13 +34,15 @@ char *rootname  i: root name to include in printed string
 	int lenrootname;	/* length of rootname string */
 	int i;
 	time_t *tp, now;
-
+    
+    uc_rootname=NULL;
+    
 	/* Initialize output string */
 	MsgText[0] = '\0';
 	
 	lenrootname = strlen (rootname);
 	if (lenrootname > 0) {
-	    uc_rootname = malloc ((lenrootname+1) * sizeof (char));
+	    uc_rootname = (char *) calloc ((lenrootname+1),sizeof (char));
 	    if (uc_rootname == NULL) {
 		trlerror ("(TimeStamp) Out of memory.");
 		return;

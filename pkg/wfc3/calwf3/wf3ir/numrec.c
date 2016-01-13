@@ -149,8 +149,8 @@ float brent(float ax, float bx, float cx, float (*f)(float), float tol,
 	/* Local variables */
 	int iter;
 	float a,b,d,etemp,fu,fv,fw,fx,p,q,r,tol1,tol2,u,v,w,x,xm;
-	float e=0.0;
-
+	float e=0.0f;
+    d=0.0f;
 	a=(ax < cx ? ax : cx);
 	b=(ax > cx ? ax : cx);
 	x=w=v=bx;

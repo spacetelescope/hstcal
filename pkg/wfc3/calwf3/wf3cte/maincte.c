@@ -63,7 +63,6 @@ int main (int argc, char **argv) {
     char *output;		/* name of output file */
     int n_in, n_out;	/* number of files in each list */
     int n;
-    int max_threads; /*for parallel processing*/
     
 	/* Initialize status to OK and MsgText to null */
 	status     = WF3_OK;
@@ -138,25 +137,6 @@ int main (int argc, char **argv) {
     InitTrlBuf ();
     /* COPY COMMAND-LINE VALUE FOR QUIET TO STRUCTURE */
     SetTrlQuietMode(quiet);
-
-#   ifdef _OPENMP
-    trlmessage("\nUsing parallel processing provided by OpenMP inside CTE routine\n");
-    if (onecpu){
-        omp_set_dynamic(0);
-        max_threads=1;
-        sprintf(MsgText,"onecpu == TRUE, Using only %i threads/cpu", max_threads);
-    } else {
-        omp_set_dynamic(0);
-        max_threads = omp_get_num_procs(); /*be nice, use 1 less than avail?*/
-        sprintf(MsgText,"Setting max threads to %i of %i cpus\n",max_threads, omp_get_num_procs()); 
-    }
-    omp_set_num_threads(max_threads);
-    trlmessage(MsgText);
-#   endif
-
-
-
-
            
     /* EXPAND THE TEMPLATES. */
     i_imt = c_imtopen (inlist);

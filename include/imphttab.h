@@ -12,7 +12,7 @@
 # define SZ_FNAME     255
 
 /* Standard string for use in Error Messages */
-char MsgText[SZ_LINE+1];
+/*char MsgText[SZ_LINE+1];*/
 void errchk ();                 /* HSTIO error check */
 int status;
 
