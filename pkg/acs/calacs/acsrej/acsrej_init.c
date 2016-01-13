@@ -11,7 +11,7 @@
 
 # define    OK          (short)0
 
-/*  acsrej_init -- get the initial average pixel values
+/* acsrej_init -- get the initial average pixel values
 
   Description:
   ------------
@@ -26,6 +26,7 @@
                                 also added ERR array for median image.
   26-Aug-2002   J. Blakeslee    Modified threshhold for minimum to use SCALENSE
                                 only with sky-subtracted pixels.
+  01-Dec-2015   P.L. Lim        Calculations now entirely in electrons.
 */
 
 int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
@@ -43,7 +44,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
       nimgs   i: Number of input images.
       dim_x, dim_y  i: Image dimension taken from the first input image.
                        All images must have the same dimension.
-      noise   i: Calibrated readnoise converted to DN in acsrej_check.c.
+      noise   i: Calibrated readnoise in electrons from acsrej_check.c.
                  It is squared in this function as rog2 and then copied to
                  noise2 (using get_nsegn) and subsequently nse.
       gain    i: Calibrated gain in e/DN from primary header keyword
@@ -53,10 +54,10 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
       skyval  i: Array of sky values for each input image.
                  Unit now in electrons.
       sg      o: Its "sci" component is the average image used for
-                 comparison during CR rejection. Unit is DN/s.
+                 comparison during CR rejection. Unit is e/s.
                  This is really the median or minimum depending on
                  "initgues" provided by the user. It also has a "err"
-                 component that contains the variance (DN/s)^2.
+                 component that contains the variance (e/s)^2.
       work    o: Intermediate result used to calculate sg but not used
                  outside this function.
     */
@@ -105,12 +106,12 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
         gain2[k] = 0.;
         noise2[k] = 0.;
         /* Assumption: ALL images have the same noise/gain values */
-        rog2[k] = SQ(noise.val[k]);
+        rog2[k] = SQ(noise.val[k]);  /* e^2 */
     }
 
     non_zero = 0;
     for (n = 0; n < nimgs; n++) {
-        exp2[n] = SQ(efac[n]);
+        exp2[n] = SQ(efac[n]); /* s^2 */
         if (efac[n] > 0.) non_zero++;
     }
     get_nsegn (detector, chip, ampx, ampy, gain.val, rog2, gain2, noise2);
@@ -126,7 +127,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
             if (j < ampy ) {
                 gn[0] = gain2[AMP_C];
                 gn[1] = gain2[AMP_D];
-                nse[0] = noise2[AMP_C];  /* DN^2 */
+                nse[0] = noise2[AMP_C];  /* e^2 */
                 nse[1] = noise2[AMP_D];
             } else {
                 gn[0] = gain2[AMP_A];
@@ -137,35 +138,20 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 
             for (n = 0; n < nimgs; n++) {
                 initHdr(&dqhdr);
-                getHeader(ipdq[n],&dqhdr);
+                getHeader(ipdq[n], &dqhdr);
                 getFloatLine (ipsci[n], j, buf);  /* electrons */
                 getShortLine (ipdq[n], j, bufdq);
                 freeHdr(&dqhdr);
 
-                for (i = 0; i < ampx; i++) {
-                    if (efac[n] > 0.) {
-                        /* Only use GOOD pixels to build initial image.
-                           work = DN/s */
+                /* Only use GOOD pixels to build initial image.
+                   work array is already initialized to zeroes in acsrej_do.c */
+                if (efac[n] > 0.) {
+                    for (i = 0; i < dim_x; i++) {
                         if ((bufdq[i] & dqpat) == OK) {
                             PIX(work, npts[i], i, nimgs) =
-                                (buf[i] - skyval[n]) / efac[n] / gn[0];
+                                (buf[i] - skyval[n]) / efac[n];  /* e/s */
                             npts[i] += 1;
                         }
-                    } else {
-                        PIX(work, npts[i], i, nimgs) = 0.;
-                    }
-                }
-                for (i = ampx; i < dim_x; i++) {
-                    if (efac[n] > 0.){
-                        /* Only use GOOD pixels to build initial image.
-                           work = DN/s */
-                        if ((bufdq[i] & dqpat) == OK) {
-                            PIX(work, npts[i], i, nimgs) =
-                                (buf[i] - skyval[n]) / efac[n] / gn[1];
-                            npts[i] += 1;
-                        }
-                    } else {
-                        PIX(work, npts[i], i, nimgs) = 0.;
                     }
                 }
             }  /* End of nimgs loop */
@@ -183,6 +169,9 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                     /*
                         Use sorted index array to match proper exptimes to
                         selected pixels for use in ERR array calculation.
+
+                        NOTE: Pretty sure EXPN is wrong!!!
+
                     */
                     /* Even number of input images for this pixel */
                     if ((dum / 2) * 2 == dum) {
@@ -196,25 +185,26 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                         expn = exp2[ipts[dum / 2]];
                     }
                 }
-                raw0 = Pix(sg->sci.data, i, j);   /* DN/s */
+                raw0 = Pix(sg->sci.data, i, j);   /* e/s */
                 exp2n = (expn > 0.) ? expn : 1.;  /* s^2 */
                 if (newbias == 0) {
                     /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
-                       ERR = (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is DN^2
-                       raw0 is DN/s - is /s supposed to be there?
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
+                       nse is e^2
+                       raw0 is e/s - is /s supposed to be there?
                        exp2n is s^2
                     */
                     Pix(sg->err.data, i, j) =
-                        (nse[0] + raw0 / gn[0] + SQ(scale * raw0)) / exp2n;
+                        (nse[0] + raw0 + SQ(scale * raw0)) / exp2n;
                 } else {
                     /* Only consider readnoise for biases.
                        ERR = READNSE^2 / EXPTIME^2 */
-                    Pix(sg->err.data,i,j) = (nse[0]) / exp2n;
+                    Pix(sg->err.data, i, j) = nse[0] / exp2n;
                 }
             } /* End loop over FIRST AMP used on pixels in the line */
 
+            /* AMPS A and B */
             for (i = ampx; i < dim_x; i++) {
                 dum = npts[i];  /* Number of good data points */
                 if (dum == 0)
@@ -227,6 +217,9 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                     /*
                         Use sorted index array to match proper exptimes to
                         selected pixels for use in ERR array calculation.
+
+                        NOTE: Pretty sure EXPN is wrong!!!
+
                     */
                     /* Even number of input images for this pixel */
                     if ((dum / 2) * 2 == dum) {
@@ -240,22 +233,22 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                         expn = exp2[ipts[dum / 2]];
                     }
                 }
-                raw0 = Pix(sg->sci.data, i, j);  /* DN/s */
+                raw0 = Pix(sg->sci.data, i, j);  /* e/s */
                 exp2n = (expn > 0.) ? expn : 1.;  /* s^2 */
                 if (newbias == 0){
                     /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
-                       ERR = (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is DN^2
-                       raw0 is DN/s - is /s supposed to be there?
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
+                       nse is e^2
+                       raw0 is e/s - is /s supposed to be there?
                        exp2n is s^2
                     */
                     Pix(sg->err.data, i, j) =
-                        (nse[1] + raw0 / gn[1] + SQ(scale * raw0)) / exp2n;
+                        (nse[1] + raw0 + SQ(scale * raw0)) / exp2n;
                 } else {
                     /* Only consider readnoise for biases.
                        ERR = READNSE^2 / EXPTIME^2 */
-                    Pix(sg->err.data, i, j) = (nse[1]) / exp2n;
+                    Pix(sg->err.data, i, j) = nse[1] / exp2n;
                 }
             } /* End loop over SECOND AMP used on pixels in the line */
         } /* End loop over lines */
@@ -272,14 +265,14 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 
         for (n = 0; n < nimgs; n++) {
             initHdr(&dqhdr);
-            getHeader(ipdq[n],&dqhdr);
+            getHeader(ipdq[n], &dqhdr);
             for (j = 0; j < dim_y; j++) {
                 /* Set up the gain and noise values used for this line in
                    ALL images */
                 if (j < ampy ) {
                     gn[0] = gain2[AMP_C];
                     gn[1] = gain2[AMP_D];
-                    nse[0] = noise2[AMP_C];  /* DN^2 */
+                    nse[0] = noise2[AMP_C];  /* e^2 */
                     nse[1] = noise2[AMP_D];
                 } else {
                     gn[0] = gain2[AMP_A];
@@ -293,39 +286,42 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 
                 /* AMPS C and D */
                 for (i = 0; i < ampx; i++) {
-                    raw = buf[i] / gn[0];  /* DN */
-                    raw0 = (raw > 0.) ? raw : 0.;  /* DN */
-                    dumf = raw - (skyval[n] / gn[0]);
-                    signal0 = (dumf > 0.) ? dumf : 0.;  /* DN */
+                    raw = buf[i];  /* e */
+                    raw0 = (raw > 0.) ? raw : 0.;  /* e */
+                    dumf = raw - skyval[n];  /* e */
+                    signal0 = (dumf > 0.) ? dumf : 0.;  /* e */
 
                     if (efac[n] > 0.) {
                         /* Can be negative */
-                        val = dumf / efac[n];  /* DN/s */
+                        val = dumf / efac[n];  /* e/s */
                     } else {
                         val = 0.;
                     }
 
                     if ( (n == 0) || (val < Pix(sg->sci.data, i, j)) ) {
+                        /* If this pixel is bad in the first image,
+                           then the min is automatically set to 0. As a
+                           result, only negative val is going to be stored and
+                           valid positive min is ignored.
+                           SLIGHTLY BUGGY HERE??? */
                         if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
-                            Pix(sg->sci.data, i, j) = val;  /* DN/s */
-                            /*Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] +
-                              SQ(scale*raw0)) / exp2[n];*/  /* NOT USED */
-                            if (newbias == 0){
+                            Pix(sg->sci.data, i, j) = val;  /* e/s */
+                            if (newbias == 0) {
                                 /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
-                       ERR = (READNSE^2 + VAL/GN + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is DN^2
-                       raw0 is DN - with sky; should be sky subtracted?
-                       signal0 is DN - sky subtracted
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
+                       nse is e^2
+                       raw0 is e - with sky; should be sky subtracted?
+                       signal0 is e - sky subtracted
                        exp2n is s^2
                                 */
                                 Pix(sg->err.data, i, j) =
-                                    (nse[0] + (raw0 / gn[0]) +
+                                    (nse[0] + raw0 +
                                      SQ(scale * signal0)) / exp2[n];
                             } else {
                                 /* Only consider readnoise for biases.
                                    ERR = READNSE^2 / EXPTIME^2 */
-                                Pix(sg->err.data, i, j) = (nse[0]) / exp2[n];
+                                Pix(sg->err.data, i, j) = nse[0] / exp2[n];
                             }
                         } else {
                             Pix(sg->sci.data, i, j) = 0.;
@@ -335,39 +331,42 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 } /* End of loop over FIRST AMP for this line in each image */
 
                 for (i = ampx; i < dim_x; i++) {
-                    raw = buf[i] / gn[1];  /* DN */
-                    raw0 = (raw > 0.) ? raw : 0.;  /* DN */
-                    dumf = raw - (skyval[n] / gn[1]);
-                    signal0 = (dumf > 0.) ? dumf : 0.;  /* DN */
+                    raw = buf[i];  /* e */
+                    raw0 = (raw > 0.) ? raw : 0.;  /* e */
+                    dumf = raw - skyval[n];  /* e */
+                    signal0 = (dumf > 0.) ? dumf : 0.;  /* e */
 
                     if (efac[n] > 0.) {
                         /* Can be negative */
-                        val = dumf / efac[n];  /* DN/s */
+                        val = dumf / efac[n];  /* e/s */
                     } else {
                         val = 0.;
                     }
 
                     if ( (n == 0) || (val < Pix(sg->sci.data, i, j)) ) {
+                        /* If this pixel is bad in the first image,
+                           then the min is automatically set to 0. As a
+                           result, only negative val is going to be stored and
+                           valid positive min is ignored.
+                           SLIGHTLY BUGGY HERE??? */
                         if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
-                            Pix(sg->sci.data, i, j) = val;  /* DN/s */
-                            /*Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] +
-                              SQ(scale*raw0)) / exp2[n];*/  /* NOT USED */
-                            if (newbias == 0){
+                            Pix(sg->sci.data, i, j) = val;  /* e/s */
+                            if (newbias == 0) {
                                 /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
-                       ERR = (READNSE^2 + VAL/GN + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is DN^2
-                       raw0 is DN - with sky; should be sky subtracted?
-                       signal0 is DN - sky subtracted
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
+                       nse is e^2
+                       raw0 is e - with sky; should be sky subtracted?
+                       signal0 is e - sky subtracted
                        exp2n is s^2
                                 */
                                 Pix(sg->err.data, i, j) =
-                                    (nse[1] + (raw0 / gn[1]) +
+                                    (nse[1] + raw0 +
                                      SQ(scale * signal0)) / exp2[n];
                             } else {
                                 /* Only consider readnoise for biases.
                                    ERR = READNSE^2 / EXPTIME^2 */
-                                Pix(sg->err.data, i, j) = (nse[1]) / exp2[n];
+                                Pix(sg->err.data, i, j) = nse[1] / exp2[n];
                             }
                         } else {
                             Pix(sg->sci.data, i, j) = 0.;

@@ -46,7 +46,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     IODescPtr   ipsci[MAX_FILES];   /* science image descriptor */
     IODescPtr   ipdq[MAX_FILES];    /* data quality image descriptor */
-    float       skyval[MAX_FILES];  /* background DN values */
+    float       skyval[MAX_FILES];  /* background values */
     float       efac[MAX_FILES];    /* exposure factors */
     multiamp    noise;              /* readout noise */
     multiamp    gain;               /* A-to-D gain factors */
@@ -58,7 +58,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     float       sigma[MAX_ITER];
 
     Hdr         phdr;               /* primary header */
-    int         extver;             /* Current extension being processed*/
+    int         extver;             /* Current extension being processed */
     int         numext;             /* Number of extensions in each image */
     int         nextend;            /* Number of output extensions */
     char        imgname[MAX_FILES][CHAR_FNAME_LENGTH];

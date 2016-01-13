@@ -136,6 +136,7 @@ Code Outline:
                             processing by skipping images with zero exposure
                             time. Removed duplicate buffer re-initializations.
                             Cleaned up codes.
+  12-Jan-2016   P.L. Lim    Calculations now entirely in electrons.
 */
 int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
             char imgname[][CHAR_FNAME_LENGTH], int grp [], int nimgs,
@@ -161,7 +162,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
       dim_x, dim_y  i: Image dimension taken from the first input image.
                        All images must have the same dimension.
       sigma   i: Array of "crsigmas" values provided by user.
-      noise   i: Calibrated readnoise converted to DN in acsrej_check.c.
+      noise   i: Calibrated readnoise in electrons from acsrej_check.c.
                  It is squared in this function as rog2 and then copied to
                  noise2 (using get_nsegn) and subsequently nse.
       gain    i: Calibrated gain in e/DN from primary header keyword
@@ -171,14 +172,14 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
       skyval  i: Array of sky values for each input image.
                  Unit now in electrons.
       ave     io: As input, it is the median or minimum image, depending
-                  on "initgues" provided by the user, in DN/s, used for
+                  on "initgues" provided by the user, in e/s, used for
                   comparison during CR rejection.
-                  As output, it is the average image in electrons/s,
+                  As output, it is the average image also in e/s,
                   recalculated from good pixels only.
-      avevar  io: As input, it is the variance, in (DN/s)^2, that
+      avevar  io: As input, it is the variance, in (e/s)^2, that
                   corresponds to the input "ave". It is only used
                   for thresholds initialization if "initgues" is "minimum".
-                  As output, it is the ERR array in electrons/s,
+                  As output, it is the ERR array in e/s,
                   recalculated from good pixels only.
       efacsum  o: Array of total exposure times, in seconds, for each of
                   the pixels. This is calculated from the number of good
@@ -240,7 +241,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     int         rx, ry, x0, y0;
     float       pixexp;
     int         shadf_x;        /* Number of x pixels in SHADFILE */
-    float       *zerofbuf;       /* line buffer of all FLOAT zeroes  */
+    float       *zerofbuf;      /* line buffer of all FLOAT zeroes  */
     short       *zerosbuf;      /* line buffer of all SHORT zeroes */
 
     /* Functions for dealing with MULTIAMP values of gain and noise */
@@ -365,7 +366,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     /* Allocate space for the CR-hit mask */
     crmask = allocBitBuff (nimgs, dim_y, dim_x);
 
-    /* readout is in DN */
+    /* readout is in e */
     rej2 = SQ(par->radius);  /* pix^2 */
     psig2 = SQ(par->thresh); /* unitless factor */
     if (par->thresh <= 0.)
@@ -393,7 +394,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     for (k = 0; k < NAMPS; k++) {
         gain2[k] = 0.;  /* e/DN, copied from gain below */
         noise2[k] = 0.;
-        rog2[k] = SQ(noise.val[k]);  /* DN^2, copied to noise2 below */
+        rog2[k] = SQ(noise.val[k]);  /* e^2, copied to noise2 below */
     }
 
     for (n = 0; n < nimgs; n++) {
@@ -446,12 +447,12 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
             if (line < ampy ) {
                 gn[0] = gain2[AMP_C];  /* e/DN */
                 gn[1] = gain2[AMP_D];
-                nse[0] = noise2[AMP_C];  /* DN^2 */
+                nse[0] = noise2[AMP_C];  /* e^2 */
                 nse[1] = noise2[AMP_D];
             } else {
                 gn[0] = gain2[AMP_A];  /* e/DN */
                 gn[1] = gain2[AMP_B];
-                nse[0] = noise2[AMP_A];  /* DN^2 */
+                nse[0] = noise2[AMP_A];  /* e^2 */
                 nse[1] = noise2[AMP_B];
             }
 
@@ -487,12 +488,9 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         freeHdr(&dqhdr);
                         /* Scale the input values by the sky and exposure time
                            for comparison to the detection threshhold.
-                           Unit is DN/s. */
-                        for (i = 0; i < ampx; i++) {
-                            buf[i] = (buf[i] - skyval[k]) / efac[k] / gn[0];
-                        }
-                        for (i = ampx; i < dim_x; i++) {
-                            buf[i] = (buf[i] - skyval[k]) / efac[k] / gn[1];
+                           Unit is e/s. */
+                        for (i = 0; i < dim_x; i++) {
+                            buf[i] = (buf[i] - skyval[k]) / efac[k];
                         }
                     } else {
                         memcpy (buf, zerofbuf, dim_x * sizeof(float));
@@ -541,13 +539,9 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                     for (ii = width; ii < buffheight; ii++) {
                         /* Scale the pic value by the sky value and exposure
                            time for comparison to the detection threshhold. */
-                        for (i = 0; i < ampx; i++) {
+                        for (i = 0; i < dim_x; i++) {
                             pic[k][ii][i] = (pic[k][ii][i] - skyval[k]) /
-                                            efac[k] / gn[0];  /* DN/s */
-                        }
-                        for (i = ampx; i < dim_x; i++) {
-                            pic[k][ii][i] = (pic[k][ii][i] - skyval[k]) /
-                                            efac[k] / gn[1];  /* DN/s */
+                                            efac[k];  /* e/s */
                         }
 
                         /* Recalculate thresholds properly.
@@ -653,9 +647,9 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                     for (i = 0; i < dim_x; i++) {
                         /* find the CR by using statistical rejection.
 
-                           pic is DN/s (sky subtracted)
-                           ave is DN/s (sky subtracted)
-                           thresh is (DN/s)^2
+                           pic is e/s (sky subtracted)
+                           ave is e/s (sky subtracted)
+                           thresh is (e/s)^2
                         */
                         if ((SQ(pic[n][width][i] - PPix(ave, i, line)) >
                                 thresh[n][width][i]) &&
@@ -697,10 +691,10 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                                     if (ii >= dim_x || ii < 0) continue;
 
                                     /*
-                                      pic is DN/s
-                                      ave is DN/s
+                                      pic is e/s
+                                      ave is e/s
                                       psig2 is crthres^2 (propagation factor)
-                                      spthresh is (DN/s)^2
+                                      spthresh is (e/s)^2
                                     */
                                     if (SQ(pic[n][jj][ii] -
                                            PPix(ave, ii, jndx)) <=
@@ -717,8 +711,8 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                     for (i = 0; i < dim_x; i++)  {
                         if ( (mask[n][width][i] & maskdq ) == OK ) {
                             /* add the sky-subtracted but UN-scaled counts */
-                            sum[i] += pic[n][width][i] * efacn;  /* DN */
-                            PIX(efacsum, i, line, dim_x) += efacn;
+                            sum[i] += pic[n][width][i] * efacn;  /* e */
+                            PIX(efacsum, i, line, dim_x) += efacn;  /* s */
                         }
                     }
 
@@ -732,22 +726,22 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         /* FIRST AMP */
                         for (i = 0; i < ampx; i++) {
                             if ( (mask[n][width][i] & maskdq) == OK ) {
-                                /* DN, sky added back in */
+                                /* e, sky added back in */
                                 dum = (pic[n][width][i] * efacn) + skyvaln;
 
                                 /* clip the data at zero */
-                                val = (dum > 0.) ? dum : 0.;  /* DN */
+                                val = (dum > 0.) ? dum : 0.;  /* e */
 
                                 if (newbias == 0) {
                                     /* Variance term like DHB without SCALENSE
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
-                                nse is DN^2
-                                val is DN (with sky) - should be sky subtracted?
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+                                nse is e^2
+                                val is e (with sky) - should be sky subtracted?
                                     */
-                                    sumvar[i] += nse[0] + (val / gn[0]);
+                                    sumvar[i] += nse[0] + val;
                                 } else {
                                     /* Readnoise only for BIAS exposures.
-                                       nse is DN^2 */
+                                       nse is e^2 */
                                     sumvar[i] += nse[0];
                                 }
                             }
@@ -756,22 +750,22 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         /* SECOND AMP */
                         for (i = ampx; i < dim_x; i++) {
                             if ( (mask[n][width][i] & maskdq) == OK ) {
-                                /* DN, sky added back in */
+                                /* e, sky added back in */
                                 dum = (pic[n][width][i] * efacn) + skyvaln;
 
                                 /* clip the data at zero */
-                                val = (dum > 0.) ? dum : 0.;  /* DN */
+                                val = (dum > 0.) ? dum : 0.;  /* e */
 
                                 if (newbias == 0) {
                                     /* Variance term like DHB without SCALENSE
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10
-                                nse is DN^2
-                                val is DN (with sky) - should be sky subtracted?
+                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+                                nse is e^2
+                                val is e (with sky) - should be sky subtracted?
                                     */
-                                    sumvar[i] += nse[1] + (val / gn[1]);
+                                    sumvar[i] += nse[1] + val;
                                 } else {
                                     /* Readnoise only for BIAS exposures.
-                                       nse is DN^2 */
+                                       nse is e^2 */
                                     sumvar[i] += nse[1];
                                 }
                            }
@@ -838,33 +832,26 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                Then, on last iteration, calculate final ERROR arrays
                and convert back to electrons. */
 
-            /* FIRST AMP */
-            for (i = 0; i < ampx; i++) {
+            /* BOTH AMPS */
+            for (i = 0; i < dim_x; i++) {
                 /* Total EXPTIME (in seconds) of from images where this pixel
                    is not flagged as CR. */
                 pixexp = PIX(efacsum, i, line, dim_x);
 
                 if (pixexp > 0.) {
+                    /* Calculate signal.
+                       sum is e (sky-subtracted)
+                       ave is e/s (sky-subtracted); goes to SCI in final iter
+                    */
+                    PPix(ave, i, line) = (sum[i] / pixexp) /
+                                         (1 + (shadline[i] / pixexp));
+
+                    /* For final iter, convert variance to error.
+                       sumvar is e^2
+                       avevar is e/s; goes to ERR
+                    */
                     if (iter == (niter - 1)) {
-                        /* For final output.
-                           sum is DN (sky-subtracted)
-                           ave is e/s (sky-subtracted); goes to SCI
-                           sumvar is DN^2
-                           avevar is e/s; goes to ERR
-                        */
-                        PPix(ave, i, line) = (sum[i] * gn[0] / pixexp) /
-                                             (1 + (shadline[i] / pixexp));
-                        /* TODO: Place gn outside sqrt???
-                        PPix(avevar, i, line) = sqrt(sumvar[i]) * gn[0] /
-                        pixexp;*/
-                        PPix(avevar, i, line) = sqrt(sumvar[i] * gn[0]) / pixexp;
-                    } else {
-                        /* For next iteration.
-                           sum is DN (sky-subtracted)
-                           ave is DN/s (sky-subtracted)
-                        */
-                        PPix(ave, i, line) = (sum[i] / pixexp) /
-                                             (1 + (shadline[i] / pixexp));
+                        PPix(avevar, i, line) = sqrt(sumvar[i]) / pixexp;
                     }
                 } else {
                     if (iter == (niter - 1)) {
@@ -873,44 +860,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                         PPix(avevar, i, line) = par->fillval;
                     }
                 }
-            } /* End of loop over first amp used for line */
-
-            /* SECOND AMP */
-            for (i = ampx; i < dim_x; i++) {
-                /* Total EXPTIME (in seconds) of from images where this pixel
-                   is not flagged as CR. */
-                pixexp = PIX(efacsum, i, line, dim_x);
-
-                if (pixexp > 0.) {
-                    if (iter == (niter-1)) {
-                        /* For final output.
-                           sum is DN (sky-subtracted)
-                           ave is e/s (sky-subtracted); goes to SCI
-                           sumvar is DN^2
-                           avevar is e/s; goes to ERR
-                        */
-                        PPix(ave, i, line) = (sum[i] * gn[1] / pixexp) /
-                                             (1 + (shadline[i] / pixexp));
-                        /* TODO: Place gn outside sqrt???
-                        PPix(avevar, i, line) = sqrt(sumvar[i]) * gn[1] /
-                        pixexp;*/
-                        PPix(avevar, i, line) = sqrt(sumvar[i] * gn[1]) / pixexp;
-                    } else {
-                        /* For next iteration.
-                           sum is DN (sky-subtracted)
-                           ave is DN/s (sky-subtracted)
-                        */
-                        PPix(ave, i, line) = (sum[i] / pixexp) /
-                                             (1 + (shadline[i] / pixexp));
-                    }
-                } else {
-                    if (iter == (niter-1)) {
-                        /* fillval is always 0 */
-                        PPix(ave, i, line) = par->fillval;
-                        PPix(avevar, i, line) = par->fillval;
-                    }
-                }
-            } /* End of loop over second amp used for line */
+            } /* End of loop over both amps used for line */
         } /* End of loop over lines */
     } /* End loop for each iteration */
 
@@ -967,7 +917,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     free (zerofbuf);
     free (zerosbuf);
 
-    for (k=0;k<nimgs;k++) {
+    for (k = 0; k < nimgs; k++) {
         freeFloatBuff (pic[k], buffheight);
         freeFloatBuff (thresh[k], buffheight);
         freeFloatBuff (spthresh[k], buffheight);
@@ -1007,16 +957,16 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
    ampx   i: Index at AMP boundary.
    width  i: Radius (pix) to propagate CR.
    gn     i: Gains (e/DN) of the amps of the current EXTVER.
-   nse    i: Squared readnoise (DN^2) of the amps of the current EXTVER.
+   nse    i: Squared readnoise (e^2) of the amps of the current EXTVER.
    efacn  i: Exposure time (s) of the image.
    exp2n  i: Squared exposure time (s^2).
    skyvaln  i: Sky (electrons) of the image.
    sig2   i: Square of sigma of the given iteration.
    scale  i: SCALENSE divided by 100.
    ave    i: It is the median or minimum image, depending
-             on "initgues" provided by the user, in DN/s, used for
+             on "initgues" provided by the user, in e/s, used for
              comparison during CR rejection.
-   avevar i: It is the variance, in (DN/s)^2, that corresponds to the
+   avevar i: It is the variance, in (e/s)^2, that corresponds to the
              input "ave". It is only used for thresholds initialization
              if "initgues" is "minimum".
    shadcorr i: SHADCORR values. All ones if no correction.
@@ -1042,100 +992,90 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
     */
     if ((strncmp(par->initgues, "minimum", 3) == 0) && (iter == 0)) {
         for (i = 0; i < dim_x; i++) {
-            /* (DN/s)^2 */
+            /* (e/s)^2 */
             thresh_n[width][i] = sig2 * PPix(avevar, i, line);
             spthresh_n[width][i] = sig2 * PPix(avevar, i, line);
         }
     } else {
         /* FIRST AMP */
         for (i = 0; i < ampx; i++) {
-            sky_dn = skyvaln / gn[0];  /* DN */
-
             /* APPLY SHADCORR correction here, as necessary
                SHADCORR buffer defaults to ONE if SHADCORR is
                not performed.
             */
-            dum_nosky = PPix(ave, i, line) * efacn / shadcorr[i];  /* DN */
-            dum = dum_nosky + sky_dn;  /* DN */
+            dum_nosky = PPix(ave, i, line) * efacn / shadcorr[i];  /* e */
+            dum = dum_nosky + skyvaln;  /* e */
 
             /* clip the data at zero */
-            val = (dum > 0.) ? dum : 0.;  /* DN */
-
-            /* Signal variance in DN^2
-               https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10 */
-            val_dn2 = val / gn[0];
+            val = (dum > 0.) ? dum : 0.;  /* e */
 
             /* compute sky subtracted pixel value for use with SCALENSE */
-            pixsky = (dum_nosky > 0.) ? dum_nosky : 0.;  /* DN */
+            pixsky = (dum_nosky > 0.) ? dum_nosky : 0.;  /* e */
 
             /* Apply noise and gain appropriate for AMP used
                for this pixel.
 
           This is the threshold in DHB formula.
-          THRESH = SIGMA^2 * (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
-          nse is DN^2
-          val is DN^2/e? (sky added back in); should be sky subtracted?
-          pixsky is DN (sky subtracted)
+          https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+          THRESH = SIGMA^2 * (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
+          nse is e^2
+          val is e (sky added back in); should be sky subtracted?
+          pixsky is e (sky subtracted)
           exp2n is s^2
             */
-            thresh_n[width][i] = sig2 * (nse[0] + val_dn2 +
+            thresh_n[width][i] = sig2 * (nse[0] + val +
                                          SQ(scale * pixsky)) / exp2n;
 
             /* Compute threshhold without SCALENSE for use
                with SPILL pixels.
 
-          SPTHRESH = SIGMA^2 * (READNSE^2 + VAL/GN?) / EXPTIME^2
-          nse is DN^2
-          val is DN^2/e? (sky added back in); should be sky subtracted?
+          SPTHRESH = SIGMA^2 * (READNSE^2 + VAL) / EXPTIME^2
+          nse is e^2
+          val is e (sky added back in); should be sky subtracted?
           exp2n is s^2
             */
-            spthresh_n[width][i] = sig2 * (nse[0] + val_dn2) / exp2n;
+            spthresh_n[width][i] = sig2 * (nse[0] + val) / exp2n;
 
         } /* End of loop over first amp used for line */
 
         /* SECOND AMP */
         for (i = ampx; i < dim_x; i++) {
-            sky_dn = skyvaln / gn[1];  /* DN */
-
             /* APPLY SHADCORR correction here, as necessary
                SHADCORR buffer defaults to ONE if SHADCORR is
                not performed.
             */
-            dum_nosky = PPix(ave, i, line) * efacn / shadcorr[i];  /* DN */
-            dum = dum_nosky + sky_dn;  /* DN */
+            dum_nosky = PPix(ave, i, line) * efacn / shadcorr[i];  /* e */
+            dum = dum_nosky + skyvaln;  /* e */
 
             /* clip the data at zero */
-            val = (dum > 0.) ? dum : 0.;  /* DN */
-
-            /* Signal variance in DN^2
-               https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:10 */
-            val_dn2 = val / gn[1];
+            val = (dum > 0.) ? dum : 0.;  /* e */
 
             /* compute sky subtracted pixel value for use with SCALENSE */
-            pixsky = (dum_nosky > 0.) ? dum_nosky : 0.;  /* DN */
+            pixsky = (dum_nosky > 0.) ? dum_nosky : 0.;  /* e */
 
             /* Apply noise and gain appropriate for AMP used
                for this pixel.
 
           This is the threshold in DHB formula.
-          THRESH = SIGMA^2 * (READNSE^2 + VAL/GN? + (SCALE * VAL)^2) / EXPTIME^2
-          nse is DN^2
-          val is DN^2/e? (sky added back in); should be sky subtracted?
-          pixsky is DN (sky subtracted)
+          https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
+          THRESH = SIGMA^2 * (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
+          nse is e^2
+          val is e (sky added back in); should be sky subtracted?
+          pixsky is e (sky subtracted)
           exp2n is s^2
             */
-            thresh_n[width][i] = sig2 * (nse[1] + val_dn2 +
+            thresh_n[width][i] = sig2 * (nse[1] + val +
                                          SQ(scale * pixsky)) / exp2n;
 
             /* Compute threshhold without SCALENSE for use
                with SPILL pixels.
 
-          SPTHRESH = SIGMA^2 * (READNSE^2 + VAL/GN?) / EXPTIME^2
-          nse is DN^2
-          val is DN^2/e? (sky added back in); should be sky subtracted?
+          SPTHRESH = SIGMA^2 * (READNSE^2 + VAL) / EXPTIME^2
+          nse is e^2
+          val is e (sky added back in); should be sky subtracted?
           exp2n is s^2
             */
-            spthresh_n[width][i] = sig2 * (nse[1] + val_dn2) / exp2n;
+            spthresh_n[width][i] = sig2 * (nse[1] + val) / exp2n;
 
         } /* End of loop over second amp used for line */
     } /* End of initgues if-else */
@@ -1607,7 +1547,7 @@ static void getShadBuff (IODescPtr *ipshad, int line, int shad_dimy, int dim_x,
     }
 
     /* Clean up scratch space... */
-    freeFloatBuff (zsect,shad_dimy);
+    freeFloatBuff (zsect, shad_dimy);
     freeFloatBuff (ysect, SECTLINES);
 
     free(zl);           /* done with z */
