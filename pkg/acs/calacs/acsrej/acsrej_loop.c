@@ -981,7 +981,7 @@ static void calc_thresholds(clpar *par, int iter, int line, int dim_x,
                             FloatTwoDArray *avevar, float *shadcorr,
                             float **thresh_n, float **spthresh_n) {
     int i;
-    float dum, dum_nosky, val, val_dn2, sky_dn, pixsky;
+    float dum, dum_nosky, val, pixsky;
 
     /* calculate the threshold for each pixel
        If initgues is set to minimum, calculate threshold based
