@@ -31,12 +31,12 @@ static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
   19-Oct-2015 P.L. Lim   Calculations all done in electrons now.
 */
 
-int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpar[],
-            char imgname[][CHAR_FNAME_LENGTH], int grp[],
-            IODescPtr ipsci[],IODescPtr ipdq[],
-            multiamp *noise, multiamp *gain, int *dim_x, int *dim_y,
-            int nimgs)
-{
+int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
+                  int newpar[],
+                  char imgname[][CHAR_FNAME_LENGTH], int grp[],
+                  IODescPtr ipsci[],IODescPtr ipdq[],
+                  multiamp *noise, multiamp *gain, int *dim_x, int *dim_y,
+                  int nimgs, float efac[MAX_FILES]) {
     /*
       Parameters:
 
@@ -58,6 +58,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
       dim_x, dim_y  o: Image dimension taken from the first input image.
                        All images must have the same dimension.
       nimgs   i: Number of input images.
+      efac    i: Exposure times (seconds) for input images.
     */
 
     extern int status;
@@ -65,8 +66,9 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
     IODescPtr   ip;
     Hdr         prihdr, scihdr;         /* header structures */
     char        fdata[CHAR_FNAME_LENGTH];
-    char        det[ACS_CBUF];
-    int         detector;
+    char        det[ACS_CBUF], flashcur[ACS_CBUF], flashcur0[ACS_CBUF];
+    int         detector, flshcorr, flshcorr0;
+    float       flashdur, flashlevel, flashlevel0;
     multiamp    gn, ron;
     char        ccdamp[NAMPS+1], ccdamp0[NAMPS+1];
     int         k, n;
@@ -75,7 +77,9 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
     int         ampx, ampy;
 
     int         GetKeyInt (Hdr *, char *, int, int, int *);
+    int         GetKeyFlt (Hdr *, char *, int, float, float *);
     int         GetKeyStr (Hdr *, char *, int, char *, char *, int);
+    int         GetSwitch (Hdr *, char *, int *);
     int         DetCCDChip (char *, int, int, int *);
     int         streq_ic (char *, char *);  /* str equal? (case insensitive) */
     void        initmulti (multiamp *);
@@ -87,7 +91,13 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
     /* initialize local variables */
     ccdamp[0] = '\0';
     ccdamp0[0] = '\0';
+    det[0] = '\0';
+    flashcur[0] = '\0';
+    flashcur0[0] = '\0';
     chip = 0;
+    flashdur = 0.0;
+    flashlevel = 0.0;
+    flashlevel0 = 0.0;
 
     /* loop through all input files */
     for (k = 0; k < nimgs; ++k) {
@@ -117,6 +127,26 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
             return(status = KEYWORD_MISSING);
         }
 
+        /* Post-flash keywords */
+        if (GetSwitch (&prihdr, "FLSHCORR", &flshcorr)) {
+            trlkwerr ("FLSHCORR", fdata);
+            return (status = KEYWORD_MISSING);
+        }
+        if (flshcorr == PERFORM) {
+            if (GetKeyStr (&prihdr, "FLASHCUR", NO_DEFAULT, "",
+                           flashcur, ACS_CBUF)) {
+                trlkwerr ("FLASHCUR", fdata);
+                return(status = KEYWORD_MISSING);
+            }
+            if (GetKeyFlt (&prihdr, "FLASHDUR", USE_DEFAULT, 0.0, &flashdur)) {
+                trlkwerr ("FLASHDUR", fdata);
+                return(status = KEYWORD_MISSING);
+            }
+            flashlevel = flashdur / efac[k];
+        } else {
+            flshcorr = OMIT; /* OMIT/COMPLETE = flsh is not an issue anymore */
+        }
+
         /* Read in keywords from first image */
         if (k == 0) {
             /* read the CRREJ reference table name from the first file,
@@ -128,6 +158,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
                 }
             }
 
+            /* Detector */
             if (GetKeyStr (&prihdr, "DETECTOR", NO_DEFAULT, "",
                            det, ACS_CBUF)) {
                 trlkwerr ("DETECTOR", fdata);
@@ -144,8 +175,13 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
                 detector = UNKNOWN_DETECTOR;
             }
 
-            /* Remember the CCDAMP value for the first image */
+            /* Remember the values for the first image */
             strcpy(ccdamp0, ccdamp);
+            flshcorr0 = flshcorr;
+            if (flshcorr == PERFORM) {
+                strcpy(flashcur0, flashcur);
+                flashlevel0 = flashlevel;
+            }
 
             /* Start by opening the inputted extension of the first image */
             n = extver;
@@ -161,12 +197,59 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
 
         /* END CHECK ON FIRST (k=0) IMAGE HEADER INFO */
         } else {
-
             /* Make sure each image has the same value of CCDAMP */
-            if (!streq_ic(ccdamp,ccdamp0)) {
-                sprintf (MsgText, "%s uses different CCDAMP", fdata);
+            if (!streq_ic(ccdamp, ccdamp0)) {
+                sprintf (MsgText,
+                         "%s uses different CCDAMP, expected %s but got %s",
+                         fdata, ccdamp0, ccdamp);
                 trlerror (MsgText);
                 return (status = INVALID_VALUE);
+            }
+
+            /* Make sure each image has the same post-flash properties.
+
+               Notes from Norman Grogin:
+
+               The global mode-subtraction will not solve the varying FLASH
+               issue, as the flash illumination is far from flat across the
+               field of view.
+
+               Throw an error if it detects that: (the image stack does not all
+               have the same value of FLASH --- zero or otherwise) &&
+               (FLASHCORR != COMPLETE).
+
+               Since the comparison is done in e/s, the comparison of FLASHDUR
+               should instead be FLASHDUR/EXPTIME for each exposure.
+               For example, two frames would be OK to CRREJ together if
+               FLASHCORR != COMPLETE and (one had twice the exposure *and*
+               twice the FLASHDUR of the other). But would not be OK if
+               FLASHDUR were the same but the EXPTIME were different.
+
+               If FLASHCORR == COMPLETE when the ACSREJ is performed, then
+               no worry about the FLASHDUR. The needed information will live on
+               in the ERR arrays. */
+            if (flshcorr != flshcorr0) {
+                sprintf (MsgText,
+                         "%s uses different FLSHCORR, expected %d but got %d",
+                         fdata, flshcorr0, flshcorr);
+                trlerror (MsgText);
+                return (status = INVALID_VALUE);
+            }
+            if (flshcorr == PERFORM) {
+                if (!streq_ic(flashcur, flashcur0)) {
+                    sprintf (MsgText,
+                         "%s uses different FLASHCUR, expected %s but got %s",
+                             fdata, flashcur0, flashcur);
+                    trlerror (MsgText);
+                    return (status = INVALID_VALUE);
+                }
+                if (flashlevel != flashlevel0) {
+                    sprintf (MsgText,
+   "%s uses different flash levels (FLASHDUR/EXPTIME), expected %f but got %f",
+                             fdata, flashlevel0, flashlevel);
+                    trlerror (MsgText);
+                    return (status = INVALID_VALUE);
+                }
             }
 
             /* Determine which extension corresponds to desired chip
