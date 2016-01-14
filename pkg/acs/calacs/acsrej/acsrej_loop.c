@@ -135,7 +135,8 @@ Code Outline:
                             time. Removed duplicate buffer re-initializations.
                             Cleaned up codes.
   12-Jan-2016   P.L. Lim    Calculations now entirely in electrons.
-  13-Jan-2016   P.L. Lim    Replace threshold formula with ERR.
+  14-Jan-2016   P.L. Lim    Replace threshold formula with ERR. Cleaned up
+                            threshold calculation function.
 */
 int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                  char imgname[][CHAR_FNAME_LENGTH], int grp [], int nimgs,
