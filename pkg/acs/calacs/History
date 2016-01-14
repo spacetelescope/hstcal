@@ -1,5 +1,5 @@
-### TBD - PLL  -- Version 8.4.0
-    TBD
+### 14-Jan-2016 - PLL  -- Version 8.4.0
+    ACSREJ calculations now in electrons. Threshold uses ERR arrays. Bug fixes.
 
 ### 27-Jul-2015 - PLL -- Version 8.3.3
     ACSREJ can now process input list of any length (as allowed by memory).
