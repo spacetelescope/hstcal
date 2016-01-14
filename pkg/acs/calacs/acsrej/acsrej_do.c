@@ -10,7 +10,7 @@
 # include   "hstcalerr.h"
 # include   "rej.h"
 
-static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
+static void closeSciDq (int, IODescPtr [], IODescPtr [], IODescPtr [], clpar *);
 
 
 /*  acsrej_do -- Perform the cosmic ray rejection for ACS images
@@ -45,6 +45,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     extern int  status;
 
     IODescPtr   ipsci[MAX_FILES];   /* science image descriptor */
+    IODescPtr   iperr[MAX_FILES];   /* error image descriptor */
     IODescPtr   ipdq[MAX_FILES];    /* data quality image descriptor */
     float       skyval[MAX_FILES];  /* background values */
     float       efac[MAX_FILES];    /* exposure factors */
@@ -90,8 +91,8 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     int     acsrej_check (IRAFPointer, int, int, clpar *, int [],
                           char [][CHAR_FNAME_LENGTH], int [], IODescPtr [],
-                          IODescPtr [], multiamp *, multiamp *, int *, int *,
-                          int, float []);
+                          IODescPtr [], IODescPtr [], multiamp *, multiamp *,
+                          int *, int *, int, float []);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
                         double *);
     int     rejpar_in(clpar *, int [], int, float, int *, float []);
@@ -99,13 +100,12 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                         float []);
     void    cr_history (SingleGroup *, clpar *, int);
     int     acsrej_init (IODescPtr [], IODescPtr [], clpar *, int, int, int,
-                multiamp, multiamp, float [], float [],
-                SingleGroup *,   float *);
-    int     acsrej_loop (IODescPtr [], IODescPtr [], char [][CHAR_FNAME_LENGTH],
-                int [], int, clpar *, int, int, int, float [],
-                multiamp, multiamp, float [], float [],
-                FloatTwoDArray *, FloatTwoDArray *, float *,
-                ShortTwoDArray *, int *, char *);
+                         float [], float [], SingleGroup *, float *);
+    int     acsrej_loop (IODescPtr [], IODescPtr [], IODescPtr [],
+                         char [][CHAR_FNAME_LENGTH], int [], int, clpar *, int, int,
+                         int, float [], multiamp, multiamp, float [], float [],
+                         FloatTwoDArray *, FloatTwoDArray *, float *,
+                         ShortTwoDArray *, int *, char *);
     int     PutKeyFlt (Hdr *, char *, float, char *);
     int     PutKeyDbl (Hdr *, char *, double, char *);
     int     PutKeyStr (Hdr *, char *, char *, char *);
@@ -232,8 +232,8 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
         /* open input files and temporary files, check the parameters */
         if (acsrej_check (tpin, extver, numext, par, newpar, imgname, ext,
-                          ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs,
-                          efac)) {
+                          ipsci, iperr, ipdq, &noise, &gain, &dim_x, &dim_y,
+                          nimgs, efac)) {
             WhichError (status);
             return(status);
         }
@@ -290,11 +290,10 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
             if (non_zero < nimgs) {
                 trlwarn ("Some input exposures had EXPTIME = 0.");
             }
-
-            if (acsrej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y,
-                             noise, gain, efac, skyval, &sg, work)) {
+            if (acsrej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y, efac,
+                             skyval, &sg, work)) {
                 WhichError(status);
-                closeSciDq(nimgs, ipsci, ipdq, par);
+                closeSciDq(nimgs, ipsci, iperr, ipdq, par);
                 return (status);
             }
 
@@ -302,12 +301,12 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                 TimeStamp ("Calculated initial guess for extension", "");
 
             /* do the iterative cosmic ray rejection calculations */
-            if (acsrej_loop (ipsci, ipdq, imgname, ext, nimgs, par, niter,
-                             dim_x, dim_y, sigma, noise, gain, efac, skyval,
-                             &sg.sci.data, &sg.err.data, efacsum, &sg.dq.data,
-                             &nrej, shadref.name)) {
+            if (acsrej_loop (ipsci, iperr, ipdq, imgname, ext, nimgs, par,
+                             niter, dim_x, dim_y, sigma, noise, gain, efac,
+                             skyval, &sg.sci.data, &sg.err.data, efacsum,
+                             &sg.dq.data, &nrej, shadref.name)) {
                 WhichError(status);
-                closeSciDq(nimgs, ipsci, ipdq, par);
+                closeSciDq(nimgs, ipsci, iperr, ipdq, par);
                 return (status);
             }
         } else {
@@ -324,7 +323,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         } /* End if(non_zero) block */
 
         /* must close all images, now that we are done reading them */
-        closeSciDq(nimgs, ipsci, ipdq, par);
+        closeSciDq(nimgs, ipsci, iperr, ipdq, par);
 
         /* calculate the total sky (electrons)... */
         skysum = 0.;
@@ -436,13 +435,14 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
 
 /* Helper function to clean up image pointers... */
-static void closeSciDq(int nimgs, IODescPtr ipsci[], IODescPtr ipdq[],
-                       clpar *par) {
+static void closeSciDq(int nimgs, IODescPtr ipsci[], IODescPtr iperr[],
+                       IODescPtr ipdq[], clpar *par) {
     int n;
 
     /* must close all images, now that we are done reading them */
     for (n = 0; n < nimgs; ++n) {
         closeImage (ipsci[n]);
+        closeImage (iperr[n]);
         closeImage (ipdq[n]);
     }
 }
