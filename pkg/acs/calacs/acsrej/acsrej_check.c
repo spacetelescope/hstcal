@@ -33,7 +33,7 @@ static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
 int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                   int newpar[],
                   char imgname[][ACS_FNAME], int grp[],
-                  IODescPtr ipsci[],IODescPtr ipdq[],
+                  IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                   multiamp *noise, multiamp *gain, int *dim_x, int *dim_y,
                   int nimgs, float efac[MAX_FILES]) {
     /*
@@ -46,6 +46,8 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
       imagename  o: Array of image names.
       grp     o: Array of EXTVER for each input image.
       ipsci   o: Array of pointers to SCI extension of the given EXTVER,
+                 each pointer is an input image. Unit now in electrons.
+      iperr   o: Array of pointers to ERR extension of the given EXTVER,
                  each pointer is an input image. Unit now in electrons.
       ipdq    o: Array of pointers to DQ extension of the given EXTVER,
                  each pointer is an input image.
@@ -261,6 +263,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
         grp[k] = n;
         ipsci[k] = openInputImage (fdata, "SCI", n);
+        iperr[k] = openInputImage (fdata, "ERR", n);
         ipdq[k]  = openInputImage (fdata, "DQ",  n);
 
         /* use the first image's attributes to compare with the rest of
@@ -281,7 +284,8 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                 chip = 1;
 
             /* Now we need to read in CCDTAB file to get AMP regions */
-            if (getACSampxy (&prihdr, detector, chip, ccdamp, *dim_x, *dim_y, &ampx, &ampy) )
+            if (getACSampxy (&prihdr, detector, chip, ccdamp, *dim_x, *dim_y,
+                             &ampx, &ampy) )
                 return (status);
 
             freeHdr (&scihdr);
@@ -289,7 +293,9 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
         /* verify the image size to be the same as the first image */
         if (getNaxis1(ipsci[k]) != *dim_x || getNaxis2(ipsci[k]) != *dim_y){
-            sprintf (MsgText, "file '%s[sci,%d]' does not have the same size as the first image\n", imgname[k], grp[k]);
+            sprintf (MsgText,
+        "file '%s[sci,%d]' does not have the same size as the first image\n",
+                     imgname[k], grp[k]);
             trlerror (MsgText);
             return (status = SIZE_MISMATCH);
         }
