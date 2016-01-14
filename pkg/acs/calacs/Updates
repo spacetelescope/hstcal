@@ -1,8 +1,5 @@
 Update for version 9.1.1 - TBD (PLL)
-    acsrej/acsrej_loop.c
-    acsrej/acsrej_check.c
-    acsrej/acsrej_do.c
-    acsrej/acsrej_init.c
+    acsrej/*
 
 Update for version 9.1.0 - 21-Feb-17 (PLL)
     acsccd/doccd.c
