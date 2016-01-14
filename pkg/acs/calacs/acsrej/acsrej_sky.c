@@ -26,7 +26,7 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
       ipsci   i: Array of pointers to SCI extension of the given EXTVER,
                  each pointer is an input image. Unit now in electrons.
       ipdq    i: Array of pointers to DQ extension of the given EXTVER,
-                 each pointer is an input image. Unit now in electrons.
+                 each pointer is an input image.
       nimgs   i: Number of input images.
       badinpdq  i: Data quality pset.
       skyval  o: Array of sky values for each input image.
