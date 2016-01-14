@@ -10,6 +10,7 @@
 
 # define    OK          (short)0
 
+
 /* acsrej_init -- get the initial average pixel values
 
   Description:
@@ -26,11 +27,10 @@
   26-Aug-2002   J. Blakeslee    Modified threshhold for minimum to use SCALENSE
                                 only with sky-subtracted pixels.
   01-Dec-2015   P.L. Lim        Calculations now entirely in electrons.
+  13-Jan-2016   P.L. Lim        Removed variance init and cleaned up function.
 */
-
 int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
-                 int dim_x, int dim_y,
-                 multiamp noise, multiamp gain, float efac[], float skyval[],
+                 int dim_x, int dim_y, float efac[], float skyval[],
                  SingleGroup *sg, float *work) {
     /*
       Parameters:
@@ -43,11 +43,6 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
       nimgs   i: Number of input images.
       dim_x, dim_y  i: Image dimension taken from the first input image.
                        All images must have the same dimension.
-      noise   i: Calibrated readnoise in electrons from acsrej_check.c.
-                 It is squared in this function as rog2 and then copied to
-                 noise2 (using get_nsegn) and subsequently nse.
-      gain    i: Calibrated gain in e/DN from primary header keyword
-                 ATODGN[AMP], where [AMP] can be A, B, C, or D.
       efac    i: Array of EXPTIME for each image. If all inputs have
                  EXPTIME=0 (all biases), then the values are all set to 1.
       skyval  i: Array of sky values for each input image.
@@ -55,85 +50,35 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
       sg      o: Its "sci" component is the average image used for
                  comparison during CR rejection. Unit is e/s.
                  This is really the median or minimum depending on
-                 "initgues" provided by the user. It also has a "err"
-                 component that contains the variance (e/s)^2.
+                 "initgues" provided by the user.
       work    o: Intermediate result used to calculate sg but not used
                  outside this function.
     */
-
     extern int status;
 
-    float     scale, val, raw, raw0, signal0;
+    float     val, raw, dumf;
+    int       i, j, n, p, dum;
     float     *buf;
     short     *bufdq;
-    float     *exp2;
-    int       i, j, n;
-    int       dum;
-    float     dumf;
     int       *npts, *ipts;
-    float     noise2[NAMPS], rog2[NAMPS];
-    float     gain2[NAMPS];
-    float     nse[2], gn[2];
-    int       ampx, ampy, detector, chip;
-    int       k, p;
     short     dqpat;
-    float     exp2n, expn;
-    int       non_zero;
     Hdr       dqhdr;
-    int       newbias;
 
     void      ipiksrt (float [], int, int[]);
-    void      get_nsegn (int, int, int, int, float *, float*, float *, float *);
 
     /* -------------------------------- begin ------------------------------- */
 
-    scale = par->scalense / 100.;
-    ampx = gain.colx;
-    ampy = gain.coly;
-    detector = gain.detector;
-    chip = gain.chip;
     dqpat = par->badinpdq;
-    newbias = par->newbias;
 
     ipts = calloc (nimgs, sizeof(int));
     npts = calloc (dim_x, sizeof(int));
     buf = calloc (dim_x, sizeof(float));
-    exp2 = (float *) calloc (nimgs, sizeof(float));
     bufdq = calloc (dim_x, sizeof(short));
 
-    for (k = 0; k < NAMPS; k++) {
-        gain2[k] = 0.;
-        noise2[k] = 0.;
-        /* Assumption: ALL images have the same noise/gain values */
-        rog2[k] = SQ(noise.val[k]);  /* e^2 */
-    }
-
-    non_zero = 0;
-    for (n = 0; n < nimgs; n++) {
-        exp2[n] = SQ(efac[n]); /* s^2 */
-        if (efac[n] > 0.) non_zero++;
-    }
-    get_nsegn (detector, chip, ampx, ampy, gain.val, rog2, gain2, noise2);
-
-    /* use the stack median to construct the initial average.
-       For median, sg->err is calculated (and wrong) but NOT USED in
-       acsrej_loop.c !!! */
+    /* Use the stack median to construct the initial average. */
     if (strncmp(par->initgues, "median", 3) == 0) {
         for (j = 0; j < dim_y; j++) {
             memset (npts, 0, dim_x*sizeof(int));
-            /* Set up the gain and noise values used for this line in
-               ALL images */
-            if (j < ampy ) {
-                gn[0] = gain2[AMP_C];
-                gn[1] = gain2[AMP_D];
-                nse[0] = noise2[AMP_C];  /* e^2 */
-                nse[1] = noise2[AMP_D];
-            } else {
-                gn[0] = gain2[AMP_A];
-                gn[1] = gain2[AMP_B];
-                nse[0] = noise2[AMP_A];
-                nse[1] = noise2[AMP_B];
-            }
 
             for (n = 0; n < nimgs; n++) {
                 initHdr(&dqhdr);
@@ -155,8 +100,8 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 }
             }  /* End of nimgs loop */
 
-            /* AMPS C and D */
-            for (i = 0; i < ampx; i++) {
+            /* ALL AMPS */
+            for (i = 0; i < dim_x; i++) {
                 dum = npts[i];  /* Number of good data points */
                 if (dum == 0)
                     Pix(sg->sci.data, i, j) = 0.0F;
@@ -165,91 +110,16 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                     for (p=0; p < nimgs; p++) ipts[p] = p;
                     /* Sort pixel stack and corresponding index array. */
                     ipiksrt (&PIX(work, 0, i, nimgs), dum, ipts);
-                    /*
-                        Use sorted index array to match proper exptimes to
-                        selected pixels for use in ERR array calculation.
-
-                        NOTE: Pretty sure EXPN is wrong!!!
-
-                    */
-                    /* Even number of input images for this pixel */
+                     /* Even number of input images for this pixel */
                     if ((dum / 2) * 2 == dum) {
                         Pix(sg->sci.data, i, j) =
                             (PIX(work, dum / 2 - 1, i, nimgs) +
                              PIX(work, dum / 2, i, nimgs)) / 2.;
-                        expn = (exp2[ipts[dum / 2 - 1]] +
-                                exp2[ipts[dum / 2]]) / 2.;
                     } else {
                         Pix(sg->sci.data, i, j) = PIX(work, dum / 2, i, nimgs);
-                        expn = exp2[ipts[dum / 2]];
                     }
                 }
-                raw0 = Pix(sg->sci.data, i, j);   /* e/s */
-                exp2n = (expn > 0.) ? expn : 1.;  /* s^2 */
-                if (newbias == 0) {
-                    /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
-                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is e^2
-                       raw0 is e/s - is /s supposed to be there?
-                       exp2n is s^2
-                    */
-                    Pix(sg->err.data, i, j) =
-                        (nse[0] + raw0 + SQ(scale * raw0)) / exp2n;
-                } else {
-                    /* Only consider readnoise for biases.
-                       ERR = READNSE^2 / EXPTIME^2 */
-                    Pix(sg->err.data, i, j) = nse[0] / exp2n;
-                }
-            } /* End loop over FIRST AMP used on pixels in the line */
-
-            /* AMPS A and B */
-            for (i = ampx; i < dim_x; i++) {
-                dum = npts[i];  /* Number of good data points */
-                if (dum == 0)
-                    Pix(sg->sci.data, i, j) = 0.0F;
-                else {
-                    /* Setup index array for sorting... */
-                    for (p=0; p < nimgs; p++) ipts[p] = p;
-                    /* Sort pixel stack and corresponding index array. */
-                    ipiksrt (&PIX(work, 0, i, nimgs), dum, ipts);
-                    /*
-                        Use sorted index array to match proper exptimes to
-                        selected pixels for use in ERR array calculation.
-
-                        NOTE: Pretty sure EXPN is wrong!!!
-
-                    */
-                    /* Even number of input images for this pixel */
-                    if ((dum / 2) * 2 == dum) {
-                        Pix(sg->sci.data,i,j) =
-                            (PIX(work, dum / 2 - 1, i, nimgs) +
-                             PIX(work, dum / 2, i, nimgs)) / 2.;
-                        expn = (exp2[ipts[dum / 2 - 1]] +
-                                exp2[ipts[dum / 2]]) / 2.;
-                    } else {
-                        Pix(sg->sci.data, i, j) = PIX(work, dum / 2, i, nimgs);
-                        expn = exp2[ipts[dum / 2]];
-                    }
-                }
-                raw0 = Pix(sg->sci.data, i, j);  /* e/s */
-                exp2n = (expn > 0.) ? expn : 1.;  /* s^2 */
-                if (newbias == 0){
-                    /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
-                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is e^2
-                       raw0 is e/s - is /s supposed to be there?
-                       exp2n is s^2
-                    */
-                    Pix(sg->err.data, i, j) =
-                        (nse[1] + raw0 + SQ(scale * raw0)) / exp2n;
-                } else {
-                    /* Only consider readnoise for biases.
-                       ERR = READNSE^2 / EXPTIME^2 */
-                    Pix(sg->err.data, i, j) = nse[1] / exp2n;
-                }
-            } /* End loop over SECOND AMP used on pixels in the line */
+            } /* End loop over ALL AMPS used on pixels in the line */
         } /* End loop over lines */
 
     /* use the minimum to construct the initial average */
@@ -265,30 +135,15 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
         for (n = 0; n < nimgs; n++) {
             initHdr(&dqhdr);
             getHeader(ipdq[n], &dqhdr);
-            for (j = 0; j < dim_y; j++) {
-                /* Set up the gain and noise values used for this line in
-                   ALL images */
-                if (j < ampy ) {
-                    gn[0] = gain2[AMP_C];
-                    gn[1] = gain2[AMP_D];
-                    nse[0] = noise2[AMP_C];  /* e^2 */
-                    nse[1] = noise2[AMP_D];
-                } else {
-                    gn[0] = gain2[AMP_A];
-                    gn[1] = gain2[AMP_B];
-                    nse[0] = noise2[AMP_A];
-                    nse[1] = noise2[AMP_B];
-                }
 
+            for (j = 0; j < dim_y; j++) {
                 getFloatLine (ipsci[n], j, buf);  /* electrons */
                 getShortLine (ipdq[n], j, bufdq);
 
-                /* AMPS C and D */
-                for (i = 0; i < ampx; i++) {
+                /* ALL AMPS */
+                for (i = 0; i < dim_x; i++) {
                     raw = buf[i];  /* e */
-                    raw0 = (raw > 0.) ? raw : 0.;  /* e */
                     dumf = raw - skyval[n];  /* e */
-                    signal0 = (dumf > 0.) ? dumf : 0.;  /* e */
 
                     if (efac[n] > 0.) {
                         /* Can be negative */
@@ -305,85 +160,22 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                            SLIGHTLY BUGGY HERE??? */
                         if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
                             Pix(sg->sci.data, i, j) = val;  /* e/s */
-                            if (newbias == 0) {
-                                /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
-                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is e^2
-                       raw0 is e - with sky; should be sky subtracted?
-                       signal0 is e - sky subtracted
-                       exp2n is s^2
-                                */
-                                Pix(sg->err.data, i, j) =
-                                    (nse[0] + raw0 +
-                                     SQ(scale * signal0)) / exp2[n];
-                            } else {
-                                /* Only consider readnoise for biases.
-                                   ERR = READNSE^2 / EXPTIME^2 */
-                                Pix(sg->err.data, i, j) = nse[0] / exp2[n];
-                            }
                         } else {
                             Pix(sg->sci.data, i, j) = 0.;
-                            Pix(sg->err.data, i, j) = 0.;
                         }
                     }
-                } /* End of loop over FIRST AMP for this line in each image */
-
-                for (i = ampx; i < dim_x; i++) {
-                    raw = buf[i];  /* e */
-                    raw0 = (raw > 0.) ? raw : 0.;  /* e */
-                    dumf = raw - skyval[n];  /* e */
-                    signal0 = (dumf > 0.) ? dumf : 0.;  /* e */
-
-                    if (efac[n] > 0.) {
-                        /* Can be negative */
-                        val = dumf / efac[n];  /* e/s */
-                    } else {
-                        val = 0.;
-                    }
-
-                    if ( (n == 0) || (val < Pix(sg->sci.data, i, j)) ) {
-                        /* If this pixel is bad in the first image,
-                           then the min is automatically set to 0. As a
-                           result, only negative val is going to be stored and
-                           valid positive min is ignored.
-                           SLIGHTLY BUGGY HERE??? */
-                        if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
-                            Pix(sg->sci.data, i, j) = val;  /* e/s */
-                            if (newbias == 0) {
-                                /* This is the 2nd term in DHB formula.
-                  https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
-                       ERR = (READNSE^2 + VAL + (SCALE * VAL)^2) / EXPTIME^2
-                       nse is e^2
-                       raw0 is e - with sky; should be sky subtracted?
-                       signal0 is e - sky subtracted
-                       exp2n is s^2
-                                */
-                                Pix(sg->err.data, i, j) =
-                                    (nse[1] + raw0 +
-                                     SQ(scale * signal0)) / exp2[n];
-                            } else {
-                                /* Only consider readnoise for biases.
-                                   ERR = READNSE^2 / EXPTIME^2 */
-                                Pix(sg->err.data, i, j) = nse[1] / exp2[n];
-                            }
-                        } else {
-                            Pix(sg->sci.data, i, j) = 0.;
-                            Pix(sg->err.data, i, j) = 0.;
-                        }
-                    }
-                } /* End of loop over SECOND AMP for this line in each image */
-
+                } /* End of loop over ALL AMPS for this line in each image */
             } /* End of loop over lines in image (y) */
+
             freeHdr(&dqhdr);
         } /* End of loop over images in set */
     }
 
     /* free the memory */
-    free (exp2);
     free (ipts);
     free (npts);
     free (buf);
     free (bufdq);
+
     return (status);
 }
