@@ -84,6 +84,8 @@ int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
         return (status);
     if (GetKeyDbl (phdr, "EXPEND", NO_DEFAULT, 0., &acs->expend))
         return (status);
+    if (GetKeyDbl (phdr, "DARKTIME", USE_DEFAULT, -1., &acs->darktime))
+        return (status);
 
     /* Find out how many extensions there are in this file. */
     if (GetKeyInt (phdr, "NEXTEND", USE_DEFAULT, EXT_PER_GROUP, &nextend))

@@ -46,6 +46,7 @@ typedef struct {
     /* Exposure time keywords */
     double exptime;           /* exposure time */
     double expstart, expend;  /* exposure start and end times (MJD)*/
+    double darktime;          /* Actual exposure time for dark currents */
 
     /* DQ */
     short sdqflags;  /* serious data quality values */

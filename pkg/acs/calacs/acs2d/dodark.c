@@ -7,6 +7,8 @@
 # include "acsinfo.h"
 # include "acserr.h"
 
+static float calc_darktime(ACSInfo *);
+
 
 /* This routine subtracts the dark image from x (in-place).
  For CCD data, the dark image is multiplied by the dark time
@@ -55,8 +57,6 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
     */
     extern int status;
 
-    const float darkscaling = 3.0;  /* Extra idle time */
-
     SingleGroupLine y, z; /* y and z are scratch space */
     int extver = 1;       /* get this imset from dark image */
     int rx, ry;           /* for binning dark down to size of x */
@@ -81,19 +81,15 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
     initSingleGroupLine (&y);
     scilines = x->sci.data.ny;
 
-    /* Compute DARKTIME.
-       SBC does not have FLASH keywords. */
-    if (acs2d->detector == MAMA_DETECTOR)
-        darktime = acs2d->exptime;
-    else {
-        darktime = acs2d->exptime + acs2d->flashdur;
-
-        /* Post-SM4 non-BIAS WFC only.
-           TARGNAME unavailable, assume EXPTIME=0 means BIAS */
-        if (acs2d->detector == WFC_CCD_DETECTOR && acs2d->expstart > SM4MJD &&
-                acs2d->exptime > 0)
-            darktime += darkscaling;
+    /* Use DARKTIME from header if available. It is negative if unavailable,
+       which then we calculate it instead.
+       See https://trac.stsci.edu/ssb/stsci_python/ticket/1167#comment:3 */
+    if (acs2d->darktime < 0) {
+        darktime = calc_darktime(acs2d);
+    } else {
+        darktime = acs2d->darktime;
     }
+
 
     /* Compute correct extension version number to extract from
        reference image to correspond to CHIP in science data. */
@@ -107,10 +103,18 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
             return (status);
     }
 
+    /* Extra info, useful for debugging. */
     if (acs2d->verbose) {
         sprintf(MsgText,
                 "Performing dark subtraction on chip %d in imset %d",
                 acs2d->chip, extver);
+        trlmessage(MsgText);
+
+        if (acs2d->darktime < 0) {
+            sprintf(MsgText, "DARKTIME=%f (calculated)", darktime);
+        } else {
+            sprintf(MsgText, "DARKTIME=%f (direct keyword)", darktime);
+        }
         trlmessage(MsgText);
     }
 
@@ -186,4 +190,27 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
         *meandark = 0.;
 
     return (status);
+}
+
+
+/* Calculate dark time if there is no direct DARKTIME keyword. */
+static float calc_darktime(ACSInfo *acs2d) {
+    const float darkscaling = 3.0;  /* Extra idle time (seconds) */
+    float darktime;
+
+    /* SBC does not have FLASH keywords. */
+    if (acs2d->detector == MAMA_DETECTOR) {
+        darktime = acs2d->exptime;
+    } else {
+        darktime = acs2d->exptime + acs2d->flashdur;
+
+        /* Post-SM4 non-BIAS WFC only.
+           TARGNAME unavailable, assume EXPTIME=0 means BIAS */
+        if (acs2d->detector == WFC_CCD_DETECTOR && acs2d->expstart > SM4MJD &&
+                acs2d->exptime > 0) {
+            darktime += darkscaling;
+        }
+    }
+
+    return (darktime);
 }
