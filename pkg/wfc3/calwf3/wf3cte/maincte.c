@@ -5,6 +5,7 @@ as you would wf3ccd or wf32d
 
 MLS 2015
 
+ Jan 19, 2016: update name of output from _rac to _rac_tmp
 
 */
 
@@ -193,7 +194,7 @@ int main (int argc, char **argv) {
             
         } else if (cte_sw.pctecorr) {
 
-            if (MkName (input, "_raw", "_rac", "", output, SZ_FNAME)) {
+            if (MkName (input, "_raw", "_rac_tmp", "", output, SZ_FNAME)) {
                 WhichError (status);
                 sprintf (MsgText, "Skipping %s, problem making output name", input);
                 trlmessage (MsgText);

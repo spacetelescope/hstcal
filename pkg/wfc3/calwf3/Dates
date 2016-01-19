@@ -1,3 +1,7 @@
+19-Jan-2016 - MLS -- Version 3.3
+    - Updates to fix trailer file output information. Part of the problem is the change in name of the output RAC_TMP file, the functions which create input and output trailer file naming conventions look for the dot to separate extensions so I need to change some expectations.
+    - Update to check for the raw header value of PCTENSMD and update the cte parameter table accordingly (though only a value of 0 is valid right now)
+    
 08-Jan-2016 - MLS -- Version 3.3
     - changed the name of the output rac file to rac_tmp so that archive could handle deleting it better
 

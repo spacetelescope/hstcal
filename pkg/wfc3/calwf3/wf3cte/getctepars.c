@@ -1,6 +1,9 @@
 /*
 MLS 2015: read in the CTE parameters from the PCTETAB file 
 
+    Jan 19, 2016: MLS  Updated to check for existence of PCTENSMD in 
+                  raw science header
+
 */
 
 # include <time.h>
@@ -509,6 +512,13 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     int n_forward;
     int n_par;
     int fix_rocr;
+    int noise_mit;
+    
+    cte_len=0;
+    n_forward=0;
+    n_par=0;
+    fix_rocr=0;
+    noise_mit=0;
 
     
     /*always put the cte_name  and cte_ver from the reference file in*/
@@ -537,6 +547,15 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 		trlmessage("(pctecorr) Error putting CTEDATE1 keyword in header");
         return (status=HEADER_PROBLEM);
 	}
+    
+    /*check the PCTENSMD keyword in the header*/
+    if (GetKeyInt(group->globalhdr, "PCTENSMD", NO_DEFAULT, -999, &noise_mit)){
+        trlmessage("(pctecorr) Error reading PCTENSMD keyword from header");
+        return (status=HEADER_PROBLEM);
+    }
+    if (noise_mit != pars->noise_mit){
+        pars->noise_mit = noise_mit;
+    } 
     
     /*check the PCTEDIM keyword in header*/
 	if (GetKeyInt(group->globalhdr, "PCTETLEN", NO_DEFAULT, -999, &cte_len)) {
