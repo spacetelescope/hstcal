@@ -244,6 +244,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 	        for (prod = 0; prod < asn.numprod; prod++) {
 		        wf3dth_input = BuildDthInput (&asn, prod, suffix_flt);
+                printf("\n\nwf3dth_inpt is %s\n\n",wf3dth_input);
 
 		        /* Skip this product if the input list is empty */
 		        if (wf3dth_input == NULL) {
@@ -406,7 +407,6 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 			strcat(wf3dth_input, ",");
 		}
 	}
-
 	return(wf3dth_input);
 }
 

@@ -3,7 +3,7 @@
    M. sosey  Aug-2014  Adapted for the pipeline from Jay Andersons CTE correction code for wfc3 UVIS
    raw2raz_wfc3uv.F , an edited file was delivered december 2014, and both are different from the 
    fortran code currently served on the wfc3 website.
-
+                    
 */
 
 # include <time.h>
@@ -1270,22 +1270,53 @@ int initCTETrl (char *input, char *output) {
     trl_out[0] = '\0';
     exist = EXISTS_UNKNOWN;
 
+	/* Input and output suffixes. */
+	char *isuffix[] = {"_raw"};
+	char *osuffix[] = {"_rac_tmp"};
+	char *trlsuffix[] = {"_rac_tmp"};
 
-    if (MkName (output, "_rac", "", TRL_EXTN, trl_out, SZ_LINE)) {
-        WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s",
-                output);
-        trlmessage (MsgText);
-    }
+	int nsuffix = 1;
 
-    /* Test whether the output file already exists */
-    exist = TrlExists(trl_out);
-    if (exist == EXISTS_YES) {
-        /* The output file exists, so we want to overwrite them with
-         ** the new trailer comments.  */
-        SetTrlOverwriteMode (YES);  
-    }
 
+	/* Start by stripping off suffix from input/output filenames */
+	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, SZ_LINE)) {
+	    WhichError (status);
+	    sprintf (MsgText, "Couldn't determine trailer filename for %s",
+		     input);
+	    trlmessage (MsgText);
+	}
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
+	    WhichError (status);
+	    sprintf (MsgText, "Couldn't create trailer filename for %s",
+		     output);
+	    trlmessage (MsgText);
+	}
+
+	/* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
+    
+	if (MkNewExtn (trl_in, TRL_EXTN) ) {
+	    sprintf (MsgText, "Error with input trailer filename %s", trl_in);
+	    trlerror (MsgText);
+	    WhichError (status);
+	}
+	if (MkNewExtn (trl_out, TRL_EXTN) ) {
+	    sprintf (MsgText, "Error with output trailer filename %s", trl_out);
+	    trlerror (MsgText);
+	    WhichError (status);
+	}
+    
+ 	/* If we are working with a RAW file, then see if a TRL file 
+	   needs to be overwritten after the generic conversion comments.  */
+	if (strstr(input, isuffix[0]) != NULL) {
+	    /* Test whether the output file already exists */
+	    exist = TrlExists(trl_out);            
+	    if (exist == EXISTS_YES) {
+		/* The output file exists, so we want to add to them 
+		** the new trailer comments.  */
+		    SetTrlOverwriteMode (NO);	
+	    }
+	}
+   
     /* Sets up temp trailer file for output and copies input
      ** trailer file into it.  */
     InitTrlFile (trl_in, trl_out);

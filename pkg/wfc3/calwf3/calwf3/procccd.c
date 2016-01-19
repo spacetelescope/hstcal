@@ -52,6 +52,9 @@
    
    M. Sosey, 2015: fixed some logic associated with crcorr processing and 
    removing the tmp files
+   
+   M. Sosey 2016: updated the trailer file concatination; the trailer files for
+   association files are not being concatinated correctly.
     
  */
 
@@ -235,6 +238,13 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                 }   
 
+                /* COPY ALL MESSAGES UP TO HERE INTO PREFACE BUFFER
+                   TO BE PREPENDED TO ALL INPUT FILE TRAILER FILES */
+                if (newpreface == YES) {
+                    InitTrlPreface();
+                }
+                SetTrlPrefaceMode (YES);
+
                 if (wf3hdr->sci_basic_cte == PERFORM ) {
 
                     /*correct for CTE issues and THEN complete the calibration
@@ -261,13 +271,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (wf3hdr->sci_basic_ccd == PERFORM) {
 
                         /* THIS IS CALWF3CCD; NOTE WE USE WF3CCD_SCI_SW. */
-
-                        /* COPY ALL MESSAGES UP TO HERE INTO PREFACE BUFFER
-                         ** TO BE PREPENDED TO ALL INPUT FILE TRAILER FILES */
-                        if (newpreface == YES) {
-                            InitTrlPreface();
-                        }
-                        SetTrlPrefaceMode (YES);
 
                         /*DO WF3CCD STUFF ON THE RAC IMAGE */
                         if (WF3ccd (wf3hdr->rac_tmp, wf3hdr->blc_tmp,
@@ -299,9 +302,12 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             strcat(wf3rej_cte_input, ",");
                         }
 
-                        /* ALSO ADD BLC_TMP TO LIST OF FILES TO BE DELETED */
+                        /* ALSO ADD BLC_TMP and RAC_TMP TO LIST OF FILES TO BE DELETED */
                         strcpy (asn->product[prod].subprod[posid].exp[expid].blc_tmp,
                                 wf3hdr->blc_tmp);
+                        strcpy (asn->product[prod].subprod[posid].exp[expid].rac_tmp,
+                                wf3hdr->rac_tmp);
+                                
                     }
 
                 }  /*END CTE PROCESSING TO BLC_TMP LEVEL*/
@@ -309,18 +315,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 
                 /*ALWAYS REPEAT THE PROCESS WITHOUT THE CTE CORRECTION SO BOTH ARE PRODUCED*/
                 if (wf3hdr->sci_basic_ccd == PERFORM) {
-                
-                    /*INITIALIZE THE TRAILER INFO IF CTE NOT PERFORMED*/
-                    if (wf3hdr->sci_basic_cte == OMIT){
-
-                        /* COPY ALL MESSAGES UP TO HERE INTO PREFACE BUFFER
-                           TO BE PREPENDED TO ALL INPUT FILE TRAILER FILES */
-                        if (newpreface == YES) {
-                            InitTrlPreface();
-                        }
-                        SetTrlPrefaceMode (YES);
-                    }
-                    
+                                    
                     if (WF3ccd (wf3hdr->rawfile, wf3hdr->blv_tmp,
                                 &wf3ccd_sci_sw, &sciref, printtime,
                                 asn->verbose)) 		
@@ -410,6 +405,10 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 } 
 
             }/* END EXPID  LOOP OVER INDIVIDUAL EXPOSURES,GO ON TO CREATE PRODUCTS */
+                               
+            /* Reset the trailer file preface to NULL since                   
+            ** it has already been copied into trailer files */
+            ResetTrlPreface();          
                                           
             /*** DO CRCORR/RPTCORR PROCESSING ***/
             if (wf3hdr->sci_crcorr == PERFORM ||  wf3hdr->sci_rptcorr == PERFORM) {
@@ -580,7 +579,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             return (status);
 
                         if (wf3hdr->sci_basic_2d == PERFORM){
-                            SetTrlPrefaceMode(YES);
+                            SetTrlPrefaceMode(NO);
                                     
                             /* RESET SWITCHES*/
                             ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);
@@ -628,6 +627,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (*save_tmp == NO) {
                         for (expid=1; expid <= asn->spmems[posid]; expid++) {
                             remove (asn->product[prod].subprod[posid].exp[expid].blc_tmp);
+                            remove (asn->product[prod].subprod[posid].exp[expid].rac_tmp);
                         }
                     }    
                  }
