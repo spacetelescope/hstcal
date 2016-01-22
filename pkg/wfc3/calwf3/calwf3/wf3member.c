@@ -56,17 +56,8 @@ WF3Info *wf3		o: exposure specific flags and info
 		asn->product[prodid].subprod[posid].exp[expid].name);
 	
     strcpy (wf3->crj_root, asn->product[prodid].subprod[posid].spname);
-    
-    if (wf3->sci_basic_cte == PERFORM){
-        /*replace spname which already has crj in it with crc*/
-    	strcpy (wf3->crc_root, asn->product[prodid].subprod[posid].spname);
-        if (strstr(wf3->crc_root,"_crj")){
-            if (MkName (wf3->crc_root, "_crj", "_crc", "", wf3->crc_root, SZ_LINE)){
-                return (status);
-            }
-        }
-    }
-    
+    strcpy (wf3->crc_root, asn->product[prodid].subprod[posid].spname_cte);
+        
 
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (wf3->rootname, rootname);

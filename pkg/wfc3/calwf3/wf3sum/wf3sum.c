@@ -615,8 +615,8 @@ static void InitSumTrl (char *input, char *output) {
 	
 	int trl_len;
 	
-	char *isuffix[] = {"_crj", "_flt"};
-	char *osuffix[] = {"_sfl", "_sfl"};
+	char *isuffix[] = {"_crj", "_flt","_crc","_flc"};
+	char *osuffix[] = {"_sfl", "_sfl","_sfl","_sfl"};
 	char *trlsuffix[] = {"", ""};
 	int nsuffix = 2;
 	
