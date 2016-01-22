@@ -1273,7 +1273,7 @@ int initCTETrl (char *input, char *output) {
 	/* Input and output suffixes. */
 	char *isuffix[] = {"_raw"};
 	char *osuffix[] = {"_rac_tmp"};
-	char *trlsuffix[] = {"_rac_tmp"};
+	char *trlsuffix[] = {""};
 
 	int nsuffix = 1;
 

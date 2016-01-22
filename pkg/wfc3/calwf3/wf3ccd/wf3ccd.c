@@ -88,7 +88,7 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     /* Copy command-line arguments into wf3. */
     /* Start by making sure input name is a full filename... 
        
-      The input can either be _raw or _rac or rootname 
+      The input can either be _raw or _rac_tmp or rootname 
         or rootname+unexpected, check for all. This seems
         like rather strange logic, but it works.
     
@@ -100,10 +100,10 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
         } else {
             strcpy(wf3.input,input);
         }
-    } else if (strstr(input,"_rac")){
-        if (MkName (input, "_rac", "", "", wf3.input, SZ_LINE)) {
+    } else if (strstr(input,"_rac_tmp")){
+        if (MkName (input, "_rac_tmp", "", "", wf3.input, SZ_LINE)) {
             strcpy(wf3.input,input);
-            strcat(wf3.input,"_rac.fits");
+            strcat(wf3.input,"_rac_tmp.fits");
         } else {
             strcpy(wf3.input,input);
         }
@@ -215,7 +215,7 @@ void InitCCDTrl (char *input, char *output) {
 	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
-	char *isuffix[] = {"_raw", "_rac"};
+	char *isuffix[] = {"_raw", "_rac_tmp"};
 	char *osuffix[] = {"_blv_tmp", "_blc_tmp"};
 	char *trlsuffix[] = {"", ""};
 

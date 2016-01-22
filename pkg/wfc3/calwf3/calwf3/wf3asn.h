@@ -45,7 +45,7 @@ typedef struct {
 	Bool prsnt;
 	int asnrow;		      /* row from ASN table */
 	char expname[SZ_FNAME+1];    /* Full filenames for member EXP images */
-	char blv_tmp[SZ_FNAME+1];    /* BLV_TMP files to be deleted */
+    char blv_tmp[SZ_FNAME+1];    /* BLV_TMP files to be deleted */
     char blc_tmp[SZ_FNAME+1];  /*BLC_TMP file to be deleted*/
     char rac_tmp[SZ_FNAME+1];  /*RAC file to be deleted*/
 	float dx, dy;
@@ -60,6 +60,7 @@ typedef struct {
 	int numexp;			/* # of EXP making this sub-product */
 	int posid;			/* Numbering starts at 1 */
 	char spname[SZ_FNAME+1];     	/* Full filename for sub-product */
+	char spname_cte[SZ_FNAME+1];     	/* Full filename for sub-product */
 	char crj_tmp[SZ_FNAME+1];	/* CRJ_TMP file(s) to be deleted */
     char crc_tmp[SZ_FNAME+1];  /*CRC_TMP file to be deleted*/
 	ExpInfo *exp;			/* List of member EXP information */
@@ -73,6 +74,7 @@ typedef struct {
 	int numsp;		    /* # of sub-products making this product */
 	int prodid;		    /* Numbering starts at 0 */	
 	char prodname[SZ_FNAME+1]; /* Full filename for final product */
+    char prodname_cte[SZ_FNAME+1]; /*Full filename for final product with CTE corrected data*/
 	SubProdInfo *subprod;	    /* List of member sub-product information */
 } ProdInfo;
 

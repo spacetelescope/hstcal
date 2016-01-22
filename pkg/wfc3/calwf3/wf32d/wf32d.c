@@ -237,7 +237,7 @@ void Init2DTrl (char *input, char *output) {
 	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
-	char *isuffix[] = {"_raw", "_rac","_blv_tmp", "_blc_tmp", "_crj_tmp","_crc_tmp"};
+	char *isuffix[] = {"_raw", "_rac_tmp","_blv_tmp", "_blc_tmp", "_crj_tmp","_crc_tmp"};
 	char *osuffix[] = {"_flt", "_flc","_flt","_flc", "_crj","_crc"};
 	char *trlsuffix[] = {"", "", "","","",""};
 

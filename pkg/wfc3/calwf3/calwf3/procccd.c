@@ -351,7 +351,6 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 
                 
 
-
                 /* IF WE ARE NOT PERFORMING CRCORR OR RPTCORR, THEN
                    FINISH PROCESSING INDIVIDUAL FILES WITH WF32D. */ 
 
@@ -408,8 +407,8 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                                
             /* Reset the trailer file preface to NULL since                   
             ** it has already been copied into trailer files */
-            ResetTrlPreface();          
-                                          
+            ResetTrlPreface();
+                                     
             /*** DO CRCORR/RPTCORR PROCESSING ***/
             if (wf3hdr->sci_crcorr == PERFORM ||  wf3hdr->sci_rptcorr == PERFORM) {
 
@@ -492,6 +491,8 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                          ** OTHERWISE. HAB 20-JUN-2004 */
 
                         wf3rej_msgtext = (char *) calloc(strlen(wf3rej_cte_input)+25,sizeof(char));
+                        sprintf (wf3rej_msgtext, "%s", wf3rej_input);
+                        trlmessage (wf3rej_msgtext);
                         free(wf3rej_msgtext);
                     }
                     
@@ -529,6 +530,8 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     if (WF32d (wf3hdr->crj_tmp, wf3hdr->crjfile,
                                 &wf32d_sci_sw, &sciref, printtime, asn->verbose))
                         return (status);
+                    
+                    printf("\n**** wf3hdr->sci_basic_cte is %i *****\n\n",wf3hdr->sci_basic_cte);
                     
                     if (wf3hdr->sci_basic_cte == PERFORM){
                         /* Flatfield the summed, cosmic ray rejected CTE image. */
@@ -579,7 +582,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             return (status);
 
                         if (wf3hdr->sci_basic_2d == PERFORM){
-                            SetTrlPrefaceMode(NO);
+                            SetTrlPrefaceMode(YES);
                                     
                             /* RESET SWITCHES*/
                             ResetCCDSw (&wf3ccd_sci_sw, &wf32d_sci_sw);

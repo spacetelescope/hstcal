@@ -140,8 +140,10 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	void InitDthTrl (const char *, char *);
 
     /*because DTH had this hard coded and it varies with UVIS for CTE*/
-    char suffix_flt[]="_flt.fits";
+   char suffix_flt[]="_flt.fits";    
+   char suffix_flc[]="_flc.fits";    
     
+       
 	/* Post error handler */
 	push_hstioerr (errchk);
 
@@ -236,16 +238,14 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
         if (asn.process == FULL) {
 	        if (asn.verbose) {
-		        trlmessage ("CALWF3: Building DTH products....");
+		        trlmessage ("CALWF3: Building DTH products for non-CTE data....");
 	        }
 
-	        /* For each DTH product in UVIS without CTE... */
-            printf("\nProcessing DTH for non-CTE data ...\n");
-
+            wf3dth_input=NULL;
+                    
 	        for (prod = 0; prod < asn.numprod; prod++) {
-		        wf3dth_input = BuildDthInput (&asn, prod, suffix_flt);
-                printf("\n\nwf3dth_inpt is %s\n\n",wf3dth_input);
-
+		        wf3dth_input = BuildDthInput (&asn, prod,suffix_flt );
+                
 		        /* Skip this product if the input list is empty */
 		        if (wf3dth_input == NULL) {
                     printf("\nProduct %i input list empty, continuing..\n",prod);
@@ -256,7 +256,60 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		         ** for the entire association whether there is a product or
 		         ** not. So we set up the trailer file based on the association
 		         ** file name itself. */
- 		        InitDthTrl (wf3dth_input, asn.rootname);
+                 
+                if (strcmp(asn.product[prod].prodname,"") != 0){
+                    InitDthTrl(wf3dth_input,asn.product[prod].prodname);
+                } else {            
+ 	    	        InitDthTrl (wf3dth_input, asn.rootname);
+                }
+
+		        /* Check if we have a PROD-DTH specified */
+		        if (strcmp(asn.product[prod].prodname,"") != 0) {
+			        
+                    if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
+				        if (Wf3Dth (wf3dth_input,
+							        asn.product[prod].prodname, asn.dthcorr,
+							        printtime, asn.verbose) )
+					        return (status);
+
+				        /* Pass posid=0 to indicate a PRODUCT is to
+				         ** be updated */
+				        updateAsnTable(&asn, prod, NOPOSID);
+
+			        } else {
+
+				        trlwarn
+					        ("No DTH product name specified. No product created.");
+				        /* status = WF3_OK; */
+			        }
+		        }
+
+	        }                         
+             
+	        /* For each DTH product in UVIS WITH CTE... */
+	        if (asn.verbose) {
+		        trlmessage ("CALWF3: Building DTH products for CTE data....");
+	        }
+                        
+	        for (prod = 0; prod < asn.numprod; prod++) {
+		        wf3dth_input = BuildDthInput (&asn, prod, suffix_flc);
+                
+		        /* Skip this product if the input list is empty */
+		        if (wf3dth_input == NULL) {
+                    printf("\nProduct %i input list empty, continuing..\n",prod);
+                    continue;
+                }
+
+		        /* We always want to create a final concatenated trailer file
+		         ** for the entire association whether there is a product or
+		         ** not. So we set up the trailer file based on the association
+		         ** file name itself. */
+                
+                if (strcmp(asn.product[prod].prodname,"") != 0){
+                    InitDthTrl(wf3dth_input,asn.product[prod].prodname);
+                } else {            
+ 	    	        InitDthTrl (wf3dth_input, asn.rootname);
+                }
 
 		        /* Check if we have a PROD-DTH specified */
 
@@ -281,10 +334,9 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		        }
 
 	        }                         
-             
       }  /* End DTHCORR UVIS Processing */
 
-    } else { /*process the IR data*/
+    } else { /*PROCESS THE IR DATA*/
         /* Add DTH processing for IR here... */        
         if (asn.process == FULL) {
         
@@ -294,7 +346,6 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 	        for (prod = 0; prod < asn.numprod; prod++) {
 		        wf3dth_input=BuildDthInput (&asn, prod, suffix_flt);
-
 		        /* Skip this product if the input list is empty */
 		        if (wf3dth_input == NULL) {
                     printf("\nProduct %i input list empty, continuing..\n",prod);
@@ -331,10 +382,9 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 	        }
 
-        } /* End DTHCORR IR Processing */
+        }
     
-    
-    }
+    } /* End DTHCORR IR Processing */
     
 	if (asn.verbose) {
 		trlmessage ("CALWF3: Finished processing product ");
@@ -386,20 +436,27 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 			 ** list of names from the individual asn members */
 			for (j=1; j <= asn->spmems[i]; j++) {
 				char *t = asn->product[prod].subprod[i].exp[j].name;
-                
 				/* REALLOC FOR THE NEW STRING LENGTH + SOME EXTRA TO AVOID COUNTING CAREFULLY */
 				wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + strlen(suffix_name) + 10 ) );
 				strcat(wf3dth_input, t);
-				strcat(wf3dth_input, suffix_name);
+                strcat(wf3dth_input, suffix_name);
 				if (j < asn->spmems[i])
 					strcat(wf3dth_input, ",");
 			}
 
 		} else {            
 			/* Otherwise just use the sub-product name */
-			char *t = asn->product[prod].subprod[i].spname;
-			wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
-			strcat(wf3dth_input, t);
+            
+            if (strcmp(suffix_name,"_flc.fits")){ 
+			    char *t = asn->product[prod].subprod[i].spname;
+			    wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
+			    strcat(wf3dth_input, t);
+            } else {
+			    char *t = asn->product[prod].subprod[i].spname_cte;
+			    wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
+			    strcat(wf3dth_input, t);
+            }            
+            
 		}
 
 		if (i < (asn->numsp)) {
