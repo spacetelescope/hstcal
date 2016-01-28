@@ -286,54 +286,6 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 	        }                         
              
-	        /* For each DTH product in UVIS WITH CTE... */
-	        if (asn.verbose) {
-		        trlmessage ("CALWF3: Building DTH products for CTE data....");
-	        }
-                        
-	        for (prod = 0; prod < asn.numprod; prod++) {
-		        wf3dth_input = BuildDthInput (&asn, prod, suffix_flc);
-                
-		        /* Skip this product if the input list is empty */
-		        if (wf3dth_input == NULL) {
-                    printf("\nProduct %i input list empty, continuing..\n",prod);
-                    continue;
-                }
-
-		        /* We always want to create a final concatenated trailer file
-		         ** for the entire association whether there is a product or
-		         ** not. So we set up the trailer file based on the association
-		         ** file name itself. */
-                
-                if (strcmp(asn.product[prod].prodname,"") != 0){
-                    InitDthTrl(wf3dth_input,asn.product[prod].prodname);
-                } else {            
- 	    	        InitDthTrl (wf3dth_input, asn.rootname);
-                }
-
-		        /* Check if we have a PROD-DTH specified */
-
-		        if (strcmp(asn.product[prod].prodname,"") != 0) {
-			        
-                    if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
-				        if (Wf3Dth (wf3dth_input,
-							        asn.product[prod].prodname, asn.dthcorr,
-							        printtime, asn.verbose) )
-					        return (status);
-
-				        /* Pass posid=0 to indicate a PRODUCT is to
-				         ** be updated */
-				        updateAsnTable(&asn, prod, NOPOSID);
-
-			        } else {
-
-				        trlwarn
-					        ("No DTH product name specified. No product created.");
-				        /* status = WF3_OK; */
-			        }
-		        }
-
-	        }                         
       }  /* End DTHCORR UVIS Processing */
 
     } else { /*PROCESS THE IR DATA*/
