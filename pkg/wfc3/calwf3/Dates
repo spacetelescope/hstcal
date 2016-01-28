@@ -1,3 +1,6 @@
+28-Jan-2016 - MLS -- Version 3.3
+    - Removed the call to WF3Dth for the CTE data. This is essentially useless since the DTH step has been replaced with astrodrizzle, the only function it has it to concatinate the SPT files from the association members into a new spt file with the product/subproduct name. This is already done for the non-cte processed data, there is no difference between the cte and non-cte SPT files, they are only related to the RAW input file. 
+
 22-Jan-2016 - MLS -- Version 3.3
     - Noticed I missed renaming the crc file with the call to WF3DTH and was setting the input to the crj suffix, but also needed updates to GetAsnTable to include crc filename population for subproducts and sending the correct subproduct through processing, it was always using crj
     - some code cleanup as I went
