@@ -20,7 +20,7 @@
 
    	Warren Hack, 1998 June 9:
 		Initial ACS version.
-	
+
 	Warren Hack, 1998 Nov 17:
 		Revised to support trailer file comments
 
@@ -39,24 +39,24 @@
 	      Added expscorr switch as command argument (CALACS changes).
 
     M Sosey, 2012 December 27:
-      Updated to account for a memory leak on linux machines during BuildDth 
-      when RPTCORR is off and a new spt is being constructed (#967)       
+      Updated to account for a memory leak on linux machines during BuildDth
+      when RPTCORR is off and a new spt is being constructed (#967)
 
     M. Sosey, 2014 November 7:
       Moved the execution of doFlux (the 2 chip uv correction) here so that it ran after
       both chips had been calibrated. This is a consecquence of the correction  being needed
       for chip2, which happens to be in extension 1 of the raw file, so it gets the imphttab params
-      first, before the ones for chip1 have been grabbed. The code needs the ratio of the two to 
-      operate correctly.    
-      
+      first, before the ones for chip1 have been grabbed. The code needs the ratio of the two to
+      operate correctly.
+
     M. Sosey, 2015 May:
         The CTE version of the data has a separate DARK reference file associated with it.
         It's stored in the DRKCFILE in the header. For the case when PCTECORR == PERFORM,
-        I've changed the code to look for that image instead of the regular DARKFILE. 
- 
+        I've changed the code to look for that image instead of the regular DARKFILE.
+
     M. Sosey, 2015, June:
     Added more code to deal with the flux scaling of subarray images
-       
+
 */
 
 
@@ -91,7 +91,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 	Hdr phdr;		/* primary header for input image */
 
- 	
+
 /* ----------------------- Start Code --------------------------------*/
 
 	/* Determine the names of the trailer files based on the input
@@ -100,9 +100,9 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 	*/
 	Init2DTrl (input, output);
 	/* If we had a problem initializing the trailer files, quit... */
-	if (status != WF3_OK) 
+	if (status != WF3_OK)
 	    return (status);
-	
+
 	PrBegin ("WF32D");
 
 	if (printtime)
@@ -129,7 +129,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 	PrFileName ("input", wf32d.input);
 	PrFileName ("output", wf32d.output);
-	    
+
 	/* Check whether the output file already exists. */
 	if (FileExists (wf32d.output))
 	    return (status);
@@ -138,7 +138,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 	if (LoadHdr (wf32d.input, &phdr) )
 		return (status);
 
-	/* Get keyword values from primary header using same function 
+	/* Get keyword values from primary header using same function
 		used in WF3CCD
 	*/
 	if (GetKeys (&wf32d, &phdr)) {
@@ -170,12 +170,12 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 	if (wf32d.printtime)
 	    TimeStamp ("Begin processing", wf32d.rootname);
-	
+
 	if (verbose) {
 		sprintf(MsgText,"Processing %d IMSETs... ",wf32d.nimsets);
 		trlmessage(MsgText);
 	}
-	
+
 	for (extver = 1;  extver <= wf32d.nimsets;  extver++) {
 	    trlmessage ("\n");
 	    PrGrpBegin ("imset", extver);
@@ -183,12 +183,12 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 		return (status);
 	    PrGrpEnd ("imset", extver);
 	}
-   
+
     /*Scale chip2, sci 1,so that the flux correction is uniform between the detectors
       This will only be done if PHOTCORR and FLUXCORR are perform since we need the values
       from the imphttable to make the correction.Subarrays will also be corrected if they
       are in chip2 */
-    
+
     if (wf32d.fluxcorr == PERFORM) {
         if (wf32d.subarray == YES){
             if (wf32d.chip == 2){
@@ -201,14 +201,14 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
             if (doFlux (&wf32d))
                 return(status);
         }
-    
+
         FluxMsg(&wf32d);
         PrSwitch ("fluxcorr", COMPLETE);
         if (wf32d.printtime)
-            TimeStamp ("FLUXCORR complete", wf32d.rootname);    
+            TimeStamp ("FLUXCORR complete", wf32d.rootname);
     }
-    
-        
+
+
 	trlmessage ("\n");
 	PrEnd ("WF32D");
 
@@ -223,13 +223,13 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 
 void Init2DTrl (char *input, char *output) {
-	
+
 	extern int status;
 	int exist;
 
 	char trl_in[SZ_LINE+1]; 	/* trailer filename for input */
 	char trl_out[SZ_LINE+1]; 	/* output trailer filename */
-	
+
 	int MkOutName (const char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
@@ -237,12 +237,12 @@ void Init2DTrl (char *input, char *output) {
 	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
-	char *isuffix[] = {"_raw", "_rac","_blv_tmp", "_blc_tmp", "_crj_tmp","_crc_tmp"};
+	char *isuffix[] = {"_raw", "_rac_tmp","_blv_tmp", "_blc_tmp", "_crj_tmp","_crc_tmp"};
 	char *osuffix[] = {"_flt", "_flc","_flt","_flc", "_crj","_crc"};
 	char *trlsuffix[] = {"", "", "","","",""};
 
 	int nsuffix = 6;
-	
+
 	/* Initialize internal variables */
 	trl_in[0] = '\0';
 	trl_out[0] = '\0';
@@ -263,7 +263,7 @@ void Init2DTrl (char *input, char *output) {
 	}
 
 	/* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
-    
+
 	if (MkNewExtn (trl_in, TRL_EXTN) ) {
 	    sprintf (MsgText, "Error with input trailer filename %s", trl_in);
 	    trlerror (MsgText);
@@ -275,19 +275,19 @@ void Init2DTrl (char *input, char *output) {
 	    WhichError (status);
 	}
 
-	/* If we are working with a RAW file, then see if a TRL file 
+	/* If we are working with a RAW file, then see if a TRL file
 	   needs to be overwritten after the generic conversion comments.  */
 	if (strstr(input, isuffix[0]) != NULL) {
 	    /* Test whether the output file already exists */
-	    exist = TrlExists(trl_out);            
+	    exist = TrlExists(trl_out);
 	    if (exist == EXISTS_YES) {
 		/* The output file exists, so we want to overwrite them with
 		** the new trailer comments.  */
-		SetTrlOverwriteMode (YES);	
+		SetTrlOverwriteMode (YES);
 	    }
 	}
-    
-    
+
+
 
 	/* Sets up temp trailer file for output and copies input
 		trailer file into it.
