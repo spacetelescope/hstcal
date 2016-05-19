@@ -47,6 +47,9 @@
    This is part of the UVIS 2 update. SINK pixels are not currently 
    detected for subarrays or binned data.
     
+    C Jones May 2016
+    Made changes to the input of the sink-detect so that it will accept
+    sub-array data.
  */
 
 # include <string.h>
@@ -114,7 +117,9 @@ int DoCCD (WF3Info *wf3, int extver) {
     int GetCCDTab (WF3Info *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
     int SinkDetect (WF3Info *, SingleGroup *);
-    
+    int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *,
+            int *, int *);     
+
     /*========================Start Code here =======================*/	
     initSingleGroup (&x);
     if (wf3->printtime)
@@ -344,16 +349,119 @@ int DoCCD (WF3Info *wf3, int extver) {
      BINNED IMAGES ARE NOT SUPPORTED AT ALL
     */
     if (wf3->dqicorr == PERFORM) {
-        if (wf3->subarray == NO){
-            /*also check to see if the data is binned*/
-            if (checkBinned(&x)){
-                sprintf(MsgText,"Binned data not supported for Sink Pixel detection");
+        /*also check to see if the data is binned*/
+        if (checkBinned(&x)){
+            sprintf(MsgText,"Binned data not supported for Sink Pixel detection");
+            trlmessage(MsgText);
+        } else {
+
+            /* CKJ
+             * If the SCI data is a sub array then we are going to
+             * copy the SCI and DQ sub-arrays into a temporary version
+             * of a full-array and pass that to SinkDetect.
+             *
+             * SinkDetect will then do all the appropriate rotations,
+             * calculations and un-rotations.
+             *
+             * Then after the call we will have to pull the modified
+             * DQ data out of the temporary full-array DQ and put
+             * into "x".
+             */
+            if (wf3->subarray != NO )
+            {
+                sprintf(MsgText,"Sink Pixel: Sub-array data, processing it");
                 trlmessage(MsgText);
-            } else {
-                if (SinkDetect(wf3, &x))
-                    return(status);          
+
+                int same_size;
+                int rx, ry, x0, y0;
+
+                /* Our temporary full dataset */
+                SingleGroup x_full;
+                initSingleGroup (&x_full);
+                x_full.filename = malloc(strlen(x.filename)+10);
+                strcpy(x_full.filename, x.filename);
+
+                SingleGroupLine y_temp;
+                initSingleGroupLine (&y_temp);
+
+                /* Get the first line of bias image data. */
+                openSingleGroupLine (wf3->bias.name, extver, &y_temp);
+                if (hstio_err())
+                    return (status = OPEN_FAILED);
+
+                /*
+                   Reference image should already be selected to have the
+                   same binning factor as the science image.  All we need to
+                   make sure of is whether the science array is a sub-array of
+                   the bias image.
+
+                   x0,y0 is the location of the start of the
+                   subimage in the reference image.
+                 */
+                if (FindLine (&x, &y_temp, &same_size, &rx, &ry, &x0, &y0))
+                    return (status);
+
+                closeSingleGroupLine (&y_temp);
+                freeSingleGroupLine (&y_temp);
+
+                /* Now we need to create and copy the full-array SingleGroup
+                 * dataset and then copy based on x0 and y0.
+                 *
+                 * All that SinkDetect uses is the group_num, and the data
+                 * arrays, so we might be able to get away with minimal copying.
+                 */
+                x_full.group_num = x.group_num;
+                initFloatData(&x_full.sci.data);
+                allocFloatData(&x_full.sci.data, 4206, 2070);
+
+                initShortData(&x_full.dq.data);
+                allocShortData(&x_full.dq.data, 4206, 2070);
+
+                sprintf(MsgText,"Sink Pixel: x0, y0 = %d, %d", x0, y0);
+                trlmessage(MsgText);
+
+                /* Copy the data from the sub-array to the full-array */
+                sprintf(MsgText,"Sink Pixel: Copying sub-array to full-array");
+                trlmessage(MsgText);
+                for(int col=0; col<x.sci.data.tot_nx; col++)
+                {
+                    for(int row=0; row<x.sci.data.tot_ny; row++)
+                    {
+                        PPix(&x_full.sci.data,col+x0,row+y0) = PPix(&x.sci.data,col,row);
+                        PPix(&x_full.dq.data,col+x0,row+y0) = PPix(&x.dq.data,col,row);
+                    }
                 }
+
+                if (SinkDetect(wf3, &x_full))
+                    return(status);
+
+                /*
+                 * Copy the DQ back into x.
+                 */
+                sprintf(MsgText,"Sink Pixel: Copying full-array back to sub-array");
+                trlmessage(MsgText);
+                for(int col=0; col<x.sci.data.tot_nx; col++)
+                {
+                    for(int row=0; row<x.sci.data.tot_ny; row++)
+                    {
+                        PPix(&x.dq.data,col,row) = PPix(&x_full.dq.data,col+x0,row+y0);
+                    }
+                }
+
+                /* Free up the data and single-group now that we are done with them*/
+                freeFloatData(&x_full.sci.data);
+                freeShortData(&x_full.dq.data);
+                freeSingleGroup(&x_full);
+
+                sprintf(MsgText,"Sink Pixel: ... done");
+                trlmessage(MsgText);
             }
+            else /* If x is full-array then just do this */
+            {
+                if (SinkDetect(wf3, &x))
+                    return(status);
+            }
+        }
     }   
 
     /* SUBTRACT POST-FLASH IMAGE. */

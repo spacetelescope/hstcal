@@ -24,7 +24,6 @@
 # include "wf3corr.h"
 # include "cte.h"
 
-
 int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
 
@@ -83,6 +82,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     SingleGroup rzc; /* FINAL CTE CORRECTED IMAGE */
     SingleGroup chg; /* THE CHANGE DUE TO CTE  */
     SingleGroup raw; /* THE RAW IMAGE IN RAZ FORMAT */
+    SingleGroup flag_sg; /* CKJ: FLAG used for sub-array data */
     
     int i,j; /*loop vars*/
     int max_threads=1;
@@ -90,9 +90,36 @@ CTE correction in ACS which occurs later in the process after basic structures a
     double  time_spent;
     float hardset=0.0;
 
+   	/* Initialize sub-array variables */
+	int subarray_rx = 1;
+	int subarray_ry = 1;
+	int subarray_x0 = 0;
+	int subarray_y0 = 0;
+	int subarray_same_size = 1;
+	SingleGroupLine y;
+	char subarray_amp[SZ_CBUF+1];	/* CCDAMP string for bias ref file */
+
     begin = (double)clock();
-        
+
+    /* CKJ: Setup the flag array.  If it is a full array then we
+     *      want all the values to be 1 (ie true). If it is a sub-array
+     *      then we want all the values to be 0 (ie false) and then
+     *      we will fill in all the values we need below.
+     */
+    initSingleGroup (&flag_sg);
+    allocSingleGroup(&flag_sg, RAZ_COLS, RAZ_ROWS);
+    for(int rr=0; rr<RAZ_ROWS; rr++)
+    {
+    	for(int cc=0; cc<RAZ_COLS; cc++)
+    	{
+    		PPix(&flag_sg.sci.data, cc, rr) = wf3.nimsets==2;
+		}
+    }
+
+
+#if 0
     Bool subarray; /* to verify that no subarray is being used, it's not implemented yet*/
+#endif
 
     /*CONTAIN PARALLEL PROCESSING TO A SINGLE THREAD AS USER OPTION*/
 #   ifdef _OPENMP
@@ -177,12 +204,21 @@ CTE correction in ACS which occurs later in the process after basic structures a
     }
 
     /* OPEN THE INPUT IMAGES AND GET THE  SCIENCE EXTENSIONS  */
+    /* CKJ:  The first group should exist whether a sub-array dataset
+     *       or a full-array dataset.  BUT the data may not actually
+     *       be the CD chips but we'll deal with that when we put the
+     *       CD and AB together into the RAZ dataset.
+     *
+     *       wf3.nimsets = 1 if sub-array
+     *                   = 2 if full-array
+     */
     initSingleGroup (&cd);
     getSingleGroup (wf3.input, 1, &cd);
     
     if (hstio_err())
         return (status = OPEN_FAILED);
 
+#if 0
     /*** MAKE SURE THIS IS NOT A SUBARRAY ***/
     if (GetKeyBool (cd.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
         return (status=KEYWORD_MISSING);
@@ -193,20 +229,184 @@ CTE correction in ACS which occurs later in the process after basic structures a
         status=ERROR_RETURN;
         return(status);
     }   
+#endif
     
-    initSingleGroup (&ab);
-    getSingleGroup (wf3.input, 2, &ab);
-    if (hstio_err())
-        return (status = OPEN_FAILED);
+    if( wf3.nimsets == 2 )
+    {
+        initSingleGroup (&ab);
+    	getSingleGroup (wf3.input, 2, &ab);
+    }
+    else
+    {
+    	/* If we get here then the number of image sets is 1 (well, at least not 2)
+    	 * and so it is likely a sub-array dataset.
+    	 */
 
-    if (GetKeyBool (ab.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
-        return (status=KEYWORD_MISSING);
+     	/* Get the first line of biac image data.
+    	 * This is only used in order to calculate the x0, and y0
+    	 * offsets that are used later on.
+    	 */
+    	initSingleGroupLine(&y);
+    	openSingleGroupLine (wf3.biac.name, 1, &y);
+    	if (hstio_err())
+    		return (status = OPEN_FAILED);
 
-    if (subarray) {
-        sprintf(MsgText,"SUBARRAY FOUND; **SUBARRAY images are not yet supported for CTE**");
+    	/*
+    	   Reference image should already be selected to have the
+    	   same binning factor as the science image.  All we need to
+    	   make sure of is whether the science array is a sub-array of
+    	   the biac image.
+    	 */
+
+    	if (FindLine (&cd, &y, &subarray_same_size, &subarray_rx, &subarray_ry, &subarray_x0, &subarray_y0))
+    		return (status);
+
+    	// switch the data around as needed
+        sprintf(MsgText,"Findline results x0,y0 = %i, %i", subarray_x0, subarray_y0);
         trlmessage(MsgText);
-        status=ERROR_RETURN;
-        return(status);
+
+        if(GetKeyStr(cd.globalhdr, "CCDAMP", NO_DEFAULT, "", subarray_amp, SZ_CBUF))
+            return (status);
+
+        sprintf(MsgText,"amp is %s", subarray_amp);
+        trlmessage(MsgText);
+
+        // Copy the CD data to a temporary place (temp_cd)
+        SingleGroup temp_cd;
+        initSingleGroup (&temp_cd);
+        getSingleGroup (wf3.input, 1, &temp_cd);
+
+        for(int rr=0; rr<cd.sci.data.tot_ny; rr++)
+        {
+        	for(int cc=0; cc<cd.sci.data.tot_nx; cc++)
+        	{
+        		PPix(&temp_cd.sci.data, cc, rr) = PPix(&cd.sci.data, cc, rr);
+        	}
+        }
+
+        // Re-initialize the CD and AB
+        freeSingleGroup(&cd);
+        freeSingleGroup(&ab);
+
+        allocSingleGroup(&cd, RAZ_COLS/2, RAZ_ROWS);
+        allocSingleGroup(&ab, RAZ_COLS/2, RAZ_ROWS);
+
+        for(int rr=0; rr<RAZ_ROWS; rr++)
+        {
+        	for(int cc=0; cc<RAZ_COLS/2; cc++)
+        	{
+        		PPix(&ab.sci.data, cc, rr) = 0.0;
+        		PPix(&cd.sci.data, cc, rr) = 0.0;
+        	}
+        }
+
+        cd.group_num = 1;
+        ab.group_num = 2;
+        copyHdr(cd.globalhdr, temp_cd.globalhdr);
+
+        int min_row, max_row, min_col, max_col;
+
+         // Copy in the temporary data into the proper AB or CD.
+        if( strcmp(subarray_amp, "A") > 0 || strcmp(subarray_amp, "B") > 0 )
+        {
+        	/* Copy to the AB amps */
+			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			{
+				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				{
+					PPix(&ab.sci.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.sci.data, cc, rr);
+					PPix(&ab.dq.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.dq.data, cc, rr);
+					PPix(&ab.err.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.err.data, cc, rr);
+
+					/* CKJ: flag the voxels to include in the calculation
+					 *      the flag_sg is RAZ_ROWS by RAZ_COLS and the AB
+					 *      data is the second half so we need to add the
+					 *      RAZ_COLS/2 offset.
+					 */
+					PPix(&flag_sg.sci.data, RAZ_COLS/2+cc+subarray_x0, rr+subarray_y0) = 1.0;
+				}
+			}
+
+			min_row = subarray_y0;
+			min_col = subarray_x0;
+			max_row = subarray_y0 + temp_cd.sci.data.tot_ny;
+			max_col = subarray_x0 + temp_cd.sci.data.tot_nx;
+        }
+        else
+        {
+        	/* Copy to the CD amps */
+			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			{
+				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				{
+					PPix(&cd.sci.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.sci.data, cc, rr);
+					PPix(&cd.dq.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.dq.data, cc, rr);
+					PPix(&cd.err.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.err.data, cc, rr);
+
+					/* CKJ: flag the voxels to include in the calculation */
+					PPix(&flag_sg.sci.data, cc+subarray_x0, rr+subarray_y0) = 1.0;
+				}
+			}
+
+			min_row = subarray_y0;
+			min_col = subarray_x0;
+			max_row = subarray_y0 + temp_cd.sci.data.tot_ny;
+			max_col = subarray_x0 + temp_cd.sci.data.tot_nx;
+        }
+
+       for(int cc=0; cc<RAZ_COLS/2; cc++)
+        {
+        	for(int rr=0; rr<RAZ_ROWS; rr++)
+        	{
+        		if(rr<min_row)
+        		{
+        			PPix(&cd.sci.data, cc, rr) = PPix(&cd.sci.data, cc, min_row);
+        			PPix(&cd.dq.data, cc, rr) = PPix(&cd.dq.data, cc, min_row);
+        			PPix(&cd.err.data, cc, rr) = PPix(&cd.err.data, cc, min_row);
+
+        			PPix(&ab.sci.data, cc, rr) = PPix(&ab.sci.data, cc, min_row);
+        			PPix(&ab.dq.data, cc, rr) = PPix(&ab.dq.data, cc, min_row);
+        			PPix(&ab.err.data, cc, rr) = PPix(&ab.err.data, cc, min_row);
+        		}
+        		else if(rr>max_row)
+        		{
+        			PPix(&cd.sci.data, cc, rr) = PPix(&cd.sci.data, cc, max_row);
+        			PPix(&cd.dq.data, cc, rr) = PPix(&cd.dq.data, cc, max_row);
+        			PPix(&cd.err.data, cc, rr) = PPix(&cd.err.data, cc, max_row);
+
+        			PPix(&ab.sci.data, cc, rr) = PPix(&ab.sci.data, cc, max_row);
+        			PPix(&ab.dq.data, cc, rr) = PPix(&ab.dq.data, cc, max_row);
+        			PPix(&ab.err.data, cc, rr) = PPix(&ab.err.data, cc, max_row);
+        		}
+        		else
+        		{
+        			if(cc<min_col)
+        			{
+            			PPix(&cd.sci.data, cc, rr) = PPix(&cd.sci.data, min_col, rr);
+            			PPix(&cd.dq.data, cc, rr) = PPix(&cd.dq.data, min_col, rr);
+            			PPix(&cd.err.data, cc, rr) = PPix(&cd.err.data, min_col, rr);
+
+            			PPix(&ab.sci.data, cc, rr) = PPix(&ab.sci.data, min_col, rr);
+            			PPix(&ab.dq.data, cc, rr) = PPix(&ab.dq.data, min_col, rr);
+            			PPix(&ab.err.data, cc, rr) = PPix(&ab.err.data, min_col, rr);
+        			}
+        			else if(cc>max_col)
+        			{
+            			PPix(&cd.sci.data, cc, rr) = PPix(&cd.sci.data, max_col, rr);
+            			PPix(&cd.dq.data, cc, rr) = PPix(&cd.dq.data, max_col, rr);
+            			PPix(&cd.err.data, cc, rr) = PPix(&cd.err.data, max_col, rr);
+
+            			PPix(&ab.sci.data, cc, rr) = PPix(&ab.sci.data, max_col, rr);
+            			PPix(&ab.dq.data, cc, rr) = PPix(&ab.dq.data, max_col, rr);
+            			PPix(&ab.err.data, cc, rr) = PPix(&ab.err.data, max_col, rr);
+        			}
+        		}
+        	}
+        }
+
+    	// when this ends, CD and AB should have the correct
+    	// data though might have zeros in a large portion
+    	// if it is a sub-array FITS file.
     }
 
     /*READ IN THE CTE PARAMETER TABLE*/
@@ -268,13 +468,12 @@ CTE correction in ACS which occurs later in the process after basic structures a
         freeSingleGroup(&cd);
         return(status);
     }
-
     
     if (doCteBias(&wf3,&ab)){
         freeSingleGroup(&ab);
         return(status);
     }
-      
+
 
     /*CONVERT TO RAZ FORMAT AND CORRECT FOR GAIN*/
     if (raw2raz(&wf3, &cd, &ab, &raz))
@@ -301,16 +500,18 @@ CTE correction in ACS which occurs later in the process after basic structures a
     /*** SAVE USEFULL HEADER INFORMATION ***/
     if (cteHistory (&wf3, cd.globalhdr))
         return (status);
-    
-    /*** CREATE THE FINAL CTE CORRECTED IMAGE, PUT IT BACK INTO ORIGNAL RAW FORMAT***/
+
+     /*** CREATE THE FINAL CTE CORRECTED IMAGE, PUT IT BACK INTO ORIGNAL RAW FORMAT***/
     for (i=0;i<RAZ_COLS;i++){
         for(j=0; j<RAZ_ROWS; j++){
             Pix(chg.sci.data,i,j) = (Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j))/wf3.ccdgain;
             Pix(rzc.sci.data,i,j) =  Pix(raw.sci.data,i,j) + Pix(chg.sci.data,i,j);
         }
     }
-            
-    /*BACK TO NORMAL FORMATTING*/
+
+
+/*BACK TO NORMAL FORMATTING*/
+    /*Copies rzc data to cd->sci.data and ab->sci.data */
     undosciRAZ(&cd,&ab,&rzc);
     
     /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
@@ -318,9 +519,75 @@ CTE correction in ACS which occurs later in the process after basic structures a
     trlmessage("PCTEFRAC saved to header");
     
     /*SAVE THE NEW RAW FILE WITH UPDATED SCIENCE ARRAYS AND PRIMARY HEADER TO RAC*/
-    putSingleGroup(output,cd.group_num, &cd,0);
-    putSingleGroup(output,ab.group_num, &ab,0);
+    if(wf3.nimsets == 2)
+    {
+    	/* CKJ: Input dataset was a full array so write out the
+    	 *      full array.
+    	 */
+        sprintf(MsgText,"cd is  %ix%i and ab is %ix%i", cd.sci.data.tot_ny, cd.sci.data.tot_nx, ab.sci.data.tot_ny, ab.sci.data.tot_nx );
+        trlmessage(MsgText);
 
+		putSingleGroup(output,cd.group_num, &cd,0);
+		putSingleGroup(output,ab.group_num, &ab,0);
+    }
+    else
+    {
+    	/* CKJ: Input dataset was a sub-array so we need
+    	 *      to cut out the proper section and save
+    	 *      that specifically.
+    	 */
+
+     	/*
+    	   Reference image should already be selected to have the
+    	   same binning factor as the science image.  All we need to
+    	   make sure of is whether the science array is a sub-array of
+    	   the biac image.
+    	 */
+
+        // Copy the CD data to a temporary place
+        SingleGroup temp_cd;
+        initSingleGroup (&temp_cd);
+        getSingleGroup (wf3.input, 1, &temp_cd);
+
+         // Copy in the temporary data into the proper AB or CD.
+        if( strcmp(subarray_amp, "A") > 0 || strcmp(subarray_amp, "B") > 0 )
+        {
+        	/* Copy to the AB amps */
+			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			{
+				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				{
+					PPix(&temp_cd.sci.data, cc, rr) = PPix(&ab.sci.data, cc+subarray_x0, rr+subarray_y0);
+					PPix(&temp_cd.dq.data, cc, rr) = PPix(&ab.dq.data, cc+subarray_x0, rr+subarray_y0);
+					PPix(&temp_cd.err.data, cc, rr) = PPix(&ab.err.data, cc+subarray_x0, rr+subarray_y0);
+				}
+			}
+        }
+        else
+        {
+        	/* Copy to the CD amps */
+			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			{
+				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				{
+					PPix(&temp_cd.sci.data, cc, rr) = PPix(&cd.sci.data, cc+subarray_x0, rr+subarray_y0);
+					PPix(&temp_cd.dq.data, cc, rr) = PPix(&cd.dq.data, cc+subarray_x0, rr+subarray_y0);
+					PPix(&temp_cd.err.data, cc, rr) = PPix(&cd.err.data, cc+subarray_x0, rr+subarray_y0);
+				}
+			}
+        }
+
+        sprintf(MsgText,"going to do putSingleGroup, status = %d, output = %s", status, output);
+        trlmessage(MsgText);
+
+		putSingleGroup(output,temp_cd.group_num, &temp_cd, 0);
+
+	    freeSingleGroup(&temp_cd);
+
+		sprintf(MsgText,"done putSingleGroup, status = %d", status);
+        trlmessage(MsgText);
+
+    }
 
     /** CLEAN UP **/    
     freeSingleGroup(&rzc);
@@ -433,7 +700,6 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
 
     return(status);
 }
-
 
 /*calculate the post scan and bias after the biac file has been subtracted
   add some history information to the header

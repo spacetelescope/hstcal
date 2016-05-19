@@ -69,6 +69,13 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
 		return (status);
 
+	/* CKJ: Going to force the same_size x0, y0 = 0,0
+	 *      as the sub-array data was put into a full-array format.
+	 */
+	same_size = 1;
+	x0 = 0;
+	y0 = 0;
+
 	/* Return with error if reference data not binned same as input */
 	if (rx != 1 || ry != 1) {
 		closeSingleGroupLine (&y);
