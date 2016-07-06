@@ -119,6 +119,8 @@ static int CloseOverTab (TblInfo *);
                            Also, check to see if overlap beginning trim
                            region first (and do both), then check for second
                            region overlap.
+   2016-07-07 P. L. Lim    Removed no virtual overscan assumptions for new
+                           subarrays added by FSW change in May 2016.
 */
 int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     /* arguments:
@@ -132,9 +134,12 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     TblInfo tabinfo;
     TblRow tabrow;
     int foundit;
+    int is_newsub;
 
-    int cx0, cx1, tx1,tx2;
+    int cx0, cx1, tx1, tx2;
+    int cy0, cy1, ty1, ty2;
     int full_nx;
+    int full_ny;
 
     int SameInt (int, int);
     int SameString (char *, char *);
@@ -147,6 +152,7 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
        binx, and biny, and get info from the matching row. */
 
     foundit = NO;
+    is_newsub = NO;
     *overscan = NO;
 
     for (row = 1; row <= tabinfo.nrows; row++) {
@@ -164,15 +170,64 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
             foundit = YES;
             *overscan = YES;
 
-            /* We are working with a subarray... */
+            /* We are working with a subarray.
+               There is never any virtual overscan EXCEPT for new subarrays
+               added by FSW change in May 2016. */
             if (acs->subarray == YES) {
-                /* There is never any virtual overscan. */
-                acs->trimy[0] = 0;
-                acs->trimy[1] = 0;
+                if (SameString(acs->aperture, "WFC1A-512") ||
+                        SameString(acs->aperture, "WFC1A-1K") ||
+                        SameString(acs->aperture, "WFC1A-2K") ||
+                        SameString(acs->aperture, "WFC1B-512") ||
+                        SameString(acs->aperture, "WFC1B-1K") ||
+                        SameString(acs->aperture, "WFC1B-2K") ||
+                        SameString(acs->aperture, "WFC2C-512") ||
+                        SameString(acs->aperture, "WFC2C-1K") ||
+                        SameString(acs->aperture, "WFC2C-2K") ||
+                        SameString(acs->aperture, "WFC2D-512") ||
+                        SameString(acs->aperture, "WFC2D-1K") ||
+                        SameString(acs->aperture, "WFC2D-2K")) {
+                    is_newsub = YES;
+                } else {
+                    acs->trimy[0] = 0;
+                    acs->trimy[1] = 0;
+                }
+
                 acs->vx[0] = 0;
                 acs->vx[1] = 0;
                 acs->vy[0] = 0;
                 acs->vy[1] = 0;
+
+                /* Virtual overscan processing is similar to physical
+                   overscan processing below. */
+                if (is_newsub == YES) {
+                    /* Determine whether the subarray extends into the
+                       virtual overscan regions on either side of the chip */
+                    ty1 = (int)(ny - acs->offsety);
+                    cy1 = tabrow.ny - tabrow.trimy[1] - tabrow.trimy[0];
+                    cy0 = (int)(tabrow.trimy[0] - acs->offsety);
+
+                    /* Subarray starts in the first overscan region... */
+                    if (acs->offsety > 0) {
+                        acs->trimy[0] = (acs->offsety < tabrow.trimy[0]) ?
+                            acs->offsety : tabrow.trimy[0];
+                        /* Check to see if it extends into second overscan
+                           region. */
+                        full_ny = tabrow.ny - (tabrow.trimy[0] +
+                                               tabrow.trimy[1]);
+                        ty2 = (int)(ny - acs->trimy[0]) - full_ny;
+                        acs->trimy[1] = (ty2 < 0) ? 0 : ty2;
+
+                    /* Subarray overlaps second overscan region */
+                    } else if ( ty1 > cy1 && ty1 <= tabrow.ny) {
+                        acs->trimy[0] = 0;
+                        acs->trimy[1] = ty1 - cy1;
+
+                    /* Subarray does not have virtual overscan */
+                    } else {
+                        acs->trimy[0] = 0;
+                        acs->trimy[1] = 0;
+                    }
+                }
 
                 /* Determine whether the subarray extends into the
                    physical overscan regions on either side of the chip */
@@ -182,13 +237,15 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
 
                 /* Subarray starts in the first overscan region... */
                 if (acs->offsetx > 0) {
-                    acs->trimx[0] = (acs->offsetx < tabrow.trimx[0]) ? acs->offsetx : tabrow.trimx[0];
+                    acs->trimx[0] = (acs->offsetx < tabrow.trimx[0]) ?
+                        acs->offsetx : tabrow.trimx[0];
                     /* Check to see if it extends into second overscan region.
                        Fixed 24 July 2001 WJH. */
                     full_nx = tabrow.nx - (tabrow.trimx[0] + tabrow.trimx[1]);
                     tx2 = (int)(nx - acs->trimx[0]) - full_nx;
                     acs->trimx[1] = (tx2 < 0) ? 0 : tx2;
-                    acs->biassecta[0] = (tabrow.biassecta[0] - 1 - cx0 > 0) ? (tabrow.biassecta[0] - 1 - cx0) : 0;
+                    acs->biassecta[0] = (tabrow.biassecta[0] - 1 - cx0 > 0) ?
+                        (tabrow.biassecta[0] - 1 - cx0) : 0;
                     acs->biassecta[1] = tabrow.biassecta[1] - 1 - cx0;
                     acs->biassectb[0] = 0;
                     acs->biassectb[1] = 0;
@@ -245,7 +302,8 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
         return(status);
 
     if (acs->verbose == YES) {
-        sprintf(MsgText, "Found trim values of: x(%d,%d) y(%d,%d)", acs->trimx[0], acs->trimx[1], acs->trimy[0], acs->trimy[1]);
+        sprintf(MsgText, "Found trim values of: x(%d,%d) y(%d,%d)",
+                acs->trimx[0], acs->trimx[1], acs->trimy[0], acs->trimy[1]);
         trlmessage(MsgText);
     }
 
@@ -263,7 +321,11 @@ static int OpenOverTab (char *tname, TblInfo *tabinfo) {
     int nocol[NUMCOLS];
     int i, j, missing;
 
-    char *colnames[NUMCOLS] = {"CCDAMP","CCDCHIP","BINX","BINY","NX","NY","TRIMX1",    "TRIMX2", "TRIMY1", "TRIMY2", "VX1", "VX2", "VY1", "VY2", "BIASSECTA1", "BIASSECTA2", "BIASSECTB1", "BIASSECTB2"};
+    char *colnames[NUMCOLS] = {"CCDAMP", "CCDCHIP", "BINX", "BINY", "NX", "NY",
+                               "TRIMX1", "TRIMX2", "TRIMY1", "TRIMY2",
+                               "VX1", "VX2", "VY1", "VY2",
+                               "BIASSECTA1", "BIASSECTA2",
+                               "BIASSECTB1", "BIASSECTB2"};
 
     int PrintMissingCols (int, int, int *, char **, char *, IRAFPointer);
 
@@ -322,7 +384,8 @@ static int OpenOverTab (char *tname, TblInfo *tabinfo) {
     if (tabinfo->cp_biassectb1 == 0 ) { missing++; nocol[i] = YES; i++;}
     if (tabinfo->cp_biassectb2 == 0 ){ missing++; nocol[i] = YES; i++;}
 
-    if (PrintMissingCols (missing, NUMCOLS, nocol, colnames, "OSCNTAB", tabinfo->tp) )
+    if (PrintMissingCols (missing, NUMCOLS, nocol, colnames, "OSCNTAB",
+                          tabinfo->tp) )
         return(status);
 
     return (status);
