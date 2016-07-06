@@ -1,3 +1,7 @@
+### 07-Jul-2016 - PLL -- Version 8.3.4
+    BLEVCORR modified to correctly process new subarrays added by FSW change in
+    May 2016.
+
 ### 27-Jul-2015 - PLL -- Version 8.3.3
     ACSREJ can now process input list of any length (as allowed by memory).
 

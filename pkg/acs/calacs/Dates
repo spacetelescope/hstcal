@@ -1,3 +1,4 @@
+ 07-Jul-2016:  CALACS 8.3.4 BLEVCORR modified to process new 2K subarrays.
  27-Jul-2015:  CALACS 8.3.3 ACSREJ can now process input list of any length.
  02-Mar-2015:  CALACS 8.3.2 ACSREJ can now process longer input list.
  10-Oct-2014:  CALACS 8.3.1 ACS2D standalone executable now reads calibration
