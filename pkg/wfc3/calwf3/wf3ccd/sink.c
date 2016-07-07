@@ -111,7 +111,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
                 scipix = Pix(raz.sci.data,i,j);
                 
                 /*FLAG THE DOWNSTREAM PIXEL*/
-                if (PPix(&sinkraz,i,j-1) < 0 ){
+                if (j>0 && PPix(&sinkraz,i,j-1) < 0 ){
                     dqval = TRAP | DQPix (raz.dq.data, i, j-1);
                     DQSetPix (raz.dq.data, i, j-1, dqval);
                 }
@@ -135,7 +135,6 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
         } /*end j*/
     }/*end i*/   
 
-    
     /*format the dq data back to expected orientation*/
     undodqRAZ(x,&raz);
 
