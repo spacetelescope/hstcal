@@ -85,7 +85,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     int done;	/* true means the input SingleGroup has been freed */
     int sizex, sizey;	/* size of output image */
 
-    int i, j, x1, dx;		/* loop index */
+    int i, j, x1, dx, row, col;		/* loop index */
     int overscan;
     int blevcorr;
     char buff[SZ_FITS_REC+1];
@@ -423,9 +423,9 @@ int DoCCD (WF3Info *wf3, int extver) {
                 /* Copy the data from the sub-array to the full-array */
                 sprintf(MsgText,"Sink Pixel: Copying sub-array to full-array");
                 trlmessage(MsgText);
-                for(int col=0; col<x.sci.data.tot_nx; col++)
+                for(col=0; col<x.sci.data.tot_nx; col++)
                 {
-                    for(int row=0; row<x.sci.data.tot_ny; row++)
+                    for(row=0; row<x.sci.data.tot_ny; row++)
                     {
                         PPix(&x_full.sci.data,col+x0,row+y0) = PPix(&x.sci.data,col,row);
                         PPix(&x_full.dq.data,col+x0,row+y0) = PPix(&x.dq.data,col,row);
@@ -440,9 +440,9 @@ int DoCCD (WF3Info *wf3, int extver) {
                  */
                 sprintf(MsgText,"Sink Pixel: Copying full-array back to sub-array");
                 trlmessage(MsgText);
-                for(int col=0; col<x.sci.data.tot_nx; col++)
+                for(col=0; col<x.sci.data.tot_nx; col++)
                 {
-                    for(int row=0; row<x.sci.data.tot_ny; row++)
+                    for( row=0; row<x.sci.data.tot_ny; row++)
                     {
                         PPix(&x.dq.data,col,row) = PPix(&x_full.dq.data,col+x0,row+y0);
                     }

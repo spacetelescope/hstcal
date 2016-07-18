@@ -84,7 +84,7 @@ CTE correction in ACS which occurs later in the process after basic structures a
     SingleGroup raw; /* THE RAW IMAGE IN RAZ FORMAT */
     SingleGroup flag_sg; /* CKJ: FLAG used for sub-array data */
     
-    int i,j; /*loop vars*/
+    int i,j, rr, cc; /*loop vars*/
     int max_threads=1;
     clock_t begin;
     double  time_spent;
@@ -108,9 +108,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
      */
     initSingleGroup (&flag_sg);
     allocSingleGroup(&flag_sg, RAZ_COLS, RAZ_ROWS);
-    for(int rr=0; rr<RAZ_ROWS; rr++)
+    for( rr=0; rr<RAZ_ROWS; rr++)
     {
-    	for(int cc=0; cc<RAZ_COLS; cc++)
+    	for( cc=0; cc<RAZ_COLS; cc++)
     	{
     		PPix(&flag_sg.sci.data, cc, rr) = wf3.nimsets==2;
 		}
@@ -276,9 +276,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
         initSingleGroup (&temp_cd);
         getSingleGroup (wf3.input, 1, &temp_cd);
 
-        for(int rr=0; rr<cd.sci.data.tot_ny; rr++)
+        for( rr=0; rr<cd.sci.data.tot_ny; rr++)
         {
-        	for(int cc=0; cc<cd.sci.data.tot_nx; cc++)
+        	for( cc=0; cc<cd.sci.data.tot_nx; cc++)
         	{
         		PPix(&temp_cd.sci.data, cc, rr) = PPix(&cd.sci.data, cc, rr);
         	}
@@ -291,9 +291,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
         allocSingleGroup(&cd, RAZ_COLS/2, RAZ_ROWS);
         allocSingleGroup(&ab, RAZ_COLS/2, RAZ_ROWS);
 
-        for(int rr=0; rr<RAZ_ROWS; rr++)
+        for( rr=0; rr<RAZ_ROWS; rr++)
         {
-        	for(int cc=0; cc<RAZ_COLS/2; cc++)
+        	for( cc=0; cc<RAZ_COLS/2; cc++)
         	{
         		PPix(&ab.sci.data, cc, rr) = 0.0;
         		PPix(&cd.sci.data, cc, rr) = 0.0;
@@ -310,9 +310,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
         if( strcmp(subarray_amp, "A") > 0 || strcmp(subarray_amp, "B") > 0 )
         {
         	/* Copy to the AB amps */
-			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			for( cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
 			{
-				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				for( rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
 				{
 					PPix(&ab.sci.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.sci.data, cc, rr);
 					PPix(&ab.dq.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.dq.data, cc, rr);
@@ -335,9 +335,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
         else
         {
         	/* Copy to the CD amps */
-			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			for( cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
 			{
-				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				for( rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
 				{
 					PPix(&cd.sci.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.sci.data, cc, rr);
 					PPix(&cd.dq.data, cc+subarray_x0, rr+subarray_y0) = PPix(&temp_cd.dq.data, cc, rr);
@@ -354,9 +354,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
 			max_col = subarray_x0 + temp_cd.sci.data.tot_nx;
         }
 
-       for(int cc=0; cc<RAZ_COLS/2; cc++)
+       for( cc=0; cc<RAZ_COLS/2; cc++)
         {
-        	for(int rr=0; rr<RAZ_ROWS; rr++)
+        	for( rr=0; rr<RAZ_ROWS; rr++)
         	{
         		if(rr<min_row)
         		{
@@ -553,9 +553,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
         if( strcmp(subarray_amp, "A") > 0 || strcmp(subarray_amp, "B") > 0 )
         {
         	/* Copy to the AB amps */
-			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			for( cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
 			{
-				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				for( rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
 				{
 					PPix(&temp_cd.sci.data, cc, rr) = PPix(&ab.sci.data, cc+subarray_x0, rr+subarray_y0);
 					PPix(&temp_cd.dq.data, cc, rr) = PPix(&ab.dq.data, cc+subarray_x0, rr+subarray_y0);
@@ -566,9 +566,9 @@ CTE correction in ACS which occurs later in the process after basic structures a
         else
         {
         	/* Copy to the CD amps */
-			for(int cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
+			for( cc=0; cc<temp_cd.sci.data.tot_nx; cc++)
 			{
-				for(int rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
+				for( rr=0; rr<temp_cd.sci.data.tot_ny; rr++)
 				{
 					PPix(&temp_cd.sci.data, cc, rr) = PPix(&cd.sci.data, cc+subarray_x0, rr+subarray_y0);
 					PPix(&temp_cd.dq.data, cc, rr) = PPix(&cd.dq.data, cc+subarray_x0, rr+subarray_y0);
