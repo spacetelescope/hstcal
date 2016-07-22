@@ -1,6 +1,6 @@
 #define NUM_SCALE 4 /*number of scaling points, this is the 4 columns in the second table extension*/
-#define TRAPS 999 /*max number of traps per column = rows in pctetab[1], valid traps are < 999999 in qlev*/   
-   
+#define TRAPS 999 /*max number of traps per column = rows in pctetab[1], valid traps are < 999999 in qlev*/
+
 /* structure to hold CTE parameters from the reference files */
 typedef struct {
     double scale512[RAZ_COLS]; /*scaling appropriate at row 512 */
@@ -8,12 +8,12 @@ typedef struct {
     double scale1536[RAZ_COLS];/*scaling appropriate at row 1536 */
     double scale2048[RAZ_COLS];/*scaling appropriate at row 2048 */
     double qlevq_data[TRAPS];/*charge packet size in electrons*/
-    double dpdew_data[TRAPS];/*trap size in electrons*/  
+    double dpdew_data[TRAPS];/*trap size in electrons*/
     double cte_date0; /*date of uvis install on hst in mjd*/
     double cte_date1; /*date of cte model pinning mjd*/
     double   rn_amp; /*read noise amplitude for clipping */
     double scale_frac; /*scaling of cte model relative to ctedate1*/
-    double thresh; /*over subtraction threshold*/        
+    double thresh; /*over subtraction threshold*/
     int cte_len; /*max length of cte trail */
     int n_forward; /* number of forward modeling iterations */
     int n_par; /*number of iterations in parallel transfer */
@@ -53,16 +53,19 @@ void WhichError (int);
 int sub1d (SingleGroup *, int, SingleGroupLine *);
 int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
 int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
-int GetKeyInt (Hdr *hd, char *keyword, int use_def, int def, int *value);
-int GetKeyDbl (Hdr *hd, char *keyword, int use_def, double def, double *value);
-int GetKeyFlt (Hdr *hd, char *keyword, int use_def, float def, float *value);
-int PutKeyInt (Hdr *hd, char *keyword, int value, char *comment);
-int PutKeyFlt (Hdr *hd, char *keyword, float value, char *comment);
-int PutKeyDbl (Hdr *hd, char *keyword, double value, char *comment);
-int PutKeyStr(Hdr *hd, char *keyword, char *value, char *comment);
+int GetKeyInt (Hdr *, char *, int , int , int *);
+int GetKeyDbl (Hdr *, char *, int , double , double *);
+int GetKeyFlt (Hdr *, char *, int , float , float *);
+int PutKeyInt (Hdr *, char *, int , char *);
+int PutKeyFlt (Hdr *, char *, float , char *);
+int PutKeyDbl (Hdr *, char *, double , char *);
+int PutKeyStr(Hdr *, char *, char *, char *);
 int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
 int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 int streq_ic (char *, char *); /* case insensitive string equal */
+int  MkOutName (char *, char **, char **, int, char *, int);
+int MkNewExtn (char *, char *);
+
 
 /*FUNCTION SIGNATURES FOR CTE SPECIFIC CODE*/
 

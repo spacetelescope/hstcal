@@ -17,13 +17,13 @@
 
    Howard A. Bushouse, 2000 August 22:
    Initial version (adapted from calacs.c by W. Hack)
-   
+
    H.Bushouse, 2001 May 8:
    Modified to keep in sync with changes to calacs:
    Added post-flash processing step;
    Corrected bugs dealing with dither associations that have only
    single images at each pointing.
-   
+
    H.Bushouse, 2002 June 20:
    Modified to keep in sync with changes to calacs:
    Changed so that when no calibration switches are set to PERFORM, it
@@ -34,46 +34,46 @@
    PERFORM. If only RPTCORR is on, then it will not stop but copy raw
    files and sum them with WF3SUM. Update DQICORR for CRJ product so that
    doDQI is not run again in WF32D.
-   
+
    H.Bushouse, 2002 Nov 26:
    Modified to keep in sync with changes to calacs:
    Corrected memory usage error in BuildSumInput.
    Corrected a bug where RPT-OBS sub-products MTYPE was getting overwritten
    by the PROD-DTH MTYPE in dithered RPT-OBS associations.
    Fix involved using subprod.mtype instead of prod.mtype.
-   
+
    H.Bushouse, 2003 Apr 25:
    Removed all handling of RPTCORR processing from CalWf3Run, because
    WFC3 repeat-obs images will be cr-combined (using WF3REJ) from
    within the ProcessCCD and ProcessIR routines, just like CR-SPLITs.
    Also modified SetCCDSw routine to treat RPTCORR and CRCORR the same.
-   
+
    H.Bushouse, 2006 June 20:
    Modified to keep in sync with CALACS calacs.c changes:
    Removed any reference to updateAsnStat, since only OPUS should update
    the ASN_STAT keyword in the ASN table header.
-   
+
    H.Bushouse, 2010 Oct 20:
    Modified BuildDthInput to skip processing for sub-products that have
    < 2 members. Also modified the DTH processing portion of CalWf3Run
    to skip processing for products that have no members. Both of these
    are for handling associations with missing members.  (PR 66366)
-  
+
    H.Bushouse, 2011 Jan 14:
    Updated CopyFFile to update the FILENAME keyword in the output file.
    (PR 67225, Trac #646)
-   
+
    H.Bushouse, 2012 Mar 21:
    Upgraded BuildDthInput to handle situations where no sub-product
    (i.e. _crj file) has been produced, which means the trailer file for
    the final (asn level) product must be built from the trailers of the
    individual asn members. (PR 70922, Trac #869)
-   
+
    M.Sosey, 2012 May 07:
    added the option "-r" to print the current version and exit cleanly
-   
+
    M. Sosey, 2012 June 26:
-   There were some missed updates from the iraf version, namely 
+   There were some missed updates from the iraf version, namely
 
    H.Bushouse, 2012 Mar 27:
    Fixed BuildDthInput to reallocate additional memory for wf3dth_input
@@ -81,8 +81,8 @@
    (PR 70922, Trac #869)
 
    M Sosey, 2012 December 27:
-   Updated to account for a memory leak on linux machines during BuildDth 
-   when RPTCORR is off and a new spt is being constructed (#967)       
+   Updated to account for a memory leak on linux machines during BuildDth
+   when RPTCORR is off and a new spt is being constructed (#967)
 
    M. Sosey, April 2015:
    Added double process to include fully CTE calibrated output files
@@ -93,7 +93,7 @@
    M. Sosey, July 2015:
    Updated BuildDthInput return value changed to int to avoid leaks
    Removed BuildSumInput because it's no longer used
-   
+
    M. Sosey, August 2015:
    Had to add a double pass through the DTH EXP-PRT/EXP-DTH association
    processing for UVIS to account for both CTE and non-CTE corrected data
@@ -101,7 +101,7 @@
    file. This meant making the pass for IR data separate as well.
    Put back the const char* return for BuildDthInput because it was the only
    way I could get to consistently work in all cases :/
-   
+
  */
 
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug, int onecpu) {
@@ -133,17 +133,17 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	void freeAsnInfo (AsnInfo *);
 	int LoadAsn (AsnInfo *);
 	int ProcessCCD (AsnInfo *, WF3Info *, int *, int, int);
-	int ProcessIR  (AsnInfo *, WF3Info *, int);	
+	int ProcessIR  (AsnInfo *, WF3Info *, int);
 	int Wf3Dth (const char *, char *, int, int, int);
 	char* BuildDthInput (AsnInfo *, int, char *);
 	int updateAsnTable (AsnInfo *, int, int);
 	void InitDthTrl (const char *, char *);
 
     /*because DTH had this hard coded and it varies with UVIS for CTE*/
-   char suffix_flt[]="_flt.fits";    
-   char suffix_flc[]="_flc.fits";    
-    
-       
+   char suffix_flt[]="_flt.fits";
+   /*char suffix_flc[]="_flc.fits"; */   
+
+
 	/* Post error handler */
 	push_hstioerr (errchk);
 
@@ -154,7 +154,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 	/* Determine if input is a single file or an association
 	 **	table, then populate ASN structure with appropriate
-	 **	information to control processing.		
+	 **	information to control processing.
 	 */
 	initAsnInfo(&asn);
 
@@ -174,11 +174,11 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	asn.verbose = verbose;
 	asn.debug = debug;
 
-	/* LoadAsn will determine whether input is a single file or an 
+	/* LoadAsn will determine whether input is a single file or an
 	 ** Association table.  If a single image, it will look in that images
 	 ** association table to see what products are associated with it, and
 	 ** process them accordingly.  If it is just a single image as its
-	 ** own output, it will proceed as a 1 element table.	
+	 ** own output, it will proceed as a 1 element table.
 	 ** Based on routines from n_getAsnTable() and n_setup() in CALNICB
 	 */
 	trlmessage("loading asn\n");
@@ -189,12 +189,12 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	}
 
 	/* Check to see that detector is known, as it could come through with
-	 ** a value of 0 or UNKNOWN_DETECTOR.  
+	 ** a value of 0 or UNKNOWN_DETECTOR.
 	 ** WJH  2Mar99
 	 */
 	if (asn.detector == UNKNOWN_DETECTOR || asn.detector == 0) {
 		trlwarn ("Unknown detector type for observations.");
-		freeAsnInfo(&asn);	
+		freeAsnInfo(&asn);
 		return (status = NOTHING_TO_DO);
 	}
 
@@ -209,27 +209,27 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		if (asn.verbose) {
 			trlmessage ("CALWF3: processing a UVIS product");
 		}
-		if (ProcessCCD (&asn, &wf3hdr, &save_tmp, printtime, onecpu)) { 
+		if (ProcessCCD (&asn, &wf3hdr, &save_tmp, printtime, onecpu)) {
 			if (status == NOTHING_TO_DO) {
 				trlwarn ("No processing desired for CCD data.");
 			} else {
 				trlerror ("Couldn't process CCD data");
 			}
-			return (status);			
-		}		
+			return (status);
+		}
 
 	} else { /* Process IR observations here */
 		if (asn.verbose) {
 			trlmessage ("CALWF3: processing an IR product");
 		}
-		if (ProcessIR (&asn, &wf3hdr, printtime)) { 
+		if (ProcessIR (&asn, &wf3hdr, printtime)) {
 			if (status == NOTHING_TO_DO) {
 				trlwarn ("No processing desired for IR data.");
 			} else {
 				trlerror ("Couldn't process IR data");
 			}
-			return (status);			
-		}			
+			return (status);
+		}
 	}
 
     /* WF3 DTH PROCESSING - RUNS ON CALIBRATED EXPOSURES */
@@ -242,10 +242,10 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	        }
 
             wf3dth_input=NULL;
-                    
+
 	        for (prod = 0; prod < asn.numprod; prod++) {
 		        wf3dth_input = BuildDthInput (&asn, prod,suffix_flt );
-                
+
 		        /* Skip this product if the input list is empty */
 		        if (wf3dth_input == NULL) {
                     printf("\nProduct %i input list empty, continuing..\n",prod);
@@ -256,16 +256,16 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		         ** for the entire association whether there is a product or
 		         ** not. So we set up the trailer file based on the association
 		         ** file name itself. */
-                 
+
                 if (strcmp(asn.product[prod].prodname,"") != 0){
                     InitDthTrl(wf3dth_input,asn.product[prod].prodname);
-                } else {            
+                } else {
  	    	        InitDthTrl (wf3dth_input, asn.rootname);
                 }
 
 		        /* Check if we have a PROD-DTH specified */
 		        if (strcmp(asn.product[prod].prodname,"") != 0) {
-			        
+
                     if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
 				        if (Wf3Dth (wf3dth_input,
 							        asn.product[prod].prodname, asn.dthcorr,
@@ -284,14 +284,14 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 			        }
 		        }
 
-	        }                         
-             
+	        }
+
       }  /* End DTHCORR UVIS Processing */
 
     } else { /*PROCESS THE IR DATA*/
-        /* Add DTH processing for IR here... */        
+        /* Add DTH processing for IR here... */
         if (asn.process == FULL) {
-        
+
 	        if (asn.verbose) {
 		        trlmessage ("CALWF3: Building DTH products for IR Data");
 	        }
@@ -309,7 +309,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 		         ** not. So we set up the trailer file based on the association
 		         ** file name itself. */
  		        InitDthTrl (wf3dth_input, asn.rootname);
-                
+
 		        /* Check if we have a PROD-DTH specified */
 
 		        if (strcmp(asn.product[prod].prodname,"") != 0) {
@@ -335,9 +335,9 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	        }
 
         }
-    
+
     } /* End DTHCORR IR Processing */
-    
+
 	if (asn.verbose) {
 		trlmessage ("CALWF3: Finished processing product ");
 	}
@@ -361,8 +361,8 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 	int i, j;
 	int MkName (char *, char *, char *, char *, char *, int);
     extern int status;
-    
-	/* 
+
+	/*
 	 * allocate 1 byte - we will realloc every time we append
 	 * to the string.  Note that the reallocs ask for a little
 	 * more space than it appears we need -- this is to leave space
@@ -371,14 +371,14 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 	 * through the loop, so +10 is good enough.
 	 */
 	char *wf3dth_input;
-    
-    wf3dth_input = (char *) calloc(1,sizeof(char*)); 
-    
+
+    wf3dth_input = (char *) calloc(1,sizeof(char*));
+
 	/* Now, lets search the association table for all inputs... */
 	for (i=1; i <= asn->numsp; i++) {
 		/* Skip CR and RPT sub-products that only have 1 member */
 		if ((asn->crcorr==PERFORM || asn->crcorr==DUMMY ||
-					asn->rptcorr==PERFORM || asn->rptcorr==DUMMY) && 
+					asn->rptcorr==PERFORM || asn->rptcorr==DUMMY) &&
 				asn->spmems[i] < 2)
 			continue;
 
@@ -396,10 +396,10 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 					strcat(wf3dth_input, ",");
 			}
 
-		} else {            
+		} else {
 			/* Otherwise just use the sub-product name */
-            
-            if (strcmp(suffix_name,"_flc.fits")){ 
+
+            if (strcmp(suffix_name,"_flc.fits")){
 			    char *t = asn->product[prod].subprod[i].spname;
 			    wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
 			    strcat(wf3dth_input, t);
@@ -407,8 +407,8 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 			    char *t = asn->product[prod].subprod[i].spname_cte;
 			    wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
 			    strcat(wf3dth_input, t);
-            }            
-            
+            }
+
 		}
 
 		if (i < (asn->numsp)) {
@@ -427,8 +427,8 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 
    H.Bushouse 2003-04-25  Modified to treat RPTCORR exactly the same
    as CRCORR for WFC3 UVIS use.
-   
-   M. Sosey 2015 Updated to add CTE 
+
+   M. Sosey 2015 Updated to add CTE
  */
 
 void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,
@@ -453,12 +453,12 @@ void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,
 	wf3cte_sci_sw->photcorr  = OMIT;
 	wf3cte_sci_sw->crcorr    = OMIT;
 	wf3cte_sci_sw->rptcorr   = OMIT;
-	wf3cte_sci_sw->expscorr  = OMIT;	
+	wf3cte_sci_sw->expscorr  = OMIT;
 	wf3cte_sci_sw->fluxcorr  = OMIT;
 	wf3cte_sci_sw->pctecorr  = sci_sw->pctecorr;
 
 	/* These are the switches for calwf3 prior to running wf3rej
-	 ** (cosmic-ray rejection). */	
+	 ** (cosmic-ray rejection). */
 	wf3ccd_sci_sw->dqicorr   = sci_sw->dqicorr;
 	wf3ccd_sci_sw->atodcorr  = sci_sw->atodcorr;
 	wf3ccd_sci_sw->blevcorr  = sci_sw->blevcorr;
@@ -471,7 +471,7 @@ void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,
 	wf3ccd_sci_sw->crcorr    = sci_sw->crcorr;
 	wf3ccd_sci_sw->rptcorr   = sci_sw->rptcorr;
 	wf3ccd_sci_sw->expscorr  = sci_sw->expscorr;
-	wf3ccd_sci_sw->pctecorr  = sci_sw->pctecorr;	
+	wf3ccd_sci_sw->pctecorr  = sci_sw->pctecorr;
 
 	/* These are the switches for wf32d for the science file. */
 	wf32d_sci_sw->dqicorr   = sci_sw->dqicorr;
@@ -485,7 +485,7 @@ void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,
 	wf32d_sci_sw->photcorr  = sci_sw->photcorr;
 	wf32d_sci_sw->crcorr    = sci_sw->crcorr;
 	wf32d_sci_sw->rptcorr   = sci_sw->rptcorr;
-	wf32d_sci_sw->expscorr  = sci_sw->expscorr;	
+	wf32d_sci_sw->expscorr  = sci_sw->expscorr;
 	wf32d_sci_sw->fluxcorr  = sci_sw->fluxcorr;
 	wf32d_sci_sw->pctecorr  = sci_sw->pctecorr;
 }
@@ -493,19 +493,19 @@ void SetCCDSw (CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw,
 
 /*This is used in proccd during the double loop through
  for CTE and non-cte processing */
- 
+
 void ResetSwitch( CCD_Switch *sci_sw, CCD_Switch *wf3ccd_sci_sw){
 	/* arguments:
 	   CCD_Switch *sci_sw            i: all calibration switches for science file
 	   CCD_Switch *wf3ccd_sci_sw     o: wf3ccd switches for science file
     */
-    
+
 	wf3ccd_sci_sw->dqicorr   = sci_sw->dqicorr;
 	wf3ccd_sci_sw->atodcorr  = sci_sw->atodcorr;
 	wf3ccd_sci_sw->blevcorr  = sci_sw->blevcorr;
 	wf3ccd_sci_sw->biascorr  = sci_sw->biascorr;
 	wf3ccd_sci_sw->flashcorr = sci_sw->flashcorr;
-    
+
 }
 
 
@@ -543,7 +543,7 @@ void ResetCCDSw (CCD_Switch *wf3ccd_sci_sw, CCD_Switch *wf32d_sci_sw) {
 
 	if (wf3ccd_sci_sw->pctecorr == PERFORM)
 		wf32d_sci_sw->pctecorr =OMIT;
-        
+
 }
 
 
@@ -643,7 +643,7 @@ int CopyFFile (char *infile, char *outfile) {
 	fclose (ifp);
 	free (buf);
 
-	/* Update the FILENAME keyword in the primary header of the 
+	/* Update the FILENAME keyword in the primary header of the
 	 ** output file. */
 
 	initHdr (&phdr);
@@ -693,10 +693,9 @@ int CheckCorr (AsnInfo *asn, WF3Info *wf3hdr) {
 
 	if ((asn->crcorr  != wf3hdr->sci_crcorr) ||
 			(asn->rptcorr != wf3hdr->sci_rptcorr)) {
-		trlerror 
+		trlerror
 			("CRCORR and/or RPTCORR values not consistent with ASN table!");
 		return (status = ERROR_RETURN);
 	}
 	return (status);
 }
-

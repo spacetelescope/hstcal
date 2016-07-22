@@ -17,7 +17,7 @@ def build(bld):
             median.c   mkname.c   mkoutname.c   mkspt.c   mult1d.c
             multk1d.c   multk2d.c   omitstep.c   parseamps.c
             prinfo.c   reffiles.c   rowpedigree.c   sameint.c   spline.c
-            streqic.c   sub1d.c   tabhistory.c   tabpedigree.c
+            streqic.c   subtools.c sub1d.c   tabhistory.c   tabpedigree.c
             timestamp.c   trim.c   trlbuf.c   ucalver.c   ufilename.c
             unbin2d.c  unbinline.c   whicherror.c razutil.c  
 

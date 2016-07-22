@@ -5,29 +5,22 @@
 
 /* These routines facilitate moving between the regular WFC3 image structre
    to the RAZ image structure used in the CTE correction and Sink pixel flagging
-   
+
 
    convert a raw file to raz file: CDAB longwise amps, save data array
    for comparison with what jay has during testing
 
-   In the raz image, each quadrant has been rotated such that the readout amp is located at the lower left. 
-   The reoriented four quadrants are then arranged into a single 8412x2070 image (science pixels plus overscan), 
-   with amps C, D, A, and B, in that order. In the raz image, pixels are all parallel-shifted down, 
+   In the raz image, each quadrant has been rotated such that the readout amp is located at the lower left.
+   The reoriented four quadrants are then arranged into a single 8412x2070 image (science pixels plus overscan),
+   with amps C, D, A, and B, in that order. In the raz image, pixels are all parallel-shifted down,
    then serial-shifted to the left.
 
    The code for the DQ arrays and plain float arrays only converts one chip at a time so that it can be run through the regular
-   wf3ccd pipeline which operates on 1 chip at a time. 
-   
+   wf3ccd pipeline which operates on 1 chip at a time.
+
    Megan Sosey, May 2015
 
 */
-
-
-/*function prototypes*/
-
-int GetCorner (Hdr *, int, int *, int *);
-
-
 
 /*convert  floating point arrays into raz format*/
 int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
@@ -56,8 +49,8 @@ int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
             return(status=INVALID_VALUE);
         }
     }
-            
-    return(status);      
+
+    return(status);
 }
 
 /*convert the sci extension*/
@@ -75,19 +68,19 @@ int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
                 Pix(raz->sci.data,i+3*subcol,j)=Pix(ab->sci.data,subcol*2-i-1,RAZ_ROWS-j-1);
             }
         }
-        
-    return(status);      
+
+    return(status);
 
 }
 
 
 /* Transform a RAZ format image back into the separate input arrays calwf3 likes*/
 int undosciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
-    
+
     extern int status;
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
     int i,j;
-        
+
     /*REVERSE THE AMPS TO THE RAW FORMAT*/
     for (i=0; i< subcol; i++){
         for (j=0; j<RAZ_ROWS; j++){
@@ -111,7 +104,7 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
     extern int status;
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
     int i,j;
-    
+
     if (x->group_num == 1){
         for (i=0; i<subcol; i++){
             for (j=0;j<RAZ_ROWS; j++){
@@ -119,7 +112,7 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
                 Pix(raz->dq.data,i+subcol,j) = Pix(x->dq.data,subcol*2-i-1,j);
             }
         }
-    
+
     } else {
         if (x->group_num == 2){
             for (i=0; i<subcol; i++){
@@ -128,25 +121,25 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
                     Pix(raz->dq.data,i+subcol,j) = Pix(x->dq.data,subcol*2-i-1,RAZ_ROWS-j-1);
                 }
             }
-        
+
         } else {
             trlmessage("Invalid group number passed to makedqRAZ");
             return(status=INVALID_VALUE);
         }
     }
- 
-   return(status);      
+
+   return(status);
 
 }
 
 
 /* Transform dq in a  RAZ format image back into the separate input arrays calwf3 likes*/
 int undodqRAZ(SingleGroup *x, SingleGroup *raz){
-    
+
     extern int status;
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
     int i,j;
-        
+
     if (x->group_num == 1){
         for (i=0; i< subcol; i++){
             for (j=0; j<RAZ_ROWS; j++){
@@ -167,19 +160,19 @@ int undodqRAZ(SingleGroup *x, SingleGroup *raz){
             return(status=INVALID_VALUE);
         }
     }
-        
+
     return (status);
 
 }
 
 /*convert the science image of a single group to RAZ
  for use in the SINK pixel detection*/
- 
+
 int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
     extern int status;
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
     int i,j;
-    
+
     if (x->group_num == 1){
         for (i=0; i<subcol; i++){
             for (j=0;j<RAZ_ROWS; j++){
@@ -187,7 +180,7 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
                 Pix(raz->sci.data,i+subcol,j) = Pix(x->sci.data,subcol*2-i-1,j);
             }
         }
-    
+
     } else {
         if (x->group_num == 2){
             for (i=0; i<subcol; i++){
@@ -196,15 +189,13 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
                     Pix(raz->sci.data,i+subcol,j) = Pix(x->sci.data,subcol*2-i-1,RAZ_ROWS-j-1);
                 }
             }
-        
+
         } else {
             trlmessage("Invalid group number passed to makeSciSingleRAZ");
             return(status=INVALID_VALUE);
         }
     }
- 
-   return(status);      
+
+   return(status);
 
 }
-
-

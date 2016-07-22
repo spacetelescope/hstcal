@@ -11,11 +11,11 @@
 /* This routine subtracts the special BIACFILE image from x (in-place).
    For WF3 CTE corrected science data.
 
-   This is a special bias image created for the CTE correction and 
+   This is a special bias image created for the CTE correction and
    follows the same format as other reference bias images. The bias subtraction
    is done before the RAZ image is made. Instead of calling the regular routine.
    The regular bias subtraction is still performed.
-   
+
    Megan Sosey, 2015
 
  */
@@ -37,7 +37,8 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	int scilines; 		/* number of lines in science image */
 	int i, j;
 	int update;
-    
+
+
 
 	sprintf(MsgText,"CTE: Subtracting BIACFILE: %s for imset %d",wf3->biac.name, x->group_num);
 	trlmessage(MsgText);
@@ -53,29 +54,28 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	y0 = 0;
 	same_size = 1;
 
-
-	/* Get the first line of biac image data. */    
+	/* Get the first line of biac image data. */
 	openSingleGroupLine (wf3->biac.name, x->group_num, &y);
 	if (hstio_err())
 		return (status = OPEN_FAILED);
 
-	/* 
+	/*
 	   Reference image should already be selected to have the
 	   same binning factor as the science image.  All we need to
 	   make sure of is whether the science array is a sub-array of
-	   the biac image.  
+	   the biac image.
 	 */
 
 	if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
 		return (status);
 
-	/* CKJ: Going to force the same_size x0, y0 = 0,0
-	 *      as the sub-array data was put into a full-array format.
-	 */
-	same_size = 1;
-	x0 = 0;
-	y0 = 0;
-
+		/* CKJ: Going to force the same_size x0, y0 = 0,0
+	 +	 *      as the sub-array data was put into a full-array format.
+	 +	 */
+	 same_size = 1;
+	 x0 = 0;
+	 y0 = 0;
+	 
 	/* Return with error if reference data not binned same as input */
 	if (rx != 1 || ry != 1) {
 		closeSingleGroupLine (&y);
@@ -113,7 +113,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 
 		/* Loop over all the lines in the science array, and
 		 ** match them to the appropriate line in the reference image. */
-		/* 
+		/*
 		   i - index for line in science image
 		   j - index for line in reference image
 		   y0 - line in reference image corresponding to
@@ -121,7 +121,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 		 */
 		initSingleGroupLine (&z);
 		allocSingleGroupLine (&z, x->sci.data.nx);
-		for (i=0, j=y0; i < scilines; i++,j++) { 
+		for (i=0, j=y0; i < scilines; i++,j++) {
 
 			/* We are working with a sub-array and need to apply the
 			 ** proper section from the reference image to the science
@@ -130,7 +130,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 				sprintf (MsgText,"Could not read line %d from biac image.",
 						j+1);
 				trlerror(MsgText);
-			}			
+			}
 
 			update = NO;
 
@@ -151,6 +151,6 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	if(wf3->printtime){
 		TimeStamp("Finished subtracting BIAC file: ",wf3->rootname);
 	}
-    
+
 	return (status);
 }
