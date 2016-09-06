@@ -1,5 +1,7 @@
 #define NUM_SCALE 4 /*number of scaling points, this is the 4 columns in the second table extension*/
 #define TRAPS 999 /*max number of traps per column = rows in pctetab[1], valid traps are < 999999 in qlev*/
+#define CTEFLAG 9999999 /*flag to ignore value in array during cte calculation*/
+
 
 /* structure to hold CTE parameters from the reference files */
 typedef struct {
@@ -31,7 +33,6 @@ typedef struct {
 
 
 /*USEFUL LIB FUNCTIONS*/
-
 int GetGrp (WF3Info *, Hdr *);
 void PrBegin (char *);
 void PrEnd (char *);
@@ -65,7 +66,10 @@ int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 int streq_ic (char *, char *); /* case insensitive string equal */
 int  MkOutName (char *, char **, char **, int, char *, int);
 int MkNewExtn (char *, char *);
-
+int Sub2Full(WF3Info *, SingleGroup *, SingleGroup *, int, int, int );
+int Full2Sub(WF3Info *, SingleGroup *, SingleGroup *, int, int, int );
+int CreateEmptyChip(WF3Info *, SingleGroup *);
+int GetCorner (Hdr *, int, int *, int *);
 
 /*FUNCTION SIGNATURES FOR CTE SPECIFIC CODE*/
 
@@ -76,7 +80,7 @@ int GetCTEFlags (WF3Info *, Hdr *);
 int a2d_raz(WF3Info *);
 int raw2raz(WF3Info *, SingleGroup *, SingleGroup *, SingleGroup *);
 int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, double , int );
-int findPostScanBias(SingleGroup *, float *, float *);
+int findPostScanBias(SingleGroup *, float *, float * );
 int findPreScanBias(SingleGroup *, float *, float *);
 int find_dadj(int ,int , double [][RAZ_ROWS], double [][RAZ_ROWS], double , double *);
 int rsz2rsc(WF3Info *, SingleGroup *, SingleGroup *, CTEParams * );
@@ -88,5 +92,5 @@ int free_array(float **ptr, int rows, int columns);
 int GetCTESwitch (WF3Info *, Hdr *);
 int initCTETrl (char *, char *);
 
-int makesciRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
-int undosciRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
+int makeRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
+int undoRAZ(SingleGroup *, SingleGroup *, SingleGroup *);

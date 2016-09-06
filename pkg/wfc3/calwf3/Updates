@@ -1,4 +1,7 @@
 Updates for Version 3.4 18-July-2016 MLS
+    - Sink pixel flagging for subarray appears correct now
+
+Updates for Version 3.4 18-July-2016 MLS
     - CTE and Sink Pixel implementation for subarrays submitted by Brechmos for review
 
 Updates for Version 3.3 28-Jan-2016 MLS

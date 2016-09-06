@@ -65,6 +65,9 @@
 # include "wf3err.h"
 # include "doccd.h"
 
+int PutKeyDbl(Hdr *, char *, double , char *);
+int PutKeyStr(Hdr *, char *, char *, char *);
+
 int DoCCD (WF3Info *wf3, int extver) {
 
     /* arguments:
@@ -75,6 +78,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     extern int status;
 
     SingleGroup x;	/* used for both input and output */
+    SingleGroup fullarray;
     int option = 0;
     float meanblev;	/* mean value of overscan bias (for history) */
     float meanflash; /* mean value of post-flash image (for history) */
@@ -87,8 +91,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     int blevcorr;
     char buff[SZ_FITS_REC+1];
     Bool subarray;
-    int zero_dq=0; /* don't zero out the dq array */
-    int just_dq=1; /* only copy back the altered dq array */
+
 
     /*========================Start Code here =======================*/
     initSingleGroup (&x);
@@ -254,7 +257,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         /* This is set based on results of FindOver */
         done = overscan;
 
-        if (doBlev (wf3, &x, wf3->chip, &meanblev, &done, &driftcorr))
+        if (doBlev(wf3, &x, wf3->chip, &meanblev, &done, &driftcorr))
             return (status);
 
         if (done) {
@@ -329,21 +332,35 @@ int DoCCD (WF3Info *wf3, int extver) {
                  * If the SCI data is a sub array then we are going to
                  * copy the SCI and DQ sub-arrays into a temporary version
                  * of a full-array and pass that to SinkDetect.
+                 *
+                 * MLS
+                 * I created a library function that could be used
+                 * by any of the modules
                 */
 
-                /* Make temporary full group*/
-                SingleGroup fullarray;
-                initSingleGroup (&fullarray);
-                allocSingleGroup(&fullarray, 4206, 2070);
+                /* Make temporary full group
+                 use the sinkfile as the reference
+                sub2full will reset the pixel values
+                */
+                initSingleGroup(&fullarray);
+                allocSingleGroup(&fullarray,RAZ_COLS/2,RAZ_ROWS);
+                fullarray.group_num=x.group_num;
+                CreateEmptyChip(wf3, &fullarray);
+                if (x.group_num == 2){ /*post blev*/
+                    if (PutKeyDbl(&fullarray.sci.hdr, "LTV2", 0.0, "offset in Y to light start")) {
+                      trlmessage("Error putting LTV1 keyword in header");
+                      return (status=HEADER_PROBLEM);
+                    }
+                }
 
-                if (Sub2Full(wf3, &x, &fullarray, zero_dq))
+                if (Sub2Full(wf3, &x, &fullarray, 1, 1, 0))
                   return(status);
 
                 if (SinkDetect(wf3, &fullarray))
                    return(status);
 
                 /*place the marked dq pixels back into x*/
-                if (Full2Sub(wf3, &x, &fullarray, just_dq))
+                if (Full2Sub(wf3, &x, &fullarray, 1, 0, 0))
                     return(status);
 
                 /* Free up the group now that we are done with it*/

@@ -22,39 +22,10 @@
 
 */
 
-/*convert  floating point arrays into raz format*/
-int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
 
-    extern int status;
-    int subcol = (RAZ_COLS/4); /* for looping over quads  */
-    int i,j;
 
-    if (group == 1){
-        for (i=0; i<subcol; i++){
-            for (j=0;j<RAZ_ROWS; j++){
-                PPix(raz,i,j) = PPix(x,i,j);
-                PPix(raz,i+subcol,j) = PPix(x,subcol*2-i-1,j);
-            }
-        }
-    } else {
-        if (group == 2){
-            for (i=0; i<subcol; i++){
-                for (j=0;j<RAZ_ROWS; j++){
-                    PPix(raz,i,j) = PPix(x,i,RAZ_ROWS-j-1);
-                    PPix(raz,i+subcol,j) =PPix(x,subcol*2-i-1,RAZ_ROWS-j-1);
-                }
-            }
-        } else {
-            trlmessage("Invalid group number passed to makedqRAZ");
-            return(status=INVALID_VALUE);
-        }
-    }
-
-    return(status);
-}
-
-/*convert the sci extension*/
-int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
+/*convert the sci and dq extensions to the long format*/
+int makeRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
 
     extern int status;
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
@@ -66,6 +37,11 @@ int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
                 Pix(raz->sci.data,i+subcol,j)=Pix(cd->sci.data,subcol*2-i-1,j);
                 Pix(raz->sci.data,i+2*subcol,j)=Pix(ab->sci.data,i,RAZ_ROWS-j-1);
                 Pix(raz->sci.data,i+3*subcol,j)=Pix(ab->sci.data,subcol*2-i-1,RAZ_ROWS-j-1);
+
+                Pix(raz->dq.data,i,j)=Pix(cd->dq.data,i,j);
+                Pix(raz->dq.data,i+subcol,j)=Pix(cd->dq.data,subcol*2-i-1,j);
+                Pix(raz->dq.data,i+2*subcol,j)=Pix(ab->dq.data,i,RAZ_ROWS-j-1);
+                Pix(raz->dq.data,i+3*subcol,j)=Pix(ab->dq.data,subcol*2-i-1,RAZ_ROWS-j-1);
             }
         }
 
@@ -75,7 +51,7 @@ int makesciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
 
 
 /* Transform a RAZ format image back into the separate input arrays calwf3 likes*/
-int undosciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
+int undoRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
 
     extern int status;
     int subcol = (RAZ_COLS/4); /* for looping over quads  */
@@ -88,14 +64,24 @@ int undosciRAZ(SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
              Pix(cd->sci.data,subcol*2-i-1,j) = Pix(raz->sci.data,i+subcol,j);
              Pix(ab->sci.data,i,RAZ_ROWS-j-1) = Pix(raz->sci.data,i+2*subcol,j);
              Pix(ab->sci.data,subcol*2-i-1,RAZ_ROWS-j-1) = Pix(raz->sci.data,i+3*subcol,j);
+
+             Pix(cd->dq.data,i,j) = Pix(raz->dq.data,i,j);
+             Pix(cd->dq.data,subcol*2-i-1,j) = Pix(raz->dq.data,i+subcol,j);
+             Pix(ab->dq.data,i,RAZ_ROWS-j-1) = Pix(raz->dq.data,i+2*subcol,j);
+             Pix(ab->dq.data,subcol*2-i-1,RAZ_ROWS-j-1) = Pix(raz->dq.data,i+3*subcol,j);
+
+
         }
     }
     return (status);
 
 }
 
-/*convert the DQ extension
-The DQ versions are written to work with SINKDETECT
+
+/***********THE ROUTINES BELOW OPERATE ON A SINGLE GROUP***********/
+
+/*
+The DQ versions here are written to work with SINKDETECT
 and work on 1 chip at a time, with Half the Columns of the
 full size raz image and all the rows
 */
@@ -198,4 +184,35 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
 
    return(status);
 
+}
+
+/*convert  floating point arrays into raz format*/
+int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
+
+    extern int status;
+    int subcol = (RAZ_COLS/4); /* for looping over quads  */
+    int i,j;
+
+    if (group == 1){
+        for (i=0; i<subcol; i++){
+            for (j=0;j<RAZ_ROWS; j++){
+                PPix(raz,i,j) = PPix(x,i,j);
+                PPix(raz,i+subcol,j) = PPix(x,subcol*2-i-1,j);
+            }
+        }
+    } else {
+        if (group == 2){
+            for (i=0; i<subcol; i++){
+                for (j=0;j<RAZ_ROWS; j++){
+                    PPix(raz,i,j) = PPix(x,i,RAZ_ROWS-j-1);
+                    PPix(raz,i+subcol,j) =PPix(x,subcol*2-i-1,RAZ_ROWS-j-1);
+                }
+            }
+        } else {
+            trlmessage("Invalid group number passed to makedqRAZ");
+            return(status=INVALID_VALUE);
+        }
+    }
+
+    return(status);
 }
