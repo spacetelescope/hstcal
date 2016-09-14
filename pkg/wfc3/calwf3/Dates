@@ -1,3 +1,6 @@
+14-Sep-2016 - MLS - Version 3.4
+    - CTE subarrays enabled for user supported subarrays with physical overscan
+
 06-Sep-2016 - MLS - Version 3.4
     - Sink pixel flagging for subarray appears correct now
 

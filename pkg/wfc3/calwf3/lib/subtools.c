@@ -33,7 +33,7 @@ int CreateEmptyChip(WF3Info *wf3, SingleGroup *full){
      if (PutKeyDbl(&full->sci.hdr, "LTV2", 19.0, "offset in X to light start")) {
        trlmessage("Error putting LTV1 keyword in header");
        return (status=HEADER_PROBLEM);
-     }     
+     }
  }
   if (PutKeyDbl(&full->sci.hdr, "LTV1", 25.0, "offset in X to light start")) {
     trlmessage("Error putting LTV1 keyword in header");
@@ -118,7 +118,7 @@ int Sub2Full(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int real_dq, int f
   }
 
   if(virtual){
-      if (scix > 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
+      if (scix >= 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
           sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",scix,sciy);
           trlmessage(MsgText);
           scix += 60;
@@ -186,7 +186,7 @@ int Full2Sub(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int dq, int sci, i
   trlmessage(MsgText);
 
   if (virtual){
-      if (scix > 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
+      if (scix >= 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
           sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",scix,sciy);
           trlmessage(MsgText);
           scix += 60;

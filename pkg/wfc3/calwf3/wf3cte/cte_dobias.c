@@ -125,12 +125,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 
 	 } else {
 
-		 if (wf3->verbose){
-		 	sprintf(MsgText,"SUBARRAY FOUND, amp=%s",wf3->ccdamp);
-		 	trlmessage(MsgText);
-		 }
-
-		 if (x0 > 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
+		 if (x0 >= 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
 		 	if (wf3->verbose){
 		 		sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
 		 		trlmessage(MsgText);
@@ -142,7 +137,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 		 	}
 		 } else { /*the subarray starts somewhere in A or C and might straddle the virtual overscan region */
 
-		 	if ( (x0 + dimx) > 2072){
+		 	if ( (x0 + dimx) >= 2072){
 		 		straddle=1;
 		 		overstart=2073-x0;
 		 	}
