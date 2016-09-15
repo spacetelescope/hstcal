@@ -12,7 +12,7 @@ typedef unsigned char Byte;
 
 #define SIZE_BYTE   8
 #define YES         1
-#define NO          0 
+#define NO          0
 
 # define MAX_DQ     65535
 
@@ -74,11 +74,12 @@ typedef enum SwitchVals_ SwitchVals;
 /* used for the CTE correction in UVIS where the amps are stacked
    in the order they are read out. Defined here so that the rest of
    the pipeline has access to them, for use mostly in the sink pixel
-   mask creation which happens in wf3ccd  */
+   mask creation which happens in wf3ccd. This is the full extent size
+	 of a raw file which has been rotated in amp order. */
 # define RAZ_COLS 8412
 # define RAZ_ROWS 2070
 
- 
+
 /* A reference image. */
 typedef struct {
     char name[SZ_LINE+1];            /* name of image */
@@ -119,10 +120,9 @@ typedef struct {
 } multiamp;
 
 
-/* This macro defines the string which will be used to distinguish the 
+/* This macro defines the string which will be used to distinguish the
 	start of CALWF3 comments in the trailer files...
 */
 # define TRL_PREFIX     "CALWF3BEG"
 
 # include "trl.h"
-

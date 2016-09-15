@@ -13,7 +13,7 @@
 
    Warren Hack, 1998 June 8:
     Original ACS version based on Phil Hodge's CALSTIS routine...
-	
+
     24-Sep-1998 WJH - Removed BIAS_REJ as a keyword
     17-Nov-1998 WJH - Revised to support trailer files
     11-Feb-1999 WJH - Read EXPTIME from Primary header instead of SCI hdr
@@ -47,11 +47,13 @@ Hdr *phdr        i: primary header
 
 	int nextend;			/* number of FITS extensions */
 	int i;
+	Bool subarray=0;
 
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyFlt (Hdr *, char *, int, float, float *);
 	int GetKeyDbl (Hdr *, char *, int, double, double *);
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
+	int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
 
 	/* Get generic parameters. */
 
@@ -66,6 +68,14 @@ Hdr *phdr        i: primary header
 
 	if (GetKeyStr (phdr, "DETECTOR", NO_DEFAULT, "", wf3->det, SZ_CBUF))
 	    return (status);
+
+	if (GetKeyBool (phdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
+		  return (status);
+
+	if (subarray){
+			wf3->subarray=1;
+	}
+
 	if (strcmp (wf3->det, "IR") == 0) {
 	    wf3->detector = IR_DETECTOR;
 	} else if (strcmp (wf3->det, "UVIS") == 0) {
@@ -75,7 +85,7 @@ Hdr *phdr        i: primary header
 	    trlerror (MsgText);
 	    return (status = HEADER_PROBLEM);
 	}
-	
+
 	/* Filter or prism/grism name */
 	if (GetKeyStr (phdr, "FILTER", NO_DEFAULT, "", wf3->filter, SZ_CBUF))
 	    return (status);
@@ -97,7 +107,7 @@ Hdr *phdr        i: primary header
 	/* Find out how many extensions there are in this file. */
 	if (GetKeyInt (phdr, "NEXTEND", USE_DEFAULT, EXT_PER_GROUP, &nextend))
 	    return (status);
-	
+
 	/* Convert number of extensions to number of SingleGroups. */
 	wf3->nimsets = nextend / EXT_PER_GROUP;
 	if (wf3->nimsets < 1) {
@@ -115,16 +125,16 @@ Hdr *phdr        i: primary header
 		return (status);
 
 	    for (i=0; i < strlen(wf3->ccdamp) ; i++) {
-		 /* Convert each letter in CCDAMP to upper-case. */
-		 if (islower (wf3->ccdamp[i]))
-		     wf3->ccdamp[i] = toupper (wf3->ccdamp[i]);
-		
-		 /* Verify that only the letters 'ABCD' are in the string. */
-		 if (strchr ("ABCD", wf3->ccdamp[i]) == NULL) {
-		     sprintf (MsgText, "CCDAMP = `%s' is invalid.",wf3->ccdamp);
-		     trlerror (MsgText);
-		     return (status = INVALID_VALUE);
-		 }
+			 /* Convert each letter in CCDAMP to upper-case. */
+			 if (islower (wf3->ccdamp[i]))
+			     wf3->ccdamp[i] = toupper (wf3->ccdamp[i]);
+
+			 /* Verify that only the letters 'ABCD' are in the string. */
+			 if (strchr ("ABCD", wf3->ccdamp[i]) == NULL) {
+			     sprintf (MsgText, "CCDAMP = `%s' is invalid.",wf3->ccdamp);
+			     trlerror (MsgText);
+			     return (status = INVALID_VALUE);
+			 }
 	    }
 
 	    if (GetKeyFlt (phdr, "CCDGAIN", NO_DEFAULT, 0., &wf3->ccdgain))
@@ -185,4 +195,3 @@ Hdr *phdr        i: primary header
 
 	return (status);
 }
-

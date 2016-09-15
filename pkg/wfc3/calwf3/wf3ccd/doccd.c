@@ -4,10 +4,10 @@
    switches in the header will be reset from "PERFORM" to "COMPLETE".
 
    Warren Hack, 1998 June 1:
-   Revised to only perform CCD operations on ACS observations. 
+   Revised to only perform CCD operations on ACS observations.
 
    Warren Hack, 1999 Jan 7:
-   Revised to only output overscan-trimmed image when BLEVCORR is 
+   Revised to only output overscan-trimmed image when BLEVCORR is
    performed successfully.  In other cases, full image is written out.
 
    Howard Bushouse, 2000 Aug 29:
@@ -40,30 +40,33 @@
 
    M. Sosey, 2013 July 3
    Addded new FLUXCORR step to scale flux units in both chips to
-   the same scale using the ratio of PHTFLAM1/PHTFLAM2 ->PHTRATIO 
-   
+   the same scale using the ratio of PHTFLAM1/PHTFLAM2 ->PHTRATIO
+
    M. Sosey June 2015
    If DQICORR is performed, then the SINK pixel mask is also propgated
-   This is part of the UVIS 2 update. SINK pixels are not currently 
+   This is part of the UVIS 2 update. SINK pixels are not currently
    detected for subarrays or binned data.
-    
+
+    C Jones May 2016
+    Made changes to the input of the sink-detect so that it will accept
+    sub-array data.
+
+    M. sosey July 2016
+    Moved the subarray codes to a general function and changed the calculation
+    of where the subarray is. Also moved the DQ bit to the singlegroup extension
+
  */
 
 # include <string.h>
 # include <stdio.h>
 # include "hstio.h"
-
 # include "wf3.h"
 # include "wf3info.h"
 # include "wf3err.h"
+# include "doccd.h"
 
-static void AtoDMsg (WF3Info *, int);
-static void BiasMsg (WF3Info *, int);
-static void FlashMsg (WF3Info *, int);
-static void BlevMsg (WF3Info *, int);
-static void dqiMsg  (WF3Info *, int);
-int checkBinned (SingleGroup *);
-int GetCorner (Hdr *, int , int *, int *);
+int PutKeyDbl(Hdr *, char *, double , char *);
+int PutKeyStr(Hdr *, char *, char *, char *);
 
 int DoCCD (WF3Info *wf3, int extver) {
 
@@ -75,6 +78,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     extern int status;
 
     SingleGroup x;	/* used for both input and output */
+    SingleGroup fullarray;
     int option = 0;
     float meanblev;	/* mean value of overscan bias (for history) */
     float meanflash; /* mean value of post-flash image (for history) */
@@ -88,39 +92,13 @@ int DoCCD (WF3Info *wf3, int extver) {
     char buff[SZ_FITS_REC+1];
     Bool subarray;
 
-    int doAtoD (WF3Info *, SingleGroup *);
-    int atodHistory (WF3Info *, Hdr *);
-    int doBias (WF3Info *, SingleGroup *);
-    int biasHistory (WF3Info *, Hdr *);
-    int doFlash (WF3Info *, SingleGroup *, float *);
-    int flashHistory (WF3Info *, Hdr *);
-    int doBlev (WF3Info *, SingleGroup *, int, float *, int *, int *);
-    int blevHistory (WF3Info *, Hdr *, int, int);
-    int CCDHistory (WF3Info *, Hdr *);
-    int doDQI (WF3Info *, SingleGroup *);
-    int dqiHistory (WF3Info *, Hdr *);
-    int doNoise (WF3Info *, SingleGroup *, int *);
-    int noiseHistory (Hdr *);
-    int GetGrp (WF3Info *, Hdr *);
-    int OmitStep (int);
-    int PutKeyFlt (Hdr *, char *, float, char *);
-    int PutKeyInt (Hdr *, char *, int, char *);
-    void PrSwitch (char *, int);
-    void PrRefInfo (char *, char *, char *, char *, char *);
-    void TimeStamp (char *, char *);
-    void UCalVer (Hdr *);
-    void UFilename (char *, Hdr *);
-    int FindOverscan (WF3Info *, int, int, int *);
-    int GetCCDTab (WF3Info *, int, int);
-    int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
-    int SinkDetect (WF3Info *, SingleGroup *);
-    
-    /*========================Start Code here =======================*/	
+
+    /*========================Start Code here =======================*/
     initSingleGroup (&x);
     if (wf3->printtime)
         TimeStamp ("Open SingleGroup now...", "");
 
-    /* OPEN THE INPUT IMAGE. 
+    /* OPEN THE INPUT IMAGE.
      ** FOR WF3: Keep this in memory throughout processing.
      ** Read in reference images line-by-line within the individual
      ** processing step functions and pass along modified input image
@@ -134,7 +112,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         TimeStamp ("Input read into memory", wf3->rootname);
 
     /* GET HEADER INFO THAT VARIES FROM IMSET TO IMSET NECESSARY
-     **	FOR READING CCDTAB. 
+     **	FOR READING CCDTAB.
      */
     if (GetGrp (wf3, &x.sci.hdr)) {
         freeSingleGroup (&x);
@@ -150,7 +128,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         wf3->subarray = NO;
 
     /* FOR THE CCD, UPDATE PRIMARY HEADER KEYWORDS.
-     * ALSO RESET CRCORR IF THERE'S ONLY ONE IMAGE SET.  
+     * ALSO RESET CRCORR IF THERE'S ONLY ONE IMAGE SET.
      * GET VALUES FROM TABLES, USING SAME FUNCTION USED IN WF3CCD. */
     if (GetCCDTab (wf3, x.sci.data.nx, x.sci.data.ny)) {
         freeSingleGroup (&x);
@@ -180,7 +158,7 @@ int DoCCD (WF3Info *wf3, int extver) {
 
     if (extver == 1) {
         if (CCDHistory (wf3, x.globalhdr))
-            return (status);	
+            return (status);
     }
 
     /* GET OVERSCAN REGION INFORMATION FROM OSCNTAB */
@@ -214,12 +192,12 @@ int DoCCD (WF3Info *wf3, int extver) {
 
             sprintf(MsgText, "    gain =");
             for (i=0; i < NAMPS-1; i++) {
-                if (wf3->atodgain[i] > 0) { 
+                if (wf3->atodgain[i] > 0) {
                     sprintf(buff, "%.5g,",wf3->atodgain[i]);
                     strcat (MsgText, buff);
                 }
             }
-            if (wf3->atodgain[NAMPS-1] > 0) { 
+            if (wf3->atodgain[NAMPS-1] > 0) {
                 sprintf(buff, "%.5g",wf3->atodgain[NAMPS-1]);
                 strcat (MsgText, buff);
             }
@@ -251,12 +229,12 @@ int DoCCD (WF3Info *wf3, int extver) {
         PrSwitch ("dqicorr", COMPLETE);
         if (wf3->printtime)
             TimeStamp ("DQICORR complete", wf3->rootname);
-    }        
+    }
     if (extver == 1 && !OmitStep (wf3->dqicorr))
         if (dqiHistory (wf3, x.globalhdr))
             return (status);
 
-    
+
     /* ANALOG TO DIGITAL CORRECTION. */
     AtoDMsg (wf3, extver);
     if (wf3->atodcorr == PERFORM) {
@@ -279,7 +257,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         /* This is set based on results of FindOver */
         done = overscan;
 
-        if (doBlev (wf3, &x, wf3->chip, &meanblev, &done, &driftcorr))
+        if (doBlev(wf3, &x, wf3->chip, &meanblev, &done, &driftcorr))
             return (status);
 
         if (done) {
@@ -311,7 +289,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         PrSwitch ("blevcorr", COMPLETE);
 
         /* Set this to complete so overscan-trimmed image will be
-         ** written out.  */      
+         ** written out.  */
         blevcorr = COMPLETE;
 
         if (wf3->printtime)
@@ -333,28 +311,67 @@ int DoCCD (WF3Info *wf3, int extver) {
     if (extver == 1 && !OmitStep (wf3->biascorr))
         if (biasHistory (wf3, x.globalhdr))
             return (status);
-    
+
     /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
      IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE
      PROCESSED IN THE RAZ FORMAT JAY USES, THOUGH ONLY ONE CHIP DONE HERE
-     
+
      IF THE IMAGE IS A SUBARRAY THEN IT MUST BE PLACED INSIDE A FULL FRAME
      ARRAY FOR SINK PIXEL DETECTION
-     
+
      BINNED IMAGES ARE NOT SUPPORTED AT ALL
     */
     if (wf3->dqicorr == PERFORM) {
-        if (wf3->subarray == NO){
-            /*also check to see if the data is binned*/
-            if (checkBinned(&x)){
-                sprintf(MsgText,"Binned data not supported for Sink Pixel detection");
-                trlmessage(MsgText);
-            } else {
-                if (SinkDetect(wf3, &x))
-                    return(status);          
+        if (checkBinned(&x)){
+            sprintf(MsgText,"Binned data not supported for Sink Pixel detection");
+            trlmessage(MsgText);
+        } else {
+            if (wf3->subarray){
+
+                /* CKJ
+                 * If the SCI data is a sub array then we are going to
+                 * copy the SCI and DQ sub-arrays into a temporary version
+                 * of a full-array and pass that to SinkDetect.
+                 *
+                 * MLS
+                 * I created a library function that could be used
+                 * by any of the modules
+                */
+
+                /* Make temporary full group
+                 use the sinkfile as the reference
+                sub2full will reset the pixel values
+                */
+                initSingleGroup(&fullarray);
+                allocSingleGroup(&fullarray,RAZ_COLS/2,RAZ_ROWS);
+                fullarray.group_num=x.group_num;
+                CreateEmptyChip(wf3, &fullarray);
+                if (x.group_num == 2){ /*post blev*/
+                    if (PutKeyDbl(&fullarray.sci.hdr, "LTV2", 0.0, "offset in Y to light start")) {
+                      trlmessage("Error putting LTV1 keyword in header");
+                      return (status=HEADER_PROBLEM);
+                    }
                 }
-            }
-    }   
+
+                if (Sub2Full(wf3, &x, &fullarray, 1, 1, 0))
+                  return(status);
+
+                if (SinkDetect(wf3, &fullarray))
+                   return(status);
+
+                /*place the marked dq pixels back into x*/
+                if (Full2Sub(wf3, &x, &fullarray, 1, 0, 0))
+                    return(status);
+
+                /* Free up the group now that we are done with it*/
+                freeSingleGroup(&fullarray);
+
+           } else {/* Must be a fullframe image so just do this */
+                if (SinkDetect(wf3, &x))
+                   return(status);
+          }
+      }
+    }
 
     /* SUBTRACT POST-FLASH IMAGE. */
     FlashMsg (wf3, extver);
@@ -362,7 +379,7 @@ int DoCCD (WF3Info *wf3, int extver) {
 
         /* Initialize this to a set value... */
         meanflash = 0.0;
-        
+
         if (doFlash (wf3, &x, &meanflash))
             return (status);
 
@@ -376,7 +393,7 @@ int DoCCD (WF3Info *wf3, int extver) {
             /* Store mean flash value as keyword */
             if (PutKeyFlt (&x.sci.hdr, "MEANFLSH", meanflash,
                         "mean of post-flash values subtracted"))
-                return (status);	    
+                return (status);
 
             PrSwitch ("flshcorr", COMPLETE);
 
@@ -390,7 +407,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     if (extver == 1 && !OmitStep (wf3->flashcorr)) {
         if (flashHistory (wf3, x.globalhdr))
             return (status);
-    }    
+    }
 
     /* WRITE THIS IMSET TO THE OUTPUT FILE.  IF EXTVER IS ONE, THE
        CAL_VER AND FILENAME KEYWORDS WILL BE UPDATED, AND THE PRIMARY
@@ -402,7 +419,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     }
 
     /* IF BLEVCORR WAS PERFORMED, THEN OUTPUT TRIMMED IMAGE,
-       OTHERWISE OUTPUT FULL IMAGE... 
+       OTHERWISE OUTPUT FULL IMAGE...
      */
     if (blevcorr == COMPLETE) {
 
@@ -418,7 +435,7 @@ int DoCCD (WF3Info *wf3, int extver) {
             trlmessage(MsgText);
         }
 
-        /* OUTPUT OVERSCAN-TRIMMED, BIAS-SUBTRACTED IMAGE 
+        /* OUTPUT OVERSCAN-TRIMMED, BIAS-SUBTRACTED IMAGE
          **  USING THE ROUTINE 'PUTSINGLEGROUPSECT' FROM HSTIO
          **  TO WRITE IT DIRECTLY FROM THE FULL IMAGE IN MEMORY.  */
         sizex = x.sci.data.nx - (wf3->trimx[0] + wf3->trimx[1] +
@@ -461,7 +478,7 @@ int DoCCD (WF3Info *wf3, int extver) {
             trlmessage(MsgText);
         }
 
-        putSingleGroup (wf3->output, extver, &x, option);		
+        putSingleGroup (wf3->output, extver, &x, option);
 
     }
 
@@ -486,7 +503,7 @@ int checkBinned (SingleGroup *x){
     int bin[2];
     int corner[2];
     int i;
-    
+
     /*initialize*/
     for(i=0;i<=1;i++){
         bin[i]=0;
@@ -581,5 +598,3 @@ static void dqiMsg (WF3Info *wf3, int extver) {
                 wf3->bpix.descrip, wf3->bpix.descrip2);
     }
 }
-
-

@@ -1,7 +1,16 @@
+### 14-Sep-2016 - MLS - Version 3.4
+    - CTE subarrays enabled for user supported subarrays with physical overscan
+
+### 06-Sep-2016 - MLS - Version 3.4
+    - Sink pixel flagging for subarray appears correct now
+
+### 18-July-2016 - MLS - Version 3.4
+    - CTE and Sink Pixel implementation for subarrays submitted by Brechmos for review
+
 ### 28-Jan-2016 - MLS -- Version 3.3
     - Removed the call to WF3Dth for the CTE data. This is essentially useless since the DTH step has been replaced with astrodrizzle, the only function it has it to concatina
 te the SPT files from the association members into a new spt file with the product/subproduct name. This is already done for the non-cte processed data, there is no difference
- between the cte and non-cte SPT files, they are only related to the RAW input file. 
+ between the cte and non-cte SPT files, they are only related to the RAW input file.
 
 ### 22-Jan-2016 MLS -- Version 3.3
     - Noticed I missed renaming the crc file with the call to WF3DTH and was setting the input to the crj suffix, but also needed updates to GetAsnTable to include crc filename population for subproducts and sending the correct subproduct through processing, it was always using crj
@@ -36,14 +45,14 @@ te the SPT files from the association members into a new spt file with the produ
     - I also removed the temporary image saves we were using for the CTE routines
 
 ### 29-Sep-2015 MLS -- Version 3.3
-    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with. 
+    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with.
 
     - I also changed the way the code uses the SCLBYCOL reference file (as called in Jays fortran). The way the fortran code is structured, the reference file information never actually gets used in the calculation. This doesn't make a numerical difference at the moment because the reference file values are all ones, ie. there is no additional scaling done on the CTE pixel other than by using the CTE scaling fraction and the column location. However, if the science team ever delivers a new reference file which has these values updated, they wont actually get used by the code unless this change is implemented.
 
    - Reformatted some code for readability, and fixed SEGFAULT error in reference file checking when iref environment variable not set by user, so can't find file (also when can't find file in general). I made RefExist exit clean the first time it found a missing file, HSTIO was barfing any other way.
 
 ### 24-Sep-2015 MLS -- Version 3.3
-    - fix for machine dependent precision bug 
+    - fix for machine dependent precision bug
 
 ### 03-Sep-2015 MLS -- Version 3.3
     - One more precision change needed for the nans in the readnoise section
@@ -72,7 +81,7 @@ te the SPT files from the association members into a new spt file with the produ
     - had to update the procir call to wf3rej_0 signature for the asn update I added to uvis
     - updated the mainrej.e calls which were segfaulting (calling wf3rej standalone on input list of images)
     - added dynamic memory allocation for trailer file list to initrejtrl
-    - updated text in wf3rej to report that Astrodrizzle should be used to align images instead of PyDrizzle since that's how it's advertised to users 
+    - updated text in wf3rej to report that Astrodrizzle should be used to align images instead of PyDrizzle since that's how it's advertised to users
     - found a problem (even in the released version of calwf3) with output file for associations with multiple products, created #1220
 
 ### 12-Aug-2015 MLS -- Version 3.3
@@ -93,7 +102,7 @@ te the SPT files from the association members into a new spt file with the produ
     - removed reference to save_crj because it really was just save_tmp
     - fix for crj tmp files not being removed when asked to delete
 
-###  22-Jul-2015 MLS -- Version 3.3 
+###  22-Jul-2015 MLS -- Version 3.3
     - Full-frame CTE correction for UVIS images is enabled. This can be run stand-alone by calling wf3cte.e and turned on and off using the PCTECORR switch. Many new reference files were created and delivered to be used with this step and users should re-retrieve their raw datasets from the archive to make sure they get the most up-to-date science and reference files.
     - Photometry scaling via the FLUXCORR step is fully implemented. New reference files were created and delivered to be used with this step and users should re-retrieve their raw datasets from the archive to make sure they get the most up-to-date science and reference files.
     - The pipeline now runs twice by default, once with the CTE correction on and once with the CTE correction off. All output files are saved with *??c specifiers when the CTE correction has been applied to the data.
@@ -106,14 +115,14 @@ te the SPT files from the association members into a new spt file with the produ
 
 ### 31-May-2015 - MLS -- Version 3.3
     UVIS 2.0 added to pipeline, including CTE, Sink Pixel and Photometry updates.
-    
+
 ### 08-Dec-2014 - MLS -- Version 3.2.1
     The FLUXCORR step has been updated, changing how the data is processed in the flow of the pipeline. It was discovered that
     a chain of requirements meant that the values from the IMPHTTAB were not being read or updated correctly. This is a multifold
     problem which starts with the way that the IMPHTTAB is read and how it is constructed. Since the file, and it's calling functions,
     are common to all instruments, the best way around it was to move where the fluxcorr step was done in the pipeline to OUTSIDE the
     main wf32d loop. The step then reads in the FLT file which was written out and updates the SCI,1 data and headers with the photometry keyword
-    information.    
+    information.
 
 
 ### 09-Dec-2013 - MLS -- Version 3.2
@@ -132,7 +141,7 @@ te the SPT files from the association members into a new spt file with the produ
     - fixed the individual task executables for wf3ir, wf3ccd, wf32d to properly used the user specfied output filename
       when they are called standalone
       (#1049)
-      
+
 ### 09-Sept-2013 - MLS -- Version 3.1.4
     Updated the postflash routine and sub1d and multk1d to perform the correct subarray
     calibration for all cases. (#983) The previous update was not sufficient for team subarrays.
@@ -140,34 +149,34 @@ te the SPT files from the association members into a new spt file with the produ
 ### 26-Mar-2013 - MLS -- Version 3.1.3
     Updated the postflash routine to apply the correct offset for all amps
     when a user specified subarray is used (no GO users are allowed to do this)
-  
+
     Some unrelated files will change because I formatted the indentation to make
     the code easier to decipher
 
 
 ### 11-Feb-2013 - MLS -- Version 3.1.2
     Updated the bias subtraction to check for CCDAMP values of SINGLE_AMP and
-    SINGLE_OR_ALL in the reference bias file image when a full frame reference file 
+    SINGLE_OR_ALL in the reference bias file image when a full frame reference file
     and a  user specified subarray are used so that the correct overscan region is ignored
 
     Removed check for TDFTRANS per team request, see #980, I'm keeping the same version as
     the previous change because I havent delivered it yet
-    
+
     Added correct pixel offset for subarray images taken with amp B or D for post-flash corretion
 
 
 ### 2-Jan-2013 - MLS -- Version 3.1.1
-    File I/O in acsrej updated to avoid problems with CFITSIO upcasting  
-    file permissions to read/write when not needed. This will allow the 
-    hstio code to remove logic that allowed the old code to work but  
-    caused problems for CADC when CFITSIO opened ref files in read/write  
-    mode because of that hstio logic. 
+    File I/O in acsrej updated to avoid problems with CFITSIO upcasting
+    file permissions to read/write when not needed. This will allow the
+    hstio code to remove logic that allowed the old code to work but
+    caused problems for CADC when CFITSIO opened ref files in read/write
+    mode because of that hstio logic.
 
 ###31 Dec 2012 - MLS - Version 3.1
     - fixed TrlInitBuf problem so that it initializes correcty (r21162)
 ###28 Dec 2012 -MLS - Version 3.1
-    - Updated to account for a memory leak on linux machines during BuildDth 
-      when RPTCORR is off and a new spt is being constructed (#967)       
+    - Updated to account for a memory leak on linux machines during BuildDth
+      when RPTCORR is off and a new spt is being constructed (#967)
 ######### HST CAL DELIVERED ########
 
 ###15 Nov 2012 - HSTCAL delivered to opus for use in the pipeline
@@ -189,7 +198,7 @@ te the SPT files from the association members into a new spt file with the produ
     -updated the BUNIT keyword code in cr_scaling.c to be case insensitive
     -added "-r" option to calwf3 to report the software version and exit cleanly
    - Use zero read pixel value for WF3 IR ramp fitting when saturated
- 
+
 ### 23 Mar 2012 - HAB -- Version 2.6.3
     - Fixed the IR processing flow so that an association-level trailer file
       is created even when a CRJ sub-product is not created by wf3rej.
@@ -348,7 +357,7 @@ te the SPT files from the association members into a new spt file with the produ
 
 ### 10 Oct 2008 - HAB -- Version 1.1
     - Modified wf3ccd/blevcorr to reject outliers from parallel overscan
-      values using new cleanDriftFit routine. Also optimized clipping 
+      values using new cleanDriftFit routine. Also optimized clipping
       thresholds for both serial and parallel fits. Modifications to doblev.c,
       blevfit.c, and blevdrift.c.
     - Modified calwf3/procccd.c to fix EXPSCORR handling and save_tmp settings
@@ -365,7 +374,7 @@ te the SPT files from the association members into a new spt file with the produ
       which involved changes to wf3info.h (for NlinData struct), refdata.c,
       and nlincorr.c.
     - Modified wf3ir/blevcorr to use new resistant-mean calculation of ref
-      pix statistics and to perform correction globally for each readout, 
+      pix statistics and to perform correction globally for each readout,
       rather than quad-by-quad. Uses new statistics module "resistmean.c".
 
 ### 28 Aug 2008 - HAB -- Version 0.99
@@ -428,7 +437,7 @@ te the SPT files from the association members into a new spt file with the produ
     - CALACS-derived changes:
     - Removed use of "updateAsnStat" routine in calwf3/calwf3.c, because
       only OPUS should update the ASN_STAT keyword in the asn table.
-    - Fixed problem printing list of wf3rej input file names in 
+    - Fixed problem printing list of wf3rej input file names in
       calwf3/procccd.c.
     - Added check for null ("") ref file names in calwf3/refexist.c.
     - Fixed memory allocation problem in calwf3/wf3dth.c/InitDthTrl routine
@@ -442,7 +451,7 @@ te the SPT files from the association members into a new spt file with the produ
       WFC3 binned images.
     - Modified wf3ir/blevcorr.c to fix bug in calculation of loop limits
       for reference pixel regions for quads 3 and 4.
-    - Modified wf3ir/nonlincorr.c and wf3ir/zsigcorr.c to fix bug in 
+    - Modified wf3ir/nonlincorr.c and wf3ir/zsigcorr.c to fix bug in
       calculation of nlin ref image pixel indexes.
     - Modified wf3ir/noiscalc.c to fix bug in noise computation.
 
@@ -452,12 +461,12 @@ te the SPT files from the association members into a new spt file with the produ
     - Modified wf3ir/blevcorr.c routine to use biassect values from oscntab
       to set limits for reference pixel region analysis, instead of using
       image trim values.
-    - Fixed memory reallocation problem in wf3rej/wf3rej.c InitRejTrl routine, 
+    - Fixed memory reallocation problem in wf3rej/wf3rej.c InitRejTrl routine,
       which was causing routine to crash on very large number of input images.
 
 ### 20 Feb 2004 - HAB -- Version 0.3
     - (OPR 50441)
-    - Fixed use of amp boundaries in 'donoise.c' to take into account 
+    - Fixed use of amp boundaries in 'donoise.c' to take into account
       presence of WFC3 serial virtual overscan columns.
     - Fixed 'getccdtab.c', 'getgrp.c', and 'getkeys.c' routines to properly
       handle binned science images.
@@ -473,7 +482,7 @@ te the SPT files from the association members into a new spt file with the produ
       to 3*readnoise.
     - Modified 'dodqi.c' to reduce CCDAMP and CCDGAIN from being required
       columns in the BPIXTAB to being optional.
-      
+
 ### 28 Oct 2003 - HAB -- Version 0.2
     - (OPR 49720)
     - Changed all handling of commanded gain values (ccdgain) from int to

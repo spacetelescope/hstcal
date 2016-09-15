@@ -28,17 +28,17 @@
 	Added update to EXPSCORR switch header keyword in output file
 	(CALACS change).
    H. Bushouse, 2005 Mar 2:
-	Modified LTV-based test in OscnTrimmed routine to make it compatible 
+	Modified LTV-based test in OscnTrimmed routine to make it compatible
 	with WFC3 binned images.
    H. Bushouse, 2007 Feb 16:
 	Modified call to PhotMode to use science extension header, rather
 	than primary header, because that's where phot keywords are.
    H. Bushouse, 2011 Sep 7:
 	Modified PhotMsg to use new phot table instead of graph and comp tabs.
-   M. Sosey, 2012 May 7: 
-    changed "electrons" to "ELECTRONS" to be consistent, also there are places 
-    in the code that are doing a case sensative check. I'm going to try and make 
-    those case insensitive as well          
+   M. Sosey, 2012 May 7:
+    changed "electrons" to "ELECTRONS" to be consistent, also there are places
+    in the code that are doing a case sensative check. I'm going to try and make
+    those case insensitive as well
    M. Sosey, 2013 July 3
    Added code to implement new FLUXCORR step, see #1011
 
@@ -61,6 +61,10 @@ static void ShadMsg (WF3Info *, int);
 static void FlatMsg (WF3Info *, int);
 static int OscnTrimmed (Hdr*, Hdr *);
 
+Hdr phdr; /*primary header for input image, all output information saved here*/
+Hdr scihdr; /*science header in case of subarray image to detect chip*/
+IODescPtr ip = NULL;
+
 int Do2D (WF3Info *wf32d, int extver) {
 
 /* arguments:
@@ -75,7 +79,7 @@ int extver       i: "imset" number, the current set of extensions
 	float meandark;		/* mean value of dark (for history) */
 	int done;	/* true means error array was initialized in donoise */
 	int i;
-	
+
 	int logit;
 	char buff[SZ_FITS_REC+1];
 	Bool subarray;
@@ -132,7 +136,7 @@ int extver       i: "imset" number, the current set of extensions
 	    if (OscnTrimmed (x.globalhdr, &x.sci.hdr)) {
 		    freeSingleGroup (&x);
 		    return (status);
-	    }		
+	    }
 
             /* Read in keywords from primary header... */
 	    if (GetKeyBool (x.globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
@@ -205,17 +209,17 @@ int extver       i: "imset" number, the current set of extensions
 
 		    sprintf(MsgText, "    gain =");
 		    for (i=0; i < NAMPS-1; i++) {
-			 if (wf32d->atodgain[i] > 0) { 
+			 if (wf32d->atodgain[i] > 0) {
 			     sprintf (buff, "%.5g,",wf32d->atodgain[i]);
 			     strcat (MsgText, buff);
 			 }
 		    }
-		    if (wf32d->atodgain[NAMPS-1] > 0) { 
+		    if (wf32d->atodgain[NAMPS-1] > 0) {
 			sprintf(buff, "%.5g",wf32d->atodgain[NAMPS-1]);
 			strcat (MsgText, buff);
 		    }
 		    trlmessage (MsgText);
-		}		
+		}
 		if (wf32d->printtime)
 		TimeStamp ("Uncertainty array initialized", wf32d->rootname);
 	    }
@@ -234,7 +238,7 @@ int extver       i: "imset" number, the current set of extensions
 	if (extver == 1 && !OmitStep (wf32d->dqicorr))
 	    if (dqiHistory (wf32d, x.globalhdr))
 		return (status);
-    
+
 
 	/* Subtract dark image. */
 	DarkMsg (wf32d, extver);
@@ -247,9 +251,9 @@ int extver       i: "imset" number, the current set of extensions
 
 	    if (PutKeyFlt (&x.sci.hdr, "MEANDARK", meandark,
 			   "mean of dark values subtracted"))
-		return (status);	    
+		return (status);
 	    PrSwitch ("darkcorr", COMPLETE);
-   
+
 	    if (wf32d->printtime)
 		TimeStamp ("DARKCORR complete", wf32d->rootname);
 	}
@@ -259,9 +263,10 @@ int extver       i: "imset" number, the current set of extensions
 
 	/*  These corrections are not yet ready to be run...  They require
 		the use of Sections...
-		
+
 		Multiply by flat field(s).
 	*/
+
 	FlatMsg (wf32d, extver);
 	if (wf32d->flatcorr == PERFORM) {
 	    if (doFlat (wf32d, extver, &x))
@@ -311,13 +316,13 @@ int extver       i: "imset" number, the current set of extensions
 	    PrSwitch ("photcorr", COMPLETE);
 	    if (wf32d->printtime)
 		    TimeStamp ("PHOTCORR complete",wf32d->rootname);
-        
+
 	}
-    
+
 	if (extver == 1 && !OmitStep (wf32d->photcorr))
 	    if (photHistory (wf32d, x.globalhdr))
     		return (status);
-        
+
     if (extver == 1 && !OmitStep (wf32d->fluxcorr))
         if (fluxHistory (wf32d, x.globalhdr))
             return(status);
@@ -461,19 +466,19 @@ static int OscnTrimmed (Hdr *phdr, Hdr *hdr) {
 
 	double ltv1, ltv2;
 	int blevcorr;
-	
+
 	int GetKeyDbl (Hdr *, char *, int, double, double *);
 	int GetSwitch (Hdr *, char *, int *);
 
 	if (GetSwitch (phdr, "BLEVCORR", &blevcorr))
 	    return(status);
-        
+
 	if (GetKeyDbl (hdr, "LTV1", USE_DEFAULT, 0., &ltv1))
 	    return (status);
 	if (GetKeyDbl (hdr, "LTV2", USE_DEFAULT, 0., &ltv2))
 	    return (status);
 
-	/* If there is any overscan region still specified in the 
+	/* If there is any overscan region still specified in the
 		image header, then we can not process this image yet...
 
 	   WFC3 binned images have ltv values greater than 0 even after
@@ -483,6 +488,6 @@ static int OscnTrimmed (Hdr *phdr, Hdr *hdr) {
 	    trlerror ("Overscan region not trimmed.  Please perform BLEVCORR.");
 	    status = CAL_STEP_NOT_DONE;
 	}
-	
-	return (status);	
+
+	return (status);
 }

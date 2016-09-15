@@ -1,5 +1,14 @@
+14-Sep-2016 - MLS - Version 3.4
+    - CTE subarrays enabled for user supported subarrays with physical overscan
+
+06-Sep-2016 - MLS - Version 3.4
+    - Sink pixel flagging for subarray appears correct now
+
+18-July-2016 - MLS - Version 3.4
+    - CTE and Sink Pixel implementation for subarrays submitted by Brechmos for review
+
 28-Jan-2016 - MLS -- Version 3.3
-    - Removed the call to WF3Dth for the CTE data. This is essentially useless since the DTH step has been replaced with astrodrizzle, the only function it has it to concatinate the SPT files from the association members into a new spt file with the product/subproduct name. This is already done for the non-cte processed data, there is no difference between the cte and non-cte SPT files, they are only related to the RAW input file. 
+    - Removed the call to WF3Dth for the CTE data. This is essentially useless since the DTH step has been replaced with astrodrizzle, the only function it has it to concatinate the SPT files from the association members into a new spt file with the product/subproduct name. This is already done for the non-cte processed data, there is no difference between the cte and non-cte SPT files, they are only related to the RAW input file.
 
 22-Jan-2016 - MLS -- Version 3.3
     - Noticed I missed renaming the crc file with the call to WF3DTH and was setting the input to the crj suffix, but also needed updates to GetAsnTable to include crc filename population for subproducts and sending the correct subproduct through processing, it was always using crj
@@ -9,7 +18,7 @@
 19-Jan-2016 - MLS -- Version 3.3
     - Updates to fix trailer file output information. Part of the problem is the change in name of the output RAC_TMP file, the functions which create input and output trailer file naming conventions look for the dot to separate extensions so I need to change some expectations.
     - Update to check for the raw header value of PCTENSMD and update the cte parameter table accordingly (though only a value of 0 is valid right now)
-    
+
 08-Jan-2016 - MLS -- Version 3.3
     - changed the name of the output rac file to rac_tmp so that archive could handle deleting it better
 
@@ -18,12 +27,12 @@
 
 04-Nov-2015 - MLS -- Version 3.3
     - add more explicity initializations where I could find them
- 
+
 24-Oct-2015 - MLS -- Version 3.3
     - The nightly build is specifying a higher level of optimization through to the compiler than the debug mode that I have been using for my testing. Building calwf3 with the lower optimization produced no errors or warnings and ran through cleanly, but the high optimization brought on a segfault inside the CTE code in the first openmp section. This was only happening on the Linux cluster, the MAC builds showed no issue. I went back 2 versions of the wf3cte.c code and redid the changes by hand step by step. The problem area seemed to be a set of arrays which would rather be doubles than floats. I also changed the remaining floats to doubles, where I could, and removed more of the memcpy statements, making them regular array assignments. These things seem to have cleared the issues, and hopefully preventing new ones for now.
     - I also removed a superfluous openmp print statement from maincte.c and cleaned up some more informational print statements.
     - I added a time measurement, with verbose on the code prints how long the CTE section took to run, with the specification of number of threads/cpus.
-    
+
 21-Oct-2015 - MLS -- Version 3.3
     - Editing text for the screen and trailer files
     - Formally removed the rac file before the routine ends since archive isn't expecting it
@@ -33,7 +42,7 @@
     - I also removed the temporary image saves we were using for the CTE routines
 
 29-Sep-2015 - MLS -- Version 3.3
-    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with.      
+    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with.
 
     - I also changed the way the code uses the SCLBYCOL reference file (as called in Jays fortran). The way the fortran code is structured, the reference file information never actually gets used in the calculation. This doesn't make a numerical difference at the moment because the reference file values are all ones, ie. there is no additional scaling done on the CTE pixel other than by using the CTE scaling fraction and the column location. However, if the science team ever delivers a new reference file which has these values updated, they wont actually get used by the code un
 less this change is implemented.
@@ -70,7 +79,7 @@ less this change is implemented.
     - had to update the procir call to wf3rej_0 signature for the asn update I added to uvis
     - updated the mainrej.e calls which were segfaulting (calling wf3rej standalone on input list of images)
     - added dynamic memory allocation for trailer file list to initrejtrl
-    - updated text in wf3rej to report that Astrodrizzle should be used to align images instead of PyDrizzle since that's how it's advertised to users 
+    - updated text in wf3rej to report that Astrodrizzle should be used to align images instead of PyDrizzle since that's how it's advertised to users
     - found a problem (even in the released version of calwf3) with output file for associations with multiple products, created #1220
 
 12-Aug-2015 - MLS -- Version 3.3
@@ -87,17 +96,17 @@ less this change is implemented.
 21-July-2015 - MLS -- Version 3.3
     -Debugged version of the CTE code committed.
     -see #1193 ticket for extensive changes
-        
+
 31-May-2015 - MLS -- Version 3.3
     The first version of UVIS2, including the CTE, Sink Pixel, and photometry changes.
-    
-08-Dec-2014 - MLS -- Version 3.2.1 
+
+08-Dec-2014 - MLS -- Version 3.2.1
     The FLUXCORR step has been updated, changing how the data is processed in the flow of the pipeline. It was discovered that
     a chain of requirements meant that the values from the IMPHTTAB were not being read or updated correctly. This is a multifold
     problem which starts with the way that the IMPHTTAB is read and how it is constructed. Since the file, and it's calling functions,
     are common to all instruments, the best way around it was to move where the fluxcorr step was done in the pipeline to OUTSIDE the
     main wf32d loop. The step then reads in the FLT file which was written out and updates the SCI,1 data and headers with the photometry keyword
-    information.    
+    information.
 
 09-Dec-2013 - MLS -- Version 3.2
     A new calibration step was added to the UVIS process, FLUXCORR, can now be run at the end of regular
@@ -110,17 +119,17 @@ less this change is implemented.
     Fixed a file i/o issue after change in cfitsio interaction (see #970, #1073 and #1069)
 
 30-Sept-2013 - MLS -- Version 3.1.5
-    1049: Fixed the individual task executables for wf3ir, wf3ccd, wf32d to properly used the user 
+    1049: Fixed the individual task executables for wf3ir, wf3ccd, wf32d to properly used the user
     specfied output filename when they are called standalone
-    
+
 09-Sept-2013 - MLS -- Version 3.1.4
     983: Updated the postflash routine and sub1d and multk1d to perform the correct subarray
     calibration for all cases. The previous update was not sufficient for team subarrays.
-    
+
 26-Mar-2013 - MLS -- Version 3.1.3
     Updated the postflash routine to apply the correct offset for all amps
     when a user specified subarray is used (no GO users are allowed to do this)
-  
+
     Some unrelated files will change because I formatted the indentation to make
     the code easier to decipher
 
@@ -135,18 +144,18 @@ less this change is implemented.
     Added correct pixel offset for subarray images taken with amp B or D for post-flash corretion
 
 2-Jan-2013 - MLS -- Version 3.1.1
-    File I/O in acsrej updated to avoid problems with CFITSIO upcasting  
-    file permissions to read/write when not needed. This will allow the 
-    hstio code to remove logic that allowed the old code to work but  
-    caused problems for CADC when CFITSIO opened ref files in read/write  
-    mode because of that hstio logic. 
+    File I/O in acsrej updated to avoid problems with CFITSIO upcasting
+    file permissions to read/write when not needed. This will allow the
+    hstio code to remove logic that allowed the old code to work but
+    caused problems for CADC when CFITSIO opened ref files in read/write
+    mode because of that hstio logic.
 
 31-Dec-2012 ML versions 3.1
             fixed TrlBufInit bug, the init in the trlbuf structure wasn't being set to 1 on int
-            causing calwf3 to always abort after the check message was added. 
+            causing calwf3 to always abort after the check message was added.
 28-Dec-2012 ML Version 3.1
-            Updated to account for a memory leak on linux machines during BuildDth 
-             when RPTCORR is off and a new spt is being constructed (#967)       
+            Updated to account for a memory leak on linux machines during BuildDth
+             when RPTCORR is off and a new spt is being constructed (#967)
 
 ######### HST CAL DELIVERED ########
 
@@ -162,7 +171,7 @@ less this change is implemented.
              is shouldn't
         854: add "-r" option to calwf3 to report sofware version and exit clean
         893: Use zero read pixel value for WF3 IR ramp fitting when saturated
-              
+
 23-Mar-2012: CALWF3 2.6.3: Implemented the following PRs:
   70922/869: Fixed the IR processing flow so that an association-level trailer
              file can still be created when a CRJ sub-product is not created
@@ -257,7 +266,7 @@ less this change is implemented.
   63063/435: BUNIT not set to "electrons" after IR flatcorr applied
   63286/436: NEXTEND has incorrect values for IR association drz, crj, and
              spt files.
- 
+
  24-Jun-2009: CALWF3 1.5: Implemented the following tickets:
   424: Fixed a bug in WF3REJ that was causing repeat-obs associations of IR
        subarray images to fail.
@@ -302,7 +311,7 @@ less this change is implemented.
 
  10-Oct-2008: CALWF3 1.1   Updated wf3ccd/blevcorr to reject outliers from the
 			   parallel overscan fit, as is done for the serial fit.
-			   Fixed calwf3/procccd so that it finishes EXPSCORR 
+			   Fixed calwf3/procccd so that it finishes EXPSCORR
 			   processing and deletes blv_tmp's afterwards.
 			   Fixed wf32d/doflat so that gain conversion only gets
 			   applied once.
@@ -342,10 +351,10 @@ less this change is implemented.
 
  17-Jul-2006: CALWF3 0.6   Fix handling of flagged pixels in UVIS overscan;
 			   fix handling of DQ flags read from BPIXTAB to
-			   account for presence of serial virtual overscan 
+			   account for presence of serial virtual overscan
 			   columns; fix minor memory allocation bugs; handle
-			   null ref file names; don't update ASN_STAT in asn 
-			   tables; only populate asn sub-products if inputs 
+			   null ref file names; don't update ASN_STAT in asn
+			   tables; only populate asn sub-products if inputs
 			   available.
 
  08-Nov-2005: CALWF3 0.5   Allow proper handling of UVIS binned images; fix
@@ -353,11 +362,11 @@ less this change is implemented.
 			   of nlin file pixel indexes; fix IR noise computation.
 
  14-Feb-2005: CALWF3 0.4   Fix handling of IR overscan (reference pixel)
-                           regions; fix another memory allocation bug in 
+                           regions; fix another memory allocation bug in
                            wf3rej.
- 
+
  20-Feb-2004: CALWF3 0.3   Fix handling of binned science images; implement
-			   new ATODSATURATE DQ flag; upgrade to 2-stage 
+			   new ATODSATURATE DQ flag; upgrade to 2-stage
 			   clipping in bias fitting; make CCDAMP and CCDGAIN
 			   optional in BPIXTAB; fix memory allocation bug in
 			   wf3rej routine.
@@ -368,4 +377,3 @@ less this change is implemented.
 			   IR zsigcorr and nlincorr.
 
  26-Nov-2002: CALWF3 0.1   First version installed in stlocal and OPUS.
-

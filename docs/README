@@ -1,14 +1,15 @@
 HSTCAL DOCUMENTATIONS
 =====================
 
-For latest IRAFX weekly documentation builds of CALXXX, go to HSTCAL section
-in the corresponding links below.
+HSTCAL documentation can currently be found:
 
-CALACS in acstools
-http://ssb.stsci.edu/doc/stsci_python_x/acstools.doc/html/index.html
+ACS:
+http://acstools.readthedocs.io/en/latest/
 
-CALSTIS in stistools
-http://ssb.stsci.edu/doc/stsci_python_x/stistools.doc/html/index.html
+WFC3:
+http://wfc3tools.readthedocs.io/en/latest/
 
-CALWF3 in wfc3tools
-N/A
+STIS:
+http://ssb.stsci.edu/doc/stsci_python_dev/stistools.doc/html/index.html
+
+ 

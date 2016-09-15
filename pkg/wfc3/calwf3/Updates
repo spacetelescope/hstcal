@@ -1,7 +1,16 @@
+Updates for Version 3.4 14-Sep-2016 MLS
+    - CTE subarrays enabled for user supported subarrays with physical overscan
+
+Updates for Version 3.4 6-Sep-2016 MLS
+    - Sink pixel flagging for subarray appears correct now
+
+Updates for Version 3.4 18-July-2016 MLS
+    - CTE and Sink Pixel implementation for subarrays submitted by Brechmos for review
+
 Updates for Version 3.3 28-Jan-2016 MLS
     - Removed the call to WF3Dth for the CTE data. This is essentially useless since the DTH step has been replaced with astrodrizzle, the only function it has it to concatina
 te the SPT files from the association members into a new spt file with the product/subproduct name. This is already done for the non-cte processed data, there is no difference
- between the cte and non-cte SPT files, they are only related to the RAW input file. 
+ between the cte and non-cte SPT files, they are only related to the RAW input file.
 
 Updates for Version 3.3 22-Jan-2016 MLS
     - Noticed I missed renaming the crc file with the call to WF3DTH and was setting the input to the crj suffix, but also needed updates to GetAsnTable to include crc filename population for subproducts and sending the correct subproduct through processing, it was always using crj
@@ -35,7 +44,7 @@ Updates for Version 3.3 16-Oct-2015 MLS
     - I also removed the temporary image saves we were using for the CTE routines
 
 Updates for Version 3.3 29-Sep-2015 MLS
-    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with.      
+    - bug in original fortran code fixed; the final RAC image should be made by subtracting the CHG image (the net cte effect) from the original non-BIC subtracted raw data. This should remove the additional bias signature that Matthew was seeing in the stacked dark frames. It should NOT make a significant change in the overall output of the code since bias levels are low to begin with.
 
     - I also changed the way the code uses the SCLBYCOL reference file (as called in Jays fortran). The way the fortran code is structured, the reference file information never actually gets used in the calculation. This doesn't make a numerical difference at the moment because the reference file values are all ones, ie. there is no additional scaling done on the CTE pixel other than by using the CTE scaling fraction and the column location. However, if the science team ever delivers a new reference file which has these values updated, they wont actually get used by the code un
 less this change is implemented.
@@ -72,7 +81,7 @@ Updates for Version 3.3 18-Aug-2015 MLS
     -had to update the procir call to wf3rej_0 signature for the asn update I added to uvis
     -updated the mainrej.e calls which were segfaulting (calling wf3rej standalone on input list of images)
     -added dynamic memory allocation for trailer file list to initrejtrl
-    -updated text in wf3rej to report that Astrodrizzle should be used to align images instead of PyDrizzle since that's how it's advertised to users 
+    -updated text in wf3rej to report that Astrodrizzle should be used to align images instead of PyDrizzle since that's how it's advertised to users
     -found a problem (even in the released version of calwf3) with output file for associations with multiple products, created #1220
 
 Updates for Version 3.3 12-Aug-2015 MLS
@@ -96,21 +105,21 @@ Updates for Version 3.3  31-May-2015 MLS
     without the CTE correction applied. This correction is for the same reasons as in ACS, but the CTE correction method
     and code are different, and they are applied to the raw file instead of later in the processing. Some sections of the CTE
     code support parallel processing with OpenMP. The default for calwf3 is to use all available processors. To restrict
-    processing to 1 cpu use the flag -1 in the call to calwf3.e  The cte processing is controlled with the PCTECORR keyword. 
-    
+    processing to 1 cpu use the flag -1 in the call to calwf3.e  The cte processing is controlled with the PCTECORR keyword.
+
     Sink pixels added to the science image DQ mask using the SNKCFILE reference image. This image has 2 extensions,
     each in the pre-overscan trimmed format. This step is performed if DQICORR is PERFORM, and is done before BLEVCORR
     while the science image is still untrimmed.
-    
+
     (see #1193 for more detailed information on all the updates)
-        
+
 Updates for  Version 3.2.1 08-Dec-2014 MLS
     The FLUXCORR step has been updated, changing how the data is processed in the flow of the pipeline. It was discovered that
     a chain of requirements meant that the values from the IMPHTTAB were not being read or updated correctly. This is a multifold
     problem which starts with the way that the IMPHTTAB is read and how it is constructed. Since the file, and it's calling functions,
     are common to all instruments, the best way around it was to move where the fluxcorr step was done in the pipeline to OUTSIDE the
     main wf32d loop. The step then reads in the FLT file which was written out and updates the SCI,1 data and headers with the photometry keyword
-    information.    
+    information.
 
 
 Updates for  Version 3.2 09-Dec-2013 MLS
@@ -120,10 +129,10 @@ Updates for  Version 3.2 09-Dec-2013 MLS
     to be completely implemented. This is a significant version increase since I had to modify the globablly
     access GetPhotTab to read the new WFC3 imphttab correctly, as well as touch many routines in the calwf3 process.
     (#1088, #1011, #1025)
-    
+
 Updates for Version 3.1.6 15-Nov-2013 MLS
     Fixed a file i/o issue after change in cfitsio interaction (see #970, #1073 and #1069)
-    
+
 Updates for  Version 3.1.5  30-Sept-2013 MLS
      Fixed the individual task executables for wf3ir, wf3ccd, wf32d to properly used the user specfied output filename
      when they are called standalone (#1049)
@@ -132,18 +141,18 @@ Updates for  Version 3.1.4  9-Sept-2013 MLS
 
     Updated the postflash routine and sub1d and multk1d to perform the correct subarray
     calibration for all cases. (#983) The previous update was not sufficient for team subarrays.
-    
+
 Updates for  Version 3.1.3  26-Mar-2013 MLS
 
     Updated the postflash routine to apply the correct offset for all amps
     when a user specified subarray is used (no GO users are allowed to do this)
-  
+
     Some unrelated files will change because I formatted the indentation to make
     the code easier to decipher
 
 Updates for Version 3.1.2 11-Feb-2013 - MLS
     - Updated the bias subtraction to check for CCDAMP values of SINGLE_AMP and
-    SINGLE_OR_ALL in the reference bias file image when a full frame reference file 
+    SINGLE_OR_ALL in the reference bias file image when a full frame reference file
     and a  user specified subarray are used so that the correct overscan region is ignored
 
     - Removed check for TDFTRANS per team request, see #980, I'm keeping the same version as
@@ -151,18 +160,18 @@ Updates for Version 3.1.2 11-Feb-2013 - MLS
 
     -Added correct pixel offset for subarray images taken with amp B or D for post-flash corretion
 
-Updates for Version 3.1.1 2-Jan-2013 - MLS 
-    File I/O in acsrej updated to avoid problems with CFITSIO upcasting  
-    file permissions to read/write when not needed. This will allow the 
-    hstio code to remove logic that allowed the old code to work but  
-    caused problems for CADC when CFITSIO opened ref files in read/write  
-    mode because of that hstio logic. 
+Updates for Version 3.1.1 2-Jan-2013 - MLS
+    File I/O in acsrej updated to avoid problems with CFITSIO upcasting
+    file permissions to read/write when not needed. This will allow the
+    hstio code to remove logic that allowed the old code to work but
+    caused problems for CADC when CFITSIO opened ref files in read/write
+    mode because of that hstio logic.
 
 Updates for version 3.1 31-Dec-2012 (MLS):
     - fixed TrlBufInit problem so it initializes correctly (r21162)
 Updates for version 3.1 28-Dec-2012 (MLS):
-    - Updated to account for a memory leak on linux machines during BuildDth 
-      when RPTCORR is off and a new spt is being constructed (#967)       
+    - Updated to account for a memory leak on linux machines during BuildDth
+      when RPTCORR is off and a new spt is being constructed (#967)
 
 ######### HST CAL DELIVERED ########
 Updates 18Oct 2012 - MLS - Version 2.7.1
@@ -343,8 +352,8 @@ Updates for Version 2.2 - 01-Dec-2010 (HAB):
 	therefore don't need access to the darkfile. (PR 66081; Trac #608)
     wf3ir/doir.c:
 	Upgraded crimage header updates to include check of flatcorr status
-	when updating BUNIT values. Also modified noisMsg routine to print 
-	noiscorr switch value and have trailer message printed from noiscorr 
+	when updating BUNIT values. Also modified noisMsg routine to print
+	noiscorr switch value and have trailer message printed from noiscorr
 	routine itself. Both changes are to support re-entrant processing.
 	(PR 66081; Trac #608)
     wf3ir/getirflags.c:
@@ -448,7 +457,7 @@ Updates for Version 2.0 - 08 Mar 2010 (HAB):
 	as saturated in first read if they're saturated in zeroth read. Only
 	check for saturation in first read if not already flagged as saturated
 	in zeroth. For pixels saturated in zeroth or first reads, recompute
-	zsig from difference of zeroth read and super-zero zsci. 
+	zsig from difference of zeroth read and super-zero zsci.
 	(PR 64262; Trac #496)
 	Moved computation of sampzero into doIR. (PR 63711; Trac #457)
 
@@ -567,7 +576,7 @@ Updates for Version 1.4  - 14 Apr 2009 (HAB):
 	forced return if LFLTFILE is binned, until we upgrade the interpolation
 	routines to work better. (Trac ticket #325)
     wf3ir/refdata.c:
-	Fixed bugs in crrpar_in routine for calls to c_tbegti to read value of 
+	Fixed bugs in crrpar_in routine for calls to c_tbegti to read value of
 	IRRAMP column in each row of the crrejtab. (Trac ticket #392)
     wf3ir/resistmean.c:
 	Upgraded computations of mean and standard deviation to use double
@@ -587,21 +596,21 @@ Updates for Version 1.3  - 13 Mar 2009 (HAB):
     wf3ccd/dobias.c:
 	Updated to compute correct x-offset values for subarrays in the amp B
 	and D quadrants, which need to take into account the columns of serial
-	virtual overscan that are in the middle of a 4-amp bias reference 
+	virtual overscan that are in the middle of a 4-amp bias reference
 	image. (Trac ticket #378)
     wf3ir/cridcalc.c:
 	Added use of CRREJTAB to allow user input of CR rejection threshold
 	instead of having it hardwired in the code. Decreased max_CRs from 6 to
 	4. Reinstated old loop limits code that excludes reference pixels from
 	ramp fitting. Fixed bug in logic that identifies pixels already
-	saturated in first read. Don't set HIGH_CURVATURE flag in ouput DQ 
+	saturated in first read. Don't set HIGH_CURVATURE flag in ouput DQ
 	arrays, use UNSTABLE instead, and change messages to say UNSTABLE. Also
 	don't set ZEROSIG value in output crimage (flt file) DQ array, because
-	those pixels are still OK (assuming no other flag also set). Removed 
-	unnecessary call to EstimateDarkandGlow at end of processing. Fixed 
-	calculation of output SAMP and TIME values. Fixed bug in logic that 
-	identifies pixels with only 1 good sample. Fixed bug in computation of 
-	"firstgood" and "lastgood" assignments for pixels with no acceptable 
+	those pixels are still OK (assuming no other flag also set). Removed
+	unnecessary call to EstimateDarkandGlow at end of processing. Fixed
+	calculation of output SAMP and TIME values. Fixed bug in logic that
+	identifies pixels with only 1 good sample. Fixed bug in computation of
+	"firstgood" and "lastgood" assignments for pixels with no acceptable
 	samples.  (Trac tickets #352, 365, 376, 377, 381)
     wf3ir/getirflags.c:
 	Added new checkCRRej routine to check for the existence and correctness
@@ -617,7 +626,7 @@ Updates for Version 1.2a  - 20 Feb 2009 (HAB):
 	Increment version to 1.2a and date to 20-Feb-2009.
     wf3rej/rej_loop.c:
 	Fixed bug in test to exclude flagged pixels from being tested for CR's
-	so that pixels previously marked as SPILL still get tested to see if 
+	so that pixels previously marked as SPILL still get tested to see if
 	they qualify as a CR. (PR 62005)
 
 Updates for Version 1.2  - 29 Jan 2009 (HAB):
@@ -638,14 +647,14 @@ Updates for Version 1.2  - 29 Jan 2009 (HAB):
 	Eliminated use of default values for FILTER and CCDGAIN keywords,
 	which means it will now be an error if they are missing. (PR 61608)
     lib/imgpedigree.c:
-	Upgraded to retrieve FILETYPE along with PEDIGREE/DESCRIP keywords. 
+	Upgraded to retrieve FILETYPE along with PEDIGREE/DESCRIP keywords.
 	(PR 61608)
     lib/tabpedigree.c:
 	Upgraded to retrieve FILETYPE along with PEDIGREE/DESCRIP keywords,
-	and to retrieve these keywords from the primary HDU, not the table HDU. 
+	and to retrieve these keywords from the primary HDU, not the table HDU.
 	(PR 61608)
     lib/trlbuf.c:
-	Fixed bug in CloseTrlBuf causing an IRAF segv, which was due to a 
+	Fixed bug in CloseTrlBuf causing an IRAF segv, which was due to a
 	call to fclose with a NULL pointer as argument. Removed the call.
 	(PR 61164)
     lib/wf3info.c:
@@ -665,7 +674,7 @@ Updates for Version 1.2  - 29 Jan 2009 (HAB):
     wf32d/photmode.c:
 	Modified construction of photmode string to use separate UVIS1/UVIS2
 	keywords for the CCD chips, to add the new "cal" keyword for UVIS
-	exposures, and to remove the "DN" keyword for IR exposures because 
+	exposures, and to remove the "DN" keyword for IR exposures because
 	they're now in units of electrons. (PR 61497)
     wf3ccd/blevdrift.c:
 	Upgraded the cleanDriftFit routine to only use the good values returned
@@ -683,7 +692,7 @@ Updates for Version 1.2  - 29 Jan 2009 (HAB):
 	FILTER, and CCDGAIN. (PR 61608)
     wf3ir/cridcalc.c:
 	Reinstated code that had been inadvertantly removed from the calnica
-	code ported to calwf3, which propogates CR DQ flags to all samples 
+	code ported to calwf3, which propogates CR DQ flags to all samples
 	following a hit. (PR 61425)
     wf3ir/dqicorr.c:
 	Updated to check for missing CCDGAIN and CCDAMP columns in BPIXTAB
@@ -731,7 +740,7 @@ Updates for Version 1.1  - 10 Oct 2008 (HAB):
 	Modified fit report in BlevFit to indicate that results are for the
 	serial overscan fit.
     wf3ccd/doblev.c:
-	Added readnoise as an input argument to BlevDrift. Modified 
+	Added readnoise as an input argument to BlevDrift. Modified
 	cleanBiasFit to use different clip values on each pass through data.
     wf3ir/flatcorr.c:
 	Upgraded to convert data to units of electrons by multiplying by the
@@ -876,8 +885,8 @@ Updates for Version 0.7 - 09 May 2007 (HAB):
         it for UVIS images because flatfielding leaves them in units of
         electrons, not counts.
     wf3ir/darkcorr.c:
-	Eliminated use of RebinRef, because we don't want to extract 
-	subarrays from a full-frame dark ref image, we want to instead 
+	Eliminated use of RebinRef, because we don't want to extract
+	subarrays from a full-frame dark ref image, we want to instead
 	use a matching subarray dark ref image.
     wf3ir/getirflags.c:
         Added logic to checkDark to turn off zsigcorr if dark=dummy.
@@ -885,10 +894,10 @@ Updates for Version 0.7 - 09 May 2007 (HAB):
 	Enhanced copyGroup to only copy filename if input name is not Null.
 	Added new putCalDataSect routine.
     wf3ir/refdata.c:
-	Reduced ALLOWDIFF from 0.1 to 0.01 for use with IR subarray 
+	Reduced ALLOWDIFF from 0.1 to 0.01 for use with IR subarray
 	exptimes. Added check for SUBTYPE in getDarkInfo.
     wf3ir/wf3ir.c:
-	Added use of new putCalDataSect routine to write out calibrated 
+	Added use of new putCalDataSect routine to write out calibrated
 	images that have the ref pixels trimmed off.
 
 Updates for Version 0.61 - 01 Aug 2006 (HAB):
@@ -940,7 +949,7 @@ Updates for Version 0.6 - 17 Jul 2006 (HAB):
 	MkOutName routine modified to include calls to "free", to free
 	local memory before all error returns.
     wf3ccd/blevdrift.c:
-	VMedianY routine modified to fix bug in "if"-statement logic being 
+	VMedianY routine modified to fix bug in "if"-statement logic being
 	used to reject flagged pixels from the parallel overscan region.
 	Flawed logic was allowing flagged pixels to remain in computation.
     wf3ccd/findblev.c:
@@ -1107,7 +1116,7 @@ Updates for Version 0.2 - 28 Oct 2003 (HAB):
 	subarray modes, in which there's no serial virtual overscan to
 	remove, and variable amounts of serial physical overscan.
     wf3ccd/findover.c:
-	Modified to zero-out all serial and parallel virtual biassect and 
+	Modified to zero-out all serial and parallel virtual biassect and
 	trim values when processing UVIS subarray images (which don't have
 	any virtual overscan). Also fixed a bug in which one of the biassect
 	values was not being converted from 1-indexed to 0-indexed in the
@@ -1142,7 +1151,7 @@ Updates for Version 0.2 - 28 Oct 2003 (HAB):
 	altogether and output a blank image with DQ values of 1 and ERR values
 	of 0 with the exception of the 0,0 pixel, which have values of 8 and
 	-1 respectively, to forces HSTIO to write out the image arrays. It
-	now returns status=NO_GOOD_DATA if there are no inputs with 
+	now returns status=NO_GOOD_DATA if there are no inputs with
 	exptime>0.
     wf3rej/rej_init.c:
 	Added code to count number of inputs with exptime>0. Also now checks
@@ -1156,4 +1165,3 @@ Updates for Version 0.2 - 28 Oct 2003 (HAB):
 
 Updates for Version 0.1 - 26 Nov 2002 (HAB):
     Initial installation of baseline CALWF3 into stlocal$testwf3 pkg.
-
