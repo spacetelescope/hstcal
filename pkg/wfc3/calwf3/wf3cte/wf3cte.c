@@ -242,6 +242,16 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         }
     }
 
+    /*READ IN THE CTE PARAMETER TABLE*/
+    initCTEParams(&cte_pars);
+    if (GetCTEPars (wf3.pctetab.name, &cte_pars))
+        return (status);
+
+    if (verbose){
+        PrRefInfo ("pctetab", wf3.pctetab.name, wf3.pctetab.pedigree,
+                wf3.pctetab.descrip, wf3.pctetab.descrip2);
+    }
+
     /* Full frame and subarrays always have group 1
        If it's a subarray, the group can be from either chip
        and will still be labled group 1 because it's the FIRST
@@ -439,15 +449,6 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     }
 
-    /*READ IN THE CTE PARAMETER TABLE*/
-    initCTEParams(&cte_pars);
-    if (GetCTEPars (wf3.pctetab.name, &cte_pars))
-        return (status);
-
-    if (verbose){
-        PrRefInfo ("pctetab", wf3.pctetab.name, wf3.pctetab.pedigree,
-                wf3.pctetab.descrip, wf3.pctetab.descrip2);
-    }
 
     /*CONVERT TO RAZ, SUBTRACT BIAS AND CORRECT FOR GAIN*/
     if (raw2raz(&wf3, &cd, &ab, &raz))
