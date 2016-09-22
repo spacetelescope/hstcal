@@ -1,4 +1,4 @@
-.lock-wafbuild
+.lock-waf*
 .waf*
 bin.*
 build.*
