@@ -212,16 +212,16 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
            if it is even used for this observation. */
         for (i = 0; i < ampx; i++) {
             /* Apply correction factor to reference file data. */
-            z->sci.line[i] = corrfac[AMP_C] * z->sci.line[i];
-            z->err.line[i] = corrfac[AMP_C] * z->err.line[i];
+            z.sci.line[i] = corrfac[AMP_C] * z.sci.line[i];
+            z.err.line[i] = corrfac[AMP_C] * z.err.line[i];
         }
 
         /* This region corresponds to AMP_D,
            if it is even used for this observation. */
         for (i = ampx; i < dimx; i++) {
             /* Apply correction factor to reference file data. */
-            z->sci.line[i] = corrfac[AMP_D] * z->sci.line[i];
-            z->err.line[i] = corrfac[AMP_D] * z->err.line[i];
+            z.sci.line[i] = corrfac[AMP_D] * z.sci.line[i];
+            z.err.line[i] = corrfac[AMP_D] * z.err.line[i];
         }
 
         multk1d(&z, acs2d->flashdur);
@@ -255,16 +255,16 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
            if it is even used for this observation. */
         for (i = 0;  i < ampx;  i++) {
             /* Apply correction factor to reference file data. */
-            z->sci.line[i] = corrfac[AMP_A] * z->sci.line[i];
-            z->err.line[i] = corrfac[AMP_A] * z->err.line[i];
+            z.sci.line[i] = corrfac[AMP_A] * z.sci.line[i];
+            z.err.line[i] = corrfac[AMP_A] * z.err.line[i];
         }
 
         /* This region corresponds to AMP_B,
            if it is even used for this observation. */
         for (i = ampx;  i < dimx;  i++) {
             /* Apply correction factor to reference file data. */
-            z->sci.line[i] = corrfac[AMP_B] * z->sci.line[i];
-            z->err.line[i] = corrfac[AMP_B] * z->err.line[i];
+            z.sci.line[i] = corrfac[AMP_B] * z.sci.line[i];
+            z.err.line[i] = corrfac[AMP_B] * z.err.line[i];
         }
 
         multk1d(&z, acs2d->flashdur);
