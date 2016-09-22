@@ -13,3 +13,13 @@ SUBDIRS = [
 def build(bld):
     for subdir in SUBDIRS:
         bld.recurse(subdir)
+
+    bld(name='acs',
+        depends_on=[
+            'calacs.e',
+            'acsccd.e',
+            'acsrej.e',
+            'acscte.e',
+            'acs2d.e',
+            'acssum.e'],
+        always=True)

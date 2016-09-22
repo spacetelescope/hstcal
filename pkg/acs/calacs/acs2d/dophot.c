@@ -3,8 +3,6 @@
 # include <stdlib.h>	/* malloc */
 # include <string.h>    /* strchr */
 
-# include "imphttab.h"
-
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"

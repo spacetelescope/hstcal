@@ -1,6 +1,7 @@
 /* acs.h generic header for calacs */
 /*      */
 # include <stdio.h>             /* To insure that FILE is defined for TrlPtr */
+# include "imphttab.h"
 
 # define ACS_CBUF           24  /* small buffer for e.g. rootname */
 # define ACS_FNAME          162
@@ -16,7 +17,7 @@ typedef unsigned char Byte;
 
 #define SIZE_BYTE   8
 #define YES         1
-#define NO          0 
+#define NO          0
 
 # define MAX_DQ     65535
 
@@ -83,7 +84,7 @@ void errchk ();                 /* HSTIO error check */
 # define       DEFAULT_OFFSET   3
 
 # define        SM4MJD          54967
- 
+
 /* A reference image. */
 typedef struct {
     char name[ACS_LINE];            /* name of image */
@@ -122,7 +123,7 @@ typedef struct {
 
 /* The following function definitions handle the messages created
 	by CALACS during operations.  These will have counterparts which
-	send output both the STDOUT and a TRL file. 
+	send output both the STDOUT and a TRL file.
 */
 void asnwarn (char *message);
 void asnerror (char *message);
@@ -131,7 +132,7 @@ void asnmessage (char *message);
 # define WARN_PREFIX    "Warning    "
 # define ERR_PREFIX     "ERROR:    "
 
-/* This macro defines the string which will be used to distinguish the 
+/* This macro defines the string which will be used to distinguish the
 	start of CALACS comments in the trailer files...
 */
 # define TRL_PREFIX     "CALACSBEG"

@@ -2,6 +2,7 @@
 
 def build(bld):
     t = bld.program(
+        name = 'acs2d.e',
         source = 'main2d.c',
         target = 'acs2d.e',
         use = ['calacs', 'imphttab'] + bld.env.LOCAL_LIBS,
@@ -9,4 +10,3 @@ def build(bld):
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'
         )
-
