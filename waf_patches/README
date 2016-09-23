@@ -1,3 +1,5 @@
+# NOTE: This is no longer necessary as g77 is discontinued since
+#       gcc 4.x (J. Hunkeler).
 #
 # Applying STSCI patches to waf
 #
@@ -12,7 +14,7 @@ patch -p0 < patch-compiler_fc.py.patch
 
 cd waf-1.6.4
 
-./waf-light --zip-type=gz configure build 
+./waf-light --zip-type=gz configure build
 
 cp waf ../../
 
