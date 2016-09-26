@@ -1,3 +1,6 @@
+Updates for Version 3.4 26-Sep-2016 - MLS 
+    - Fixed memory allocation around prints
+
 Updates for Version 3.4 20-Sep-2016 MLS
     - Moved the init for the CTE params back to the top of the code, it had gotten moved below the header update for the information
 

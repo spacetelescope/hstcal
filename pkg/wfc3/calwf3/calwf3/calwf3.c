@@ -141,7 +141,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
     /*because DTH had this hard coded and it varies with UVIS for CTE*/
    char suffix_flt[]="_flt.fits";
-   /*char suffix_flc[]="_flc.fits"; */   
+   char suffix_flc[]="_flc.fits";
 
 
 	/* Post error handler */
