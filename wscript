@@ -2,14 +2,14 @@
 
 import os, platform, shutil, sys
 
-import Configure
+from waflib import Configure
 from waflib import Errors
-import Logs
-import Options
-import Scripting
-import Task
-import Utils
-import TaskGen
+from waflib import Logs
+from waflib import Options
+from waflib import Scripting
+from waflib import Task
+from waflib import Utils
+from waflib import TaskGen
 
 APPNAME = 'hstcal'
 VERSION = '0.1.1'
@@ -104,15 +104,17 @@ def _determine_mac_osx_fortran_flags(conf):
             conf.env.MAC_OS_NAME = 'lion'
         elif s == '10.9':
             conf.env.MAC_OS_NAME = 'mavericks'
+        elif s == '10.10':
+            conf.env.MAC_OS_NAME = 'yosemite'
 
         if conf.env.MAC_OS_NAME:
             conf.end_msg(conf.env.MAC_OS_NAME, 'GREEN')
         else:
             conf.end_msg(
-                "Do not recognize this Mac OS only know 10.5-10.9",
+                "Do not recognize this Mac OS only know 10.5-10.10",
                 'YELLOW')
 
-    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion','mavericks') :
+    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion', 'mavericks', 'yosemite'):
         conf.env.append_value('FCFLAGS', '-m64')
 
 def _determine_sizeof_int(conf):
@@ -148,8 +150,8 @@ def configure(conf):
     conf.load('compiler_fc')
     conf.check_fortran()
 
-   # Set the location of the hstcal include directory
-    conf.env.INCLUDES = os.path.abspath('include') # the hstcal include directory
+    # Set the location of the hstcal include directory
+    conf.env.INCLUDES = [os.path.abspath('include')] # the hstcal include directory
 
     # A list of the local (hstcal) libraries that are typically linked
     # with the executables
