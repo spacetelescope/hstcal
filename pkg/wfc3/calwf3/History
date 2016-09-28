@@ -1,3 +1,6 @@
+### 28-Sep-2016 - MLS - Version 3.4
+    - Fixed memory allocation around one more print
+
 ### 26-Sep-2016 - MLS - Version 3.4
     - Fixed memory allocation around prints
 

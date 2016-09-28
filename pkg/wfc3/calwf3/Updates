@@ -1,4 +1,7 @@
-Updates for Version 3.4 26-Sep-2016 - MLS 
+Updates for Version 3.4 28-Sep-2016 - MLS
+    - Fixed memory allocation around one more print
+
+Updates for Version 3.4 26-Sep-2016 - MLS
     - Fixed memory allocation around prints
 
 Updates for Version 3.4 20-Sep-2016 MLS
