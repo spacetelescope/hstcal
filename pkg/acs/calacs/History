@@ -1,3 +1,7 @@
+### 22-Sep-2016 - PLL -- Version 8.3.5
+    FLSHCORR now applies extra correction factor to post-flash reference image
+    prior to correction. The factor is calculated based on AMP and FLASHDUR.
+
 ### 07-Jul-2016 - PLL -- Version 8.3.4
     BLEVCORR modified to correctly process new subarrays added by FSW change in
     May 2016.
