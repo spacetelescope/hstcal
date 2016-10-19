@@ -121,6 +121,8 @@ static int CloseOverTab (TblInfo *);
                            region overlap.
    2016-07-07 P. L. Lim    Removed no virtual overscan assumptions for new
                            subarrays added by FSW change in May 2016.
+   2016-10-19 P. L. Lim    Expanded July 2016 changes to ALL subarrays.
+                           New OSCNTAB needed for old subarrays w/o overscan.
 */
 int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     /* arguments:
@@ -134,7 +136,6 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     TblInfo tabinfo;
     TblRow tabrow;
     int foundit;
-    int is_newsub;
 
     int cx0, cx1, tx1, tx2;
     int cy0, cy1, ty1, ty2;
@@ -152,7 +153,6 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
        binx, and biny, and get info from the matching row. */
 
     foundit = NO;
-    is_newsub = NO;
     *overscan = NO;
 
     for (row = 1; row <= tabinfo.nrows; row++) {
@@ -172,61 +172,42 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
 
             /* We are working with a subarray.
                There is never any virtual overscan EXCEPT for new subarrays
-               added by FSW change in May 2016. */
+               added by FSW change in May 2016.
+               Overscans should now be properly defined in OSCNTAB. */
             if (acs->subarray == YES) {
-                if (SameString(acs->aperture, "WFC1A-512") ||
-                        SameString(acs->aperture, "WFC1A-1K") ||
-                        SameString(acs->aperture, "WFC1A-2K") ||
-                        SameString(acs->aperture, "WFC1B-512") ||
-                        SameString(acs->aperture, "WFC1B-1K") ||
-                        SameString(acs->aperture, "WFC1B-2K") ||
-                        SameString(acs->aperture, "WFC2C-512") ||
-                        SameString(acs->aperture, "WFC2C-1K") ||
-                        SameString(acs->aperture, "WFC2C-2K") ||
-                        SameString(acs->aperture, "WFC2D-512") ||
-                        SameString(acs->aperture, "WFC2D-1K") ||
-                        SameString(acs->aperture, "WFC2D-2K")) {
-                    is_newsub = YES;
-                } else {
-                    acs->trimy[0] = 0;
-                    acs->trimy[1] = 0;
-                }
-
                 acs->vx[0] = 0;
                 acs->vx[1] = 0;
                 acs->vy[0] = 0;
                 acs->vy[1] = 0;
 
                 /* Virtual overscan processing is similar to physical
-                   overscan processing below. */
-                if (is_newsub == YES) {
-                    /* Determine whether the subarray extends into the
-                       virtual overscan regions on either side of the chip */
-                    ty1 = (int)(ny - acs->offsety);
-                    cy1 = tabrow.ny - tabrow.trimy[1] - tabrow.trimy[0];
-                    cy0 = (int)(tabrow.trimy[0] - acs->offsety);
+                   overscan processing below.
+                   Determine whether the subarray extends into the
+                   virtual overscan regions on either side of the chip. */
+                ty1 = (int)(ny - acs->offsety);
+                cy1 = tabrow.ny - tabrow.trimy[1] - tabrow.trimy[0];
+                cy0 = (int)(tabrow.trimy[0] - acs->offsety);
 
-                    /* Subarray starts in the first overscan region... */
-                    if (acs->offsety > 0) {
-                        acs->trimy[0] = (acs->offsety < tabrow.trimy[0]) ?
-                            acs->offsety : tabrow.trimy[0];
-                        /* Check to see if it extends into second overscan
-                           region. */
-                        full_ny = tabrow.ny - (tabrow.trimy[0] +
-                                               tabrow.trimy[1]);
-                        ty2 = (int)(ny - acs->trimy[0]) - full_ny;
-                        acs->trimy[1] = (ty2 < 0) ? 0 : ty2;
+                /* Subarray starts in the first overscan region... */
+                if (acs->offsety > 0) {
+                    acs->trimy[0] = (acs->offsety < tabrow.trimy[0]) ?
+                        acs->offsety : tabrow.trimy[0];
+                    /* Check to see if it extends into second overscan
+                       region. */
+                    full_ny = tabrow.ny - (tabrow.trimy[0] +
+                                           tabrow.trimy[1]);
+                    ty2 = (int)(ny - acs->trimy[0]) - full_ny;
+                    acs->trimy[1] = (ty2 < 0) ? 0 : ty2;
 
                     /* Subarray overlaps second overscan region */
-                    } else if ( ty1 > cy1 && ty1 <= tabrow.ny) {
-                        acs->trimy[0] = 0;
-                        acs->trimy[1] = ty1 - cy1;
+                } else if ( ty1 > cy1 && ty1 <= tabrow.ny) {
+                    acs->trimy[0] = 0;
+                    acs->trimy[1] = ty1 - cy1;
 
                     /* Subarray does not have virtual overscan */
-                    } else {
-                        acs->trimy[0] = 0;
-                        acs->trimy[1] = 0;
-                    }
+                } else {
+                    acs->trimy[0] = 0;
+                    acs->trimy[1] = 0;
                 }
 
                 /* Determine whether the subarray extends into the
