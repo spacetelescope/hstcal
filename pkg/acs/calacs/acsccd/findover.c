@@ -6,9 +6,11 @@
 # include "acsinfo.h"
 # include "acserr.h"
 
+/* NOT USED
 # define FULL_FRAME_READOUT  1
 # define SUBARRAY_READOUT    2
 # define BINNED_READOUT      3
+*/
 
 # define NUMCOLS 18
 
@@ -122,7 +124,8 @@ static int CloseOverTab (TblInfo *);
    2016-07-07 P. L. Lim    Removed no virtual overscan assumptions for new
                            subarrays added by FSW change in May 2016.
    2016-10-19 P. L. Lim    Expanded July 2016 changes to ALL subarrays.
-                           New OSCNTAB needed for old subarrays w/o overscan.
+                           New OSCNTAB needed for all WFC and HRC exposures as
+                           this is not backward compatible.
 */
 int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     /* arguments:
@@ -136,11 +139,6 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     TblInfo tabinfo;
     TblRow tabrow;
     int foundit;
-
-    int cx0, cx1, tx1, tx2;
-    int cy0, cy1, ty1, ty2;
-    int full_nx;
-    int full_ny;
 
     int SameInt (int, int);
     int SameString (char *, char *);
@@ -165,109 +163,29 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
         if (SameString (tabrow.ccdamp, acs->ccdamp) &&
                 SameInt (tabrow.chip, acs->chip) &&
                 SameInt (tabrow.bin[0], acs->bin[0]) &&
-                SameInt (tabrow.bin[1], acs->bin[1])) {
+                SameInt (tabrow.bin[1], acs->bin[1]) &&
+                SameInt (tabrow.nx, nx) &&
+                SameInt (tabrow.ny, ny)) {
 
             foundit = YES;
             *overscan = YES;
 
-            /* We are working with a subarray.
-               There is never any virtual overscan EXCEPT for new subarrays
-               added by FSW change in May 2016.
-               Overscans should now be properly defined in OSCNTAB. */
-            if (acs->subarray == YES) {
-                acs->vx[0] = 0;
-                acs->vx[1] = 0;
-                acs->vy[0] = 0;
-                acs->vy[1] = 0;
-
-                /* Virtual overscan processing is similar to physical
-                   overscan processing below.
-                   Determine whether the subarray extends into the
-                   virtual overscan regions on either side of the chip. */
-                ty1 = (int)(ny - acs->offsety);
-                cy1 = tabrow.ny - tabrow.trimy[1] - tabrow.trimy[0];
-                cy0 = (int)(tabrow.trimy[0] - acs->offsety);
-
-                /* Subarray starts in the first overscan region... */
-                if (acs->offsety > 0) {
-                    acs->trimy[0] = (acs->offsety < tabrow.trimy[0]) ?
-                        acs->offsety : tabrow.trimy[0];
-                    /* Check to see if it extends into second overscan
-                       region. */
-                    full_ny = tabrow.ny - (tabrow.trimy[0] +
-                                           tabrow.trimy[1]);
-                    ty2 = (int)(ny - acs->trimy[0]) - full_ny;
-                    acs->trimy[1] = (ty2 < 0) ? 0 : ty2;
-
-                    /* Subarray overlaps second overscan region */
-                } else if ( ty1 > cy1 && ty1 <= tabrow.ny) {
-                    acs->trimy[0] = 0;
-                    acs->trimy[1] = ty1 - cy1;
-
-                    /* Subarray does not have virtual overscan */
-                } else {
-                    acs->trimy[0] = 0;
-                    acs->trimy[1] = 0;
-                }
-
-                /* Determine whether the subarray extends into the
-                   physical overscan regions on either side of the chip */
-                tx1 = (int)(nx - acs->offsetx);
-                cx1 = tabrow.nx - tabrow.trimx[1] - tabrow.trimx[0];
-                cx0 = (int)(tabrow.trimx[0] - acs->offsetx);
-
-                /* Subarray starts in the first overscan region... */
-                if (acs->offsetx > 0) {
-                    acs->trimx[0] = (acs->offsetx < tabrow.trimx[0]) ?
-                        acs->offsetx : tabrow.trimx[0];
-                    /* Check to see if it extends into second overscan region.
-                       Fixed 24 July 2001 WJH. */
-                    full_nx = tabrow.nx - (tabrow.trimx[0] + tabrow.trimx[1]);
-                    tx2 = (int)(nx - acs->trimx[0]) - full_nx;
-                    acs->trimx[1] = (tx2 < 0) ? 0 : tx2;
-                    acs->biassecta[0] = (tabrow.biassecta[0] - 1 - cx0 > 0) ?
-                        (tabrow.biassecta[0] - 1 - cx0) : 0;
-                    acs->biassecta[1] = tabrow.biassecta[1] - 1 - cx0;
-                    acs->biassectb[0] = 0;
-                    acs->biassectb[1] = 0;
-
-                /* ... then the subarray overlaps biassectb... */
-                } else if ( tx1 > cx1 && tx1 <= tabrow.nx) {
-                    acs->trimx[0] = 0;
-                    acs->trimx[1] = tx1 - cx1;
-                    acs->biassecta[0] = 0;
-                    acs->biassecta[1] = 0;
-                    acs->biassectb[0] = nx - (tx1 - cx1);
-                    acs->biassectb[1] = nx - 1;
-
-                /* Subarray doesn't overlap either physical overscan region */
-                } else {
-                    acs->trimx[0] = 0;
-                    acs->trimx[1] = 0;
-                    acs->biassecta[0] = 0;
-                    acs->biassecta[1] = 0;
-                    acs->biassectb[0] = 0;
-                    acs->biassectb[1] = 0;
-                    *overscan = NO;
-                }
-
-            /* We are working with a full chip image... */
-            } else {
-                acs->trimx[0] = tabrow.trimx[0];
-                acs->trimx[1] = tabrow.trimx[1];
-                acs->trimy[0] = tabrow.trimy[0];
-                acs->trimy[1] = tabrow.trimy[1];
-                /* Subtract one from table values to
-                   conform to C array indexing... */
-                acs->vx[0] = tabrow.vx[0]-1;
-                acs->vx[1] = tabrow.vx[1]-1;
-                acs->vy[0] = tabrow.vy[0]-1;
-                acs->vy[1] = tabrow.vy[1]-1;
-                acs->biassecta[0] = tabrow.biassecta[0] - 1;
-                acs->biassecta[1] = tabrow.biassecta[1] - 1;
-                acs->biassectb[0] = tabrow.biassectb[0] - 1;
-                acs->biassectb[1] = tabrow.biassectb[1] - 1;
-            }
+            /* Overscan info now completely defined in OSCNTAB.
+               Everything now uses fullframe logic. */
+            acs->trimx[0] = tabrow.trimx[0];
+            acs->trimx[1] = tabrow.trimx[1];
+            acs->trimy[0] = tabrow.trimy[0];
+            acs->trimy[1] = tabrow.trimy[1];
+            /* Subtract one from table values to
+               conform to C array indexing... */
+            acs->vx[0] = tabrow.vx[0]-1;
+            acs->vx[1] = tabrow.vx[1]-1;
+            acs->vy[0] = tabrow.vy[0]-1;
+            acs->vy[1] = tabrow.vy[1]-1;
+            acs->biassecta[0] = tabrow.biassecta[0] - 1;
+            acs->biassecta[1] = tabrow.biassecta[1] - 1;
+            acs->biassectb[0] = tabrow.biassectb[0] - 1;
+            acs->biassectb[1] = tabrow.biassectb[1] - 1;
 
             break;
         }
