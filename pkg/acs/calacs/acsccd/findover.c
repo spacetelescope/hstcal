@@ -6,9 +6,11 @@
 # include "acsinfo.h"
 # include "acserr.h"
 
+/* NOT USED
 # define FULL_FRAME_READOUT  1
 # define SUBARRAY_READOUT    2
 # define BINNED_READOUT      3
+*/
 
 # define NUMCOLS 18
 
@@ -121,6 +123,8 @@ static int CloseOverTab (TblInfo *);
                            region overlap.
    2016-07-07 P. L. Lim    Removed no virtual overscan assumptions for new
                            subarrays added by FSW change in May 2016.
+   2016-10-21 P. L. Lim    Expand 2016-07-07 logic to polarizer and ramp
+                           subarrays.
 */
 int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     /* arguments:
@@ -135,6 +139,7 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
     TblRow tabrow;
     int foundit;
     int is_newsub;
+    const double fsw_change_mjd = 57662.0;  /* 2016-10-01 */
 
     int cx0, cx1, tx1, tx2;
     int cy0, cy1, ty1, ty2;
@@ -172,20 +177,50 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
 
             /* We are working with a subarray.
                There is never any virtual overscan EXCEPT for new subarrays
-               added by FSW change in May 2016. */
+               added by FSW change in May 2016 and polarizer/ramp after
+               Oct 2016.
+
+               NOTE: In the future, all overscan info should be properly
+               defined within OSCNTAB for all apertures for both WFC and HRC.
+               When that happens, only keep the fullframe logic below to be
+               used for both fullframe and subarrays and discard all these
+               special subarray calculations. This change is not backward
+               compatible and will require new OSCNTAB to be used for all
+               WFC and HRC exposures ever taken.
+            */
             if (acs->subarray == YES) {
                 if (SameString(acs->aperture, "WFC1A-512") ||
-                        SameString(acs->aperture, "WFC1A-1K") ||
-                        SameString(acs->aperture, "WFC1A-2K") ||
-                        SameString(acs->aperture, "WFC1B-512") ||
-                        SameString(acs->aperture, "WFC1B-1K") ||
-                        SameString(acs->aperture, "WFC1B-2K") ||
-                        SameString(acs->aperture, "WFC2C-512") ||
-                        SameString(acs->aperture, "WFC2C-1K") ||
-                        SameString(acs->aperture, "WFC2C-2K") ||
-                        SameString(acs->aperture, "WFC2D-512") ||
-                        SameString(acs->aperture, "WFC2D-1K") ||
-                        SameString(acs->aperture, "WFC2D-2K")) {
+                    SameString(acs->aperture, "WFC1A-1K") ||
+                    SameString(acs->aperture, "WFC1A-2K") ||
+                    SameString(acs->aperture, "WFC1B-512") ||
+                    SameString(acs->aperture, "WFC1B-1K") ||
+                    SameString(acs->aperture, "WFC1B-2K") ||
+                    SameString(acs->aperture, "WFC2C-512") ||
+                    SameString(acs->aperture, "WFC2C-1K") ||
+                    SameString(acs->aperture, "WFC2C-2K") ||
+                    SameString(acs->aperture, "WFC2D-512") ||
+                    SameString(acs->aperture, "WFC2D-1K") ||
+                    SameString(acs->aperture, "WFC2D-2K") ||
+                    (SameString(acs->aperture, "WFC1-POL0V") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC1-POL60V") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC1-POL120V") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC1-POL0UV") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC1-POL60UV") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC1-POL120UV") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC1-IRAMPQ") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC1-MRAMPQ") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC2-MRAMPQ") &&
+                     (acs->expstart >= fsw_change_mjd)) ||
+                    (SameString(acs->aperture, "WFC2-ORAMPQ") &&
+                     (acs->expstart >= fsw_change_mjd))) {
                     is_newsub = YES;
                 } else {
                     acs->trimy[0] = 0;

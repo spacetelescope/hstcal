@@ -1,3 +1,7 @@
+### 21-Oct-2016 - PLL -- Version 8.3.5
+    BLEVCORR modified to correctly process polarizer and ramp subarrays that
+    use new readout format added by FSW change since Oct 2016.
+
 ### 07-Jul-2016 - PLL -- Version 8.3.4
     BLEVCORR modified to correctly process new subarrays added by FSW change in
     May 2016.
