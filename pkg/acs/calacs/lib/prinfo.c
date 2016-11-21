@@ -257,7 +257,7 @@ char *GetTime (void) {
 
 /* Convert a string to upper case and pad with blanks. */
 
-void UpperAll (const char *instr, char *outstr, int maxch) {
+void UpperAll (char *instr, char *outstr, int maxch) {
 
 /* arguments:
 char *instr   i: input string
@@ -292,7 +292,7 @@ int maxch     i: allocated length of outstr (including EOS)
    to lower case, and pad with blanks.
 */
 
-void Upper1 (const char *instr, char *outstr, int maxch) {
+void Upper1 (char *instr, char *outstr, int maxch) {
 
 /* arguments:
 char *instr   i: input string
@@ -300,7 +300,7 @@ char *outstr  o: string with only the first letter capitalized
 int maxch     i: allocated length of outstr (including EOS)
 */
 
-	int i = 0;
+	int i;
 
 	if (PAD_SIZE >= maxch) {
 	    strcpy (outstr, "*****");
