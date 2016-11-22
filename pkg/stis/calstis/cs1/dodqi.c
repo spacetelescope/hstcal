@@ -10,6 +10,7 @@
 
 # include <stdio.h>
 # include <string.h>
+#include <assert.h>
 
 # include "c_iraf.h"
 # include "hstio.h"
@@ -652,6 +653,8 @@ int doppmin, doppmax  i: offsets for Doppler shift
 	    xlength = 2;
 	    ylength = tabrow->length * 2;
 	}
+	else
+	    assert(0);
 
 	nx = ydq->nx;
 	ny = ydq->ny;

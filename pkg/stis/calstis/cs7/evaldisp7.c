@@ -1,4 +1,5 @@
 # include <stdio.h>
+#include <assert.h>
 
 # include "stis.h"
 # include "calstis7.h"
@@ -97,6 +98,8 @@ double GetWavelength (DispRelation *disp, int sporder, double ix,
 	    wl_test = prismDisp (disp->coeff, ix);
 
 	}
+	else
+	    assert(0);
 
 	return (wl_test);
 }

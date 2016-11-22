@@ -192,7 +192,8 @@ def configure(conf):
             conf.env.append_value('CFLAGS','-Wall')
         if conf.check_cc(cflags='-fstack-protector-all'):
             conf.env.append_value('CFLAGS','-fstack-protector-all')
-
+        if conf.check_cc(cflags='-Werror=sometimes-uninitialized'):
+            conf.env.append_value('CFLAGS','-Werror=sometimes-uninitialized')
 
 def build(bld):
     bld(name='lib', always=True)

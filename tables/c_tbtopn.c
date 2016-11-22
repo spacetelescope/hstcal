@@ -1,6 +1,7 @@
 # include <stdlib.h>
 # include <string.h>
 # include <fitsio.h>
+#include <assert.h>
 # include "ctables.h"
 
 IRAFPointer c_tbtopn (char *tablename, int iomode, IRAFPointer template) {
@@ -90,6 +91,8 @@ function value          o: table descriptor
                         return NULL;
                     }
                 }
+                else
+                    assert(0);
                 tbl_descr->hdunum = hdunum;
                 tbl_descr->hdutype = hdutype;
 
