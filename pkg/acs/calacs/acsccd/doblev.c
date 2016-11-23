@@ -370,6 +370,12 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
        */
       biasvals[j] = biaslevel;
       biasmask[j] = 1;
+      if (j == 0) {
+          sprintf (MsgText,
+              "(FitToOverscan) biassecta=(%d,%d) biassectb=(%d,%d) npix=%d",
+              biassect[0], biassect[1], biassect[2], biassect[3], npix);
+          trlmessage(MsgText);
+      }
     }
 	}
   /* Analyze biasvals for outliers and mask them
