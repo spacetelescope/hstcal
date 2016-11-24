@@ -48,8 +48,6 @@ before_install:
   - wget $CONDA_INSTALLER
   - bash Miniconda3-latest-*.sh -b -p /tmp/miniconda3
   - export PATH=/tmp/miniconda3/bin:$PATH
-  - export CFLAGS="-m64"
-  - export LDFLAGS="-m64"
 
 install:
   - conda install --yes gcc
