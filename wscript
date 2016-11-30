@@ -32,6 +32,11 @@ SUBDIRS = [
 # Have 'waf dist' create tar.gz files, rather than tar.bz2 files
 Scripting.g_gz = 'gz'
 
+# Have gcc supersede clang
+from waflib.Tools.compiler_c import c_compiler
+c_compiler['darwin'] = ['gcc', 'clang']
+c_compiler['default'] = ['gcc', 'clang']
+
 option_parser = None
 def options(opt):
     # We want to store
