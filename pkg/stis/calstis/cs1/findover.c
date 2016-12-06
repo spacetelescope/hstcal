@@ -3,6 +3,7 @@
 # include "calstis1.h"
 # include "stiserr.h"
 # include "stissizes.h"	/* detector sizes, overscan sizes */
+#include <assert.h>
 
 # define FULL_FRAME_READOUT  1
 # define SUBARRAY_READOUT    2
@@ -160,6 +161,8 @@ int vx[2], vy[2]      o: range of pixel numbers for virtual overscan region
 	    biassect[0] = (nx - A_bsect[1] - 1);
 	    biassect[1] = (nx - A_bsect[0] - 1);
 	}
+	else
+	    assert(0);
 
 	/* Sanity check on image size. */
 	if (readout == FULL_FRAME_READOUT) {

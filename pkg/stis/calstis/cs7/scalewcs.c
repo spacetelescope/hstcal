@@ -1,4 +1,5 @@
 # include <stdio.h>
+#include <assert.h>
 
 # include "stis.h"
 # include "calstis7.h"
@@ -69,6 +70,8 @@ CoordInfo *coord_o  io: size and coordinate info for output
 	    plate_scale = coord_o->cdelt[1];	/* CDELT2 */
 	else if (sts->dispaxis == 2)
 	    plate_scale = coord_o->cdelt[0];	/* CDELT1 */
+	else
+	    assert(0);
 
 	/* scale the plate scale to image pixels */
 	sts->plate_scale[0] = plate_scale / sts->ltm[0];
