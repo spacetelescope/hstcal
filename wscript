@@ -10,7 +10,6 @@ from waflib import Scripting
 from waflib import Task
 from waflib import Utils
 from waflib import TaskGen
-from waflib import Tools
 
 APPNAME = 'hstcal'
 VERSION = '0.1.1'
@@ -168,7 +167,6 @@ def _determine_architecture(conf):
                 if arg == arch:
                     return arch
 
-
     conf.start_msg('Checking architecture')
     if platform.architecture()[0] == '64bit':
         arch_mode = '-m64'
@@ -184,13 +182,15 @@ def _determine_architecture(conf):
     conf.end_msg(get_forced_arch('LDFLAGS'))
 
     if get_forced_arch('CFLAGS') is None:
-        if ('CFLAGS' not in conf.env) or \
-            ('CFLAGS' in conf.env and arch_modes not in conf.env['CFLAGS']):
+        if (('CFLAGS' not in conf.env) or
+                ('CFLAGS' in conf.env and
+                    arch_modes not in conf.env['CFLAGS'])):
             conf.env.append_value('CFLAGS', arch_mode)
 
     if get_forced_arch('LDFLAGS') is None:
-        if ('LDFLAGS' not in conf.env) or \
-            ('LDFLAGS' in conf.env and arch_modes not in conf.env['LDFLAGS']):
+        if (('LDFLAGS' not in conf.env) or
+                ('LDFLAGS' in conf.env and
+                    arch_modes not in conf.env['LDFLAGS'])):
             conf.env.append_value('LDFLAGS', arch_mode)
 
 def configure(conf):
