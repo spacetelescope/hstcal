@@ -70,38 +70,55 @@ def _setup_openmp(conf):
     else:
         conf.end_msg("OpenMP found.", 'GREEN')
 
-def _check_mac_osx_version(version):
+def _check_mac_osx_version(floor_version):
     '''
-     Native     Encoded
-    -------    --------
-     10.5.0 == 0x0A0500
-      ^ ^ ^       ^ ^ ^
-      | | |       | | |
-      major       major
-        | |         | |
-        minor       minor
-          |           |
-          patch       patch
+    Purpose:
+        Converts the semantic version of the operating system to a 24-bit integer, then
+        compares the result against the user-defined `floor_version`. Returns true if
+        `osx_version` is greater than or equal to `floor_version`.
 
-    version -> 24-bit encoded version
+    Summary:
+        Checks whether the operation system meets the minimum version requirements.
+
+    Example:
+        # Assume `sw_vers -ProductVersion` returns 10.11.0
+
+        # Is 10.11.0 (0x0A0B00) greater than 10.5.0 (0x0A0500)?
+        >>> _determine_mac_osx_floor(0x0A0500)
+        True
+
+        # Is 10.11.0 (0x0A0B00) equal to 10.11.0 (0x0A0B00)?
+        >>> _determine_mac_osx_floor(0x0A0B00)
+        True
+
+        # Is 10.11.0 (0x0A0B00) greater than 10.12.1 (0x0A0C01)?
+        >>> _determine_mac_osx_floor(0x0A0C01)
+        False
+
+    Encoding:
+        OS Version      Encoded Version
+        -----------     ---------------
+        10.5.0      ==  0x0A0500
+         ^ ^ ^             ^ ^ ^
+         | | |             | | |
+         major             major
+           | |               | |
+           minor             minor
+             |                 |
+             patch             patch
+
     '''
 
-    assert isinstance(version, int)
-    floor_version = version
-    osx_version = 0
-
-    floor_version_major = (floor_version >> 8 & 0xff)
-    floor_version_minor = (floor_version >> 8 & 0xff)
-    floor_version_patch = (floor_version & 0xff)
-
+    assert isinstance(floor_version, int)
     s = platform.popen("/usr/bin/sw_vers -productVersion").read()
-    osx_version_major, osx_version_minor, osx_version_patch = \
-        tuple(int(x) for x in s.strip().split('.'))
 
-    osx_version = (osx_version << 8 | osx_version_major & 0xff)
-    osx_version = (osx_version << 8 | osx_version_minor & 0xff)
-    osx_version = (osx_version << 8 | osx_version_patch & 0xff)
+    # Extract the integer values between the '.'s
+    osx_version_major, osx_version_minor, osx_version_patch = tuple(int(x) for x in s.strip().split('.'))
 
+    # Convert major/minor/patch values into a single 24-bit integer
+    osx_version = (osx_version_major & 0xff) << 16 | (osx_version_minor & 0xff) << 8 | (osx_version_patch & 0xff )
+
+    # If the operating system version does meet or exceed the minimum
     if osx_version < floor_version:
         return False
 
