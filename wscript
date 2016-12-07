@@ -246,7 +246,6 @@ def configure(conf):
     # cfitsio/wscript
     conf.recurse('cfitsio')
 
-
     # check whether the compiler supports -02 and add it to CFLAGS if it does
     if conf.options.debug:
         if conf.check_cc(cflags='-g'):
