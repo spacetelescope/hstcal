@@ -69,6 +69,43 @@ def _setup_openmp(conf):
     else:
         conf.end_msg("OpenMP found.", 'GREEN')
 
+def _check_mac_osx_version(version):
+    '''
+     Native     Encoded
+    -------    --------
+     10.5.0 == 0x0A0500
+      ^ ^ ^       ^ ^ ^
+      | | |       | | |
+      major       major
+        | |         | |
+        minor       minor
+          |           |
+          patch       patch
+
+    version -> 24-bit encoded version
+    '''
+
+    assert isinstance(version, int)
+    floor_version = version
+    osx_version = 0
+
+    floor_version_major = (floor_version >> 8 & 0xff)
+    floor_version_minor = (floor_version >> 8 & 0xff)
+    floor_version_patch = (floor_version & 0xff)
+
+    s = platform.popen("/usr/bin/sw_vers -productVersion").read()
+    osx_version_major, osx_version_minor, osx_version_patch = \
+        tuple(int(x) for x in s.strip().decode().split('.'))
+
+    osx_version = (osx_version << 8 | osx_version_major & 0xff)
+    osx_version = (osx_version << 8 | osx_version_minor & 0xff)
+    osx_version = (osx_version << 8 | osx_version_patch & 0xff)
+
+    if osx_version < floor_version:
+        return False
+
+    return True
+
 def _determine_mac_osx_fortran_flags(conf):
     # On Mac OS-X, we need to know the specific version in order to
     # send some compile flags to the Fortran compiler.
@@ -77,45 +114,17 @@ def _determine_mac_osx_fortran_flags(conf):
     if platform.system() == 'Darwin' :
         conf.start_msg('Determining Mac OS-X version')
 
-        # do not use any of the other features of platform.  They
-        # do not work reliably across all the python interpreters
-        # that we have.  Ask system_profiler because it always knows.
-        f = platform.popen("/usr/bin/sw_vers -productVersion")
-        s = f.read()
-
-        # this is going to look something like "       10.5.8 \n"
-        s = s.strip()
-
-        # break out just the OS version number
-        if ' ' in s:
-            s = s.split(' ')[0]
-        if '(' in s:
-            s = s.split('(')[0]
-
-        # pick out just the X.Y part
-        s = '.'.join(s.split('.')[0:2])
-
-        conf.env.MAC_OS_NAME = None
-        if s == '10.5':
-            conf.env.MAC_OS_NAME = 'leopard'
-        elif s == '10.6':
-            conf.env.MAC_OS_NAME = 'snowleopard'
-        elif s == '10.7':
-            conf.env.MAC_OS_NAME = 'lion'
-        elif s == '10.9':
-            conf.env.MAC_OS_NAME = 'mavericks'
-        elif s == '10.10':
-            conf.env.MAC_OS_NAME = 'yosemite'
-
-        if conf.env.MAC_OS_NAME:
-            conf.end_msg(conf.env.MAC_OS_NAME, 'GREEN')
+        if _check_mac_osx_version(0x0A0500):
+            conf.end_msg('OK', 'GREEN')
         else:
             conf.end_msg(
-                "Do not recognize this Mac OS only know 10.5-10.10",
-                'YELLOW')
+                "Unsupported OS X version detected (<10.5.0)",
+                'RED')
+            exit(1)
 
-    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion', 'mavericks', 'yosemite'):
         conf.env.append_value('FCFLAGS', '-m64')
+        conf.env.append_value('CFLAGS', '-m64')
+        conf.env.append_value('LDFLAGS', '-m64')
 
 def _determine_sizeof_int(conf):
     conf.check(
