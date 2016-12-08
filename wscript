@@ -150,49 +150,6 @@ def _determine_sizeof_int(conf):
         execute=True,
         msg='Checking for sizeof(int)')
 
-def _determine_architecture(conf):
-    # set architecture specific flags if not set in the environment
-    arch_modes = ['-m32', '-m64']
-    cflags_forced = False
-    ldflags_forced = False
-
-    def get_forced_arch(flag):
-        try:
-            flags = os.environ[flag].split()
-        except KeyError:
-            return None
-
-        for arg in flags:
-            for arch in arch_modes:
-                if arg == arch:
-                    return arch
-
-    conf.start_msg('Checking architecture')
-    if platform.architecture()[0] == '64bit':
-        arch_mode = '-m64'
-        conf.end_msg('x86_64')
-    else:
-        arch_mode = '-m32'
-        conf.end_msg('x86')
-
-    conf.start_msg('User-defined CFLAGS')
-    conf.end_msg(get_forced_arch('CFLAGS'))
-
-    conf.start_msg('User-defined LDFLAGS')
-    conf.end_msg(get_forced_arch('LDFLAGS'))
-
-    if get_forced_arch('CFLAGS') is None:
-        if (('CFLAGS' not in conf.env) or
-                ('CFLAGS' in conf.env and
-                    arch_modes not in conf.env['CFLAGS'])):
-            conf.env.append_value('CFLAGS', arch_mode)
-
-    if get_forced_arch('LDFLAGS') is None:
-        if (('LDFLAGS' not in conf.env) or
-                ('LDFLAGS' in conf.env and
-                    arch_modes not in conf.env['LDFLAGS'])):
-            conf.env.append_value('LDFLAGS', arch_mode)
-
 def configure(conf):
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
@@ -234,17 +191,11 @@ def configure(conf):
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = []
 
-    _determine_architecture(conf)
-
     _determine_mac_osx_fortran_flags(conf)
 
     _setup_openmp(conf)
 
     _determine_sizeof_int(conf)
-
-    # The configuration related to cfitsio is stored in
-    # cfitsio/wscript
-    conf.recurse('cfitsio')
 
     # check whether the compiler supports -02 and add it to CFLAGS if it does
     if conf.options.debug:
@@ -262,6 +213,18 @@ def configure(conf):
         if conf.check_cc(cflags='-fstack-protector-all'):
             conf.env.append_value('CFLAGS','-fstack-protector-all')
 
+    conf.start_msg('C compiler flags (CFLAGS)')
+    conf.end_msg(' '.join(conf.env['CFLAGS']) or None)
+
+    conf.start_msg('Fortran compiler flags (FCFLAGS)')
+    conf.end_msg(' '.join(conf.env['FCFLAGS']) or None)
+
+    conf.start_msg('Linker flags (LDFLAGS)')
+    conf.end_msg(' '.join(conf.env['LDFLAGS']) or None)
+
+    # The configuration related to cfitsio is stored in
+    # cfitsio/wscript
+    conf.recurse('cfitsio')
 
 def build(bld):
     bld(name='lib', always=True)
