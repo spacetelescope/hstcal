@@ -1263,8 +1263,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
 
         if (totflux >= 1) {/*make sure the column has flux in it*/
             NREDO=0; /*START OUT NOT NEEDING TO MITIGATE CRS*/
-            REDO=0; /*FALSE*/
             do { /*replacing goto 9999*/
+                REDO=0; /*FALSE*/
                 /*STARTING WITH THE OBSERVED IMAGE AS MODEL, ADOPT THE SCALING FOR THIS COLUMN*/
                 for (j=0; j<RAZ_ROWS; j++){
                     pix_modl[j] =  Pix(rz.sci.data,i,j);
