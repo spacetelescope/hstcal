@@ -193,16 +193,34 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
         }
     }
 
-    if (foundit == NO) {
-        status = ROW_NOT_FOUND;
-        sprintf(MsgText, "Could not find appropriate row from OSCNTAB. ");
-        trlwarn(MsgText);
-    }
 
     if(CloseOverTab (&tabinfo))
         return(status);
 
-    if (acs->verbose == YES) {
+    if (foundit == NO) {
+        /* Error message is commented so that if no row found
+           (e.g., for user defined subarrays), simply skip BLEVCORR
+           and proceed to next step. */
+        /*status = ROW_NOT_FOUND;*/
+
+        /* Comment these init out if error message is enabled above. */
+        acs->trimx[0] = 0;
+        acs->trimx[1] = 0;
+        acs->trimy[0] = 0;
+        acs->trimy[1] = 0;
+        acs->vx[0] = 0;
+        acs->vx[1] = 0;
+        acs->vy[0] = 0;
+        acs->vy[1] = 0;
+        acs->biassecta[0] = 0;
+        acs->biassecta[1] = 0;
+        acs->biassectb[0] = 0;
+        acs->biassectb[1] = 0;
+
+        sprintf(MsgText, "Could not find appropriate row from OSCNTAB. ");
+        trlwarn(MsgText);
+    }
+    else if (acs->verbose == YES) {
         sprintf(MsgText, "Found trim values of: x(%d,%d) y(%d,%d)",
                 acs->trimx[0], acs->trimx[1], acs->trimy[0], acs->trimy[1]);
         trlmessage(MsgText);
