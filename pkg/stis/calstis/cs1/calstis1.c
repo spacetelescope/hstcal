@@ -81,6 +81,9 @@ static int ParseDarkscaleString (cs1_switch *, StisInfo1 *);
 
    Phil Hodge, 2011 Nov 17:
 	Include tdscorr and tdstab.
+
+   Robert Jedrzejewski, 2017 Feb 13:
+        Initialize tdctab
 */
 
 int CalStis1 (char *input, char *output, char *outblev,
@@ -296,6 +299,7 @@ static void StisInit1 (StisInfo1 *sts) {
 	InitRefTab (&sts->atod);
 	InitRefTab (&sts->phot);
 	InitRefTab (&sts->tdstab);
+	InitRefTab (&sts->tdctab);
 }
 
 /* Initialize the elements of a RefImage structure. */
