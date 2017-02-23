@@ -3,7 +3,7 @@
 ../acs2d/getlintab.c   ../acs2d/getspottab.c   ../acs2d/main2d.c   ../acs2d/photmode.c
 ../acs2d/sanity2d.c  ../acs2d/get2dsw.c
 
-../acsccd/acsccd.c   ../acsccd/blevdrift.c   ../acsccd/blevfit.c
+../acsccd/acsccd.c   ../acsccd/blevdrift.c   ../acsccd/blevfit.c   ../acsccd/dosink.c
 ../acsccd/doatod.c   ../acsccd/dobias.c   ../acsccd/doblev.c   ../acsccd/doblev_v504.c
 ../acsccd/doccd.c   ../acsccd/doflash.c   ../acsccd/findblev.c   ../acsccd/findover.c
 ../acsccd/getacsflag.c   ../acsccd/getccdsw.c   ../acsccd/mainccd.c

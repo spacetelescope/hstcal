@@ -2,12 +2,13 @@
 
     Warren Hack, 1998 June 10:
     Initial ACS version.
-    
-    29-Oct-2001 WJH: Replaced 'ccdbias' with an array 'ccdbias[4]' to
+
+    2001-10-29 WJH: Replaced 'ccdbias' with an array 'ccdbias[4]' to
         be applied for each AMP.  Added 'graph' and 'comp' to
         replace 'phottab' and 'apertab' and removed 'filtcorr'. Simplified
         PhotInfo to only contain a single set of arrays for wave and thru.
-    4-Dec-2001 WJH: Added expstart and expend.
+    2001-12-04 WJH: Added expstart and expend.
+    2017-02-21 PLL: Added SINKCORR varibles.
 */
 
 # define NAMPS  4    /* Maximum number of amps for a single readout */
@@ -83,16 +84,19 @@ typedef struct {
     float flashdur; 	/* duration of post-flash (in seconds) */
     char flashstatus[ACS_CBUF+1];		/* status of post-flash exposure */
 
-    /* calibration flags (switches) for ACSCCD*/
+    /* calibration flags (switches) for ACSCCD */
     int dqicorr;        /* data quality initialization */
     int atodcorr;       /* analog to digital correction */
     int blevcorr;       /* subtract bias from overscan */
     int biascorr;       /* subtract bias image */
     int flashcorr;      /* subtract post-flash image */
     int noisecorr;      /* initialize error array? (yes) */
+    int sinkcorr;       /* flag sink pixels */
+
+    /* calibration flags (switches) for ACSCTE */
     int pctecorr;       /* perform pixel CTE correction */
 
-    /* calibration flags (switches) for ACS2D*/
+    /* calibration flags (switches) for ACS2D */
     int glincorr;       /* global nonlinearity correction */
     int lflgcorr;       /* flag local nonlinearity */
     int darkcorr;       /* subtract dark image */
@@ -105,16 +109,19 @@ typedef struct {
     int photcorr;       /* compute photometry header keyword values */
     int expscorr;       /* calibrate blv_tmp products?  */
 
-    /* calibration images and tables for ACSCCD*/
+    /* calibration images and tables for ACSCCD */
     RefImage bias;      /* bias image */
     RefTab bpix;        /* bad pixel table */
     RefTab ccdpar;      /* CCD parameters table */
     RefTab oscn;        /* Overscan parameters table */
     RefTab atod;        /* analog to digital correction table */
     RefTab spot;        /* Spotflat offset table */
+    RefImage sink;      /* sink pixel image */
+
+    /* calibration images and tables for ACSCTE */
     RefTab pcte;        /* Pixel CTE parameters table */
 
-    /* calibration images and tables for ACS2D*/
+    /* calibration images and tables for ACS2D */
     RefImage dark;      /* dark image */
     RefImage darkcte;   /* cte corrected dark */
     RefImage flash;     /* post-flash image */
