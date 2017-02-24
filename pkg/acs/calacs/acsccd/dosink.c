@@ -46,7 +46,7 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
     int rx, ry;      /* for binning sink image down to size of x */
     int x0, y0;      /* offsets of sci image */
     int same_size;   /* true if no binning of ref image required */
-    float cur_sinkpix;
+    float cur_sinkpix, cur_sci;
     FloatHdrData sinkref;  /* array to store sink image */
 
     int FindLineHdr(Hdr *, Hdr *, int, int, int *, int *, int *, int *, int *);
@@ -63,6 +63,7 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
     same_size = 1;
     jdone = 0;
     n = 0;
+    cur_sci = 0.0;
 
     /* Compute correct extension version number to extract from
        reference image to correspond to CHIP in science data. */
@@ -131,6 +132,8 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
             if (cur_sinkpix < 0) {
                 if (keep_going[i] == 0)
                     keep_going[i] = 1;
+                if (cur_sinkpix < -1)  /* The actual sink pixel */
+                    cur_sci = Pix(x->sci.data, i, j);
                 dqval = SINKPIXEL | DQPix(x->dq.data, i, j);
                 DQSetPix(x->dq.data, i, j, dqval);
                 n++;
@@ -139,8 +142,8 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
             } else if (cur_sinkpix > 0) {
                 /* Tail is still continuous. */
                 if (keep_going[i] == 1) {
-                    /* This upstream pixel > SCI, flag it. */
-                    if (cur_sinkpix > Pix(x->sci.data, i, j)) {
+                    /* This upstream pixel > SCI at sink pixel, flag it. */
+                    if (cur_sinkpix > cur_sci) {
                         dqval = SINKPIXEL | DQPix(x->dq.data, i, j);
                         DQSetPix(x->dq.data, i, j, dqval);
                         n++;
