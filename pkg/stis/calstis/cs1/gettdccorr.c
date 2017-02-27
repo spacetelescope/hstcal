@@ -70,7 +70,8 @@ static int CloseTdcTab(TblInfo *);
 	not the median.
 
    Robert Jedrzejewski, 2017 Feb 13:
-        Get PEDIGREE and DESCRIP from columns of TCDTAB, if available
+        In origTdcCorr, change the first argument in the call to RowPedigree
+ 	from &sts->ccdpar to &sts->tdctab. 
 */
 
 int GetTdcCorr(StisInfo1 *sts, double mean_dark, double *factor) {
