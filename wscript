@@ -74,52 +74,76 @@ def _setup_openmp(conf):
     else:
         conf.end_msg("OpenMP found.", 'GREEN')
 
+def _check_mac_osx_version(floor_version):
+    '''
+    Purpose:
+        Converts the semantic version of the operating system to a 24-bit integer, then
+        compares the result against the user-defined `floor_version`. Returns true if
+        `osx_version` is greater than or equal to `floor_version`.
+
+    Summary:
+        Checks whether the operation system meets the minimum version requirements.
+
+    Example:
+        # Assume `sw_vers -ProductVersion` returns 10.11.0
+
+        # Is 10.11.0 (0x0A0B00) greater than 10.5.0 (0x0A0500)?
+        >>> _determine_mac_osx_floor(0x0A0500)
+        True
+
+        # Is 10.11.0 (0x0A0B00) equal to 10.11.0 (0x0A0B00)?
+        >>> _determine_mac_osx_floor(0x0A0B00)
+        True
+
+        # Is 10.11.0 (0x0A0B00) greater than 10.12.1 (0x0A0C01)?
+        >>> _determine_mac_osx_floor(0x0A0C01)
+        False
+
+    Encoding:
+        OS Version      Encoded Version
+        -----------     ---------------
+        10.5.0      ==  0x0A0500
+         ^ ^ ^             ^ ^ ^
+         | | |             | | |
+         major             major
+           | |               | |
+           minor             minor
+             |                 |
+             patch             patch
+
+    '''
+
+    assert isinstance(floor_version, int)
+    s = platform.popen("/usr/bin/sw_vers -productVersion").read()
+
+    # Extract the integer values between the '.'s
+    osx_version_major, osx_version_minor, osx_version_patch = tuple(int(x) for x in s.strip().split('.'))
+
+    # Convert major/minor/patch values into a single 24-bit integer
+    osx_version = (osx_version_major & 0xff) << 16 | (osx_version_minor & 0xff) << 8 | (osx_version_patch & 0xff )
+
+    # If the operating system version does meet or exceed the minimum
+    if osx_version < floor_version:
+        return False
+
+    return True
+
 def _determine_mac_osx_fortran_flags(conf):
     # On Mac OS-X, we need to know the specific version in order to
     # send some compile flags to the Fortran compiler.
     import platform
     conf.env.MAC_OS_NAME = None
     if platform.system() == 'Darwin' :
-        conf.start_msg('Determining Mac OS-X version')
+        conf.start_msg('Checking Mac OS-X version')
 
-        # do not use any of the other features of platform.  They
-        # do not work reliably across all the python interpreters
-        # that we have.  Ask system_profiler because it always knows.
-        f = platform.popen("/usr/bin/sw_vers -productVersion")
-        s = f.read()
-
-        # this is going to look something like "       10.5.8 \n"
-        s = s.strip()
-
-        # break out just the OS version number
-        if ' ' in s:
-            s = s.split(' ')[0]
-        if '(' in s:
-            s = s.split('(')[0]
-
-        # pick out just the X.Y part
-        s = '.'.join(s.split('.')[0:2])
-
-        conf.env.MAC_OS_NAME = None
-        if s == '10.5':
-            conf.env.MAC_OS_NAME = 'leopard'
-        elif s == '10.6':
-            conf.env.MAC_OS_NAME = 'snowleopard'
-        elif s == '10.7':
-            conf.env.MAC_OS_NAME = 'lion'
-        elif s == '10.9':
-            conf.env.MAC_OS_NAME = 'mavericks'
-        elif s == '10.10':
-            conf.env.MAC_OS_NAME = 'yosemite'
-
-        if conf.env.MAC_OS_NAME:
-            conf.end_msg(conf.env.MAC_OS_NAME, 'GREEN')
+        if _check_mac_osx_version(0x0A0500):
+            conf.end_msg('done', 'GREEN')
         else:
             conf.end_msg(
-                "Do not recognize this Mac OS only know 10.5-10.10",
-                'YELLOW')
+                "Unsupported OS X version detected (<10.5.0)",
+                'RED')
+            exit(1)
 
-    if conf.env.MAC_OS_NAME in ('snowleopard', 'lion', 'mavericks', 'yosemite'):
         conf.env.append_value('FCFLAGS', '-m64')
 
 def _determine_sizeof_int(conf):
@@ -172,15 +196,11 @@ def configure(conf):
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = []
 
-    _setup_openmp(conf)
-
     _determine_mac_osx_fortran_flags(conf)
 
-    _determine_sizeof_int(conf)
+    _setup_openmp(conf)
 
-    # The configuration related to cfitsio is stored in
-    # cfitsio/wscript
-    conf.recurse('cfitsio')
+    _determine_sizeof_int(conf)
 
     # check whether the compiler supports -02 and add it to CFLAGS if it does
     if conf.options.debug:
@@ -198,6 +218,18 @@ def configure(conf):
         if conf.check_cc(cflags='-fstack-protector-all'):
             conf.env.append_value('CFLAGS','-fstack-protector-all')
 
+    conf.start_msg('C compiler flags (CFLAGS)')
+    conf.end_msg(' '.join(conf.env['CFLAGS']) or None)
+
+    conf.start_msg('Fortran compiler flags (FCFLAGS)')
+    conf.end_msg(' '.join(conf.env['FCFLAGS']) or None)
+
+    conf.start_msg('Linker flags (LDFLAGS)')
+    conf.end_msg(' '.join(conf.env['LDFLAGS']) or None)
+
+    # The configuration related to cfitsio is stored in
+    # cfitsio/wscript
+    conf.recurse('cfitsio')
 
 def build(bld):
     bld(name='lib', always=True)
