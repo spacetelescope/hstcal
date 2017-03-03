@@ -19,6 +19,7 @@ static int GetSw (Hdr *, char *, int *);
  08 Mar 2011 MRD - Added code to read PCTECORR keyword.
  12 Dec 2012 PLL - Moved FLSHCORR to ACS2D.
  12 Aug 2013 PLL - Separated PCTECORR from ACSCCD.
+ 21 Feb 2017 PLL - Added SINKCORR.
  */
 int GetccdSw (ACSInfo *acs, Hdr *phdr) {
 
@@ -32,6 +33,8 @@ int GetccdSw (ACSInfo *acs, Hdr *phdr) {
     if (GetSw (phdr, "BIASCORR", &acs->biascorr))
         return (status);
     if (GetSw (phdr, "BLEVCORR", &acs->blevcorr))
+        return (status);
+    if (GetSw (phdr, "SINKCORR", &acs->sinkcorr))
         return (status);
 
     return (status);

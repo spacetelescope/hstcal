@@ -11,6 +11,7 @@ static int checkBias (Hdr *, ACSInfo *, int *, int *);
 static int checkBlev (Hdr *, ACSInfo *, int *, int *);
 static int checkCCD (Hdr *, ACSInfo *, int *);
 static int checkDQI (Hdr *, ACSInfo *, int *, int *);
+static int checkSink (Hdr *, ACSInfo *, int *, int *);
 
 
 /* This routine gets the names of reference images and tables from the
@@ -39,6 +40,9 @@ static int checkDQI (Hdr *, ACSInfo *, int *, int *);
  Separated PCTECORR from ACSCCD.
  **
 
+ Pey Lian Lim, 2017 Feb 21:
+ Added new SINKCORR.
+ **
 */
 int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 
@@ -75,6 +79,9 @@ int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
         return (status);
 
     if (checkBias (phdr, acs, &missing, &nsteps))
+        return (status);
+
+    if (checkSink (phdr, acs, &missing, &nsteps))
         return (status);
 
     if (missing) {
@@ -316,6 +323,48 @@ static int checkDQI (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
         }
 
         if (acs->dqicorr == PERFORM)
+            (*nsteps)++;
+    }
+
+    return (status);
+}
+
+
+/* If this step is to be performed, check for the existence of the
+   sink file.  If it exists, get the pedigree and descrip keyword values.
+*/
+static int checkSink (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+    /* arguments:
+       Hdr *phdr        i: primary header
+       ACSInfo *acs     i: switches, file names, etc
+       int *missing     io: incremented if the file is missing
+       int *nsteps      io: incremented if this step can be performed
+    */
+    extern int status;
+
+    int calswitch;
+    int GetSwitch (Hdr *, char *, int *);
+    int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
+    void MissingFile (char *, char *, int *);
+
+    /* Are we supposed to do this step? */
+    if (acs->sinkcorr == PERFORM) {
+
+        if (GetSwitch (phdr, "SINKCORR", &calswitch))
+            return (status);
+        if (calswitch == COMPLETE) {
+            acs->sinkcorr = OMIT;
+            return (status);
+        }
+
+
+        if (GetImageRef (acs->refnames, phdr,
+                         "SNKCFILE", &acs->sink, &acs->sinkcorr))
+            return (status);
+
+        if (acs->sink.exists != EXISTS_YES)
+            MissingFile ("SNKCFILE", acs->sink.name, missing);
+        if (acs->sinkcorr == PERFORM)
             (*nsteps)++;
     }
 

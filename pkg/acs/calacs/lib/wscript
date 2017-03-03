@@ -29,7 +29,7 @@ def build(bld):
 
             ../acsccd/acsccd.c   ../acsccd/blevdrift.c ../acsccd/blevfit.c
             ../acsccd/doatod.c   ../acsccd/dobias.c ../acsccd/doblev.c
-            ../acsccd/doccd.c    ../acsccd/findblev.c
+            ../acsccd/doccd.c    ../acsccd/findblev.c ../acsccd/dosink.c
             ../acsccd/findover.c ../acsccd/getacsflag.c
             ../acsccd/getccdsw.c ../acsccd/blev_funcs_postsm4.c
 

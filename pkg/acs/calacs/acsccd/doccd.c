@@ -12,6 +12,7 @@
  10-Dec-2001 WJH: Added update of SIZAXIS keywords to reflect trimmed size.
  11-Dec-2012 PLL: Moved FLSHCORR stuff to ACS2D.
  12-Aug-2012 PLL: Separated PCTECORR from ACSCCD.
+ 21-Feb-2017 PLL: Added SINKCORR.
 
 ** This code is a trimmed down version of CALSTIS1 do2d.c.
 */
@@ -29,6 +30,7 @@ static void dqiMsg (ACSInfo *, int);
 /*static void AtoDMsg (ACSInfo *, int);*/ /* Not used */
 static void BiasMsg (ACSInfo *, int);
 static void BlevMsg (ACSInfo *, int);
+static void SinkMsg (ACSInfo *, int);
 
 
 int DoCCD (ACSInfo *acs_info) {
@@ -66,6 +68,7 @@ int DoCCD (ACSInfo *acs_info) {
     int dqiHistory (ACSInfo *, Hdr *);
     int doNoise (ACSInfo *, SingleGroup *, int *);
     int noiseHistory (Hdr *);
+    int SinkDetect (ACSInfo *, SingleGroup *);
     int GetACSGrp (ACSInfo *, Hdr *);
     int OmitStep (int);
     int PutKeyFlt (Hdr *, char *, float, char *);
@@ -420,6 +423,23 @@ int DoCCD (ACSInfo *acs_info) {
     }
     /************************************************************************/
 
+    /************************************************************************/
+    /* Flag sink pixels.                                                    */
+    SinkMsg (&acs[0], 1);
+
+    if (acs->sinkcorr == PERFORM) {
+        for (i = 0; i < acs_info->nimsets; i++) {
+            if (SinkDetect(&acs[i], &x[i]))
+                return (status);
+        }
+
+        PrSwitch("sinkcorr", COMPLETE);
+
+        if (acs_info->printtime)
+            TimeStamp("SINKCORR complete", acs_info->rootname);
+    }
+    /************************************************************************/
+
     /* Write this imset to the output file.  The
        CAL_VER and FILENAME keywords will be updated, and the primary
        header will be written.
@@ -555,5 +575,20 @@ static void BlevMsg (ACSInfo *acs, int extver) {
     if (extver == 1 && !OmitStep (acs->blevcorr)) {
         PrRefInfo ("oscntab", acs->oscn.name, acs->oscn.pedigree,
                    acs->oscn.descrip, acs->oscn.descrip2);
+    }
+}
+
+
+static void SinkMsg (ACSInfo *acs, int extver) {
+    void PrSwitch (char *, int);
+    void PrRefInfo (char *, char *, char *, char *, char *);
+    int OmitStep (int);
+
+    trlmessage ("\n");
+    PrSwitch ("sinkcorr", acs->sinkcorr);
+
+    if (extver == 1 && !OmitStep (acs->sinkcorr)) {
+        PrRefInfo ("snkcfile", acs->sink.name, acs->sink.pedigree,
+                   acs->sink.descrip, "");
     }
 }
