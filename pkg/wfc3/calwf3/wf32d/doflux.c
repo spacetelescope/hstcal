@@ -17,7 +17,7 @@
     MLS Dec 6, 2013
 
     Update: Nov 2014
-    This step takes place after all the WF32d steps and after the FLT file has been initially 
+    This step takes place after all the WF32d steps and after the FLT file has been initially
     written to disk. This is necessary because of how the pipeline is setup to process the chips,
     which chip is getting corrected here, and where the data is - we need information from the header
     of both imsets to process chip2 correctly.
@@ -26,6 +26,8 @@
 
     Added more code to deal with correct scaling of subarray images
 
+    M. Sosey: 27 March 2017
+    Update keyword descriptions   
 */
 
 /*prototypes*/
@@ -66,7 +68,7 @@ int doFlux (WF3Info *wf32d){
 	int logit;
 	int multk1d (SingleGroupLine *a, float k);
 	int i,j;
-    
+
 
 	if (wf32d->fluxcorr != PERFORM)
 		return (status=CAL_STEP_NOT_DONE);
@@ -80,7 +82,7 @@ int doFlux (WF3Info *wf32d){
     if (wf32d->subarray == NO){
     	initSingleGroup (&chip1);
     }
-    
+
 	/* Open the input image. I'm reading in the entire thing here because
 	   I can't get  the overwrite mode to work in hstio, and it might be a bug
 
@@ -88,29 +90,29 @@ int doFlux (WF3Info *wf32d){
 	   with the updated group information
 
 	 */
-     
-    /*If a subarray in Chip 2 is passed it needs to be scaled*/ 
+
+    /*If a subarray in Chip 2 is passed it needs to be scaled*/
     if (wf32d->subarray == YES){
         getSingleGroup (wf32d->output, 1, &chip2); /*chip2 is in sci,1*/
     	if (hstio_err())
-		    return (status = OPEN_FAILED);    
-        
+		    return (status = OPEN_FAILED);
+
         memcpy(&phtflam1,&wf32d->chip1_flam,sizeof(double));
         sprintf(MsgText,"Copied wf332d->chip1_flam: %g to phtflam1: %g",wf32d->chip1_flam,phtflam1);
         trlmessage(MsgText);
-                
+
     } else {
     	getSingleGroup (wf32d->output, 1, &chip2); /*chip2 is in sci,1*/
 	    getSingleGroup (wf32d->output, 2, &chip1); /*chip1 is in sci,2*/
     	if (hstio_err())
-		    return (status = OPEN_FAILED);    
+		    return (status = OPEN_FAILED);
     	if (GetKeyDbl (&chip1.sci.hdr, "PHTFLAM1", USE_DEFAULT, 1., &phtflam1 ))
 		    return (status);
 
     }
 
 	if (GetKeyDbl (&chip2.sci.hdr, "PHTFLAM2", USE_DEFAULT, 1., &phtflam2 ))
-		return (status);        
+		return (status);
 
 	ratio = phtflam2/phtflam1;
 
@@ -121,8 +123,8 @@ int doFlux (WF3Info *wf32d){
 	    trlmessage(MsgText);
     }
 
-	for (i=0; i < chip2.sci.data.nx ; i++) {   
-		for (j=0; j < chip2.sci.data.ny ; j++) { 
+	for (i=0; i < chip2.sci.data.nx ; i++) {
+		for (j=0; j < chip2.sci.data.ny ; j++) {
 			Pix(chip2.sci.data,i,j) *= ratio;
 			Pix(chip2.err.data,i,j) *= ratio;
 		}
@@ -133,37 +135,37 @@ int doFlux (WF3Info *wf32d){
 	if (doStat (&chip2, wf32d->sdqflags))
 		return (status);
 	TimeStamp ("Image statistics recomputed", wf32d->rootname);
-    
+
     /*doing it the long way, calling all the same functions that
     putSingleGroup uses to get around the overwrite issue with hstio */
-       
+
     IODescPtr out;
     Hdr phdr;
     initHdr (&phdr);
-    
+
     out = openUpdateImage(wf32d->output,"",0,&phdr);
 	if (PutKeyDbl (&phdr, "PHTRATIO", ratio,
-				"photometry scaling for chip 2 to chip 1"))
+				"PHTFLAM2/PHTFLAM1 ratio"))
 		return (status);
 	if (PutKeyDbl (&phdr, "PHTFLAM2", phtflam2,
-				"photometry scaling for chip2"))
+				"Chip2 Inv Sens, use when FLUXCORR=OMIT"))
 		return (status);
 	if (PutKeyDbl (&phdr, "PHTFLAM1", phtflam1,
-				"photometry scaling for chip1"))
+				"Chip1 Inv Sens, same as PHOTFLAM"))
 		return (status);
     putHeader(out);
     closeImage(out);
     freeHdr(&phdr);
-        
+
 
     chip2.sci.iodesc = openUpdateImage(wf32d->output, "SCI", chip2.group_num, &chip2.sci.hdr);
     putFloatData(chip2.sci.iodesc,&chip2.sci.data);
 	if (PutKeyDbl (&chip2.sci.hdr, "PHTRATIO", ratio,
-				"ratio used to scale chip2 to chip1"))
+				"PHTFLAM2/PHTFLAM1 ratio"))
 		return (status);
 
 	if (PutKeyDbl (&chip2.sci.hdr, "PHTFLAM1", phtflam1,
-				"photomtery scaling for chip1 "))
+				"Chip1 Inv Sens, same as PHOTFLAM"))
 		return (status);
     closeImage(chip2.sci.iodesc);
 
@@ -171,8 +173,8 @@ int doFlux (WF3Info *wf32d){
     putFloatData(chip2.err.iodesc,&chip2.err.data);
     closeImage(chip2.err.iodesc);
 
-    
-    
+
+
 	if (hstio_err()) {
 		sprintf (MsgText, "Couldn't write imset %d.", 1);
 		trlerror (MsgText);
@@ -190,7 +192,6 @@ int doFlux (WF3Info *wf32d){
     freeSingleGroup(&chip2);
     if (wf32d->subarray == NO)
         freeSingleGroup(&chip1);
-        
+
 	return (status);
 }
-
