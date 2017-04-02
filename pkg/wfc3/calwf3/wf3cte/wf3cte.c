@@ -630,9 +630,10 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
         for (k=0;k<4;k++){
             for (i=0; i<subcol;i++){
                 for (j=0;j<RAZ_ROWS; j++){
-                    if(Pix(raz->dq.data,i+k*subcol,j))
+                    if(Pix(raz->dq.data,i+k*subcol,j)){
                         Pix(raz->sci.data,i+k*subcol,j) -= bias_pre[k];
                         Pix(raz->sci.data,i+k*subcol,j) *= gain;
+                    }
                 }
             }
         }
@@ -768,7 +769,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
         if (0 < npix ){
             plistSub = (float *) calloc(npix, sizeof(float));
             if (plistSub == NULL){
-                trlerror("out of memory for resistmean entrance in findPostScanBias.");
+                trlerror("out of memory for resistmean entrance in findPreScanBias.");
                 free(plistSub);
                 return (ERROR_RETURN);
             }
