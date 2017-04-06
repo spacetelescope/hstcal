@@ -1,8 +1,6 @@
 """HSTCAL regression test helpers."""
 import os
-import shutil
-import subprocess
-import sys
+from distutils.spawn import find_executable
 
 import pytest
 import requests
@@ -11,7 +9,6 @@ from astropy.io import fits
 __all__ = ['remote_data', 'use_calacs', 'use_calwf3', 'use_calstis',
            'HAS_CALXXX', 'download_file_cgi', 'download_ref_ftp']
 
-PREFIX = '/tmp/hstcal'  # As set in .travis.yml
 HAS_CALXXX = {}   # Set by set_exe_marker()
 
 
@@ -29,27 +26,13 @@ def set_exe_marker(instrument):
     else:
         raise ValueError('{} is not supported'.format(instrument))
 
-    HAS_CALXXX[instrument] = False
-    travis_path = os.path.join(PREFIX, calxxx)
+    cal = find_executable(calxxx)
 
-    # This is for Travis CI installation check.
-    if os.path.isfile(travis_path):
-        HAS_CALXXX[instrument] = travis_path
-
-    # This is for local installation check for Python 3.3 or later.
-    elif sys.version_info >= (3, 3):
-        if os.path.isfile(shutil.which(calxxx)):
-            HAS_CALXXX[instrument] = calxxx
-
-    # This is for local installation check before Python 3.3.
-    # NOTE: This will fail on Windows!
+    # This is for installation check.
+    if os.path.isfile(cal):
+        HAS_CALXXX[instrument] = cal
     else:
-        try:
-            subprocess.check_call(['which', calxxx])
-        except Exception:
-            pass
-        else:
-            HAS_CALXXX[instrument] = calxxx
+        HAS_CALXXX[instrument] = False
 
 
 # pytest marker to mark tests which get data from the web
