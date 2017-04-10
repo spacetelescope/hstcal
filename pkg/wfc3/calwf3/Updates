@@ -1,3 +1,6 @@
+Updates for Version 3.4.1 10-Apr-2017 - MLS
+    - Fixed missed init for header vars in cte code
+
 Updates for Version 3.4.1 02-Apr-2017 - MLS
     - Fixed logic brackets in subarray prescan bias call which didn't explicitly do the gain correction in the if loop, see Issue #55
     - Fixed double statement, see Issue #63
