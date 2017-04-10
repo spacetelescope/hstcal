@@ -105,6 +105,10 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     int start=0;            /*where the subarray starts*/
     int finish=0;           /*where the subarray ends*/
 
+    /* init header vars */
+    initHdr(&phdr);
+    initHdr(&scihdr);
+
     /*check if this is a subarray image.
       This is necessary because the CTE routine will start with the raw images
       from scratch and read them in so that both chips can be used. CTE is
