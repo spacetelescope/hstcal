@@ -64,7 +64,7 @@ static void  Phot2Obs (char *, char *);
    call into the main part to always grab.
 
    M. Sosey: 27 March 2017
-   Update keyword descriptions   
+   Update keyword descriptions
 
  */
 
@@ -122,11 +122,11 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
 	/* Update the photometry keyword values in the SCI and GLOBAL header. */
 	if (PutKeyFlt (&x->sci.hdr, "PHOTFLAM", obs.photflam,
-				"Inverse sensitivity, ergs/cm2/A/e-/"))
+				"Inverse sensitivity, ergs/cm2/A/e-"))
 		return (status);
 
  	if (PutKeyFlt (x->globalhdr, "PHOTFLAM", obs.photflam,
-				"Inverse sensitivity, ergs/cm2/A/e-/"))
+				"Inverse sensitivity, ergs/cm2/A/e-"))
 		return (status);
 
 
@@ -157,11 +157,11 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
     A CONSEQUENCE OF THE IMPHTTAB CALLING FUNCTION */
     if (wf32d->chip == 1){
         if (PutKeyFlt (&x->sci.hdr, "PHTFLAM1", obs.phtflam1,
-	    	   "Chip1 Inv Sens, same as PHOTFLAM")){
+	    	   "Ch1 Inv Sens, use PHOTFLAM for UV filters")){
             return (status);
         }
         if (PutKeyFlt (x->globalhdr, "PHTFLAM1", obs.phtflam1,
-	    	   "Chip1 Inv Sens, same as PHOTFLAM")){
+	    	   "Ch1 Inv Sens, use PHOTFLAM for UV filters")){
             return (status);
         }
     	photfnu = 3.33564e+4 * obs.phtflam1 * obs.photplam*obs.photplam;
@@ -192,11 +192,11 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
         strcpy(obsmode,newobs);
 
         if (PutKeyFlt (x->globalhdr, "PHTFLAM2", wf32d->chip2_flam,
-	    	   "Chip2 Inv Sens, use when FLUXCORR=OMIT")){
+	    	   "Ch2 Inv Sens, use PHOTFLAM if FLUXCORR=COMPLETE")){
             return (status);
         }
         if (PutKeyFlt (&x->sci.hdr, "PHTFLAM2", wf32d->chip2_flam,
-	    	   "Chip2 Inv Sens, use when FLUXCORR=OMIT")){
+	    	   "Ch2 Inv Sens, use PHOTFLAM if FLUXCORR=COMPLETE")){
             return (status);
         }
 
@@ -205,11 +205,11 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
     if (wf32d->chip == 2){
         if (PutKeyFlt (&x->sci.hdr, "PHTFLAM2", obs.phtflam2,
-	    	   "Chip2 Inv Sens, use when FLUXCORR=OMIT")) {
+	    	   "Ch2 Inv Sens, use PHOTFLAM if FLUXCORR=COMPLETE")) {
 	        return (status);
         }
         if (PutKeyFlt (x->globalhdr, "PHTFLAM2", obs.phtflam2,
-	    	   "Chip2 Inv Sens, use when FLUXCORR=OMIT")){
+	    	   "Ch2 Inv Sens, use PHOTFLAM if FLUXCORR=COMPLETE")){
             return (status);
         }
     	photfnu = 3.33564e+4 * obs.phtflam2 * obs.photplam*obs.photplam;
@@ -239,13 +239,13 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
         if (wf32d->subarray == True){
             if (PutKeyFlt (&x->sci.hdr, "PHTFLAM1", wf32d->chip1_flam,
-	           "Chip1 Inv Sens, same as PHOTFLAM")){
+	           "CCh1 Inv Sens, use PHOTFLAM for UV filters")){
                 return (status);
             }
         }
 
         if (PutKeyFlt (x->globalhdr, "PHTFLAM1", wf32d->chip1_flam,
-	       "Chip1 Inv Sens, same as PHOTFLAM")){
+	       "Ch1 Inv Sens, use PHOTFLAM for UV filters")){
             return (status);
         }
 
