@@ -57,6 +57,10 @@ def options(opt):
         help="Create a debug build")
 
     opt.add_option(
+        '--release-with-symbols', dest='releaseWithSymbols', action='store_true', default=False,
+        help='Create a Release build with debug symbols, i.e. with "-g"')
+
+    opt.add_option(
         '--O3', dest='optO3', action='store_true', default=False,
         help='Create a Release build with full optimization, i.e. with "-O3". \033[91m\033[1mWARNING! This option may produce unvalidated results!\033[0m')
 
@@ -234,6 +238,10 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
             conf.env.append_value('CFLAGS','-Wall')
         if conf.check_cc(cflags='-fstack-protector-all'):
             conf.env.append_value('CFLAGS','-fstack-protector-all')
+
+    if conf.options.releaseWithSymbols and not conf.options.debug:
+        if conf.check_cc(cflags='-g'):
+            conf.env.append_value('CFLAGS', '-g')
 
     conf.start_msg('C compiler flags (CFLAGS)')
     conf.end_msg(' '.join(conf.env['CFLAGS']) or None)
