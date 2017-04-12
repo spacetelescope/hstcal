@@ -119,6 +119,45 @@ extern "C" {
 
 # include <stdlib.h>
 
+/* Below is a general use pointer register (book keeping) to allow easy cleanup upon exit (pseudo C++ destructor)
+ * Use example:
+ *
+ * PtrRegister ptrReg;
+ * PtrRegister initPtrRegister(&ptrReg); // must always initialize before further use
+ *
+ * void * array = malloc(size);
+ * addPtr(&ptrReg, array, &free); // returns if array == NULL so don't need to pre check - this is also self expanding
+ *
+ * Bool cancel = False;
+ * ...
+ * do something
+ * cancel = True; //uh oh, something went wrong
+ * ...
+ * if (cancel)
+ * {
+ *     freeOnExit(&ptrReg); // This frees itself, i.e. the register array holding the ptrs
+ *     return;
+ * }
+ * ...
+ *
+ *NOTE: This pattern is considered integral to all use and as such internal failed allocations are asserted
+ */
+
+typedef void (*FreeFunction)(void*); // Only trivial functions accepted
+#define PTR_REGISTER_LENGTH_INC 10
+typedef struct {
+    unsigned cursor;
+    unsigned length;
+    void ** ptrs;
+    FreeFunction * freeFunctions;
+} PtrRegister;
+void initPtrRegister(PtrRegister * reg);
+void addPtr(PtrRegister * reg, void * ptr, void * freeFunc); // ptr list is self expanding
+void freePtr(PtrRegister * reg, void * ptr);
+void freeOnExit(PtrRegister * reg); //only calls freeAll() followed by freeReg()
+void freeAll(PtrRegister * reg); // frees all ptrs registered (excluding itself)
+void freeReg(PtrRegister * reg); // frees itself i.e. the register array holding the ptrs
+
 # define SZ_PATHNAME 511
 
 # if !defined(BOOL_)

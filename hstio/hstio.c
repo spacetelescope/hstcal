@@ -101,7 +101,6 @@
 ** Section 6.
 **      Functions to manipulate the header array.
 */
-# include "hstio.h"
 # include <fitsio.h>
 # include <ctype.h>
 # include <stdio.h>
@@ -110,12 +109,125 @@
 # include <sys/stat.h>
 # include <time.h>
 # include <unistd.h>
+# include <assert.h>
+#include <stdlib.h>
+
+# include "hstio.h"
 
 /*
 ** String defined to allow determination of the HSTIO library version
 ** from the library file (*.a) or the executable using the library.
 */
 const char *hstio_version = HSTIO_VERSION;
+
+void initPtrRegister(PtrRegister * reg)
+{
+    reg->cursor = 0; //points to last ptr NOT next slot
+    reg->length = PTR_REGISTER_LENGTH_INC;
+    reg->ptrs = calloc(reg->length+1, sizeof(*reg->ptrs));
+    assert(reg->ptrs);
+    reg->freeFunctions = calloc(reg->length+1, sizeof(*reg->freeFunctions));
+    if (!reg->freeFunctions)
+    {
+        free(reg->ptrs);
+        assert(0);
+    }
+    reg->ptrs[0] = reg; //this ptr
+    reg->freeFunctions[0] = &free;
+}
+void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
+{
+    if (!reg || !ptr || !freeFunc)
+        return;
+
+    //check ptr isn't already registered? - go on then.
+    {int i;
+    for (i = reg->cursor; i >= 0 ; --i)// i >= 0 prevents adding self again
+    {
+        if (reg->ptrs[i] == ptr)
+            return;
+    }}
+
+    if (++reg->cursor >= reg->length)
+    {
+        reg->length += PTR_REGISTER_LENGTH_INC;
+        assert(realloc(&reg->ptrs, reg->length*sizeof(*reg->ptrs)));
+        assert(realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions)));
+    }
+    reg->ptrs[reg->cursor] = ptr;
+    reg->freeFunctions[reg->cursor] = freeFunc;
+}
+void freePtr(PtrRegister * reg, void * ptr)
+{
+    //Can't be used to free itself, use freeReg(), use of i > 0 in below for is reason.
+    if (!reg || !ptr)
+        return;
+
+    int i;
+    for (i = reg->cursor; i > 0 ; --i)
+    {
+        if (reg->ptrs[i] == ptr)
+            break;
+    }
+
+    //call function to free ptr
+    reg->freeFunctions[i](ptr);
+
+    if (i == reg->cursor)
+    {
+        reg->ptrs[i] = NULL;
+        reg->freeFunctions[i] = NULL;
+    }
+    else
+    {
+        //move last one into gap to close - not a stack so who cares
+        reg->ptrs[i] = reg->ptrs[reg->cursor];
+        reg->ptrs[reg->cursor] = NULL;
+        reg->freeFunctions[i] = reg->freeFunctions[reg->cursor];
+        reg->freeFunctions[reg->cursor] = NULL;
+    }
+    --reg->cursor;
+}
+void freeAll(PtrRegister * reg)
+{
+    if (!reg || reg->length == 0 || reg->cursor == 0)
+        return;
+
+    {unsigned i;
+    for (i = 1; i <= reg->cursor; ++i)
+    {
+        if (reg->freeFunctions[i] && reg->ptrs[i])
+        {
+            reg->freeFunctions[i](reg->ptrs[i]);
+            reg->ptrs[i] = NULL;
+            reg->freeFunctions[i] = NULL;
+        }
+    }}
+    reg->cursor = 0;
+}
+void freeReg(PtrRegister * reg)
+{
+    if (!reg || reg->length == 0)
+        return;
+
+    if (reg->cursor > 0)
+        freeAll(reg);
+
+    reg->cursor = 0;
+    reg->length = 0;
+    // free 'itself'
+    reg->freeFunctions[0](reg->ptrs);
+    reg->ptrs[0] = NULL;
+    reg->freeFunctions[0](reg->freeFunctions);
+    reg->freeFunctions[0] = NULL;
+}
+void freeOnExit(PtrRegister * reg)
+{
+    //Free everything registered
+    freeAll(reg);
+    //Free itself
+    freeReg(reg);
+}
 
 /*
 ** Section 1.
