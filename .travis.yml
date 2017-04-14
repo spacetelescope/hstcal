@@ -1,4 +1,13 @@
-language: generic
+language: c
+
+env:
+  global:
+    # Set defaults to avoid repeating in most cases
+    - MAIN_CMD="python --version"
+    - SETUP_CMD=""
+    - EXE_PREFIX="/tmp/miniconda3"
+    - CONDA_DEPS="gcc"
+    - PYTHON_VERSION=3.6
 
 matrix:
   fast_finish: true
@@ -6,36 +15,54 @@ matrix:
   include:
   - os: linux
     sudo: false
-    python: 2.7
     compiler: gcc
+    env:
+      - PYTHON_VERSION=2.7
 
   - os: linux
     sudo: false
-    python: 3.5
+    compiler: gcc
+    env:
+      - PYTHON_VERSION=3.5
+
+  - os: linux
+    sudo: false
     compiler: gcc
 
   - os: osx
-    python: 2.7
     env:
+      - PYTHON_VERSION=2.7
       - CFLAGS="-m64"
-      - LDFLAGS="-m64"
+      - LDFLAGS="-m64 -Wl,-rpath $EXE_PREFIX/envs/test/lib"
 
   - os: osx
-    python: 3.5
     env:
+      - PYTHON_VERSION=3.5
       - CFLAGS="-m64"
-      - LDFLAGS="-m64"
+      - LDFLAGS="-m64 -Wl,-rpath $EXE_PREFIX/envs/test/lib"
 
   - os: osx
-    python: 2.7
+    env:
+      - CFLAGS="-m64"
+      - LDFLAGS="-m64 -Wl,-rpath $EXE_PREFIX/envs/test/lib"
+
+  - os: osx
     compiler: clang
     env:
+      - PYTHON_VERSION=2.7
       - CC="clang"
       - CFLAGS="-arch x86_64"
       - LDFLAGS="-arch x86_64"
 
   - os: osx
-    python: 3.5
+    compiler: clang
+    env:
+      - PYTHON_VERSION=3.5
+      - CC="clang"
+      - CFLAGS="-arch x86_64"
+      - LDFLAGS="-arch x86_64"
+
+  - os: osx
     compiler: clang
     env:
       - CC="clang"
@@ -46,12 +73,16 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CONDA_INSTALLER=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CONDA_INSTALLER=https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh; fi
   - wget $CONDA_INSTALLER
-  - bash Miniconda3-latest-*.sh -b -p /tmp/miniconda3
-  - export PATH=/tmp/miniconda3/bin:$PATH
+  - bash Miniconda3-latest-*.sh -b -p $EXE_PREFIX
+  - export PATH=$EXE_PREFIX/bin:$PATH
+  - conda create -q --yes -n test python=$PYTHON_VERSION
+  - source activate test
 
 install:
-  - conda install --yes gcc
-  - ./waf configure --prefix=/tmp/hstcal
+  - conda install --yes $CONDA_DEPS
+  - ./waf configure --prefix=$CONDA_PREFIX
   - ./waf build
   - ./waf install
 
+script:
+  - $MAIN_CMD $SETUP_CMD
