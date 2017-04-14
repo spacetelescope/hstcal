@@ -73,7 +73,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("syntax:  acssum [-t] [-v] [-q] input output\n");
+	    printf ("syntax:  acssum [-t] [-v] [-q] input [output]\n");
 		free (input);
 		free (output);
 		exit (ERROR_RETURN);
@@ -87,11 +87,13 @@ int main (int argc, char **argv) {
 
 	if (output[0] == '\0') {
 	    if (MkName (input, "_asn", "_sfl", "", output, ACS_LINE))
-		CloseTrlBuf ();
-		free (input);
-		free (output);
-	    WhichError (status);
-		exit (ERROR_RETURN);
+        {
+            CloseTrlBuf ();
+            free (input);
+            free (output);
+            WhichError (status);
+            exit (ERROR_RETURN);
+        }
 	}
 
 	/* Sum imsets. */
