@@ -1,4 +1,5 @@
 # include <stdio.h>
+# include <stdlib.h>
 # include <string.h>
 
 # include "c_iraf.h"
@@ -27,11 +28,16 @@
    Phil Hodge, 1998 Jan 14:
 	Use GotFileName instead of explicitly checking ref->name[0];
 	initialize ref->goodPedigree to GOOD_PEDIGREE.
+   
+   Robert Jedrzejewski, 24 Feb 2017:
+        Open the primary HDU (instead of the table HDU), in order to get
+ 	keywords PEDIGREE and DESCRIP.
 */
 
 int TabPedigree (RefTab *ref) {
 
 	IRAFPointer tp;		/* for the reference table */
+        char *primary_hdu;      /* name including trailing "[0]" */
 
 	ref->goodPedigree = GOOD_PEDIGREE;	/* initial value */
 
@@ -40,11 +46,21 @@ int TabPedigree (RefTab *ref) {
 	    return (0);
 	}
 
-	/* Open the reference table. */
-	tp = c_tbtopn (ref->name, IRAF_READ_ONLY, 0);
+	/* Append "[0]" to the file name, for the primary HDU. */
+	primary_hdu = calloc(strlen(ref->name) + 11, sizeof(char));
+	if (primary_hdu == NULL) {
+	    printf("ERROR    Out of memory.\n");
+	    return(-1);
+	}
+	strcpy(primary_hdu, ref->name);
+	strcat(primary_hdu, "[0]");
+
+	/* Open the primary HDU of the reference table.  */
+	tp = c_tbtopn(primary_hdu, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
 	    ref->exists = EXISTS_NO;
 	    clear_cvoserr();
+	    free(primary_hdu);
 	    return (0);
 	}
 	ref->exists = EXISTS_YES;
@@ -72,6 +88,8 @@ int TabPedigree (RefTab *ref) {
 
 	/* Done with this table for the time being. */
 	c_tbtclo (tp);
+
+	free(primary_hdu);
 
 	return (0);
 }
