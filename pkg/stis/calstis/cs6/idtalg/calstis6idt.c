@@ -1385,6 +1385,16 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        if (RebinData (&win, &wout, wx1d, wx1d2, 1, tabptr.nrows))
 	            return (ERROR_RETURN);
 	    }
+	    /* Copy ERR and DQ arrays to output, as RebinData doesn't do that for
+	       binned data */
+	    if (ltm[0] > 1.0) {
+	        for (j = 0; j < in.sci.data.ny; j++) {
+		    for (i = 0; i < in.sci.data.nx; i++) {
+		        Pix(wout.err.data, i, j) = Pix(in.err.data, i, j);
+		        DQPix(wout.dq.data, i, j) = DQPix(in.dq.data, i, j);
+		    }
+		}
+	    }
 	    copyHdr (&(wout.sci.hdr), &(in.sci.hdr));
 	    FreeX1DTable (wx1d2, tabptr.nrows);
 

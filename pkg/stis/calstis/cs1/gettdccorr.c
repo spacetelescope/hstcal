@@ -68,6 +68,10 @@ static int CloseTdcTab(TblInfo *);
    Phil Hodge, 2013 Oct 3:
 	Rename variable median_dark to mean_dark, as it now is the average,
 	not the median.
+
+   Robert Jedrzejewski, 2017 Feb 13:
+        In origTdcCorr, change the first argument in the call to RowPedigree
+ 	from &sts->ccdpar to &sts->tdctab. 
 */
 
 int GetTdcCorr(StisInfo1 *sts, double mean_dark, double *factor) {
@@ -404,7 +408,7 @@ double *factor          o: NUV correction factor for dark image
 	    if ((status = ReadTdcTab (&tabinfo, row, &tabrow)))
 		return status;
 
-	    if ((status = RowPedigree (&sts->ccdpar, row,
+	    if ((status = RowPedigree (&sts->tdctab, row,
                     tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		return status;
 	    if (sts->tdctab.goodPedigree == DUMMY_PEDIGREE)
