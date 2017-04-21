@@ -1,7 +1,7 @@
 # include <stdlib.h>
 # include "hstio.h"
 # include "acs.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine gets the value of a reference file keyword from the
    primary header and appends it to the list of reference file info.

@@ -2,7 +2,7 @@
 # include "hstio.h"
 # include <math.h>
 
-# include "acserr.h"
+# include "err.h"
 # define    PIX(v,i,j,nx)   v[(i) + (j) * (nx)]
 
 int readSpotImage(char *spotname, SingleGroup *inspot, SingleGroupLine *spotline) {

@@ -2,7 +2,7 @@
 
 # include "hstio.h"
 # include "trl.h"		/* For trlwarn */
-# include "wf3err.h"
+# include "err.h"
 # include "wf3dq.h"
 
 /* This routine computes the minimum, mean, and maximum of the science

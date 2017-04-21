@@ -13,7 +13,7 @@
 
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 static void StisInit4 (StisInfo4 *);
 

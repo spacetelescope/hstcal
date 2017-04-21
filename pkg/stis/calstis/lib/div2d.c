@@ -4,7 +4,7 @@
 
 # include "stis.h"
 # include "stisdq.h"	/* CALIBDEFECT = bad pixel value for divide by zero */
-# include "stiserr.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 # include "stisdef.h"
 
 /* Divide the first SingleGroup triplet by the second, leaving the result

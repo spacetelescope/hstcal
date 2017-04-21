@@ -20,7 +20,7 @@ MLS 2015
 # include "hstio.h"
 
 # include "wf3.h"
-# include "wf3err.h"
+# include "err.h"
 # include "wf3corr.h"		/* calibration switch names for WFC3ccd */
 # include "wf3version.h"
 

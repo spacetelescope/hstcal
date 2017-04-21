@@ -2,7 +2,7 @@
 # include "hstio.h"
 
 # include "acsdq.h"	/* CALIBDEFECT = bad pixel value for divide by zero */
-# include "acserr.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 
 /* Divide the first SingleGroup triplet by the second, leaving the result
    in the first.

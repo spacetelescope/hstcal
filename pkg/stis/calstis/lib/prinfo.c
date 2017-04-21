@@ -33,7 +33,7 @@ int   n           imset or spectral order number (ignored if <= 0)
 # include <time.h>
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisversion.h"		/* STIS_CAL_VER */
 
 /* The beginning string will be padded to this many characters, plus one

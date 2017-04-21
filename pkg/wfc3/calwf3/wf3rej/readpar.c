@@ -7,7 +7,7 @@
 
 # include   "wf3.h"
 # include   "wf3rej.h"
-# include   "wf3err.h"
+# include   "err.h"
 # include   "wf3dq.h"
 # include   "rej.h"
 

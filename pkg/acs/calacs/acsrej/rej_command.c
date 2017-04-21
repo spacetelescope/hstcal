@@ -6,7 +6,7 @@
 
 # include "acs.h"
 # include "acsrej.h"
-# include "acserr.h"
+# include "err.h"
 
 void rej_reset (clpar *, int []);
 static int syntax_error (char *);

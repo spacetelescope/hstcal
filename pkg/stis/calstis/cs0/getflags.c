@@ -4,7 +4,7 @@
 
 # include "stis.h"
 # include "calstis0.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 static int GetSw (Hdr *, char *, int *);

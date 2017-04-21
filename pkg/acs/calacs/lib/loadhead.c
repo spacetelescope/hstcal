@@ -3,7 +3,7 @@
 
 # include "hstio.h"
 # include "acs.h"
-# include "acserr.h"
+# include "err.h"
 
 /*  Load primary header from input image
 

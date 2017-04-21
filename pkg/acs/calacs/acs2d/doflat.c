@@ -5,7 +5,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 static int divFlat (SingleGroup *, char *, ACSInfo *);
 

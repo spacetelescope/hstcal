@@ -2,7 +2,7 @@
 # include <string.h>		/* strncmp */
 # include <math.h>		/* sqrt */
 # include "hstio.h"
-# include "acserr.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 # include "acs.h"
 
 /* This routine takes an input data array, bins it in 1d, extracts a subset,

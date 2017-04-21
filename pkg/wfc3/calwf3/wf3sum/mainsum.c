@@ -10,7 +10,7 @@ int status = 0;			/* zero is OK */
 
 # include "wf3.h"
 # include "wf3sum.h"
-# include "wf3err.h"
+# include "err.h"
 # include "wf3version.h"
 
 /* 

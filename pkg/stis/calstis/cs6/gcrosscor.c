@@ -9,7 +9,7 @@
 
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdq.h"
 
 static double average (double *, int *, int, double, double *);

@@ -13,7 +13,7 @@ static int WavOption (char *, int *);
 # include "stis.h"
 # include "calstis12.h"
 # include "cs12.h"		/* for interpolation options */
-# include "stiserr.h"
+# include "err.h"
 
 static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *, char *);

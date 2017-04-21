@@ -11,7 +11,7 @@
 
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 # include "wf3dq.h"		/* for BADFLAT */
 
 static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);

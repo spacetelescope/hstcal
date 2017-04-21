@@ -1,6 +1,6 @@
 # include <math.h>
 # include "hstio.h"
-# include "wf3err.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 
 /* Multiply SingleGroup triplet by SingleGroupLine triplet, leaving 
 	the result in the first.

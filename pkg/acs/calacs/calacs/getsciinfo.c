@@ -6,7 +6,7 @@
 # include "acs.h"
 # include "acscorr.h"
 # include "calacs.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine gets info from the primary header of the science file,
    and it calls routines to get calibration switches and reference file

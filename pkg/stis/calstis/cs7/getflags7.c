@@ -6,7 +6,7 @@
 
 # include "stis.h"
 # include "calstis7.h"
-# include "stiserr.h"	/* defines error codes */
+# include "err.h"	/* defines error codes */
 # include "stisdef.h"
 
 static int CheckFlux (Hdr *, StisInfo7 *, int *, int *);

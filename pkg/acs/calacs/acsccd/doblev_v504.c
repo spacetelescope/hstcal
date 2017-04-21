@@ -11,7 +11,7 @@
 
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 # include "acsdq.h"		/* for CALIBDEFECT */
 
 static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);

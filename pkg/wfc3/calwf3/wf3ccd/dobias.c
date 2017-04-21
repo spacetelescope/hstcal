@@ -4,7 +4,7 @@
 # include "hstio.h"
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine subtracts the bias image from x (in-place).
    For WF3 science data, it will normally be the

@@ -12,7 +12,7 @@ internal:
 
 # include "stis.h"
 # include "calstis7.h"
-# include "stiserr.h"
+# include "err.h"
 
 static void CopyCoord (CoordInfo *, CoordInfo *);
 

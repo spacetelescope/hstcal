@@ -6,7 +6,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 # include "stisdef.h"
 
 /* This routine takes an input data array, extracts a subset, bins it

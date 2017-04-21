@@ -12,7 +12,7 @@
 
 # include "stis.h"
 # include "calstis11.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /* Add to (or subtract from) corner locations before rounding to nearest

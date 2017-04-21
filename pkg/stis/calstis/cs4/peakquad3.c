@@ -1,5 +1,5 @@
 # include <stdio.h>
-# include "stiserr.h"
+# include "err.h"
 
 /* This routine finds the peak of the quadratic that passes through
    three uniformly spaced points.  The peak can be either a maximum

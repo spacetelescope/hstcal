@@ -14,7 +14,7 @@
 
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "err.h"
 
 static void StisInit1 (StisInfo1 *);
 static void InitRefImage (RefImage *);

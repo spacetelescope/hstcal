@@ -5,7 +5,7 @@
 # include "xtables.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 # define NUMCOLS 26			/* Defined locally to be specific to CCDTAB */
 

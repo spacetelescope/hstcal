@@ -7,7 +7,7 @@
 # include "imphttab.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 # include "stistds.h"
 

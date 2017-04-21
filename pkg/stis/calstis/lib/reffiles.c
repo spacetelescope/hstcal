@@ -9,7 +9,7 @@
 # include <string.h>
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 
 /* These routines are for managing a list of keyword & value pairs
    for reference file names.

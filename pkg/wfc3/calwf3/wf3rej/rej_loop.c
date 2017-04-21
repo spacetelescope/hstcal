@@ -8,7 +8,7 @@
 # include   "wf3.h"
 # include   "wf3rej.h"
 # include   "rej.h"
-# include   "wf3err.h"
+# include   "err.h"
 # include   "wf3info.h"
 
 /* local mask values */

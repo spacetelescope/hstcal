@@ -6,7 +6,7 @@
 
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 static int divFlat (SingleGroup *, char *, WF3Info *, int);
 

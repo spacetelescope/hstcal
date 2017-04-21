@@ -4,7 +4,7 @@
 # include "hstio.h"
 
 # include "stisdq.h"		/* for GOODPIXEL and DETECTORPROB */
-# include "stiserr.h"
+# include "err.h"
 
 /* This routine convolves the science, error, and data quality arrays
    with a Doppler smearing function in the first axis direction, leaving

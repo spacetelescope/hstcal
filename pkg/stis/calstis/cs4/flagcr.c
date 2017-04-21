@@ -6,7 +6,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdq.h"	/* for DATAMASKED and DATAREJECT */
 
 static int FlagLine (StisInfo4 *,

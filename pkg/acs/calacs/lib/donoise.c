@@ -6,7 +6,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine checks whether the error array is all zero, and if so,
  a simple noise model is evaluated and assigned to the error array.

@@ -6,7 +6,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 # include "acsdq.h"		/* for SATPIXEL */
 
 typedef struct {

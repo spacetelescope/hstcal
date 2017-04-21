@@ -8,7 +8,7 @@
 
 # include "../stis.h"
 # include "calstis8.h"
-# include "../stiserr.h"
+# include "../err.h"
 
 /* This is the main module for calstis8.  It gets the input and output
    file names, calibration switches, and flags, and then calls CalStis8.

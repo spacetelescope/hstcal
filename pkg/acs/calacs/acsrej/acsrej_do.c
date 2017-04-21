@@ -6,7 +6,7 @@
 
 # include   "acs.h"
 # include   "acsrej.h"
-# include   "acserr.h"
+# include   "err.h"
 # include   "rej.h"
 
 static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);

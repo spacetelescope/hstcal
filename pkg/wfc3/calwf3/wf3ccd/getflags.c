@@ -5,7 +5,7 @@
 # include "wf3.h"
 # include "msg.h"
 # include "wf3info.h"
-# include "wf3err.h"		/* defines error codes */
+# include "err.h"		/* defines error codes */
 
 static int checkAtoD (Hdr *, WF3Info *, int *, int *);
 static int checkBias (Hdr *, WF3Info *, int *, int *);

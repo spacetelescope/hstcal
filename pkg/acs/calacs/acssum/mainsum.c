@@ -10,7 +10,7 @@ int status = 0;			/* zero is OK */
 
 # include "acs.h"
 # include "acssum.h"
-# include "acserr.h"
+# include "err.h"
 
 /* 
     This function will only return either 0 (ACS_OK) if everything

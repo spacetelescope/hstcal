@@ -11,7 +11,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine subtracts the dark image from x (in-place).
  For CCD data, the dark image is multiplied by the dark time

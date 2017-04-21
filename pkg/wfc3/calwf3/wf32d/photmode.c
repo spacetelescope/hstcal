@@ -6,7 +6,7 @@
 
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* 
 	This function builds the PHOTMODE string for the image header.

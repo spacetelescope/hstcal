@@ -100,7 +100,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 static void getMinMax (SingleGroup *, float *, float *);

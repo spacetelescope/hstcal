@@ -4,7 +4,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 static int CollapsePrism (SpTrace *, SingleGroup *,
 		int, int, int, int,

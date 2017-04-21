@@ -17,7 +17,7 @@
 # include <math.h>
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 # include "wf3dq.h"		/* for GOODPIXEL */
 
 # define NELEM_SUMS  5		/* size of sums array */

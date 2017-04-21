@@ -7,7 +7,7 @@
 # include "stis.h"
 # include "stisdef.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 
 /* 
    calstis6 -- This is the entry point for both pipeline and standalone 

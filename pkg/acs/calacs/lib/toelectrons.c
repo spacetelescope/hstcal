@@ -6,7 +6,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This functions converts a a SingleGroup from DN to electrons. */
 

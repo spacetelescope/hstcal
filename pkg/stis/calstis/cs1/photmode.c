@@ -7,7 +7,7 @@
 
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /*

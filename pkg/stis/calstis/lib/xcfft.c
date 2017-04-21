@@ -20,7 +20,7 @@
 # include <stdlib.h>
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 
 
 /*

@@ -9,7 +9,7 @@
 # include "stis.h"
 # include "stisdef.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdq.h"
 
 # define	FWHM_X		1.0	/* 2-D Gaussian kernel */

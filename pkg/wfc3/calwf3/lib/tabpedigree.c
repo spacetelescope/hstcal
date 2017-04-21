@@ -3,7 +3,7 @@
 # include "xtables.h"
 # include "c_iraf.h"	/* clear_cvoserr */
 # include "wf3.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine opens the reference table header and gets pedigree, descrip,
    and filetype. If the input name is null (or the first character is a blank),

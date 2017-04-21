@@ -21,7 +21,7 @@
 
 # include "wf3.h"
 # include "wf3sum.h"
-# include "wf3err.h"
+# include "err.h"
 
 static void InitSumTrl (char *input, char *output);
 static int  GetSumKeyInfo (Wf3SumInfo *, Hdr *);

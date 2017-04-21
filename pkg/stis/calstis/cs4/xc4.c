@@ -9,7 +9,7 @@ internal:
 
 # include "hstio.h"
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 
 static void FindOffset (CmplxArray *, int, int, double *, double *);
 

@@ -4,7 +4,7 @@
 
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 
 /* 
    Selects the extraction algorithm, based on command-line input and

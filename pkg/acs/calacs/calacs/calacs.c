@@ -7,7 +7,7 @@
 
 # include "acs.h"
 # include "calacs.h"
-# include "acserr.h"
+# include "err.h"
 # include "acscorr.h"
 # include "acsasn.h"    /* Contains association table structures */
 

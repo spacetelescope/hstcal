@@ -13,7 +13,7 @@
 
 # include "stis.h"
 # include "calstis11.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisshutter.h"	/* for EXT_SHUTTER_CLOSED */
 
 static void StisInit11 (StisInfo11 *, StisInfo11 *);

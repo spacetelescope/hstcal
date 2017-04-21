@@ -3,7 +3,7 @@
 # include <string.h>
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 
 int MkName (char *input, char *isuffix, char *osuffix,
 		char *output, int maxch) {

@@ -2,7 +2,7 @@
 # include <stdlib.h>	/* calloc */
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 /* This routine finds an edge (expected to be fairly sharp) in 1-D data.
 

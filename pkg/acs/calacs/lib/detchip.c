@@ -3,7 +3,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine determines the chip associated with the
 	EXTVER.

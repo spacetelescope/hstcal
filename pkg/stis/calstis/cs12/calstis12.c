@@ -13,7 +13,7 @@
 
 # include "stis.h"
 # include "calstis12.h"
-# include "stiserr.h"
+# include "err.h"
 
 static void StisInit12 (StisInfo12 *, StisInfo12 *);
 

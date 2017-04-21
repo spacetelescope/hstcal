@@ -2,7 +2,7 @@
 # include <string.h>
 # include "hstio.h"
 # include "wf3.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine determines the chip associated with the
 	EXTVER.

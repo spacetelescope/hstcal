@@ -6,7 +6,7 @@
 
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 
 static void RemoveBlanks (char *, char *);
 static double WaveToPix (double, RowContents *);
