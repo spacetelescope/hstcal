@@ -3,7 +3,7 @@
 # include "hstio.h"
 
 # include "wf3.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine gets the value of a reference file keyword from the
    primary header and appends it to the list of reference file info.

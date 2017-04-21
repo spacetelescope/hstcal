@@ -2,7 +2,7 @@
 # include <stdlib.h>	/* calloc */
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 static int CrossCorr4 (double *, short *, double *, int, short, double *, int);
 

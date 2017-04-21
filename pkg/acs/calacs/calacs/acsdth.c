@@ -15,7 +15,7 @@
 
 # include "acs.h"
 # include "calacs.h"
-# include "acserr.h"
+# include "err.h"
 
 /* Custom HSTIO-based routines for creating a SingleGroup without arrays
    (not used) */

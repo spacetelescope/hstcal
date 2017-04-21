@@ -3,7 +3,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 static int addkeyd (Hdr *, char *, double, char *);

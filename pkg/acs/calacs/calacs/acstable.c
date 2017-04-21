@@ -28,7 +28,7 @@
 # include "hstio.h"    /* defines HST I/O functions */
 # include "acs.h"    /* defines ACS data structures */
 # include "acsasn.h"    /* defines ACS Association data structures */
-# include "acserr.h"
+# include "err.h"
 # include "calacs.h"
 
 # define CRLEN    2

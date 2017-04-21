@@ -38,7 +38,7 @@ int status;
 # define PEDIGREE_UNKNOWN (-1)
 
 
-/* Error codes for IMPHTTAB code. [based on acserr.h] */
+/* Error codes for IMPHTTAB code. [based on err.h] */
 
 # define PHOT_OK                 0
 

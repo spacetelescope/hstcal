@@ -5,7 +5,7 @@
 
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"		/* for REF_TOO_SMALL */
+# include "err.h"		/* for REF_TOO_SMALL */
 # include "stisdef.h"
 
 /* This routine finds the bin factors and corner location to use

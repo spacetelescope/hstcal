@@ -4,7 +4,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /* This routine gets the exposure time and the time of the middle of

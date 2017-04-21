@@ -7,7 +7,7 @@
 # include "xtables.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdq.h"		/* for SATPIXEL */
 # include "stisdef.h"
 

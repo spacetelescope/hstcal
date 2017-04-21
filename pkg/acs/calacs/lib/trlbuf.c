@@ -101,7 +101,7 @@
 # include "ximio.h"
 
 # include "acs.h"
-# include "acserr.h"
+# include "err.h"
 
 # define INIT_LEN	2
 

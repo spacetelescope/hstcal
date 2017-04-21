@@ -2,7 +2,7 @@
 # include <string.h>
 # include "hstio.h"
 # include <c_iraf.h>
-# include "acserr.h"
+# include "err.h"
 # include "acs.h"	/* for message output */
 
 /* This routine prints the status value and message for HSTIO errors,

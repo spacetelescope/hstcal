@@ -6,7 +6,7 @@
 
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 
 static int syntax_error (char *);
 static int getArgI (char **, int, int *, int *);

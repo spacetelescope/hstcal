@@ -40,7 +40,7 @@
 
 # include "stis.h"
 # include "stisdef.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdq.h"
 # include "calstis6.h"
 

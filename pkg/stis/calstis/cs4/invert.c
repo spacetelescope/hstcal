@@ -4,7 +4,7 @@
 
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 # define NPARTS1   8
 # define NPARTS2  12	/* should be at least as large as NPARTS1 */

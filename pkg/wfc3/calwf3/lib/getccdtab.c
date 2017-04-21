@@ -5,7 +5,7 @@
 # include "xtables.h"
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 # define NUMCOLS 26		/* Defined locally to be specific to CCDTAB */
 

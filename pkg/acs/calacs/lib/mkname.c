@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include "acserr.h"
+# include "err.h"
 # include "acs.h"	/* for message output */
 
 int MkName (char *input, char *isuffix, char *osuffix, char *outextn,

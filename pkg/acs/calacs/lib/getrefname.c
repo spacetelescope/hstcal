@@ -1,6 +1,6 @@
 # include <stdlib.h>		/* calloc */
 # include "hstio.h"
-# include "acserr.h"
+# include "err.h"
 # include "acs.h"
 
 /* This routine gets the value of a header keyword, expected to be the

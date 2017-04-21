@@ -3,7 +3,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /* This routine gets the value of a header keyword, expected to be the

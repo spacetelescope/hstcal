@@ -11,7 +11,7 @@
 
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine takes an input data array and expands it by linear
    interpolation, writing to the output array.  The calling routine

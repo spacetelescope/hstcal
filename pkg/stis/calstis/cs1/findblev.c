@@ -3,7 +3,7 @@
 
 # include "hstio.h"
 # include "stis.h"
-# include "stiserr.h"	/* for NO_GOOD_DATA */
+# include "err.h"	/* for NO_GOOD_DATA */
 # include "stisdq.h"
 
 /* This routine determines the bias level for one line of an image

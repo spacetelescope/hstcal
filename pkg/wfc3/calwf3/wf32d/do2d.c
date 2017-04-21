@@ -52,7 +52,7 @@
 
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 static void DarkMsg (WF3Info *, int);
 static void dqiMsg (WF3Info *, int);

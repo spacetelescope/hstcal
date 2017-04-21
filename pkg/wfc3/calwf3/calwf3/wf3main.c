@@ -3,7 +3,7 @@
 # include <string.h>
 
 # include "wf3.h"
-# include "wf3err.h"
+# include "err.h"
 # include "wf3version.h"
 
 /* H. Bushouse	07-Sep-2011	Implemented new "--version" command line argument. */

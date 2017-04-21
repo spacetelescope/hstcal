@@ -7,7 +7,7 @@
 
 # include "wf3.h"	/* defines WF3 data structures */
 # include "wf3asn.h"	/* defines WF3 Association data structures */
-# include "wf3err.h"
+# include "err.h"
 # include "calwf3.h"	/* defines WF3 observation data structures */
 
 /* GETASNMEMBER: Copy information from association table structure

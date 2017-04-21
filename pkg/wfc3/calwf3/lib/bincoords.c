@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include "hstio.h"
 # include "wf3.h"		/* For USE_DEFAULT */
-# include "wf3err.h"
+# include "err.h"
 
 # define NUM_KEYWORDS 10
 

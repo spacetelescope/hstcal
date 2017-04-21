@@ -10,7 +10,7 @@
 
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine subtracts the dark image from x (in-place).
    For CCD data, the dark image is multiplied by the exposure time and

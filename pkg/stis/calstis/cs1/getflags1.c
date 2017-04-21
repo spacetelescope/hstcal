@@ -5,7 +5,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"		/* defines error codes */
+# include "err.h"		/* defines error codes */
 # include "stisdef.h"
 
 static int checkAtoD (Hdr *, StisInfo1 *, int *, int *);

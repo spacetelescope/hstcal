@@ -3,7 +3,7 @@
 # include <math.h>		/* sqrt */
 # include "hstio.h"
 # include "wf3.h"		/* for message output */
-# include "wf3err.h"		/* SIZE_MISMATCH */
+# include "err.h"		/* SIZE_MISMATCH */
 
 /* This routine takes an input data array, extracts a subset, bins it
    by averaging within rectangular bins, and assigns the values to an

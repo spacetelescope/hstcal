@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include "hstio.h"
 # include "wf3.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine gets the LTV and LTM keyword values.  Note that this
    routine returns the values just as read from the header, which means

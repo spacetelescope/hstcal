@@ -4,7 +4,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /* This routine subtracts the bias image from x (in-place).

@@ -6,7 +6,7 @@
 # include "xtables.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 typedef struct {

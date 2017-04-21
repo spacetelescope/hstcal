@@ -6,7 +6,7 @@
 
 # include "stis.h"
 # include "calstis11.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /* This routine opens the input wavecal and science files, selects the

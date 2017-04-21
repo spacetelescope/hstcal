@@ -1,7 +1,7 @@
 # include <stdlib.h>		/* calloc */
 # include "hstio.h"
 # include "wf3.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine gets the value of a header keyword, expected to be the
    name of a reference image or table.

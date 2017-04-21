@@ -6,7 +6,7 @@
 
 # include "stis.h"
 # include "calstis0.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /* This routine gets info from the primary header of the science file,

@@ -28,7 +28,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 static void DarkMsg (ACSInfo *, int, int);
 static void FlashMsg (ACSInfo *, int, int);

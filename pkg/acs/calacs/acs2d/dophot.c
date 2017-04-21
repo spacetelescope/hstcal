@@ -6,7 +6,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 # define NPHOT      4		/* size of phot returned by c_phopar */
 # define ARR_SIZE    10000    /* size of arrays used for throughputs */

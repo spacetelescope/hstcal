@@ -6,7 +6,7 @@
 
 # include "stis.h"
 # include "calstis0.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisshutter.h"	/* for EXT_SHUTTER_CLOSED */
 # include "stisdef.h"
 

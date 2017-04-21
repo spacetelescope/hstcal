@@ -4,7 +4,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine gets keyword values from the SCI extension header.
 

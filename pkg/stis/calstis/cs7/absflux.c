@@ -9,7 +9,7 @@
 # include "stispht.h"
 # include "stisdef.h"
 # include "stistds.h"
-# include "stiserr.h"
+# include "err.h"
 
 # define  HST_AREA  45238.93416		/* cm**2, including obscured areas */
 # define  H_PLANCK  (6.6260755e-27)	/* Planck's constant, erg * sec */

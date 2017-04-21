@@ -2,7 +2,7 @@
 # include   "hstio.h"
 
 # include   "acs.h"
-# include   "acserr.h"
+# include   "err.h"
 # include   "rej.h"
 
 /*  cr_scaling -- Determine the scaling factors according to exposure times or

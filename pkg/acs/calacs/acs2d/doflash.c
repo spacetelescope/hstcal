@@ -9,7 +9,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine subtracts the post-flash image from x (in-place).
  For CCD data, the post-flash image is multiplied by flash time

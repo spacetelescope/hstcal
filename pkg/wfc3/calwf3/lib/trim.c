@@ -5,7 +5,7 @@
 # include "hstio.h"
 
 # include "wf3.h"
-# include "wf3err.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 
 /* This routine takes an input data array, bins it in 1d, extracts a subset, 
    and assigns the values to an

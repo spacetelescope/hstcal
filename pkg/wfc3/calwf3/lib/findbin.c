@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include "hstio.h"
 # include "trl.h"		/* for trlwarn */
-# include "wf3err.h"		/* for REF_TOO_SMALL */
+# include "err.h"		/* for REF_TOO_SMALL */
 
 # include <string.h>
 # include "wf3.h"

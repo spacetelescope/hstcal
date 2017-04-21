@@ -6,7 +6,7 @@
 # include "hstio.h"	/* defines HST I/O functions */
 # include "acs.h"	/* defines ACS data structures */
 # include "acsasn.h"	/* defines ACS Association data structures */
-# include "acserr.h"
+# include "err.h"
 # include "calacs.h"	/* defines ACS observation data structures */
 
 /* GETASNMEMBER: Copy information from association table structure

@@ -3,7 +3,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine subtracts the bias image from x (in-place).
  For ACS science data, it will normally be the

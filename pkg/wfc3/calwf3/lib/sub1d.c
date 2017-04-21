@@ -1,7 +1,7 @@
 # include <math.h>
 # include <stdio.h>
 # include "hstio.h"
-# include "wf3err.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 # include "wf3.h"
 
 

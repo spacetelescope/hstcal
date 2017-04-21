@@ -24,7 +24,7 @@ internal:
 # include "xtables.h"
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 
 static void CopyCoord (CoordInfo *, CoordInfo *);
 

@@ -7,7 +7,7 @@
 # include "c_iraf.h"		/* for c_irafinit */
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "cs2.h"
 
 int main (int argc, char **argv) {

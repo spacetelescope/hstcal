@@ -4,7 +4,7 @@
 
 # include "wf3.h"
 # include "wf3corr.h"
-# include "wf3err.h"
+# include "err.h"
 # include "calwf3.h"
 
 static int GetSw (Hdr *, char *, int *);

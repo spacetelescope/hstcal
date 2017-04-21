@@ -8,7 +8,7 @@
 # include   "acs.h"
 # include   "acsrej.h"
 # include   "rej.h"
-# include   "acserr.h"
+# include   "err.h"
 
 /* local mask values */
 # define    OK          (short)0

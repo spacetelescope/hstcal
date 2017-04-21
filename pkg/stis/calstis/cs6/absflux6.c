@@ -10,7 +10,7 @@
 # include "stisdq.h"
 # include "stissizes.h"
 # include "stistds.h"
-# include "stiserr.h"
+# include "err.h"
 
 static int getHalo (StisInfo6 *, int, double [], float [], CTICorrInfo *);
 static float CtiCorr(StisInfo6 *, CTICorrInfo *,

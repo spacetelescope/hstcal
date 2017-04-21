@@ -4,7 +4,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 /* Check calibration switch, and set flag to PERFORM, COMPLETE or

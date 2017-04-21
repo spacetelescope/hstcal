@@ -13,7 +13,7 @@ int status = 0;			/* zero is OK */
 
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 # include "acscorr.h"		/* calibration switch names for acsccd */
 
 static void FreeNames (char *, char *, char *, char *);

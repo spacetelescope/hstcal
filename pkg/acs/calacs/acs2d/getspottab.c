@@ -5,7 +5,7 @@
 # include <time.h>
 
 # include "acs.h"
-# include "acserr.h"
+# include "err.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */

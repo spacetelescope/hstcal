@@ -9,7 +9,7 @@
 
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 /* This routine takes an input data array and expands it by linear
    interpolation, writing to the output array.  The calling routine

@@ -1,7 +1,7 @@
 # include <stdio.h>
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 
 /* This routine modifies some of the coordinate parameters in place
    to account for a linear transformation, a change in scale and

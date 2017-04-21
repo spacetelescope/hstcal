@@ -8,7 +8,7 @@
 
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 typedef struct {

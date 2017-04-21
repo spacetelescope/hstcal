@@ -4,7 +4,7 @@
 # include "wf3.h"
 # include "wf3info.h"
 # include "wf3corr.h"		/* calibration switch names */
-# include "wf3err.h"			/* defines error codes */
+# include "err.h"			/* defines error codes */
 
 /* These functions initialize values for the WF3Info structure.
 	The values set here are NOT default values, just initialization...

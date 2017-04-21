@@ -2,7 +2,7 @@
 # include <stdlib.h>		/* calloc */
 # include "stis.h"		/* for NINT */
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 /* The size of the cross correlation array must be at least three pixels
    because we will fit a quadratic to the three values nearest the peak.

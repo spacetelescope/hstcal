@@ -2,7 +2,7 @@
 # include <stdlib.h>		/* for calloc and qsort */
 
 # include "hstio.h"
-# include "acserr.h"	/* for NO_GOOD_DATA */
+# include "err.h"	/* for NO_GOOD_DATA */
 # include "acsdq.h"		/* for GOODPIXEL */
 # include "acs.h"        /* for MsgText */
 

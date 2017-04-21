@@ -5,7 +5,7 @@
 # include "wf3.h"
 # include "msg.h"
 # include "wf3info.h"
-# include "wf3err.h"		/* defines error codes */
+# include "err.h"		/* defines error codes */
 # include "cte.h"
 
 static int checkCCD (Hdr *, WF3Info *, int *, int *);

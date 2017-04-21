@@ -3,7 +3,7 @@
 
 # include "hstio.h"
 # include "wf3dq.h"		/* for GOODPIXEL */
-# include "wf3err.h"		/* for NO_GOOD_DATA */
+# include "err.h"		/* for NO_GOOD_DATA */
 
 /* This routine determines the bias level for one line of an image
    by taking the median of the values in the overscan region.

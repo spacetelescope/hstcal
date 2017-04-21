@@ -3,7 +3,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"	/* SIZE_MISMATCH */
+# include "err.h"	/* SIZE_MISMATCH */
 # include "stisdef.h"
 
 /* Multiply two SingleGroup triplets, leaving the result in the first.

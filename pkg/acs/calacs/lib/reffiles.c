@@ -9,7 +9,7 @@
 # include <string.h>
 
 # include "acs.h"
-# include "acserr.h"
+# include "err.h"
 
 /* These routines are for managing a list of keyword & value pairs
    for reference file names.

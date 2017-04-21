@@ -4,7 +4,7 @@
 # include <string.h>
 # include <ctype.h>
 # include "acs.h"	/* for message output */
-# include "acserr.h"
+# include "err.h"
 
 # define SZ_TIMESTRING  100 /* Make sure this is less that ACS_LINE */
 # define SZ_EIGHTY       80

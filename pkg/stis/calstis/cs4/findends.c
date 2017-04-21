@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 # define ARCSEC_PER_DEGREE  3600.
 # define HIGH_TO_LOW  (-1)

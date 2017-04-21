@@ -5,7 +5,7 @@
 # include "stis.h"
 # include "calstis12.h"
 # include "cs12.h"		/* for interpolation options */
-# include "stiserr.h"
+# include "err.h"
 
 /* This routine gets the shift for each axis, by interpolation
    within the array of wavecals, and copies those values to the

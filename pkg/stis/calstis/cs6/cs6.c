@@ -6,7 +6,7 @@
 # include "ximio.h"		/* for the imt routines */
 
 # include "stis.h"
-# include "stiserr.h"
+# include "err.h"
 # include "calstis6.h"
 
 /*

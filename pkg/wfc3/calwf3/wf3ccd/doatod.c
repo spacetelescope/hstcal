@@ -6,7 +6,7 @@
 # include "hstio.h"
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 # include "wf3dq.h"		/* for SATPIXEL */
 
 typedef struct {

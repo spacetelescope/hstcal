@@ -6,7 +6,7 @@
 # include "hstio.h"	/* this is only used for writing debug image */
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 # define TOLERANCE (1.e-6)      /* for inverting the dispersion relation */
 

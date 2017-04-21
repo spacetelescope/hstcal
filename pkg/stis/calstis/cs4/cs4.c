@@ -9,7 +9,7 @@
 
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "err.h"
 
 static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *);

@@ -1,6 +1,6 @@
 # include <stdlib.h>
 # include <string.h>
-# include "stiserr.h"
+# include "err.h"
 
 /* If the slit is narrower than this, the spectrum does not need to be
    convolved with the slit.

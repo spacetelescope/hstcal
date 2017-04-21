@@ -4,7 +4,7 @@
 # include "xtables.h"
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 
 # define FULL_FRAME_READOUT  1
 # define SUBARRAY_READOUT    2

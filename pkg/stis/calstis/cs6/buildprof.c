@@ -8,7 +8,7 @@
 
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "err.h"
 
 # define DEFAULT_PSTEP  256  /* default pixel range */
 # define MAX_ITER       20   /* maximum iterations in sigma-clip */

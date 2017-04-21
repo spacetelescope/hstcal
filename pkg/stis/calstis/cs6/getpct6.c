@@ -9,7 +9,7 @@
 # include "stisdef.h"
 # include "calstis6.h"
 # include "stispht.h"
-# include "stiserr.h"
+# include "err.h"
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */

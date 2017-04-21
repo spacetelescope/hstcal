@@ -6,7 +6,7 @@
 # include "hstio.h"
 
 # include "acs.h"
-# include "acserr.h"
+# include "err.h"
 
 /* mkNewSpt -- Create a new SPT file for the output file.
 

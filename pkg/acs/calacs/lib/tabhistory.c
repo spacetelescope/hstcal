@@ -2,7 +2,7 @@
 # include <string.h>
 # include "hstio.h"
 # include "acs.h"
-# include "acserr.h"
+# include "err.h"
 
 /* This routine writes history records for a reference table, including
    the name of the file and the pedigree and descrip values.

@@ -4,7 +4,7 @@
 # include "xtables.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "err.h"
 
 /* NOT USED
 # define FULL_FRAME_READOUT  1

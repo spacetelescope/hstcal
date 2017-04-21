@@ -5,7 +5,7 @@
 # include "hstio.h"
 # include "wf3.h"
 # include "calwf3.h"
-# include "wf3err.h"
+# include "err.h"
 # include "wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
 # include "trl.h"

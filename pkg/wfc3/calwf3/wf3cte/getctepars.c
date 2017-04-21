@@ -15,7 +15,7 @@ MLS 2015: read in the CTE parameters from the PCTETAB file
 # include "xtables.h"
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "err.h"
 # include "cte.h"
 
 /************ HELPER SUBROUTINES ****************************/    

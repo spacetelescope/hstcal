@@ -5,7 +5,7 @@
 
 # include "stis.h"
 # include "calstis7.h"
-# include "stiserr.h"
+# include "err.h"
 # include "stisdef.h"
 
 # define ARCSEC_TO_DEGREES    (1./3600.)
