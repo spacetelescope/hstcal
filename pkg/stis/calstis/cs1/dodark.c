@@ -11,7 +11,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stistemperature.h"	/* defines DARKRATE */
 # include "stisdef.h"
 

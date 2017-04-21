@@ -7,7 +7,7 @@
 
 # include "stis.h"
 # include "stisdef.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 /* This routine gets keyword IMSET_OK from an extension header and
    returns the value of this keyword (default is True).  A value of

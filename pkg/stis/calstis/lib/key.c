@@ -5,7 +5,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stisdef.h"
 
 static void KeyMissing (char *);	/* prints error message */

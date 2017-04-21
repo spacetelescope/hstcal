@@ -7,7 +7,7 @@
 # include "stis.h"
 # include "stisdef.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 static int CheckX1D (Hdr *, StisInfo6 *, int *);
 static int CheckOptimal (Hdr *, StisInfo6 *);

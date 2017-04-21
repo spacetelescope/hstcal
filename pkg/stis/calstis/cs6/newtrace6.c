@@ -36,7 +36,7 @@ internal:
 # include "xtables.h"
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 # define MAX(x,y)  ((x) >= (y) ? (x) : (y))
 

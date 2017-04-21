@@ -13,7 +13,7 @@ internal:
 
 # include "stis.h"
 # include "calstis7.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 # define MAX(x,y)  ((x) >= (y) ? (x) : (y))
 

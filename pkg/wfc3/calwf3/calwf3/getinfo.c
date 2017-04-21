@@ -7,7 +7,7 @@
 # include "wf3.h"
 # include "wf3corr.h"
 # include "calwf3.h"
-# include "wf3err.h"
+# include "hstcalerr.h"
 
 /* This routine gets info from the primary header of the science file,
    and it calls routines to get calibration switches and reference file

@@ -2,7 +2,7 @@
 
 # include "hstio.h"
 # include "wf3.h"
-# include "wf3err.h"
+# include "hstcalerr.h"
 
 /*  Load primary header from input image
 

@@ -2,7 +2,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acscorr.h"
-# include "acserr.h"
+# include "hstcalerr.h"
 # include "calacs.h"
 
 static int GetSw (Hdr *, char *, int *);

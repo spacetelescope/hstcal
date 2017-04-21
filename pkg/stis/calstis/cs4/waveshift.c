@@ -4,7 +4,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 # define ARCSEC_PER_DEGREE  3600.
 

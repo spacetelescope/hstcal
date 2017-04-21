@@ -31,7 +31,7 @@
 # include "hstio.h"	/* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "hstcalerr.h"
 # include "trl.h"
 
 # define  FATAL   1

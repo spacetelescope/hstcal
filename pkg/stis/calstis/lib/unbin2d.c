@@ -13,7 +13,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stisdef.h"
 
 static void InterpInfo (float, int, int *, float *, float *);

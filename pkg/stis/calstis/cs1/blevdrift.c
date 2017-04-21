@@ -17,7 +17,7 @@
 # include "hstio.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stisdq.h"
 
 # define NELEM_SUMS  5		/* size of sums array */

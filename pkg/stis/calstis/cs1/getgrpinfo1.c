@@ -12,7 +12,7 @@
 
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stistemperature.h"
 # include "stisdef.h"
 

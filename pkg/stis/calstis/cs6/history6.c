@@ -8,7 +8,7 @@
 # include "stis.h"
 # include "stisdef.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 static int outHistory (int, char *, Hdr *);
 

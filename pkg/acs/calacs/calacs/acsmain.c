@@ -3,7 +3,7 @@
 # include <string.h>
 
 # include "acs.h"
-# include "acserr.h"
+# include "hstcalerr.h"
 # include "acsversion.h"
 
 /* CALACS driver: retrieves input table name and calls pipeline

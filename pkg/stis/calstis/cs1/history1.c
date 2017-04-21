@@ -7,7 +7,7 @@
 
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stisdef.h"
 
 static int UpdateSwitch (char *, int, Hdr *, int *);
