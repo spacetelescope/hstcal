@@ -140,7 +140,7 @@ int *driftcorr    o: true means correction for drift along lines was applied
 	initSingleGroup (out);
 	allocSingleGroup (out,
 		in->sci.data.nx - (trimx1 + trimx2),
-		in->sci.data.ny - (trimy1 + trimy2));
+		in->sci.data.ny - (trimy1 + trimy2), True);
 	if (hstio_err())
 	    return (OUT_OF_MEMORY);
 

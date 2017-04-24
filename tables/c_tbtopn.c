@@ -16,20 +16,20 @@ IRAFPointer template    i: usually NULL (or 0), but if iomode is IRAF_NEW_COPY
 function value          o: table descriptor
 */
 
-        IRAFPointer tp;
-        TableDescr *tbl_descr;
-        char *fullname;         /* name with environment variable resolved */
-        char *brackets;         /* expression in brackets, or NULL */
-        int hdunum;             /* HDU number (1 for primary HDU) */
-        int hdutype;            /* type of HDU */
-        fitsfile *fptr;         /* CFITSIO pointer */
-        int cf_iomode;          /* CFITSIO I/O mode */
+        IRAFPointer tp = NULL;
+        TableDescr *tbl_descr = NULL;
+        char *fullname = NULL;         /* name with environment variable resolved */
+        char *brackets = NULL;         /* expression in brackets, or NULL */
+        int hdunum;                    /* HDU number (1 for primary HDU) */
+        int hdutype;                   /* type of HDU */
+        fitsfile *fptr = NULL;         /* CFITSIO pointer */
+        int cf_iomode;                 /* CFITSIO I/O mode */
         int status = 0;
 
         clearError();
 
         /* expand environment variable (if any) in tablename */
-        fullname = (char *)calloc (SZ_FNAME+1, sizeof(char));
+        fullname = calloc (SZ_FNAME+1, sizeof(*fullname));
         status = c_vfn2osfn (tablename, fullname);
         if (status != 0) {
             setError (status, "c_tbtopn:  error from c_vfn2osfn");
