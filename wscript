@@ -56,6 +56,10 @@ def options(opt):
         '--debug', action='store_true',
         help="Create a debug build")
 
+    opt.add_option(
+        '--O3', dest='optO3', action='store_true', default=False,
+        help='Create a Release build with full optimization, i.e. with "-O3". \033[91m\033[1mWARNING! This option may produce unvalidated results!\033[0m')
+
     opt.recurse('cfitsio')
 
 def _setup_openmp(conf):
@@ -211,8 +215,21 @@ def configure(conf):
         if conf.check_cc(cflags='-Wall'):
             conf.env.append_value('CFLAGS','-Wall')
     else:
-        if conf.check_cc(cflags='-O2'):
-            conf.env.append_value('CFLAGS','-O2')
+        if not conf.options.optO3:
+            if conf.check_cc(cflags='-O2'):
+                conf.env.append_value('CFLAGS','-O2')
+        else:
+            msg = """\033[91m\033[1mWARNING!
+The configure option \'--O3\' has been specified.
+Use of this option is untested and may result in unvalidated results.
+Press any key to continue or Ctrl+c to abort...\033[0m"""
+            print(msg)
+            try:
+                raw_input()
+            except NameError:
+                input()
+            if conf.check_cc(cflags='-O3'):
+                conf.env.append_value('CFLAGS','-O3')
         if conf.check_cc(cflags='-Wall'):
             conf.env.append_value('CFLAGS','-Wall')
         if conf.check_cc(cflags='-fstack-protector-all'):
