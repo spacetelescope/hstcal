@@ -1787,7 +1787,7 @@ IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
             return NULL;
         }
 
-        if (fits_write_record(iodesc->ff, "ORIGIN  = 'HSTIO/CFITSIO March 2010'", &status)) {
+        if (fits_write_record(iodesc->ff, "ORIGIN  = 'HSTIO/CFITSIO March 2010' / FITS file originator", &status)) {
             ioerr(BADWRITE, iodesc, status);
             return NULL;
         }
@@ -2059,14 +2059,14 @@ int putHeader(IODescPtr iodesc_) {
                 iodesc->dims[1] = 0;
 
             /* set the pixel type */
-            fits_update_key(iodesc->ff, TINT, "BITPIX", &(iodesc->type), "", &status);
+            fits_update_key(iodesc->ff, TINT, "BITPIX", &(iodesc->type), NULL, &status);
             if (status) {
                 ioerr(BADWRITE, iodesc, status);
                 return -1;
             }
             if (iodesc->dims[0] == 0 && iodesc->dims[1] == 0) {
                 tmp = 0;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, "", &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &status);
                 if (status) {
                     ioerr(BADWRITE, iodesc, status);
                     return -1;
@@ -2084,13 +2084,13 @@ int putHeader(IODescPtr iodesc_) {
             } else if (iodesc->dims[0] != 0 && iodesc->dims[1] == 0) {
                 /* set the number of dimensions */
                 tmp = 1;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, "", &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &status);
                 if (status) {
                     ioerr(BADWRITE, iodesc, status);
                     return -1;
                 }
                 /* set dim1 */
-                fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], "", &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], NULL, &status);
                 if (status) {
                     ioerr(BADWRITE, iodesc, status);
                     return -1;
@@ -2103,10 +2103,10 @@ int putHeader(IODescPtr iodesc_) {
             } else {
                 /* set the number of dimensions */
                 tmp = 2;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, "", &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &status);
                 /* set dim1 and dim2 */
-                fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], "", &status);
-                fits_update_key(iodesc->ff, TINT, "NAXIS2", &iodesc->dims[1], "", &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], NULL, &status);
+                fits_update_key(iodesc->ff, TINT, "NAXIS2", &iodesc->dims[1], NULL, &status);
             }
 
             if (status) {
