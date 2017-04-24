@@ -78,6 +78,14 @@
 ** however, if status is KEY_NO_EXIST, clear the error messages and set status
 ** to 0.
 **
+**
+** Sara Ogaz, April 2017
+** Update putHeader: fits_update_keyword should update the keyword and
+** comment values if they exist or append new values, and it should be
+** a NULL pointer to leave the comment field alone. putHeader was supplying
+** the empty string directly, this has been changed to NULL.
+**
+**
 ** Table of Contents
 **
 ** Section 1.
