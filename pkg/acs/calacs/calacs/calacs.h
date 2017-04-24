@@ -1,8 +1,9 @@
-/* calacs -- integrated calacs reduction
+#ifndef CALACS_INCL
+#define CALACS_INCL
 
+/* calacs -- integrated calacs reduction
 Warren Hack, 1998 May 12: Initial version.
 Pey Lian Lim, 2013 Aug 9: Separated PCTECORR from ACSCCD.
-
 */
 
 typedef struct {
@@ -46,3 +47,5 @@ typedef struct {
     int sci_dthcorr;    /* dither combine science data? */
 
 } ACSInfo;
+
+#endif

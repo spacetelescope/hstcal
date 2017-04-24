@@ -2,9 +2,19 @@
 
 def build(bld):
     t = bld.program(
-        source = 'maincte.c',
+        source = ['acscte.c',
+                  'docte.c',
+                  'dopcte.c',
+                  'dopcte-gen2.c',
+                  'getcteflag.c',
+                  'getctesw.c',
+                  'pcte_fixycte.c',
+                  'pcte_funcs.c',
+                  'maincte.c'
+                  ],
         target = 'acscte.e',
-        use = ['calacs', 'imphttab'] + bld.env.LOCAL_LIBS,
+        includes = ['.', '../../../../ctegen2'],
+        use = ['calacs', 'imphttab', 'ctegen2'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'

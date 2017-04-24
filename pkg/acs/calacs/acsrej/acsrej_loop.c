@@ -315,7 +315,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
        back into the input DQ arrays at the end of processing, while dq
        will hold values to write to the output CRJ DQ extension */
     initShortData (&dq2);
-    allocShortData (&dq2, dim_x, dim_y);
+    allocShortData (&dq2, dim_x, dim_y, True);
     for (j = 0; j < dim_y; j++) {
         for (i = 0; i < dim_x; i++) {
             PDQSetPix(dq,i,j,crflag);

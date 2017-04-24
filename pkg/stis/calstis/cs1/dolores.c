@@ -68,7 +68,7 @@ int *done         o: true if input image has been binned
 	if ((out = calloc (1, sizeof (SingleGroup))) == NULL)
 	    return (OUT_OF_MEMORY);
 	initSingleGroup (out);
-	allocSingleGroup (out, (in->sci.data.nx) / mx, (in->sci.data.ny) / my);
+	allocSingleGroup (out, (in->sci.data.nx) / mx, (in->sci.data.ny) / my, True);
 	if (hstio_err())
 	    return (OUT_OF_MEMORY);
 

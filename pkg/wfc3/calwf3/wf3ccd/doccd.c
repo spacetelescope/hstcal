@@ -343,7 +343,7 @@ int DoCCD (WF3Info *wf3, int extver) {
                 sub2full will reset the pixel values
                 */
                 initSingleGroup(&fullarray);
-                allocSingleGroup(&fullarray,RAZ_COLS/2,RAZ_ROWS);
+                allocSingleGroup(&fullarray,RAZ_COLS/2,RAZ_ROWS, True);
                 fullarray.group_num=x.group_num;
                 CreateEmptyChip(wf3, &fullarray);
                 if (x.group_num == 2){ /*post blev*/
