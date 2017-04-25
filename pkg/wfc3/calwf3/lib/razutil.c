@@ -1,7 +1,7 @@
 # include <string.h>
 # include "hstio.h"
 # include "wf3.h"
-# include "wf3err.h"
+# include "hstcalerr.h"
 
 /* These routines facilitate moving between the regular WFC3 image structre
    to the RAZ image structure used in the CTE correction and Sink pixel flagging

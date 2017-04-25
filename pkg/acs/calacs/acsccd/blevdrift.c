@@ -16,7 +16,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "hstcalerr.h"
 # include "acsdq.h"		/* for GOODPIXEL */
 
 # define NELEM_SUMS  5		/* size of sums array */

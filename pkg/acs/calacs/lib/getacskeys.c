@@ -7,7 +7,7 @@
 
 # include "acs.h"
 # include "acsinfo.h"
-# include "acserr.h"
+# include "hstcalerr.h"
 
 /* This routine gets keyword values from the primary header.
  

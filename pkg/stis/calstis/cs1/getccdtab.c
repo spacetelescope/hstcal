@@ -5,7 +5,7 @@
 # include "xtables.h"
 # include "stis.h"
 # include "calstis1.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stisdef.h"
 
 # define DEFAULT_BLEV_CLIP 50.

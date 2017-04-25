@@ -9,7 +9,7 @@
 
 # include "stis.h"
 # include "calstis0.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 static void FreeNames (char *, char *, char *, char *, char *, char *);
 

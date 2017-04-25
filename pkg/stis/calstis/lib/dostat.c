@@ -4,7 +4,7 @@
 # include "hstio.h"
 
 # include "stis.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stisdq.h"
 # include "stisdef.h"
 

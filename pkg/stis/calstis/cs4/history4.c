@@ -4,7 +4,7 @@
 
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 # include "stisdef.h"
 
 /* This routine updates the WAVECORR switch to COMPLETE (or SKIPPED,

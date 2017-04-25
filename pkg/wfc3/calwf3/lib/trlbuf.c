@@ -104,7 +104,7 @@
 # include "ximio.h"
 
 # include "wf3.h"
-# include "wf3err.h"
+# include "hstcalerr.h"
 
 # define INIT_LEN	2
 

@@ -12,7 +12,7 @@
 
 # include "wf3.h"
 # include "wf3info.h"
-# include "wf3err.h"
+# include "hstcalerr.h"
 # include "wf3corr.h"		/* calibration switch names for calwf3 */
 
 

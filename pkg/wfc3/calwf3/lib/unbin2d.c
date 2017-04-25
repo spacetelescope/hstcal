@@ -14,7 +14,7 @@
 # include "hstio.h"
 
 # include "wf3.h"
-# include "wf3err.h"
+# include "hstcalerr.h"
 
 static void InterpInfo (float, int, int *, float *, float *);
 static void InterpDQInfo (float, int, int *, int *, int *);

@@ -12,7 +12,7 @@
 
 # include "stis.h"
 # include "calstis4.h"
-# include "stiserr.h"		/* defines error codes */
+# include "hstcalerr.h"		/* defines error codes */
 # include "stisdef.h"
 
 static int CheckWave (Hdr *, StisInfo4 *, int *, int *);

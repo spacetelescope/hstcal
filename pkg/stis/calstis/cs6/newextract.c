@@ -32,7 +32,7 @@ internal:
 # include "xtables.h"
 # include "stis.h"
 # include "calstis6.h"
-# include "stiserr.h"
+# include "hstcalerr.h"
 
 
 static void CopyXtract (XtractInfo *, XtractInfo *);
