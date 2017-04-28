@@ -25,7 +25,8 @@ void InitCTETrl (char *, char *);
 
  */
 int ACScte (char *input, char *output, CalSwitch *cte_sw,
-            RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
+            RefFileInfo *refnames, int printtime, int verbose,
+            const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd) {
 
     extern int status;
 
@@ -73,11 +74,13 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
     /* Copy command-line arguments into acs. */
     strcpy (acs.input, input);
     strcpy (acs.output, output);
+    strcpy(acs.pcteTabNameFromCmd, pcteTabNameFromCmd);
 
     acs.pctecorr = cte_sw->pctecorr;
     acs.printtime = printtime;
     acs.verbose = verbose;
-    acs.onecpu = onecpu;
+    acs.nThreads = nThreads;
+    acs.cteAlgorithmGen = cteAlgorithmGen;
 
     /* For debugging...
     acs.pctecorr = PERFORM;
@@ -104,7 +107,6 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
         freeHdr (&phdr);
         return (status);
     }
-
     /* If we have MAMA data, do not even proceed here... */
     if (acs.detector == MAMA_DETECTOR) {
         /* Return ACS_OK, since processing can proceed, just with a
@@ -123,6 +125,7 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
        currently set to PERFORM will be reset to OMIT if the value
        in the header is COMPLETE.
     */
+
     if (GetCTEFlags (&acs, &phdr)) {
         freeHdr(&phdr);
         return (status);
@@ -160,7 +163,6 @@ void InitCTETrl (char *input, char *output) {
 
     char trl_in[ACS_LINE+1]; 	/* trailer filename for input */
     char trl_out[ACS_LINE+1]; 	/* output trailer filename */
-    int exist;
 
     char isuffix[] = "_blv_tmp";
     char osuffix[] = "_blc_tmp";
@@ -174,7 +176,6 @@ void InitCTETrl (char *input, char *output) {
     /* Initialize internal variables */
     trl_in[0] = '\0';
     trl_out[0] = '\0';
-    exist = EXISTS_UNKNOWN;
 
     /* Start by stripping off suffix from input/output filenames */
     if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, ACS_LINE)) {

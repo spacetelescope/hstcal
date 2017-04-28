@@ -228,7 +228,7 @@ static int insertname(FitsKwInfo *kw, char *nm) {
         int orig_nlines = 0;
 
         if (kw->hdr->nalloc == 0) {
-            if (allocHdr(kw->hdr,HdrUnit) != 0)
+            if (allocHdr(kw->hdr,HdrUnit, True) != 0)
             return -1;
         }
         if (kw->hdr->nlines == kw->hdr->nalloc) {
@@ -275,7 +275,7 @@ static int addcommentary(Hdr *h, char *text, char *type) {
         int  nblankline  = 0;
         char *t;
         if (h->nalloc == 0) {
-            if (allocHdr(h,HdrUnit) != 0)
+            if (allocHdr(h,HdrUnit, True) != 0)
                 return -1;
         }
         if (h->nlines == h->nalloc) {
@@ -1165,7 +1165,7 @@ FitsKw  insertFitsCard(FitsKw kw_, char *card) {
 
         /* make sure we have room */
         if (kw->hdr->nalloc == 0) {
-            if (allocHdr(kw->hdr,HdrUnit) != 0)
+            if (allocHdr(kw->hdr,HdrUnit, True) != 0)
                 { error(NOMEM,""); return NULL; }
         }
         if (kw->hdr->nlines == kw->hdr->nalloc) {
