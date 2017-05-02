@@ -57,6 +57,8 @@ void c_imtclose (IRAFPointer imt);
 IRAFPointer c_tbtopn (char *tablename, int iomode, IRAFPointer template);
 void c_tbtcre (IRAFPointer tp);
 void c_tbtclo (IRAFPointer tp);
+void c_tbtClose (IRAFPointer * tp);
+
 int c_tbtacc (char *tablename);
 void c_tbtnam (IRAFPointer tp, char *tablename, int maxch);
 void c_tbfpri (char *intable, char *outtable, int *copied);
@@ -68,6 +70,7 @@ int c_tbpsta (IRAFPointer tp, int param);
 void c_tbcdef1 (IRAFPointer tp, IRAFPointer *cp,
         char *colname, char *colunits, char *colfmt, int datatype, int nelem);
 void c_tbcfnd1 (IRAFPointer tp, const char *colname, IRAFPointer *cp);
+IRAFPointer c_tbcfnd1_retPtr (IRAFPointer tp, const char *colname);
 IRAFPointer c_tbcnum (IRAFPointer tp, int colnum);
 
 int c_tbcigi (IRAFPointer cp, int param);
@@ -102,13 +105,16 @@ void c_tbrcsc (IRAFPointer itp, IRAFPointer otp,
                 int irow, int orow, int ncols);
 void c_tbrudf (IRAFPointer tp, IRAFPointer *cp, int numcols, int row);
 
-void c_tbegtb (IRAFPointer tp, IRAFPointer cp, int rownum, Bool *buffer);
-void c_tbegtd (IRAFPointer tp, IRAFPointer cp, int rownum, double *buffer);
-void c_tbegtr (IRAFPointer tp, IRAFPointer cp, int rownum, float *buffer);
-void c_tbegti (IRAFPointer tp, IRAFPointer cp, int rownum, int *buffer);
-void c_tbegts (IRAFPointer tp, IRAFPointer cp, int rownum, short *buffer);
-void c_tbegtt (IRAFPointer tp, IRAFPointer cp, int rownum, char *buffer,
+void c_tbegtb (const IRAFPointer tp, const IRAFPointer cp, int rownum, Bool *buffer);
+void c_tbegtd (const IRAFPointer tp, const IRAFPointer cp, int rownum, double *buffer);
+void c_tbegtr (const IRAFPointer tp, const IRAFPointer cp, int rownum, float *buffer);
+void c_tbegti (const IRAFPointer tp, const IRAFPointer cp, int rownum, int *buffer);
+void c_tbegts (const IRAFPointer tp, const IRAFPointer cp, int rownum, short *buffer);
+void c_tbegtt (const IRAFPointer tp, const IRAFPointer cp, int rownum, char *buffer,
                 int maxch);
+int c_tbeGetInt(const IRAFPointer tp, const IRAFPointer cp, int rownum);
+double c_tbeGetDouble(const IRAFPointer tp, const IRAFPointer cp, int rownum);
+
 void c_tbeptb (IRAFPointer tp, IRAFPointer cp, int rownum, Bool buffer);
 void c_tbeptd (IRAFPointer tp, IRAFPointer cp, int rownum, double buffer);
 void c_tbeptr (IRAFPointer tp, IRAFPointer cp, int rownum, float buffer);

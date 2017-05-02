@@ -217,22 +217,22 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     /*SET UP THE ARRAYS WHICH WILL BE PASSED AROUND*/
     initSingleGroup(&raz);
-    allocSingleGroup(&raz, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&raz, RAZ_COLS, RAZ_ROWS, True);
 
     initSingleGroup(&rsz);
-    allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS, True);
 
     initSingleGroup(&rsc);
-    allocSingleGroup(&rsc, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&rsc, RAZ_COLS, RAZ_ROWS, True);
 
     initSingleGroup(&rzc);
-    allocSingleGroup(&rzc, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&rzc, RAZ_COLS, RAZ_ROWS, True);
 
     initSingleGroup(&raw);
-    allocSingleGroup(&raw, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&raw, RAZ_COLS, RAZ_ROWS, True);
 
     initSingleGroup(&chg);
-    allocSingleGroup(&chg, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&chg, RAZ_COLS, RAZ_ROWS, True);
 
     /*hardset the science arrays*/
     for (i=0;i<RAZ_COLS;i++){
@@ -297,7 +297,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             /*create an empty full size chip for pasting*/
             initSingleGroup(&cd);
-            allocSingleGroup(&cd,RAZ_COLS/2,RAZ_ROWS);
+            allocSingleGroup(&cd,RAZ_COLS/2,RAZ_ROWS, True);
             cd.group_num=1;
             CreateEmptyChip(&wf3, &cd);
 
@@ -326,7 +326,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             /* now create an empty chip 1*/
             initSingleGroup(&ab);
-            allocSingleGroup(&ab,RAZ_COLS/2,RAZ_ROWS);
+            allocSingleGroup(&ab,RAZ_COLS/2,RAZ_ROWS, True);
             ab.group_num=2;
             CreateEmptyChip(&wf3, &ab);
 
@@ -358,7 +358,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             /*make an empty fullsize chip for pasting*/
             initSingleGroup(&ab);
-            allocSingleGroup(&ab,RAZ_COLS/2,RAZ_ROWS);
+            allocSingleGroup(&ab,RAZ_COLS/2,RAZ_ROWS, True);
             ab.group_num=2;
             CreateEmptyChip(&wf3, &ab);
 
@@ -387,7 +387,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             /* now create an empty chip 2*/
             initSingleGroup(&cd);
-            allocSingleGroup(&cd,RAZ_COLS/2,RAZ_ROWS);
+            allocSingleGroup(&cd,RAZ_COLS/2,RAZ_ROWS, True);
             cd.group_num=1;
             CreateEmptyChip(&wf3, &cd);
 
@@ -836,11 +836,11 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
     /***INITIALIZE THE LOCAL IMAGE GROUPS***/
     SingleGroup rnz;
     initSingleGroup(&rnz);
-    allocSingleGroup(&rnz, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&rnz, RAZ_COLS, RAZ_ROWS, True);
 
     SingleGroup zadj;
     initSingleGroup(&zadj);
-    allocSingleGroup(&zadj, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&zadj, RAZ_COLS, RAZ_ROWS, True);
 
 
     /*COPY THE RAZ IMAGE INTO THE RSZ OUTPUT IMAGE
@@ -1095,7 +1095,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
     SingleGroup pixz_fff;
     initSingleGroup(&pixz_fff);
-    allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS, True);
 
     /*SCALE BY 1 UNLESS THE PCTETAB SAYS OTHERWISE, I IS THE PACKET NUM
       THIS IS A SAFETY LOOP INCASE NOT ALL THE COLUMNS ARE POPULATED
@@ -1200,15 +1200,15 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
     /*LOCAL IMAGES TO PLAY WITH, THEY WILL REPLACE THE INPUTS*/
     SingleGroup rz; /*pixz_raz*/
     initSingleGroup(&rz);
-    allocSingleGroup(&rz, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&rz, RAZ_COLS, RAZ_ROWS, True);
 
     SingleGroup rc; /*pixz_rac*/
     initSingleGroup(&rc);
-    allocSingleGroup(&rc, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&rc, RAZ_COLS, RAZ_ROWS, True);
 
     SingleGroup pixz_fff; /*pixz_fff*/
     initSingleGroup(&pixz_fff);
-    allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS);
+    allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS, True);
 
 
     /*USE EXPSTART YYYY-MM-DD TO DETERMINE THE CTE SCALING

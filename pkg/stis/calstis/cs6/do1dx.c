@@ -649,7 +649,7 @@ StisInfo6 *sts    i: calibration switches and info
             */
 	    if (sts->scatter) {
 	        if (allocSingleGroup (&holdraw, in.sci.data.nx,
-                                      in.sci.data.ny) == -1)
+                                      in.sci.data.ny, True) == ALLOCATION_PROBLEM)
 	            return (OUT_OF_MEMORY);
 	        for (i = 0; i < holdraw.sci.data.nx; i++) {
 	            for (j = 0; j < holdraw.sci.data.ny; j++) {
@@ -1158,7 +1158,7 @@ StisInfo6 *sts    i: calibration switches and info
                     */
 	            if (!outw_exists) {
 	                if (allocSingleGroup (&outw, in.sci.data.nx,
-                                                     in.sci.data.ny) == -1)
+                                                     in.sci.data.ny, True) == ALLOCATION_PROBLEM)
 	                    return (OUT_OF_MEMORY);
 	                outw_exists = 1;
 	            }

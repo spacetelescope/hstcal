@@ -347,7 +347,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 
 	if (!in_place) {
 	    /* Allocate space for a scratch array. */
-	    allocShortData (&ydq, snpix[0], snpix[1]);
+	    allocShortData (&ydq, snpix[0], snpix[1], True);
 	    if (hstio_err()) {
 		printf (
 		"ERROR    (doDQI) couldn't allocate data quality array.\n");

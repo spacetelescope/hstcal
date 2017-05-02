@@ -11,7 +11,7 @@ function c_tbegtd:  table column of type boolean
 function c_tbegtr:  table column of type boolean
 */
 
-void c_tbegtb (IRAFPointer tp, IRAFPointer cp, int row, Bool *buffer) {
+void c_tbegtb (const IRAFPointer tp, const IRAFPointer cp, int row, Bool *buffer) {
 
 /* Read a boolean value from a table column.
 arguments:
@@ -86,7 +86,7 @@ Bool *buffer            o: value (True or False) read from table
         }
 }
 
-void c_tbegtd (IRAFPointer tp, IRAFPointer cp, int row, double *buffer) {
+void c_tbegtd (const IRAFPointer tp, const IRAFPointer cp, int row, double *buffer) {
 
 /* Read a value of type double from a table column.
 arguments:
@@ -145,7 +145,7 @@ double *buffer          o: value read from table
         }
 }
 
-void c_tbegtr (IRAFPointer tp, IRAFPointer cp, int row, float *buffer) {
+void c_tbegtr (const IRAFPointer tp, const IRAFPointer cp, int row, float *buffer) {
 
 /* Read a value of type float from a table column.
 arguments:
@@ -204,7 +204,7 @@ float *buffer           o: value read from table
         }
 }
 
-void c_tbegti (IRAFPointer tp, IRAFPointer cp, int row, int *buffer) {
+void c_tbegti (const IRAFPointer tp, const IRAFPointer cp, int row, int *buffer) {
 
 /* Read an integer value from a table column.
 arguments:
@@ -213,16 +213,13 @@ IRAFPointer cp          i: column descriptor
 int row                 i: row number (one indexed)
 int *buffer             o: value read from table
 */
-
-        TableDescr *tbl_descr;
-        ColumnDescr *col_descr;
         int anynul=0;
         long firstelem=1, nelem=1;
         int nulval=IRAF_INDEFI;
         int status = 0;
 
-        tbl_descr = (TableDescr *)tp;
-        col_descr = (ColumnDescr *)cp;
+        TableDescr *tbl_descr = (TableDescr *)tp;
+        ColumnDescr *col_descr = (ColumnDescr *)cp;
 
         if (col_descr->datatype < 0) {
             char *value;
@@ -263,7 +260,20 @@ int *buffer             o: value read from table
         }
 }
 
-void c_tbegts (IRAFPointer tp, IRAFPointer cp, int row, short *buffer) {
+int c_tbeGetInt (const IRAFPointer tp, const IRAFPointer cp, int row)
+{
+	int ret = 0;
+	c_tbegti(tp, cp, row, &ret);
+	return ret;
+}
+double c_tbeGetDouble (const IRAFPointer tp, const IRAFPointer cp, int row)
+{
+	double ret = 0;
+	c_tbegtd(tp, cp, row, &ret);
+	return ret;
+}
+
+void c_tbegts (const IRAFPointer tp, const IRAFPointer cp, int row, short *buffer) {
 
 /* Read a short integer value from a table column.
 arguments:
@@ -322,7 +332,7 @@ short *buffer           o: value read from table
         }
 }
 
-void c_tbegtt (IRAFPointer tp, IRAFPointer cp, int row, char *buffer,
+void c_tbegtt (const IRAFPointer tp, const IRAFPointer cp, int row, char *buffer,
                 int maxch) {
 
 /* Read a string value from a table column.

@@ -249,7 +249,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	/* Allocate space for scratch array */
 	initShortHdrData (&ydq);
 	if (!in_place) {
-	    allocShortHdrData (&ydq, snpix[0], snpix[1]);
+	    allocShortHdrData (&ydq, snpix[0], snpix[1], True);
 	    if (hstio_err()) {
 		trlerror ("doDQI couldn't allocate data quality array.");
 		return (status = OUT_OF_MEMORY);
