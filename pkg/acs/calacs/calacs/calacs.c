@@ -61,7 +61,7 @@ static void SetACSSw (CalSwitch *, CalSwitch *, CalSwitch *, CalSwitch *);
 static void ResetACSSw (CalSwitch *, CalSwitch *);
 
 
-int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd) {
+int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug, int onecpu) {
 
     /* arguments:
        char *input     i: name of the FITS file/table to be processed
@@ -89,7 +89,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
     void initAsnInfo (AsnInfo *);
     void freeAsnInfo (AsnInfo *);
     int LoadAsn (AsnInfo *);
-    int ProcessACSCCD (AsnInfo *, ACSInfo *, int *, int, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd);
+    int ProcessCCD (AsnInfo *, ACSInfo *, int *, int, int);
     int ProcessMAMA (AsnInfo *, ACSInfo *, int);
     int AcsDth (char *, char *, int, int, int);
     char *BuildDthInput (AsnInfo *, int);
@@ -158,7 +158,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
         if (asn.verbose) {
             trlmessage ("CALACS: processing a CCD product");
         }
-        if (ProcessACSCCD(&asn, &acshdr, &save_tmp, printtime, nThreads, cteAlgorithmGen, pcteTabNameFromCmd)) {
+        if (ProcessCCD(&asn, &acshdr, &save_tmp, printtime, onecpu)) {
             if (status == NOTHING_TO_DO) {
                 trlwarn ("No processing desired for CCD data.");
             } else {
@@ -341,7 +341,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
 }
 
 
-int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd) {
+int ProcessCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, int onecpu) {
 
     extern int status;
 
@@ -369,7 +369,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
     void FreeRefFile (RefFileInfo *);
     int ACSRefInit (ACSInfo *, CalSwitch *, RefFileInfo *);
     int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int);
-    int ACScte (char *, char *, CalSwitch *, RefFileInfo *, int, int, int, const unsigned cteAlgorithmGen, const char *);
+    int ACScte (char *, char *, CalSwitch *, RefFileInfo *, int, int, int);
     int ACS2d (char *, char *,CalSwitch *, RefFileInfo *, int, int);
     int GetAsnMember (AsnInfo *, int, int, int, ACSInfo *);
     int GetSingle (AsnInfo *, ACSInfo *);
@@ -535,7 +535,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
                 if (acshdr->sci_basic_cte == PERFORM) {
                     if (ACScte(acshdr->blv_tmp, acshdr->blc_tmp,
                                &acscte_sci_sw, &sciref, printtime,
-                               asn->verbose, nThreads, cteAlgorithmGen, pcteTabNameFromCmd)) { //this is the line
+                               asn->verbose, onecpu)) {
                         return (status);
                     }
                 }

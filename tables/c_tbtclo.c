@@ -7,22 +7,19 @@ void c_tbtclo (IRAFPointer tp) {
 argument:
 IRAFPointer tp          i: table descriptor
 */
-	if (!tp)
-		return;
 
-	TableDescr * tbl_descr = (TableDescr *)tp;
-	fitsfile * fptr = tbl_descr->fptr; //CFITSIO pointer
-	int status = 0;
+        TableDescr *tbl_descr;
+        fitsfile *fptr;         /* CFITSIO pointer */
+        int status = 0;
 
-	/* fits_close_file = ffclos */
-	if (fptr)
-		fits_close_file (fptr, &status);
+        if (tp == NULL)
+            return;
 
-	free_tp (tp);
-}
+        tbl_descr = (TableDescr *)tp;
+        fptr = tbl_descr->fptr;
 
-void c_tbtClose (IRAFPointer * tp)
-{
-	c_tbtclo(*tp);
-	*tp = NULL;
+        /* fits_close_file = ffclos */
+        fits_close_file (fptr, &status);
+
+        free_tp (tp);
 }

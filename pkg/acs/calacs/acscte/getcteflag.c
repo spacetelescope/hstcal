@@ -79,7 +79,6 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
     int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
     void MissingFile (char *, char *, int *);
     int GetTabRef (RefFileInfo *, Hdr *, char *, RefTab *, int *);
-    int checkTabRefPedigree (char * filename, RefTab *, int *);
 
     /* Are we supposed to do this step? */
     if (acs->pctecorr == PERFORM) {
@@ -92,21 +91,9 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
             return (status);
         }
 
-        if (acs->pcteTabNameFromCmd && *acs->pcteTabNameFromCmd != '\0')
-        {
-            char msgBuffer[ACS_LINE];
-            *msgBuffer = '\0';
-            sprintf(msgBuffer, "(pctecorr) USING PCTETAB SPECIFIED BY '--pctetab %s' AND NOT THAT FROM IMAGE HEADER!!!", acs->pcteTabNameFromCmd);
-            trlwarn(msgBuffer);
-            if ((status = checkTabRefPedigree(acs->pcteTabNameFromCmd, &acs->pcte, &acs->pctecorr)))
-                return (status);
-        }
-        else
-        {
-            if (GetTabRef (acs->refnames, phdr,
-                           "PCTETAB", &acs->pcte, &acs->pctecorr))
-                return (status);
-        }
+        if (GetTabRef (acs->refnames, phdr,
+                       "PCTETAB", &acs->pcte, &acs->pctecorr))
+            return (status);
 
         if (acs->pcte.exists != EXISTS_YES)
             MissingFile ("PCTETAB", acs->pcte.name, missing);

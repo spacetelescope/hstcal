@@ -459,12 +459,12 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        return (OUT_OF_MEMORY);
 	    if (ltm[0] > 1.0) {
 	        allocSingleGroup (&win, in.sci.data.nx / 2,
-                                        in.sci.data.ny / 2, True);
+                                        in.sci.data.ny / 2);
 	        if (RebinData (&in, &win, x1d, wx1d, 2, tabptr.nrows))
 	            return (ERROR_RETURN);
 	    } else {
 	        allocSingleGroup (&win, in.sci.data.nx,
-                                        in.sci.data.ny, True);
+                                        in.sci.data.ny);
 	        if (RebinData (&in, &win, x1d, wx1d, 1, tabptr.nrows))
 	            return (ERROR_RETURN);
 	    }
@@ -1211,7 +1211,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        }
 	        remove (temp_ima);
 	        initSingleGroup (&wout);
-	        allocSingleGroup (&wout, win.sci.data.nx, win.sci.data.ny, True);
+	        allocSingleGroup (&wout, win.sci.data.nx, win.sci.data.ny);
 	        for (j = 0; j < wout.sci.data.ny; j++) {
 	            for (i = 0; i < wout.sci.data.nx; i++)
 	                Pix (wout.sci.data, i, j) = im_mod[j][i];
@@ -1377,7 +1377,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    initSingleGroup (&wout);
 	    if ((wx1d2 = AllocX1DTable (tabptr.nrows)) == NULL)
 	        return (OUT_OF_MEMORY);
-	    allocSingleGroup (&wout, in.sci.data.nx, in.sci.data.ny, True);
+	    allocSingleGroup (&wout, in.sci.data.nx, in.sci.data.ny);
 	    if (ltm[0] > 1.0) {
 	        if (RebinData (&win, &wout, wx1d, wx1d2, -2, tabptr.nrows))
 	            return (ERROR_RETURN);

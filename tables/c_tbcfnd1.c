@@ -13,29 +13,25 @@ char *colname           i: column name
 IRAFPointer *cp         o: column descriptor
 */
 
-        *cp = NULL;
-        if (!tp || !colname || *colname == '\0')
-            return;
-
         char lc_colname[SZ_FITS_STR+1], lc_name[SZ_FITS_STR+1];
+        TableDescr *tbl_descr;
+        ColumnDescr *col_descr;
+        int foundit = 0;
+        int i;
+
         str_lower (lc_colname, colname);
 
-        TableDescr *tbl_descr = (TableDescr *)tp;
-
-        {unsigned i;
-        for (i = 0;  i < tbl_descr->ncols;  ++i) {
-            ColumnDescr * col_descr = (ColumnDescr *)tbl_descr->columns[i];
+        tbl_descr = (TableDescr *)tp;
+        for (i = 0;  i < tbl_descr->ncols;  i++) {
+            col_descr = (ColumnDescr *)tbl_descr->columns[i];
             str_lower (lc_name, col_descr->name);
             if (strcmp (lc_colname, lc_name) == 0) {
+                foundit = 1;
                 *cp = tbl_descr->columns[i];
-                return;
+                break;
             }
-        }}
-}
+        }
 
-IRAFPointer c_tbcfnd1_retPtr (IRAFPointer tp, const char *colname)
-{
-    void * ptr = NULL;
-    c_tbcfnd1(tp, colname, &ptr);
-    return ptr;
+        if (!foundit)
+            *cp = NULL;
 }

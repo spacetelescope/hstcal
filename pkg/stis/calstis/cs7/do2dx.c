@@ -446,7 +446,7 @@ StisInfo7 *sts    i: calibration switches and info
 		AddOffsets (sts, &slit);
 
 		/* Create output imset. */
-		allocSingleGroup (out, coord_o->npix[0], coord_o->npix[1], True);
+		allocSingleGroup (out, coord_o->npix[0], coord_o->npix[1]);
 		if (hstio_err())
 		    return (OUT_OF_MEMORY);
 
