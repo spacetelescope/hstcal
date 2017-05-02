@@ -86,7 +86,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* Bin the reference image down to the actual size of x. */
 
 	    initSingleGroup (&z);
-	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny);
+	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny, True);
 	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
 		printf ("ERROR    (doShad) size mismatch.\n");
 		return (status);
