@@ -1,5 +1,3 @@
- 22-Nov-2016:  CALACS 9.0.0 BLEVCORR now uses new OSCNTAB that correctly
-                            process all subarrays.
  21-Oct-2016:  CALACS 8.3.5 BLEVCORR can now process polarizer and ramp
                             subarrays using new readout format.
  07-Jul-2016:  CALACS 8.3.4 BLEVCORR modified to process new 2K subarrays.
