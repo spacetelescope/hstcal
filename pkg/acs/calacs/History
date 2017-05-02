@@ -1,6 +1,3 @@
-### 21-Feb-2017 - PLL -- Version 9.1.0
-    New SINKCORR step is added to ACSCCD for WFC.
-
 ### 22-Nov-2016 - PLL -- Version 9.0.0
     BLEVCORR modified to correctly process all subarrays by using new OSCNTAB
     that correctly define overscans for all WFC and HRC apertures.
