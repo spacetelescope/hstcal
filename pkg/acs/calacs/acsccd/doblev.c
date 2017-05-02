@@ -195,7 +195,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
 
     /* Requirement: at least 1 section should be specified!	 */
     /* If both bias sections are specified,... */
-    if (acs->biassecta[1] > 0 && acs->biassectb[1] > 0) {
+    if (acs->biassecta[1] >= 0 && acs->biassectb[1] >= 0) {
       /* select section nearest the amp based on bias_amp */
       biassect[0] = (bias_ampx == 0) ? acs->biassecta[0] : acs->biassectb[0];
       biassect[1] = (bias_ampx == 0) ? acs->biassecta[1] : acs->biassectb[1];
@@ -295,7 +295,8 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
           deval = 0;
         }
         di = di + 1.0;
-        Pix (x->sci.data,i,j) = Pix (x->sci.data,i,j) - biaslevel - deval;
+        Pix (x->sci.data,i,j) =
+        Pix (x->sci.data,i,j) - biaslevel - deval;
       }
     }
     acs->blev[amp_indx] = sumbias / (double)sizey;
@@ -369,12 +370,6 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
        */
       biasvals[j] = biaslevel;
       biasmask[j] = 1;
-      if (j == 0) {
-          sprintf (MsgText,
-              "(FitToOverscan) biassecta=(%d,%d) biassectb=(%d,%d) npix=%d",
-              biassect[0], biassect[1], biassect[2], biassect[3], npix);
-          trlmessage(MsgText);
-      }
     }
 	}
   /* Analyze biasvals for outliers and mask them

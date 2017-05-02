@@ -2,4 +2,3 @@
 .waf*
 bin.*
 build.*
-Makefile
