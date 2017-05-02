@@ -258,7 +258,7 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d) {
     
     /* Initialize shifted spot arrays */
     initSingleGroup(&outspot);
-    allocSingleGroup(&outspot, inspot.sci.data.nx, inspot.sci.data.ny, True);
+    allocSingleGroup(&outspot, inspot.sci.data.nx, inspot.sci.data.ny);
     
     parseObsDate(x->globalhdr, &date);
     status = GetSpotTab(acs2d->spot.name, date, &shiftx, &shifty);

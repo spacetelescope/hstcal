@@ -76,7 +76,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
 
     /* INIT THE SCIENCE INPUT  */
     initSingleGroup (&raz);
-    allocSingleGroup (&raz,RAZ_COLS/2, RAZ_ROWS, True);
+    allocSingleGroup (&raz,RAZ_COLS/2, RAZ_ROWS);
         
     /*CONVERT DQ DATA TO RAZ FORMAT FOR SCIENCE FILE*/
     makedqRAZ(x, &raz);
@@ -90,7 +90,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     /*NOW TURN THE SINK REFERENCE IMAGES INTO RAZ FORMAT*/
     FloatTwoDArray sinkraz;    
     initFloatData(&sinkraz); /*float 2d arrays*/
-    allocFloatData(&sinkraz,RAZ_COLS/2, RAZ_ROWS, True);
+    allocFloatData(&sinkraz,RAZ_COLS/2, RAZ_ROWS);     
 
     makeFloatRaz(&sinkref.data,&sinkraz,x->group_num);
 

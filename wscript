@@ -25,7 +25,6 @@ SUBDIRS = [
     'hstio',
     'hstio/test',
     'include',
-    'ctegen2',
     'pkg',
     'tables',
     ]
@@ -50,11 +49,11 @@ def options(opt):
     opt.load('compiler_fc')
 
     opt.add_option(
-        '--disable-openmp', action='store_true', default=False,
+        '--disable-openmp', action='store_true',
         help="Disable OpenMP")
 
     opt.add_option(
-        '--debug', action='store_true', default=False,
+        '--debug', action='store_true',
         help="Create a debug build")
 
     opt.add_option(
@@ -238,11 +237,7 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
         if conf.check_cc(cflags='-Wall'):
             conf.env.append_value('CFLAGS','-Wall')
         if conf.check_cc(cflags='-fstack-protector-all'):
-           conf.env.append_value('CFLAGS','-fstack-protector-all')
-
-    if conf.options.releaseWithSymbols and not conf.options.debug:
-        if conf.check_cc(cflags='-g'):
-            conf.env.append_value('CFLAGS', '-g')
+            conf.env.append_value('CFLAGS','-fstack-protector-all')
 
     if conf.options.releaseWithSymbols and not conf.options.debug:
         if conf.check_cc(cflags='-g'):

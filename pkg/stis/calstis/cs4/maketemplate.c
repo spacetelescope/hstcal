@@ -230,7 +230,7 @@ static void debugimg (char *dbgfile, CmplxArray *z) {
 	int i, j;
 
 	initFloatHdrData (&x);
-	allocFloatHdrData (&x, z->nx, z->ny, True);
+	allocFloatHdrData (&x, z->nx, z->ny);
 
 	for (j = 0;  j < z->ny;  j++) {
 	    for (i = 0;  i < z->nx;  i++)

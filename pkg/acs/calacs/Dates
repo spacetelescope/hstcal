@@ -1,4 +1,3 @@
- 28-Apr-2017:  CALACS 9.1.0 New CTE algorithm implemented
  21-Feb-2017:  CALACS 9.1.0 New SINKCORR step added in ACSCCD for WFC.
  22-Nov-2016:  CALACS 9.0.0 BLEVCORR now uses new OSCNTAB that correctly
                             process all subarrays.
