@@ -1,3 +1,14 @@
+Update for version 9.1.0 - 21-Feb-17 (PLL)
+    acsccd/doccd.c
+    acsccd/dosink.c
+    acsccd/getacsflag.c
+    acsccd/getccdsw.c
+    include/acsinfo.h
+
+Update for version 9.0.0 - 22-Nov-16 (PLL)
+    acsccd/findover.c
+    acsccd/doblev.c
+
 Update for version 8.3.5 - 21-Oct-16 (PLL)
     acsccd/findover.c
 
