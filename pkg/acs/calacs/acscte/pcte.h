@@ -1,4 +1,8 @@
+#ifndef PCTE_INCL
+#define PCTE_INCL
+
 #include "hstio.h"
+#include "../../../../ctegen2/ctegen2.h"
 
 /* constants describing the CTE parameters reference file */
 #define NUM_PHI 11  /* number of phi values in cte params file */
@@ -17,6 +21,11 @@
 
 #define NAMPS 4
 #define AMP_COLS 2048
+#define N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE 8192 //8412 //This DOES NOT includes the 24 cols of overscan per amp, (2048 + 24)*4 = 8412
+
+//New params needed for second gen CTE correction algorithm
+#define TRAPS 9999//6675 //max number of traps per column = rows in pctetab[1]
+# define SZ_LINE           255 //from calwf3/msg.h
 
 /* structure to hold CTE parameters from reference file */
 typedef struct {
@@ -32,12 +41,13 @@ typedef struct {
     double chg_leak[NUM_PSI * NUM_LOGQ];
     int levels[NUM_LEV];
     double col_scale[AMP_COLS * NAMPS];
-} CTEParams;
+    CTEParamsFast baseParams;
+} ACSCTEParams;
 
 /* function prototypes */
-int PixCteParams (char *filename, const double expstart, CTEParams * pars);
-int CompareCteParams(SingleGroup *x, CTEParams *pars);
-double CalcCteFrac(const double expstart, const double scalemjd[NUM_SCALE],
+int PixCteParams (char *filename, const double expstart, ACSCTEParams * pars);
+int CompareCteParams(SingleGroup *x, ACSCTEParams *pars);
+int CalcCteFrac(double * cte_frac, const double expstart, const double scalemjd[NUM_SCALE],
                    const double scaleval[NUM_SCALE]);
 int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ], const int psi_node[],
                    double chg_leak_interp[MAX_TAIL_LEN*NUM_LOGQ],
@@ -59,3 +69,5 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             const int levels[NUM_LEV], const double dpde_l[NUM_LEV],
             const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
             const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV], int onecpu);
+
+#endif

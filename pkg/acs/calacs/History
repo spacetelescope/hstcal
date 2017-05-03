@@ -1,3 +1,8 @@
+### 28-Apr-2017 - JAN -- Version 9.1.0
+	New CTE algorithm implemented. Use of either new (gen2) & old (gen1) 
+	dynamically detected from CTE_NAME in PCTETAB.
+	New cmd line options added: --ntherads <n>, --ctegen <1|2>, --pctetab <filename>
+
 ### 21-Feb-2017 - PLL -- Version 9.1.0
     New SINKCORR step is added to ACSCCD for WFC.
 

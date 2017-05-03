@@ -35,7 +35,7 @@ def build(bld):
 
             ../acscte/docte.c        ../acscte/acscte.c
             ../acscte/getcteflag.c   ../acscte/getctesw.c  ../acscte/dopcte.c
-            ../acscte/pcte_fixycte.c ../acscte/pcte_funcs.c
+            ../acscte/dopcte-gen2.c ../acscte/pcte_fixycte.c ../acscte/pcte_funcs.c
 
             ../acsrej/acsrej.c ../acsrej/acsrej_check.c
             ../acsrej/acsrej_do.c ../acsrej/acsrej_init.c
@@ -54,7 +54,7 @@ def build(bld):
             """,
         target = 'calacs',
         install_path = bld.env.INSTALL_LIB and '${PREFIX}/lib',
-        use = ['CFITSIO', 'OPENMP'],
+        use = ['CFITSIO', 'OPENMP', 'ctegen2'],
         includes = ['../include'],
         export_includes = ['../include'],
         )

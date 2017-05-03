@@ -25,6 +25,7 @@ SUBDIRS = [
     'hstio',
     'hstio/test',
     'include',
+    'ctegen2',
     'pkg',
     'tables',
     ]
@@ -238,10 +239,6 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
             conf.env.append_value('CFLAGS','-Wall')
         if conf.check_cc(cflags='-fstack-protector-all'):
             conf.env.append_value('CFLAGS','-fstack-protector-all')
-
-    if conf.options.releaseWithSymbols and not conf.options.debug:
-        if conf.check_cc(cflags='-g'):
-            conf.env.append_value('CFLAGS', '-g')
 
     if conf.options.releaseWithSymbols and not conf.options.debug:
         if conf.check_cc(cflags='-g'):

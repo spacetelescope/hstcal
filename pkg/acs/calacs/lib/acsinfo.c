@@ -12,6 +12,8 @@
    12-Dec-2012 PLL - added CTE corrected flash reference file.
    12-Aug-2013 PLL - Tidied up code layout.
 */
+#include <string.h>
+
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
@@ -31,7 +33,9 @@ void ACSInit (ACSInfo *acs) {
     acs->rootname[0] = '\0';
     acs->printtime = 0;
     acs->verbose = 0;
-    acs->onecpu = 0;
+    acs->nThreads = 1;
+    acs->cteAlgorithmGen = 0;
+    acs->pcteTabNameFromCmd[0] = '\0';
 
     acs->det[0] = '\0';
     acs->aperture[0] = '\0';
@@ -215,6 +219,26 @@ int GetTabRef (RefFileInfo *refnames, Hdr *phdr,
     return (status);
 }
 
+int checkTabRefPedigree (char *filename, RefTab *table, int *calswitch)
+{
+    extern int status;
+
+    int TabPedigree (RefTab *);
+
+    strcpy(table->name, filename);
+
+    /* TabPedigree opens the table to verify that it exists, and if so,
+       gets pedigree & descrip.
+    */
+    if ((status = TabPedigree (table)))
+        return (status);
+    if (table->exists == EXISTS_YES) {
+        if (table->goodPedigree != GOOD_PEDIGREE)
+            *calswitch = DUMMY;
+    }
+
+    return (status);
+}
 
 void MissingFile (char *keyword, char *filename, int *missing) {
     sprintf (MsgText, "%s `%s' not found or can't open.", keyword, filename);

@@ -1,3 +1,6 @@
+#ifndef ACSINFO_INCL
+#define ACSINFO_INCL
+
 /* acsinfo.h
 
     Warren Hack, 1998 June 10:
@@ -10,6 +13,8 @@
     2001-12-04 WJH: Added expstart and expend.
     2017-02-21 PLL: Added SINKCORR varibles.
 */
+
+#include "hstio.h"
 
 # define NAMPS  4    /* Maximum number of amps for a single readout */
 
@@ -24,7 +29,8 @@ typedef struct {
     /* command-line flags */
     int printtime;                  /* print time after each step? */
     int verbose;                    /* print additional info? */
-    int onecpu;                     /* turn off OpenMP usage if True */
+    unsigned cteAlgorithmGen;       // specify 1 = gen1 or 2 = gen2
+    unsigned nThreads;              // turn off OpenMP usage if 0|1
 
     /* keywords and file names for reference files */
     RefFileInfo *refnames;
@@ -120,6 +126,7 @@ typedef struct {
 
     /* calibration images and tables for ACSCTE */
     RefTab pcte;        /* Pixel CTE parameters table */
+    char pcteTabNameFromCmd[ACS_LINE];
 
     /* calibration images and tables for ACS2D */
     RefImage dark;      /* dark image */
@@ -161,3 +168,5 @@ typedef struct {
     ErrHdrLine *err;    /* Array of error data lines */
     DQHdrLine *dq;      /* Array of DQ data lines */
 } ACSsect;
+
+#endif
