@@ -19,8 +19,6 @@ int sim_readout_nit(const int arrx, double pix_cur[arrx], double pix_read[arrx],
                     const int levels[NUM_LEV], const double dpde_l[NUM_LEV],
                     const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
                     const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV]);
-
-
 int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             double sig_cor[arrx*arry], const int sim_nit, const int shft_nit,
             const double too_low, double cte_frac[arrx*arry],
@@ -50,7 +48,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
   int high_location;
 
   /* track how many times we run the column. */
-  short int redo_col;
+  short int redo_col = 0;
   int num_redo;
 
   /* Only use OpenMP, if specified by user and OpenMP was available for compilation */
@@ -62,7 +60,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
     for (j = 0; j < arry; j++) {
       /* copy column data */
       for (i = 0; i < arrx; i++) {
-        pix_obs[i] = sig_cte[i*arry + j];
+        pix_obs[i] = sig_cte[i*arry + j];//This is row major storage.
         pix_cur[i] = pix_obs[i];
         pix_read[i] = 0.0;
 
