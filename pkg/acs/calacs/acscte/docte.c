@@ -182,19 +182,6 @@ int DoCTE (ACSInfo *acs_info) {
         else
             cteAlgorithmGen = 1;
 
-        /*###################################################
-         *#                                                 #
-         *#   Short circuit to existing gen 1 algorithm     #
-         *#   for initial 2017.2 release to DMS.            #
-         *#   Remove this as a quick fix once the ACS       #
-         *#   team is sure of what they are doing and have  #
-         *#   a completely pinned PCTETAB reference file.   #
-         *#                                                 #
-         *###################################################
-         */
-        acs_info->cteAlgorithmGen = 1;
-        //###################################################
-
         if (acs_info->cteAlgorithmGen && (acs_info->cteAlgorithmGen != cteAlgorithmGen))
         {
             char msgBuffer[256];
@@ -275,7 +262,7 @@ int DoCTE (ACSInfo *acs_info) {
                     return status;
             }
             double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
-            sprintf(MsgText,"(pctecorr) CTE run time for current amp: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
+            sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
             trlmessage(MsgText);
         }
         freeOnExit(&ptrReg);
