@@ -195,7 +195,7 @@ int inverseCTEBlur(const SingleGroup * input, SingleGroup * output, SingleGroup 
     return (status);
 }
 
-int simulatePixelReadout(double * const pixelColumn, const float * const traps, const CTEParamsFast * const ctePars,
+int simulatePixelReadout_v1_1(double * const pixelColumn, const float * const traps, const CTEParamsFast * const ctePars,
         const FloatTwoDArray * const rprof, const FloatTwoDArray * const cprof, const unsigned nRows)
 {
     //For performance this does not NULL check passed in ptrs
@@ -293,7 +293,7 @@ int simulatePixelReadout(double * const pixelColumn, const float * const traps, 
     return HSTCAL_OK;
 }
 
-int simulatePixelReadout_2(double * const pixelColumn, const float * const traps, const CTEParamsFast * const ctePars,
+int simulatePixelReadout_v1_2(double * const pixelColumn, const float * const traps, const CTEParamsFast * const ctePars,
         const FloatTwoDArray * const rprof, const FloatTwoDArray * const cprof, const unsigned nRows)
 {
     //NOTE: this version of the function, simulatePixelReadout, matches Jay Anderson's update
@@ -343,16 +343,12 @@ int simulatePixelReadout_2(double * const pixelColumn, const float * const traps
         for (i = 0; i < nRows; ++i)
         {
             pixel = pixelColumn[i];
-            Bool isInsideTrailLength = nTransfersFromTrap < ctePars->cte_len;
-            //Bool isAboveChargeThreshold = pixel >= ctePars->qlevq_data[w] - 1.;
+            Bool isInsideTrailLength = nTransfersFromTrap <= ctePars->cte_len;
 
             //check if this are needed
             chargeToAdd = 0;
             extraChargeToAdd = 0;
             chargeToRemove = 0;
-
-            //if (!isInsideTrailLength && !isAboveChargeThreshold)
-              //  continue;
 
             /*HAPPENS AFTER FIRST PASS*/
             /*SHUFFLE CHARGE IN*/
@@ -371,8 +367,9 @@ int simulatePixelReadout_2(double * const pixelColumn, const float * const traps
                     chargeToAdd = rprof->data[w*rprof->ny + nTransfersFromTrap-1] * trappedFlux;
                     extraChargeToAdd = cprof->data[w*cprof->ny + nTransfersFromTrap-1] * trappedFlux;
                 }
-                chargeToRemove = ctePars->dpdew_data[w] / ctePars->n_par * (double)traps[i];
-                trappedFlux = 0;
+                trappedFlux = ctePars->dpdew_data[w] / ctePars->n_par * (double)traps[i];
+                chargeToRemove = trappedFlux;
+                nTransfersFromTrap = 0;
             }
             else
             {
@@ -399,7 +396,7 @@ int simulateColumnReadout(double * const pixelColumn, const float * const traps,
     {unsigned shift;
     for (shift = 1; shift <= nPixelShifts; ++shift)
     {
-        if ((localStatus = simulatePixelReadout(pixelColumn, traps, cte, rprof, cprof, nRows)))
+        if ((localStatus = simulatePixelReadout_v1_2(pixelColumn, traps, cte, rprof, cprof, nRows)))
             return localStatus;
     }}
 
