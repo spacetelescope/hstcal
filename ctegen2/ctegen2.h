@@ -80,10 +80,10 @@ typedef struct {
 int inverseCTEBlurWithRowMajorIput(const SingleGroup * rsz, SingleGroup * rsc, const SingleGroup * trapPixelMap, CTEParamsFast * cte);
 int inverseCTEBlur(const SingleGroup * rsz, SingleGroup * rsc, SingleGroup * trapPixelMap, CTEParamsFast * cte);
 
-int simulatePixelReadout(double * const pixelColumn, const float * const traps, const CTEParamsFast * const cte,
+int simulatePixelReadout_v1_1(double * const pixelColumn, const float * const traps, const CTEParamsFast * const cte,
         const FloatTwoDArray * const rprof, const FloatTwoDArray * const cprof, const unsigned nRows);
 
-int simulatePixelReadout_2(double * const pixelColumn, const float * const traps, const CTEParamsFast * const cte,
+int simulatePixelReadout_v1_2(double * const pixelColumn, const float * const traps, const CTEParamsFast * const cte,
         const FloatTwoDArray * const rprof, const FloatTwoDArray * const cprof, const unsigned nRows);
 
 int simulateColumnReadout(double * const pixelColumn, const float * const traps, const CTEParamsFast * const cte,
