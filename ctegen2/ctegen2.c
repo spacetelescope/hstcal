@@ -343,7 +343,7 @@ int simulatePixelReadout_v1_2(double * const pixelColumn, const float * const tr
         for (i = 0; i < nRows; ++i)
         {
             pixel = pixelColumn[i];
-            Bool isInsideTrailLength = nTransfersFromTrap <= ctePars->cte_len;
+            Bool isInsideTrailLength = nTransfersFromTrap < ctePars->cte_len;
 
             //check if this are needed
             chargeToAdd = 0;
