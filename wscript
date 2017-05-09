@@ -244,6 +244,10 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
         if conf.check_cc(cflags='-g'):
             conf.env.append_value('CFLAGS', '-g')
 
+    if conf.options.releaseWithSymbols and not conf.options.debug:
+        if conf.check_cc(cflags='-g'):
+            conf.env.append_value('CFLAGS', '-g')
+
     conf.start_msg('C compiler flags (CFLAGS)')
     conf.end_msg(' '.join(conf.env['CFLAGS']) or None)
 
