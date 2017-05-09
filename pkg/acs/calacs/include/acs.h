@@ -1,3 +1,6 @@
+#ifndef ACS_INCL
+#define ACS_INCL
+
 /* acs.h generic header for calacs */
 /*      */
 # include <stdio.h>             /* To insure that FILE is defined for TrlPtr */
@@ -6,6 +9,7 @@
 # define ACS_CBUF           24  /* small buffer for e.g. rootname */
 # define ACS_FNAME          162
 # define ACS_LINE           255
+# define MSG_BUFF_LENGTH    ACS_LINE + 1
 # define ACS_FITS_REC       82
 # define SZ_STRKWVAL        68
 
@@ -30,7 +34,7 @@ typedef unsigned char Byte;
 # define EXT_PER_GROUP 3
 
 /* Standard string for use in Error Messages */
-char MsgText[ACS_LINE+1];
+char MsgText[MSG_BUFF_LENGTH];
 void errchk ();                 /* HSTIO error check */
 
 /* Integer codes for string-valued header keywords. */
@@ -158,3 +162,5 @@ void trlopenerr (char *filename);
 void trlreaderr (char *name);
 void trlkwerr (char *keyword, char *file);
 void trlfilerr (char *name);
+
+#endif
