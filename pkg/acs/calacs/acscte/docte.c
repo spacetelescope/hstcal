@@ -178,15 +178,30 @@ int DoCTE (ACSInfo *acs_info) {
             return (status = tmpStatus);
         }
         else if (strcmp(cteName, ACS_GEN2_CTE_NAME) == 0)
+        {
             cteAlgorithmGen = 2;
+            trlmessage("(pctecorr) Generation 2 PCTETAB file auto-detected.");
+        }
         else
+        {
             cteAlgorithmGen = 1;
+            trlmessage("(pctecorr) Generation 1 PCTETAB file auto-detected.");
+        }
 
         if (acs_info->cteAlgorithmGen && (acs_info->cteAlgorithmGen != cteAlgorithmGen))
         {
-            char msgBuffer[256];
+            char msgBuffer[MSG_BUFF_LENGTH];
             sprintf(msgBuffer, "(pctecorr) Cmd line option '--ctegen %d' specified yet gen%d algorithm detected in PCTETAB (CTE_NAME).",
                     acs_info->cteAlgorithmGen, cteAlgorithmGen);
+            trlerror(msgBuffer);
+            freeOnExit(&ptrReg);
+            return (status = CAL_FILE_MISSING);
+        }
+        else if (!acs_info->cteAlgorithmGen && (cteAlgorithmGen != 2))
+        {
+            char msgBuffer[MSG_BUFF_LENGTH];
+            sprintf(msgBuffer, "(pctecorr) Gen%d algorithm detected in PCTETAB (CTE_NAME). Default is gen2, use '--ctegen %d' to override.",
+                    cteAlgorithmGen, cteAlgorithmGen);
             trlerror(msgBuffer);
             freeOnExit(&ptrReg);
             return (status = CAL_FILE_MISSING);
