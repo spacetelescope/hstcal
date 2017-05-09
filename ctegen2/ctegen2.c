@@ -660,11 +660,11 @@ int cteSmoothImage(const SingleGroup * input, SingleGroup * output, CTEParamsFas
 
 #ifdef _OPENMP
         #pragma omp single
+#endif
         {
             rmsGlobal=0;
             nrmsGlobal=0;
         }
-#endif
 
         {unsigned j;
 #ifdef _OPENMP
@@ -698,10 +698,10 @@ int cteSmoothImage(const SingleGroup * input, SingleGroup * output, CTEParamsFas
 
 #ifdef _OPENMP
         #pragma omp single
+#endif
         {
             rmsGlobal = sqrt(rmsGlobal/nrmsGlobal);
         } //implicit barrier
-#endif
 
         // if it is true that one breaks then it is true for all
         /*epsilon type comparison*/
