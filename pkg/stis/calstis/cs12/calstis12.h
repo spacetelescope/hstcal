@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS12_H
+#define INCL_CALSTIS12_H
+
 /* calstis12.h update SHIFTAi keywords in science file extensions */
 
 /* include "../stis.h" */
@@ -43,3 +46,5 @@ typedef struct {
 	double *shift1, *shift2;	/* shift read from wavecal */
 
 } StisInfo12;
+
+#endif /* INCL_CALSTIS12_H */

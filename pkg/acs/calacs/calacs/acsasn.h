@@ -1,3 +1,6 @@
+#ifndef INCL_ACSASN_H
+#define INCL_ACSASN_H
+
 # define	BADVAL	-99999
 
 /* Image types */
@@ -96,3 +99,5 @@ typedef struct {
 	int debug;			/* Print out DEBUGGING messages */
 } AsnInfo;
 
+
+#endif /* INCL_ACSASN_H */

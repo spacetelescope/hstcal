@@ -1,3 +1,6 @@
+#ifndef INCL_STISPHT_H
+#define INCL_STISPHT_H
+
 /* This contains factors for converting from count rate to absolute flux,
    read from the photometry table _pht.
 
@@ -30,3 +33,5 @@ typedef struct {
 	double ypos;		/* A2 position of mref order in data */
 	double disp;		/* dispersion for order mref in data */
 } PhotInfo;
+
+#endif /* INCL_STISPHT_H */

@@ -1,3 +1,6 @@
+#ifndef INCL_WF3CORR_H
+#define INCL_WF3CORR_H
+
 /* calibration switches for 'wf3ccd' and 'wf3ir' */
 
 /* Revision history:
@@ -45,3 +48,5 @@ typedef struct {
 
 } IR_Switch;
 
+
+#endif /* INCL_WF3CORR_H */

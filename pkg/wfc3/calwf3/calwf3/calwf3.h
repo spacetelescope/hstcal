@@ -1,3 +1,6 @@
+#ifndef INCL_CALWF3_H
+#define INCL_CALWF3_H
+
 /* calwf3 -- integrated calwf3 reduction
 
 	Howard Bushouse, 2000 August 22: Initial version (adapted from
@@ -55,3 +58,5 @@ typedef struct {
 
 } WF3Info;
 
+
+#endif /* INCL_CALWF3_H */

@@ -1,3 +1,6 @@
+#ifndef INCL_WF3REJ_H
+#define INCL_WF3REJ_H
+
 /* The header file wf3.h must be called prior to calling this
     file, in order to define the macros used here.
 */
@@ -35,3 +38,5 @@ typedef struct {
     int     printtime;
     int     verbose;
 } clpar;
+
+#endif /* INCL_WF3REJ_H */

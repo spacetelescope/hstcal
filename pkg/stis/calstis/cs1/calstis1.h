@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS1_H
+#define INCL_CALSTIS1_H
+
 /* calstis1.h
 
   Phil Hodge, 1997 Sept 12:
@@ -184,3 +187,5 @@ typedef struct {
 	RefTab tdctab;		/* NUV dark temp- and time-dep corr table */
 	RefTab tdstab;		/* Time-dependent corr. table (for temp.) */
 } StisInfo1;
+
+#endif /* INCL_CALSTIS1_H */

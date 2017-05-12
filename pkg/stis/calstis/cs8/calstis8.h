@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS8_H
+#define INCL_CALSTIS8_H
+
 /* calstis8.h 2-D spectral extraction */
 
 /* include "../stis.h" */
@@ -39,3 +42,5 @@ typedef struct {
 	int statcorr;		/* compute statistics? */
 
 } StisInfo8;
+
+#endif /* INCL_CALSTIS8_H */

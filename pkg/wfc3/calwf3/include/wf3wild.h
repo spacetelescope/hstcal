@@ -1,3 +1,6 @@
+#ifndef INCL_WF3WILD_H
+#define INCL_WF3WILD_H
+
 /* This file defines the wildcards for use when comparing values
    (e.g. from the input header) with values read from a table row.
    The IGNORE values mean that the column is not relevant for the
@@ -12,3 +15,5 @@
 # define  FLT_IGNORE        -999.0
 # define  STRING_IGNORE_1  "N/A"
 # define  STRING_IGNORE_2  "NOT APPLICABLE"
+
+#endif /* INCL_WF3WILD_H */

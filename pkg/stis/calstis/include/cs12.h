@@ -1,3 +1,6 @@
+#ifndef INCL_CS12_H
+#define INCL_CS12_H
+
 /* These macros are used by calstis12; calstis0 also uses this file to set
    a default value.
 
@@ -8,3 +11,5 @@
 
 # define STIS_NEAREST    1
 # define STIS_LINEAR     2
+
+#endif /* INCL_CS12_H */

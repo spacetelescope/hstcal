@@ -1,3 +1,6 @@
+#ifndef INCL_ACSREJ_H
+#define INCL_ACSREJ_H
+
 /* The header file acs.h must be called prior to calling this
     file, in order to define the macros used here.
 */
@@ -36,3 +39,5 @@ typedef struct {
     int     verbose;
     int     newbias;
 } clpar;
+
+#endif /* INCL_ACSREJ_H */

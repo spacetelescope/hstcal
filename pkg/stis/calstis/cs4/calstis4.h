@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS4_H
+#define INCL_CALSTIS4_H
+
 /* requires "../stis.h"
    requires <stdio.h> for FILE
 */
@@ -229,3 +232,5 @@ typedef struct {
 	double *coeff1;		/* arrays of coefficients */
 	double *coeff2;
 } InangInfo;
+
+#endif /* INCL_CALSTIS4_H */

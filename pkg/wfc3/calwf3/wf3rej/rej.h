@@ -1,3 +1,6 @@
+#ifndef INCL_REJ_H
+#define INCL_REJ_H
+
 # include "c_iraf.h"
 # include "ximio.h"
 
@@ -12,3 +15,5 @@
 # define    PIX(v,i,j,nx)   v[(i) + (j) * (nx)]
 # define    SQ(x)           ((x) * (x))
 
+
+#endif /* INCL_REJ_H */

@@ -1,3 +1,6 @@
+#ifndef INCL_ACSSUM_H
+#define INCL_ACSSUM_H
+
 /* acssum.h Sum Repeatobs data */
 
 /* include "../acs.h" */
@@ -33,3 +36,5 @@ typedef struct {
 	double expend;		/* end of exposure time */
 
 } AcsSumInfo;
+
+#endif /* INCL_ACSSUM_H */
