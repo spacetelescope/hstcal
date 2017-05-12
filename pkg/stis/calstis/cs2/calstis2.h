@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS2_H
+#define INCL_CALSTIS2_H
+
 # include <c_iraf.h>
 # include <xclio.h>
 # include <ximio.h>
@@ -11,3 +14,5 @@
 
 # define	PIX(v,i,j,nx)	v[(i) + (j) * (nx)]
 # define SQ(x)  ((x) * (x))
+
+#endif /* INCL_CALSTIS2_H */

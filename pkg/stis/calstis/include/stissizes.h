@@ -1,3 +1,6 @@
+#ifndef INCL_STISSIZES_H
+#define INCL_STISSIZES_H
+
 /* Sizes of detectors. */
 
 /* The size of the MAMA detectors. */
@@ -26,3 +29,5 @@
 # define BIASSECT_2R      530
 # define BIASSECT_4L      263
 # define BIASSECT_4R      269
+
+#endif /* INCL_STISSIZES_H */

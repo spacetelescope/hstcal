@@ -1,3 +1,6 @@
+#ifndef INCL_CTE_H
+#define INCL_CTE_H
+
 #define NUM_SCALE 4 /*number of scaling points, this is the 4 columns in the second table extension*/
 #define TRAPS 999 /*max number of traps per column = rows in pctetab[1], valid traps are < 999999 in qlev*/
 #define CTEFLAG 9999999 /*flag to ignore value in array during cte calculation*/
@@ -94,3 +97,5 @@ int initCTETrl (char *, char *);
 
 int makeRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
 int undoRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
+
+#endif /* INCL_CTE_H */

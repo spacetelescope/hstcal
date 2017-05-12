@@ -1,3 +1,6 @@
+#ifndef INCL_XTABLES_H
+#define INCL_XTABLES_H
+
 # include <c_iraf.h>
 
 /* These constants do NOT include space for the NULL character */
@@ -140,3 +143,5 @@ void c_tbapts (IRAFPointer tp, IRAFPointer cp, int row, short *buffer,
                 int first, int nelem);
 void c_tbaptt (IRAFPointer tp, IRAFPointer cp, int row, char **cbuf,
                 int maxch, int first, int nelem);
+
+#endif /* INCL_XTABLES_H */

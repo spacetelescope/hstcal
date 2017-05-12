@@ -1,3 +1,6 @@
+#ifndef INCL_STISDQ_H
+#define INCL_STISDQ_H
+
 /* Data quality flags for STIS. */
 
 # define GOODPIXEL             0  /* OK */
@@ -16,3 +19,5 @@
 # define X1D_DISCARDED      4096  /* pixel discarded from extraction region */
 # define DATAREJECT         8192  /* rejected during image combination */
 # define NOT_CTI_CORR      16384  /* pixel not CTI corrected */
+
+#endif /* INCL_STISDQ_H */

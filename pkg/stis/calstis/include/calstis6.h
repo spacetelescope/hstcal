@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS6_H
+#define INCL_CALSTIS6_H
+
 # include <float.h>
 
 /* calstis6.h 1-D spectral extraction */
@@ -561,3 +564,5 @@ typedef struct {
 	float	*extrlocy;
 	float	cc_offset;	/* this was added 23Jun98 */
 } RowContents;
+
+#endif /* INCL_CALSTIS6_H */

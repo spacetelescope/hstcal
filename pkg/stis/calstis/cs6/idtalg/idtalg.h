@@ -1,3 +1,6 @@
+#ifndef INCL_IDTALG_H
+#define INCL_IDTALG_H
+
 # include <ximio.h>
 
 # define	NITER		3
@@ -74,3 +77,5 @@ typedef struct {
 	double	*fmerge;	/* flux (net) values */
 } Spliced;
 
+
+#endif /* INCL_IDTALG_H */

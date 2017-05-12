@@ -1,3 +1,6 @@
+#ifndef INCL_STIS_H
+#define INCL_STIS_H
+
 # include <float.h>
 
 /* stis.h generic header for calstis */
@@ -332,3 +335,5 @@ void CpyCmplx (CmplxArray *, CmplxArray *);
 void CFFTI (int *, float *);
 void CFFTF (int *, float *, float *);
 void CFFTB (int *, float *, float *);
+
+#endif /* INCL_STIS_H */

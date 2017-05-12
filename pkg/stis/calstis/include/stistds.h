@@ -1,3 +1,6 @@
+#ifndef INCL_STISTDS_H
+#define INCL_STISTDS_H
+
 # define DAYS_PER_YEAR  365.25
 
 /* Structure that stores time-dependent-sensitivity information. It is
@@ -22,3 +25,5 @@ typedef struct {
 	double ref_temp;	/* reference temperature, degrees C */
 	double *temp_sens;	/* array of temperature sensitivity values */
 } TdsInfo;
+
+#endif /* INCL_STISTDS_H */

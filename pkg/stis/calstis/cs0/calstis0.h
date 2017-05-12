@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS0_H
+#define INCL_CALSTIS0_H
+
 /* calstis0 -- integrated calstis reduction
 
    Phil Hodge, 1997 Dec 10:
@@ -108,3 +111,5 @@ typedef struct {
 	int statcorr;	/* statflag */
 
 } CalSwitch;
+
+#endif /* INCL_CALSTIS0_H */

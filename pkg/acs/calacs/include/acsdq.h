@@ -1,3 +1,6 @@
+#ifndef INCL_ACSDQ_H
+#define INCL_ACSDQ_H
+
 /* Data quality flags for CALACS. */
 
 # define GOODPIXEL         0    /* OK */
@@ -17,3 +20,5 @@
 # define DATAREJECT     8192    /* rejected during image combination */
 /* # define TBD        16384    */
 /* # define TBD        32768    */
+
+#endif /* INCL_ACSDQ_H */

@@ -1,3 +1,6 @@
+#ifndef INCL_WF3SUM_H
+#define INCL_WF3SUM_H
+
 /* wf3sum.h Sum Repeatobs data */
 
 /* include "../wf3.h" */
@@ -31,3 +34,5 @@ typedef struct {
 
 } Wf3SumInfo;
 
+
+#endif /* INCL_WF3SUM_H */

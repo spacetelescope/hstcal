@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS7_H
+#define INCL_CALSTIS7_H
+
 /* calstis7.h 2-D spectral extraction */
 
 /* requires "../stis.h" */
@@ -275,3 +278,5 @@ typedef struct {
 	double barwidth[MAX_BARS];	/* width of bar */
 	int nbars;			/* number of occulting bars */
 } ApInfo;
+
+#endif /* INCL_CALSTIS7_H */

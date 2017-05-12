@@ -1,3 +1,6 @@
+#ifndef INCL_DOCCD_H
+#define INCL_DOCCD_H
+
 /*USEFUL LIB FUNCTIONS*/
 static void AtoDMsg (WF3Info *, int);
 static void BiasMsg (WF3Info *, int);
@@ -38,3 +41,5 @@ int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *,int *, int *)
 int Full2Sub(WF3Info *, SingleGroup *, SingleGroup *, int, int, int);
 int Sub2Full(WF3Info *, SingleGroup *, SingleGroup *, int, int, int );
 int CreateEmptyChip(WF3Info *, SingleGroup *);
+
+#endif /* INCL_DOCCD_H */

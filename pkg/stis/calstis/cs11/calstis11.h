@@ -1,3 +1,6 @@
+#ifndef INCL_CALSTIS11_H
+#define INCL_CALSTIS11_H
+
 /* calstis11.h subtract science data */
 
 /* include "../stis.h" */
@@ -47,3 +50,5 @@ typedef struct {
 	double *midpt;			/* midpoint of exposure (MJD) */
 
 } StisInfo11;
+
+#endif /* INCL_CALSTIS11_H */

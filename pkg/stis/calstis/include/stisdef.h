@@ -1,3 +1,6 @@
+#ifndef INCL_STISDEF_H
+#define INCL_STISDEF_H
+
 /* Prototypes for public functions that need definitions from hstio,
    and for related functions.
 */
@@ -68,3 +71,5 @@ void UCalVer (Hdr *phdr);
 void UFilename (char *filename, Hdr *phdr);
 
 int unbin2d (SingleGroup *a, SingleGroup *b);
+
+#endif /* INCL_STISDEF_H */

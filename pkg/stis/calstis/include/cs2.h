@@ -1,3 +1,6 @@
+#ifndef INCL_CS2_H
+#define INCL_CS2_H
+
 /* define the user input parameter constants for calstis2 */
 # define	TOTAL		0
 # define	SCALENSE	1
@@ -9,3 +12,5 @@
 # define	BADINPDQ	7
 # define	CRMASK		8
 # define	MAX_PAR		8
+
+#endif /* INCL_CS2_H */

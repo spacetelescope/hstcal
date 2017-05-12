@@ -1,3 +1,6 @@
+#ifndef INCL_WF3ASN_H
+#define INCL_WF3ASN_H
+
 # define	BADVAL	-99999
 
 /* Image types */
@@ -98,3 +101,5 @@ typedef struct {
 	int debug;			/* Print out DEBUGGING messages */
 } AsnInfo;
 
+
+#endif /* INCL_WF3ASN_H */

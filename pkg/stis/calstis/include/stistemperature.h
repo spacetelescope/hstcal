@@ -1,3 +1,6 @@
+#ifndef INCL_STISTEMPERATURE_H
+#define INCL_STISTEMPERATURE_H
+
 /* This file is used by cs1/ getgrpinfo1.c and dodark.c for scaling
    the NUV dark reference image depending on temperature, as gotten
    from the OM2CAT keyword.
@@ -31,3 +34,5 @@
    data taken after 2001 July 1, therefore, would be side-2.
 */
 # define BEGIN_SIDE2  (52091.)
+
+#endif /* INCL_STISTEMPERATURE_H */

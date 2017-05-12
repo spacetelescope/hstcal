@@ -1,3 +1,6 @@
+#ifndef INCL_WF3INFO_H
+#define INCL_WF3INFO_H
+
 /* wf3info.h
 
     Warren Hack, 1998 June 10:
@@ -262,3 +265,5 @@ typedef struct {
 	FloatHdrData *zerr;
 } NlinData;
 
+
+#endif /* INCL_WF3INFO_H */
