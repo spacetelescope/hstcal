@@ -212,11 +212,11 @@ int DoCTE (ACSInfo *acs_info) {
         {
             sprintf(MsgText, "(pctecorr) Reading CTE parameters from PCTETAB file: '%s'...", cteTabFilename);
             trlmessage(MsgText);
-            /*if ((status = PutKeyStr(x[0].globalhdr, "PCTETAB", cteTabFilename, "CTE Correction Table")))
+            if ((status = PutKeyStr(x[0].globalhdr, "PCTETAB", cteTabFilename, "CTE Correction Table")))
             {
-                trlmessage("(pctecorr) Error updating PCTETAB keyword in image header");
+                trlerror("(pctecorr) failed to update PCTETAB keyword in image header");
                 return status;
-            }*/
+            }
             //Get parameters from PCTETAB reference file
             addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
             unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
