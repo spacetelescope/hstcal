@@ -231,7 +231,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
                     delta = (PixColumnMajor(cteCorrectedImage->sci.data,k,m) - PixColumnMajor(smoothedImage.sci.data,k,m));
                     threadCounts += delta;
                     threadRawCounts += Pix(ampImage.sci.data, m, k);
-                    temp_err = 0.1 * fabs(delta - Pix(ampImage.sci.data, m, k));
+                    temp_err = 0.1 * fabs(delta);
                     Pix(ampImage.sci.data, m, k) += delta;
 
                     float err2 = Pix(ampImage.err.data, m, k);
