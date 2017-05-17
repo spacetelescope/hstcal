@@ -997,7 +997,7 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
     dval9 = 0.;
 
     /*COMPARE THE SURROUNDING PIXELS*/
-    if (i==1 &&  RAZ_ROWS-1>=j  && j>0 ) {
+    if (i==1 &&  RAZ_ROWS-1>j  && j>0 ) {
 
         dval9 = obsloc[i][j-1]  - rszloc[i][j-1] +
             obsloc[i][j]    - rszloc[i][j]  +
