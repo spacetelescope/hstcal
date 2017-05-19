@@ -152,8 +152,8 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
     if (++reg->cursor >= reg->length)
     {
         reg->length += PTR_REGISTER_LENGTH_INC;
-        assert(realloc(&reg->ptrs, reg->length*sizeof(*reg->ptrs)));
-        assert(realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions)));
+        assert(reg->ptrs = realloc(reg->ptrs, reg->length*sizeof(*reg->ptrs)));
+        assert(reg->freeFunctions = realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions)));
     }
     reg->ptrs[reg->cursor] = ptr;
     reg->freeFunctions[reg->cursor] = freeFunc;
