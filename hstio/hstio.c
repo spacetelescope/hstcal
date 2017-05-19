@@ -123,27 +123,31 @@ const char *hstio_version = HSTIO_VERSION;
 
 void initPtrRegister(PtrRegister * reg)
 {
-    reg->cursor = 0; //points to last ptr NOT next slot
+    if (!reg)
+        return;
+
+    reg->cursor = -1; //when >= 0 => points to last ptr NOT next slot
     reg->length = PTR_REGISTER_LENGTH_INC;
-    reg->ptrs = calloc(reg->length+1, sizeof(*reg->ptrs));
+    reg->ptrs = malloc(reg->length*sizeof(*reg->ptrs));
     assert(reg->ptrs);
-    reg->freeFunctions = calloc(reg->length+1, sizeof(*reg->freeFunctions));
+    reg->freeFunctions = malloc(reg->length*sizeof(*reg->freeFunctions));
     if (!reg->freeFunctions)
     {
         free(reg->ptrs);
         assert(0);
     }
-    reg->ptrs[0] = reg; //this ptr
-    reg->freeFunctions[0] = &free;
 }
 void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
 {
     if (!reg || !ptr || !freeFunc)
         return;
 
+    //guard against incorrect use of adding self
+    assert(ptr != reg); //Sorry this is not allowed - reg must be owned by a scope
+
     //check ptr isn't already registered? - go on then.
     {int i;
-    for (i = reg->cursor; i >= 0 ; --i)// i >= 0 prevents adding self again
+    for (i = reg->cursor; i >= 0 ; --i)
     {
         if (reg->ptrs[i] == ptr)
             return;
@@ -160,12 +164,11 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
 }
 void freePtr(PtrRegister * reg, void * ptr)
 {
-    //Can't be used to free itself, use freeReg(), use of i > 0 in below for is reason.
-    if (!reg || !ptr)
+    if (!reg || !ptr || reg->cursor < 0)
         return;
 
     int i;
-    for (i = reg->cursor; i > 0 ; --i)
+    for (i = reg->cursor; i >= 0 ; --i)
     {
         if (reg->ptrs[i] == ptr)
             break;
@@ -191,42 +194,33 @@ void freePtr(PtrRegister * reg, void * ptr)
 }
 void freeAll(PtrRegister * reg)
 {
-    if (!reg || reg->length == 0 || reg->cursor == 0)
+    if (!reg || !reg->length || reg->cursor < 0)
         return;
 
-    {unsigned i;
-    for (i = 1; i <= reg->cursor; ++i)
-    {
-        if (reg->freeFunctions[i] && reg->ptrs[i])
-        {
-            reg->freeFunctions[i](reg->ptrs[i]);
-            reg->ptrs[i] = NULL;
-            reg->freeFunctions[i] = NULL;
-        }
-    }}
-    reg->cursor = 0;
+    while (reg->cursor >= 0)
+        freePtr(reg, reg->ptrs[reg->cursor]);
 }
 void freeReg(PtrRegister * reg)
 {
-    if (!reg || reg->length == 0)
+    if (!reg || !reg->length)
         return;
 
-    if (reg->cursor > 0)
+    if (reg->cursor >= 0)
         freeAll(reg);
 
-    reg->cursor = 0;
+    reg->cursor = -1;
     reg->length = 0;
-    // free 'itself'
-    reg->freeFunctions[0](reg->ptrs);
-    reg->ptrs[0] = NULL;
-    reg->freeFunctions[0](reg->freeFunctions);
-    reg->freeFunctions[0] = NULL;
+    //free registers
+    free(reg->ptrs);
+    reg->ptrs = NULL;
+    free(reg->freeFunctions);
+    reg->freeFunctions = NULL;
 }
 void freeOnExit(PtrRegister * reg)
 {
-    //Free everything registered
+    //free everything registered
     freeAll(reg);
-    //Free itself
+    //free registers
     freeReg(reg);
 }
 

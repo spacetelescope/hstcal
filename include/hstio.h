@@ -135,7 +135,7 @@ extern "C" {
  * ...
  * if (cancel)
  * {
- *     freeOnExit(&ptrReg); // This frees itself, i.e. the register array holding the ptrs
+ *     freeOnExit(&ptrReg); // This frees everything including the register arrays holding the ptrs & freeFunctions
  *     return;
  * }
  * ...
@@ -146,8 +146,8 @@ extern "C" {
 typedef void (*FreeFunction)(void*); // Only trivial functions accepted
 #define PTR_REGISTER_LENGTH_INC 10
 typedef struct {
-    unsigned cursor;
-    unsigned length;
+    int cursor; //when >= 0 => points to last ptr NOT next slot
+    unsigned length; //length of ptrs & freeFunctions
     void ** ptrs;
     FreeFunction * freeFunctions;
 } PtrRegister;
@@ -155,8 +155,8 @@ void initPtrRegister(PtrRegister * reg);
 void addPtr(PtrRegister * reg, void * ptr, void * freeFunc); // ptr list is self expanding
 void freePtr(PtrRegister * reg, void * ptr);
 void freeOnExit(PtrRegister * reg); //only calls freeAll() followed by freeReg()
-void freeAll(PtrRegister * reg); // frees all ptrs registered (excluding itself)
-void freeReg(PtrRegister * reg); // frees itself i.e. the register array holding the ptrs
+void freeAll(PtrRegister * reg); // frees all ptrs registered
+void freeReg(PtrRegister * reg); // frees the register arrays holding the ptrs & freeFunctions
 
 # define SZ_PATHNAME 511
 
