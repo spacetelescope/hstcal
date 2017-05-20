@@ -217,10 +217,10 @@ void freeReg(PtrRegister * reg)
     reg->cursor = 0;
     reg->length = 0;
     // free 'itself'
-    reg->freeFunctions[0](reg->ptrs);
-    reg->ptrs[0] = NULL;
-    reg->freeFunctions[0](reg->freeFunctions);
-    reg->freeFunctions[0] = NULL;
+    free(reg->ptrs);
+    reg->ptrs = NULL;
+    free(reg->freeFunctions);
+    reg->freeFunctions = NULL;
 }
 void freeOnExit(PtrRegister * reg)
 {
