@@ -208,11 +208,16 @@ void freeAll(PtrRegister * reg)
 }
 void freeReg(PtrRegister * reg)
 {
+    /* THIS SHOULD NEVER CALL freeALL()
+     * This is designed to be used when allocating multiple persistent memory allocations,
+     * registering each allocation in turn. If one allocation fails freeOnExit() can be
+     * called to free prior successful allocations and if all allocations are successful
+     * this function can be called to free the registers without freeing the actual
+     * pointers just allocated.
+     */
+
     if (!reg || reg->length == 0)
         return;
-
-    if (reg->cursor > 0)
-        freeAll(reg);
 
     reg->cursor = 0;
     reg->length = 0;
