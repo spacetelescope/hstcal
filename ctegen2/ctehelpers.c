@@ -99,7 +99,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
 
     void * tmp = NULL;
     tmp = newAndZero((void*)&pars->iz_data, pars->nScaleTableColumns, sizeof(*pars->iz_data));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -107,7 +107,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale512, pars->nScaleTableColumns, sizeof(*pars->scale512));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -115,7 +115,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale1024, pars->nScaleTableColumns, sizeof(*pars->scale1024));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -123,7 +123,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale1536, pars->nScaleTableColumns, sizeof(*pars->scale1536));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -131,7 +131,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale2048, pars->nScaleTableColumns, sizeof(*pars->scale2048));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -139,7 +139,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->wcol_data, pars->nTraps, sizeof(*pars->wcol_data));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -147,14 +147,15 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->qlevq_data, pars->nTraps, sizeof(*pars->qlevq_data));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
         trlerror ("Out of memory.\n");
         return OUT_OF_MEMORY;
     }
-    tmp = newAndZero((void*)& pars->dpdew_data, pars->nTraps, sizeof(*pars->dpdew_data));addPtr(&ptrReg, tmp, &delete);
+    tmp = newAndZero((void*)& pars->dpdew_data, pars->nTraps, sizeof(*pars->dpdew_data));
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
