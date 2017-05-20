@@ -99,7 +99,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
 
     void * tmp = NULL;
     tmp = newAndZero((void*)&pars->iz_data, pars->nScaleTableColumns, sizeof(*pars->iz_data));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -107,7 +107,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale512, pars->nScaleTableColumns, sizeof(*pars->scale512));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -115,7 +115,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale1024, pars->nScaleTableColumns, sizeof(*pars->scale1024));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -123,7 +123,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale1536, pars->nScaleTableColumns, sizeof(*pars->scale1536));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -131,7 +131,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->scale2048, pars->nScaleTableColumns, sizeof(*pars->scale2048));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -139,7 +139,7 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->wcol_data, pars->nTraps, sizeof(*pars->wcol_data));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -147,14 +147,15 @@ int allocateCTEParamsFast(CTEParamsFast * pars)
         return OUT_OF_MEMORY;
     }
     tmp = newAndZero((void*)&pars->qlevq_data, pars->nTraps, sizeof(*pars->qlevq_data));
-    addPtr(&ptrReg, tmp, &delete);
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
         trlerror ("Out of memory.\n");
         return OUT_OF_MEMORY;
     }
-    tmp = newAndZero((void*)& pars->dpdew_data, pars->nTraps, sizeof(*pars->dpdew_data));addPtr(&ptrReg, tmp, &delete);
+    tmp = newAndZero((void*)& pars->dpdew_data, pars->nTraps, sizeof(*pars->dpdew_data));
+    addPtr(&ptrReg, tmp, &free);
     if (!tmp)
     {
         freeOnExit(&ptrReg);
@@ -339,7 +340,6 @@ No.    Name         Type      Cards   Dimensions   Format
         status = KEYWORD_MISSING;
         return status;
     }
-
     sprintf(MsgText,"PCTETRSH: %g",pars->thresh);
     trlmessage(MsgText);
 
@@ -349,11 +349,8 @@ No.    Name         Type      Cards   Dimensions   Format
         status = KEYWORD_MISSING;
         return status;
     }
-
-    /*
     sprintf(MsgText,"FIXROCR: %d",pars->fix_rocr);
     trlmessage(MsgText);
-    */
 
 
     /* DONE READING STUFF FROM THE PRIMARY HEADER */
@@ -628,68 +625,68 @@ int populateHeaderWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars)
 
     if ((status = PutKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")))
     {
-        trlmessage("(pctecorr) Error updating CTE_NAME keyword in image header");
+        trlerror("(pctecorr) failed to update CTE_NAME keyword in image header");
         return status;
     }
 
     if ((status = PutKeyStr(group->globalhdr,"CTE_VER", pars->cte_ver, "CTE algorithm version")))
     {
-        trlmessage("(pctecorr) Error updating CTE_VER keyword in image header");
+        trlerror("(pctecorr) failed to update CTE_VER keyword in image header");
         return status;
     }
 
     if ((status = PutKeyDbl(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of UVIS installation")))
     {
-        trlmessage("(pctecorr) Error putting CTEDATE0 keyword in header");
+        trlerror("(pctecorr) failed to update CTEDATE0 keyword in header");
         return status;
     }
 
     if ((status = PutKeyDbl(group->globalhdr, "PCTETRSH", pars->thresh,"CTE over subtraction threshold")))
     {
-        trlmessage("(pctecorr) Error putting PCTETRSH keyword in header");
+        trlerror("(pctecorr) failed to update PCTETRSH keyword in header");
         return status;
     }
 
 
     if ((status = PutKeyDbl(group->globalhdr, "CTEDATE1", pars->cte_date1, "Date of CTE model pinning")))
     {
-        trlmessage("(pctecorr) Error putting CTEDATE1 keyword in header");
+        trlerror("(pctecorr) failed to update CTEDATE1 keyword in header");
         return status;
     }
 
     if ((status = PutKeyDbl(group->globalhdr, "PCTEFRAC", pars->scale_frac, "CTE scaling factor")))
     {
-        trlmessage("(pctecorr) Error writing PCTEFRAC to image header");
+        trlerror("(pctecorr) failed to update PCTEFRAC to image header");
         return status;
     }
 
     if ((status = PutKeyInt(group->globalhdr,"PCTETLEN",pars->cte_len,"max length of CTE trail")))
     {
-        trlmessage("(pctecorr) Error updating PCTETLEN in header");
+        trlerror("(pctecorr) failed to update PCTETLEN in header");
         return status;
     }
 
     if ((status = PutKeyDbl(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")))
     {
-        trlmessage("(pctecorr) Error updating PCTERNOI in header");
+        trlerror("(pctecorr) failed to update PCTERNOI in header");
         return status;
     }
 
     if ((status = PutKeyInt(group->globalhdr, "PCTENFOR",pars->n_forward,"Number of iter in forward model")))
     {
-        trlmessage("(pctecorr) Error updating PCTENFOR in header");
+        trlerror("(pctecorr) failed to update PCTENFOR in header");
         return status;
     }
 
     if ((status = PutKeyInt(group->globalhdr, "PCTENPAR",pars->n_par,"Number of iter in parallel transfer")))
     {
-        trlmessage("(pctecorr) Error updating PCTENPAR in header");
+        trlerror("(pctecorr) failed to update PCTENPAR in header");
         return status;
     }
 
     if ((status = PutKeyInt(group->globalhdr,"FIXROCR",pars->fix_rocr,"fix readout cosmic rays")))
     {
-        trlmessage("(pctecorr) Error updating FIXROCR keyword in header");
+        trlerror("(pctecorr) failed to update FIXROCR keyword in header");
         return status;
     }
 
@@ -714,7 +711,7 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
         pars->noise_mit = noise_mit;
     else if (tempStatus != KEYWORD_MISSING)
     {
-        trlmessage("(pctecorr) Error reading PCTENSMD keyword from header");
+        trlerror("(pctecorr) Error reading PCTENSMD keyword from header");
         return (status = tempStatus);
     }
     else if (tempStatus == KEYWORD_MISSING)
@@ -729,7 +726,7 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     }
     else if (tempStatus != KEYWORD_MISSING)
     {
-        trlmessage("(pctecorr) Error reading PCTETLEN keyword from header");
+        trlerror("(pctecorr) Error reading PCTETLEN keyword from header");
         return (status = tempStatus);
     }
     else if (tempStatus == KEYWORD_MISSING)
@@ -744,7 +741,7 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     }
     else if (tempStatus != KEYWORD_MISSING)
     {
-        trlmessage("(pctecorr) Error reading PCTERNOI keyword from header");
+        trlerror("(pctecorr) Error reading PCTERNOI keyword from header");
         return (status = tempStatus);
     }
     else if (tempStatus == KEYWORD_MISSING)
@@ -759,7 +756,7 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     }
     else if (tempStatus != KEYWORD_MISSING)
     {
-        trlmessage("(pctecorr) Error reading PCTENFOR keyword from header");
+        trlerror("(pctecorr) Error reading PCTENFOR keyword from header");
         return (status = tempStatus);
     }
     else if (tempStatus == KEYWORD_MISSING)
@@ -774,7 +771,7 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     }
     else if (tempStatus != KEYWORD_MISSING)
     {
-        trlmessage("(pctecorr) Error reading PCTENPAR keyword from header");
+        trlerror("(pctecorr) Error reading PCTENPAR keyword from header");
         return (status = tempStatus);
     }
     else if (tempStatus == KEYWORD_MISSING)
@@ -797,7 +794,7 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     }
     else if (tempStatus != KEYWORD_MISSING)
     {
-        trlmessage("(pctecorr) Error reading FIXROCR keyword from header");
+        trlerror("(pctecorr) Error reading FIXROCR keyword from header");
         return (status = tempStatus);
     }
     else if (tempStatus == KEYWORD_MISSING)

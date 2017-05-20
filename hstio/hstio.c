@@ -152,8 +152,8 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
     if (++reg->cursor >= reg->length)
     {
         reg->length += PTR_REGISTER_LENGTH_INC;
-        assert(realloc(&reg->ptrs, reg->length*sizeof(*reg->ptrs)));
-        assert(realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions)));
+        assert(reg->ptrs = realloc(reg->ptrs, reg->length*sizeof(*reg->ptrs)));
+        assert(reg->freeFunctions = realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions)));
     }
     reg->ptrs[reg->cursor] = ptr;
     reg->freeFunctions[reg->cursor] = freeFunc;
@@ -208,19 +208,24 @@ void freeAll(PtrRegister * reg)
 }
 void freeReg(PtrRegister * reg)
 {
+    /* THIS SHOULD NEVER CALL freeALL()
+     * This is designed to be used when allocating multiple persistent memory allocations,
+     * registering each allocation in turn. If one allocation fails freeOnExit() can be
+     * called to free prior successful allocations and if all allocations are successful
+     * this function can be called to free the registers without freeing the actual
+     * pointers just allocated.
+     */
+
     if (!reg || reg->length == 0)
         return;
-
-    if (reg->cursor > 0)
-        freeAll(reg);
 
     reg->cursor = 0;
     reg->length = 0;
     // free 'itself'
-    reg->freeFunctions[0](reg->ptrs);
-    reg->ptrs[0] = NULL;
-    reg->freeFunctions[0](reg->freeFunctions);
-    reg->freeFunctions[0] = NULL;
+    free(reg->ptrs);
+    reg->ptrs = NULL;
+    free(reg->freeFunctions);
+    reg->freeFunctions = NULL;
 }
 void freeOnExit(PtrRegister * reg)
 {
