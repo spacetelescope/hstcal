@@ -140,7 +140,13 @@ extern "C" {
  * }
  * ...
  *
- *NOTE: This pattern is considered integral to all use and as such internal failed allocations are asserted
+ * Alternatively, instead of instantiating an object we can use a pointer along with the functions newPtrRegister(),
+ * e.g.
+ *
+ * PtrRegister * reg = newPtrRegister(); //this adds itself (this pointer) and will free itself by calling
+ *                                       // freeReg() or freeOnExit()
+ *
+ * NOTE: This pattern is considered integral to all use and as such internal failed allocations are asserted
  */
 
 typedef void (*FreeFunction)(void*); // Only trivial functions accepted
@@ -151,11 +157,12 @@ typedef struct {
     void ** ptrs;
     FreeFunction * freeFunctions;
 } PtrRegister;
-void initPtrRegister(PtrRegister * reg);
-void addPtr(PtrRegister * reg, void * ptr, void * freeFunc); // ptr list is self expanding
-void freePtr(PtrRegister * reg, void * ptr);
-void freeOnExit(PtrRegister * reg); //only calls freeAll() followed by freeReg()
-void freeAll(PtrRegister * reg); // frees all ptrs registered (excluding itself)
+void * newPtrRegister(); //Allocates a PtrRegister, calls initPtrRegister, registers allocated pointer then returns it
+void initPtrRegister(PtrRegister * reg); // initializes members, inc. alloc of registers
+void addPtr(PtrRegister * reg, void * ptr, void * freeFunc); // self expanding
+void freePtr(PtrRegister * reg, void * ptr); // non contracting
+void freeOnExit(PtrRegister * reg); //only calls freeAll() followed by freeOnlyReg()
+void freeAll(PtrRegister * reg); //frees all ptrs registered (excluding itself)
 void freeReg(PtrRegister * reg); //frees ONLY the registers themselves and NOT the pointers in PtrRegister::ptrs
 
 # define SZ_PATHNAME 511
