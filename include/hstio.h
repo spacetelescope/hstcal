@@ -156,7 +156,7 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc); // ptr list is self
 void freePtr(PtrRegister * reg, void * ptr);
 void freeOnExit(PtrRegister * reg); //only calls freeAll() followed by freeReg()
 void freeAll(PtrRegister * reg); // frees all ptrs registered (excluding itself)
-void freeReg(PtrRegister * reg); // frees itself i.e. the register array holding the ptrs
+void freeReg(PtrRegister * reg); //frees ONLY the registers themselves and NOT the pointers in PtrRegister::ptrs
 
 # define SZ_PATHNAME 511
 
