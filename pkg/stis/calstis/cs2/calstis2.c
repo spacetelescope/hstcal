@@ -64,8 +64,10 @@ int	CalStis2 (char *input, char *fout, clpar *par, int newpar[])
         PrSwitch ("crcorr", PERFORM);
 
 	/* perform the calculation */
-	if (crrej_do (tpin, fout, par, newpar, sigma))
+	if (crrej_do (tpin, fout, par, newpar, sigma)) {
+            c_imtclose(tpin);
 	    return (2);
+        }
 
         PrSwitch ("crcorr", COMPLETE);
 	/*
