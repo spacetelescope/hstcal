@@ -1,19 +1,21 @@
 # include <stdio.h>
 # include <stdlib.h>		/* atoi, atof */
 # include <string.h>
+# include <unistd.h>
 
 # include "c_iraf.h"
 
 # include "stis.h"
+# include "hstcalerr.h"
 # include "cs2.h"
 
-void cs2_reset (clpar *, int []); 
+void cs2_reset (clpar *, int []);
 static int syntax_error (char *);
 static int getArgS (char **, int, int *, short *);
 static int getArgR (char **, int, int *, float *);
 static int getArgT (char **, int, int *, char *);
 
-/*  
+/*
    Processes command-line parameters for calstis-2.
 
    Revision history:
@@ -24,7 +26,7 @@ static int getArgT (char **, int, int *, char *);
 */
 
 int cs2_command (int argc, char **argv, char *input, char *output,
-              	 clpar *par, int newpar[]) 
+              	 clpar *par, int newpar[])
 {
 
 /* arguments
@@ -40,7 +42,7 @@ int newpar;		o: parameter been set by the user?
 	char	dummy[5];
 
 	/* reset the parameters */
-	cs2_reset (par, newpar); 
+	cs2_reset (par, newpar);
 
 	for (ctoken = 1;  ctoken < argc;  ctoken++) {
 	    if (strcmp (argv[ctoken], "--version") == 0) {
@@ -54,99 +56,96 @@ int newpar;		o: parameter been set by the user?
 	}
 
 	/* not enough arguments */
-	if (argc < 3)
+	if (argc < 3) {
 	    return (syntax_error ("cs2 input output"));
+        }
 
 	/* Get names of input and output files. These are mandatory. */
-	strcpy (input,  argv[1]);
-	strcpy (output, argv[2]);
+        strncpy (input, argv[1], strlen(argv[1])+1);
+	strncpy (output, argv[2], strlen(argv[2])+1);
 
+	ctoken = 3;
+	while (ctoken < argc) {
+	    /* switch must begin with a "-" */
+	    if (argv[ctoken][0] != '-')
+	        return (syntax_error (argv[ctoken]));
 
-	/* Scan remaining parameters. */
-	if (argc > 3) {
-	    ctoken = 3;
-	    while (ctoken < argc) {
+	    else {
 
-	        /* switch must begin with a "-" */
-	        if (argv[ctoken][0] != '-')
+	        /* These do not require additional arguments. */
+
+	        if (strcmp("t", argv[ctoken]+1) == 0) {
+	            par->printtime = 1;
+	            ctoken++;
+
+	        } else if (strcmp("v", argv[ctoken]+1) == 0) {
+	            par->verbose = 1;
+	            ctoken++;
+
+	        /* These require one additional argument, which is
+                   handled by the getArg functions.
+                */
+
+	        } else if (strcmp("crmask", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[CRMASK] = 1;
+	            if (getArgT (argv, argc, &ctoken, dummy))
+	                return (1);
+	    	if (strcmp ("yes", dummy) == 0)
+	    	    par->mask = 1;
+	    	else
+	    	    par->mask = 0;
+
+	        } else if (strcmp("table", argv[ctoken]+1) == 0) {
+	            if (getArgT (argv, argc, &ctoken, par->tbname))
+	                return (1);
+
+	        } else if (strcmp("scale", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[SCALENSE] = 1;
+	            if (getArgR (argv, argc, &ctoken, &par->scalenoise))
+	                return (1);
+
+	        } else if (strcmp("init", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[INITGUES] = 1;
+	            if (getArgT (argv, argc, &ctoken, par->initial))
+	                return (1);
+
+	        } else if (strcmp("sky", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[SKYSUB] = 1;
+	            if (getArgT (argv, argc, &ctoken, par->sky))
+	                return (1);
+
+	        } else if (strcmp("sigmas", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[CRSIGMAS] = 1;
+	            if (getArgT (argv, argc, &ctoken, par->sigmas))
+	                return (1);
+
+	        } else if (strcmp("radius", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[CRRADIUS] = 1;
+	            if (getArgR (argv, argc, &ctoken, &par->rej))
+	                return (1);
+
+	        } else if (strcmp("thresh", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[CRTHRESH] = 1;
+	            if (getArgR (argv, argc, &ctoken, &par->psigma))
+	                return (1);
+
+	        } else if (strcmp("pdq", argv[ctoken]+1) == 0) {
+	    	newpar[TOTAL]++;
+	    	newpar[BADINPDQ] = 1;
+	            if (getArgS (argv, argc, &ctoken, &par->badbits))
+	                return (1);
+
+	        /* No match. */
+	        } else {
 	            return (syntax_error (argv[ctoken]));
-
-	        else {
-
-	            /* These do not require additional arguments. */
-
-	            if (strcmp("t", argv[ctoken]+1) == 0) { 
-	                par->printtime = 1;
-	                ctoken++;
-
-	            } else if (strcmp("v", argv[ctoken]+1) == 0) { 
-	                par->verbose = 1;
-	                ctoken++;
-
-	            /* These require one additional argument, which is
-                       handled by the getArg functions.
-                    */
-
-	            } else if (strcmp("crmask", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[CRMASK] = 1;
-	                if (getArgT (argv, argc, &ctoken, dummy))
-	                    return (1);
-			if (strcmp ("yes", dummy) == 0)
-			    par->mask = 1;
-			else
-			    par->mask = 0;
-
-	            } else if (strcmp("table", argv[ctoken]+1) == 0) { 
-	                if (getArgT (argv, argc, &ctoken, par->tbname))
-	                    return (1);
-
-	            } else if (strcmp("scale", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[SCALENSE] = 1;
-	                if (getArgR (argv, argc, &ctoken, &par->scalenoise))
-	                    return (1);
-
-	            } else if (strcmp("init", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[INITGUES] = 1;
-	                if (getArgT (argv, argc, &ctoken, par->initial))
-	                    return (1);
-
-	            } else if (strcmp("sky", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[SKYSUB] = 1;
-	                if (getArgT (argv, argc, &ctoken, par->sky))
-	                    return (1);
-
-	            } else if (strcmp("sigmas", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[CRSIGMAS] = 1;
-	                if (getArgT (argv, argc, &ctoken, par->sigmas))
-	                    return (1);
-
-	            } else if (strcmp("radius", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[CRRADIUS] = 1;
-	                if (getArgR (argv, argc, &ctoken, &par->rej))
-	                    return (1);
-
-	            } else if (strcmp("thresh", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[CRTHRESH] = 1;
-	                if (getArgR (argv, argc, &ctoken, &par->psigma))
-	                    return (1);
-
-	            } else if (strcmp("pdq", argv[ctoken]+1) == 0) { 
-			newpar[TOTAL]++;
-			newpar[BADINPDQ] = 1;
-	                if (getArgS (argv, argc, &ctoken, &par->badbits))
-	                    return (1);
-
-	            /* No match. */
-	            } else
-	                return (syntax_error (argv[ctoken]));
-	        } 
+                }
 	    }
 	}
 
@@ -192,7 +191,7 @@ static int syntax_error (char *msg) {
 	return (1);
 }
 
-void cs2_reset (clpar *par, int newpar[]) 
+void cs2_reset (clpar *par, int newpar[])
 {
 
 /* arguments
