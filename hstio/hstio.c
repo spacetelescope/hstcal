@@ -165,11 +165,17 @@ void freePtr(PtrRegister * reg, void * ptr)
         return;
 
     int i;
+    Bool found = False;
     for (i = reg->cursor; i > 0 ; --i)
     {
         if (reg->ptrs[i] == ptr)
+        {
+            found = True;
             break;
+        }
     }
+    if (!found)
+        assert(0); //internal error: the ptr trying to be freed was not added to the register
 
     //call function to free ptr
     reg->freeFunctions[i](ptr);
