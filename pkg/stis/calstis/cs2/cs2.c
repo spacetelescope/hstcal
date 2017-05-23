@@ -14,7 +14,7 @@ int main (int argc, char **argv) {
 
 	int status = 0;			/* zero is OK */
 
-	char	*input;			/* list of input file names */
+	char	*input = NULL;		/* list of input file names */
 	char 	output[STIS_LINE];	/* output file name */
 	clpar 	par;			/* parameters used */
 	int 	newpar[MAX_PAR+1];	/* user specifiable parameters */
@@ -23,8 +23,8 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
-	/* 1Kb padding per path, to allow for string modifications later */
-	if ((input = calloc(argc * (SZ_PATHNAME * 2), sizeof(char))) == NULL) {
+	/* ~1Kb padding per path, to allow for string modifications later */
+	if ((input = calloc(argc * (STIS_FNAME * 2), sizeof(char))) == NULL) {
 	    printf ("ERROR    out of memory in cs2.c\n");
 	    exit (ERROR_RETURN);
 	}
