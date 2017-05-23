@@ -23,7 +23,8 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
-	if ((input = calloc (strlen(argv[1]) + 1, sizeof(char))) == NULL) {
+        /* 1Kb padding per path, to allow for string modifications later */
+	if ((input = calloc(argc * (SZ_PATHNAME * 2), sizeof(char))) == NULL) {
 	    printf ("ERROR    out of memory in cs2.c\n");
 	    exit (ERROR_RETURN);
 	}
