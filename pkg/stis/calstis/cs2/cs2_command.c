@@ -1,12 +1,10 @@
 # include <stdio.h>
 # include <stdlib.h>		/* atoi, atof */
 # include <string.h>
-# include <unistd.h>
 
 # include "c_iraf.h"
 
 # include "stis.h"
-# include "hstcalerr.h"
 # include "cs2.h"
 
 void cs2_reset (clpar *, int []);
