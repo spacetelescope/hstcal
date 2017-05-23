@@ -279,7 +279,7 @@ typedef struct {
 ** Section 2.
 ** Declarations and functions related to error handling.
 */
-# define ERRLINEWIDTH 2048
+# define ERRLINEWIDTH 4096
 static HSTIOError error_status;
 static char error_msg[ERRLINEWIDTH];
 static HSTIOErrHandler errhandler[32];
