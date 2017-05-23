@@ -61,95 +61,95 @@ int newpar;		o: parameter been set by the user?
         }
 
 	/* Get names of input and output files. These are mandatory. */
-        strncpy (input, argv[1], strlen(argv[1])+1);
+	strncpy (input, argv[1], strlen(argv[1])+1);
 	strncpy (output, argv[2], strlen(argv[2])+1);
 
-	ctoken = 3;
-	while (ctoken < argc) {
-	    /* switch must begin with a "-" */
-	    if (argv[ctoken][0] != '-')
-	        return (syntax_error (argv[ctoken]));
+        ctoken = 3;
+        while (ctoken < argc) {
+            /* switch must begin with a "-" */
+            if (argv[ctoken][0] != '-')
+                return (syntax_error (argv[ctoken]));
 
-	    else {
+            else {
 
-	        /* These do not require additional arguments. */
+                /* These do not require additional arguments. */
 
-	        if (strcmp("t", argv[ctoken]+1) == 0) {
-	            par->printtime = 1;
-	            ctoken++;
+                if (strcmp("t", argv[ctoken]+1) == 0) {
+                    par->printtime = 1;
+                    ctoken++;
 
-	        } else if (strcmp("v", argv[ctoken]+1) == 0) {
-	            par->verbose = 1;
-	            ctoken++;
+                } else if (strcmp("v", argv[ctoken]+1) == 0) {
+                    par->verbose = 1;
+                    ctoken++;
 
-	        /* These require one additional argument, which is
+                /* These require one additional argument, which is
                    handled by the getArg functions.
                 */
 
-	        } else if (strcmp("crmask", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[CRMASK] = 1;
-	            if (getArgT (argv, argc, &ctoken, dummy))
-	                return (1);
-	    	if (strcmp ("yes", dummy) == 0)
-	    	    par->mask = 1;
-	    	else
-	    	    par->mask = 0;
+                } else if (strcmp("crmask", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[CRMASK] = 1;
+                    if (getArgT (argv, argc, &ctoken, dummy))
+                        return (1);
+            	if (strcmp ("yes", dummy) == 0)
+            	    par->mask = 1;
+            	else
+            	    par->mask = 0;
 
-	        } else if (strcmp("table", argv[ctoken]+1) == 0) {
-	            if (getArgT (argv, argc, &ctoken, par->tbname))
-	                return (1);
+                } else if (strcmp("table", argv[ctoken]+1) == 0) {
+                    if (getArgT (argv, argc, &ctoken, par->tbname))
+                        return (1);
 
-	        } else if (strcmp("scale", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[SCALENSE] = 1;
-	            if (getArgR (argv, argc, &ctoken, &par->scalenoise))
-	                return (1);
+                } else if (strcmp("scale", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[SCALENSE] = 1;
+                    if (getArgR (argv, argc, &ctoken, &par->scalenoise))
+                        return (1);
 
-	        } else if (strcmp("init", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[INITGUES] = 1;
-	            if (getArgT (argv, argc, &ctoken, par->initial))
-	                return (1);
+                } else if (strcmp("init", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[INITGUES] = 1;
+                    if (getArgT (argv, argc, &ctoken, par->initial))
+                        return (1);
 
-	        } else if (strcmp("sky", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[SKYSUB] = 1;
-	            if (getArgT (argv, argc, &ctoken, par->sky))
-	                return (1);
+                } else if (strcmp("sky", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[SKYSUB] = 1;
+                    if (getArgT (argv, argc, &ctoken, par->sky))
+                        return (1);
 
-	        } else if (strcmp("sigmas", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[CRSIGMAS] = 1;
-	            if (getArgT (argv, argc, &ctoken, par->sigmas))
-	                return (1);
+                } else if (strcmp("sigmas", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[CRSIGMAS] = 1;
+                    if (getArgT (argv, argc, &ctoken, par->sigmas))
+                        return (1);
 
-	        } else if (strcmp("radius", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[CRRADIUS] = 1;
-	            if (getArgR (argv, argc, &ctoken, &par->rej))
-	                return (1);
+                } else if (strcmp("radius", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[CRRADIUS] = 1;
+                    if (getArgR (argv, argc, &ctoken, &par->rej))
+                        return (1);
 
-	        } else if (strcmp("thresh", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[CRTHRESH] = 1;
-	            if (getArgR (argv, argc, &ctoken, &par->psigma))
-	                return (1);
+                } else if (strcmp("thresh", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[CRTHRESH] = 1;
+                    if (getArgR (argv, argc, &ctoken, &par->psigma))
+                        return (1);
 
-	        } else if (strcmp("pdq", argv[ctoken]+1) == 0) {
-	    	newpar[TOTAL]++;
-	    	newpar[BADINPDQ] = 1;
-	            if (getArgS (argv, argc, &ctoken, &par->badbits))
-	                return (1);
+                } else if (strcmp("pdq", argv[ctoken]+1) == 0) {
+            	newpar[TOTAL]++;
+            	newpar[BADINPDQ] = 1;
+                    if (getArgS (argv, argc, &ctoken, &par->badbits))
+                        return (1);
 
-	        /* No match. */
-	        } else {
-	            return (syntax_error (argv[ctoken]));
+                /* No match. */
+                } else {
+                    return (syntax_error (argv[ctoken]));
                 }
-	    }
-	}
+            }
+        }
 
-	return (0);
+return (0);
 }
 
 
