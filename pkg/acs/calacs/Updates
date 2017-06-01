@@ -1,3 +1,34 @@
+Update for version 9.2.0 - 01-Jun-2017 (JAN) : git diff f0c177019cb4c159c801e0228be058269701f577  6472dcef5b86b1c240b35933e5bc7284c53dbafd --name-only
+    ctegen2/ctegen2.c
+    ctegen2/ctegen2.h
+    ctegen2/ctehelpers.c
+    ctegen2/wscript
+    hstio/hstio.c
+    include/hstio.h
+    pkg/acs/calacs/Dates
+    pkg/acs/calacs/History
+    pkg/acs/calacs/Updates
+    pkg/acs/calacs/acscte/acscte.c
+    pkg/acs/calacs/acscte/docte.c
+    pkg/acs/calacs/acscte/dopcte-gen2.c
+    pkg/acs/calacs/acscte/dopcte.c
+    pkg/acs/calacs/acscte/getcteflag.c
+    pkg/acs/calacs/acscte/maincte.c
+    pkg/acs/calacs/acscte/pcte.h
+    pkg/acs/calacs/acscte/pcte_fixycte.c
+    pkg/acs/calacs/acscte/pcte_funcs.c
+    pkg/acs/calacs/acscte/wscript
+    pkg/acs/calacs/calacs/acsmain.c
+    pkg/acs/calacs/calacs/calacs.c
+    pkg/acs/calacs/calacs/calacs.h
+    pkg/acs/calacs/include/acs.h
+    pkg/acs/calacs/include/acsinfo.h
+    pkg/acs/calacs/include/acsversion.h
+    pkg/acs/calacs/lib/acsinfo.c
+    pkg/acs/calacs/lib/ucalver.c
+    pkg/acs/calacs/lib/wscript
+    wscript
+
 Update for version 9.1.0 - 21-Feb-17 (PLL)
     acsccd/doccd.c
     acsccd/dosink.c
