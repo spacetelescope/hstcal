@@ -34,7 +34,7 @@ typedef struct {
 	char dthfile[CHAR_LINE_LENGTH+1];	/* dither combined science data */
 	char mtype[SZ_FITS_VAL+1];	/* Role of exposure in association */
 
-	char rootname[SZ_CBUF+1];	/* root name for set of obs */
+	char rootname[CHAR_LINE_LENGTH+1];	/* root name for set of obs */
 
 
 	/* info about input science file */

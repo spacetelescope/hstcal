@@ -6,7 +6,7 @@
 
 # define NSUF	16
 
-void FindAsnRoot (char *input, char *root) {
+void FindAsnRoot (const char *input, char *root) {
 
 	int i;
 	int in_len;
