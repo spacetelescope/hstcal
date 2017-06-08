@@ -181,7 +181,7 @@ int SetInput (AsnInfo *asn) {
     int  DoesFileExist (char *);
     char *lowcase (char *, char *);
     int  GetAsnName (char *, char *);
-    void FindAsnRoot (char *, char *);
+    void FindAsnRoot (const char *, char *);
 
     /* Initialize internal variables here... */
     filename[0] = '\0';

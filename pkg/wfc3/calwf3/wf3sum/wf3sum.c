@@ -84,7 +84,7 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 	void PrEnd (char *);
 	void PrFileName (char *, char *);
 	void PrHdrInfo (char *, char *, char *);
-	void FindAsnRoot (char *, char *);
+	void FindAsnRoot (const char *, char *);
 	int  mkNewSpt (char *, char *, char *);
 
 	/* Determine input and output trailer files, then initialize

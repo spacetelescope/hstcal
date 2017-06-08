@@ -101,7 +101,7 @@ typedef struct {
     char input[SZ_LINE+1];	   /* input image to be calibrated */
     char output[SZ_LINE+1];        /* output calibrated image */
 
-    char rootname[SZ_CBUF+1];      /* root name for set of obs */
+    char rootname[SZ_LINE+1];      /* root name for set of obs */
 
     /* command-line flags */
     int printtime;                  /* print time after each step? */

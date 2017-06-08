@@ -26,10 +26,9 @@ WF3Info *wf3		o: exposure specific flags and info
 	extern int status;
 	
 	char rootname[SZ_FNAME+1];
-	char outroot[SZ_CBUF+1];
 	char mtype[SZ_FITS_VAL+1];
 	int  mlen;
-	void FindAsnRoot (char *, char *);
+	void FindAsnRoot (const char *, char *);
 	void UpperAll (char *, char *, int);
     int MkName(char *, char *, char *, char *, char *, int);
     
@@ -43,10 +42,9 @@ WF3Info *wf3		o: exposure specific flags and info
 
 	/* Initialize local strings */
 	rootname[0] = '\0';
-	outroot[0]  = '\0';
 	mtype[0]    = '\0';
 
-	strcpy (outroot, asn->product[prodid].subprod[posid].name);
+	const char * outroot = asn->product[prodid].subprod[posid].name;
 	
 	/* MAKE SURE WE ARE ONLY PASSING A ROOTNAME, AND NOT A FULL FILENAME.*/
 	FindAsnRoot (outroot, rootname);
@@ -100,10 +98,10 @@ WF3Info *wf3		o: exposure specific flags and info
 */
 	extern int status;
 	char rootname[SZ_FNAME+1];
-	char outroot[SZ_CBUF+1];
-	void FindAsnRoot (char *, char *);
-	
-	strcpy(outroot, asn->filename);
+	*rootname = '\0';
+	void FindAsnRoot (const char * input, char * output);
+
+	const char * outroot = asn->filename;
 	
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (outroot, rootname);
