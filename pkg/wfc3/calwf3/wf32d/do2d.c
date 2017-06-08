@@ -279,9 +279,11 @@ int extver       i: "imset" number, the current set of extensions
 	    if (PutKeyStr (&x.err.hdr, "BUNIT", "ELECTRONS", ""))
 		return (status);
 	}
-	if (extver == 1 && !OmitStep (wf32d->flatcorr))
-	    if (flatHistory (wf32d, x.globalhdr))
-		return (status);
+    if (extver == 1 && !OmitStep (wf32d->flatcorr))
+    {
+        if (flatHistory (wf32d, x.globalhdr))
+            return (status);
+    }
 
 	/*
 		Apply shutter shading correction.
