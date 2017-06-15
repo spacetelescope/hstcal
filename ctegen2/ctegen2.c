@@ -97,7 +97,7 @@ int inverseCTEBlur(const SingleGroup * input, SingleGroup * output, SingleGroup 
             Bool localOK = True;
             {unsigned j;
 #ifdef _OPENMP
-            #pragma omp for schedule(static)
+            #pragma omp for schedule(dynamic)
 #endif
             for (j = 0; j < nColumns; ++j)
             {
