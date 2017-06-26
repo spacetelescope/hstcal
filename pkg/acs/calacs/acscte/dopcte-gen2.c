@@ -40,13 +40,6 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
     if (!acs || !ctePars || !chipImage)
         return (status = ALLOCATION_PROBLEM);
 
-    if (acs->subarray != 0)
-    {
-        sprintf(MsgText, "UNIMPLEMENTED - CTE correction for fullframe images only");
-        trlerror(MsgText);
-        return (status = INTERNAL_ERROR);
-    }
-
     PtrRegister ptrReg;
     initPtrRegister(&ptrReg);
 #ifdef _OPENMP
