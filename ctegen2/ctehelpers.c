@@ -38,8 +38,8 @@ void initCTEParamsFast(CTEParamsFast * pars, const unsigned _nTraps,
     pars->isSubarray = False;
     pars->chip = 0;
     pars->refAndIamgeBinsIdenticle = True;
-    pars->rowOffset = 0; //from begining of chip
-    pars->columnOffset = 0; //from begining of chip
+    pars->rowOffset = 0; //from begining of chip (for WFC3 this includes overscan, for ACS this does not, i.e. it has already been trimmed)
+    pars->columnOffset = 0; //from begining of chip (for WFC3 this includes overscan, for ACS this does not, i.e. it has already been trimmed)
     pars->imageRowsStart = 0;
     pars->imageRowsEnd = 0;
     pars->postscanWidth = 0;
