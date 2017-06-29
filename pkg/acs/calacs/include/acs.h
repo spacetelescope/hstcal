@@ -13,6 +13,9 @@
 # define ACS_FITS_REC       82
 # define SZ_STRKWVAL        68
 
+#define ACS_WFC_N_COLUMNS_PER_CHIP_INCL_OVERSCAN 4144
+#define ACS_WFC_N_COLUMNS_PER_CHIP_EXCL_OVERSCAN 4096
+
 /* Macros for dusing GetKey/PutKey functions.... */
 # define USE_DEFAULT    1       /* Use default if keyword is missing */
 # define NO_DEFAULT     0       /* missing keyword is fatal error */
