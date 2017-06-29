@@ -25,10 +25,9 @@ ACSInfo *acs		o: exposure specific flags and info
 	extern int status;
 	
 	char rootname[ACS_FNAME+1];
-	char outroot[ACS_CBUF+1];
 	char mtype[SZ_STRKWVAL+1];
     int mlen;
-	void FindAsnRoot (char *, char *);
+	void FindAsnRoot (const char *, char *);
     void UpperAll (char *, char *, int);
     
 	/* find out if the member we want exists... */	
@@ -40,10 +39,9 @@ ACSInfo *acs		o: exposure specific flags and info
 
 	/* Initialize local strings... */
 	rootname[0] = '\0';
-	outroot[0] = '\0';
     mtype[0] = '\0';
 
-	strcpy(outroot, asn->product[prodid].subprod[posid].name);
+    const char * outroot = asn->product[prodid].subprod[posid].name;
 	
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (outroot, rootname);
@@ -90,15 +88,14 @@ ACSInfo *acs		o: exposure specific flags and info
 */
 	extern int status;
 	char rootname[ACS_FNAME];
-	char outroot[ACS_FNAME];
-	void FindAsnRoot (char *, char *);
+	*rootname = '\0';
+	void FindAsnRoot (const char *, char *);
 	
-	strcpy(outroot, asn->filename);
+	const char * outroot = asn->filename;
 	
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (outroot, rootname);
 	strcpy (acs->outroot, rootname);
-					
 	strcpy (acs->rootname, rootname);
 	
 	if (asn->debug) {
