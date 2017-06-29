@@ -22,8 +22,8 @@ int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *amp,
                               int *xsize, int *ysize, int *xbeg,
                               int *xend, int *ybeg, int *yend);
 
-static int extractAmp(SingleGroup * amp, const SingleGroup * image, const unsigned ampID);
-static int insertAmp(SingleGroup * amp, const SingleGroup * image, const unsigned ampID);
+static int extractAmp(SingleGroup * amp, const SingleGroup * image, const unsigned ampID, CTEParamsFast * ctePars);
+static int insertAmp(SingleGroup * amp, const SingleGroup * image, const unsigned ampID, CTEParamsFast * ctePars);
 static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
 
@@ -103,9 +103,15 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
         nColumns = amp_xsize;
         ctePars->nRows = nRows;
         ctePars->nColumns = nColumns;
-        ctePars->columnOffset = 0;//amp_xbeg;//acs->offsetx;
-        ctePars->rowOffset = 0;//amp_ybeg;//acs->offsety;
-        ctePars->razColumnOffset = nthAmp*nColumns;
+        ctePars->columnOffset = amp_xbeg;
+        ctePars->rowOffset = amp_ybeg;
+        // razColumnOffset is used to align the image with the column scaling (SCLBYCOL) in the PCTETAB.
+        // The SCLBYCOL array is 8192 cols wide which is 2048*4 and therefore does NOT include the physical
+        // overscan columns (24 for ACS WFC) like this array does for calwf3.
+        // The raz format is all 4 amps side by side in CDAB order.
+        ctePars->razColumnOffset = ctePars->columnOffset;
+        if (ampID == AMP_A || ampID == AMP_B)
+            ctePars->razColumnOffset += ACS_WFC_N_COLUMNS_PER_CHIP_EXCL_OVERSCAN;
 
         //This is used for the final output
         SingleGroup ampImage;
@@ -119,7 +125,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
 
         // read data from the SingleGroup into an array containing data from
         // just one amp
-        if ((status = extractAmp(&ampImage, chipImage, ampID)))
+        if ((status = extractAmp(&ampImage, chipImage, ampID, ctePars)))
         {
             freeOnExit(&ptrReg);
             return (status);
@@ -251,7 +257,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
             return (status);
         }
 
-        if ((status = insertAmp(chipImage, &ampImage, ampID)))
+        if ((status = insertAmp(chipImage, &ampImage, ampID, ctePars)))
         {
             freeOnExit(&ptrReg);
             return (status);
@@ -269,7 +275,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
     return (status);
 }
 
-static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsigned ampID)
+static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsigned ampID, CTEParamsFast * ctePars)
 {
     extern int status;
 
@@ -279,24 +285,23 @@ static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsig
     //WARNING - assumes row major storage
     assert(amp->sci.data.storageOrder == ROWMAJOR && image->sci.data.storageOrder == ROWMAJOR);
 
-    const unsigned nRows = amp->sci.data.ny;
-    const unsigned nColumns = amp->sci.data.nx;
-
-    unsigned rowSkipLength = image->sci.data.nx;
-    unsigned offset = 0;
-    if (ampID == AMP_B || ampID == AMP_D)
-        offset = nColumns;
-    else if (ampID != AMP_A && ampID != AMP_C)
+    if (ampID != AMP_A && ampID != AMP_B && ampID != AMP_C && ampID != AMP_D)
     {
         trlerror("Amp number not recognized, must be 0-3.");
         return (status = ERROR_RETURN);
     }
+
+    const unsigned nRows = amp->sci.data.ny;
+    const unsigned nColumns = amp->sci.data.nx;
+
+    unsigned rowSkipLength = image->sci.data.nx;
+    unsigned offset = ctePars->columnOffset;
 
     copyOffsetSingleGroup(amp, image, nRows, nColumns, 0, offset, nColumns, rowSkipLength);
     return status;
 }
 
-static int insertAmp(SingleGroup * image, const SingleGroup * amp, const unsigned ampID)
+static int insertAmp(SingleGroup * image, const SingleGroup * amp, const unsigned ampID, CTEParamsFast * ctePars)
 {
     extern int status;
 
@@ -306,18 +311,17 @@ static int insertAmp(SingleGroup * image, const SingleGroup * amp, const unsigne
     //WARNING - assumes row major storage
     assert(amp->sci.data.storageOrder == ROWMAJOR && image->sci.data.storageOrder == ROWMAJOR);
 
-    const unsigned nRows = amp->sci.data.ny;
-    const unsigned nColumns = amp->sci.data.nx;
-
-    unsigned rowSkipLength = image->sci.data.nx;
-    unsigned offset = 0;
-    if (ampID == AMP_B || ampID == AMP_D)
-        offset = nColumns;
-    else if (ampID != AMP_A && ampID != AMP_C)
+    if (ampID != AMP_A && ampID != AMP_B && ampID != AMP_C && ampID != AMP_D)
     {
         trlerror("Amp number not recognized, must be 0-3.");
         return (status = ERROR_RETURN);
     }
+
+    const unsigned nRows = amp->sci.data.ny;
+    const unsigned nColumns = amp->sci.data.nx;
+
+    unsigned rowSkipLength = image->sci.data.nx;
+    unsigned offset = ctePars->columnOffset;
 
     copyOffsetSingleGroup(image, amp, nRows, nColumns, offset, 0, rowSkipLength, nColumns);
     return status;
