@@ -7,8 +7,8 @@
 # include "imphttab.h"
 
 # define ACS_CBUF           24  /* small buffer for e.g. rootname */
-# define ACS_FNAME          162
-# define ACS_LINE           255
+# define ACS_FNAME          255 // Use of ACS_FNAME & ACS_LINE are interchanged throughout and should therefore be identical.
+# define ACS_LINE           255 // Use of ACS_FNAME & ACS_LINE are interchanged throughout and should therefore be identical.
 # define MSG_BUFF_LENGTH    ACS_LINE + 1
 # define ACS_FITS_REC       82
 # define SZ_STRKWVAL        68
