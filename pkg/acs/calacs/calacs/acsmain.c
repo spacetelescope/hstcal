@@ -15,6 +15,11 @@
 
 int	status;		/* value of zero indicates OK */
 
+static void printSyntax()
+{
+    printf ("syntax:  calacs.e [-t] [-s] [-v] [-q] [-r] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
+}
+
 int main(int argc, char **argv) {
 
 	/* Local variables */
@@ -111,6 +116,7 @@ int main(int argc, char **argv) {
             if (argv[i][1] == '-')
             {
                 printf ("Unrecognized option %s\n", argv[i]);
+                printSyntax();
                 exit (ERROR_RETURN);
             }
             for (j = 1;  argv[i][j] != '\0';  j++)
@@ -132,6 +138,7 @@ int main(int argc, char **argv) {
                     onecpu = YES;
                 } else {
                     printf ("Unrecognized option %s\n", argv[i]);
+                    printSyntax();
                     exit (ERROR_RETURN);
                 }
             }
@@ -144,7 +151,7 @@ int main(int argc, char **argv) {
 
     if (input[0] == '\0' || too_many) {
         printf ("CALACS Version %s\n",ACS_CAL_VER_NUM);
-        printf ("syntax:  calacs.e [-t] [-s] [-v] [-q] [-r] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
+        printSyntax();
         exit (ERROR_RETURN);
     }
 
