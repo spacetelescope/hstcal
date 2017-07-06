@@ -30,6 +30,11 @@ static void FreeNames (char *, char *, char *, char *);
 
  */
 
+static void printSyntax()
+{
+    printf ("syntax:  acscte.e [-t] [-v] [-q] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input [output]\n");
+}
+
 int main (int argc, char **argv) {
 
     char *inlist;		/* input blv_tmp file name */
@@ -155,6 +160,7 @@ int main (int argc, char **argv) {
                 if (argv[i][1] == '-')
                 {
                     printf ("Unrecognized option %s\n", argv[i]);
+                    printSyntax();
                     exit (ERROR_RETURN);
                 }
                 for (j = 1;  argv[i][j] != '\0';  j++) {
@@ -168,6 +174,7 @@ int main (int argc, char **argv) {
                         onecpu = YES;
                     } else {
                         printf ("Unrecognized option %s\n", argv[i]);
+                        printSyntax();
                         break;
                     }
                 }
@@ -181,7 +188,7 @@ int main (int argc, char **argv) {
         }
     }
     if (inlist[0] == '\0' || too_many) {
-        printf ("syntax:  acscte [-t] [-v] [-q] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input output\n");
+        printSyntax();
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }
