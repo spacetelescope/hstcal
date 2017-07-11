@@ -8,7 +8,7 @@
    the name of the file and the pedigree and descrip values.
 */
 
-int ImgHistory (RefImage *ref, Hdr *phdr) {
+int ImgHistory (const RefImage *ref, Hdr *phdr) {
 
 /* arguments:
 RefImage *ref     i: info about reference image

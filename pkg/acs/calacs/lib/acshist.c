@@ -84,7 +84,7 @@ int biasHistory (ACSInfo *acs, Hdr *phdr) {
 
 	int logit;			/* true if we should log file name */
 	int OmitStep (int);
-	int ImgHistory (RefImage *, Hdr *);
+	int ImgHistory (const RefImage *, Hdr *);
 	int UpdateSwitch (char *, int, Hdr *, int *);
 
 	if (OmitStep (acs->biascorr))
@@ -108,7 +108,7 @@ int flashHistory (ACSInfo *acs, Hdr *phdr) {
 
     int logit;  /* true if we should log file name */
     int OmitStep (int);
-    int ImgHistory (RefImage *, Hdr *);
+    int ImgHistory (const RefImage *, Hdr *);
     int UpdateSwitch (char *, int, Hdr *, int *);
 
     if (OmitStep (acs->flashcorr))
@@ -169,28 +169,28 @@ int blevHistory (ACSInfo *acs, Hdr *phdr, int done, int driftcorr) {
 	return (status);
 }
 
-int sinkHistory (ACSInfo *acs, Hdr *phdr) {
+int sinkHistory (const ACSInfo *acs, Hdr *phdr) {
 
     extern int status;
 
-    int logit;			/* true if we should log file name */
+    int logit; // True if we should log file name
     int OmitStep (int);
-    int ImgHistory (RefImage *, Hdr *);
+    int ImgHistory (const RefImage *, Hdr *);
     int UpdateSwitch (char *, int, Hdr *, int *);
 
     if (OmitStep (acs->sinkcorr))
+        return (status = HSTCAL_OK);
+
+    if ((status = UpdateSwitch ("SINKCORR", acs->sinkcorr, phdr, &logit)))
         return (status);
 
-    if (UpdateSwitch ("SINKCORR", acs->sinkcorr, phdr, &logit))
-        return (status);
-
-    /* Write history records for the bias image. */
+    // Write history records for the bias image.
     if (logit) {
-        if (ImgHistory (&acs->sink, phdr))
+        if ((status = ImgHistory (&acs->sink, phdr)))
             return (status);
     }
 
-    return (status);
+    return (status = HSTCAL_OK);
 }
 
 /* Info about CCD parameters table (no specific calibration step). */
@@ -266,7 +266,7 @@ int darkHistory (ACSInfo *acs, Hdr *phdr) {
 	extern int status;
 	int logit;			/* true if we should log file name */
 	int OmitStep (int);
-	int ImgHistory (RefImage *, Hdr *);
+	int ImgHistory (const RefImage *, Hdr *);
 	int UpdateSwitch (char *, int, Hdr *, int *);
 
 	if (OmitStep (acs->darkcorr))
@@ -292,7 +292,7 @@ int flatHistory (ACSInfo *acs, Hdr *phdr) {
 
 	int logit;			/* true if we should log file name */
 	int OmitStep (int);
-	int ImgHistory (RefImage *, Hdr *);
+	int ImgHistory (const RefImage *, Hdr *);
 	int TabHistory (RefTab *, Hdr *);
 	int GotFileName (char *);
 	int UpdateSwitch (char *, int, Hdr *, int *);
@@ -365,7 +365,7 @@ int shadHistory (ACSInfo *acs, Hdr *phdr) {
 	extern int status;
 	int logit;			/* true if we should log file name */
 	int OmitStep (int);
-	int ImgHistory (RefImage *, Hdr *);
+	int ImgHistory (const RefImage *, Hdr *);
 	int UpdateSwitch (char *, int, Hdr *, int *);
 
 	if (OmitStep (acs->shadcorr))
