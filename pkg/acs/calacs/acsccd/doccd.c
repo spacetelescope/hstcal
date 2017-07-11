@@ -69,6 +69,7 @@ int DoCCD (ACSInfo *acs_info) {
     int doNoise (ACSInfo *, SingleGroup *, int *);
     int noiseHistory (Hdr *);
     int SinkDetect (ACSInfo *, SingleGroup *);
+    int sinkHistory(ACSInfo *, Hdr *);
     int GetACSGrp (ACSInfo *, Hdr *);
     int OmitStep (int);
     int PutKeyFlt (Hdr *, char *, float, char *);
@@ -438,6 +439,10 @@ int DoCCD (ACSInfo *acs_info) {
         if (acs_info->printtime)
             TimeStamp("SINKCORR complete", acs_info->rootname);
     }
+
+    if (!OmitStep(acs[0].sinkcorr))
+        if (sinkHistory(&acs[0], x[0].globalhdr))
+            return (status);
     /************************************************************************/
 
     /* Write this imset to the output file.  The
