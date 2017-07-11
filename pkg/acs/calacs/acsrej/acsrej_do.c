@@ -74,7 +74,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     int     UpdateSwitch (char *, int, Hdr *, int *);
 
     void    InitRefImg (RefImage *);
-    int     ImgHistory (RefImage *, Hdr *);
+    int     ImgHistory (const RefImage *, Hdr *);
     int     ImgPedigree (RefImage *);
 
     int     acsrej_check (IRAFPointer, int, int, clpar *, int [],  char [][ACS_FNAME],
