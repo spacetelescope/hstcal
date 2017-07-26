@@ -54,6 +54,7 @@ function value          o: file name template descriptor
 
         ImtDescr *imt_descr;
         IRAFPointer imt;
+        int status;
 
         imt_descr = (ImtDescr *)calloc(1, sizeof(ImtDescr));
         if (imt_descr == NULL) {
@@ -196,7 +197,6 @@ static int findFiles(ImtDescr *imt_descr) {
         int max_strlen;         /* maximum length of filename pattern */
         int flags;              /* for the glob function */
         int nfiles;             /* allocated size of file list */
-        int n;                  /* number of files that exist */
         int i, j;
         int k;
         int brackets;           /* incr. with '[', decremented with ']' */
@@ -279,7 +279,6 @@ static int findFiles(ImtDescr *imt_descr) {
         }
 
         brackets = 0;
-        n = 0;
         done = 0;
         while (!done) {
 
