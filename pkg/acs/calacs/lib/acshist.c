@@ -6,6 +6,7 @@
 # include "acs.h"
 # include "acsinfo.h"
 # include "hstcalerr.h"
+# include "hstcal.h"
 
 
 /* These routines check whether pedigree indicates that the calibration

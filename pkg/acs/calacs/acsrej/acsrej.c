@@ -7,6 +7,7 @@
 # include "acsrej.h"
 # include "hstcalerr.h"
 # include "rej.h"
+# include "trlbuf.h"
 
 static void InitRejTrl (char *, char *); 
 

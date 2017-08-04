@@ -41,6 +41,7 @@
 # include "wf3asn.h"	/* defines WF3 Association data structures */
 # include "hstcalerr.h"
 # include "calwf3.h"
+# include "trlbuf.h"
 
 # define CRLEN	2
 # define RPTLEN 2
@@ -499,8 +500,6 @@ int GetAsnTable (AsnInfo *asn) {
     /* Function definitions */
     void freeAsnInfo (AsnInfo *);
     int  allocAsnInfo (AsnInfo *, int, int *);
-    void trlopenerr (char *);
-    void trlwarn (char *);
     char *lowcase (char *, char *);
     int  MkName (char *, char *, char *, char *, char *, int);
     void initRowInfo (RowInfo *);

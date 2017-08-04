@@ -19,6 +19,7 @@
 # include "acs.h"
 # include "acsinfo.h"
 # include "acscorr.h"  /* calibration switch names */
+# include "hstcal.h"
 
 
 void ACSInit (ACSInfo *acs) {

@@ -12,8 +12,10 @@
 # include "hstcalerr.h"
 # include "wf3rej.h"
 # include "hstcalversion.h"
+# include "trlbuf.h"
 
 int status = 0;             /* zero is OK */
+struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'

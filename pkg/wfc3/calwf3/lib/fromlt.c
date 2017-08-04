@@ -5,7 +5,7 @@
    ltm[0] and ltm[1] are assumed to be greater than zero.
 */
 
-# include "trl.h"
+# include "trlbuf.h"
 # include "wf3.h"
 
 # define NINT(x)  ((x >= 0.) ? (int) (x + 0.5) : (int) (x - 0.5))

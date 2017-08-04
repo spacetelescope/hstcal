@@ -1,6 +1,9 @@
 #ifndef CALACS_INCL
 #define CALACS_INCL
 
+#include "trlbuf.h"
+#include "hstcal.h"
+
 /* calacs -- integrated calacs reduction
 Warren Hack, 1998 May 12: Initial version.
 Pey Lian Lim, 2013 Aug 9: Separated PCTECORR from ACSCCD.

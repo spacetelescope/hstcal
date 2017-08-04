@@ -12,9 +12,7 @@
 #include "ctegen2.h"
 #include "hstcalerr.h"
 #include "hstcal.h"
-
-extern void trlmessage (char *message);
-extern void trlerror (char *message);
+#include "trlbuf.h"
 
 static void setAtomicFlag(Bool * atom)
 {
