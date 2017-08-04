@@ -10,7 +10,7 @@
 # include <stdio.h>
 #include "hstcal.h"
 # include "msg.h"
-# include "trl.h"
+# include "trlbuf.h"
 
 # define NELEM_SUMS  5		/* size of sums array */
 

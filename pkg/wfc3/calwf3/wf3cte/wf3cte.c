@@ -27,7 +27,7 @@
 # include "hstcalerr.h"
 # include "wf3corr.h"
 # include "cte.h"
-
+# include "trlbuf.h"
 
 int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
@@ -1526,7 +1526,6 @@ int initCTETrl (char *input, char *output) {
 
     int MkName (char *, char *, char *, char *, char *, int);
     int TrlExists (char *);
-    void SetTrlOverwriteMode (int);
 
     /* Initialize internal variables */
     trl_in[0] = '\0';

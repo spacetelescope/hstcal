@@ -14,7 +14,7 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names */
-
+# include "trlbuf.h"
 
 void InitCTETrl (char *, char *);
 
@@ -172,7 +172,6 @@ void InitCTETrl (char *input, char *output) {
     int MkName (char *, char *, char *, char *, char *, int);
     void WhichError (int);
     int TrlExists (char *);
-    void SetTrlOverwriteMode (int);
 
     /* Initialize internal variables */
     trl_in[0] = '\0';

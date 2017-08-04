@@ -6,6 +6,7 @@
 # include <stdio.h>             /* To insure that FILE is defined for TrlPtr */
 # include "imphttab.h"
 # include "hstcal.h"
+#include "trlbuf.h"
 
 # define ACS_CBUF           24  /* small buffer for e.g. rootname */
 # define ACS_FITS_REC       82
@@ -21,8 +22,6 @@
 typedef unsigned char Byte;
 
 #define SIZE_BYTE   8
-#define YES         1
-#define NO          0
 
 # define MAX_DQ     65535
 
@@ -131,35 +130,5 @@ typedef struct {
 void asnwarn (char *message);
 void asnerror (char *message);
 void asnmessage (char *message);
-
-# define WARN_PREFIX    "Warning    "
-# define ERR_PREFIX     "ERROR:    "
-
-/* This macro defines the string which will be used to distinguish the
-	start of CALACS comments in the trailer files...
-*/
-# define TRL_PREFIX     "CALACSBEG"
-
-# define TRL_EXTN   ".tra"      /* default extension for Trailer files */
-# define FITS_EXTN  ".fits"     /* default extension */
-
-/* Trailer file management routines */
-int InitTrlBuf (void);
-void SetTrlQuietMode (int quiet);
-void SetTrlPrefaceMode (int use);
-void CloseTrlBuf (void);
-void InitTrlPreface (void);
-void ResetTrlPreface (void);
-int InitTrlFile (char *input, char *output);
-int WriteTrlFile (void);
-
-/* Trailer file comment output routines */
-void trlmessage (char *message);
-void trlwarn (char *message);
-void trlerror (char *message);
-void trlopenerr (char *filename);
-void trlreaderr (char *name);
-void trlkwerr (char *keyword, char *file);
-void trlfilerr (char *name);
 
 #endif

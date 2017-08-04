@@ -8,9 +8,6 @@
 /* Constants and Definitions for use with IMPHTTAB library */
 /* Definitions based on those defined in acs.h */
 
-#define YES         1
-#define NO          0
-
 # define SZ_FITS_REC   82
 
 /* Standard string for use in Error Messages */

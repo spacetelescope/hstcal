@@ -5,6 +5,7 @@
 # include "acs.h"
 # include "acsinfo.h"
 # include "hstcalerr.h"
+#include "trlbuf.h"
 
 /* This routine determines the chip associated with the
 	EXTVER.

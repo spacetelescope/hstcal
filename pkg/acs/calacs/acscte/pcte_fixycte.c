@@ -7,6 +7,7 @@
 
 #include "pcte.h"
 #include "acs.h"
+#include "trlbuf.h"
 
 /* function prototypes */
 int sim_readout(const int arrx, double pix_cur[arrx], double pix_read[arrx],

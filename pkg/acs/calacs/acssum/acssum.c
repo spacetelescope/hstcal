@@ -23,6 +23,7 @@
 # include "acs.h"
 # include "acssum.h"
 # include "hstcalerr.h"
+# include "trlbuf.h"
 
 static int GetSumKeyInfo (AcsSumInfo *, Hdr *);
 static int PutSumHdrInfo (SingleGroup *, double, double, int, int);

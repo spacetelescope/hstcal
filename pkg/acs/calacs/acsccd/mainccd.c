@@ -18,11 +18,13 @@ int status = 0;			/* zero is OK */
 # include "acscorr.h"		/* calibration switch names for acsccd */
 # include "hstcalversion.h"
 # include "acsversion.h"
+#include "trlbuf.h"
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 static void FreeNames (char *, char *, char *, char *);
+struct TrlBuf trlbuf = { 0 };
 
 /* This is the main module for ACSCCD.  It gets the input and output
  file names, calibration switches, and flags, and then calls ACSccd.

@@ -9,6 +9,7 @@
 # include "hstcalerr.h"
 # include "rej.h"
 # include "wf3info.h"
+# include "trlbuf.h"
 
 int InitRejTrl (char *, char *); 
 int MkOutName (char *, char **, char **, int, char *,int);

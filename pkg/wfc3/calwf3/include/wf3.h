@@ -7,6 +7,7 @@
 # include "msg.h"
 # include "imphttab.h"
 # include "hstcal.h"
+#include "trlbuf.h"
 
 /* Macros for dusing GetKey/PutKey functions.... */
 # define USE_DEFAULT    1       /* Use default if keyword is missing */
@@ -15,8 +16,6 @@
 typedef unsigned char Byte;
 
 #define SIZE_BYTE   8
-#define YES         1
-#define NO          0
 
 # define MAX_DQ     65535
 
@@ -122,13 +121,5 @@ typedef struct {
     int chip;       /* Chip being processed */
     int detector;   /* Which detector was used */
 } multiamp;
-
-
-/* This macro defines the string which will be used to distinguish the
-	start of CALWF3 comments in the trailer files...
-*/
-# define TRL_PREFIX     "CALWF3BEG"
-
-# include "trl.h"
 
 #endif /* INCL_WF3_H */

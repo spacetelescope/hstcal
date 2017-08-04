@@ -7,6 +7,7 @@
 # include "hstcalerr.h"
 # include "wf3version.h"
 # include "hstcalversion.h"
+# include "trlbuf.h"
 
 /* H. Bushouse	07-Sep-2011	Implemented new "--version" command line argument. */
 /* M. Sosey     added a -r to also print the version (-v is used, so warren chose r for revision */
@@ -15,6 +16,7 @@
  */
 
 int	status;		/* value of zero indicates OK */
+struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
