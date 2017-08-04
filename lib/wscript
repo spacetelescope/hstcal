@@ -4,6 +4,7 @@ def build(bld):
     t = bld.stlib(
         source = [
             'dummy.c',
+            'hstcalversion.c'
             ],
         target = 'hstcallib',
         includes = ['../include/',

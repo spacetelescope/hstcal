@@ -10,6 +10,7 @@
 # include "stis.h"
 # include "calstis11.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 static int CompareNumbers (int, char *, int, char *);
 static void FreeNames (char *, char *, char *, char *, char *, char *);
@@ -77,6 +78,11 @@ int main (int argc, char **argv) {
 		PrVersion();
 		exit (0);
 	    }
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 	    if (strcmp (argv[i], "-r") == 0) {
 		PrFullVersion();
 		exit (0);
@@ -104,7 +110,7 @@ int main (int argc, char **argv) {
 	}
 	if (scilist[0] == '\0' || too_many) {
 	    printf (
-	"ERROR:  syntax:  cs11.e [-t] [-v] wavecal science output\n");
+	"ERROR:  syntax:  cs11.e [-t] [-v] [--version] [--gitinfo] wavecal science output\n");
 	    FreeNames (wavlist, scilist, outlist, inwav, insci, output);
 	    exit (ERROR_RETURN);
 	}

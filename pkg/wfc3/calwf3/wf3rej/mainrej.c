@@ -10,6 +10,7 @@
 # include "wf3.h"
 # include "hstcalerr.h"
 # include "wf3rej.h"
+# include "hstcalversion.h"
 
 int status = 0;             /* zero is OK */
 
@@ -36,7 +37,7 @@ int main (int argc, char **argv) {
 
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
-
+    trlGitInfo();
     
     /* Get input and output file names and switches in the command line. */
     if (rej_command (argc, argv, &input, output, &par, newpar)){

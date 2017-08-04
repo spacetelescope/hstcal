@@ -10,6 +10,7 @@
 # include "stis.h"
 # include "calstis4.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *);
@@ -95,6 +96,11 @@ int main (int argc, char **argv) {
 		    PrVersion();
 		    exit (0);
 		}
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 		if (strcmp (argv[i], "-r") == 0) {
 		    PrFullVersion();
 		    exit (0);
@@ -126,7 +132,7 @@ int main (int argc, char **argv) {
 	}
 	if (inlist[0] == '\0' || too_many || dbg_next) {
 	    printf (
-	"syntax:  cs4.e [-t] [-v] input [-angle slit_angle] [-d debugfile]\n");
+	"syntax:  cs4.e [-t] [-v] [--version] [--gitinfo] input [-angle slit_angle] [-d debugfile]\n");
 	    FreeNames (inlist, input, dbglist, dbgfile);
 	    exit (ERROR_RETURN);
 	}

@@ -63,7 +63,7 @@ def build(bld):
             """,
         target = 'calwf3',
         install_path = bld.env.INSTALL_LIB and '${PREFIX}/lib',
-        use = ['CFITSIO','OPENMP'],
+        use = ['hstcallib', 'CFITSIO','OPENMP'],
         includes = ['../include'],
         export_includes = ['../include']
         )

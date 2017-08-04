@@ -11,6 +11,7 @@
 # include "stis.h"
 # include "calstis1.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 static int CompareNumbers (int, int, char *);
 static void FreeNames (char *, char *, char *, char *, char *, char *);
@@ -122,6 +123,11 @@ int main (int argc, char **argv) {
 		PrVersion();
 		exit (0);
 	    }
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 	    if (strcmp (argv[i], "-r") == 0) {
 		PrFullVersion();
 		exit (0);
@@ -209,7 +215,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (inlist[0] == '\0' || too_many) {
-	    printf ("syntax:  cs1.e [-t] [-v] input output [outblev]\n");
+	    printf ("syntax:  cs1.e [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
 	    printf ("  command-line switches:\n");
 	    printf ("       -dqi  -atod -blev\n");
 	    printf ("       -dopp -lors -glin -lflg\n");

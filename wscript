@@ -1,6 +1,6 @@
 # vim: set syntax=python:
 
-import os, platform, shutil, sys
+import os, platform, shutil, sys, subprocess
 
 from waflib import Configure
 from waflib import Errors
@@ -11,8 +11,7 @@ from waflib import Task
 from waflib import Utils
 from waflib import TaskGen
 
-APPNAME = 'hstcal'
-VERSION = '0.1.1'
+APPNAME = "HSTCAL"
 
 top = '.'
 out = 'build.' + platform.platform()
@@ -83,6 +82,91 @@ def _setup_openmp(conf):
         conf.end_msg("OpenMP not found.", 'YELLOW')
     else:
         conf.end_msg("OpenMP found.", 'GREEN')
+
+def _ok_color(var, val):
+    if var == val:
+        return "GREEN"
+    else:
+        return "YELLOW"
+
+def _warn_color(var, val):
+    if var == val:
+        return "YELLOW"
+    else:
+        return "GREEN"
+
+def _err_color(var, val):
+    if var == val:
+        return "RED"
+    else:
+        return "GREEN"
+
+def call(cmd):
+    try:
+        results = subprocess.run(cmd, shell=True, check=False, universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if not results.returncode:
+            return results.stdout.rstrip()
+    except AttributeError:
+        try:
+            results = subprocess.check_output(cmd, shell=True, universal_newlines=True, stderr=subprocess.PIPE)
+            return str(results).rstrip()
+        except subprocess.CalledProcessError:
+            return None
+    except:
+        return None
+
+    return None
+
+def _get_git_details(ctx):
+    tmp = call('git describe --dirty')
+    if tmp:
+        ctx.env.gitTag = tmp
+
+    tmp = call('git rev-parse HEAD')
+    if tmp:
+        ctx.env.gitCommit = tmp
+
+    tmp = call('git rev-parse --abbrev-ref HEAD')
+    if tmp:
+        ctx.env.gitBranch = tmp
+
+def _use_git_details(ctx):
+    _get_git_details(ctx)
+
+    ctx.start_msg("Building app")
+    ctx.end_msg(APPNAME, _warn_color(APPNAME, "UNKNOWN"))
+    ctx.start_msg("Version")
+    ctx.end_msg(ctx.env.gitTag, _warn_color(ctx.env.gitTag, "UNKNOWN"))
+    ctx.start_msg("git branch")
+    ctx.end_msg(ctx.env.gitCommit, _warn_color(ctx.env.gitCommit, "UNKNOWN"))
+    ctx.start_msg("git HEAD commit")
+    ctx.end_msg(ctx.env.gitBranch, _warn_color(ctx.env.gitBranch, "UNKNOWN"))
+
+    ctx.env.append_value('CFLAGS', '-D APPNAME="{0}"'.format(APPNAME))
+    ctx.env.append_value('CFLAGS', '-D VERSION="{0}"'.format(ctx.env.gitTag))
+    ctx.env.append_value('CFLAGS', '-D BRANCH="{0}"'.format(ctx.env.gitBranch))
+    ctx.env.append_value('CFLAGS', '-D COMMIT="{0}"'.format(ctx.env.gitCommit))
+
+def _is_same_git_details(ctx, diffList):
+    oldTag = ctx.env.gitTag[:]
+    oldCommit = ctx.env.gitCommit[:]
+    oldBranch = ctx.env.gitBranch[:]
+
+    _get_git_details(ctx)
+
+    isSame = True
+
+    if ctx.env.gitTag != oldTag:
+        diffList.append("'{0}' -> '{1}'".format(oldTag, ctx.env.gitTag))
+        isSame = False
+    if ctx.env.gitCommit != oldCommit:
+        diffList.append("'{0}' -> '{1}'\n".format(oldCommit, ctx.env.gitCommit))
+        isSame = False
+    if ctx.env.gitBranch != oldBranch:
+        diffList.append("'{0}' -> '{1}'\n".format(oldBranch, ctx.env.gitBranch))
+        isSame = False
+
+    return isSame
 
 def _check_mac_osx_version(floor_version):
     '''
@@ -169,6 +253,10 @@ def configure(conf):
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
 
+    conf.env.gitTag = "UNKNOWN"
+    conf.env.gitCommit = "UNKNOWN"
+    conf.env.gitBranch = "UNKNOWN"
+
     # Read in options from a file.  The file is just a set of
     # commandline arguments in the same syntax.  May be spread across
     # multiple lines.
@@ -181,6 +269,8 @@ def configure(conf):
                 if Options.options.__dict__.get(key) is None:
                     Options.options.__dict__[key] = val
         fd.close()
+
+    _use_git_details(conf)
 
     # Load C compiler support
     conf.load('compiler_c')
@@ -259,6 +349,13 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
     conf.recurse('cfitsio')
 
 def build(bld):
+    #diffList = []
+    #if not _is_same_git_details(bld, diffList):
+    #    diffString = ''
+    #    for item in diffList:
+    #        diffString = diffString + item + '\n'
+    #    bld.fatal("ERROR: git details differ - please re-configure.\n{0}".format(diffString))
+
     bld(name='lib', always=True)
     bld(name='test', always=True)
 

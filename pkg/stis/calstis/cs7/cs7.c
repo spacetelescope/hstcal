@@ -11,6 +11,7 @@
 # include "stis.h"
 # include "calstis7.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 static int CompareNumbers (int, int, char *);
 static void FreeNames (char *, char *, char *, char *);
@@ -121,6 +122,11 @@ int main (int argc, char **argv) {
 		    PrVersion();
 		    exit (0);
 		}
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 		if (strcmp (argv[i], "-r") == 0) {
 		    PrFullVersion();
 		    exit (0);
@@ -151,7 +157,7 @@ int main (int argc, char **argv) {
 	}
 	if (inlist[0] == '\0' || too_many) {
 	    printf (
-"syntax:  cs7.e [-t] [-v] [-c] [-wgt_err] [-b blazeshift] input output\n");
+"syntax:  cs7.e [-t] [-v] [-c] [-wgt_err] [-b blazeshift] [--version] [--gitinfo] input output\n");
 	    printf ("  command-line switches:  -x2d -sgeo -hel -flux -stat\n");
 	    FreeNames (inlist, outlist, input, output);
 	    exit (ERROR_RETURN);

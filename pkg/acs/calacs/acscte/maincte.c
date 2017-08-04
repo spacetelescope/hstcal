@@ -15,6 +15,8 @@ int status = 0;			/* zero is OK */
 # include "acsinfo.h"
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names for acsccd */
+# include "hstcalversion.h"
+# include "acsversion.h"
 
 # ifdef _OPENMP
 #  include <omp.h>
@@ -32,7 +34,7 @@ static void FreeNames (char *, char *, char *, char *);
 
 static void printSyntax()
 {
-    printf ("syntax:  acscte.e [-t] [-v] [-q] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input [output]\n");
+    printf ("syntax:  acscte.e [-t] [-v] [-q] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input [output]\n");
 }
 
 int main (int argc, char **argv) {
@@ -111,6 +113,16 @@ int main (int argc, char **argv) {
     for (i = 1;  i < argc;  i++) {
 
         if (argv[i][0] == '-') {
+            if (!(strcmp(argv[i],"--version")))
+            {
+                printf("%s\n",ACS_CAL_VER);
+                exit(0);
+            }
+            if (!(strcmp(argv[i],"--gitinfo")))
+            {
+                printGitInfo();
+                exit(0);
+            }
             if (strncmp(argv[i], "--ctegen", 8) == 0)
             {
                 if (i + 1 > argc - 1)
@@ -194,6 +206,7 @@ int main (int argc, char **argv) {
     }
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
+    trlGitInfo();
 
     /* Copy command-line value for QUIET to structure */
     SetTrlQuietMode(quiet);

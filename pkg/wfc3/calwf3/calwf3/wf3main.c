@@ -5,6 +5,7 @@
 # include "wf3.h"
 # include "hstcalerr.h"
 # include "wf3version.h"
+# include "hstcalversion.h"
 
 /* H. Bushouse	07-Sep-2011	Implemented new "--version" command line argument. */
 /* M. Sosey     added a -r to also print the version (-v is used, so warren chose r for revision */
@@ -52,6 +53,11 @@ int main (int argc, char **argv) {
 			printf("%s\n",WF3_CAL_VER_NUM);
 			exit(0);
 		}
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 		if (argv[i][0] == '-') {
 			for (j = 1;  argv[i][j] != '\0';  j++) {
 				if (argv[i][j] == 't') {
@@ -82,12 +88,13 @@ int main (int argc, char **argv) {
 	}
 
 	if (input[0] == '\0' || too_many) {
-		printf ("syntax:  calwf3.e [-t] [-s] [-v] [-q] [-r] [-1] input \n");
+		printf ("syntax:  calwf3.e [-t] [-s] [-v] [-q] [-r] [-1] [--version] [--gitinfo] input \n");
 		exit (ERROR_RETURN);
 	}
 
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf ();
+    trlGitInfo();
 
 	/* Copy command-line value for QUIET to structure */
 	SetTrlQuietMode (quiet);

@@ -10,6 +10,7 @@
 # include "stis.h"
 # include "calstis0.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 static void FreeNames (char *, char *, char *, char *, char *, char *);
 
@@ -94,6 +95,11 @@ int main (int argc, char **argv) {
 		    PrVersion();
 		    exit (0);
 		}
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 		if (strcmp (argv[i], "-r") == 0) {
 		    PrFullVersion();
 		    exit (0);
@@ -137,7 +143,7 @@ int main (int argc, char **argv) {
 	}
 	if (rawlist[0] == '\0' || too_many || wavecal_next) {
 	    printf (
-	"syntax:  cs0.e [-t] [-s] [-v] input [outroot] [-w wavecal]\n");
+	"syntax:  cs0.e [-t] [-s] [-v] [--version] [--gitinfo] input [outroot] [-w wavecal]\n");
 	    FreeNames (rawlist, wavlist, outlist, rawfile, wavfile, outroot);
 	    exit (ERROR_RETURN);
 	}
