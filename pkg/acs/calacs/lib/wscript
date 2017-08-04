@@ -54,7 +54,7 @@ def build(bld):
             """,
         target = 'calacs',
         install_path = bld.env.INSTALL_LIB and '${PREFIX}/lib',
-        use = ['CFITSIO', 'OPENMP', 'ctegen2'],
+        use = ['hstcallib', 'CFITSIO', 'OPENMP', 'ctegen2'],
         includes = ['../include'],
         export_includes = ['../include'],
         )

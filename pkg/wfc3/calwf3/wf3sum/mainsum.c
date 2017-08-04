@@ -12,6 +12,7 @@ int status = 0;			/* zero is OK */
 # include "wf3sum.h"
 # include "hstcalerr.h"
 # include "wf3version.h"
+# include "hstcalversion.h"
 
 /* 
     This function will only return either 0 (WF3_OK) if everything
@@ -56,6 +57,16 @@ int main (int argc, char **argv) {
 	/* Get names of input and output files and all arguments. */
 	for (i = 1;  i < argc;  i++) {
 	    if (argv[i][0] == '-') {
+            if (!(strcmp(argv[i],"--version")))
+            {
+                printf("%s\n",WF3_CAL_VER);
+                exit(0);
+            }
+            if (!(strcmp(argv[i],"--gitinfo")))
+            {
+                printGitInfo();
+                exit(0);
+            }
 		for (j = 1;  argv[i][j] != '\0';  j++) {
 		    if (argv[i][j] == 't') {
 			printtime = YES;
@@ -82,7 +93,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("syntax:  wf3sum [-t] [-v] [-q] [-r] input output\n");
+	    printf ("syntax:  wf3sum [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
 	    free (input);
 	    free (output);
 	    exit (ERROR_RETURN);
@@ -90,7 +101,8 @@ int main (int argc, char **argv) {
 
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf ();
-	
+    trlGitInfo();
+
 	/* Copy command-line value for QUIET to structure */
 	SetTrlQuietMode(quiet);
 

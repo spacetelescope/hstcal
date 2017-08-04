@@ -23,6 +23,7 @@ MLS 2015
 # include "hstcalerr.h"
 # include "wf3corr.h"		/* calibration switch names for WFC3ccd */
 # include "wf3version.h"
+# include "hstcalversion.h"
 
 # ifdef _OPENMP
 #  include <omp.h>
@@ -105,6 +106,16 @@ int main (int argc, char **argv) {
     for (i = 1;  i < argc;  i++) {
 
         if (argv[i][0] == '-') {
+            if (!(strcmp(argv[i],"--version")))
+            {
+                printf("%s\n",WF3_CAL_VER);
+                exit(0);
+            }
+            if (!(strcmp(argv[i],"--gitinfo")))
+            {
+                printGitInfo();
+                exit(0);
+            }
             for (j = 1;  argv[i][j] != '\0';  j++) {
                 if (argv[i][j] == 't') {
                     printtime = YES;
@@ -130,12 +141,14 @@ int main (int argc, char **argv) {
         }
     }
     if (inlist[0] == '\0' || too_many) {
-        printf ("syntax:  WF3cte [-v] [-1] input output\n");
+        printf ("syntax:  WF3cte [-v] [-1] [--version] [--gitinfo] input output\n");
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }
     /* INITIALIZE THE STRUCTURE FOR MANAGING TRAILER FILE COMMENTS */
     InitTrlBuf ();
+    trlGitInfo();
+
     /* COPY COMMAND-LINE VALUE FOR QUIET TO STRUCTURE */
     SetTrlQuietMode(quiet);
            

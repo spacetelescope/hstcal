@@ -13,8 +13,10 @@ int status = 0;			/* zero is OK */
 
 # include "acs.h"
 # include "acsinfo.h"
+# include "acsversion.h"
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names for cs1 */
+# include "hstcalversion.h"
 
 static void FreeNames (char *, char *, char *, char *);
 
@@ -129,6 +131,16 @@ int main (int argc, char **argv) {
         } else if (argv[i][0] == '-') {
         *********/
         if (argv[i][0] == '-') {
+            if (!(strcmp(argv[i],"--version")))
+            {
+                printf("%s\n",ACS_CAL_VER);
+                exit(0);
+            }
+            if (!(strcmp(argv[i],"--gitinfo")))
+            {
+                printGitInfo();
+                exit(0);
+            }
             for (j = 1;  argv[i][j] != '\0';  j++) {
                 if (argv[i][j] == 't') {
                     printtime = YES;
@@ -151,7 +163,7 @@ int main (int argc, char **argv) {
         }
     }
     if (inlist[0] == '\0' || too_many) {
-        printf ("syntax:  acs2d [-t] [-v] [-q] input output\n");
+        printf ("syntax:  acs2d [-t] [-v] [-q] [--version] [--gitinfo] input output\n");
         /*
         printf ("  command-line switches:\n");
         printf ("       -dqi -glin -lflg -dark\n");
@@ -163,6 +175,7 @@ int main (int argc, char **argv) {
 
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
+    trlGitInfo();
 
     /* Copy command-line value for QUIET to structure */
     SetTrlQuietMode(quiet);

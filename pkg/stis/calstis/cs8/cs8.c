@@ -9,6 +9,7 @@
 # include "../stis.h"
 # include "calstis8.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 /* This is the main module for calstis8.  It gets the input and output
    file names, calibration switches, and flags, and then calls CalStis8.
@@ -48,6 +49,11 @@ int main (int argc, char **argv) {
 		    PrVersion();
 		    exit (0);
 		}
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 		if (strcmp (argv[i], "-r") == 0) {
 		    PrFullVersion();
 		    exit (0);
@@ -71,7 +77,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("ERROR:  syntax:  cs8.e [-t] [-v] input output\n");
+	    printf ("ERROR:  syntax:  cs8.e [-t] [-v] [--version] [--gitinfo] input output\n");
 	    exit (ERROR_RETURN);
 	}
 	if (output[0] == '\0') {

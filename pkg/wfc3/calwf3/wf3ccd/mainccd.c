@@ -16,6 +16,7 @@ int status = 0;			/* zero is OK */
 # include "hstcalerr.h"
 # include "wf3corr.h"		/* calibration switch names for wf3ccd */
 # include "wf3version.h"
+# include "hstcalversion.h"
 
 static void FreeNames (char *, char *, char *, char *);
 int MkOutName (char *, char **, char **, int, char *, int);
@@ -105,7 +106,11 @@ int main (int argc, char **argv) {
 		printf("%s\n",WF3_CAL_VER_NUM);
 		exit(0);
 	    }
-
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 	    if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */
 			ccd_sw.dqicorr = PERFORM;
 			switch_on = 1;
@@ -148,7 +153,7 @@ int main (int argc, char **argv) {
 	}
 
 	if (inlist[0] == '\0' || too_many) {
-	    printf ("syntax:  wf3ccd [-t] [-v] [-q] [-r] input output\n");
+	    printf ("syntax:  wf3ccd [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
 	    printf ("  command-line switches:\n");
 	    printf ("       -dqi  -atod -blev -bias\n");
 	    FreeNames (inlist, outlist, input, output);
@@ -157,7 +162,8 @@ int main (int argc, char **argv) {
 
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf ();
-	
+    trlGitInfo();
+
 	/* Copy command-line value for QUIET to structure */
 	SetTrlQuietMode(quiet);
 

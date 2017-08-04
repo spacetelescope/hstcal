@@ -14,6 +14,7 @@ static int WavOption (char *, int *);
 # include "calstis12.h"
 # include "cs12.h"		/* for interpolation options */
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *, char *);
@@ -84,6 +85,11 @@ int main (int argc, char **argv) {
 		PrVersion();
 		exit (0);
 	    }
+        if (!(strcmp(argv[i],"--gitinfo")))
+        {
+            printGitInfo();
+            exit(0);
+        }
 	    if (strcmp (argv[i], "-r") == 0) {
 		PrFullVersion();
 		exit (0);
@@ -110,7 +116,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (scilist[0] == '\0' || too_many) {
-	    printf ("ERROR:  syntax:  cs12.e [-t] [-v] wavecal science\n");
+	    printf ("ERROR:  syntax:  cs12.e [-t] [-v] [--version] [--gitinfo] wavecal science\n");
 	    exit (ERROR_RETURN);
 	}
 	if (which_wavecal[0] != '\0') {

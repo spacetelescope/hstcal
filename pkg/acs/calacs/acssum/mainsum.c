@@ -10,7 +10,9 @@ int status = 0;			/* zero is OK */
 
 # include "acs.h"
 # include "acssum.h"
+# include "acsversion.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 /* 
     This function will only return either 0 (ACS_OK) if everything
@@ -50,20 +52,30 @@ int main (int argc, char **argv) {
 	/* Get names of input and output files. */
 	for (i = 1;  i < argc;  i++) {
 	    if (argv[i][0] == '-') {
-		for (j = 1;  argv[i][j] != '\0';  j++) {
-		    if (argv[i][j] == 't') {
-			printtime = YES;
-		    } else if (argv[i][j] == 'v') {
-			verbose = YES;
-		    } else if (argv[i][j] == 'q') {
-			quiet = YES;
-		    } else {
-				printf (MsgText, "Unrecognized option %s\n", argv[i]);
-				free (input);
-				free (output);
-				exit (1);
-		    }
-		}
+            if (!(strcmp(argv[i],"--version")))
+            {
+                printf("%s\n",ACS_CAL_VER);
+                exit(0);
+            }
+            if (!(strcmp(argv[i],"--gitinfo")))
+            {
+                printGitInfo();
+                exit(0);
+            }
+			for (j = 1;  argv[i][j] != '\0';  j++) {
+				if (argv[i][j] == 't') {
+				printtime = YES;
+				} else if (argv[i][j] == 'v') {
+				verbose = YES;
+				} else if (argv[i][j] == 'q') {
+				quiet = YES;
+				} else {
+					printf (MsgText, "Unrecognized option %s\n", argv[i]);
+					free (input);
+					free (output);
+					exit (1);
+				}
+			}
 	    } else if (input[0] == '\0') {
 		strcpy (input, argv[i]);
 	    } else if (output[0] == '\0') {
@@ -73,7 +85,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("syntax:  acssum [-t] [-v] [-q] input [output]\n");
+	    printf ("syntax:  acssum [-t] [-v] [-q] [--version] [--gitinfo] input [output]\n");
 		free (input);
 		free (output);
 		exit (ERROR_RETURN);
@@ -81,7 +93,8 @@ int main (int argc, char **argv) {
 
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf ();
-	
+    trlGitInfo();
+
 	/* Copy command-line value for QUIET to structure */
 	SetTrlQuietMode(quiet);
 
