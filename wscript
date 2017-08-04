@@ -25,6 +25,7 @@ SUBDIRS = [
     'hstio',
     'hstio/test',
     'include',
+    'lib',
     'ctegen2',
     'pkg',
     'tables',
