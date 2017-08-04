@@ -18,12 +18,14 @@ int status = 0;			/* zero is OK */
 # include "acscorr.h"		/* calibration switch names for acsccd */
 # include "hstcalversion.h"
 # include "acsversion.h"
+#include "trlbuf.h"
 
 # ifdef _OPENMP
 #  include <omp.h>
 # endif
 
 static void FreeNames (char *, char *, char *, char *);
+struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'

@@ -15,6 +15,7 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names for calacs */
+# include "trlbuf.h"
 
 void Init2DTrl (char *, char *);
 
@@ -180,7 +181,6 @@ void Init2DTrl (char *input, char *output) {
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 	int TrlExists (char *);
-	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
 	char *isuffix[] = {"_raw", "_blv_tmp", "_blc_tmp", "_crj_tmp", "_crc_tmp"};

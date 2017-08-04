@@ -18,8 +18,10 @@ int status = 0;			/* zero is OK */
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names for cs1 */
 # include "hstcalversion.h"
+#include "trlbuf.h"
 
 static void FreeNames (char *, char *, char *, char *);
+struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'

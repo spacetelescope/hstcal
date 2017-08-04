@@ -10,6 +10,7 @@
 #include "acs.h"
 #include "hstcalerr.h"
 #include "pcte.h"
+#include "trlbuf.h"
 
 /*
  * PixCteParams reads CTE characterization parameters from a FITS table file.

@@ -14,4 +14,12 @@
 /* Standard string buffer for use in messages */
 extern char MsgText[MSG_BUFF_LENGTH];
 
+#define YES         1
+#define NO          0
+
+#define WARN_PREFIX    "Warning    "
+#define ERR_PREFIX     "ERROR:    "
+
+#define FITS_EXTN  ".fits"     /* default extension */
+
 #endif

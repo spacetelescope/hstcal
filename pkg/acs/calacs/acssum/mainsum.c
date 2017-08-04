@@ -14,6 +14,9 @@ int status = 0;			/* zero is OK */
 # include "acsversion.h"
 # include "hstcalerr.h"
 # include "hstcalversion.h"
+#include "trlbuf.h"
+
+struct TrlBuf trlbuf = { 0 };
 
 /* 
     This function will only return either 0 (ACS_OK) if everything

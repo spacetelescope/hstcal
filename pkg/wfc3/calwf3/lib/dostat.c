@@ -1,7 +1,7 @@
 # include <stdio.h>
 
 # include "hstio.h"
-# include "trl.h"		/* For trlwarn */
+# include "trlbuf.h"		/* For trlwarn */
 # include "hstcalerr.h"
 # include "wf3dq.h"
 

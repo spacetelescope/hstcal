@@ -31,6 +31,7 @@ int   n           imset number (ignored if <= 0)
 #include "hstcal.h"
 # include "wf3.h"
 # include "wf3version.h"		/* WF3_CAL_VER */
+# include "trlbuf.h"
 
 /* The beginning string will be padded to this many characters, plus one
    to ensure that there's at least one separator.

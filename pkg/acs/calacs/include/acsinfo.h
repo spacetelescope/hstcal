@@ -15,6 +15,7 @@
 */
 
 #include "hstio.h"
+#include "trlbuf.h"
 
 # define NAMPS  4    /* Maximum number of amps for a single readout */
 

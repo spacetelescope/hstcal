@@ -5,7 +5,7 @@
 # include <ctype.h>
 #include "hstcal.h"
 # include "msg.h"	/* for message output */
-# include "trl.h"
+# include "trlbuf.h"
 
 # define SZ_TIMESTRING  100 /* Make sure this is less that CHAR_LINE_LENGTH */
 # define SZ_EIGHTY       80

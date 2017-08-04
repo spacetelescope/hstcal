@@ -2,7 +2,7 @@
 # include <time.h>
 #include "hstcal.h"
 # include "msg.h"	/* for message output */
-# include "trl.h"
+# include "trlbuf.h"
 
 void LogProgress (char *mess, int n) {
 

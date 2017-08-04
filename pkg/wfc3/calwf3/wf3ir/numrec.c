@@ -6,7 +6,7 @@
 #include "c_iraf.h"
 #include "hstio.h"
 #include "wf3.h"
-#include "trl.h"
+#include "trlbuf.h"
 
 /* This file contains various Numerical Recipies routines that are
 ** used by the "pedvmr" program. It includes numerical fitting
