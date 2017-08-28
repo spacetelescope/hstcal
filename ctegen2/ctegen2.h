@@ -18,7 +18,7 @@ typedef struct {
     unsigned cte_traps; // number of valid TRAPS in file for reallocation
     double thresh; /*over subtraction threshold*/
     double rn_amp; // read noise amplitude for clipping
-    double cte_date0; /*date of uvis install on hst in mjd*/
+    double cte_date0; /*date of instrument install on hst in mjd*/
     double cte_date1; /*date of cte model pinning mjd*/
     double scale_frac; /*scaling of cte model relative to ctedate1*/
 

@@ -266,7 +266,7 @@ No.    Name         Type      Cards   Dimensions   Format
     sprintf(MsgText,"CTE_VER: %s",pars->cte_ver);
     trlmessage(MsgText);
 
-    /* GET DATE OF UVIS INSTALLATION IN HST */
+    /* GET DATE OF INSTRUMENT INSTALLATION IN HST */
     if (GetKeyDbl(&hdr_ptr, "CTEDATE0", NO_DEFAULT, -999, &pars->cte_date0)) {
         cteerror("(pctecorr) Error reading CTEDATE0 keyword from PCTETAB");
         status = KEYWORD_MISSING;
@@ -607,7 +607,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
         'CTE_NAME':'pixelCTE 2012', #name of cte algorithm
         'CTE_VER':'1.0' ,  #version number of algorithm
-        'CTEDATE0':54962.0, #date of uvis installation in HST in MJD
+        'CTEDATE0':54962.0, #date of instrument installation in HST in MJD
         'CTEDATE1':56173.0, #reference date of cte model pinning in MJd
         'PCTETLEN':60, #max length of CTE trail
         'PCTERNOI':3.25, #read noise amplitude, clipping limit
@@ -635,7 +635,7 @@ int populateHeaderWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars)
         return status;
     }
 
-    if ((status = PutKeyDbl(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of UVIS installation")))
+    if ((status = PutKeyDbl(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of instrument installation")))
     {
         trlerror("(pctecorr) failed to update CTEDATE0 keyword in header");
         return status;
