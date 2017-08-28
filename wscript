@@ -433,6 +433,13 @@ def test(ctx):
             if os.system('nosetests %s' % library):
                 raise Exception("Tests failed")
 
+def distclean(ctx):
+    # call 'waf clean'
+    Scripting.run_command('clean')
+
+    # call 'waf distclean'
+    Scripting.distclean(ctx)
+
 # This is a little recipe from the waf docs to produce abstract
 # targets that define what to build and install.
 from waflib.TaskGen import feature, before_method
