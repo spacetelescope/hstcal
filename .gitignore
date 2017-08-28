@@ -1,3 +1,4 @@
+*.swp
 .lock-waf*
 .waf*
 bin.*

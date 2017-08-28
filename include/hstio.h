@@ -165,7 +165,7 @@ void freeOnExit(PtrRegister * reg); //only calls freeAll() followed by freeOnlyR
 void freeAll(PtrRegister * reg); //frees all ptrs registered (excluding itself)
 void freeReg(PtrRegister * reg); //frees ONLY the registers themselves and NOT the pointers in PtrRegister::ptrs
 
-# define SZ_PATHNAME 511
+# define SZ_PATHNAME 1024
 
 # if !defined(BOOL_)
 # define BOOL_
