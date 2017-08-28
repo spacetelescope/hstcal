@@ -348,46 +348,6 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
     # cfitsio/wscript
     conf.recurse('cfitsio')
 
-def build(bld):
-    #diffList = []
-    #if not _is_same_git_details(bld, diffList):
-    #    diffString = ''
-    #    for item in diffList:
-    #        diffString = diffString + item + '\n'
-    #    bld.fatal("ERROR: git details differ - please re-configure.\n{0}".format(diffString))
-
-    bld(name='lib', always=True)
-    bld(name='test', always=True)
-
-    targets = [x.strip() for x in bld.targets.split(',')]
-
-    if not len(targets):
-        targets = ['lib', 'test']
-
-    if 'lib' in targets:
-        bld.env.INSTALL_LIB = True
-        targets.remove('lib')
-    else:
-        bld.env.INSTALL_LIB = None
-
-    if 'test' in targets:
-        bld.env.INSTALL_TEST = True
-        targets.remove('test')
-    else:
-        bld.env.INSTALL_TEST = None
-
-    bld.targets = ','.join(targets)
-
-    # Recurse into all of the libraries
-    for library in SUBDIRS:
-        bld.recurse(library)
-
-    if bld.cmd == 'clean':
-        return clean(bld)
-
-    # Add a post-build callback function
-    bld.add_post_fun(post_build)
-
 def post_build(bld):
     # WAF has its own way of dealing with build products.  We want to
     # emulate the old stsdas way of creating a flat directory full of
@@ -429,6 +389,46 @@ def test(ctx):
         if library.endswith('test'):
             if os.system('nosetests %s' % library):
                 raise Exception("Tests failed")
+
+def build(bld):
+    if bld.cmd == 'clean':
+        return clean(bld)
+
+    #diffList = []
+    #if not _is_same_git_details(bld, diffList):
+    #    diffString = ''
+    #    for item in diffList:
+    #        diffString = diffString + item + '\n'
+    #    bld.fatal("ERROR: git details differ - please re-configure.\n{0}".format(diffString))
+
+    bld(name='lib', always=True)
+    bld(name='test', always=True)
+
+    targets = [x.strip() for x in bld.targets.split(',')]
+
+    if not len(targets):
+        targets = ['lib', 'test']
+
+    if 'lib' in targets:
+        bld.env.INSTALL_LIB = True
+        targets.remove('lib')
+    else:
+        bld.env.INSTALL_LIB = None
+
+    if 'test' in targets:
+        bld.env.INSTALL_TEST = True
+        targets.remove('test')
+    else:
+        bld.env.INSTALL_TEST = None
+
+    bld.targets = ','.join(targets)
+
+    # Recurse into all of the libraries
+    for library in SUBDIRS:
+        bld.recurse(library)
+
+    # Add a post-build callback function
+    bld.add_post_fun(post_build)
 
 # This is a little recipe from the waf docs to produce abstract
 # targets that define what to build and install.
