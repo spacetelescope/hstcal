@@ -349,12 +349,15 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
     conf.recurse('cfitsio')
 
 def build(bld):
-    #diffList = []
-    #if not _is_same_git_details(bld, diffList):
-    #    diffString = ''
-    #    for item in diffList:
-    #        diffString = diffString + item + '\n'
-    #    bld.fatal("ERROR: git details differ - please re-configure.\n{0}".format(diffString))
+    if bld.cmd == 'build':
+        diffList = []
+        if not _is_same_git_details(bld, diffList):
+            diffString = ''
+            for item in diffList:
+                diffString = diffString + item + '\n'
+            bld.fatal("ERROR: git details differ between current source \
+tree and build configuration. Please run 'configure' again to \
+update the build configuration.\n{0}".format(diffString))
 
     bld(name='lib', always=True)
     bld(name='test', always=True)
