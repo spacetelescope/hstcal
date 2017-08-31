@@ -21,10 +21,10 @@
 /* Structure describing SINGLE CHIP exposure and its reference files */
 typedef struct {
     /* input and output image names */
-    char input[ACS_LINE+1];       /* input image to be calibrated */
-    char output[ACS_LINE+1];        /* output calibrated image */
+    char input[CHAR_LINE_LENGTH+1];       /* input image to be calibrated */
+    char output[CHAR_LINE_LENGTH+1];        /* output calibrated image */
 
-    char rootname[ACS_LINE+1];      /* root name for set of obs */
+    char rootname[CHAR_LINE_LENGTH+1];      /* root name for set of obs */
 
     /* command-line flags */
     int printtime;                  /* print time after each step? */
@@ -126,7 +126,7 @@ typedef struct {
 
     /* calibration images and tables for ACSCTE */
     RefTab pcte;        /* Pixel CTE parameters table */
-    char pcteTabNameFromCmd[ACS_LINE];
+    char pcteTabNameFromCmd[CHAR_LINE_LENGTH];
 
     /* calibration images and tables for ACS2D */
     RefImage dark;      /* dark image */

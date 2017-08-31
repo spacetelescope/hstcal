@@ -2,6 +2,7 @@
 # include   <string.h>
 # include   <stdlib.h>
 # include   <ctype.h>
+#include "hstcal.h"
 # include   "hstio.h"
 # include   "xtables.h"
 
@@ -127,7 +128,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
                 trlerror ("column CRSIGMAS does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
-            c_tbegtt (tp, colptr, row, par->sigmas, SZ_LINE);
+            c_tbegtt (tp, colptr, row, par->sigmas, CHAR_LINE_LENGTH);
         }
 
         /* read other parameters */

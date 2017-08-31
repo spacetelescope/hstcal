@@ -1,5 +1,6 @@
 # include   <stdio.h>
 # include   <string.h>
+#include "hstcal.h"
 # include "hstio.h"
 
 # include   "wf3.h"
@@ -42,7 +43,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
 
     Hdr         hdr;
     int         nzero, k;
-    char        fdata[SZ_FNAME + 1], units[12];
+    char        fdata[CHAR_FNAME_LENGTH + 1], units[12];
     IODescPtr   ip;
     int         numimgs;        /* How many good input images are there? */
 
@@ -85,7 +86,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
     for (k = 0; k < *nimgs; ++k) {
 
         /* read the next input image name in the template list */
-        c_imtgetim (tpin, fdata, SZ_FNAME);
+        c_imtgetim (tpin, fdata, CHAR_FNAME_LENGTH);
 
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);

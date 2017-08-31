@@ -14,7 +14,7 @@
 typedef struct {
 
 	char **input;				/* input images */
-	char output[ACS_LINE];		/* output sum */
+	char output[CHAR_LINE_LENGTH];		/* output sum */
 
 	char rootname[ACS_CBUF];	/* root name for set of obs */
 

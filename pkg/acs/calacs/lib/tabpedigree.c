@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <string.h>
+#include "hstcal.h"
 # include "xtables.h"
 # include "c_iraf.h"	/* clear_cvoserr */
 # include "acs.h"

@@ -8,6 +8,7 @@
 # include <stdlib.h>		/* calloc */
 # include <math.h>		/* fabs */
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"

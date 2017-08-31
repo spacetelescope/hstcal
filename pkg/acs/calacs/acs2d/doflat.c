@@ -2,6 +2,7 @@
 # include <stdlib.h>		/* for calloc */
 # include <time.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"

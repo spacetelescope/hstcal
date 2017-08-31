@@ -3,6 +3,7 @@
 # include <string.h>    /* strchr */
 # include <ctype.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"
@@ -80,7 +81,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 	PhotPar obs;
 	float photfnu;
 
-	char  photmode[SZ_LINE+1], obsmode[SZ_LINE+1];
+	char  photmode[CHAR_LINE_LENGTH+1], obsmode[CHAR_LINE_LENGTH+1];
 
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int PutKeyFlt (Hdr *, char *, float, char *);
@@ -92,7 +93,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 		return (status);
 
 	/* Extract photmode from sci extension header */
-	if (GetKeyStr (&x->sci.hdr, "PHOTMODE",USE_DEFAULT,"",photmode,SZ_LINE))
+	if (GetKeyStr (&x->sci.hdr, "PHOTMODE",USE_DEFAULT,"",photmode,CHAR_LINE_LENGTH))
 		return (status);
 
 	/* Add commas to PHOTMODE string and change all strings to

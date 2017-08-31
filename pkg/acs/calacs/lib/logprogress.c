@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <time.h>
+#include "hstcal.h"
 # include "acs.h"	/* for message output */
 
 void LogProgress (char *mess, int n) {

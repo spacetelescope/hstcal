@@ -3,6 +3,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"	/* defines HST I/O functions */
 # include "acs.h"	/* defines ACS data structures */
 # include "acsasn.h"	/* defines ACS Association data structures */
@@ -24,7 +25,7 @@ ACSInfo *acs		o: exposure specific flags and info
 */
 	extern int status;
 	
-	char rootname[ACS_FNAME+1];
+	char rootname[CHAR_FNAME_LENGTH+1];
 	char mtype[SZ_STRKWVAL+1];
     int mlen;
 	void FindAsnRoot (const char *, char *);
@@ -87,7 +88,7 @@ AsnInfo *asn      	i: calibration flags and other info
 ACSInfo *acs		o: exposure specific flags and info
 */
 	extern int status;
-	char rootname[ACS_FNAME];
+	char rootname[CHAR_FNAME_LENGTH];
 	*rootname = '\0';
 	void FindAsnRoot (const char *, char *);
 	

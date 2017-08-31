@@ -25,7 +25,7 @@ int *copied             o: set to true (1) if the primary header was actually
 
         *copied = 0;            /* initial value */
 
-        outfile = (char *)calloc (SZ_FNAME+1, sizeof(char));
+        outfile = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
         status = c_vfn2osfn (outtable, outfile);
         if (status != 0) {
             setError (status, "c_tbfpri:  error from c_vfn2osfn");
@@ -45,7 +45,7 @@ int *copied             o: set to true (1) if the primary header was actually
             return;
         }
 
-        infile = (char *)calloc (SZ_FNAME+1, sizeof(char));
+        infile = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
         status = c_vfn2osfn (intable, infile);
         if (status != 0) {
             setError (status, "c_tbfpri:  error from c_vfn2osfn");
@@ -105,7 +105,7 @@ int *copied             o: set to true (1) if the primary header was actually
         }
 
         /* add or update FILENAME in the output primary header */
-        filename = (char *)calloc (SZ_FNAME+1, sizeof(char));
+        filename = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
         for (i = strlen (outfile) - 1;  i >= 0;  i--) {
             if (outfile[i] == '/')
                 break;

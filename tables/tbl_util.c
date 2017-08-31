@@ -36,12 +36,12 @@ function value          o: name of the file with the environment variable
                 done = 1;
             } else if (filename[i] == '$') {
                 done = 1;
-                var = (char *)calloc (SZ_FNAME+1, sizeof(char));
+                var = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
                 dollar = i;
                 if (dollar == 0) {
                     /* Unix-style file name */
                     for (j = 1;  filename[j] != '\0';  j++) {
-                        if (j >= SZ_FNAME) {
+                        if (j >= CHAR_FNAME_LENGTH) {
                             var[j] = '\0';
                             start = j + 1;
                             break;
@@ -56,8 +56,8 @@ function value          o: name of the file with the environment variable
                 } else {
                     /* IRAF-style file name */
                     start = dollar + 1;
-                    if (dollar >= SZ_FNAME)
-                        dollar = SZ_FNAME;
+                    if (dollar >= CHAR_FNAME_LENGTH)
+                        dollar = CHAR_FNAME_LENGTH;
                     for (j = 0;  j < dollar;  j++)
                         var[j] = filename[j];
                     var[dollar] = '\0';
@@ -67,7 +67,7 @@ function value          o: name of the file with the environment variable
             }
             i++;
         }
-        l_value = (char *)calloc (SZ_FNAME+1, sizeof(char));
+        l_value = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
         if (dollar >= 0) {
             if (value == NULL) {
                 strcpy (l_value, filename);

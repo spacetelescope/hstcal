@@ -2,6 +2,7 @@
 # include <stdlib.h>    /* calloc */
 # include <string.h>
 
+#include "hstcal.h"
 # include "xtables.h"   /* for IRAFPointer definition */
 # include "hstio.h"
 
@@ -258,12 +259,12 @@ char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
     int acssum_len;
     int i;
     char *acssum_input;
-    char tmpexp[ACS_LINE];
-    char tmpflt[ACS_LINE];
+    char tmpexp[CHAR_LINE_LENGTH];
+    char tmpflt[CHAR_LINE_LENGTH];
     int MkName (char *, char *, char *, char *, char *, int);
 
     /* Determine how long this string needs to be... */
-    /*nchars = asn->spmems[posid] * ACS_FNAME; */
+    /*nchars = asn->spmems[posid] * CHAR_FNAME_LENGTH; */
     nchars = 1;
 
     /* Keep track of individual filename lengths and total length*/
@@ -272,7 +273,7 @@ char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
     for (i=1; i <= asn->spmems[posid]; i++) {
         strcpy(tmpexp, asn->product[prod].subprod[posid].exp[i].expname);
 
-        if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, ACS_LINE)) {
+        if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, CHAR_LINE_LENGTH)) {
             strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);
             strcat (tmpflt, "_flt.fits");
         }
@@ -291,7 +292,7 @@ char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
     for (i=1; i <= asn->spmems[posid]; i++) {
         strcpy(tmpexp, asn->product[prod].subprod[posid].exp[i].expname);
 
-        if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, ACS_LINE)) {
+        if (MkName (tmpexp, "_raw", "_flt", "", tmpflt, CHAR_LINE_LENGTH)) {
             strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);
             strcat (tmpflt, "_flt.fits");
         }
@@ -313,11 +314,11 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
     int nchars;
     int i;
     char *acsdth_input;
-    char tmpexp[ACS_LINE];
+    char tmpexp[CHAR_LINE_LENGTH];
     int MkName (char *, char *, char *, char *, char *, int);
 
     /* Determine how long this string needs to be... */
-    nchars = asn->numsp * ACS_FNAME;
+    nchars = asn->numsp * CHAR_FNAME_LENGTH;
     acsdth_input = (char *) calloc( nchars + 1, sizeof(char));
     /* Initialize this string to NULL */
     acsdth_input[0] = '\0';
@@ -326,7 +327,7 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
     for (i=1; i <= asn->numsp; i++) {
         strcpy(tmpexp, asn->product[prod].subprod[i].spname);
 
-        /*if (MkName (tmpexp, "_crj_tmp", "_crj", "", tmpflt, ACS_LINE)) {
+        /*if (MkName (tmpexp, "_crj_tmp", "_crj", "", tmpflt, CHAR_LINE_LENGTH)) {
             strcpy (tmpflt,asn->product[prod].subprod[posid].exp[i].name);
             strcat (tmpflt, "_crj.fits");
         }
@@ -395,7 +396,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
             }
             /*  Allocate space for ACSREJ input image list */
             if ( (asn->crcorr == PERFORM) || (asn->rptcorr == PERFORM) ) {
-                nchars = asn->spmems[posid] * ACS_FNAME;
+                nchars = asn->spmems[posid] * CHAR_FNAME_LENGTH;
                 acsrej_input = (char *) calloc( nchars + 1, sizeof(char));
                 /* Initialize this string to NULL */
                 acsrej_input[0] = '\0';
@@ -861,7 +862,7 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
                              all remaining trailer files */
 
     char *acssum_input;  /* Input list for ACSSUM */
-    char acssum_output[ACS_FNAME+1];
+    char acssum_output[CHAR_FNAME_LENGTH+1];
     char acssum_mtype[SZ_STRKWVAL+1];  /* Role of exposure in association */
     char *acssum_msgtext;
 

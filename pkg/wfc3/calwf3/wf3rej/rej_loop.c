@@ -3,6 +3,7 @@
 # include   <stdlib.h>
 # include   <math.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include   "wf3.h"
@@ -147,7 +148,7 @@ Code Outline:
 				units of count rates. (PR 69969; Trac #814)
 */
 
-int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][SZ_FNAME+1],
+int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LENGTH+1],
 	      int grp [], int nimgs, clpar *par, int niter, int dim_x,
 	      int dim_y, float sigma[], multiamp noise, multiamp gain, 
 	      float efac[], float skyval[], DataUnits bunit[],

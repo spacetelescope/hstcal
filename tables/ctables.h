@@ -5,7 +5,7 @@
 
 # include "xtables.h"
 
-# define SZ_FNAME    1024
+# define CHAR_FNAME_LENGTH    1024
 # define SZ_ERRMESS  1024
 # define SZ_FITS_STR   80
 

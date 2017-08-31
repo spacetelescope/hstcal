@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include <time.h>
 # include "acs.h"
@@ -31,7 +32,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	int nextend;		/* number of FITS extensions in rawfile */
 
     time_t date,date_limit;
-    char dateobs[ACS_CBUF],targname[ACS_LINE];
+    char dateobs[ACS_CBUF],targname[CHAR_LINE_LENGTH];
 
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int GetKeyInt (Hdr *, char *, int, int, int *);
@@ -82,7 +83,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
        with exposure's date-obs
     */
     parseObsDateVal("2009-01-01", &date_limit);
-    if (GetKeyStr (&phdr, "TARGNAME", USE_DEFAULT, "", targname, ACS_LINE))
+    if (GetKeyStr (&phdr, "TARGNAME", USE_DEFAULT, "", targname, CHAR_LINE_LENGTH))
         return (status);
     if (strncmp(targname,"BIAS",4) == 0 && date > date_limit){
         acs->newbias = 1;

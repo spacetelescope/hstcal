@@ -101,8 +101,8 @@ typedef enum DataUnits_ DataUnits;
 /* Structure describing SINGLE CHIP exposure and its reference files */
 typedef struct {
     /* input and output image names */
-    char input[SZ_LINE+1];	   /* input image to be calibrated */
-    char output[SZ_LINE+1];        /* output calibrated image */
+    char input[CHAR_LINE_LENGTH+1];	   /* input image to be calibrated */
+    char output[CHAR_LINE_LENGTH+1];        /* output calibrated image */
 
     char rootname[SZ_CBUF+1];      /* root name for set of obs */
 

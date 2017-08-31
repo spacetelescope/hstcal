@@ -11,8 +11,8 @@
 
 #include "ctegen2.h"
 #include "hstcalerr.h"
+#include "hstcal.h"
 
-char MsgText[256];
 extern void trlmessage (char *message);
 extern void trlerror (char *message);
 

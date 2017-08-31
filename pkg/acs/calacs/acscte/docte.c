@@ -10,6 +10,7 @@
 # include <time.h>
 # include <assert.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "acs.h"

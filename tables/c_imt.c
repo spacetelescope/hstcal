@@ -208,7 +208,7 @@ static void findFiles (ImtDescr *imt_descr) {
         }
         imt_descr->alloc_nfiles = nfiles;
 
-        filename = (char *)calloc (SZ_FNAME+1, sizeof(char));
+        filename = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
 
         imt_descr->files = (char **)calloc (imt_descr->alloc_nfiles,
                                 sizeof(char *));
@@ -261,7 +261,7 @@ static void findFiles (ImtDescr *imt_descr) {
             if (imt_descr->pattern[i] == '\0')
                 done = 1;
 
-            fullname = (char *)calloc (SZ_FNAME+1, sizeof(char));
+            fullname = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
             status = c_vfn2osfn (filename, fullname);
             if (status != 0) {
                 setError (status, "c_imtopen:  error from c_vfn2osfn");
@@ -271,7 +271,7 @@ static void findFiles (ImtDescr *imt_descr) {
 
             /* if a file name was specified, add it to the list */
             if (fullname[0] != '\0' && fullname[0] != ' ') {
-                imt_descr->files[n] = (char *)calloc (SZ_FNAME+1, sizeof(char));
+                imt_descr->files[n] = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
                 strcpy (imt_descr->files[n], fullname);
                 n++;
                 imt_descr->nfiles = n;

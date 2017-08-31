@@ -29,7 +29,7 @@ function value          o: table descriptor
         clearError();
 
         /* expand environment variable (if any) in tablename */
-        fullname = calloc (SZ_FNAME+1, sizeof(*fullname));
+        fullname = calloc (CHAR_FNAME_LENGTH+1, sizeof(*fullname));
         status = c_vfn2osfn (tablename, fullname);
         if (status != 0) {
             setError (status, "c_tbtopn:  error from c_vfn2osfn");

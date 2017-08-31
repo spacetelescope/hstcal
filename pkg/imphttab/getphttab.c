@@ -22,6 +22,7 @@ MLS: 08/2015 Added some initializations the clang complained about
 # include <ctype.h>
 # include <math.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "xtables.h"
 # include "imphttab.h"
@@ -89,7 +90,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
 
     int row;        /* loop index */
     int extn;
-    char phdrname[SZ_FNAME];
+    char phdrname[CHAR_FNAME_LENGTH];
     IODescPtr im;        /* descriptor for primary header unit */
     Hdr tphdr;        /* primary header */
     FitsKw key;        /* location of keyword in header */
@@ -283,7 +284,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 
     extern int status;
 
-    char tname[SZ_FNAME];
+    char tname[CHAR_FNAME_LENGTH];
     char **colnames, **ecolnames, **pncolnames, **pvcolnames;
 
     int *nocol;

@@ -6,6 +6,7 @@
 # include <stdio.h>             /* To insure that FILE is defined for TrlPtr */
 # include "msg.h"
 # include "imphttab.h"
+# include "hstcal.h"
 
 /* Macros for dusing GetKey/PutKey functions.... */
 # define USE_DEFAULT    1       /* Use default if keyword is missing */
@@ -85,7 +86,7 @@ typedef enum SwitchVals_ SwitchVals;
 
 /* A reference image. */
 typedef struct {
-    char name[SZ_LINE+1];            /* name of image */
+    char name[CHAR_FNAME_LENGTH+1];            /* name of image */
     char type[SZ_FITS_REC+1];        /* value of filetype */
     char pedigree[SZ_FITS_REC+1];    /* value of pedigree keyword */
     char descrip[SZ_FITS_REC+1];     /* value of descrip keyword */
@@ -96,7 +97,7 @@ typedef struct {
 
 /* A reference table. */
 typedef struct {
-    char name[SZ_LINE+1];            /* name of table */
+    char name[CHAR_FNAME_LENGTH+1];            /* name of table */
     char type[SZ_FITS_REC+1];        /* value of filetype */
     char pedigree[SZ_FITS_REC+1];    /* value of pedigree (header or row) */
     char descrip[SZ_FITS_REC+1];     /* value of descrip from header */

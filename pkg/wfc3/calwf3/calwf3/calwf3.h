@@ -14,24 +14,24 @@
 
 typedef struct {
 	/* name of association table exposure comes from */
-	char asn_table[SZ_LINE+1];
-	char crj_root[SZ_LINE+1];
-    char crc_root[SZ_LINE+1];
+	char asn_table[CHAR_LINE_LENGTH+1];
+	char crj_root[CHAR_LINE_LENGTH+1];
+    char crc_root[CHAR_LINE_LENGTH+1];
 
 	/* input, outroot, and temporary file names */
-	char rawfile[SZ_LINE+1];	/* uncalibrated science data */
-	char outroot[SZ_LINE+1];	/* file name _raw for output product */
-    char rac_tmp[SZ_LINE+1];    /* PCTECORR corrected raw file in orig format */
-	char crjfile[SZ_LINE+1];	/* CR rejected, flat fielded science */
-    char crcfile[SZ_LINE+1];    /* CR reject, CTE fixed, flat fielded science */
-	char imafile[SZ_LINE+1];	/* IR intermediate file */
-	char fltfile[SZ_LINE+1];	/* flat fielded science, no CTE correction */
-	char flcfile[SZ_LINE+1];	/* flat fielded science with CTE correction */
-	char blv_tmp[SZ_LINE+1];	/* blevcorr,no CTE, then CR flagged */
-    char blc_tmp[SZ_LINE+1];    /* blevcorr, with CTE bias*/
-	char crj_tmp[SZ_LINE+1];	/* CR rejected, no CTE, summed */
-    char crc_tmp[SZ_LINE+1];    /* CR combined with CTE done*/
-	char dthfile[SZ_LINE+1];	/* dither combined science data */
+	char rawfile[CHAR_LINE_LENGTH+1];	/* uncalibrated science data */
+	char outroot[CHAR_LINE_LENGTH+1];	/* file name _raw for output product */
+    char rac_tmp[CHAR_LINE_LENGTH+1];    /* PCTECORR corrected raw file in orig format */
+	char crjfile[CHAR_LINE_LENGTH+1];	/* CR rejected, flat fielded science */
+    char crcfile[CHAR_LINE_LENGTH+1];    /* CR reject, CTE fixed, flat fielded science */
+	char imafile[CHAR_LINE_LENGTH+1];	/* IR intermediate file */
+	char fltfile[CHAR_LINE_LENGTH+1];	/* flat fielded science, no CTE correction */
+	char flcfile[CHAR_LINE_LENGTH+1];	/* flat fielded science with CTE correction */
+	char blv_tmp[CHAR_LINE_LENGTH+1];	/* blevcorr,no CTE, then CR flagged */
+    char blc_tmp[CHAR_LINE_LENGTH+1];    /* blevcorr, with CTE bias*/
+	char crj_tmp[CHAR_LINE_LENGTH+1];	/* CR rejected, no CTE, summed */
+    char crc_tmp[CHAR_LINE_LENGTH+1];    /* CR combined with CTE done*/
+	char dthfile[CHAR_LINE_LENGTH+1];	/* dither combined science data */
 	char mtype[SZ_FITS_VAL+1];	/* Role of exposure in association */
 
 	char rootname[SZ_CBUF+1];	/* root name for set of obs */

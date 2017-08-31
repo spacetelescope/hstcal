@@ -1102,7 +1102,7 @@ Updates for Version 0.2 - 28 Oct 2003 (HAB):
     lib/sameint.c:
 	Added new 'SameFlt' routine for use with gain keyword values.
     lib/trlbuf.c:
-	Increased 'trldata' buffer size from 'SZ_FNAME' to 'SZ_LINE'.
+	Increased 'trldata' buffer size from 'CHAR_FNAME_LENGTH' to 'CHAR_LINE_LENGTH'.
     lib/key.c:
 	Changed putKeyBool function type from Bool to int.
     wf32d/wf32d.c:

@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "ximio.h"
 # include "xtables.h"

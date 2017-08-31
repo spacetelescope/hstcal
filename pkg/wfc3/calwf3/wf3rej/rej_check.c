@@ -1,5 +1,6 @@
 # include   <stdio.h>
 # include   <string.h>
+#include "hstcal.h"
 # include "hstio.h"
 
 # include   "wf3.h"
@@ -35,7 +36,7 @@ static int getampxy (Hdr *, int, int, char *, int, int, int *, int *);
 */
 
 int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
-	       int newpar[], char imgname[][SZ_FNAME+1], int grp[],
+	       int newpar[], char imgname[][CHAR_FNAME_LENGTH+1], int grp[],
 	       IODescPtr ipsci[], IODescPtr ipdq[], multiamp *noise,
 	       multiamp *gain, int *dim_x, int *dim_y, int nimgs, char expflagFinal[]) {
 
@@ -43,7 +44,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
     IODescPtr   ip;
     Hdr         prihdr, scihdr;         /* header structures */
-    char        fdata[SZ_FNAME+1];
+    char        fdata[CHAR_FNAME_LENGTH+1];
     char        det[SZ_CBUF+1];
     int         detector;
     multiamp    gn, ron;
@@ -77,7 +78,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     for (k = 0; k < nimgs; ++k) {
 
         /* read the next input image name in the template list */
-        c_imtgetim (tpin, fdata, SZ_FNAME);
+        c_imtgetim (tpin, fdata, CHAR_FNAME_LENGTH);
         
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
@@ -124,7 +125,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
             /* read the CRREJ reference table name, if necessary */
             if (newpar[0] < MAX_PAR && par->tbname[0] == '\0') {
                 if (GetKeyStr (&prihdr, "CRREJTAB", NO_DEFAULT, "", par->tbname,
-			       SZ_FNAME)) {
+			       CHAR_FNAME_LENGTH)) {
                     trlkwerr ("CRREJTAB", fdata);
                     return(status = KEYWORD_MISSING);
                 }
@@ -298,7 +299,7 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
 
     extern int status;
     WF3Info wf3rej;
-    char tabname[SZ_LINE+1];
+    char tabname[CHAR_LINE_LENGTH+1];
 
     void WF3Init (WF3Info *);
     int GetKeys (WF3Info *, Hdr *);

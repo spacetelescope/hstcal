@@ -59,6 +59,7 @@
 
 # include <string.h>
 # include <stdio.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "wf3info.h"

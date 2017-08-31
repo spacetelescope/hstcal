@@ -1,4 +1,5 @@
 # include <stdio.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"

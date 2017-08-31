@@ -19,7 +19,7 @@
 
 /*  define the parameter structure */
 typedef struct {
-    char    tbname[SZ_FNAME+1];      /* Name of CCDTAB to be read */
+    char    tbname[CHAR_FNAME_LENGTH+1];      /* Name of CCDTAB to be read */
     float   radius;
     float   thresh;
     int     nexpnames;

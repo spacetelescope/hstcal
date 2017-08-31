@@ -2,6 +2,7 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"
@@ -52,7 +53,7 @@ Hdr *hdr	io: image header to be modified
 
 	int PutKeyStr (Hdr *, char *, char *, char *);
 
-	photstr = calloc (SZ_LINE+1, sizeof (char));
+	photstr = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
 	scratch = calloc (SZ_FITS_REC+1, sizeof (char));
 	if (photstr == NULL || scratch == NULL)
 	    return (status = OUT_OF_MEMORY);

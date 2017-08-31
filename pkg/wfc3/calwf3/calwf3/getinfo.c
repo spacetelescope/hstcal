@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"

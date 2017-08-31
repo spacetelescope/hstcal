@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <string.h>		/* for strncmp, strcmp */
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "msg.h"

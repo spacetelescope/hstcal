@@ -2,6 +2,7 @@
 # include   <stdlib.h>
 # include   <string.h>
 
+#include "hstcal.h"
 # include   "hstio.h"
 
 # include   "acs.h"
@@ -50,10 +51,10 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     int         extver;             /* Current extension being processed*/
     int         numext;             /* Number of extensions in each image */
     int         nextend;            /* Number of output extensions */
-    char        imgname[MAX_FILES][ACS_FNAME];
-    char        fimage[ACS_FNAME];  /* Name of first image in list */
-    char        root[ACS_FNAME];    /* ROOTNAME for output CRJ file */
-    char        uroot[ACS_FNAME];   /* Upper case version of rootname */
+    char        imgname[MAX_FILES][CHAR_FNAME_LENGTH];
+    char        fimage[CHAR_FNAME_LENGTH];  /* Name of first image in list */
+    char        root[CHAR_FNAME_LENGTH];    /* ROOTNAME for output CRJ file */
+    char        uroot[CHAR_FNAME_LENGTH];   /* Upper case version of rootname */
     char        *shadrefname;
 
     int         ext[MAX_FILES];
@@ -68,7 +69,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     double      expend, expstart;
     int         non_zero;           /* number of input images with EXPTIME>0.*/
     int         found;
-    char        imgdefault[ACS_FNAME];  /* name of first input image with EXPTIME > 0. */
+    char        imgdefault[CHAR_FNAME_LENGTH];  /* name of first input image with EXPTIME > 0. */
 
     int     GetSwitch (Hdr *, char *, int *);
     int     UpdateSwitch (char *, int, Hdr *, int *);
@@ -77,7 +78,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     int     ImgHistory (const RefImage *, Hdr *);
     int     ImgPedigree (RefImage *);
 
-    int     acsrej_check (IRAFPointer, int, int, clpar *, int [],  char [][ACS_FNAME],
+    int     acsrej_check (IRAFPointer, int, int, clpar *, int [],  char [][CHAR_FNAME_LENGTH],
                 int [], IODescPtr [], IODescPtr [],
                 multiamp *, multiamp *, int *,
                 int *, int);
@@ -88,7 +89,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     int     acsrej_init (IODescPtr [], IODescPtr [], clpar *, int, int, int,
                 multiamp, multiamp, float [], float [],
                 SingleGroup *,   float *);
-    int     acsrej_loop (IODescPtr [], IODescPtr [], char [][ACS_FNAME],
+    int     acsrej_loop (IODescPtr [], IODescPtr [], char [][CHAR_FNAME_LENGTH],
                 int [], int, clpar *, int, int, int, float [],
                 multiamp, multiamp, float [], float [],
                 FloatTwoDArray *, FloatTwoDArray *, float *,
@@ -130,7 +131,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
     */
 
     /* First, let's determine how many extensions/chips in each file */
-    c_imtgetim (tpin, fimage, ACS_FNAME);
+    c_imtgetim (tpin, fimage, CHAR_FNAME_LENGTH);
 
     if (LoadHdr (fimage, &phdr) )
         return (status = ERROR_RETURN);
@@ -152,9 +153,9 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par, int new
 
         /* Use par->shadcorr as switch for performing shading correction */
         par->shadcorr = PERFORM;
-        shadrefname = calloc(ACS_FNAME, sizeof(char));
+        shadrefname = calloc(CHAR_FNAME_LENGTH, sizeof(char));
 
-        if (GetKeyStr (&phdr, "SHADFILE", NO_DEFAULT, "", shadrefname, ACS_FNAME) )
+        if (GetKeyStr (&phdr, "SHADFILE", NO_DEFAULT, "", shadrefname, CHAR_FNAME_LENGTH) )
             return(status);
         strcpy (shadref.name, shadrefname);
         /* Read in PEDIGREE and DESCRIPTION for SHADFILE */

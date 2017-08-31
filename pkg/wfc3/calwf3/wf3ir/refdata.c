@@ -28,6 +28,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"	/* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"
@@ -839,7 +840,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
                 trlerror ("column CRSIGMAS does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
-            c_tbegtt (tp, colptr, row, par->sigmas, SZ_LINE);
+            c_tbegtt (tp, colptr, row, par->sigmas, CHAR_LINE_LENGTH);
         }
 
         /* read other parameters */

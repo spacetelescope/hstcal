@@ -7,6 +7,7 @@
 
 int status = 0;			/* zero is OK */
 
+#include "hstcal.h"
 # include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 # include "hstio.h"
@@ -20,6 +21,9 @@ int status = 0;			/* zero is OK */
 
 static void FreeNames (char *, char *, char *, char *);
 int MkOutName (char *, char **, char **, int, char *, int);
+
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 /* This is the main module for WF3CCD.  It gets the input and output
    file names, calibration switches, and flags, and then calls WF3ccd.
@@ -79,10 +83,10 @@ int main (int argc, char **argv) {
 	push_hstioerr (errchk);
 
 	/* Allocate space for file names. */
-	inlist  = calloc (SZ_LINE+1, sizeof (char));
-	outlist = calloc (SZ_LINE+1, sizeof (char));
-	input   = calloc (SZ_LINE+1, sizeof (char));
-	output  = calloc (SZ_LINE+1, sizeof (char));
+	inlist  = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+	outlist = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+	input   = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+	output  = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
 
 	if (inlist == NULL || outlist == NULL ||
 	    input == NULL || output == NULL) {
@@ -196,15 +200,15 @@ int main (int argc, char **argv) {
 	/* Loop over the list of input files. */
 	for (n = 0;  n < n_in;  n++) {
 
-	    i = c_imtgetim (i_imt, input, SZ_LINE);
+	    i = c_imtgetim (i_imt, input, CHAR_LINE_LENGTH);
 		
 	    if (n_out > 0) {
-		    i = c_imtgetim (o_imt, output, SZ_LINE);
+		    i = c_imtgetim (o_imt, output, CHAR_LINE_LENGTH);
 	    } else {
     		output[0] = '\0';
         }
         
-	    if (MkOutName (input, isuffix, osuffix, nsuffix, output, SZ_LINE)) {
+	    if (MkOutName (input, isuffix, osuffix, nsuffix, output, CHAR_LINE_LENGTH)) {
 	        WhichError (status);
 	        sprintf (MsgText, "Skipping %s", input);
 	        trlmessage (MsgText);

@@ -2,6 +2,7 @@
 # include   <stdlib.h>
 # include   <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include   "wf3.h"
@@ -78,10 +79,10 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int         extver;             /* Current extension being processed*/
     int         numext;             /* Number of extensions in each image */
     int         nextend;            /* Number of output extensions */
-    char        imgname[MAX_FILES][SZ_FNAME+1];
-    char        fimage[SZ_FNAME+1];  /* Name of first image in list */
-    char        root[SZ_FNAME+1];    /* ROOTNAME for output CRJ file */
-    char        uroot[SZ_FNAME+1];   /* Upper case version of rootname */
+    char        imgname[MAX_FILES][CHAR_FNAME_LENGTH+1];
+    char        fimage[CHAR_FNAME_LENGTH+1];  /* Name of first image in list */
+    char        root[CHAR_FNAME_LENGTH+1];    /* ROOTNAME for output CRJ file */
+    char        uroot[CHAR_FNAME_LENGTH+1];   /* Upper case version of rootname */
     char        *shadrefname;  
 
     int         ext[MAX_FILES];
@@ -96,7 +97,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     double      expend, expstart;   /* exposure end & start times */
     int		non_zero;	    /* number of input images with EXPTIME>0 */
     int		found;
-    char	imgdefault[SZ_FNAME+1]; /* name of first input image with
+    char	imgdefault[CHAR_FNAME_LENGTH+1]; /* name of first input image with
 					   EXPTIME>0 */
 
     int     GetSwitch (Hdr *, char *, int *);
@@ -107,7 +108,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     ImgPedigree (RefImage *);
 
     int     rej_check (IRAFPointer, int, int, clpar *, int [],
-		       char [][SZ_FNAME+1], int [], IODescPtr [], IODescPtr [],
+		       char [][CHAR_FNAME_LENGTH+1], int [], IODescPtr [], IODescPtr [],
 		       multiamp *, multiamp *, int *, int *, int, char []);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
 			double *, DataUnits []);
@@ -118,7 +119,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     rej_init (IODescPtr [], IODescPtr [], clpar *, int, int, int,
                 multiamp, multiamp, float [], float [], DataUnits [],
 		SingleGroup *, float *);
-    int     rej_loop (IODescPtr [], IODescPtr [], char [][SZ_FNAME+1],
+    int     rej_loop (IODescPtr [], IODescPtr [], char [][CHAR_FNAME_LENGTH+1],
                 int [], int, clpar *, int, int, int, float [], multiamp,
 		multiamp, float [], float [], DataUnits [], FloatTwoDArray *,
 		FloatTwoDArray *, float *, ShortTwoDArray *, int *, char *);
@@ -162,7 +163,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     */
 
     /* First, let's determine how many extensions/chips in each file */
-    c_imtgetim (tpin, fimage, SZ_FNAME);
+    c_imtgetim (tpin, fimage, CHAR_FNAME_LENGTH);
 
     if (LoadHdr (fimage, &phdr) )
         return (status = ERROR_RETURN);
@@ -183,9 +184,9 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     
         /* Use par->shadcorr as switch for performing shading correction */
         par->shadcorr = PERFORM;
-        shadrefname = calloc(SZ_FNAME+1, sizeof(char));
+        shadrefname = calloc(CHAR_FNAME_LENGTH+1, sizeof(char));
     
-        if (GetKeyStr (&phdr, "SHADFILE", NO_DEFAULT, "", shadrefname,SZ_FNAME))
+        if (GetKeyStr (&phdr, "SHADFILE", NO_DEFAULT, "", shadrefname,CHAR_FNAME_LENGTH))
             return(status);
         strcpy (shadref.name, shadrefname);
 

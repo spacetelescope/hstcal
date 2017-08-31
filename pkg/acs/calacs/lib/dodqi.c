@@ -9,6 +9,7 @@
 # include <stdio.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "xtables.h"
 # include "hstio.h"
 # include "acs.h"

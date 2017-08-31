@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "hstcalerr.h"
@@ -37,10 +38,10 @@ int *flag         o: value of switch:  PERFORM, OMIT, or COMPLETE
 	    return (status);
 	}
 
-	if ((word = (char *) calloc (SZ_FNAME+1, sizeof(char))) == NULL)
+	if ((word = (char *) calloc (CHAR_FNAME_LENGTH+1, sizeof(char))) == NULL)
 	    return (status = OUT_OF_MEMORY);
 
-	getStringKw (key, word, SZ_FNAME);
+	getStringKw (key, word, CHAR_FNAME_LENGTH);
 	if (hstio_err()) {
 	    free (word);
 	    sprintf (MsgText, "Error getting keyword `%s'.", calswitch);

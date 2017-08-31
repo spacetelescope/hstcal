@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "acs.h"
 # include "hstcalerr.h"
 # include "acsversion.h"
@@ -16,6 +17,9 @@
 
 int	status;		/* value of zero indicates OK */
 
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
+
 static void printSyntax()
 {
     printf ("syntax:  calacs.e [-t] [-s] [-v] [-q] [-r] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
@@ -24,7 +28,7 @@ static void printSyntax()
 int main(int argc, char **argv) {
 
 	/* Local variables */
-	char input[ACS_FNAME+1];
+	char input[CHAR_FNAME_LENGTH+1];
 	int printtime = NO;	/* print time after each step? */
 	int save_tmp = DUMMY;	/* save temporary files? */
 	int verbose = NO;	/* print info during processing? */
@@ -32,7 +36,7 @@ int main(int argc, char **argv) {
 	int quiet = NO;		/* suppress STDOUT messages? */
 	int onecpu = NO;		/* suppress OpenMP usage? */
     unsigned cteAlgorithmGen = 0; //Use gen1cte algorithm rather than gen2 (default)
-    char pcteTabNameFromCmd[ACS_LINE];
+    char pcteTabNameFromCmd[CHAR_LINE_LENGTH];
     *pcteTabNameFromCmd = '\0';
 	int too_many = NO;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */

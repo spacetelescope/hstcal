@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "hstcal.h"
 #include "hstio.h"
 
 #include "acs.h"

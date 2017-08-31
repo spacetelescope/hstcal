@@ -10,6 +10,7 @@
 # include <sys/stat.h>
 # endif
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "xtables.h"
 
@@ -58,7 +59,7 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 	char        root[ACS_CBUF+1];    /* ROOTNAME for output file */
   char        mtype[ACS_CBUF+1];  /* role of exposure in Association */
   IRAFPointer tpin;
-  char        input[ACS_FNAME];  /* Name of image in list */
+  char        input[CHAR_FNAME_LENGTH];  /* Name of image in list */
 
 	void PrBegin (char *);
 	void PrEnd (char *);
@@ -93,7 +94,7 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
   /* open the input file template */
   tpin = c_imtopen (in_list);
   /* First, let's determine how many extensions/chips in each file */
-  c_imtgetim (tpin, input, ACS_FNAME);
+  c_imtgetim (tpin, input, CHAR_FNAME_LENGTH);
 
 	if (printtime)
     TimeStamp ("ACSDTH started", "");
@@ -182,9 +183,9 @@ void InitDthTrl (char *inlist, char *output) {
 
 	char *trl_in; 	/* trailer filename for input */
 	int  trl_len;
-	char trl_out[ACS_LINE+1]; 	/* output trailer filename */
-  char input[ACS_FNAME];  /* Name of image in list */
-  char out_name[ACS_FNAME];
+	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
+  char input[CHAR_FNAME_LENGTH];  /* Name of image in list */
+  char out_name[CHAR_FNAME_LENGTH];
 
 	char *isuffix[]={"_sfl", "_crj", "_crc", "_flt", "_flc"};
 	char *osuffix[]={"_drz", "_drz", "_drc", "_drz", "_drc"};
@@ -196,8 +197,8 @@ void InitDthTrl (char *inlist, char *output) {
 	void WhichError (int);
 
 	/* Allocate space for trailer file input list */
-	trl_in = realloc(NULL, (ACS_LINE+1));
-	trl_len = ACS_LINE+1;
+	trl_in = realloc(NULL, (CHAR_LINE_LENGTH+1));
+	trl_len = CHAR_LINE_LENGTH+1;
 
 	/* Make TRL filenames */
 	trl_in[0] = '\0';
@@ -208,9 +209,9 @@ void InitDthTrl (char *inlist, char *output) {
 	nfiles = c_imtlen(tpin);
 
   for (n = 0; n < nfiles; ++n) {
-    c_imtgetim (tpin, input, ACS_FNAME);
+    c_imtgetim (tpin, input, CHAR_FNAME_LENGTH);
 		/* Start by stripping off suffix from input/output filenames */
-		if (MkOutName (input, isuffix, trlsuffix, nsuffix, out_name, ACS_LINE)) {
+		if (MkOutName (input, isuffix, trlsuffix, nsuffix, out_name, CHAR_LINE_LENGTH)) {
 			WhichError (status);
 			sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
 			trlmessage (MsgText);
@@ -224,7 +225,7 @@ void InitDthTrl (char *inlist, char *output) {
 		}
 
     if ( (strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
-      trl_len += ACS_LINE;
+      trl_len += CHAR_LINE_LENGTH;
       trl_in = realloc (trl_in, trl_len);
     }
 
@@ -236,7 +237,7 @@ void InitDthTrl (char *inlist, char *output) {
     out_name[0] = '\0';
   }
 
-	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, ACS_LINE)) {
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 		WhichError (status);
 		sprintf (MsgText, "Couldn't create trailer filename for %s", output);
 		trlmessage (MsgText);

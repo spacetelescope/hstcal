@@ -2,6 +2,7 @@
 # include <hstio.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "acs.h"
 # include "acsrej.h"
 # include "hstcalerr.h"
@@ -122,9 +123,9 @@ static void InitRejTrl (char *input, char *output) {
   int         nfiles;                     /* Number of files in list */
   
   char        *trl_in;                   /* trailer filename for input */
-  char        trl_out[ACS_LINE+1];       /* output trailer filename */
-  char        in_name[ACS_FNAME+1];
-  char        out_name[ACS_FNAME+1];
+  char        trl_out[CHAR_LINE_LENGTH+1];       /* output trailer filename */
+  char        in_name[CHAR_FNAME_LENGTH+1];
+  char        out_name[CHAR_FNAME_LENGTH+1];
   
   int         trl_len;
   
@@ -147,8 +148,8 @@ static void InitRejTrl (char *input, char *output) {
   
   /* ----------------------------- Begin ------------------------------*/
   
-  trl_in =  realloc (NULL, (ACS_LINE +1));
-  trl_len = ACS_LINE + 1;
+  trl_in =  realloc (NULL, (CHAR_LINE_LENGTH +1));
+  trl_len = CHAR_LINE_LENGTH + 1;
   
   if (trl_in == NULL) {
     printf ("Out of memory: Couldn't allocate for CRJ_TMP trailer file.");
@@ -164,10 +165,10 @@ static void InitRejTrl (char *input, char *output) {
   nfiles = c_imtlen(tpin);
   
   for (n = 0; n < nfiles; ++n) {
-    c_imtgetim (tpin, in_name, ACS_FNAME);
+    c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
     
     /* Start by stripping off suffix from input/output filenames */
-    if (MkName (in_name, isuffix, itrlsuffix, TRL_EXTN, out_name, ACS_FNAME)) {
+    if (MkName (in_name, isuffix, itrlsuffix, TRL_EXTN, out_name, CHAR_FNAME_LENGTH)) {
       WhichError (status);
       printf ("Couldn't determine trailer filename for %s", input);
       continue;
@@ -184,7 +185,7 @@ static void InitRejTrl (char *input, char *output) {
     if (n < (nfiles-1)) strcat (trl_in, ",");		
   }
   
-  if (MkName (output, osuffix, otrlsuffix, TRL_EXTN, trl_out, ACS_LINE)) {
+  if (MkName (output, osuffix, otrlsuffix, TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
     WhichError (status);
     printf ("Couldn't create trailer filename for %s", output);
   }

@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <string.h>
 # include <math.h>	/* sqrt */
+#include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "wf3info.h"

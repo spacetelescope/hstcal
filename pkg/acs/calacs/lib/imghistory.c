@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <string.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "hstcalerr.h"
@@ -17,7 +18,7 @@ Hdr *phdr         io: header to receive history records
 
 	extern int status;
 
-	char history[ACS_LINE];
+	char history[CHAR_LINE_LENGTH];
 
 	strcpy (history, "  reference image ");
 	strcat (history, ref->name);

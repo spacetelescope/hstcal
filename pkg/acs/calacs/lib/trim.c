@@ -1,6 +1,7 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>		/* strncmp */
 # include <math.h>		/* sqrt */
+#include "hstcal.h"
 # include "hstio.h"
 # include "hstcalerr.h"	/* SIZE_MISMATCH */
 # include "acs.h"

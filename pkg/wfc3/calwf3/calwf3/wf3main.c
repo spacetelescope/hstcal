@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "wf3.h"
 # include "hstcalerr.h"
 # include "wf3version.h"
@@ -15,10 +16,13 @@
 
 int	status;		/* value of zero indicates OK */
 
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
+
 int main (int argc, char **argv) {
 
 	/* Local variables */
-	char input[SZ_FNAME+1];
+	char input[CHAR_FNAME_LENGTH+1];
 	int printtime = NO;	/* print time after each step? */
 	int save_tmp = DUMMY;	/* save temporary files? */
 	int verbose = NO;	/* print info during processing? */

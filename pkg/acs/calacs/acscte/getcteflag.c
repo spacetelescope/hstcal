@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <string.h>        /* for strncmp, strcmp */
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
@@ -94,7 +95,7 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
         if (acs->pcteTabNameFromCmd && *acs->pcteTabNameFromCmd != '\0')
         {
-            char msgBuffer[ACS_LINE];
+            char msgBuffer[CHAR_LINE_LENGTH];
             *msgBuffer = '\0';
             sprintf(msgBuffer, "(pctecorr) USING PCTETAB SPECIFIED BY '--pctetab %s' AND NOT THAT FROM IMAGE HEADER!!!", acs->pcteTabNameFromCmd);
             trlwarn(msgBuffer);

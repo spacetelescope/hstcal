@@ -8,6 +8,7 @@
 int status = 0;			/* zero is OK */
 
 # include <c_iraf.h>		/* for c_irafinit */
+#include "hstcal.h"
 # include "ximio.h"
 # include "hstio.h"
 
@@ -23,6 +24,9 @@ int status = 0;			/* zero is OK */
 # endif
 
 static void FreeNames (char *, char *, char *, char *);
+
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 /* This is the main module for ACSCTE.  It gets the input and output
  file names, calibration switches, and flags, and then calls ACScte.
@@ -48,7 +52,7 @@ int main (int argc, char **argv) {
     int quiet = NO;	/* print additional info? */
     unsigned cteAlgorithmGen = 0; //Use gen1cte algorithm rather than gen2 (default)
     unsigned nThreads = 0;
-    char pcteTabNameFromCmd[ACS_LINE];
+    char pcteTabNameFromCmd[CHAR_LINE_LENGTH];
     *pcteTabNameFromCmd = '\0';
     int too_many = 0;	/* too many command-line arguments? */
     int i, j;		/* loop indexes */
@@ -89,10 +93,10 @@ int main (int argc, char **argv) {
     c_irafinit (argc, argv);
 
     /* Allocate space for file names. */
-    inlist = calloc (ACS_LINE+1, sizeof (char));
-    outlist = calloc (ACS_LINE+1, sizeof (char));
-    input = calloc (ACS_LINE+1, sizeof (char));
-    output = calloc (ACS_LINE+1, sizeof (char));
+    inlist = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+    outlist = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+    input = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+    output = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
 
     if (inlist == NULL || outlist == NULL ||
         input == NULL || output == NULL) {
@@ -279,10 +283,10 @@ int main (int argc, char **argv) {
     /* Loop over the list of input files. */
     for (n = 0;  n < n_in;  n++) {
 
-        k = c_imtgetim (i_imt, input, ACS_LINE);
+        k = c_imtgetim (i_imt, input, CHAR_LINE_LENGTH);
 
         if (n_out > 0)
-            k = c_imtgetim (o_imt, output, ACS_LINE);
+            k = c_imtgetim (o_imt, output, CHAR_LINE_LENGTH);
         else
             output[0] = '\0';
 
@@ -310,7 +314,7 @@ int main (int argc, char **argv) {
             continue;
         }
 
-        if (MkName (input, isuffix, osuffix, "", output, ACS_LINE)) {
+        if (MkName (input, isuffix, osuffix, "", output, CHAR_LINE_LENGTH)) {
             WhichError (status);
             sprintf (MsgText, "Skipping %s", input);
             trlmessage (MsgText);

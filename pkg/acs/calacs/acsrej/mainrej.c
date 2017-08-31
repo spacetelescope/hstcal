@@ -6,6 +6,7 @@
 
 # include <c_iraf.h>        /* for c_irafinit */
 
+#include "hstcal.h"
 # include "acs.h"
 # include "hstcalerr.h"
 # include "acsrej.h"
@@ -15,10 +16,12 @@ static void FreeNames (char *);
 
 int status = 0;             /* zero is OK */
 
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 int main (int argc, char **argv) {
 
-    char    *input, output[ACS_LINE];    /* file names */
+    char    *input, output[CHAR_LINE_LENGTH];    /* file names */
     clpar   par;                                    /* parameters used */
     int     newpar[MAX_PAR+1];          /* user specifiable parameters */
     char    mtype[SZ_STRKWVAL+1];      /* Role of exposure in association */

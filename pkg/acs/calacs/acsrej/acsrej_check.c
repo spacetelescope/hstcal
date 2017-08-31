@@ -1,5 +1,6 @@
 # include   <stdio.h>
 # include   <string.h>
+#include "hstcal.h"
 # include   "hstio.h"
 
 # include   "acs.h"
@@ -30,7 +31,7 @@ static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
 */
 
 int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpar[],  
-            char imgname[][ACS_FNAME], int grp[], 
+            char imgname[][CHAR_FNAME_LENGTH], int grp[], 
             IODescPtr ipsci[],IODescPtr ipdq[], 
             multiamp *noise, multiamp *gain, int *dim_x, int *dim_y, 
             int nimgs)
@@ -39,7 +40,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
 
     IODescPtr   ip;
     Hdr         prihdr, scihdr;         /* header structures */
-    char        fdata[ACS_FNAME];
+    char        fdata[CHAR_FNAME_LENGTH];
     char        det[ACS_CBUF];
     int         detector;
     multiamp    gn, ron;
@@ -68,7 +69,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
     for (k = 0; k < nimgs; ++k) {
 
         /* read the next input image name in the template list */
-        c_imtgetim (tpin, fdata, ACS_FNAME);
+        c_imtgetim (tpin, fdata, CHAR_FNAME_LENGTH);
         
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
@@ -97,7 +98,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par, int newpa
             /* read the CRREJ reference table name from the first file, 
             if necessary */
             if (newpar[0] < MAX_PAR && par->tbname[0] == '\0') {
-                if(GetKeyStr (&prihdr, "CRREJTAB", NO_DEFAULT, "", par->tbname, ACS_FNAME) ) {
+                if(GetKeyStr (&prihdr, "CRREJTAB", NO_DEFAULT, "", par->tbname, CHAR_FNAME_LENGTH) ) {
                     trlkwerr ("CRREJTAB", fdata);
                     return(status = KEYWORD_MISSING);
                 
@@ -269,7 +270,7 @@ static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int
 
     extern int status;
     ACSInfo acsrej;
-    char tabname[ACS_LINE];
+    char tabname[CHAR_LINE_LENGTH];
 
     void ACSInit (ACSInfo *);
     int GetACSKeys (ACSInfo *, Hdr *);

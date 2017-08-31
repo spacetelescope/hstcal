@@ -3,10 +3,11 @@
 # include <time.h>
 # include <string.h>
 # include <ctype.h>
+#include "hstcal.h"
 # include "acs.h"	/* for message output */
 # include "hstcalerr.h"
 
-# define SZ_TIMESTRING  100 /* Make sure this is less that ACS_LINE */
+# define SZ_TIMESTRING  100 /* Make sure this is less that CHAR_LINE_LENGTH */
 # define SZ_EIGHTY       80
 
 /* This routine prints the current date and time into a string

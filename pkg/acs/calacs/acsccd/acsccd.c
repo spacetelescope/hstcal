@@ -7,6 +7,7 @@
 # include <time.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "acs.h"
@@ -81,7 +82,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
 
     /* Copy command-line arguments into acs. */
     /* Start by making sure input name is a full filename... */
-    if (MkName (input, "_raw", "_raw", "", acs.input, ACS_LINE) ) {
+    if (MkName (input, "_raw", "_raw", "", acs.input, CHAR_LINE_LENGTH) ) {
         strcpy(acs.input, input);
         strcat (acs.input,"_raw.fits");
     }
@@ -189,8 +190,8 @@ void InitCCDTrl (char *input, char *output) {
 
     extern int status;
 
-    char trl_in[ACS_LINE+1]; 	/* trailer filename for input */
-    char trl_out[ACS_LINE+1]; 	/* output trailer filename */
+    char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
+    char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
     int exist;
 
     char isuffix[] = "_raw";
@@ -208,12 +209,12 @@ void InitCCDTrl (char *input, char *output) {
     exist = EXISTS_UNKNOWN;
 
     /* Start by stripping off suffix from input/output filenames */
-    if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, ACS_LINE)) {
+    if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
         sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
         trlmessage (MsgText);
     }
-    if (MkName (output, osuffix, trlsuffix, TRL_EXTN, trl_out, ACS_LINE)) {
+    if (MkName (output, osuffix, trlsuffix, TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
         sprintf (MsgText, "Couldn't create trailer filename for %s", output);
         trlmessage (MsgText);

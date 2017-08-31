@@ -2,6 +2,7 @@
 # include <string.h>
 # include <ctype.h>
 
+#include "hstcal.h"
 # include "hstio.h"	/* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"
@@ -36,7 +37,7 @@ int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 	/* Local variables */
 	PhotPar obs;
 	float photfnu;
-	char  photmode[SZ_LINE+1], obsmode[SZ_LINE+1];
+	char  photmode[CHAR_LINE_LENGTH+1], obsmode[CHAR_LINE_LENGTH+1];
     int status;
 
 	/* Function definitions */
@@ -48,7 +49,7 @@ int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 
 	/* Extract photmode from sci extension header */
 	if ( (status=GetKeyStr (input->group[0].globalhdr, "PHOTMODE", USE_DEFAULT, "",
-		       photmode, SZ_LINE)))
+		       photmode, CHAR_LINE_LENGTH)))
 	    return (status);
 
 	/* Convert PHOTMODE string into synphot OBSMODE syntax */

@@ -2,6 +2,7 @@
 # include <string.h>		/* strncmp */
 # include <math.h>		/* sqrt */
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"

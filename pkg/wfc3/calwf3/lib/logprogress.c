@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <time.h>
+#include "hstcal.h"
 # include "msg.h"	/* for message output */
 # include "trl.h"
 

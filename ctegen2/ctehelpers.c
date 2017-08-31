@@ -805,7 +805,7 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
 
 void ctewarn (char *message) {
 
-    char line[SZ_LINE+1];
+    char line[CHAR_LINE_LENGTH+1];
 
     // Use macro for beginning of Warning message
     sprintf(line,"%s",WARN_PREFIX);
@@ -816,7 +816,7 @@ void ctewarn (char *message) {
 
 void cteerror (char *message) {
 
-    char line[SZ_LINE+1];
+    char line[CHAR_LINE_LENGTH+1];
 
     // Use macro for beginning of Warning message
     sprintf(line,"%s",ERR_PREFIX);
