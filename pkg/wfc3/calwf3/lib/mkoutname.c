@@ -11,6 +11,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+#include "hstcal.h"
 # include "wf3.h"	/* for message output */
 # include "hstcalerr.h"
 

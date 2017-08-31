@@ -5,7 +5,7 @@
 **   and NULL is 0 and not 0L.
 ** M.D. De La Pena 07 January 1999 - Added a macro definition for the version.
 **   Used in irafinit.c (c_irafinit) which is called by all C programs 
-**   whether compiled as native IRAF or as host level tasks.  Updated SZ_LINE
+**   whether compiled as native IRAF or as host level tasks.  Updated CHAR_LINE_LENGTH
 **   from 161 to 1023.
 ** M.D. De La Pena 02 April 1999 - Updated to v2.1 for change to erract() in
 **   c_iraf_priv.c.  Fatal IRAF errors activate exit(-1).

@@ -1,5 +1,6 @@
 # include <stdio.h>
 
+#include "hstcal.h"
 # include "acs.h"
 # include "calacs.h"
 # include "hstcalerr.h"
@@ -106,31 +107,31 @@ int InsertACSSuffix (ACSInfo *acs) {
 
     int MkName (char *, char *, char *, char *, char *, int);
 
-    if (MkName (acs->crj_root, "_crj", "_crj", "", acs->crjfile, ACS_LINE))
+    if (MkName (acs->crj_root, "_crj", "_crj", "", acs->crjfile, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->crj_root, "_crj", "_crj_tmp", "", acs->crj_tmp, ACS_LINE))
+    if (MkName (acs->crj_root, "_crj", "_crj_tmp", "", acs->crj_tmp, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->rootname, "_raw", "_flt", "", acs->fltfile, ACS_LINE))
+    if (MkName (acs->rootname, "_raw", "_flt", "", acs->fltfile, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->crj_root, "_crj", "_crc", "", acs->crcfile, ACS_LINE))
+    if (MkName (acs->crj_root, "_crj", "_crc", "", acs->crcfile, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->crj_root, "_crj", "_crc_tmp", "", acs->crc_tmp, ACS_LINE))
+    if (MkName (acs->crj_root, "_crj", "_crc_tmp", "", acs->crc_tmp, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->rootname, "_raw", "_flc", "", acs->flcfile, ACS_LINE))
+    if (MkName (acs->rootname, "_raw", "_flc", "", acs->flcfile, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->asn_table, "_raw", "_dth", "", acs->dthfile, ACS_LINE))
+    if (MkName (acs->asn_table, "_raw", "_dth", "", acs->dthfile, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->rootname, "_raw", "_blv_tmp", "", acs->blv_tmp, ACS_LINE))
+    if (MkName (acs->rootname, "_raw", "_blv_tmp", "", acs->blv_tmp, CHAR_LINE_LENGTH))
         return (status);
 
-    if (MkName (acs->rootname, "_raw", "_blc_tmp", "", acs->blc_tmp, ACS_LINE))
+    if (MkName (acs->rootname, "_raw", "_blc_tmp", "", acs->blc_tmp, CHAR_LINE_LENGTH))
         return (status);
 
     /*sprintf (MsgText,"AcsInit: blv_tmp = %s ",acs->blv_tmp);

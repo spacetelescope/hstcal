@@ -3,6 +3,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"	/* defines HST I/O functions */
 
 # include "wf3.h"	/* defines WF3 data structures */
@@ -25,7 +26,7 @@ WF3Info *wf3		o: exposure specific flags and info
 */
 	extern int status;
 	
-	char rootname[SZ_FNAME+1];
+	char rootname[CHAR_FNAME_LENGTH+1];
 	char outroot[SZ_CBUF+1];
 	char mtype[SZ_FITS_VAL+1];
 	int  mlen;
@@ -99,7 +100,7 @@ AsnInfo *asn      	i: calibration flags and other info
 WF3Info *wf3		o: exposure specific flags and info
 */
 	extern int status;
-	char rootname[SZ_FNAME+1];
+	char rootname[CHAR_FNAME_LENGTH+1];
 	char outroot[SZ_CBUF+1];
 	void FindAsnRoot (char *, char *);
 	

@@ -28,6 +28,7 @@ int   n           imset number (ignored if <= 0)
 # include <ctype.h>
 # include <string.h>
 # include <time.h>
+#include "hstcal.h"
 # include "wf3.h"
 # include "wf3version.h"		/* WF3_CAL_VER */
 

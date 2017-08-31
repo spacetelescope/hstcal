@@ -1,5 +1,6 @@
 # include <stdio.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "xtables.h"
 # include "acs.h"

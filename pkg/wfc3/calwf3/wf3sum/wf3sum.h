@@ -12,7 +12,7 @@
 typedef struct {
 
 	char **input;			/* input images */
-	char output[SZ_LINE+1];		/* output sum */
+	char output[CHAR_LINE_LENGTH+1];		/* output sum */
 
 	char rootname[SZ_CBUF+1];	/* root name for set of obs */
 

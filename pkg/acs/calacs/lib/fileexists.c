@@ -1,4 +1,5 @@
 # include <stdio.h>
+#include "hstcal.h"
 # include "hstio.h"	/* for ckNewFile */
 # include "acs.h"	/* for message output */
 

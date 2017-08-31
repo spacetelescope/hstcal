@@ -3,6 +3,7 @@
 # include   <stdlib.h>
 # include   <math.h>
 
+#include "hstcal.h"
 # include   "hstio.h"
 
 # include   "acs.h"
@@ -121,7 +122,7 @@ Code Outline:
 */
 
 int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
-            char imgname[][ACS_FNAME], int grp [], int nimgs,
+            char imgname[][CHAR_FNAME_LENGTH], int grp [], int nimgs,
             clpar *par, int niter, int dim_x, int dim_y,
             float sigma[], multiamp noise, multiamp gain,
             float efac[], float skyval[], FloatTwoDArray *ave,

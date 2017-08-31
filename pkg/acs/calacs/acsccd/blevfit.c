@@ -7,6 +7,7 @@
     BlevResults     returns values for slope and intercept from fit
 */
 # include <float.h>
+#include "hstcal.h"
 # include "acs.h"        /* for MsgText */
 
 # define NELEM_SUMS  5		/* size of sums array */

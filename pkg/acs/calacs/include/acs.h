@@ -5,11 +5,9 @@
 /*      */
 # include <stdio.h>             /* To insure that FILE is defined for TrlPtr */
 # include "imphttab.h"
+# include "hstcal.h"
 
 # define ACS_CBUF           24  /* small buffer for e.g. rootname */
-# define ACS_FNAME          255 // Use of ACS_FNAME & ACS_LINE are interchanged throughout and should therefore be identical.
-# define ACS_LINE           255 // Use of ACS_FNAME & ACS_LINE are interchanged throughout and should therefore be identical.
-# define MSG_BUFF_LENGTH    ACS_LINE + 1
 # define ACS_FITS_REC       82
 # define SZ_STRKWVAL        68
 
@@ -36,8 +34,6 @@ typedef unsigned char Byte;
 /* Three extensions per SingleGroup. */
 # define EXT_PER_GROUP 3
 
-/* Standard string for use in Error Messages */
-char MsgText[MSG_BUFF_LENGTH];
 void errchk ();                 /* HSTIO error check */
 
 /* Integer codes for string-valued header keywords. */
@@ -94,7 +90,7 @@ void errchk ();                 /* HSTIO error check */
 
 /* A reference image. */
 typedef struct {
-    char name[ACS_LINE];            /* name of image */
+    char name[CHAR_FNAME_LENGTH];            /* name of image */
     char pedigree[ACS_FITS_REC];    /* value of pedigree keyword */
     char descrip[ACS_FITS_REC];     /* value of descrip keyword */
     int exists;                     /* does reference image exist? */
@@ -103,7 +99,7 @@ typedef struct {
 
 /* A reference table. */
 typedef struct {
-    char name[ACS_LINE];            /* name of table */
+    char name[CHAR_FNAME_LENGTH];            /* name of table */
     char pedigree[ACS_FITS_REC];    /* value of pedigree (header or row) */
     char descrip[ACS_FITS_REC];     /* value of descrip from header */
     char descrip2[ACS_FITS_REC];    /* value of descrip from row */

@@ -20,6 +20,7 @@
 #  include <omp.h>
 # endif
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "wf3info.h"
@@ -1518,8 +1519,8 @@ int initCTETrl (char *input, char *output) {
 
     extern int status;
 
-    char trl_in[SZ_LINE+1];     /* trailer filename for input */
-    char trl_out[SZ_LINE+1];    /* output trailer filename */
+    char trl_in[CHAR_LINE_LENGTH+1];     /* trailer filename for input */
+    char trl_out[CHAR_LINE_LENGTH+1];    /* output trailer filename */
     int exist;
 
 
@@ -1541,13 +1542,13 @@ int initCTETrl (char *input, char *output) {
 
 
     /* Start by stripping off suffix from input/output filenames */
-    if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, SZ_LINE)) {
+    if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
         sprintf (MsgText, "Couldn't determine trailer filename for %s",
                 input);
         trlmessage (MsgText);
     }
-    if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
+    if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
         sprintf (MsgText, "Couldn't create trailer filename for %s",
                 output);

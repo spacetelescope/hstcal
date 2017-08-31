@@ -8,6 +8,7 @@
 # include <time.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "acs.h"
@@ -172,8 +173,8 @@ void Init2DTrl (char *input, char *output) {
 	extern int status;
 	int exist;
 
-	char trl_in[ACS_LINE+1]; 	/* trailer filename for input */
-	char trl_out[ACS_LINE+1]; 	/* output trailer filename */
+	char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
+	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
 	
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
@@ -194,12 +195,12 @@ void Init2DTrl (char *input, char *output) {
 	exist = EXISTS_UNKNOWN;
 
 	/* Start by stripping off suffix from input/output filenames */
-	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, ACS_LINE)) {
+	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
 		WhichError (status);
 		sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
 		trlmessage (MsgText);
 	}
-	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, ACS_LINE)) {
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 		WhichError (status);
 		sprintf (MsgText, "Couldn't create trailer filename for %s", output);
 		trlmessage (MsgText);

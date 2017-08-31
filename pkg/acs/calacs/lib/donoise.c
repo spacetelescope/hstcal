@@ -3,6 +3,7 @@
 # include <math.h>		/* for sqrt */
 # include <time.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
@@ -59,7 +60,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
   int offsetx, offsety;
   float val;
   
-  char targname[ACS_LINE];
+  char targname[CHAR_LINE_LENGTH];
 
 	int FindLine(SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
 	int DetCCDChip(char *, int, int, int *);
@@ -79,7 +80,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
     offsetx = (int)(acs->offsetx > 0) ? acs->offsetx : 0;
     offsety = (int)(acs->offsety > 0) ? acs->offsety : 0;
 
-    if (GetKeyStr(x->globalhdr, "TARGNAME", USE_DEFAULT, "", targname, ACS_LINE))
+    if (GetKeyStr(x->globalhdr, "TARGNAME", USE_DEFAULT, "", targname, CHAR_LINE_LENGTH))
       return (status);
 
     /* Correct the AMP readout boundaries for this offset */

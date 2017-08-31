@@ -4,6 +4,7 @@
 # include <stdlib.h>        /* calloc */
 # include <string.h>
 
+#include "hstcal.h"
 # include "c_iraf.h"        /* for c_irafinit */
 # include "hstio.h"
 
@@ -14,9 +15,12 @@
 
 int status = 0;             /* zero is OK */
 
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
+
 int main (int argc, char **argv) {
 
-    char    *input, output[SZ_LINE+1];      /* file names */
+    char    *input, output[CHAR_LINE_LENGTH+1];      /* file names */
     clpar   par;                                    /* parameters used */
     int     newpar[MAX_PAR+1];          /* user specifiable parameters */
     char    mtype[SZ_FITS_VAL+1];      /* Role of exposure in association */

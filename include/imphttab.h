@@ -11,12 +11,12 @@
 #define YES         1
 #define NO          0
 
-# define SZ_LINE      255
+# define CHAR_LINE_LENGTH      255
 # define SZ_FITS_REC   82
-# define SZ_FNAME     255
+# define CHAR_FNAME_LENGTH     255
 
 /* Standard string for use in Error Messages */
-/*char MsgText[SZ_LINE+1];*/
+/*char MsgText[CHAR_LINE_LENGTH+1];*/
 void errchk ();                 /* HSTIO error check */
 int status;
 
@@ -44,7 +44,7 @@ int status;
 # define MAXPARS 3          /* Max number of parameterizations supported + 1 */
 
 typedef struct {
-    char name[SZ_LINE+1];            /* name of table */
+    char name[CHAR_LINE_LENGTH+1];            /* name of table */
     int goodPedigree;               /* DUMMY_PEDIGREE if dummy */
     char pedigree[SZ_FITS_REC];    /* value of pedigree (header or row) */
     char descrip[SZ_FITS_REC];     /* value of descrip from header */

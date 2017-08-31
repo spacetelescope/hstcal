@@ -1,14 +1,11 @@
 #ifndef INCL_MSG_H
 #define INCL_MSG_H
 
+# include "hstcal.h"
+
 # define SZ_CBUF           24  /* small buffer for e.g. rootname */
-# define SZ_FNAME          255
-# define SZ_LINE           255
 # define SZ_FITS_VAL       68
 # define SZ_KEYWORD	    8
-
-/* Standard string buffer for use in messages */
-char MsgText[SZ_LINE+1];
 
 /* HSTIO error check function */
 void errchk ();

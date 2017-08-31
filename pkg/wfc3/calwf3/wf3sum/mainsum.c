@@ -6,6 +6,7 @@
 
 int status = 0;			/* zero is OK */
 
+#include "hstcal.h"
 # include "c_iraf.h"		/* for c_irafinit */
 
 # include "wf3.h"
@@ -13,6 +14,9 @@ int status = 0;			/* zero is OK */
 # include "hstcalerr.h"
 # include "wf3version.h"
 # include "hstcalversion.h"
+
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 /* 
     This function will only return either 0 (WF3_OK) if everything
@@ -44,8 +48,8 @@ int main (int argc, char **argv) {
 	c_irafinit (argc, argv);
 
 	/* Allocate local memory for file names */
-	input  = calloc (SZ_LINE+1, sizeof (char));
-	output = calloc (SZ_LINE+1, sizeof (char));
+	input  = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+	output = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
 	mtype  = calloc (SZ_FITS_VAL+1, sizeof (char));
 	if (input == NULL || output == NULL) {
 	    printf ("Can't even begin:  out of memory.\n");
@@ -107,7 +111,7 @@ int main (int argc, char **argv) {
 	SetTrlQuietMode(quiet);
 
 	if (output[0] == '\0') {
-	    if (MkName (input, "_asn", "_sfl", "", output, SZ_LINE)) {
+	    if (MkName (input, "_asn", "_sfl", "", output, CHAR_LINE_LENGTH)) {
 		CloseTrlBuf ();
 		free (input);
 		free (output);

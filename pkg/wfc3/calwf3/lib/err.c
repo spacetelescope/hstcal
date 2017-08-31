@@ -6,6 +6,7 @@
 # include "hstio.h"	/* defines HST I/O functions */
 # include "msg.h"	/* for MsgText and asnerror */
 # include "trl.h"	/* for trlerror */
+# include "hstcal.h"
 
 void errchk() {
 		
@@ -52,7 +53,7 @@ void ctemessage (char *message) {
 
 void asnwarn (char *message) {
 
-	char line[SZ_LINE+1];
+	char line[CHAR_LINE_LENGTH+1];
 	
 	/* Use macro for beginning of Warning message */
 	sprintf(line,"%s",WARN_PREFIX);
@@ -63,7 +64,7 @@ void asnwarn (char *message) {
 
 void asnerror (char *message) {
 		
-	char line[SZ_LINE+1];
+	char line[CHAR_LINE_LENGTH+1];
 	
 	/* Use macro for beginning of Warning message */
 	sprintf(line,"%s",ERR_PREFIX);
@@ -75,7 +76,7 @@ void asnerror (char *message) {
 
 void ctewarn (char *message) {
 
-	char line[SZ_LINE+1];
+	char line[CHAR_LINE_LENGTH+1];
 	
 	/* Use macro for beginning of Warning message */
 	sprintf(line,"%s",WARN_PREFIX);
@@ -86,7 +87,7 @@ void ctewarn (char *message) {
 
 void cteerror (char *message) {
 		
-	char line[SZ_LINE+1];
+	char line[CHAR_LINE_LENGTH+1];
 	
 	/* Use macro for beginning of Warning message */
 	sprintf(line,"%s",ERR_PREFIX);

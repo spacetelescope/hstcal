@@ -25,6 +25,7 @@
 # include <string.h>
 # include <stdio.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
@@ -61,7 +62,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	char buff[ACS_FITS_REC+1];
   Bool subarray;
 
-  char units[ACS_LINE];
+  char units[CHAR_LINE_LENGTH];
 
   int to_electrons(ACSInfo *, SingleGroup *);
   int check_zero_noise(SingleGroup *);
@@ -200,7 +201,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	}
 
   /* if the data aren't already in electrons, do it here. */
-  if (GetKeyStr(&x.sci.hdr, "BUNIT", USE_DEFAULT, "", units, ACS_LINE)) {
+  if (GetKeyStr(&x.sci.hdr, "BUNIT", USE_DEFAULT, "", units, CHAR_LINE_LENGTH)) {
     freeSingleGroup(&x);
     return status;
   }

@@ -1,4 +1,5 @@
 # include <stdio.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include "trl.h"		/* for trlwarn */
 # include "hstcalerr.h"		/* for REF_TOO_SMALL */

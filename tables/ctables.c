@@ -47,10 +47,10 @@ IRAFPointer init_tp (void) {
         IRAFPointer tp;
 
         tbl_descr = (TableDescr *)calloc (1, sizeof(TableDescr));
-        tbl_descr->tablename = (char *)calloc (SZ_FNAME+1, sizeof(char));
-        tbl_descr->fullname = (char *)calloc (SZ_FNAME+1, sizeof(char));
-        tbl_descr->filename = (char *)calloc (SZ_FNAME+1, sizeof(char));
-        tbl_descr->brackets = (char *)calloc (SZ_FNAME+1, sizeof(char));
+        tbl_descr->tablename = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
+        tbl_descr->fullname = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
+        tbl_descr->filename = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
+        tbl_descr->brackets = (char *)calloc (CHAR_FNAME_LENGTH+1, sizeof(char));
         tbl_descr->fptr = NULL;
         tbl_descr->template = NULL;
         tbl_descr->table_exists = 0;

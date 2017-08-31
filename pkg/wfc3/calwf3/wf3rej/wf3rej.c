@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <string.h>
+#include "hstcal.h"
 # include "hstio.h"
 
 
@@ -47,7 +48,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     WF3Info	    wf3;
     Hdr		    phdr;
     char	    det[SZ_CBUF+1];
-    char	    in_name[SZ_FNAME+1];
+    char	    in_name[CHAR_FNAME_LENGTH+1];
 
     void        TimeStamp (char *, char *);
     void        PrBegin (char *);
@@ -63,7 +64,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     /* Determine which detector is in use from first input image */
     
     tpin = c_imtopen (in_list);
-    c_imtgetim (tpin, in_name, SZ_FNAME);
+    c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
     initHdr (&phdr);
     if (LoadHdr (in_name, &phdr)) {
         sprintf (MsgText, "Could not load header from %s", in_name);
@@ -188,9 +189,9 @@ int InitRejTrl (char *input, char *output) {
     int         nfiles;             /* Number of files in list */
 
     char        *trl_in;            /* trailer filename for input */
-    char        trl_out[SZ_LINE+1]; /* output trailer filename */
-    char        in_name[SZ_FNAME];
-    char        out_name[SZ_FNAME];
+    char        trl_out[CHAR_LINE_LENGTH+1]; /* output trailer filename */
+    char        in_name[CHAR_FNAME_LENGTH];
+    char        out_name[CHAR_FNAME_LENGTH];
 
 
     /* Input and output suffixes for uvis. */
@@ -219,10 +220,10 @@ int InitRejTrl (char *input, char *output) {
 
     /* Loop over the input file names */
     for (n = 0; n < nfiles; ++n) {
-        c_imtgetim (tpin, in_name, SZ_FNAME);
+        c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
 
         /* Start by stripping off suffix from input/output filenames */
-        if (MkOutName (in_name, isuffix, trlsuffix, nsuffix , out_name, SZ_FNAME)) {
+        if (MkOutName (in_name, isuffix, trlsuffix, nsuffix , out_name, CHAR_FNAME_LENGTH)) {
 	        WhichError (status);
 	        sprintf (MsgText, "Couldn't determine trailer filename for %s",in_name);
 	        trlmessage (MsgText);
@@ -241,7 +242,7 @@ int InitRejTrl (char *input, char *output) {
         if (n < (nfiles-1)) strcat (trl_in, ",");		
     }
     
-    if (MkOutName(output,isuffix,trlsuffix,nsuffix,trl_out,SZ_FNAME)){
+    if (MkOutName(output,isuffix,trlsuffix,nsuffix,trl_out,CHAR_FNAME_LENGTH)){
         WhichError(status);
         sprintf(MsgText,"Couldn't create trailer filename for %s",output);
     }

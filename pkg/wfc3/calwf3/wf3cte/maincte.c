@@ -16,6 +16,7 @@ MLS 2015
 
 
 # include <c_iraf.h>		/* for c_irafinit */
+#include "hstcal.h"
 # include "ximio.h"
 # include "hstio.h"
 
@@ -39,6 +40,9 @@ int CompareNumbers (int, int, char *);
 int LoadHdr (char *, Hdr *);
 int GetSwitch (Hdr *, char *, int *);
 void initCCDSwitches (CCD_Switch *);
+
+/* Standard string buffer for use in messages */
+char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 /* 
 
@@ -81,10 +85,10 @@ int main (int argc, char **argv) {
     push_hstioerr(errchk);
 
     /* Allocate space for file names. */
-    inlist = calloc (SZ_FNAME+1, sizeof (char));
-    outlist = calloc (SZ_FNAME+1, sizeof (char));
-    input = calloc (SZ_FNAME+1, sizeof (char));
-    output = calloc (SZ_FNAME+1, sizeof (char));
+    inlist = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+    outlist = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+    input = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+    output = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
 
     if (inlist == NULL || outlist == NULL ||
         input == NULL || output == NULL) {
@@ -170,10 +174,10 @@ int main (int argc, char **argv) {
     /* LOOP OVER THE LIST OF INPUT FILES. */
     for (n = 0;  n < n_in;  n++) {
 
-        k = c_imtgetim (i_imt, input, SZ_FNAME);
+        k = c_imtgetim (i_imt, input, CHAR_FNAME_LENGTH);
 
         if (n_out > 0)
-            k = c_imtgetim (o_imt, output, SZ_FNAME);
+            k = c_imtgetim (o_imt, output, CHAR_FNAME_LENGTH);
         else
             output[0] = '\0';
 
@@ -207,7 +211,7 @@ int main (int argc, char **argv) {
             
         } else if (cte_sw.pctecorr) {
 
-            if (MkName (input, "_raw", "_rac_tmp", "", output, SZ_FNAME)) {
+            if (MkName (input, "_raw", "_rac_tmp", "", output, CHAR_FNAME_LENGTH)) {
                 WhichError (status);
                 sprintf (MsgText, "Skipping %s, problem making output name", input);
                 trlmessage (MsgText);

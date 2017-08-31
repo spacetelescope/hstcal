@@ -10,6 +10,7 @@ MLS 2015: read in the CTE parameters from the PCTETAB file
 # include <string.h>
 # include <math.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "ximio.h"
 # include "xtables.h"

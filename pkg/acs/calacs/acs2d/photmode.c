@@ -2,6 +2,7 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
@@ -30,7 +31,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
     int PutKeyStr (Hdr *, char *, char *, char *);
     int GetKeyFlt (Hdr *, char *, int, float, float *);
 
-	photstr = calloc (ACS_LINE+1, sizeof (char));
+	photstr = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
 	scratch = calloc (ACS_FITS_REC+1, sizeof (char));
 	if (photstr == NULL || scratch == NULL)
 	    return (status = OUT_OF_MEMORY);

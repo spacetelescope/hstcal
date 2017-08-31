@@ -10,6 +10,7 @@
 # include <sys/stat.h>
 # endif
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "ximio.h"
 
@@ -121,9 +122,9 @@ void InitDthTrl (char *inlist, char *output) {
 
 	char *trl_in;			/* trailer filename for input */
 	int  trl_len;
-	char trl_out[SZ_LINE+1]; 	/* output trailer filename */
-	char input[SZ_FNAME+1];		/* Name of image in list */
-	char out_name[SZ_FNAME+1];
+	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
+	char input[CHAR_FNAME_LENGTH+1];		/* Name of image in list */
+	char out_name[CHAR_FNAME_LENGTH+1];
 	
 	char *isuffix[]={"_sfl", "_crj", "_flt", "_flc", "_crc", "_sfl"};
 	char *osuffix[]={"_drz", "_drz", "_drz", "_drc", "_drc", "_drc"};
@@ -135,8 +136,8 @@ void InitDthTrl (char *inlist, char *output) {
 	void WhichError (int);
 
 	/* Allocate space for trailer file input list */
-	trl_in = (char *) calloc((SZ_LINE+1), sizeof(char));
-	trl_len = SZ_LINE+1;
+	trl_in = (char *) calloc((CHAR_LINE_LENGTH+1), sizeof(char));
+	trl_len = CHAR_LINE_LENGTH+1;
 
 	/* Make TRL filenames */
 	trl_in[0]  = '\0';
@@ -154,10 +155,10 @@ void InitDthTrl (char *inlist, char *output) {
 	}
 
 	for (n = 0; n < nfiles; ++n) {
-	     c_imtgetim (tpin, input, SZ_FNAME);
+	     c_imtgetim (tpin, input, CHAR_FNAME_LENGTH);
 	     /* Start by stripping off suffix from input/output filenames */
 	     if (MkOutName (input, isuffix, trlsuffix, nsuffix, out_name,
-			    SZ_LINE)) {
+			    CHAR_LINE_LENGTH)) {
          
 		    WhichError (status);
 		    sprintf (MsgText, "Couldn't determine trailer filename for %s",input);
@@ -173,7 +174,7 @@ void InitDthTrl (char *inlist, char *output) {
          
          
 	     if ( (strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
-		    trl_len += SZ_LINE;
+		    trl_len += CHAR_LINE_LENGTH;
 		    trl_in = realloc (trl_in, trl_len);
 	     }
 
@@ -187,7 +188,7 @@ void InitDthTrl (char *inlist, char *output) {
 	}
 
     
-	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
 	    sprintf (MsgText, "Couldn't create trailer filename for %s\n",output);
 	    trlmessage (MsgText);

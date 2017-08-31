@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include "hstcal.h"
 #include "c_iraf.h"
 #include "hstio.h"
 #include "wf3.h"

@@ -29,7 +29,7 @@ typedef struct {
 } WCS; /* Not needed for CALACS*/
 
 typedef struct {
-	char name[ACS_FNAME+1];
+	char name[CHAR_FNAME_LENGTH+1];
 	char mtype[SZ_STRKWVAL+1];
 	Bool status;
 	/* WCS wcs;  */
@@ -43,46 +43,46 @@ typedef struct {
 
 
 typedef struct {
-	char name[ACS_FNAME+1];
+	char name[CHAR_FNAME_LENGTH+1];
 	char mtype[SZ_STRKWVAL+1];
 	Bool prsnt;
 	int asnrow;						/* row from ASN table */
-	char expname[ACS_FNAME+1];  	/* Full filenames for member EXP images */
-	char blv_tmp[ACS_FNAME+1];		/* BLV_TMP files to be deleted */
-  char blc_tmp[ACS_FNAME+1];    /* BLC_TMP files to be deleted */
+	char expname[CHAR_FNAME_LENGTH+1];  	/* Full filenames for member EXP images */
+	char blv_tmp[CHAR_FNAME_LENGTH+1];		/* BLV_TMP files to be deleted */
+  char blc_tmp[CHAR_FNAME_LENGTH+1];    /* BLC_TMP files to be deleted */
 	float dx, dy;
 	float xi, yi;
 } ExpInfo;
 
 typedef struct {
-	char name[ACS_FNAME+1];
+	char name[CHAR_FNAME_LENGTH+1];
 	char mtype[SZ_STRKWVAL+1];
 	Bool prsnt;
 	int asnrow;						/* row from ASN table */
 	int numexp;					/* # of EXP making this sub-product	*/
 	int posid;					/* Numbering starts at 1 */
-	char spname[ACS_FNAME+1];     	/* Full filename for sub-product */
-	char crj_tmp[ACS_FNAME+1];	/* CRJ_TMP file(s) to be deleted */
-  char crc_tmp[ACS_FNAME+1];	/* CRC_TMP file(s) to be deleted */
+	char spname[CHAR_FNAME_LENGTH+1];     	/* Full filename for sub-product */
+	char crj_tmp[CHAR_FNAME_LENGTH+1];	/* CRJ_TMP file(s) to be deleted */
+  char crc_tmp[CHAR_FNAME_LENGTH+1];	/* CRC_TMP file(s) to be deleted */
 	ExpInfo *exp;					/* List of member EXP information	*/
 } SubProdInfo;
 
 typedef struct {
-	char name[ACS_FNAME+1];
+	char name[CHAR_FNAME_LENGTH+1];
 	char mtype[SZ_STRKWVAL+1];
 	Bool prsnt;
 	int asnrow;						/* row from ASN table */
 	int numsp;				/* # of sub-products making this product */
 	int prodid;				/* Numbering starts at 0 */	
-	char prodname[ACS_FNAME+1]; /* Full filename for final product */
+	char prodname[CHAR_FNAME_LENGTH+1]; /* Full filename for final product */
 	SubProdInfo *subprod;		/* List of member sub-product information */
 } ProdInfo;
 
 typedef struct {
-	char input[ACS_FNAME+1];		/* initial input  */
-	char filename[ACS_FNAME+1]; 	/* full filename of input */
-	char rootname[ACS_FNAME+1];  	/* Rootname derived from input */	
-	char asn_table[ACS_FNAME+1];
+	char input[CHAR_FNAME_LENGTH+1];		/* initial input  */
+	char filename[CHAR_FNAME_LENGTH+1]; 	/* full filename of input */
+	char rootname[CHAR_FNAME_LENGTH+1];  	/* Rootname derived from input */	
+	char asn_table[CHAR_FNAME_LENGTH+1];
 	asnType process; 	/* single image, partial or full ASN processing */
 	int crcorr;			/* do cosmic-ray rejection for science files? */
 	int rptcorr;		/* combine repeatobs science data? */

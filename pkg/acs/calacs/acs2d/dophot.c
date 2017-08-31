@@ -3,6 +3,7 @@
 # include <stdlib.h>	/* malloc */
 # include <string.h>    /* strchr */
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
@@ -48,7 +49,7 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
 
   PhotPar obs;
 
-  char photmode[ACS_LINE],obsmode[ACS_LINE];
+  char photmode[CHAR_LINE_LENGTH],obsmode[CHAR_LINE_LENGTH];
 
   /* function prototypes from lib */
   int GetKeyStr (Hdr *, char *, int, char *, char *, int);
@@ -58,7 +59,7 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
     return (status);
 
   /* Extract photmode from sci extension header*/
-  if (GetKeyStr(&x->sci.hdr,"PHOTMODE",USE_DEFAULT,"",photmode, ACS_LINE))
+  if (GetKeyStr(&x->sci.hdr,"PHOTMODE",USE_DEFAULT,"",photmode, CHAR_LINE_LENGTH))
     return (status);
 
   /* Add commas to PHOTMODE string and change all strings to

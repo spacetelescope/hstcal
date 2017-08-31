@@ -7,6 +7,7 @@
 # include <time.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"
@@ -94,14 +95,14 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     
     */    
     if (strstr(input,"_raw")){
-        if (MkName (input, "_raw", "", "", wf3.input, SZ_LINE)) {
+        if (MkName (input, "_raw", "", "", wf3.input, CHAR_LINE_LENGTH)) {
             strcpy(wf3.input,input);
             strcat(wf3.input,"_raw.fits");
         } else {
             strcpy(wf3.input,input);
         }
     } else if (strstr(input,"_rac_tmp")){
-        if (MkName (input, "_rac_tmp", "", "", wf3.input, SZ_LINE)) {
+        if (MkName (input, "_rac_tmp", "", "", wf3.input, CHAR_LINE_LENGTH)) {
             strcpy(wf3.input,input);
             strcat(wf3.input,"_rac_tmp.fits");
         } else {
@@ -205,8 +206,8 @@ void InitCCDTrl (char *input, char *output) {
 	extern int status;
 	int exist;
 
-	char trl_in[SZ_LINE+1]; 	/* trailer filename for input */
-	char trl_out[SZ_LINE+1]; 	/* output trailer filename */
+	char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
+	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
 	
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
@@ -227,13 +228,13 @@ void InitCCDTrl (char *input, char *output) {
 	exist = EXISTS_UNKNOWN;
 
 	/* Start by stripping off suffix from input/output filenames */
-	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, SZ_LINE)) {
+	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
 	    sprintf (MsgText, "Couldn't determine trailer filename for %s",
 		     input);
 	    trlmessage (MsgText);
 	}
-	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
 	    sprintf (MsgText, "Couldn't create trailer filename for %s",
 		     output);

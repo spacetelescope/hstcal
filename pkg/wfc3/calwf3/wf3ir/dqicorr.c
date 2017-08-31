@@ -1,4 +1,5 @@
 # include <xtables.h>
+#include "hstcal.h"
 # include "hstio.h"	/* defines HST I/O functions */
 
 # include "wf3.h"

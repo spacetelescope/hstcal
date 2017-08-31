@@ -2,6 +2,7 @@
 # include <stdlib.h>		/* for calloc */
 # include <string.h>		/* for strncmp */
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"

@@ -17,6 +17,7 @@
 # include <string.h>
 # include <math.h>
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"
@@ -76,7 +77,7 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 	Hdr phdr;		/* primary header for input image */
 	int nimgs;
 	int i;
-	char wf3_input[SZ_FNAME];
+	char wf3_input[CHAR_FNAME_LENGTH];
 
 	int  FileExists (char *);
 	void TimeStamp (char *, char *);
@@ -106,7 +107,7 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 
 	/* Copy input file names into wf3 structure. */
 	for (i = 0; i < nimgs; i++) {
-	     c_imtgetim (tpin, wf3.input[i], SZ_FNAME);	
+	     c_imtgetim (tpin, wf3.input[i], CHAR_FNAME_LENGTH);	
 	     PrFileName ("input", wf3.input[i]);
 	}
 
@@ -202,7 +203,7 @@ static void Wf3Init (Wf3SumInfo *wf3, int nimages) {
 	
 	wf3->input = (char **) calloc (nimages, sizeof(char *));
 	for (i=0; i<nimages; i++) {
-	     wf3->input[i] = (char *) calloc (SZ_LINE+1, sizeof(char)); 
+	     wf3->input[i] = (char *) calloc (CHAR_LINE_LENGTH+1, sizeof(char)); 
 	     wf3->input[i][0] = '\0';
 	}
 	
@@ -305,7 +306,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 	int chip, ychip;		/*Chip being summed */
 	int extchip;			/* Extension of chip being summed */
 	int line;			/* Line of chip being summed */
-	char uroot[SZ_FNAME+1];		/* Upper case version of rootname */
+	char uroot[CHAR_FNAME_LENGTH+1];		/* Upper case version of rootname */
     
 	int doStat (SingleGroup *, short);
 	void TimeStamp (char *, char *);
@@ -326,7 +327,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 	initSingleGroupLine (&y);
 
 	if (wf3->printtime) {
-	    if ((message = calloc (SZ_LINE+1, sizeof (char))) == NULL)
+	    if ((message = calloc (CHAR_LINE_LENGTH+1, sizeof (char))) == NULL)
 		return (status = OUT_OF_MEMORY);
 	}
 
@@ -609,9 +610,9 @@ static void InitSumTrl (char *input, char *output) {
 	int n;
 	
 	char *trl_in;			/* trailer filename for input */
-	char trl_out[SZ_LINE+1]; 	/* output trailer filename */
-	char in_name[SZ_FNAME+1];
-	char out_name[SZ_FNAME+1];
+	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
+	char in_name[CHAR_FNAME_LENGTH+1];
+	char out_name[CHAR_FNAME_LENGTH+1];
 	
 	int trl_len;
 	
@@ -624,8 +625,8 @@ static void InitSumTrl (char *input, char *output) {
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 
-	trl_in = realloc (NULL, (SZ_LINE));
-	trl_len = SZ_LINE;
+	trl_in = realloc (NULL, (CHAR_LINE_LENGTH));
+	trl_len = CHAR_LINE_LENGTH;
 	
 	if (trl_in == NULL) {
 	    trlerror (
@@ -642,12 +643,12 @@ static void InitSumTrl (char *input, char *output) {
 	tpin = c_imtopen (input);
 
  	for (n = 0; n < c_imtlen(tpin); ++n) {
-             c_imtgetim (tpin, in_name, SZ_FNAME);
+             c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
              out_name[0] = '\0';
         
 	     /* Start by stripping off suffix from input/output filenames */
 	     if (MkOutName (in_name, isuffix, trlsuffix, nsuffix, out_name,
-			    SZ_LINE)) {
+			    CHAR_LINE_LENGTH)) {
 		 WhichError (status);
 		 sprintf (MsgText, "Couldn't create trailer filename for %s",
 			  in_name);
@@ -675,7 +676,7 @@ static void InitSumTrl (char *input, char *output) {
 	     if (n < (c_imtlen(tpin)-1)) strcat (trl_in, ",");		
 	}
 
-	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, SZ_LINE)) {
+	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
 	    sprintf(MsgText, "Couldn't create trailer filename for %s", output);
 	    trlerror (MsgText);

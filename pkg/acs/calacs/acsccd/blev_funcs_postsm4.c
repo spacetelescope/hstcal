@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "hstcal.h"
 #include "hstio.h"
 
 #include "acs.h"
@@ -238,7 +239,7 @@ int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   int rows_skipped;
   
   /* character array for holding history messages */
-  char history[ACS_LINE];
+  char history[CHAR_LINE_LENGTH];
 
   /* bias pixel mean, standard deviation, and number of good pixels */
   double bias_mean, bias_std;

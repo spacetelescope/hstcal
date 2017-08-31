@@ -98,6 +98,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+#include "hstcal.h"
 # include "ximio.h"
 
 # include "acs.h"
@@ -114,7 +115,7 @@ static void CatTrlFile_NoEOF (FILE *ip, FILE *op);
 static int AppendTrlFile();
 
 static struct _TrlBuf {
-    char trlfile[ACS_LINE]; /* name of output trailer file */
+    char trlfile[CHAR_LINE_LENGTH]; /* name of output trailer file */
     int overwrite;          /* overwrite previous comments or append */
     int quiet;              /* Suppress STDOUT output? */
     FILE *fp;               /* pointer to open trailer file */
@@ -142,7 +143,7 @@ char *output        i: full filename of output (final) trailer file
     IRAFPointer tpin;
     FILE *ip, *tp;
     int n, td;
-    char trldata[ACS_LINE+1];
+    char trldata[CHAR_LINE_LENGTH+1];
     static char uniq_outtemplate[] = "tmp_calacs_XXXXXX";
     char uniq_outname[ACS_CBUF];
 
@@ -200,7 +201,7 @@ char *output        i: full filename of output (final) trailer file
         for (n = 0; n < c_imtlen(tpin); n++) {
 
             /* read the next input image name in the template list */
-            c_imtgetim (tpin, trldata, ACS_FNAME);
+            c_imtgetim (tpin, trldata, CHAR_FNAME_LENGTH);
 
             /* open the file (read-only) and add to temp output file... */
             if ((ip = fopen (trldata, "r")) == NULL) {
@@ -260,7 +261,7 @@ char *output        i: full filename of output (final) trailer file
 */
 static void CatTrlFile(FILE *ip, FILE *op) {
 
-    char buf[ACS_LINE];
+    char buf[CHAR_LINE_LENGTH];
 
     buf[0] = '\0';
 
@@ -271,7 +272,7 @@ static void CatTrlFile(FILE *ip, FILE *op) {
 
     /* Now copy the file into the output trailer file */
     while ( !feof(ip) ) {
-        fgets(buf, ACS_LINE, ip);
+        fgets(buf, CHAR_LINE_LENGTH, ip);
         fprintf(op,"%s",buf);
     }
 
@@ -285,7 +286,7 @@ static void CatTrlFile(FILE *ip, FILE *op) {
 /* Like CatTrlFile() but ip does not have EOF */
 static void CatTrlFile_NoEOF(FILE *ip, FILE *op) {
 
-    char buf[ACS_LINE];
+    char buf[CHAR_LINE_LENGTH];
 
     buf[0] = '\0';
 
@@ -295,7 +296,7 @@ static void CatTrlFile_NoEOF(FILE *ip, FILE *op) {
     rewind(ip);
 
     /* Now copy the file into the output trailer file */
-    while ( fgets(buf, ACS_LINE, ip) != NULL ) {
+    while ( fgets(buf, CHAR_LINE_LENGTH, ip) != NULL ) {
         fprintf(op,"%s",buf);
     }
 
@@ -325,7 +326,7 @@ static void CatTrlFile_NoEOF(FILE *ip, FILE *op) {
 static int AppendTrlFile() {
 
     extern int status;
-    char buf[ACS_LINE];
+    char buf[CHAR_LINE_LENGTH];
 
     char *oprefix;
 
@@ -342,7 +343,7 @@ static int AppendTrlFile() {
 
     while ( !feof(trlbuf.fp) ) {
         /* Read in a line */
-        fgets(buf, ACS_LINE, trlbuf.fp);
+        fgets(buf, CHAR_LINE_LENGTH, trlbuf.fp);
 
         /* If we find the prefix, stop searching */
         if (strstr(buf,TRL_PREFIX) !=NULL) {
@@ -714,7 +715,7 @@ void trlmessage (char *message) {
 
 void trlwarn (char *message) {
 
-    char line[ACS_LINE+1];
+    char line[CHAR_LINE_LENGTH+1];
 
     /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of Warning message */
@@ -733,7 +734,7 @@ void trlwarn (char *message) {
 
 void trlerror (char *message) {
 
-    char line[ACS_LINE+1];
+    char line[CHAR_LINE_LENGTH+1];
 
     /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of ERROR message */

@@ -1,4 +1,5 @@
 # include <stdlib.h>		/* calloc */
+#include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "hstcalerr.h"
@@ -38,7 +39,7 @@ char *refname     o: directory name and reference file name
 	FindRefFile (ref, keyword, refname, &foundit);
 
 	if (!foundit) {
-	    if (GetKeyStr (phdr, keyword, USE_DEFAULT, "", refname, SZ_LINE))
+	    if (GetKeyStr (phdr, keyword, USE_DEFAULT, "", refname, CHAR_LINE_LENGTH))
 		return (status);
 	}
 

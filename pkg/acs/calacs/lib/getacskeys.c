@@ -3,6 +3,7 @@
 # include <string.h>
 # include <ctype.h>		/* islower, toupper */
 
+#include "hstcal.h"
 # include "hstio.h"
 
 # include "acs.h"

@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <float.h>
 
+#include "hstcal.h"
 # include "hstio.h"	/* defines HST I/O functions */
 # include "wf3.h"
 # include "wf3info.h"

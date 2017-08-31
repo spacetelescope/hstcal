@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "hstcal.h"
 #include "xtables.h"
 #include "hstio.h"
 

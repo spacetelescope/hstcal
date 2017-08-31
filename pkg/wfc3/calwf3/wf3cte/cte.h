@@ -27,9 +27,9 @@ typedef struct {
     int wcol_data[TRAPS]; /*trap number, insync with number of traps*/
     int   iz_data[RAZ_COLS]; /*column number in raz format*/
     int fix_rocr; /*make allowance for readout cosmic rays*/
-    char descrip2[SZ_LINE+1]; /*descrip from table row, not read in for cte purposes*/
-    char cte_name[SZ_LINE+1]; /*name of cte algorithm */
-    char cte_ver[SZ_LINE+1]; /*version of algorithm */
+    char descrip2[CHAR_LINE_LENGTH+1]; /*descrip from table row, not read in for cte purposes*/
+    char cte_name[CHAR_LINE_LENGTH+1]; /*name of cte algorithm */
+    char cte_ver[CHAR_LINE_LENGTH+1]; /*version of algorithm */
     FloatHdrData *rprof; /*differential trail profile as image*/
     FloatHdrData *cprof; /*cummulative trail profile as image*/
 } CTEParams;

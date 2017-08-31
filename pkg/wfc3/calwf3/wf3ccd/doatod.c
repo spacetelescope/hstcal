@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>		/* for malloc */
 # include <math.h>		/* for fabs */
+#include "hstcal.h"
 # include "xtables.h"
 
 # include "hstio.h"

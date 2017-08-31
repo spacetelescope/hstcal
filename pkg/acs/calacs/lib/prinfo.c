@@ -30,6 +30,7 @@ int   n           imset number (ignored if <= 0)
 # include <ctype.h>
 # include <string.h>
 # include <time.h>
+#include "hstcal.h"
 # include "acs.h"
 # include "acsversion.h"		/* ACS_CAL_VER */
 

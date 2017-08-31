@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>	/* calloc */
 # include <string.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
@@ -424,7 +425,7 @@ int UpdateSwitch (char *calSwitch, int flag, Hdr *phdr, int *logit) {
 	char *history;
 	int PutKeyStr (Hdr *, char *, char *, char *);
 
-	if ((history = (char *) calloc (ACS_LINE+1, sizeof (char))) == NULL)
+	if ((history = (char *) calloc (CHAR_LINE_LENGTH+1, sizeof (char))) == NULL)
     return (status = OUT_OF_MEMORY);
 
 	strcpy (history, calSwitch);

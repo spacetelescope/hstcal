@@ -1,4 +1,5 @@
 # include <stdio.h>
+#include "hstcal.h"
 # include "hstio.h"	/* for ckNewFile */
 # include "wf3.h"	/* for message output */
 

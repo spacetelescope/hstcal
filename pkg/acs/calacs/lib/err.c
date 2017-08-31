@@ -3,12 +3,11 @@
 # include <stdio.h>
 # include <string.h>
 
+#include "hstcal.h"
 # include "hstio.h"	/* defines HST I/O functions */
 # include "acs.h"	/* defines ACS data structures */
 
 void asnerror (char *);
-
-extern char MsgText[ACS_LINE+1];
 
 void errchk() {
 		
@@ -49,7 +48,7 @@ void asnmessage (char *message) {
 
 void asnwarn (char *message) {
 
-	char line[ACS_LINE+1];
+	char line[CHAR_LINE_LENGTH+1];
 	
 	/* Use macro for beginning of Warning message */
 	sprintf(line,"%s",WARN_PREFIX);
@@ -60,7 +59,7 @@ void asnwarn (char *message) {
 
 void asnerror (char *message) {
 		
-	char line[ACS_LINE+1];
+	char line[CHAR_LINE_LENGTH+1];
 	
 	/* Use macro for beginning of Warning message */
 	sprintf(line,"%s",ERR_PREFIX);

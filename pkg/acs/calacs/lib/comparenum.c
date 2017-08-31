@@ -1,4 +1,5 @@
 # include <string.h>
+#include "hstcal.h"
 # include "acs.h"
 # include "hstcalerr.h"
 

@@ -7,6 +7,7 @@
 # include <stdio.h>
 # include <math.h>		/* for sqrt and exp, in FindRate */
 
+#include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"

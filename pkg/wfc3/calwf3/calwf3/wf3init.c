@@ -1,5 +1,6 @@
 # include <stdio.h>
 
+#include "hstcal.h"
 # include "wf3.h"
 # include "calwf3.h"
 # include "hstcalerr.h"
@@ -144,37 +145,37 @@ int InsertWF3Suffix (WF3Info *wf3) {
 
 	int MkName (char *, char *, char *, char *, char *, int);
 
-	if (MkName (wf3->crj_root, "_crj", "_crj", "", wf3->crjfile, SZ_LINE))
+	if (MkName (wf3->crj_root, "_crj", "_crj", "", wf3->crjfile, CHAR_LINE_LENGTH))
 	    return (status);
 
-	if (MkName (wf3->crj_root, "_crj", "_crj_tmp", "", wf3->crj_tmp, SZ_LINE))
+	if (MkName (wf3->crj_root, "_crj", "_crj_tmp", "", wf3->crj_tmp, CHAR_LINE_LENGTH))
 	    return (status);
         
-    if (MkName (wf3->crc_root, "_crc", "_crc", "", wf3->crcfile, SZ_LINE))
+    if (MkName (wf3->crc_root, "_crc", "_crc", "", wf3->crcfile, CHAR_LINE_LENGTH))
         return(status);
         
-    if (MkName (wf3->crc_root, "_crc", "_crc_tmp", "", wf3->crc_tmp, SZ_LINE))
+    if (MkName (wf3->crc_root, "_crc", "_crc_tmp", "", wf3->crc_tmp, CHAR_LINE_LENGTH))
         return (status);
             
-    if (MkName (wf3->rootname, "_raw","_rac_tmp","", wf3->rac_tmp, SZ_LINE))
+    if (MkName (wf3->rootname, "_raw","_rac_tmp","", wf3->rac_tmp, CHAR_LINE_LENGTH))
         return(status);
         		
-	if (MkName (wf3->rootname, "_rac_tmp", "_blc_tmp", "", wf3->blc_tmp, SZ_LINE))
+	if (MkName (wf3->rootname, "_rac_tmp", "_blc_tmp", "", wf3->blc_tmp, CHAR_LINE_LENGTH))
 	    return (status);
 
-	if (MkName (wf3->rootname, "_raw", "_ima", "", wf3->imafile, SZ_LINE))
+	if (MkName (wf3->rootname, "_raw", "_ima", "", wf3->imafile, CHAR_LINE_LENGTH))
 	    return (status);
 
-	if (MkName (wf3->rootname, "_raw", "_flt", "", wf3->fltfile, SZ_LINE))
+	if (MkName (wf3->rootname, "_raw", "_flt", "", wf3->fltfile, CHAR_LINE_LENGTH))
 	    return (status);
 
-	if (MkName (wf3->rootname, "_raw", "_flc", "", wf3->flcfile, SZ_LINE))
+	if (MkName (wf3->rootname, "_raw", "_flc", "", wf3->flcfile, CHAR_LINE_LENGTH))
 	    return (status);
 
-	if (MkName (wf3->asn_table, "_raw", "_drz", "", wf3->dthfile, SZ_LINE))
+	if (MkName (wf3->asn_table, "_raw", "_drz", "", wf3->dthfile, CHAR_LINE_LENGTH))
 	    return (status);
         
-	if (MkName (wf3->rootname, "_raw", "_blv_tmp", "", wf3->blv_tmp, SZ_LINE))
+	if (MkName (wf3->rootname, "_raw", "_blv_tmp", "", wf3->blv_tmp, CHAR_LINE_LENGTH))
 	    return (status);
             
             		

@@ -2,6 +2,7 @@
 # include <float.h>
 # include <stdio.h>
 # include <stdlib.h>
+#include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "trl.h"

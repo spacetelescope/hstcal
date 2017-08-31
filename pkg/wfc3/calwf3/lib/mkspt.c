@@ -2,6 +2,7 @@
 # include <string.h>
 # include <ctype.h>
 
+#include "hstcal.h"
 # include "ximio.h"
 # include "hstio.h"
 
@@ -48,10 +49,10 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	FILE        *fp;		/* file pointer */
 	IODescPtr   im;			/* descriptor for input image */
 
-	char in_name[SZ_FNAME+1];       /* filename of input data */
-	char in_spt[SZ_FNAME+1];        /* filename of SPT source data */
-	char out_spt[SZ_FNAME+1];       /* output SPT filename */
-	char rootname[SZ_FNAME+1];      /* output SPT rootname */
+	char in_name[CHAR_FNAME_LENGTH+1];       /* filename of input data */
+	char in_spt[CHAR_FNAME_LENGTH+1];        /* filename of SPT source data */
+	char out_spt[CHAR_FNAME_LENGTH+1];       /* output SPT filename */
+	char rootname[CHAR_FNAME_LENGTH+1];      /* output SPT rootname */
 	char obsnum[4];                 /* Observation number string */
 	ShortHdrData  stmp;             /* SPT extension structure */
 	int  nimgs, i;
@@ -76,7 +77,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	out_spt[0] = '\0';
 
 	/* Create output SPT filename from output data filename. */
-	if (MkOutName (output, isuffix, osuffix, nsuffix, out_spt, SZ_FNAME)) {
+	if (MkOutName (output, isuffix, osuffix, nsuffix, out_spt, CHAR_FNAME_LENGTH)) {
 	    sprintf (MsgText, "Couldn't create output SPT filename for %s",
 		     output);
 	    trlerror (MsgText);
@@ -102,12 +103,12 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 
 	     /* Get first name from input (list?) */
 	     in_name[0] = '\0';
-	     c_imtgetim (tpin, in_name, SZ_FNAME);
+	     c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
 
 	     in_spt[0] = '\0';
 	     /* Create input SPT filename to look for */
 	     if (MkOutName (in_name, isuffix, osuffix, nsuffix, in_spt,
-			    SZ_FNAME)) {
+			    CHAR_FNAME_LENGTH)) {
 		 sprintf (MsgText, "Couldn't create input SPT filename for %s",
 			  in_name);
 		 trlerror (MsgText);
@@ -136,7 +137,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	     if (i == 0) {
 		 /* Create ROOTNAME for output SPT file */
 		 rootname[0] = '\0';
-		 if (MkName (out_spt, "_spt", "", " ", rootname, SZ_FNAME)) {
+		 if (MkName (out_spt, "_spt", "", " ", rootname, CHAR_FNAME_LENGTH)) {
 		     sprintf (MsgText,
 			      "Couldn't create output SPT ROOTNAME for %s",
 			      out_spt);
