@@ -628,8 +628,17 @@ void CloseTrlBuf (void) {
 
     cleanup: ;
 
-        free (trlbuf.buffer);
-        free (trlbuf.preface);
+        if (trlbuf.buffer)
+        {
+            free (trlbuf.buffer);
+            trlbuf.buffer = NULL;
+        }
+
+        if (trlbuf.preface)
+        {
+            free (trlbuf.preface);
+            trlbuf.preface = NULL;
+        }
 
         if (trlbuf.fp != NULL) {
             fclose (trlbuf.fp);

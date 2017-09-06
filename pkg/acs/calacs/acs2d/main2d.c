@@ -207,8 +207,8 @@ int main (int argc, char **argv) {
         status = 1;
 
     if (status) {
-        CloseTrlBuf ();
         FreeNames (inlist, outlist, input, output);
+        CloseTrlBuf ();
         exit (ERROR_RETURN);
     }
 

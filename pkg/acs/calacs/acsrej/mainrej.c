@@ -54,14 +54,14 @@ int main (int argc, char **argv) {
         asnerror (MsgText);
     }
 
-    CloseTrlBuf ();
-
     if (status) {
         WhichError (status);
         FreeNames(input);
+        CloseTrlBuf ();
         exit (ERROR_RETURN);
     } else {
         FreeNames(input);
+        CloseTrlBuf ();
         exit (0);
     }
 }

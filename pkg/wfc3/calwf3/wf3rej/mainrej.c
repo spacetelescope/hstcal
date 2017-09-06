@@ -55,12 +55,13 @@ int main (int argc, char **argv) {
         asnerror (MsgText);
     }
 
-    CloseTrlBuf ();
 
     if (status) {
         WhichError (status);
+        CloseTrlBuf ();
         exit (ERROR_RETURN);
     } else{
+        CloseTrlBuf ();
         exit (status);
     }
 }

@@ -105,10 +105,10 @@ int main (int argc, char **argv) {
 	if (output[0] == '\0') {
 	    if (MkName (input, "_asn", "_sfl", "", output, CHAR_LINE_LENGTH))
         {
-            CloseTrlBuf ();
             free (input);
             free (output);
             WhichError (status);
+            CloseTrlBuf ();
             exit (ERROR_RETURN);
         }
 	}
