@@ -226,9 +226,9 @@ int main (int argc, char **argv) {
 	/* Close lists of file names, and free name buffers. */
 	c_imtclose (i_imt);
 	c_imtclose (o_imt);
-	CloseTrlBuf();
 	FreeRefFile (&refnames);
 	FreeNames (inlist, outlist, input, output);
+    CloseTrlBuf();
 
 	if (status)
 	    exit (ERROR_RETURN);
