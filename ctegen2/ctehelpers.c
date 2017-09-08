@@ -204,7 +204,7 @@ int loadPCTETAB (char *filename, CTEParamsFast *pars) {
        CTEDATE1 - reference date of CTE model pinning, in fractional years
 
        PCTETLEN - max length of CTE trail
-       PCTERNCL - readnoise amplitude and clipping level
+       PCTERNOI - readnoise amplitude and clipping level
        PCTESMIT - number of iterations used in CTE forward modeling
        PCTESHFT - number of iterations used in the parallel transfer
        PCTENSMD - readnoise mitigation algorithm

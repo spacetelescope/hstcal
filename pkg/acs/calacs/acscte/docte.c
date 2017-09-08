@@ -251,8 +251,8 @@ int DoCTE (ACSInfo *acs_info) {
                 return (status);
             }
 
-            sprintf(MsgText, "(pctecorr) Read noise level PCTERNCL: %f", ctePars.rn_amp);
-            trlmessage(MsgText);
+            sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
+            trlwarn(MsgText);
             sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
                     ctePars.n_forward);
             trlmessage(MsgText);

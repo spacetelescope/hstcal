@@ -88,6 +88,10 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
         sprintf(MsgText, "(pctecorr) Performing CTE correction for amp %c", ccdamp[nthAmp]);
         trlmessage(MsgText);
 
+        ctePars->rn_amp = acs->readnoise[nthAmp];
+        sprintf(MsgText, "(pctecorr) Read noise level from CCDTAB: %f.", ctePars->rn_amp);
+        trlmessage(MsgText);
+
         /* get the amp letter and number where A:0, B:1, etc. */
         amploc = strchr(AMPSORDER, ccdamp[nthAmp]);
         ampID = *amploc - AMPSORDER[0];
