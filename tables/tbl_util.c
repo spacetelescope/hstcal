@@ -3,6 +3,7 @@
 # include <stdio.h>
 # include <string.h>
 # include <fitsio.h>
+#include "hstcal.h"
 # include "ctables.h"
 
 char *expandfn (char *filename) {

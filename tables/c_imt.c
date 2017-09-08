@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <string.h>
 # include <fitsio.h>
+#include "hstcal.h"
 # include "ctables.h"
 
 /* Image file name template descriptor.

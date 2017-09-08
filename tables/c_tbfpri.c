@@ -1,5 +1,6 @@
 # include <string.h>
 # include <fitsio.h>
+#include "hstcal.h"
 # include "ctables.h"
 
 void c_tbfpri (char *intable, char *outtable, int *copied) {

@@ -1,6 +1,7 @@
 # include <stdlib.h>
 # include <string.h>
 # include <fitsio.h>
+#include "hstcal.h"
 # include "ctables.h"
 
 void c_tbtcre (IRAFPointer tp) {
