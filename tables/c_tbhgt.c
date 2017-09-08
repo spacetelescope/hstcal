@@ -1,5 +1,6 @@
 # include <string.h>
 # include <fitsio.h>
+#include "hstcal.h"
 # include "ctables.h"
 
 Bool c_tbhgtb (IRAFPointer tp, char *keyword) {
