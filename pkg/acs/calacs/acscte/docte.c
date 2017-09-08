@@ -246,14 +246,14 @@ int DoCTE (ACSInfo *acs_info) {
 
             ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
 
-            if ((status = populateHeaderWithCTEKeywordValues(&x[0], &ctePars)))
+            if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars)))
             {
                 freeOnExit(&ptrReg);
                 return (status);
             }
 
-            sprintf(MsgText, "(pctecorr) Read noise level PCTERNCL: %f", ctePars.rn_amp);
-            trlmessage(MsgText);
+            sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
+            trlwarn(MsgText);
             sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
                     ctePars.n_forward);
             trlmessage(MsgText);

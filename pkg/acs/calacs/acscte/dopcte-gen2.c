@@ -93,6 +93,10 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
         amploc = strchr(AMPSORDER, ccdamp[nthAmp]);
         ampID = *amploc - AMPSORDER[0];
 
+        ctePars->rn_amp = acs->readnoise[ampID];
+        sprintf(MsgText, "(pctecorr) Read noise level from CCDTAB: %f.", ctePars->rn_amp);
+        trlmessage(MsgText);
+
         /* get amp array size */
         if (get_amp_array_size_acs_cte(acs, chipImage, ampID, amploc, ccdamp,
                                &amp_xsize, &amp_ysize, &amp_xbeg,
