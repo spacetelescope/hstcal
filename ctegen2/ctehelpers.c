@@ -189,7 +189,7 @@ int loadPCTETAB (char *filename, CTEParamsFast *pars) {
        CTEDATE1 - reference date of CTE model pinning, in fractional years
 
        PCTETLEN - max length of CTE trail
-       PCTERNCL - readnoise amplitude and clipping level
+       PCTERNOI - readnoise amplitude and clipping level
        PCTESMIT - number of iterations used in CTE forward modeling
        PCTESHFT - number of iterations used in the parallel transfer
        PCTENSMD - readnoise mitigation algorithm
@@ -605,74 +605,76 @@ No.    Name         Type      Cards   Dimensions   Format
 
  */
 
-int populateHeaderWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars)
+int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars)
 {
     extern int status;
 
-    if ((status = PutKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")))
+    if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")))
     {
-        trlerror("(pctecorr) failed to update CTE_NAME keyword in image header");
+        trlerror("(pctecorr) failed to update (or add as history) CTE_NAME keyword in image header");
         return status;
     }
 
-    if ((status = PutKeyStr(group->globalhdr,"CTE_VER", pars->cte_ver, "CTE algorithm version")))
+    if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CTE_VER", pars->cte_ver, "CTE algorithm version")))
     {
-        trlerror("(pctecorr) failed to update CTE_VER keyword in image header");
+        trlerror("(pctecorr) failed to update (or add as history) CTE_VER keyword in image header");
         return status;
     }
 
-    if ((status = PutKeyDbl(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of instrument installation")))
+    if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of instrument installation")))
     {
-        trlerror("(pctecorr) failed to update CTEDATE0 keyword in header");
+        trlerror("(pctecorr) failed to update (or add as history) CTEDATE0 keyword in header");
         return status;
     }
 
-    if ((status = PutKeyDbl(group->globalhdr, "PCTETRSH", pars->thresh,"CTE over subtraction threshold")))
+    if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "PCTETRSH", pars->thresh,"CTE over subtraction threshold")))
     {
-        trlerror("(pctecorr) failed to update PCTETRSH keyword in header");
+        trlerror("(pctecorr) failed to update (or add as history) PCTETRSH keyword in header");
         return status;
     }
 
 
-    if ((status = PutKeyDbl(group->globalhdr, "CTEDATE1", pars->cte_date1, "Date of CTE model pinning")))
+    if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "CTEDATE1", pars->cte_date1, "Date of CTE model pinning")))
     {
-        trlerror("(pctecorr) failed to update CTEDATE1 keyword in header");
+        trlerror("(pctecorr) failed to update (or add as history) CTEDATE1 keyword in header");
         return status;
     }
 
-    if ((status = PutKeyDbl(group->globalhdr, "PCTEFRAC", pars->scale_frac, "CTE scaling factor")))
+    if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "PCTEFRAC", pars->scale_frac, "CTE scaling factor")))
     {
-        trlerror("(pctecorr) failed to update PCTEFRAC to image header");
+        trlerror("(pctecorr) failed to update (or add as history) PCTEFRAC to image header");
         return status;
     }
 
-    if ((status = PutKeyInt(group->globalhdr,"PCTETLEN",pars->cte_len,"max length of CTE trail")))
+    if ((status = updateKeyOrAddAsHistKeyInt(group->globalhdr,"PCTETLEN",pars->cte_len,"max length of CTE trail")))
     {
-        trlerror("(pctecorr) failed to update PCTETLEN in header");
+        trlerror("(pctecorr) failed to update (or add as history) PCTETLEN in header");
         return status;
     }
 
-    if ((status = PutKeyDbl(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")))
+    // The ACS CTE correction doesn't use this amp independent value, it uses the amp dependent values read from the CCDTAB.
+    // The values used are written the the resultant image file as history keywords (pcteHistory()).
+    /*if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")))
     {
-        trlerror("(pctecorr) failed to update PCTERNOI in header");
+        trlerror("(pctecorr) failed to update (or add as history) PCTERNOI in header");
+        return status;
+    }*/
+
+    if ((status = updateKeyOrAddAsHistKeyInt(group->globalhdr, "PCTENFOR",pars->n_forward,"Number of iter in forward model")))
+    {
+        trlerror("(pctecorr) failed to update (or add as history) PCTENFOR in header");
         return status;
     }
 
-    if ((status = PutKeyInt(group->globalhdr, "PCTENFOR",pars->n_forward,"Number of iter in forward model")))
+    if ((status = updateKeyOrAddAsHistKeyInt(group->globalhdr, "PCTENPAR",pars->n_par,"Number of iter in parallel transfer")))
     {
-        trlerror("(pctecorr) failed to update PCTENFOR in header");
+        trlerror("(pctecorr) failed to update (or add as history) PCTENPAR in header");
         return status;
     }
 
-    if ((status = PutKeyInt(group->globalhdr, "PCTENPAR",pars->n_par,"Number of iter in parallel transfer")))
+    if ((status = updateKeyOrAddAsHistKeyInt(group->globalhdr,"FIXROCR",pars->fix_rocr,"fix readout cosmic rays")))
     {
-        trlerror("(pctecorr) failed to update PCTENPAR in header");
-        return status;
-    }
-
-    if ((status = PutKeyInt(group->globalhdr,"FIXROCR",pars->fix_rocr,"fix readout cosmic rays")))
-    {
-        trlerror("(pctecorr) failed to update FIXROCR keyword in header");
+        trlerror("(pctecorr) failed to update (or add as history) FIXROCR keyword in header");
         return status;
     }
 

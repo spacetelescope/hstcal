@@ -68,14 +68,28 @@ int pcteHistory (ACSInfo *acs, Hdr *phdr) {
 	if (OmitStep (acs->pctecorr))		/* nothing to do */
     return (status);
 
-	if (UpdateSwitch ("PCTECORR", acs->pctecorr, phdr, &logit))
-    return (status);
-
 	/* Write history records for the PCTE table. */
-	if (logit) {
-    if (TabHistory (&acs->pcte, phdr))
-      return (status);
+	if (logit)
+	{
+        // Add amp dependent readnoise (PCTERNOI) values used for PCTECORR
+        // read from CCDTAB.
+        char strBuffer[MSG_BUFF_LENGTH];
+        *strBuffer = '\0';
+        {unsigned i;
+        for (i = 0; i < strlen(AMPSORDER); ++i)
+        {
+            sprintf(strBuffer, "PCTERNOI " floatFormat " Amp '%c' read noise clip limit (from CCDTAB).", acs->readnoise[i], AMPSORDER[i]);
+            if ((status = addHistoryKw(phdr, strBuffer)))
+                return status;
+        }}
+
+	    if (addHistoryKw (phdr, "CTE parameters table: ") ||
+	            TabHistory (&acs->pcte, phdr))
+	        return (status);
 	}
+
+    if (UpdateSwitch ("PCTECORR", acs->pctecorr, phdr, &logit))
+        return (status);
 
 	return (status);
 }

@@ -11,6 +11,6 @@
 
 /* name and version number of generation 2 CTE correction algorithm */
 #define ACS_GEN2_CTE_NAME "PixelCTE 2017"
-#define ACS_GEN2_CTE_VER "1.2"
+#define ACS_GEN2_CTE_VER "2.0"
 
 #endif /* INCL_ACSVERSION_H */
