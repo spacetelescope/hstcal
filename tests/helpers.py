@@ -71,13 +71,17 @@ def _download_file(url, filename, filemode='wb', timeout=None):
 
 
 def download_crds(refdir, refname, timeout=None):
-    """Download a CRDS file from FTP to current directory."""
+    """Download a CRDS file from HTTP or FTP to current directory."""
     # CRDS file for given name never changes, so no need to re-download.
     if os.path.exists(refname):
         return
 
-    url = 'ftp://ftp.stsci.edu/cdbs/{}/{}'.format(refdir, refname)
-    _download_file(url, refname, timeout=timeout)
+    try:
+        url = 'http://ssb.stsci.edu/cdbs/{}/{}'.format(refdir, refname)
+        _download_file(url, refname, timeout=timeout)
+    except Exception:  # Fall back to FTP
+        url = 'ftp://ftp.stsci.edu/cdbs/{}/{}'.format(refdir, refname)
+        _download_file(url, refname, timeout=timeout)
 
 
 def download_file_cgi(tree, project, filename, filemode='wb', timeout=30,
