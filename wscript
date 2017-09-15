@@ -137,9 +137,9 @@ def _use_git_details(ctx):
     ctx.end_msg(APPNAME, _warn_color(APPNAME, "UNKNOWN"))
     ctx.start_msg("Version")
     ctx.end_msg(ctx.env.gitTag, _warn_color(ctx.env.gitTag, "UNKNOWN"))
-    ctx.start_msg("git branch")
-    ctx.end_msg(ctx.env.gitCommit, _warn_color(ctx.env.gitCommit, "UNKNOWN"))
     ctx.start_msg("git HEAD commit")
+    ctx.end_msg(ctx.env.gitCommit, _warn_color(ctx.env.gitCommit, "UNKNOWN"))
+    ctx.start_msg("git branch")
     ctx.end_msg(ctx.env.gitBranch, _warn_color(ctx.env.gitBranch, "UNKNOWN"))
 
     ctx.env.append_value('CFLAGS', '-D APPNAME="{0}"'.format(APPNAME))
