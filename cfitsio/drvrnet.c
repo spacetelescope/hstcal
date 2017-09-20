@@ -140,10 +140,10 @@ generated.  Fixes the signal handling.
 
 Revision 1.38  1998/11/23 10:03:24  oneel
 Added in a useragent string, as suggested by:
-Tim Kimball · Data Systems Division ¦ kimball@stsci.edu · 410-338-4417
-Space Telescope Science Institute   ¦ http://www.stsci.edu/~kimball/
-3700 San Martin Drive               ¦ http://archive.stsci.edu/
-Baltimore MD 21218 USA              ¦ http://faxafloi.stsci.edu:4547/
+Tim Kimball Data Systems Division kimball@stsci.edu 410-338-4417
+Space Telescope Science Institute    http://www.stsci.edu/~kimball/
+3700 San Martin Drive                http://archive.stsci.edu/
+Baltimore MD 21218 USA               http://faxafloi.stsci.edu:4547/
 
    
  */
