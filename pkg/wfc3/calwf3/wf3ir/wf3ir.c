@@ -15,7 +15,7 @@
 # include "wf3info.h"
 # include "hstcalerr.h"     /* error values */
 # include "wf3corr.h"    /* calibration switch names */
-# include "trl.h"        /* trailer functions */
+# include "trlbuf.h"        /* trailer functions */
 
 extern int status;
 
@@ -362,7 +362,6 @@ void InitIRTrl (char *input, char *output) {
         int MkName (char *, char *, char *, char *, char *, int);
         void WhichError (int);
         int TrlExists (char *);
-        void SetTrlOverwriteMode (int);
 
         /* Initialize internal variables */
         trl_in[0] = '\0';

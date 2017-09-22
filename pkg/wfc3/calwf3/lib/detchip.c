@@ -4,6 +4,7 @@
 # include "hstio.h"
 # include "wf3.h"
 # include "hstcalerr.h"
+#include "trlbuf.h"
 
 /* This routine determines the chip associated with the
 	EXTVER.

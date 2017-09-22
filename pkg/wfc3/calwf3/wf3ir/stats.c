@@ -5,7 +5,7 @@
 #include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
-# include "trl.h"
+# include "trlbuf.h"
 
 /* STATS: Compute mean, median, mode, stdv, min, max of unflagged pixels
 ** in a SCI image. */

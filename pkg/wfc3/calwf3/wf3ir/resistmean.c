@@ -4,7 +4,7 @@
 # include <stdlib.h>
 #include "hstcal.h"
 # include "msg.h"
-# include "trl.h"
+# include "trlbuf.h"
  
 /* RESISTMEAN: Compute the clipped mean and stddev of  
    the values that are passed in the array. This was modeled

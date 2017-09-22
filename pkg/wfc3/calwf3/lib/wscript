@@ -18,7 +18,7 @@ def build(bld):
             multk1d.c   multk2d.c   omitstep.c   parseamps.c
             prinfo.c   reffiles.c   rowpedigree.c   sameint.c   spline.c
             streqic.c   subtools.c sub1d.c   tabhistory.c   tabpedigree.c
-            timestamp.c   trim.c   trlbuf.c   ucalver.c   ufilename.c
+            timestamp.c   trim.c   ucalver.c   ufilename.c
             unbin2d.c  unbinline.c   whicherror.c razutil.c  
 
             ../wf32d/wf32d.c   ../wf32d/do2d.c   ../wf32d/dodark.c

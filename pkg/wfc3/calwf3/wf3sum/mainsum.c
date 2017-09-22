@@ -14,9 +14,11 @@ int status = 0;			/* zero is OK */
 # include "hstcalerr.h"
 # include "wf3version.h"
 # include "hstcalversion.h"
+# include "trlbuf.h"
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
+struct TrlBuf trlbuf = { 0 };
 
 /* 
     This function will only return either 0 (WF3_OK) if everything

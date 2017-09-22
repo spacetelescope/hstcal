@@ -16,13 +16,8 @@ void errchk ();
 */
 void asnwarn (char *message);
 void asnerror (char *message);
-void asnmessage (char *message);
 void ctemessage (char *message);
 void cteerror (char *message);
 void ctewarn (char *message);
-
-# define WARN_PREFIX    "Warning    "
-# define ERR_PREFIX     "ERROR:    "
-
 
 #endif /* INCL_MSG_H */

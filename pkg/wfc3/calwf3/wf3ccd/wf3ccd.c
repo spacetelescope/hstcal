@@ -14,6 +14,7 @@
 # include "wf3info.h"
 # include "hstcalerr.h"
 # include "wf3corr.h"		/* calibration switch names */
+# include "trlbuf.h"
 
 static int BiasKeywords (WF3Info *);
 
@@ -213,7 +214,6 @@ void InitCCDTrl (char *input, char *output) {
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 	int TrlExists (char *);
-	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
 	char *isuffix[] = {"_raw", "_rac_tmp"};

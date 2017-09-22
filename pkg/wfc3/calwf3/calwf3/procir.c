@@ -9,7 +9,7 @@
 # include "hstcalerr.h"
 # include "wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
-# include "trl.h"
+# include "trlbuf.h"
 
 /* ProcessIR: This routine controls the overall flow of processing
    for IR images.

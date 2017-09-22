@@ -15,7 +15,7 @@
 # include "wf3info.h"
 # include "hstcalerr.h"
 # include "wf3corr.h"		/* calibration switch names for calwf3 */
-
+# include "trlbuf.h"
 
 /* Do basic 2-D calibration.
 
@@ -235,7 +235,6 @@ void Init2DTrl (char *input, char *output) {
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 	int TrlExists (char *);
-	void SetTrlOverwriteMode (int);
 
 	/* Input and output suffixes. */
 	char *isuffix[] = {"_raw", "_rac_tmp","_blv_tmp", "_blc_tmp", "_crj_tmp","_crc_tmp"};

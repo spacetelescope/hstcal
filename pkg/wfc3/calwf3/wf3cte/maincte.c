@@ -25,6 +25,7 @@ MLS 2015
 # include "wf3corr.h"		/* calibration switch names for WFC3ccd */
 # include "wf3version.h"
 # include "hstcalversion.h"
+# include "trlbuf.h"
 
 # ifdef _OPENMP
 #  include <omp.h>
@@ -43,6 +44,7 @@ void initCCDSwitches (CCD_Switch *);
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
+struct TrlBuf trlbuf = { 0 };
 
 /* 
 

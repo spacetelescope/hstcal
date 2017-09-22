@@ -5,8 +5,8 @@
 
 # include "hstio.h"	/* defines HST I/O functions */
 # include "msg.h"	/* for MsgText and asnerror */
-# include "trl.h"	/* for trlerror */
 # include "hstcal.h"
+# include "trlbuf.h"	/* for trlerror */
 
 void errchk() {
 		
@@ -39,11 +39,6 @@ void asnfilerr (char *name) {
 	asnerror (MsgText);
 }
 
-void asnmessage (char *message) {
-	printf ("%s\n", message);
-        fflush(stdout);
-}
-
 void ctemessage (char *message) {
 	printf ("%s\n", message);
         fflush(stdout);
@@ -59,7 +54,7 @@ void asnwarn (char *message) {
 	sprintf(line,"%s",WARN_PREFIX);
 	strcat (line,message);
 
-    asnmessage(line);
+	printfAndFlush(line);
 }
 
 void asnerror (char *message) {
@@ -70,7 +65,7 @@ void asnerror (char *message) {
 	sprintf(line,"%s",ERR_PREFIX);
 	strcat (line,message);
 
-    asnmessage(line);
+	printfAndFlush(line);
 }
 
 

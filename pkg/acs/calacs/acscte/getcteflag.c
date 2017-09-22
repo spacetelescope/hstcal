@@ -6,7 +6,7 @@
 # include "acs.h"
 # include "acsinfo.h"
 # include "hstcalerr.h"        /* defines error codes */
-
+#include "trlbuf.h"
 
 static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
 static int checkCCD (Hdr *, ACSInfo *, int *);

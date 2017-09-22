@@ -6,7 +6,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include "trl.h"	/* for message output */
+# include "trlbuf.h"	/* for message output */
 
 static int CompareDouble (const void *vp, const void *vq);
 static int CompareFloat (const void *vp, const void *vq);

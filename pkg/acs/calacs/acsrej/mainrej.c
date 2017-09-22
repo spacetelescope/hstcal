@@ -11,6 +11,7 @@
 # include "hstcalerr.h"
 # include "acsrej.h"
 # include "hstcalversion.h"
+#include "trlbuf.h"
 
 static void FreeNames (char *);
 
@@ -18,6 +19,7 @@ int status = 0;             /* zero is OK */
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
+struct TrlBuf trlbuf = { 0 };
 
 int main (int argc, char **argv) {
 

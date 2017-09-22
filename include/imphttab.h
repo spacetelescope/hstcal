@@ -4,12 +4,10 @@
 # include "c_iraf.h"  /* For Bool type */
 # include "xtables.h" /* for SZ_COLNAME*/
 # include "hstcalerr.h"
+#include "hstcal.h"
 
 /* Constants and Definitions for use with IMPHTTAB library */
 /* Definitions based on those defined in acs.h */
-
-#define YES         1
-#define NO          0
 
 # define CHAR_LINE_LENGTH      255
 # define SZ_FITS_REC   82
