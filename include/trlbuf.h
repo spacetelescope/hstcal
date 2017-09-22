@@ -35,5 +35,6 @@ void trlopenerr (char *filename);
 void trlreaderr (char *filename);
 void trlkwerr (char *keyword, char *filename);
 void trlfilerr (char *filename);
+void printfAndFlush (char *message);
 
 #endif

@@ -56,7 +56,7 @@
 
     These create the messages to be written out:
     void trlmessage (char *message);
-        - calls WrtTrlBuf and asnmessage
+        - calls WrtTrlBuf and printfAndFlush
     void trlwarn (char *message);
         - calls trlmessage after building appropriate message
     void trlerror (char *message);
@@ -325,7 +325,7 @@ static int AppendTrlFile()
             oprefix = realloc (oprefix, (strlen(oprefix) + strlen(buf) +2 ));
 
             if (oprefix == NULL) {
-                asnmessage ("Out of memory: Couldn't store trailer file comment.");
+                printfAndFlush ("Out of memory: Couldn't store trailer file comment.");
                 status = OUT_OF_MEMORY;
                 /* Clean-up... */
                 if (trlbuf.buffer)
@@ -453,8 +453,6 @@ static void AddTrlBuf (char *message)
     /* arguments:
     char *message         i: new trailer file line to add to buffer
     */
-    void asnmessage (char *);
-
     extern int status;
 
     if ( ! trlbuf.init )
@@ -464,7 +462,7 @@ static void AddTrlBuf (char *message)
                  (strlen(trlbuf.buffer) + strlen(message) +2));
 
     if (trlbuf.preface == NULL) {
-        asnmessage ("Out of memory: Couldn't store trailer file comment.");
+        printfAndFlush ("Out of memory: Couldn't store trailer file comment.");
         status = OUT_OF_MEMORY;
     } else {
 
@@ -479,13 +477,11 @@ void InitTrlPreface (void)
     /*
         This function will copy contents of the buffer into the preface
     */
-
-    void asnmessage (char *);
     extern int status;
 
     trlbuf.preface = realloc (trlbuf.preface, (strlen(trlbuf.buffer) +2));
     if (trlbuf.preface == NULL) {
-        asnmessage ("Out of memory: Couldn't store trailer file preface.");
+        printfAndFlush ("Out of memory: Couldn't store trailer file preface.");
         status = OUT_OF_MEMORY;
     } else {
         strcpy (trlbuf.preface, trlbuf.buffer);
@@ -519,13 +515,12 @@ static void ResetTrlBuf (void)
     */
 
     extern int status;
-    void asnmessage (char *);
 
     free(trlbuf.buffer);
     trlbuf.buffer = realloc(NULL, initLength);
 
     if (trlbuf.buffer == NULL) {
-        asnmessage ("Out of memory: Couldn't resize buffer for trailer file.");
+        printfAndFlush ("Out of memory: Couldn't resize buffer for trailer file.");
         status = OUT_OF_MEMORY;
     } else {
         trlbuf.buffer[0] = '\0';
@@ -617,14 +612,12 @@ void CloseTrlBuf (void)
 }
 void trlmessage (char *message) {
 
-    void asnmessage (char *);
-
     if (!message || !*message)
         return;
 
     /* Send output to STDOUT and explicitly flush STDOUT, if desired */
     if (trlbuf.quiet == NO) {
-        asnmessage (message);
+        printfAndFlush (message);
     }
 
     /* Send output to (temp) trailer file */
@@ -672,4 +665,8 @@ void trlkwerr (char *keyword, char *filename) {
 void trlfilerr (char *filename) {
     sprintf (MsgText, "while trying to read file %s", filename);
     trlerror (MsgText);
+}
+void printfAndFlush (char *message) {
+    printf ("%s\n", message);
+        fflush(stdout);
 }

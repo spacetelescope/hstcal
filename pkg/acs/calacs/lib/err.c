@@ -41,11 +41,6 @@ void asnfilerr (char *name) {
 	asnerror (MsgText);
 }
 
-void asnmessage (char *message) {
-	printf ("%s\n", message);
-        fflush(stdout);
-}
-
 void asnwarn (char *message) {
 
 	char line[CHAR_LINE_LENGTH+1];
@@ -54,7 +49,7 @@ void asnwarn (char *message) {
 	sprintf(line,"%s",WARN_PREFIX);
 	strcat (line,message);
 
-    asnmessage(line);
+	printfAndFlush(line);
 }
 
 void asnerror (char *message) {
@@ -65,5 +60,5 @@ void asnerror (char *message) {
 	sprintf(line,"%s",ERR_PREFIX);
 	strcat (line,message);
 
-    asnmessage(line);
+	printfAndFlush(line);
 }
