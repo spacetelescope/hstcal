@@ -100,11 +100,11 @@ const unsigned initLength = 2;
 
 /* Internal trailer file buffer routines */
 static void ResetTrlBuf (void);
-static void AddTrlBuf (char *message);
-static void WriteTrlBuf (char *message);
+static void AddTrlBuf (const char *message);
+static void WriteTrlBuf (const char *message);
 static void CatTrlFile (FILE *ip, FILE *op);
 static void CatTrlFile_NoEOF (FILE *ip, FILE *op);
-static int AppendTrlFile();
+static int AppendTrlFile(void);
 
 extern struct TrlBuf trlbuf;
 
@@ -133,7 +133,6 @@ char *output        i: full filename of output (final) trailer file
     static char uniq_outtemplate[] = "tmp_hstcal_XXXXXX";
     char uniq_outname[CHAR_FNAME_LENGTH+1];
 
-    void SetTrlOverwriteMode (int);
     int unlink(const char *);
 
     trldata[0] = '\0';
@@ -282,7 +281,7 @@ static void CatTrlFile_NoEOF(FILE *ip, FILE *op)
     */
     fflush (op);
 }
-static int AppendTrlFile()
+static int AppendTrlFile(void)
 {
     /* This function sets the file pointer for the input file (ip)
         up to the line just before encountering TRL_PREFIX ...
@@ -444,7 +443,7 @@ void SetTrlQuietMode (int quiet)
     */
     trlbuf.quiet = quiet;
 }
-static void AddTrlBuf (char *message)
+static void AddTrlBuf (const char *message)
 {
     /* Add a new message line to the buffer.
         Re-allocate space for the buffer and append line to new buffer.
@@ -526,7 +525,7 @@ static void ResetTrlBuf (void)
         trlbuf.buffer[0] = '\0';
     }
 }
-static void WriteTrlBuf (char *message)
+static void WriteTrlBuf (const char *message)
 {
     /*
         Write out message to trailer file, if any exist.
@@ -610,7 +609,7 @@ void CloseTrlBuf (void)
         trlbuf.fp = NULL;
 
 }
-void trlmessage (char *message) {
+void trlmessage (const char *message) {
 
     if (!message || !*message)
         return;
@@ -624,7 +623,7 @@ void trlmessage (char *message) {
     WriteTrlBuf (message);
 
 }
-void trlwarn (char *message) {
+void trlwarn (const char *message) {
 
     char line[CHAR_LINE_LENGTH+1];
 
@@ -637,7 +636,7 @@ void trlwarn (char *message) {
     trlmessage (line);
 
 }
-void trlerror (char *message) {
+void trlerror (const char *message) {
 
     char line[CHAR_LINE_LENGTH+1];
 
@@ -650,23 +649,23 @@ void trlerror (char *message) {
     trlmessage (line);
 
 }
-void trlopenerr (char *filename) {
+void trlopenerr (const char *filename) {
     sprintf (MsgText, "Can't open file %s", filename);
     trlerror (MsgText);
 }
-void trlreaderr (char *filename) {
+void trlreaderr (const char *filename) {
     sprintf (MsgText, "Can't read file %s", filename);
     trlerror (MsgText);
 }
-void trlkwerr (char *keyword, char *filename) {
+void trlkwerr (const char *keyword, const char *filename) {
     sprintf (MsgText, "Keyword \"%s\" not found in %s", keyword, filename);
     trlerror (MsgText);
 }
-void trlfilerr (char *filename) {
+void trlfilerr (const char *filename) {
     sprintf (MsgText, "while trying to read file %s", filename);
     trlerror (MsgText);
 }
-void printfAndFlush (char *message) {
+void printfAndFlush (const char *message) {
     printf ("%s\n", message);
         fflush(stdout);
 }

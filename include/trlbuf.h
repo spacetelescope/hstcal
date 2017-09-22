@@ -28,13 +28,13 @@ void SetTrlQuietMode (int quiet);
 void InitTrlPreface (void);
 void ResetTrlPreface (void);
 void CloseTrlBuf (void);
-void trlmessage (char *message);
-void trlwarn (char *message);
-void trlerror (char *message);
-void trlopenerr (char *filename);
-void trlreaderr (char *filename);
-void trlkwerr (char *keyword, char *filename);
-void trlfilerr (char *filename);
-void printfAndFlush (char *message);
+void trlmessage (const char *message);
+void trlwarn (const char *message);
+void trlerror (const char *message);
+void trlopenerr (const char *filename);
+void trlreaderr (const char *filename);
+void trlkwerr (const char *keyword, const char *filename);
+void trlfilerr (const char *filename);
+void printfAndFlush (const char *message);
 
 #endif
