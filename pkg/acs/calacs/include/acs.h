@@ -129,6 +129,5 @@ typedef struct {
 */
 void asnwarn (char *message);
 void asnerror (char *message);
-void asnmessage (char *message);
 
 #endif
