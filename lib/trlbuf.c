@@ -95,6 +95,7 @@
 #include "trlbuf.h"
 #include "hstcalerr.h"
 #include "hstcal.h"
+#include "hstcalversion.h"
 
 const unsigned initLength = 2;
 
@@ -668,4 +669,16 @@ void trlfilerr (const char *filename) {
 void printfAndFlush (const char *message) {
     printf ("%s\n", message);
         fflush(stdout);
+}
+
+void trlGitInfo(void)
+{
+    char * gitInfo = NULL;
+    sprintfGitInfo(&gitInfo);
+    trlmessage(gitInfo);
+    if (gitInfo)
+    {
+        free(gitInfo);
+        gitInfo = NULL;
+    }
 }

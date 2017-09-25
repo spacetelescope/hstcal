@@ -32,16 +32,3 @@ void printGitInfo(void)
         gitInfo = NULL;
     }
 }
-
-//Move this to common hstcal/lib/trlbuf.c when finished #191
-void trlGitInfo(void)
-{
-    char * gitInfo = NULL;
-    sprintfGitInfo(&gitInfo);
-    printf("%s\n", gitInfo);//trlmessage(versionText); //waiting on #191
-    if (gitInfo)
-    {
-        free(gitInfo);
-        gitInfo = NULL;
-    }
-}
