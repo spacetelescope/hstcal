@@ -3,11 +3,12 @@
 def build(bld):
     t = bld.stlib(
         source = [
-            'hstcalversion.c',
-            'trlbuf.c'
+            'trlbuf.c',
+            'hstcalversion.c'
             ],
         target = 'hstcallib',
-        includes = ['../include/',
+        includes = ['./',
+                    '../include/',
                     '../cfitsio'
                     ],
         use = ['CFITSIO', 'OPENMP'],

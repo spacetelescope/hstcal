@@ -36,5 +36,6 @@ void trlreaderr (const char *filename);
 void trlkwerr (const char *keyword, const char *filename);
 void trlfilerr (const char *filename);
 void printfAndFlush (const char *message);
+void trlGitInfo(void);
 
 #endif
