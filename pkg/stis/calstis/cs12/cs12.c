@@ -18,6 +18,10 @@ static int WavOption (char *, int *);
 
 static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *, char *);
+static void printSyntax(void)
+{
+    printf ("syntax:  cs12.e [-t] [-v] [--version] [--gitinfo] wavecal science\n");
+}
 
 /* This is the main module for calstis12.  It gets the input file names
    and command-line flags, and then calls CalStis12.
@@ -102,6 +106,7 @@ int main (int argc, char **argv) {
 			verbose = 1;
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printSyntax();
 			exit (1);
 		    }
 		}
@@ -116,7 +121,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (scilist[0] == '\0' || too_many) {
-	    printf ("ERROR:  syntax:  cs12.e [-t] [-v] [--version] [--gitinfo] wavecal science\n");
+	    printSyntax();
 	    exit (ERROR_RETURN);
 	}
 	if (which_wavecal[0] != '\0') {

@@ -11,6 +11,11 @@
 # include "hstcalerr.h"
 # include "hstcalversion.h"
 
+static void printSyntax(void)
+{
+    printf("syntax:  cs8.e [-t] [-v] [--version] [--gitinfo] input output\n");
+}
+
 /* This is the main module for calstis8.  It gets the input and output
    file names, calibration switches, and flags, and then calls CalStis8.
 
@@ -65,6 +70,7 @@ int main (int argc, char **argv) {
 			verbose = 1;
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printSyntax();
 			exit (1);
 		    }
 		}
@@ -77,7 +83,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("ERROR:  syntax:  cs8.e [-t] [-v] [--version] [--gitinfo] input output\n");
+	    printSyntax();
 	    exit (ERROR_RETURN);
 	}
 	if (output[0] == '\0') {

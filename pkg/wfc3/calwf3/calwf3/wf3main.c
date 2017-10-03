@@ -21,6 +21,11 @@ struct TrlBuf trlbuf = { 0 };
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
+static void printSyntax(void)
+{
+    printf("syntax:  calwf3.e [-t] [-s] [-v] [-q] [-r] [-1] [--version] [--gitinfo] input \n");
+}
+
 int main (int argc, char **argv) {
 
 	/* Local variables */
@@ -83,6 +88,7 @@ int main (int argc, char **argv) {
                     onecpu = YES;
                 } else {
 					printf ("Unrecognized option %s\n", argv[i]);
+					printSyntax();
 					exit (ERROR_RETURN);
 				}
 			}
@@ -94,7 +100,7 @@ int main (int argc, char **argv) {
 	}
 
 	if (input[0] == '\0' || too_many) {
-		printf ("syntax:  calwf3.e [-t] [-s] [-v] [-q] [-r] [-1] [--version] [--gitinfo] input \n");
+	    printSyntax();
 		exit (ERROR_RETURN);
 	}
 

@@ -13,7 +13,10 @@
 # include "hstcalversion.h"
 
 static void FreeNames (char *, char *, char *, char *, char *, char *);
-
+static void printSyntax(void)
+{
+    printf("syntax:  cs0.e [-t] [-s] [-v] [--version] [--gitinfo] input [outroot] [-w wavecal]\n");
+}
 /* This is the main module for calstis0.  It gets the input and output
    file names, calibration switches, and flags, and then calls CalStis0.
 
@@ -116,6 +119,7 @@ int main (int argc, char **argv) {
 			wavecal_next = 1;
 		    } else {
 			printf ("Unrecognized option %s\n", argv[i]);
+			printSyntax();
 			FreeNames (rawlist, wavlist, outlist,
 				rawfile, wavfile, outroot);
 			exit (ERROR_RETURN);
@@ -142,8 +146,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (rawlist[0] == '\0' || too_many || wavecal_next) {
-	    printf (
-	"syntax:  cs0.e [-t] [-s] [-v] [--version] [--gitinfo] input [outroot] [-w wavecal]\n");
+	    printSyntax();
 	    FreeNames (rawlist, wavlist, outlist, rawfile, wavfile, outroot);
 	    exit (ERROR_RETURN);
 	}
