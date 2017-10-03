@@ -23,9 +23,13 @@ int status = 0;			/* zero is OK */
 static void FreeNames (char *, char *, char *, char *);
 static void printSyntax(void)
 {
-    printf ("syntax:  wf3ir [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
+    printf ("syntax:  wf3ir [--help] [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
     printf ("  command-line switches:\n");
     printf ("       -bseq -pede\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* Standard string buffer for use in messages */
@@ -121,6 +125,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 	    if (argv[i][0] == '-') {

@@ -32,7 +32,11 @@ char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 static void printSyntax(void)
 {
-    printf ("syntax:  acssum [-t] [-v] [-q] [--version] [--gitinfo] input [output]\n");
+    printf ("syntax:  acssum [--help] [-t] [-v] [-q] [--version] [--gitinfo] input [output]\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 int main (int argc, char **argv) {
@@ -72,6 +76,11 @@ int main (int argc, char **argv) {
             if (!(strcmp(argv[i],"--gitinfo")))
             {
                 printGitInfo();
+                exit(0);
+            }
+            if (!(strcmp(argv[i],"--help")))
+            {
+                printHelp();
                 exit(0);
             }
 			for (j = 1;  argv[i][j] != '\0';  j++) {

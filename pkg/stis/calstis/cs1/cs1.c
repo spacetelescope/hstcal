@@ -17,11 +17,15 @@ static int CompareNumbers (int, int, char *);
 static void FreeNames (char *, char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
-    printf ("syntax:  cs1.e [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
+    printf ("syntax:  cs1.e [--help] [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
     printf ("  command-line switches:\n");
     printf ("       -dqi  -atod -blev\n");
     printf ("       -dopp -lors -glin -lflg\n");
     printf ("       -bias -dark -flat -shad -phot -stat\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* This is the main module for calstis1.  It gets the input and output
@@ -134,6 +138,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 	    if (strcmp (argv[i], "-r") == 0) {

@@ -16,7 +16,11 @@ static int CompareNumbers (int, char *, int, char *);
 static void FreeNames (char *, char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
-    printf("syntax:  cs11.e [-t] [-v] [--version] [--gitinfo] wavecal science output\n");
+    printf("syntax:  cs11.e [--help] [-t] [-v] [--version] [--gitinfo] wavecal science output\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* This is the main module for calstis11.  It gets the file names,
@@ -85,6 +89,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 	    if (strcmp (argv[i], "-r") == 0) {

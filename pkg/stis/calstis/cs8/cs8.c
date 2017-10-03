@@ -13,7 +13,11 @@
 
 static void printSyntax(void)
 {
-    printf("syntax:  cs8.e [-t] [-v] [--version] [--gitinfo] input output\n");
+    printf("syntax:  cs8.e [--help] [-t] [-v] [--version] [--gitinfo] input output\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* This is the main module for calstis8.  It gets the input and output
@@ -57,6 +61,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 		if (strcmp (argv[i], "-r") == 0) {

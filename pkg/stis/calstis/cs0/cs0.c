@@ -15,8 +15,13 @@
 static void FreeNames (char *, char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
-    printf("syntax:  cs0.e [-t] [-s] [-v] [--version] [--gitinfo] input [outroot] [-w wavecal]\n");
+    printf("syntax:  cs0.e [--help] [-t] [-s] [-v] [--version] [--gitinfo] input [outroot] [-w wavecal]\n");
 }
+static void printHelp(void)
+{
+    printSyntax();
+}
+
 /* This is the main module for calstis0.  It gets the input and output
    file names, calibration switches, and flags, and then calls CalStis0.
 
@@ -101,6 +106,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 		if (strcmp (argv[i], "-r") == 0) {

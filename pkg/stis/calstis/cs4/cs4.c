@@ -16,7 +16,11 @@ static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *);
 static void printSyntax(void)
 {
-    printf("syntax:  cs4.e [-t] [-v] [--version] [--gitinfo] input [-angle slit_angle] [-d debugfile]\n");
+    printf("syntax:  cs4.e [--help] [-t] [-v] [--version] [--gitinfo] input [-angle slit_angle] [-d debugfile]\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* This is the main module for calstis4.  It gets the input file name
@@ -103,6 +107,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 		if (strcmp (argv[i], "-r") == 0) {
