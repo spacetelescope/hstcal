@@ -20,6 +20,11 @@ int status = 0;			/* zero is OK */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 struct TrlBuf trlbuf = { 0 };
 
+static void printSyntax(void)
+{
+    printf ("syntax:  wf3sum [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
+}
+
 /* 
     This function will only return either 0 (WF3_OK) if everything
     processed normally or ERROR_RETURN (2) if there was some error.
@@ -85,6 +90,7 @@ int main (int argc, char **argv) {
                 exit(0);
 		    } else {
 			printf (MsgText, "Unrecognized option %s\n", argv[i]);
+			printSyntax();
 			free (input);
 			free (output);
 			exit (1);
@@ -99,7 +105,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("syntax:  wf3sum [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
+	    printSyntax();
 	    free (input);
 	    free (output);
 	    exit (ERROR_RETURN);

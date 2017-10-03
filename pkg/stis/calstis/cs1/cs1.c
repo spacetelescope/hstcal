@@ -15,6 +15,14 @@
 
 static int CompareNumbers (int, int, char *);
 static void FreeNames (char *, char *, char *, char *, char *, char *);
+static void printSyntax(void)
+{
+    printf ("syntax:  cs1.e [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
+    printf ("  command-line switches:\n");
+    printf ("       -dqi  -atod -blev\n");
+    printf ("       -dopp -lors -glin -lflg\n");
+    printf ("       -bias -dark -flat -shad -phot -stat\n");
+}
 
 /* This is the main module for calstis1.  It gets the input and output
    file names, calibration switches, and flags, and then calls CalStis1.
@@ -183,6 +191,7 @@ int main (int argc, char **argv) {
 			verbose = 1;
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printSyntax();
 			exit (1);
 		    }
 		}
@@ -215,11 +224,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (inlist[0] == '\0' || too_many) {
-	    printf ("syntax:  cs1.e [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
-	    printf ("  command-line switches:\n");
-	    printf ("       -dqi  -atod -blev\n");
-	    printf ("       -dopp -lors -glin -lflg\n");
-	    printf ("       -bias -dark -flat -shad -phot -stat\n");
+	    printSyntax();
 	    FreeNames (inlist, outlist, blevlist, input, output, outblev);
 	    exit (ERROR_RETURN);
 	}

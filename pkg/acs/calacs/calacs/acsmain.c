@@ -22,9 +22,9 @@ struct TrlBuf trlbuf = { 0 };
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
-static void printSyntax()
+static void printSyntax(void)
 {
-    printf ("syntax:  calacs.e [-t] [-s] [-v] [-q] [-r] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
+    printf("syntax:  calacs.e [-t] [-s] [-v] [-q] [-r] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
 }
 
 int main(int argc, char **argv) {

@@ -30,6 +30,11 @@ struct TrlBuf trlbuf = { 0 };
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
+static void printSyntax(void)
+{
+    printf ("syntax:  acssum [-t] [-v] [-q] [--version] [--gitinfo] input [output]\n");
+}
+
 int main (int argc, char **argv) {
 
 	char *input, *output;	/* file names */
@@ -78,6 +83,7 @@ int main (int argc, char **argv) {
 				quiet = YES;
 				} else {
 					printf (MsgText, "Unrecognized option %s\n", argv[i]);
+					printSyntax();
 					free (input);
 					free (output);
 					exit (1);
@@ -92,7 +98,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (input[0] == '\0' || too_many) {
-	    printf ("syntax:  acssum [-t] [-v] [-q] [--version] [--gitinfo] input [output]\n");
+        printSyntax();
 		free (input);
 		free (output);
 		exit (ERROR_RETURN);

@@ -41,6 +41,10 @@ int CompareNumbers (int, int, char *);
 int LoadHdr (char *, Hdr *);
 int GetSwitch (Hdr *, char *, int *);
 void initCCDSwitches (CCD_Switch *);
+static void printSyntax(void)
+{
+    printf ("syntax:  WF3cte [-v] [-1] [--version] [--gitinfo] input output\n");
+}
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
@@ -134,6 +138,7 @@ int main (int argc, char **argv) {
 					exit(0);
                 } else {
                     printf (MsgText, "Unrecognized option %s\n", argv[i]);
+                    printSyntax();
                     FreeNames (inlist, outlist, input, output);
                     exit (ERROR_RETURN);
                 }
@@ -147,7 +152,7 @@ int main (int argc, char **argv) {
         }
     }
     if (inlist[0] == '\0' || too_many) {
-        printf ("syntax:  WF3cte [-v] [-1] [--version] [--gitinfo] input output\n");
+        printSyntax();
         FreeNames (inlist, outlist, input, output);
         exit (ERROR_RETURN);
     }

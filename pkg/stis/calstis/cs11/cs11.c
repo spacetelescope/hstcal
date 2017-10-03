@@ -14,6 +14,10 @@
 
 static int CompareNumbers (int, char *, int, char *);
 static void FreeNames (char *, char *, char *, char *, char *, char *);
+static void printSyntax(void)
+{
+    printf("syntax:  cs11.e [-t] [-v] [--version] [--gitinfo] wavecal science output\n");
+}
 
 /* This is the main module for calstis11.  It gets the file names,
    calibration switches, and flags, and then calls CalStis11.
@@ -95,6 +99,7 @@ int main (int argc, char **argv) {
 			verbose = 1;
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printSyntax();
 			exit (1);
 		    }
 		}
@@ -109,8 +114,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (scilist[0] == '\0' || too_many) {
-	    printf (
-	"ERROR:  syntax:  cs11.e [-t] [-v] [--version] [--gitinfo] wavecal science output\n");
+	    printSyntax();
 	    FreeNames (wavlist, scilist, outlist, inwav, insci, output);
 	    exit (ERROR_RETURN);
 	}

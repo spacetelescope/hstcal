@@ -22,10 +22,16 @@ int status = 0;			/* zero is OK */
 
 static void FreeNames (char *, char *, char *, char *);
 int MkOutName (char *, char **, char **, int, char *, int);
-struct TrlBuf trlbuf = { 0 };
+static void printSyntax(void)
+{
+    printf ("syntax:  wf3ccd [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
+    printf ("  command-line switches:\n");
+    printf ("       -dqi  -atod -blev -bias\n");
+}
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
+struct TrlBuf trlbuf = { 0 };
 
 /* This is the main module for WF3CCD.  It gets the input and output
    file names, calibration switches, and flags, and then calls WF3ccd.
@@ -145,6 +151,7 @@ int main (int argc, char **argv) {
                 exit(0);
 		    } else {
 			printf (MsgText, "Unrecognized option %s\n", argv[i]);
+			printSyntax();
 			FreeNames (inlist, outlist, input, output);
 			exit (1);
 		    }
@@ -159,9 +166,7 @@ int main (int argc, char **argv) {
 	}
 
 	if (inlist[0] == '\0' || too_many) {
-	    printf ("syntax:  wf3ccd [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
-	    printf ("  command-line switches:\n");
-	    printf ("       -dqi  -atod -blev -bias\n");
+	    printSyntax();
 	    FreeNames (inlist, outlist, input, output);
 	    exit (ERROR_RETURN);
 	}
