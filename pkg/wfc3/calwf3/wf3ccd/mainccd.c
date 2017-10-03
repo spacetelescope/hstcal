@@ -24,9 +24,13 @@ static void FreeNames (char *, char *, char *, char *);
 int MkOutName (char *, char **, char **, int, char *, int);
 static void printSyntax(void)
 {
-    printf ("syntax:  wf3ccd [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
+    printf ("syntax:  wf3ccd [--help] [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
     printf ("  command-line switches:\n");
     printf ("       -dqi  -atod -blev -bias\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* Standard string buffer for use in messages */
@@ -121,6 +125,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 	    if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */

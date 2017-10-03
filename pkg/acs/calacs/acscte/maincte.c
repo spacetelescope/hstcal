@@ -40,7 +40,11 @@ char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 static void printSyntax()
 {
-    printf ("syntax:  acscte.e [-t] [-v] [-q] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input [output]\n");
+    printf ("syntax:  acscte.e [--help] [-t] [-v] [-q] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input [output]\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 int main (int argc, char **argv) {
@@ -127,6 +131,11 @@ int main (int argc, char **argv) {
             if (!(strcmp(argv[i],"--gitinfo")))
             {
                 printGitInfo();
+                exit(0);
+            }
+            if (!(strcmp(argv[i],"--help")))
+            {
+                printHelp();
                 exit(0);
             }
             if (strncmp(argv[i], "--ctegen", 8) == 0)

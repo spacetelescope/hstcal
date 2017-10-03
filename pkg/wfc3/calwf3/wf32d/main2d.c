@@ -23,10 +23,14 @@ int status = 0;			/* zero is OK */
 static void FreeNames (char *, char *, char *, char *);
 static void printSyntax(void)
 {
-    printf ("syntax:  wf32d [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
+    printf ("syntax:  wf32d [--help] [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");
     printf ("  command-line switches:\n");
     printf ("       -dqi  -atod\n");
     printf ("       -dark -flat -shad -phot -stat\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* Standard string buffer for use in messages */
@@ -119,6 +123,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 	    if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */

@@ -20,7 +20,11 @@ static int CompareNumbers (int, int);
 static void FreeNames (char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
-    printf ("syntax:  cs12.e [-t] [-v] [--version] [--gitinfo] wavecal science\n");
+    printf ("syntax:  cs12.e [--help] [-t] [-v] [--version] [--gitinfo] wavecal science\n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 /* This is the main module for calstis12.  It gets the input file names
@@ -92,6 +96,11 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
 	    if (strcmp (argv[i], "-r") == 0) {

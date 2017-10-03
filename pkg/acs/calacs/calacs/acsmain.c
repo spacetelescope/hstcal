@@ -24,7 +24,11 @@ char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 static void printSyntax(void)
 {
-    printf("syntax:  calacs.e [-t] [-s] [-v] [-q] [-r] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
+    printf("syntax:  calacs.e [--help] [-t] [-s] [-v] [-q] [-r] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
+}
+static void printHelp(void)
+{
+    printSyntax();
 }
 
 int main(int argc, char **argv) {
@@ -76,6 +80,11 @@ int main(int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            exit(0);
+        }
+        if (!(strcmp(argv[i],"--help")))
+        {
+            printHelp();
             exit(0);
         }
         if (strncmp(argv[i], "--ctegen", 8) == 0)
