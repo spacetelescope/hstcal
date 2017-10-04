@@ -47,6 +47,9 @@ static int putEmptyDQ(char *, int, DQHdrData *, int);
  This initialization is now handled by CalAcsRun in 'calacs.c'.
  Warren J. Hack, 2002 April 18:
  Eliminated creation of dummy '_dth.fits' product.
+ Michele D. De La Pena, 2017 September 26:
+ Updated the message regarding the creation of a drizzle-combined data product
+ and some cleanup.
 
  int AcsDth (char *input, char *output, int dthcorr, int printtime, int verbose) {
  */
@@ -80,12 +83,6 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 
   /* ----------------------- Start Code --------------------------------*/
 
-	/* Determine the names of the trailer files based on the input
-   and output file names, then initialize the trailer file buffer
-   with those names.
-   */
-
-  /*	InitDthTrl (in_list, output); */
 	root[0] = '\0';
 	sprintf(mtype,"PROD-DTH");
 
@@ -100,11 +97,9 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 	if (printtime)
     TimeStamp ("ACSDTH started", "");
 
-  sprintf(MsgText,"The task PyDrizzle needs to be run in order to generate");
+  sprintf(MsgText,"The DrizzlePac software package should be used to generate a drizzle-combined");
   trlmessage(MsgText);
-  sprintf(MsgText,"a geometrically corrected, drizzle-combined product.");
-  trlmessage(MsgText);
-  sprintf(MsgText,"PyDrizzle requires PyRAF. See pyraf.stsci.edu for more details.");
+  sprintf(MsgText,"data product.  Please see drizzlepac.stsci.edu for details.\n");
   trlmessage(MsgText);
 
   /* create new SPT file for output product */
@@ -114,9 +109,6 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 
   c_imtclose(tpin);
 	PrEnd ("ACSDTH");
-
-	/* Write out temp trailer file to final file */
-	WriteTrlFile ();
 
 	return (status);
 }
