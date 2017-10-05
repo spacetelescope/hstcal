@@ -6,14 +6,13 @@
 
 # include <c_iraf.h>        /* for c_irafinit */
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "acs.h"
 # include "hstcalerr.h"
 # include "acsrej.h"
 # include "hstcalversion.h"
 #include "trlbuf.h"
-
-static void FreeNames (char *);
 
 int status = 0;             /* zero is OK */
 
@@ -42,12 +41,17 @@ int main (int argc, char **argv) {
 
     /* Get input and output file names and switches in the command line. */
     if (rej_command (argc, argv, &input, output, &par, newpar)) {
-        FreeNames(input);
+        if (input)
+            free(input);
         exit (ERROR_RETURN);
     }
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
+    addPtr(&ptrReg, input, &free);
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
 
     /* Reject cosmic rays. */
@@ -58,18 +62,10 @@ int main (int argc, char **argv) {
 
     if (status) {
         WhichError (status);
-        FreeNames(input);
-        CloseTrlBuf(&trlbuf);
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     } else {
-        FreeNames(input);
-        CloseTrlBuf(&trlbuf);
+        freeOnExit(&ptrReg);
         exit (0);
     }
-}
-
-
-static void FreeNames (char *input) {
-    if (input != NULL)
-        free(input);
 }

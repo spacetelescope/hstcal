@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "wf3.h"
 # include "hstcalerr.h"
@@ -55,6 +56,8 @@ int main (int argc, char **argv) {
 
 	/* Initialize IRAF environment */
 	c_irafinit(argc, argv);
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
 
 	/* Command line arguments: 
 	 **	0. Check for --version option
@@ -66,16 +69,19 @@ int main (int argc, char **argv) {
 	for (i = 1;  i < argc;  i++) {
 		if (!(strcmp(argv[i],"--version"))) {
 			printf("%s\n",WF3_CAL_VER_NUM);
+			freeOnExit(&ptrReg);
 			exit(0);
 		}
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            freeOnExit(&ptrReg);
             exit(0);
         }
         if (!(strcmp(argv[i],"--help")))
         {
             printHelp();
+            freeOnExit(&ptrReg);
             exit(0);
         }
 		if (argv[i][0] == '-') {
@@ -86,6 +92,7 @@ int main (int argc, char **argv) {
 					save_tmp = YES;
 				} else if (argv[i][j] == 'r'){
 					printf ("Current version: %s\n", WF3_CAL_VER);
+					freeOnExit(&ptrReg);
 					exit(0);
 				} else if (argv[i][j] == 'v') {
 					verbose = YES;
@@ -98,6 +105,7 @@ int main (int argc, char **argv) {
                 } else {
 					printf ("Unrecognized option %s\n", argv[i]);
 					printSyntax();
+					freeOnExit(&ptrReg);
 					exit (ERROR_RETURN);
 				}
 			}
@@ -110,11 +118,13 @@ int main (int argc, char **argv) {
 
 	if (input[0] == '\0' || too_many) {
 	    printSyntax();
+	    freeOnExit(&ptrReg);
 		exit (ERROR_RETURN);
 	}
 
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
 
 	/* Copy command-line value for QUIET to structure */
@@ -129,6 +139,7 @@ int main (int argc, char **argv) {
 			status = 0;
 			sprintf (MsgText, "CALWF3 did NOT process %s", input);
 			trlmessage (MsgText);
+			freeOnExit(&ptrReg);
 			exit(0); 
 		} else {
 			/* Error during processing */
@@ -137,7 +148,7 @@ int main (int argc, char **argv) {
 			trlerror (MsgText);
 			/* Provide interpretation of error for user */
 			WhichError (status);
-			CloseTrlBuf(&trlbuf);
+			freeOnExit(&ptrReg);
 			exit (ERROR_RETURN);
 		}
 	}
@@ -146,7 +157,8 @@ int main (int argc, char **argv) {
 	sprintf (MsgText, "CALWF3 completion for %s", input);
 	trlmessage (MsgText);
 
-	CloseTrlBuf(&trlbuf);
+
+	freeOnExit(&ptrReg);
 
 	/* Exit the program */
 	exit (0);

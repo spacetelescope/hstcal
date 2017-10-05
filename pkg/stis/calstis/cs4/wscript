@@ -4,7 +4,7 @@ def build(bld):
     t = bld.program(
         source = 'cs4.c',
         target = 'cs4.e',
-        use = ['calstis'] + bld.env.LOCAL_LIBS,
+        use = ['hstcallib', 'calstis'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'

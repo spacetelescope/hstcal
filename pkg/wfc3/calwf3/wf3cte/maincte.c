@@ -16,6 +16,7 @@ MLS 2015
 
 
 # include <c_iraf.h>		/* for c_irafinit */
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "ximio.h"
 # include "hstio.h"
@@ -31,7 +32,6 @@ MLS 2015
 #  include <omp.h>
 # endif
 
-static void FreeNames (char *, char *, char *, char *);
 void FreeRefFile (RefFileInfo *);
 void InitRefFile (RefFileInfo *);
 int WF3cte (char *, char *, CCD_Switch *, RefFileInfo *, int, int, int);
@@ -94,15 +94,22 @@ int main (int argc, char **argv) {
     c_irafinit (argc, argv);
     push_hstioerr(errchk);
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
     /* Allocate space for file names. */
     inlist = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+    addPtr(&ptrReg, inlist, &free);
     outlist = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+    addPtr(&ptrReg, outlist, &free);
     input = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+    addPtr(&ptrReg, input, &free);
     output = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+    addPtr(&ptrReg, output, &free);
 
     if (inlist == NULL || outlist == NULL ||
         input == NULL || output == NULL) {
         printf ("Can't even begin; out of memory.\n");
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
     inlist[0] = '\0';
@@ -113,6 +120,7 @@ int main (int argc, char **argv) {
     
     /*INITIALIZE REFERENCE FILE INFORMATION*/
     InitRefFile (&refnames);
+    addPtr(&ptrReg, &refnames, &FreeRefFile);
     
     /* Initial values. */
  	initCCDSwitches (&cte_sw);
@@ -123,16 +131,19 @@ int main (int argc, char **argv) {
             if (!(strcmp(argv[i],"--version")))
             {
                 printf("%s\n",WF3_CAL_VER);
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             if (!(strcmp(argv[i],"--gitinfo")))
             {
                 printGitInfo();
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             if (!(strcmp(argv[i],"--help")))
             {
                 printHelp();
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             for (j = 1;  argv[i][j] != '\0';  j++) {
@@ -148,7 +159,7 @@ int main (int argc, char **argv) {
                 } else {
                     printf (MsgText, "Unrecognized option %s\n", argv[i]);
                     printSyntax();
-                    FreeNames (inlist, outlist, input, output);
+                    freeOnExit(&ptrReg);
                     exit (ERROR_RETURN);
                 }
             }
@@ -162,11 +173,12 @@ int main (int argc, char **argv) {
     }
     if (inlist[0] == '\0' || too_many) {
         printSyntax();
-        FreeNames (inlist, outlist, input, output);
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
     /* INITIALIZE THE STRUCTURE FOR MANAGING TRAILER FILE COMMENTS */
     InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
 
     /* COPY COMMAND-LINE VALUE FOR QUIET TO STRUCTURE */
@@ -174,7 +186,9 @@ int main (int argc, char **argv) {
            
     /* EXPAND THE TEMPLATES. */
     i_imt = c_imtopen (inlist);
+    addPtr(&ptrReg, i_imt, &c_imtclose);
     o_imt = c_imtopen (outlist);
+    addPtr(&ptrReg, o_imt, &c_imtclose);
     n_in = c_imtlen (i_imt);
     n_out = c_imtlen (o_imt);
 
@@ -182,8 +196,7 @@ int main (int argc, char **argv) {
     if (CompareNumbers (n_in, n_out, "output"))
         status = 1;
     if (status) {
-        FreeNames (inlist, outlist, input, output);
-        CloseTrlBuf(&trlbuf);
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
 
@@ -223,6 +236,7 @@ int main (int argc, char **argv) {
         if (cte_sw.biascorr == COMPLETE || cte_sw.blevcorr == COMPLETE || cte_sw.darkcorr == COMPLETE){
             sprintf(MsgText,"An uncalibrated, RAW file must be used as input to CTE corr, skipping %s", input);
             trlmessage(MsgText);
+            freeOnExit(&ptrReg);
             exit(ERROR_RETURN);
             
         } else if (cte_sw.pctecorr) {
@@ -244,25 +258,10 @@ int main (int argc, char **argv) {
     }
 
     /* Close lists of file names, and free name buffers. */
-    c_imtclose (i_imt);
-    c_imtclose (o_imt);
-    FreeRefFile (&refnames);
-    FreeNames (inlist, outlist, input, output);
-    CloseTrlBuf(&trlbuf);
+    freeOnExit(&ptrReg);
 
     if (status)
         exit (ERROR_RETURN);
     else
         exit (0);
 }
-
-
-static void FreeNames (char *inlist, char *outlist, char *input, char *output) {
-    free (output);
-    free (input);
-    free (outlist);
-    free (inlist);
-}
-
-
-

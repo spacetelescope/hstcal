@@ -8,6 +8,7 @@
 int status = 0;			/* zero is OK */
 
 # include <c_iraf.h>		/* for c_irafinit */
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "ximio.h"
 # include "hstio.h"
@@ -20,7 +21,6 @@ int status = 0;			/* zero is OK */
 # include "hstcalversion.h"
 #include "trlbuf.h"
 
-static void FreeNames (char *, char *, char *, char *);
 static void printSyntax(void)
 {
     printf("syntax:  acs2d [--help] [-t] [-v] [-q] [--version] [--gitinfo] input output\n");
@@ -99,18 +99,25 @@ int main (int argc, char **argv) {
     c_irafinit (argc, argv);
 
     /* Allocate space for file names. */
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
     inlist = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+    addPtr(&ptrReg, inlist, &free);
     outlist = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+    addPtr(&ptrReg, outlist, &free);
     input = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+    addPtr(&ptrReg, input, &free);
     output = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
-    if (inlist == NULL || outlist == NULL ||
-        input == NULL || output == NULL) {
+    addPtr(&ptrReg, output, &free);
+    if (!inlist || !outlist || !input || !output) {
         printf ("Can't even begin; out of memory.\n");
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
 
     /* Initialize the lists of reference file keywords and names. */
     InitRefFile (&refnames);
+    addPtr(&ptrReg, &refnames, &FreeRefFile);
 
     /* Initial values. */
     initSwitch (&acs2d_sw);
@@ -148,16 +155,19 @@ int main (int argc, char **argv) {
             if (!(strcmp(argv[i],"--version")))
             {
                 printf("%s\n",ACS_CAL_VER);
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             if (!(strcmp(argv[i],"--gitinfo")))
             {
                 printGitInfo();
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             if (!(strcmp(argv[i],"--help")))
             {
                 printHelp();
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             for (j = 1;  argv[i][j] != '\0';  j++) {
@@ -170,7 +180,7 @@ int main (int argc, char **argv) {
                 } else {
                     printf ("Unrecognized option %s\n", argv[i]);
                     printSyntax();
-                    FreeNames (inlist, outlist, input, output);
+                    freeOnExit(&ptrReg);
                     exit (1);
                 }
             }
@@ -189,12 +199,13 @@ int main (int argc, char **argv) {
         printf ("       -dqi -glin -lflg -dark\n");
         printf ("       -flash -flat -shad -phot\n");
         */
-        FreeNames (inlist, outlist, input, output);
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
 
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
     trlGitInfo();
 
     /* Copy command-line value for QUIET to structure */
@@ -214,7 +225,9 @@ int main (int argc, char **argv) {
 
     /* Expand the templates. */
     i_imt = c_imtopen (inlist);
+    addPtr(&ptrReg, i_imt, &c_imtclose);
     o_imt = c_imtopen (outlist);
+    addPtr(&ptrReg, o_imt, &c_imtclose);
     n_in = c_imtlen (i_imt);
     n_out = c_imtlen (o_imt);
 
@@ -223,8 +236,7 @@ int main (int argc, char **argv) {
         status = 1;
 
     if (status) {
-        FreeNames (inlist, outlist, input, output);
-        CloseTrlBuf(&trlbuf);
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
 
@@ -284,24 +296,11 @@ int main (int argc, char **argv) {
         }
     }
 
-    /* Close lists of file names, and free name buffers
-       and trailer file buffer.
-    */
-    c_imtclose (i_imt);
-    c_imtclose (o_imt);
-    FreeRefFile (&refnames);
-    FreeNames (inlist, outlist, input, output);
-    CloseTrlBuf(&trlbuf);
+
+    freeOnExit(&ptrReg);
 
     if (status)
         exit (ERROR_RETURN);
     else
         exit (ACS_OK);
-}
-
-static void FreeNames (char *inlist, char *outlist, char *input, char *output) {
-	free (output);
-	free (input);
-	free (outlist);
-	free (inlist);
 }

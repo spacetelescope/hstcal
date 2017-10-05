@@ -4,6 +4,7 @@
 # include <stdlib.h>        /* calloc */
 # include <string.h>
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "c_iraf.h"        /* for c_irafinit */
 # include "hstio.h"
@@ -41,15 +42,21 @@ int main (int argc, char **argv) {
     mtype[0] = '\0';
     input = NULL;
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
     
     /* Get input and output file names and switches in the command line. */
     if (rej_command (argc, argv, &input, output, &par, newpar)){
+        if (input)
+            free(input);
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
-
+    addPtr(&ptrReg, input, &free);
 
     /* Reject cosmic rays. */
     if (Wf3Rej (input, output, mtype, &par, newpar)) {
@@ -60,10 +67,10 @@ int main (int argc, char **argv) {
 
     if (status) {
         WhichError (status);
-        CloseTrlBuf(&trlbuf);
+        freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     } else{
-        CloseTrlBuf(&trlbuf);
+        freeOnExit(&ptrReg);
         exit (status);
     }
 }

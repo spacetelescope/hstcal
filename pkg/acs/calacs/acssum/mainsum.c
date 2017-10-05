@@ -8,6 +8,7 @@ int status = 0;			/* zero is OK */
 
 # include <c_iraf.h>		/* for c_irafinit */
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "acs.h"
 # include "acssum.h"
@@ -55,11 +56,17 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
 	input = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+	addPtr(&ptrReg, input, &free);
 	output = calloc (CHAR_LINE_LENGTH+1, sizeof (char));
+	addPtr(&ptrReg, output, &free);
 	mtype = calloc (SZ_STRKWVAL+1, sizeof (char));
-	if (input == NULL || output == NULL) {
+	addPtr(&ptrReg, mtype, &free);
+	if (!input || !output || !mtype) {
 	    printf ("Can't even begin:  out of memory.\n");
+	    freeOnExit(&ptrReg);
 		exit (ERROR_RETURN);
 	}
 		
@@ -71,16 +78,19 @@ int main (int argc, char **argv) {
             if (!(strcmp(argv[i],"--version")))
             {
                 printf("%s\n",ACS_CAL_VER);
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             if (!(strcmp(argv[i],"--gitinfo")))
             {
                 printGitInfo();
+                freeOnExit(&ptrReg);
                 exit(0);
             }
             if (!(strcmp(argv[i],"--help")))
             {
                 printHelp();
+                freeOnExit(&ptrReg);
                 exit(0);
             }
 			for (j = 1;  argv[i][j] != '\0';  j++) {
@@ -93,8 +103,7 @@ int main (int argc, char **argv) {
 				} else {
 					printf (MsgText, "Unrecognized option %s\n", argv[i]);
 					printSyntax();
-					free (input);
-					free (output);
+					freeOnExit(&ptrReg);
 					exit (1);
 				}
 			}
@@ -108,13 +117,13 @@ int main (int argc, char **argv) {
 	}
 	if (input[0] == '\0' || too_many) {
         printSyntax();
-		free (input);
-		free (output);
+        freeOnExit(&ptrReg);
 		exit (ERROR_RETURN);
 	}
 
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
 
 	/* Copy command-line value for QUIET to structure */
@@ -123,10 +132,8 @@ int main (int argc, char **argv) {
 	if (output[0] == '\0') {
 	    if (MkName (input, "_asn", "_sfl", "", output, CHAR_LINE_LENGTH))
         {
-            free (input);
-            free (output);
             WhichError (status);
-            CloseTrlBuf(&trlbuf);
+            freeOnExit(&ptrReg);
             exit (ERROR_RETURN);
         }
 	}
@@ -137,11 +144,9 @@ int main (int argc, char **argv) {
 		trlerror (MsgText);
 	    WhichError (status);
 	}
-	free (input);
-	free (output);
-    free (mtype);
 
-	CloseTrlBuf(&trlbuf);
+
+    freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);

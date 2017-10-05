@@ -4,7 +4,7 @@ def build(bld):
     t = bld.program(
         source = 'mainrej.c',
         target = 'acsrej.e',
-        use = ['calacs', 'imphttab'] + bld.env.LOCAL_LIBS,
+        use = ['hstcallib', 'calacs', 'imphttab'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'

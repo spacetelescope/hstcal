@@ -5,7 +5,7 @@ def build(bld):
         name = 'cs6.e',
         source = 'cs6.c',
         target = 'cs6.e',
-        use = ['calstis', 'imphttab'] + bld.env.LOCAL_LIBS,
+        use = ['hstcallib', 'calstis', 'imphttab'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'
