@@ -7,6 +7,7 @@
 
 static int WavOption (char *, int *);
 
+#include "hstcal_memory.h"
 # include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 
@@ -17,7 +18,6 @@ static int WavOption (char *, int *);
 # include "hstcalversion.h"
 
 static int CompareNumbers (int, int);
-static void FreeNames (char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
     printf ("syntax:  cs12.e [--help] [-t] [-v] [--version] [--gitinfo] wavecal science\n");
@@ -75,15 +75,23 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
 	/* Allocate space for file names. */
 	wavlist = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, wavlist, &free);
 	scilist = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, scilist, &free);
 	which_wavecal = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, which_wavecal, &free);
 	inwav = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, inwav, &free);
 	insci = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, insci, &free);
 	if (wavlist == NULL || scilist == NULL || which_wavecal == NULL ||
 		inwav == NULL || insci == NULL) {
 	    printf ("ERROR:  Can't even begin; out of memory.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -96,15 +104,18 @@ int main (int argc, char **argv) {
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            freeOnExit(&ptrReg);
             exit(0);
         }
         if (!(strcmp(argv[i],"--help")))
         {
             printHelp();
+            freeOnExit(&ptrReg);
             exit(0);
         }
 	    if (strcmp (argv[i], "-r") == 0) {
 		PrFullVersion();
+		freeOnExit(&ptrReg);
 		exit (0);
 	    }
 	    if (argv[i][0] == '-') {
@@ -116,6 +127,7 @@ int main (int argc, char **argv) {
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
+			freeOnExit(&ptrReg);
 			exit (1);
 		    }
 		}
@@ -131,10 +143,12 @@ int main (int argc, char **argv) {
 	}
 	if (scilist[0] == '\0' || too_many) {
 	    printSyntax();
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 	if (which_wavecal[0] != '\0') {
 	    if ((status = WavOption (which_wavecal, &w_option)))
+	        freeOnExit(&ptrReg);
 		exit (status);
 	} else {
 	    w_option = STIS_LINEAR;
@@ -142,13 +156,15 @@ int main (int argc, char **argv) {
 
 	/* Expand the templates. */
 	w_imt = c_imtopen (wavlist);
+	addPtr(&ptrReg, w_imt, &c_imtclose);
 	s_imt = c_imtopen (scilist);
+	addPtr(&ptrReg, s_imt, &c_imtclose);
 	n_wav = c_imtlen (w_imt);
 	n_sci = c_imtlen (s_imt);
 
 	/* The number of wavecal and science files must be the same. */
 	if (CompareNumbers (n_wav, n_sci)) {
-	    FreeNames (wavlist, scilist, which_wavecal, inwav, insci);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -166,10 +182,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 
-	/* Close lists of file names, and free name buffers. */
-	c_imtclose (w_imt);
-	c_imtclose (s_imt);
-	FreeNames (wavlist, scilist, which_wavecal, inwav, insci);
+    freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);
@@ -236,14 +249,4 @@ static int CompareNumbers (int n_in, int n_out) {
 	}
 
 	return (0);
-}
-
-static void FreeNames (char *wavlist, char *scilist, char *which_wavecal,
-		char *inwav, char *insci) {
-
-	free (insci);
-	free (inwav);
-	free (which_wavecal);
-	free (scilist);
-	free (wavlist);
 }

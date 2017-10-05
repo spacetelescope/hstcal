@@ -4,6 +4,7 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
+#include "hstcal_memory.h"
 # include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 
@@ -13,7 +14,6 @@
 # include "hstcalversion.h"
 
 static int CompareNumbers (int, int);
-static void FreeNames (char *, char *, char *, char *);
 static void printSyntax(void)
 {
     printf("syntax:  cs4.e [--help] [-t] [-v] [--version] [--gitinfo] input [-angle slit_angle] [-d debugfile]\n");
@@ -75,13 +75,20 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
 	inlist = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, inlist, &free);
 	input = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, input, &free);
 	dbglist = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, dbglist, &free);
 	dbgfile = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, dbgfile, &free);
 	if (inlist == NULL || input == NULL ||
 	    dbglist == NULL || dbgfile == NULL) {
 	    printf ("ERROR:  Can't even begin; out of memory.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -91,7 +98,7 @@ int main (int argc, char **argv) {
 		if (argv[i][0] == '-') {
 		    printf (
 	"`%s' encountered when debug file name was expected\n", argv[i]);
-		    FreeNames (inlist, input, dbglist, dbgfile);
+		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
 		strcpy (dbglist, argv[i]);
@@ -102,20 +109,24 @@ int main (int argc, char **argv) {
 	    } else if (argv[i][0] == '-') {
 		if (strcmp (argv[i], "--version") == 0) {
 		    PrVersion();
+		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            freeOnExit(&ptrReg);
             exit(0);
         }
         if (!(strcmp(argv[i],"--help")))
         {
             printHelp();
+            freeOnExit(&ptrReg);
             exit(0);
         }
 		if (strcmp (argv[i], "-r") == 0) {
 		    PrFullVersion();
+		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
 		if (strcmp (argv[i]+1, "angle") == 0) {
@@ -133,6 +144,7 @@ int main (int argc, char **argv) {
 			} else {
 			    printf ("ERROR:  Unrecognized option %s\n", argv[i]);
 			    printSyntax();
+			    freeOnExit(&ptrReg);
 			    exit (1);
 			}
 		    }
@@ -145,22 +157,25 @@ int main (int argc, char **argv) {
 	}
 	if (inlist[0] == '\0' || too_many || dbg_next) {
 	    printSyntax();
-	    FreeNames (inlist, input, dbglist, dbgfile);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
 	/* Initialize the list of reference file keywords and names. */
 	InitRefFile (&refnames);
+	addPtr(&ptrReg, &refnames, &FreeRefFile);
 
 	/* Expand the templates. */
 	i_imt = c_imtopen (inlist);
+	addPtr(&ptrReg, i_imt, &c_imtclose);
 	d_imt = c_imtopen (dbglist);
+	addPtr(&ptrReg, d_imt, &c_imtclose);
 	n_in = c_imtlen (i_imt);
 	n_dbg = c_imtlen (d_imt);
 
 	/* The number of input and debug files must be the same. */
 	if (CompareNumbers (n_in, n_dbg)) {
-	    FreeNames (inlist, input, dbglist, dbgfile);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -182,11 +197,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 
-	/* Close lists of file names, and free name buffers. */
-	c_imtclose (d_imt);
-	c_imtclose (i_imt);
-	FreeRefFile (&refnames);
-	FreeNames (inlist, input, dbglist, dbgfile);
+	freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);
@@ -214,13 +225,4 @@ static int CompareNumbers (int n_in, int n_dbg) {
 	}
 
 	return (0);
-}
-
-static void FreeNames (char *inlist, char *input,
-		char *dbglist, char *dbgfile) {
-
-	free (dbgfile);
-	free (dbglist);
-	free (input);
-	free (inlist);
 }

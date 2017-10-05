@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "acs.h"
 # include "hstcalerr.h"
@@ -177,7 +178,10 @@ int main(int argc, char **argv) {
     }
 
 	/* Initialize the structure for managing trailer file comments */
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
 	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
 
 	/* Copy command-line value for QUIET to structure */
@@ -243,7 +247,7 @@ int main(int argc, char **argv) {
 		    trlerror (MsgText);
             /* Added 19 Mar 1999 - provides interpretation of error for user */
             WhichError (status);
-		    CloseTrlBuf(&trlbuf);
+            freeOnExit(&ptrReg);
 	        exit (ERROR_RETURN);
         }
 	}
@@ -252,7 +256,7 @@ int main(int argc, char **argv) {
 	sprintf (MsgText, "CALACS completion for %s", input);
 	trlmessage (MsgText);
 
-	CloseTrlBuf(&trlbuf);
+    freeOnExit(&ptrReg);
 
 	/* Exit the program */
 	exit(0);

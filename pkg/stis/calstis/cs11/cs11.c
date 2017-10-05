@@ -4,6 +4,7 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
+#include "hstcal_memory.h"
 # include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 
@@ -13,7 +14,6 @@
 # include "hstcalversion.h"
 
 static int CompareNumbers (int, char *, int, char *);
-static void FreeNames (char *, char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
     printf("syntax:  cs11.e [--help] [-t] [-v] [--version] [--gitinfo] wavecal science output\n");
@@ -67,16 +67,25 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
 	/* Allocate space for file names. */
 	wavlist = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, wavlist, &free);
 	scilist = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, scilist, &free);
 	outlist = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, outlist, &free);
 	inwav = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, inwav, &free);
 	insci = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, insci, &free);
 	output = calloc (STIS_LINE+1, sizeof (char));
-	if (wavlist == NULL || scilist == NULL || outlist == NULL ||
-		inwav == NULL || insci == NULL || output == NULL) {
+    addPtr(&ptrReg, output, &free);
+
+	if (!wavlist || !scilist || !outlist || !inwav || !insci || !output) {
 	    printf ("ERROR:  Can't even begin:  out of memory.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -84,20 +93,24 @@ int main (int argc, char **argv) {
 	for (i = 1;  i < argc;  i++) {
 	    if (strcmp (argv[i], "--version") == 0) {
 		PrVersion();
+		freeOnExit(&ptrReg);
 		exit (0);
 	    }
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            freeOnExit(&ptrReg);
             exit(0);
         }
         if (!(strcmp(argv[i],"--help")))
         {
             printHelp();
+            freeOnExit(&ptrReg);
             exit(0);
         }
 	    if (strcmp (argv[i], "-r") == 0) {
 		PrFullVersion();
+		freeOnExit(&ptrReg);
 		exit (0);
 	    }
 	    if (argv[i][0] == '-') {
@@ -109,6 +122,7 @@ int main (int argc, char **argv) {
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
+			freeOnExit(&ptrReg);
 			exit (1);
 		    }
 		}
@@ -124,17 +138,24 @@ int main (int argc, char **argv) {
 	}
 	if (scilist[0] == '\0' || too_many) {
 	    printSyntax();
-	    FreeNames (wavlist, scilist, outlist, inwav, insci, output);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
 	/* Expand the templates. */
+
 	w_imt = c_imtopen (wavlist);
+    addPtr(&ptrReg, w_imt, &c_imtclose);
 	s_imt = c_imtopen (scilist);
+    addPtr(&ptrReg, s_imt, &c_imtclose);
 	o_imt = c_imtopen (outlist);
+    addPtr(&ptrReg, o_imt, &c_imtclose);
 	n_wav = c_imtlen (w_imt);
+    addPtr(&ptrReg, n_wav, &c_imtclose);
 	n_sci = c_imtlen (s_imt);
+    addPtr(&ptrReg, n_sci, &c_imtclose);
 	n_out = c_imtlen (o_imt);
+    addPtr(&ptrReg, n_out, &c_imtclose);
 
 	/* The number of wavecal and science files must be the same.
 	   The output may have been omitted, but if any output was
@@ -146,7 +167,7 @@ int main (int argc, char **argv) {
 	if (n_out > 0 && CompareNumbers (n_wav, "wavecal", n_out, "output"))
 	    status = ERROR_RETURN;
 	if (status) {
-	    FreeNames (wavlist, scilist, outlist, inwav, insci, output);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -174,11 +195,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 
-	/* Close lists of file names, and free name buffers. */
-	c_imtclose (w_imt);
-	c_imtclose (s_imt);
-	c_imtclose (o_imt);
-	FreeNames (wavlist, scilist, outlist, inwav, insci, output);
+    freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);
@@ -208,15 +225,4 @@ static int CompareNumbers (int n_in, char *str_in,
 	}
 
 	return (0);
-}
-
-static void FreeNames (char *wavlist, char *scilist, char *outlist,
-		char *inwav, char *insci, char *output) {
-
-	free (output);
-	free (insci);
-	free (inwav);
-	free (outlist);
-	free (scilist);
-	free (wavlist);
 }

@@ -5,7 +5,7 @@ def build(bld):
         name = 'wf3ir.e',
         source = 'mainir.c',
         target = 'wf3ir.e',
-        use = ['calwf3', 'imphttab'] + bld.env.LOCAL_LIBS,
+        use = ['hstcallib', 'calwf3', 'imphttab'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'

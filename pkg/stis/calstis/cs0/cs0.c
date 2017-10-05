@@ -4,6 +4,7 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
+#include "hstcal_memory.h"
 # include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 
@@ -12,7 +13,6 @@
 # include "hstcalerr.h"
 # include "hstcalversion.h"
 
-static void FreeNames (char *, char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
     printf("syntax:  cs0.e [--help] [-t] [-s] [-v] [--version] [--gitinfo] input [outroot] [-w wavecal]\n");
@@ -68,16 +68,25 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
 	/* Allocate space for file names. */
 	rawlist = calloc (1, sizeof (char));	/* allocated later */
+	addPtr(&ptrReg, rawlist, &free);
 	wavlist = calloc (1, sizeof (char));
+    addPtr(&ptrReg, wavlist, &free);
 	outlist = calloc (1, sizeof (char));
+    addPtr(&ptrReg, outlist, &free);
 	rawfile = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, rawfile, &free);
 	wavfile = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, wavfile, &free);
 	outroot = calloc (STIS_LINE+1, sizeof (char));
-	if (rawlist == NULL || wavlist == NULL || outlist == NULL ||
-	    rawfile == NULL || wavfile == NULL || outroot == NULL) {
+    addPtr(&ptrReg, outroot, &free);
+
+	if (!rawlist || !wavlist || !outlist || !rawfile || !wavfile || !outroot) {
 	    printf ("Can't even begin; out of memory.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -86,35 +95,40 @@ int main (int argc, char **argv) {
 		if (argv[i][0] == '-') {
 		    printf (
 	"`%s' encountered when wavecal file name was expected\n", argv[i]);
-		    FreeNames (rawlist, wavlist, outlist,
-				rawfile, wavfile, outroot);
+		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
-		free (wavlist);
+		freePtr(&ptrReg, wavlist);
 		if ((wavlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
 		    printf ("ERROR:  Out of memory.\n");
+		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
+		addPtr(&ptrReg, wavlist, &free);
 		strcpy (wavlist, argv[i]);
 		wavecal_next = 0;
 	    } else if (argv[i][0] == '-') {
 		if (strcmp (argv[i], "--version") == 0) {
 		    PrVersion();
+		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            freeOnExit(&ptrReg);
             exit(0);
         }
         if (!(strcmp(argv[i],"--help")))
         {
             printHelp();
+            freeOnExit(&ptrReg);
             exit(0);
         }
 		if (strcmp (argv[i], "-r") == 0) {
 		    PrFullVersion();
+		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {
@@ -130,26 +144,28 @@ int main (int argc, char **argv) {
 		    } else {
 			printf ("Unrecognized option %s\n", argv[i]);
 			printSyntax();
-			FreeNames (rawlist, wavlist, outlist,
-				rawfile, wavfile, outroot);
+			freeOnExit(&ptrReg);
 			exit (ERROR_RETURN);
 		    }
 		}
 	    } else if (rawlist[0] == '\0') {
-		free (rawlist);
+		freePtr(&ptrReg, rawlist);
 		if ((rawlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
 		    printf ("ERROR:  Out of memory.\n");
+		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
+		addPtr(&ptrReg, rawlist, &free);
 		strcpy (rawlist, argv[i]);
 	    } else if (outlist[0] == '\0') {
-		free (outlist);
+		freePtr(&ptrReg, outlist);
 		if ((outlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
 		    printf ("ERROR:  Out of memory.\n");
 		    exit (ERROR_RETURN);
 		}
+		addPtr(&ptrReg, outlist, &free);
 		strcpy (outlist, argv[i]);
 	    } else {
 		too_many = 1;
@@ -157,14 +173,17 @@ int main (int argc, char **argv) {
 	}
 	if (rawlist[0] == '\0' || too_many || wavecal_next) {
 	    printSyntax();
-	    FreeNames (rawlist, wavlist, outlist, rawfile, wavfile, outroot);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
 	/* Expand the templates. */
 	r_imt = c_imtopen (rawlist);
+	addPtr(&ptrReg, r_imt, &c_imtclose);
 	w_imt = c_imtopen (wavlist);
+	addPtr(&ptrReg, w_imt, &c_imtclose);
 	o_imt = c_imtopen (outlist);
+	addPtr(&ptrReg, o_imt, &c_imtclose);
 	n_raw = c_imtlen (r_imt);
 	n_wav = c_imtlen (w_imt);
 	n_out = c_imtlen (o_imt);
@@ -177,8 +196,7 @@ int main (int argc, char **argv) {
 		if (n_raw > 1)
 		    printf ("s");
 		printf (" but %d wavecals.\n", n_wav);
-		FreeNames (rawlist, wavlist, outlist,
-			rawfile, wavfile, outroot);
+		freeOnExit(&ptrReg);
 		exit (ERROR_RETURN);
 	    }
 	} else {
@@ -197,8 +215,7 @@ int main (int argc, char **argv) {
 		if (n_raw > 1)
 		    printf ("s");
 		printf (" but %d outroots.\n", n_out);
-		FreeNames (rawlist, wavlist, outlist,
-			rawfile, wavfile, outroot);
+		freeOnExit(&ptrReg);
 		exit (ERROR_RETURN);
 	    }
 	} else {
@@ -214,8 +231,7 @@ int main (int argc, char **argv) {
 	"You specified multiple input files and only one outroot;\n");
 			printf (
 	"to do this outroot must be a directory (i.e. end in '/').\n");
-			FreeNames (rawlist, wavlist, outlist,
-				rawfile, wavfile, outroot);
+			freeOnExit(&ptrReg);
 			exit (ERROR_RETURN);
 		    }
 		}
@@ -225,7 +241,7 @@ int main (int argc, char **argv) {
 	}
 	if (n_raw < 1) {
 	    printf ("File not found.\n");
-	    FreeNames (rawlist, wavlist, outlist, rawfile, wavfile, outroot);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -250,31 +266,10 @@ int main (int argc, char **argv) {
 	    }
 	}
 
-	/* Close lists of file names, and free name buffers. */
-	c_imtclose (o_imt);
-	c_imtclose (w_imt);
-	c_imtclose (r_imt);
-	FreeNames (rawlist, wavlist, outlist, rawfile, wavfile, outroot);
+    freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);
 	else
 	    exit (0);
-}
-
-static void FreeNames (char *rawlist, char *wavlist, char *outlist,
-		char *rawfile, char *wavfile, char *outroot) {
-
-	if (outroot != NULL)
-	    free (outroot);
-	if (wavfile != NULL)
-	    free (wavfile);
-	if (rawfile != NULL)
-	    free (rawfile);
-	if (outlist != NULL)
-	    free (outlist);
-	if (wavlist != NULL)
-	    free (wavlist);
-	if (rawlist != NULL)
-	    free (rawlist);
 }

@@ -5,6 +5,7 @@
 # include <time.h>
 # include <string.h>
 
+#include "hstcal_memory.h"
 # include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 
@@ -14,7 +15,6 @@
 # include "hstcalversion.h"
 
 static int CompareNumbers (int, int, char *);
-static void FreeNames (char *, char *, char *, char *, char *, char *);
 static void printSyntax(void)
 {
     printf ("syntax:  cs1.e [--help] [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
@@ -96,21 +96,30 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
 	/* Allocate space for file names. */
 	inlist = calloc (1, sizeof (char));	/* allocated later */
+	addPtr(&ptrReg, inlist, &free);
 	outlist = calloc (1, sizeof (char));
+	addPtr(&ptrReg, outlist, &free);
 	blevlist = calloc (1, sizeof (char));
+	addPtr(&ptrReg, blevlist, &free);
 	input = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, input, &free);
 	output = calloc (STIS_LINE+1, sizeof (char));
+	addPtr(&ptrReg, output, &free);
 	outblev = calloc (STIS_LINE+1, sizeof (char));
-	if (inlist == NULL || outlist == NULL || blevlist == NULL ||
-		input == NULL || output == NULL || outblev == NULL) {
+	addPtr(&ptrReg, outblev, &free);
+	if (!inlist || !outlist || !blevlist || !input || !output || !outblev) {
 	    printf ("ERROR:  Can't even begin; out of memory.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
 	/* Initialize the lists of reference file keywords and names. */
 	InitRefFile (&refnames);
+	addPtr(&ptrReg, &refnames, &FreeRefFile);
 
 	/* Initial values. */
 	cs1_sw.dqicorr = OMIT;
@@ -133,20 +142,24 @@ int main (int argc, char **argv) {
 
 	    if (strcmp (argv[i], "--version") == 0) {
 		PrVersion();
+		freeOnExit(&ptrReg);
 		exit (0);
 	    }
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            freeOnExit(&ptrReg);
             exit(0);
         }
         if (!(strcmp(argv[i],"--help")))
         {
             printHelp();
+            freeOnExit(&ptrReg);
             exit(0);
         }
 	    if (strcmp (argv[i], "-r") == 0) {
 		PrFullVersion();
+		freeOnExit(&ptrReg);
 		exit (0);
 	    }
 	    if (strcmp (argv[i], "-dqi") == 0) {	/* turn on */
@@ -201,30 +214,34 @@ int main (int argc, char **argv) {
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
+			freeOnExit(&ptrReg);
 			exit (1);
 		    }
 		}
 	    } else if (inlist[0] == '\0') {
-		free (inlist);
+	    freePtr(&ptrReg, inlist);
 		if ((inlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
 		    printf ("ERROR:  Out of memory.\n");
+		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
 		strcpy (inlist, argv[i]);
 	    } else if (outlist[0] == '\0') {
-		free (outlist);
+	    freePtr(&ptrReg, outlist);
 		if ((outlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
 		    printf ("ERROR:  Out of memory.\n");
+		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
 		strcpy (outlist, argv[i]);
 	    } else if (blevlist[0] == '\0') {
-		free (blevlist);
+	    freePtr(&ptrReg, blevlist);
 		if ((blevlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
 		    printf ("ERROR:  Out of memory.\n");
+		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
 		strcpy (blevlist, argv[i]);
@@ -234,7 +251,7 @@ int main (int argc, char **argv) {
 	}
 	if (inlist[0] == '\0' || too_many) {
 	    printSyntax();
-	    FreeNames (inlist, outlist, blevlist, input, output, outblev);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -257,11 +274,17 @@ int main (int argc, char **argv) {
 
 	/* Expand the templates. */
 	i_imt = c_imtopen (inlist);
+	addPtr(&ptrReg, i_imt, &c_imtclose);
 	o_imt = c_imtopen (outlist);
+    addPtr(&ptrReg, o_imt, &c_imtclose);
 	b_imt = c_imtopen (blevlist);
+    addPtr(&ptrReg, b_imt, &c_imtclose);
 	n_in = c_imtlen (i_imt);
+    addPtr(&ptrReg, n_in, &c_imtclose);
 	n_out = c_imtlen (o_imt);
+    addPtr(&ptrReg, n_out, &c_imtclose);
 	n_blev = c_imtlen (b_imt);
+    addPtr(&ptrReg, n_blev, &c_imtclose);
 
 	/* The number of input and output files must be the same. */
 	status = 0;
@@ -270,7 +293,7 @@ int main (int argc, char **argv) {
 	if (CompareNumbers (n_in, n_blev, "outblev"))
 	    status = ERROR_RETURN;
 	if (status) {
-	    FreeNames (inlist, outlist, blevlist, input, output, outblev);
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -303,12 +326,7 @@ int main (int argc, char **argv) {
 	    }
 	}
 
-	/* Close lists of file names, and free name buffers. */
-	c_imtclose (i_imt);
-	c_imtclose (o_imt);
-	c_imtclose (b_imt);
-	FreeRefFile (&refnames);
-	FreeNames (inlist, outlist, blevlist, input, output, outblev);
+    freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);
@@ -336,21 +354,4 @@ static int CompareNumbers (int n_in, int n_out, char *str_out) {
 	}
 
 	return (0);
-}
-
-static void FreeNames (char *inlist, char *outlist, char *blevlist,
-		char *input, char *output, char *outblev) {
-
-	if (outblev != NULL)
-	    free (outblev);
-	if (output != NULL)
-	    free (output);
-	if (input != NULL)
-	    free (input);
-	if (blevlist != NULL)
-	    free (blevlist);
-	if (outlist != NULL)
-	    free (outlist);
-	if (inlist != NULL)
-	    free (inlist);
 }

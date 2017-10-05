@@ -13,8 +13,10 @@ def build(bld):
                   'maincte.c'
                   ],
         target = 'acscte.e',
-        includes = ['.', '../../../../ctegen2'],
-        use = ['calacs', 'imphttab', 'ctegen2', 'hstcallib'] + bld.env.LOCAL_LIBS,
+        includes = ['.',
+                    '../../../../ctegen2',
+                    '../../../../include'],
+        use = ['hstcallib', 'calacs', 'imphttab', 'ctegen2'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
         install_path = '${PREFIX}/bin'

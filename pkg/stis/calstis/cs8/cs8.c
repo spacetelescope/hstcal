@@ -4,6 +4,7 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
+#include "hstcal_memory.h"
 # include "c_iraf.h"		/* for c_irafinit */
 
 # include "../stis.h"
@@ -44,10 +45,15 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
 	input = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, input, &free);
 	output = calloc (STIS_LINE+1, sizeof (char));
+    addPtr(&ptrReg, output, &free);
 	if (input == NULL || output == NULL) {
 	    printf ("ERROR:  Can't even begin:  out of memory.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
@@ -56,20 +62,24 @@ int main (int argc, char **argv) {
 	    if (argv[i][0] == '-') {
 		if (strcmp (argv[i], "--version") == 0) {
 		    PrVersion();
+		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
         if (!(strcmp(argv[i],"--gitinfo")))
         {
             printGitInfo();
+            freeOnExit(&ptrReg);
             exit(0);
         }
         if (!(strcmp(argv[i],"--help")))
         {
             printHelp();
+            freeOnExit(&ptrReg);
             exit(0);
         }
 		if (strcmp (argv[i], "-r") == 0) {
 		    PrFullVersion();
+		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
 		for (j = 1;  argv[i][j] != '\0';  j++) {
@@ -80,6 +90,7 @@ int main (int argc, char **argv) {
 		    } else {
 			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
+			freeOnExit(&ptrReg);
 			exit (1);
 		    }
 		}
@@ -93,11 +104,15 @@ int main (int argc, char **argv) {
 	}
 	if (input[0] == '\0' || too_many) {
 	    printSyntax();
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 	if (output[0] == '\0') {
 	    if ((status = MkName (input, "_x2d", "_sx2", output, STIS_LINE)))
-		exit (status);
+	    {
+	        freeOnExit(&ptrReg);
+	        exit (status);
+	    }
 	}
 
 	/* Sum imsets. */
@@ -105,8 +120,8 @@ int main (int argc, char **argv) {
 	    printf ("Error processing %s.\n", input);
 	    WhichError (status);
 	}
-	free (input);
-	free (output);
+
+	freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);

@@ -31,7 +31,8 @@ int main (int argc, char **argv) {
 	/* Get input and output file names and switches in the command line. */
 	status = cs2_command (argc, argv, input, output, &par, newpar);
 	if (status != 0) {
-	    free (input);
+	    if (input)
+	        free(input);
 	    exit (status);
 	}
 
@@ -40,7 +41,8 @@ int main (int argc, char **argv) {
 	    printf ("Error processing %s.\n", input);
 	}
 
-	free (input);
+	if (input)
+	    free (input);
 
 	if (status)
 	    exit (ERROR_RETURN);

@@ -2,6 +2,7 @@
 # include <stdlib.h>
 # include <string.h>
 
+#include "hstcal_memory.h"
 # include "c_iraf.h"		/* for c_irafinit, IRAFPointer */
 # include "ximio.h"		/* for the imt routines */
 
@@ -143,19 +144,25 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 
 	/* Expand input and output file lists. */
-
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
 	inlist   = c_imtopen (input);
+	addPtr(&ptrReg, inlist, &c_imtclose);
 	outlist  = c_imtopen (output);
+    addPtr(&ptrReg, outlist, &c_imtclose);
 	outwlist = c_imtopen (outw);
+    addPtr(&ptrReg, outwlist, &c_imtclose);
 	innf     = c_imtlen (inlist);
 	outnf    = c_imtlen (outlist);
 	outwnf   = c_imtlen (outwlist);
 	if (outnf != 0 && innf != outnf) {
 	    printf ("ERROR: Input and output lists have different sizes.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 	if (outwnf != 0 && innf != outwnf) {
 	    printf ("ERROR: Input and weights lists have different sizes.\n");
+	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 	for (ifile = 0; ifile < innf; ifile++) {
@@ -173,9 +180,11 @@ int main (int argc, char **argv) {
 
 	    if (MkOutName (finput, isuffix, osuffix, nsuffix,
                 foutput, STIS_FNAME))
+	        freeOnExit(&ptrReg);
 	        exit (ERROR_RETURN);
 	    if (MkOutName (finput, isuffix, owsuffix, nsuffix,
                 foutw, STIS_FNAME))
+	        freeOnExit(&ptrReg);
 	        exit (ERROR_RETURN);
 
 	    /* Extract 1-D STIS data. */
@@ -194,10 +203,9 @@ int main (int argc, char **argv) {
 	        WhichError (status);
 	    }
 	    if (status)
+	        freeOnExit(&ptrReg);
 	        exit (ERROR_RETURN);
 	}
-	c_imtclose (inlist);
-	c_imtclose (outlist);
-	c_imtclose (outwlist);
+	freeOnExit(&ptrReg);
 	exit (0);
 }
