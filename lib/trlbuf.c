@@ -96,8 +96,9 @@
 #include "hstcalerr.h"
 #include "hstcal.h"
 #include "hstcalversion.h"
+#include "hstio.h"
 
-const unsigned initLength = 2;
+const unsigned initLength = 2; // Should always be > 0 to prevent issues with use of realloc().
 
 /* Internal trailer file buffer routines */
 static void ResetTrlBuf (void);
@@ -126,7 +127,7 @@ char *output        i: full filename of output (final) trailer file
 */
     extern int status;
 
-    IRAFPointer tpin;
+    IRAFPointer tpin = NULL;
     FILE * ip = NULL;
     FILE * tp = NULL;
     int n, td;
@@ -149,10 +150,11 @@ char *output        i: full filename of output (final) trailer file
         trlopenerr(trlbuf.trlfile);
         return(status=INVALID_TEMP_FILE);
     }
-
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
     /* open the input file template */
     tpin = c_imtopen (inlist);
-
+    addPtr(&ptrReg, tpin, &c_imtclose);
     /* Only if we are building a product/sub-product trailer
         file, do we need to concatenate input trailer files
         or append to an input file.
@@ -167,17 +169,20 @@ char *output        i: full filename of output (final) trailer file
         strcpy(uniq_outname, uniq_outtemplate);
         if ( (td = mkstemp(uniq_outname)) < 0 ) {
             trlerror("Failed to create temporary file name.");
+            freeOnExit(&ptrReg);
             return(status=INVALID_TEMP_FILE);
         }
         if ( unlink(uniq_outname) < 0) {
             trlerror("Failed to unlink temporary file name.");
+            freeOnExit(&ptrReg);
             return(status=INVALID_TEMP_FILE);
         }
         if ( (tp = fdopen(td, "w+") ) == NULL ) {
             trlopenerr(uniq_outname);
+            freeOnExit(&ptrReg);
             return(status=INVALID_TEMP_FILE);
         }
-
+        addPtr(&ptrReg, tp, &fclose);
         /* Since we have determined that we are indeed combining
             input trailer files to create a new trailer file, ...
         */
@@ -207,7 +212,7 @@ char *output        i: full filename of output (final) trailer file
 
         /* Copy temporary file content to output trailer file */
         CatTrlFile_NoEOF(tp, trlbuf.fp);
-        fclose(tp);  /* Also delete the file because of unlink() */
+        freePtr(&ptrReg, tp);  /* Also delete the file because of unlink() */
         tp = NULL;
         /* Reset overwrite now to NO */
         SetTrlOverwriteMode(NO);
@@ -220,15 +225,31 @@ char *output        i: full filename of output (final) trailer file
            so set the file pointer to just before the first line
            which starts with TRL_PREFIX...
         */
-        if (AppendTrlFile ())
+        if (AppendTrlFile())
+        {
+            /* Clean-up... */
+            if (trlbuf.buffer)
+            {
+                free (trlbuf.buffer);
+                trlbuf.buffer = NULL;
+            }
+            if (trlbuf.preface)
+            {
+                free (trlbuf.preface);
+                trlbuf.preface = NULL;
+            }
+            fclose (trlbuf.fp);
+            trlbuf.fp = NULL;
+            freeOnExit(&ptrReg);
             return(status);
+        }
 
         /* We are finished overwriting old comments, so reset this mode. */
         SetTrlOverwriteMode(NO);
 
     }
 
-    c_imtclose(tpin);
+    freeOnExit(&ptrReg);
     trlbuf.init = 1;
 
     return (status);
@@ -296,60 +317,46 @@ static int AppendTrlFile(void)
     */
 
     extern int status;
-    char buf[CHAR_LINE_LENGTH+1];
 
-    char *oprefix;
-
-
-    if ( (oprefix = realloc (NULL, initLength)) == NULL){
+    char * oprefix = malloc(initLength*sizeof(*oprefix));
+    if (!oprefix){
         trlerror ("Out of memory for trailer file preface.");
         return (status = OUT_OF_MEMORY);
     }
+    char buf[CHAR_LINE_LENGTH+1];
     buf[0] = '\0';
     oprefix[0] = '\0';
 
     /* Make sure we start searching from the beginning of the file */
     rewind (trlbuf.fp);
 
-    while ( !feof(trlbuf.fp) ) {
+    while ( !feof(trlbuf.fp) )
+    {
         /* Read in a line */
         fgets(buf, CHAR_LINE_LENGTH+1, trlbuf.fp);
 
         /* If we find the prefix, stop searching */
-        if (strstr(buf,TRL_PREFIX) !=NULL) {
+        if (strstr(buf,TRL_PREFIX))
             break;
-        } else {
-            /* Store this line in a buffer to be written out when
-                the old file is overwritten...
-            */
-            oprefix = realloc (oprefix, (strlen(oprefix) + strlen(buf) +2 ));
 
-            if (oprefix == NULL) {
-                printfAndFlush ("Out of memory: Couldn't store trailer file comment.");
-                status = OUT_OF_MEMORY;
-                /* Clean-up... */
-                if (trlbuf.buffer)
-                {
-                    free (trlbuf.buffer);
-                    trlbuf.buffer = NULL;
-                }
-                if (trlbuf.preface)
-                {
-                    free (trlbuf.preface);
-                    trlbuf.preface = NULL;
-                }
-                if (oprefix)
-                {
-                    free (oprefix);
-                    oprefix = NULL;
-                }
-                fclose (trlbuf.fp);
-                trlbuf.fp = NULL;
-                return (status);
-            } else {
-                strcat (oprefix, buf);
+        /* Store this line in a buffer to be written out when
+            the old file is overwritten...
+        */
+        void * ptr = realloc (oprefix, (strlen(oprefix) + strlen(buf) +2 )*sizeof(*oprefix));
+        if (!ptr)
+        {
+            status = OUT_OF_MEMORY;
+            printfAndFlush ("Out of memory: Couldn't store trailer file comment.");
+            if (oprefix)
+            {
+                free (oprefix);
+                oprefix = NULL;
             }
+            return (status);
         }
+        oprefix = ptr;
+        ptr = NULL;
+        strcat (oprefix, buf);
     }
     /* Now we know what needs to be kept, let's close the file... */
     fclose (trlbuf.fp);
@@ -365,8 +372,11 @@ static int AppendTrlFile(void)
     fflush (trlbuf.fp);
 
     /* Now, clean up the memory used by the temp buffer. */
-    oprefix[0] = '\0';
-    free (oprefix);
+    if (oprefix)
+    {
+        free (oprefix);
+        oprefix = NULL;
+    }
 
     return (status);
 }
@@ -398,13 +408,20 @@ int InitTrlBuf (void)
     trlbuf.overwrite = NO;  /* Initialize with default of append */
     trlbuf.quiet = NO;      /* Initialize to produce STDOUT messages */
     trlbuf.usepref = YES;      /* Switch to specify whether to output preface */
+    trlbuf.buffer = NULL;
+    trlbuf.preface = NULL;
 
-    if ( (trlbuf.buffer = realloc (NULL, initLength)) == NULL){
+    if (!(trlbuf.buffer = malloc(initLength*sizeof(*trlbuf.buffer)))){
         trlerror ("Out of memory for trailer file buffer.");
         return (status = OUT_OF_MEMORY);
     }
-    if ( (trlbuf.preface = realloc (NULL, initLength)) == NULL){
+    if (!(trlbuf.preface = malloc(initLength*sizeof(*trlbuf.preface)))){
         trlerror ("Out of memory for trailer file preface.");
+        if (trlbuf.buffer)
+        {
+            free(trlbuf.buffer);
+            trlbuf.buffer = NULL;
+        }
         return (status = OUT_OF_MEMORY);
     }
 
@@ -458,19 +475,18 @@ static void AddTrlBuf (const char *message)
     if ( ! trlbuf.init )
         assert(0); //TRLBUF NOT INIT, YOU MAY HAVE PROBLEMS
 
-    trlbuf.buffer = realloc (trlbuf.buffer,
-                 (strlen(trlbuf.buffer) + strlen(message) +2));
-
-    if (trlbuf.preface == NULL) {
-        printfAndFlush ("Out of memory: Couldn't store trailer file comment.");
+    void * ptr = realloc (trlbuf.buffer, (strlen(trlbuf.buffer) + strlen(message) +2)*sizeof(*trlbuf.buffer));
+    if (!ptr)
+    {
         status = OUT_OF_MEMORY;
-    } else {
-
-        strcat (trlbuf.buffer, message);
-
-        /* Append a newline at the end of every output message */
-        strcat (trlbuf.buffer, "\n");
+        printfAndFlush ("Out of memory: Couldn't store trailer file comment.");
+        // Don't free anything of trlbuf, it should not be this func's responsibility
+        return;
     }
+    trlbuf.buffer = ptr;
+    ptr = NULL;
+    strcat (trlbuf.buffer, message);
+    strcat (trlbuf.buffer, "\n"); // Append a newline at the end of every output message
 }
 void InitTrlPreface (void)
 {
@@ -479,52 +495,47 @@ void InitTrlPreface (void)
     */
     extern int status;
 
-    trlbuf.preface = realloc (trlbuf.preface, (strlen(trlbuf.buffer) +2));
-    if (trlbuf.preface == NULL) {
-        printfAndFlush ("Out of memory: Couldn't store trailer file preface.");
+    void * ptr = realloc (trlbuf.preface, (strlen(trlbuf.buffer) +2)*sizeof(*trlbuf.preface));
+    if (!ptr)
+    {
         status = OUT_OF_MEMORY;
-    } else {
-        strcpy (trlbuf.preface, trlbuf.buffer);
+        printfAndFlush ("Out of memory: Couldn't store trailer file preface.");
+        // Don't free anything of trlbuf, it should not be this func's responsibility
+        return;
     }
+    trlbuf.preface = ptr;
+    ptr = NULL;
+    strcpy (trlbuf.preface, trlbuf.buffer);
 }
 void ResetTrlPreface (void)
 {
-    /* This function will reset the preface to a null string, so nothing
-        more gets written out to any other trailer files.  It also
-        reallocates the space to preface so that it doesn't take any memory.
-    */
-
-    /* Start by freeing the initial space used, and setting pointer
-        to NULL
-    */
-    free (trlbuf.preface);
-    trlbuf.preface = NULL;
-
-    /* Now, allocate new pointer as before */
-    trlbuf.preface = realloc (NULL, initLength);
-
-    /* ...and initialize it to NULL */
-    trlbuf.preface[0] = '\0';
+    extern int status;
+    void * ptr = realloc(trlbuf.preface, initLength*sizeof(*trlbuf.preface));
+    if (!ptr)
+    {
+        status = OUT_OF_MEMORY;
+        printfAndFlush ("Out of memory: Couldn't resize preface for trailer file.");
+        // Don't free anything of trlbuf, it should not be this func's responsibility
+        return;
+    }
+    trlbuf.preface = ptr;
+    ptr = NULL;
+    *trlbuf.preface = '\0';
 }
 static void ResetTrlBuf (void)
 {
-    /*
-        Clear out messages from buffer.  Intended for use after
-        messages were already written to file.  Assumes trlbuf.buffer
-        already exists!
-    */
-
     extern int status;
-
-    free(trlbuf.buffer);
-    trlbuf.buffer = realloc(NULL, initLength);
-
-    if (trlbuf.buffer == NULL) {
-        printfAndFlush ("Out of memory: Couldn't resize buffer for trailer file.");
+    void * ptr = realloc(trlbuf.buffer, initLength*sizeof(*trlbuf.buffer));
+    if (!ptr)
+    {
         status = OUT_OF_MEMORY;
-    } else {
-        trlbuf.buffer[0] = '\0';
+        printfAndFlush("Out of memory: Couldn't resize buffer for trailer file.");
+        // Don't free anything of trlbuf, it should not be this func's responsibility
+        return;
     }
+    trlbuf.buffer = ptr;
+    ptr = NULL;
+    *trlbuf.buffer = '\0';
 }
 static void WriteTrlBuf (const char *message)
 {
