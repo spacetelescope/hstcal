@@ -165,8 +165,20 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
     if (++reg->cursor >= reg->length)
     {
         reg->length += PTR_REGISTER_LENGTH_INC;
-        assert(reg->ptrs = realloc(reg->ptrs, reg->length*sizeof(*reg->ptrs)));
-        assert(reg->freeFunctions = realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions)));
+        void * tmpPtr = realloc(reg->ptrs, reg->length*sizeof(*reg->ptrs));
+        if (!tmpPtr)
+        {
+            freeOnExit(reg); // Note: It is ok that reg->length != length(reg->ptrs)
+            assert(0);
+        }
+        reg->ptrs = tmpPtr;
+        tmpPtr = realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions));
+        if (!tmpPtr)
+        {
+            freeOnExit(reg); // Note: It is ok that reg->length != length(reg->freeFunctions)
+            assert(0);
+        }
+        reg->freeFunctions = tmpPtr;
     }
     reg->ptrs[reg->cursor] = ptr;
     reg->freeFunctions[reg->cursor] = freeFunc;
@@ -188,7 +200,12 @@ void freePtr(PtrRegister * reg, void * ptr)
         }
     }
     if (!found)
+    {
+        freeOnExit(reg); // Note: Whilst the point of this outer IF accounts for direct calls to freePtr() with unregistered ptrs,
+                         // it is also called internally from freeOnExit(). A bug in the register code is liable to create an infinite
+                         // recursion segfault due this call present here.
         assert(0); //internal error: the ptr trying to be freed was not added to the register
+    }
 
     //call function to free ptr
     reg->freeFunctions[i](ptr);
