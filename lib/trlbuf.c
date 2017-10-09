@@ -342,7 +342,9 @@ static int AppendTrlFile(void)
         /* Store this line in a buffer to be written out when
             the old file is overwritten...
         */
-        void * ptr = realloc (oprefix, (strlen(oprefix) + strlen(buf) +2 )*sizeof(*oprefix));
+        size_t newSize = (strlen(oprefix) + strlen(buf) +2 )*sizeof(*oprefix);
+        assert(newSize);
+        void * ptr = realloc (oprefix, newSize);
         if (!ptr)
         {
             status = OUT_OF_MEMORY;
@@ -475,7 +477,9 @@ static void AddTrlBuf (const char *message)
     if ( ! trlbuf.init )
         assert(0); //TRLBUF NOT INIT, YOU MAY HAVE PROBLEMS
 
-    void * ptr = realloc (trlbuf.buffer, (strlen(trlbuf.buffer) + strlen(message) +2)*sizeof(*trlbuf.buffer));
+    size_t newSize = (strlen(trlbuf.buffer) + strlen(message) +2)*sizeof(*trlbuf.buffer);
+    assert(newSize);
+    void * ptr = realloc (trlbuf.buffer, newSize);
     if (!ptr)
     {
         status = OUT_OF_MEMORY;
@@ -495,7 +499,9 @@ void InitTrlPreface (void)
     */
     extern int status;
 
-    void * ptr = realloc (trlbuf.preface, (strlen(trlbuf.buffer) +2)*sizeof(*trlbuf.preface));
+    size_t newSize = (strlen(trlbuf.buffer) +2)*sizeof(*trlbuf.preface);
+    assert(newSize);
+    void * ptr = realloc (trlbuf.preface, newSize);
     if (!ptr)
     {
         status = OUT_OF_MEMORY;
@@ -510,7 +516,9 @@ void InitTrlPreface (void)
 void ResetTrlPreface (void)
 {
     extern int status;
-    void * ptr = realloc(trlbuf.preface, initLength*sizeof(*trlbuf.preface));
+    size_t newSize = initLength*sizeof(*trlbuf.preface);
+    assert(newSize);
+    void * ptr = realloc(trlbuf.preface, newSize);
     if (!ptr)
     {
         status = OUT_OF_MEMORY;
@@ -525,7 +533,9 @@ void ResetTrlPreface (void)
 static void ResetTrlBuf (void)
 {
     extern int status;
-    void * ptr = realloc(trlbuf.buffer, initLength*sizeof(*trlbuf.buffer));
+    size_t newSize = initLength*sizeof(*trlbuf.buffer);
+    assert(newSize);
+    void * ptr = realloc(trlbuf.buffer, newSize);
     if (!ptr)
     {
         status = OUT_OF_MEMORY;
