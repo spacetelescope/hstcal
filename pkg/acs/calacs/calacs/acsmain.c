@@ -243,7 +243,7 @@ int main(int argc, char **argv) {
 		    trlerror (MsgText);
             /* Added 19 Mar 1999 - provides interpretation of error for user */
             WhichError (status);
-		    CloseTrlBuf ();
+		    CloseTrlBuf(&trlbuf);
 	        exit (ERROR_RETURN);
         }
 	}
@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
 	sprintf (MsgText, "CALACS completion for %s", input);
 	trlmessage (MsgText);
 
-	CloseTrlBuf ();
+	CloseTrlBuf(&trlbuf);
 
 	/* Exit the program */
 	exit(0);

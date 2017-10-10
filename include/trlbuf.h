@@ -27,7 +27,7 @@ void SetTrlOverwriteMode (int owrite);
 void SetTrlQuietMode (int quiet);
 void InitTrlPreface (void);
 void ResetTrlPreface (void);
-void CloseTrlBuf (void);
+void CloseTrlBuf (struct TrlBuf * ptr);
 void trlmessage (const char *message);
 void trlwarn (const char *message);
 void trlerror (const char *message);

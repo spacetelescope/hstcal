@@ -137,7 +137,7 @@ int main (int argc, char **argv) {
 			trlerror (MsgText);
 			/* Provide interpretation of error for user */
 			WhichError (status);
-			CloseTrlBuf ();
+			CloseTrlBuf(&trlbuf);
 			exit (ERROR_RETURN);
 		}
 	}
@@ -146,7 +146,7 @@ int main (int argc, char **argv) {
 	sprintf (MsgText, "CALWF3 completion for %s", input);
 	trlmessage (MsgText);
 
-	CloseTrlBuf ();
+	CloseTrlBuf(&trlbuf);
 
 	/* Exit the program */
 	exit (0);
