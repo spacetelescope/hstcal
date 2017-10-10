@@ -205,7 +205,7 @@ int main (int argc, char **argv) {
 		
 	if (status) {
 	    FreeNames (inlist, outlist, input, output);
-        CloseTrlBuf ();
+        CloseTrlBuf(&trlbuf);
 	    exit (ERROR_RETURN);
 	}
 
@@ -239,7 +239,7 @@ int main (int argc, char **argv) {
 	c_imtclose (o_imt);
 	FreeRefFile (&refnames);
 	FreeNames (inlist, outlist, input, output);
-	CloseTrlBuf ();
+	CloseTrlBuf(&trlbuf);
 	
 	if (status)
 	    exit (ERROR_RETURN);

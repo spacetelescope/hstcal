@@ -59,11 +59,11 @@ int main (int argc, char **argv) {
     if (status) {
         WhichError (status);
         FreeNames(input);
-        CloseTrlBuf ();
+        CloseTrlBuf(&trlbuf);
         exit (ERROR_RETURN);
     } else {
         FreeNames(input);
-        CloseTrlBuf ();
+        CloseTrlBuf(&trlbuf);
         exit (0);
     }
 }

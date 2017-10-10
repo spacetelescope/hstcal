@@ -132,7 +132,7 @@ int main (int argc, char **argv) {
 		free (input);
 		free (output);
 		WhichError (status);
-        CloseTrlBuf ();
+        CloseTrlBuf(&trlbuf);
 		exit (ERROR_RETURN);
 	    }
 	}
@@ -147,7 +147,7 @@ int main (int argc, char **argv) {
 	free (output);
 	free (mtype);
 
-	CloseTrlBuf ();
+	CloseTrlBuf(&trlbuf);
 
 	if (status)
 	    exit (ERROR_RETURN);

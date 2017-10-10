@@ -60,10 +60,10 @@ int main (int argc, char **argv) {
 
     if (status) {
         WhichError (status);
-        CloseTrlBuf ();
+        CloseTrlBuf(&trlbuf);
         exit (ERROR_RETURN);
     } else{
-        CloseTrlBuf ();
+        CloseTrlBuf(&trlbuf);
         exit (status);
     }
 }

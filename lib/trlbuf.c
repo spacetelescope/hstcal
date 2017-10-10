@@ -586,28 +586,31 @@ static void WriteTrlBuf (const char *message)
         AddTrlBuf (message);
     }
 }
-void CloseTrlBuf (void)
+void CloseTrlBuf (struct TrlBuf * buf)
 {
     /* Free memory allocated for this list, after writing out any final
         messages to the last used trailer file...
         It will then close any open trailer files as well.
     */
 
+    if (!buf)
+        return;
+
     extern int status;
     FILE *ofp;
 
     /* Do we have any messages which need to be written out? */
-    if (trlbuf.buffer[0] != '\0') {
+    if (buf->buffer[0] != '\0') {
         /* We do, so open last known trailer file and
             append these messages to that file...
         */
 
-        if ( (ofp = fopen(trlbuf.trlfile,"a+")) == NULL) {
-            trlopenerr(trlbuf.trlfile);
+        if ( (ofp = fopen(buf->trlfile,"a+")) == NULL) {
+            trlopenerr(buf->trlfile);
             status = INVALID_TEMP_FILE;
             goto cleanup;
         }
-        fprintf (ofp,"%s",trlbuf.buffer);
+        fprintf (ofp,"%s",buf->buffer);
 
         /* Now that we have copied the information to the final
             trailer file, we can close it and the temp file...
@@ -617,18 +620,18 @@ void CloseTrlBuf (void)
 
     cleanup: ;
 
-        if (trlbuf.buffer)
+        if (buf->buffer)
         {
-            free (trlbuf.buffer);
-            trlbuf.buffer = NULL;
+            free (buf->buffer);
+            buf->buffer = NULL;
         }
-        if (trlbuf.preface)
+        if (buf->preface)
         {
-            free (trlbuf.preface);
-            trlbuf.preface = NULL;
+            free (buf->preface);
+            buf->preface = NULL;
         }
 
-        status = fcloseWithStatus(&trlbuf.fp);
+        status = fcloseWithStatus(&buf->fp);
 
 }
 void trlmessage (const char *message) {
