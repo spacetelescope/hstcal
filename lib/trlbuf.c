@@ -91,6 +91,7 @@
 #include <string.h>
 #include <assert.h>
 
+#include "hstcal_memory.h"
 #include "ximio.h"
 #include "trlbuf.h"
 #include "hstcalerr.h"
