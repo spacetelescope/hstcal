@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "hstcal_memory.h"
 #include "hstcal.h"
 #include "wf3.h" //need to remove this dependency
 #include "ctegen2.h"

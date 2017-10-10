@@ -9,6 +9,7 @@
 #include <omp.h>
 # endif
 
+#include "hstcal_memory.h"
 #include "ctegen2.h"
 #include "hstcalerr.h"
 #include "hstcal.h"

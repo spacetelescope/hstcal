@@ -3,6 +3,7 @@
 def build(bld):
     t = bld.stlib(
         source = [
+            'hstcal_memory.c',
             'trlbuf.c',
             'hstcalversion.c'
             ],
