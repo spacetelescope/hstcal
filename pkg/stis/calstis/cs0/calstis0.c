@@ -700,7 +700,7 @@ char *outfile   i: name of output file
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
 	    printf ("ERROR    Can't open %s.\n", infile);
-	    fclose (ofp);
+	    (void)fcloseWithStatus(&ofp);
 	    remove (outfile);
 	    free (buf);
 	    return (OPEN_FAILED);
@@ -712,8 +712,8 @@ char *outfile   i: name of output file
 	    if (ferror (ifp)) {
 		printf ("ERROR    Can't read from %s (copying to %s).\n",
 				infile, outfile);
-		fclose (ofp);
-		fclose (ifp);
+		(void)fcloseWithStatus(&ofp);
+		(void)fcloseWithStatus(&ifp);
 		free (buf);
 		return (GENERIC_ERROR_CODE);
 	    }
@@ -723,15 +723,15 @@ char *outfile   i: name of output file
 	    nout = fwrite (buf, sizeof(char), nin, ofp);
 	    if (nout < nin) {
 		printf ("ERROR    Can't copy %s to %s.\n", infile, outfile);
-		fclose (ofp);
-		fclose (ifp);
+		(void)fcloseWithStatus(&ofp);
+		(void)fcloseWithStatus(&ifp);
 		free (buf);
 		return (GENERIC_ERROR_CODE);
 	    }
 	}
 
-	fclose (ofp);
-	fclose (ifp);
+	(void)fcloseWithStatus(&ofp);
+	(void)fcloseWithStatus(&ifp);
 	free (buf);
 
 	return (0);

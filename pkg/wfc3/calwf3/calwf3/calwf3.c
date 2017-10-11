@@ -608,7 +608,7 @@ int CopyFFile (char *infile, char *outfile) {
 	if ((ifp = fopen (infile, "rb")) == NULL) {
 		sprintf (MsgText,"Can't open %s", infile);
 		trlerror (MsgText);
-		fclose (ofp);
+		(void)fcloseWithStatus(&ofp);
 		remove (outfile);
 		free (buf);
 		return (status = OPEN_FAILED);
@@ -621,8 +621,8 @@ int CopyFFile (char *infile, char *outfile) {
 			sprintf (MsgText, "Can't read from %s (copying to %s).",
 					infile, outfile);
 			trlerror (MsgText);
-			fclose (ofp);
-			fclose (ifp);
+			(void)fcloseWithStatus(&ofp);
+			(void)fcloseWithStatus(&ifp);
 			free (buf);
 			return (status = FILE_NOT_READABLE);
 		}
@@ -633,15 +633,15 @@ int CopyFFile (char *infile, char *outfile) {
 		if (nout < nin) {
 			sprintf (MsgText, "Can't copy %s to %s.", infile, outfile);
 			trlerror (MsgText);
-			fclose (ofp);
-			fclose (ifp);
+			(void)fcloseWithStatus(&ofp);
+			(void)fcloseWithStatus(&ifp);
 			free (buf);
 			return (status = COPY_NOT_POSSIBLE);
 		}
 	}
 
-	fclose (ofp);
-	fclose (ifp);
+	(void)fcloseWithStatus(&ofp);
+	(void)fcloseWithStatus(&ifp);
 	free (buf);
 
 	/* Update the FILENAME keyword in the primary header of the

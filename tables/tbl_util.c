@@ -3,6 +3,7 @@
 # include <stdio.h>
 # include <string.h>
 # include <fitsio.h>
+#include "hstio.h"
 #include "hstcal.h"
 # include "ctables.h"
 
@@ -103,7 +104,7 @@ function value          o: 1 if the file exists, 0 otherwise
             file_exists = 0;
         } else {
             file_exists = 1;
-            fclose (fd);
+            (void)fcloseWithStatus(&fd);
         }
 
         return file_exists;

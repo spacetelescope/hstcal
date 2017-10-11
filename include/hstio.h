@@ -6,6 +6,7 @@ extern "C" {
 # endif
 
 # include <stdlib.h>
+# include <stdio.h>
 
 # define HSTIO_VERSION "HSTIO Version 2.6 (11-Mar-2010)"
 
@@ -468,6 +469,10 @@ void clear_hstioerr(void);
 */
 int  openSingleGroupLine  (char *filename, int extver, SingleGroupLine *);
 void closeSingleGroupLine (SingleGroupLine *);
+
+int fcloseNull(FILE * stream); // returns 0 if stream=NULL, returns fclose otherwise
+int fcloseWithStatus(FILE ** stream); // calls fcloseNull & returns IO_ERROR upon error,
+                                      // 0 otherwise. Sets *stream=NULL always.
 
 int ckNewFile(char *fname);
 int openFitsFile(char *filename, unsigned int option);

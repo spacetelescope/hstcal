@@ -166,8 +166,8 @@ double slit_angle      i: angle of long slit used with echelle; this is
 	printf ("\n");
 	PrEnd (4);
 
-	if (sts.dbg != NULL)
-	    fclose (sts.dbg);
+	if ((status = fcloseWithStatus(&sts.dbg)))
+	    return status;
 
 	if (sts.printtime)
 	    TimeStamp ("CALSTIS-4 completed", sts.rootname);

@@ -183,8 +183,14 @@ int *driftcorr    o: true means correction for drift along lines was applied
 		fprintf (ofp, "%6d  %0.6g\n", j+1, biaslevel + averagedrift);
 	}
 
-	if (ofp != NULL)
-	    fclose (ofp);			/* done with output file */
+
+	if ((status = fcloseWithStatus(&ofp))) /* done with output file */
+	{
+	    freeSingleGroup (*x);
+	    if (*x)
+	        free (*x);
+	    return status;
+	}
 
 	/* This is the mean value of all the bias levels subtracted. */
 	*meanblev = sumbias / out->sci.data.ny;
@@ -223,7 +229,7 @@ static FILE *BlevOpen (char *fname, int extver, int *status) {
 
 	    } else {
 
-		fclose (fp);
+	        (void)fcloseWithStatus(&fp);
 		printf ("ERROR    File %s already exists.\n", fname);
 		*status = OPEN_FAILED;
 		fp = NULL;

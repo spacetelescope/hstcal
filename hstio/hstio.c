@@ -115,6 +115,26 @@
 # include "hstio.h"
 # include "hstcalerr.h"
 
+int fcloseNull(FILE * stream)
+{
+    if (!stream)
+        return 0;
+    return fclose(stream);
+}
+int fcloseWithStatus(FILE ** stream)
+{
+    int ret = HSTCAL_OK;
+    if (fcloseNull(*stream))
+        ret = IO_ERROR;
+
+    // Whether or not the operation succeeds, the stream is no longer
+    // associated with a file, and the buffer allocated by std::setbuf or
+    // std::setvbuf, if any, is also disassociated and deallocated if
+    // automatic allocation was used.
+    *stream = NULL;
+    return ret;
+}
+
 /*
 ** String defined to allow determination of the HSTIO library version
 ** from the library file (*.a) or the executable using the library.
@@ -1380,7 +1400,7 @@ int ckNewFile(char *fname) {
         if (x == NULL)
             return 0; /* file does not exist */
         /* file exists */
-        fclose(x);
+        fcloseWithStatus(&x);
         value = getenv("imclobber");
         if (value == NULL)
             return 1; /* file exists and was not removed */
