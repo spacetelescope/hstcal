@@ -67,21 +67,37 @@ def options(opt):
 
     opt.recurse('cfitsio')
 
+
 def _setup_openmp(conf):
-    conf.start_msg('Checking for OpenMP')
+    """
+    Detects openmp flags and sets the OPENMP ``CFLAGS``/``LINKFLAGS``
+    """
+    msg = 'Checking for OpenMP:'
 
     if conf.options.disable_openmp:
-        conf.end_msg('OpenMP disabled.', 'YELLOW')
+        conf.msg(msg, 'disabled', color='YELLOW')
         return
 
-    try:
-        conf.check_cc(
-            header_name="omp.h", lib="gomp", cflags="-fopenmp",
-            uselib_store="OPENMP")
-    except Errors.ConfigurationError:
-        conf.end_msg("OpenMP not found.", 'YELLOW')
-    else:
-        conf.end_msg("OpenMP found.", 'GREEN')
+    for x in ('-fopenmp','-openmp','-mp','-xopenmp','-omp','-qsmp=omp'):
+        try:
+            conf.check_cc(
+                msg = ' '.join([msg, x]),
+                fragment = '''#include <omp.h>\nint main() { return omp_get_num_threads(); }''',
+                errmsg = 'no',
+                cflags = x,
+                linkflags = x,
+                uselib_store = 'OPENMP'
+            )
+
+            # intel
+            if x == '-openmp' and conf.env.CC_NAME == 'icc':
+                conf.env.append_value('LDFLAGS', '-lpthread')
+
+        except conf.errors.ConfigurationError:
+            continue
+        else:
+            break
+
 
 def _ok_color(var, val):
     if var == val:
