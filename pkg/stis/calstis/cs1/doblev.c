@@ -184,24 +184,19 @@ int *driftcorr    o: true means correction for drift along lines was applied
 	}
 
 
-	if ((status = fcloseWithStatus(&ofp))) /* done with output file */
-	{
-	    freeSingleGroup (*x);
-	    if (*x)
-	        free (*x);
-	    return status;
-	}
+	status = fcloseWithStatus(&ofp); // Don't return here and give caller opportunity to recover.
 
 	/* This is the mean value of all the bias levels subtracted. */
 	*meanblev = sumbias / out->sci.data.ny;
 
-	/* Free x, and copy out to x. */
+	// Free 'x', and move 'out' to 'x'.
 	freeSingleGroup (*x);
-	free (*x);
+	if (*x)
+	    free (*x);
 	*x = out;
 	*done = 1;			/* overscan was actually removed */
 
-	return (0);
+	return (status);
 }
 
 /* This routine opens an output text file if the name is non-null. */
@@ -232,7 +227,6 @@ static FILE *BlevOpen (char *fname, int extver, int *status) {
 	        (void)fcloseWithStatus(&fp);
 		printf ("ERROR    File %s already exists.\n", fname);
 		*status = OPEN_FAILED;
-		fp = NULL;
 	    }
 
 	} else {
