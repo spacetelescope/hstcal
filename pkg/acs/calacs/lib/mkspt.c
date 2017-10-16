@@ -113,7 +113,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
             status = ACS_OK;        /* don't abort */
 	        continue;				/* try the rest of the images in list */
 	    } else
-	        fclose (fp);
+	        (void)fcloseWithStatus(&fp);
 
         /* Create Primary header of new output SPT file from first input
             image...

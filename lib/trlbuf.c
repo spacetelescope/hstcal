@@ -203,7 +203,12 @@ char *output        i: full filename of output (final) trailer file
                 /* If so, append the input to output */
                 CatTrlFile(ip, tp);
                 /* Done with this input file... */
-                fclose(ip);
+                int tmpStat = HSTCAL_OK;
+                if ((tmpStat = fcloseWithStatus(&ip)))
+                {
+                    freeOnExit(&ptrReg); // ip isn't registered
+                    return (status=tmpStat);
+                }
             }
 
         }    /* End loop over all input files */
@@ -238,8 +243,7 @@ char *output        i: full filename of output (final) trailer file
                 free (trlbuf.preface);
                 trlbuf.preface = NULL;
             }
-            fclose (trlbuf.fp);
-            trlbuf.fp = NULL;
+            status = fcloseWithStatus(&trlbuf.fp);
             freeOnExit(&ptrReg);
             return(status);
         }
@@ -361,8 +365,7 @@ static int AppendTrlFile(void)
         strcat (oprefix, buf);
     }
     /* Now we know what needs to be kept, let's close the file... */
-    fclose (trlbuf.fp);
-    trlbuf.fp = NULL;
+    (void)fcloseWithStatus(&trlbuf.fp);
 
     /* ...reopen it with 'w+' instead of 'a+'... */
     if ( (trlbuf.fp = fopen(trlbuf.trlfile,"w+")) == NULL) {
@@ -393,8 +396,7 @@ int WriteTrlFile (void)
     /* Now that we have copied the information to the final
         trailer file, we can close it and the temp file...
     */
-    fclose (trlbuf.fp);
-    trlbuf.fp = NULL;
+    status = fcloseWithStatus(&trlbuf.fp);
 
     return (status);
 }
@@ -610,8 +612,7 @@ void CloseTrlBuf (void)
         /* Now that we have copied the information to the final
             trailer file, we can close it and the temp file...
         */
-        fclose (ofp);
-        ofp = NULL;
+        status = fcloseWithStatus(&ofp);
     }
 
     cleanup: ;
@@ -627,8 +628,7 @@ void CloseTrlBuf (void)
             trlbuf.preface = NULL;
         }
 
-        fclose (trlbuf.fp);
-        trlbuf.fp = NULL;
+        status = fcloseWithStatus(&trlbuf.fp);
 
 }
 void trlmessage (const char *message) {

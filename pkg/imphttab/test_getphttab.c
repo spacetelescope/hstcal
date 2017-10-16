@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "hstio.h"
 #include "hstcal.h"
 #include "c_iraf.h"
 #include "imphttab.h"
@@ -84,7 +85,8 @@ int main(int argc, char **argv){
         "MJD extrapolation into the future.",
         1.2544879212041671e-18, 8344.116261683303, 56.820520968140734, fp);
 
-    fclose(fp);
+    if ((status = fcloseWithStatus(&fp)))
+        return status;
     printf("Wrote test results to %s\n", outfile);
 
     return 0;
