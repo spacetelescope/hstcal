@@ -9,6 +9,7 @@
 # include "acs.h"
 # include "calacs.h"
 # include "hstcalerr.h"
+#include "hstcal_memory.h"
 # include "acscorr.h"
 # include "acsasn.h"    /* Contains association table structures */
 
@@ -54,8 +55,25 @@
  Separated PCTECORR from ACSCCD. Fixed indentation nightmare.
 */
 
+void updateAsnTable (AsnInfo *, int, int);
+int OmitStep (int flag);
+int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames,
+        int printtime, int verbose);
 
 static int ACSRej_0 (char *, char *, char *, int, int, int);
+static int ACSRej_0Wrapper(char * inputList,
+        char * crTempName,
+        char * crFileName,
+        char * asnTempProductName,
+        ACSInfo *acshdr,
+        AsnInfo *asn,
+        int prod,
+        int posid,
+        CalSwitch * acs2d_sci_sw,
+        RefFileInfo * sciref,
+        int printtime,
+        int save,
+        Bool updateASNTableFlag);
 
 static int CopyFFile (char *, char *);
 static void SetACSSw (CalSwitch *, CalSwitch *, CalSwitch *, CalSwitch *);
@@ -94,7 +112,6 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
     int ProcessMAMA (AsnInfo *, ACSInfo *, int);
     int AcsDth (char *, char *, int, int, int);
     char *BuildDthInput (AsnInfo *, int);
-    void updateAsnTable (AsnInfo *, int, int);
     void InitDthTrl (char *, char *);
 
     /* Post error handler */
@@ -341,6 +358,65 @@ char *BuildDthInput (AsnInfo *asn, int prod) {
     return(acsdth_input);
 }
 
+static int ACSRej_0Wrapper(char * inputList,
+        char * crTempName,
+        char * crFileName,
+        char * asnTempProductName,
+        ACSInfo *acshdr,
+        AsnInfo *asn,
+        int prod,
+        int posid,
+        CalSwitch * acs2d_sci_sw,
+        RefFileInfo * sciref,
+        int printtime,
+        int save,
+        Bool updateASNTableFlag)
+{
+    if (ACSRej_0 (inputList, crTempName, acshdr->mtype,
+                                  acshdr->newbias, printtime, asn->verbose))
+    {
+        if (status == NO_GOOD_DATA)
+        {
+            /* Turn off further processing... */
+            acshdr->sci_basic_2d = SKIPPED;
+            /* Reset STATUS to good now that we have dealt with
+               this condition. */
+            status = ACS_OK;
+        } else {
+            return (status);
+        }
+    }
+
+    if (updateASNTableFlag)
+        updateAsnTable(asn, prod, posid);
+
+    if (acshdr->sci_basic_2d == PERFORM)
+    {
+        /* Flat field the summed, cosmic ray rejected image. */
+        if (ACS2d (crTempName, crFileName,
+                   acs2d_sci_sw, sciref, printtime, asn->verbose))
+            return (status);
+    }
+    else
+    {
+        /* Remember CR-combined image as final output name, since
+           ACS2D was not run. */
+        if (CopyFFile (crTempName, crFileName))
+            return (status);
+        /*strcpy (acshdr->crj_tmp, acshdr->crjfile);
+        save_crj = YES;*/
+    }
+
+    /* Remember what crj_tmp files to delete */
+    strcpy (asnTempProductName,/*asn->product[prod].subprod[posid].crj_tmp,*/
+            crTempName);
+
+    /* Done with CRCORR processing so delete _crj_tmp file. */
+    if (save != YES)
+        remove (asnTempProductName);//asn->product[prod].subprod[posid].crj_tmp);
+
+    return HSTCAL_OK;
+}
 
 int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd) {
 
@@ -376,7 +452,6 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
     int GetSingle (AsnInfo *, ACSInfo *);
     int CheckCorr (AsnInfo *, ACSInfo *);
     int InsertACSSuffix (ACSInfo *);
-    void updateAsnTable (AsnInfo *, int, int);
 
     save_crj = *save_tmp;  /* initial value; */
 
@@ -631,99 +706,62 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
                     strcpy (acshdr->mtype, asn->product[prod].mtype);
                 }
 
-                /* Reject cosmic rays. */
-                if (ACSRej_0 (acsrej_input, acshdr->crj_tmp, acshdr->mtype,
-                              acshdr->newbias, printtime, asn->verbose)) {
-                    if (status == NO_GOOD_DATA){
-                        /* Turn off further processing... */
-                        acshdr->sci_basic_2d = SKIPPED;
-                        /* Reset STATUS to good now that we have dealt with
-                           this condition. */
-                        status = ACS_OK;
-                    } else {
-                        return (status);
-                    }
+                // Reject cosmic rays.
+                int pctecorrSwitchState = acscte_sci_sw.pctecorr;
+                if (!OmitStep(pctecorrSwitchState))
+                {
+                    // Temporarily set this to OMIT so that ACS2d, called within
+                    // the ACSRej_oWrapper call stack, uses the non-CTE darks.
+                    // This is not thread safe.
+                    acs2d_sci_sw.pctecorr = OMIT;
                 }
-
-                updateAsnTable (asn, prod, posid);
-
-                /* Free up memory used by acsrej_input for this subproduct */
-                free(acsrej_input);
-
-                if (acshdr->sci_basic_2d == PERFORM) {
-                    /* Flat field the summed, cosmic ray rejected image. */
-                    if (ACS2d (acshdr->crj_tmp, acshdr->crjfile,
-                               &acs2d_sci_sw, &sciref, printtime, asn->verbose))
-                        return (status);
-
-                } else {
-
-                    /* Remember CR-combined image as final output name, since
-                       ACS2D was not run. */
-                    if (CopyFFile (acshdr->crj_tmp, acshdr->crjfile))
-                        return (status);
-                    /*strcpy (acshdr->crj_tmp, acshdr->crjfile);
-                    save_crj = YES;*/
+                if ((status = ACSRej_0Wrapper(acsrej_input,
+                        acshdr->crj_tmp,
+                        acshdr->crjfile,
+                        asn->product[prod].subprod[posid].crj_tmp,
+                        acshdr,
+                        asn,
+                        prod,
+                        posid,
+                        &acs2d_sci_sw,
+                        &sciref,
+                        printtime,
+                        save_crj,
+                        True)))
+                {
+                    //freeStuff
+                    delete((void**)&acsrej_input);
+                    return status;
                 }
+                if (!OmitStep(pctecorrSwitchState))
+                    acs2d_sci_sw.pctecorr = pctecorrSwitchState;
+                delete((void**)&acsrej_input);
 
-                /* Remember what crj_tmp files to delete */
-                strcpy (asn->product[prod].subprod[posid].crj_tmp,
-                        acshdr->crj_tmp);
 
-                /* Done with CRCORR processing so delete _crj_tmp file. */
-                if (save_crj != YES)
-                    remove (asn->product[prod].subprod[posid].crj_tmp);
 
                 /* now repeat the same thing with CTE corrected products */
-                if (acscte_sci_sw.pctecorr == PERFORM) {
-                    /* Reject cosmic rays. */
-                    if (ACSRej_0 (acsrejc_input, acshdr->crc_tmp, acshdr->mtype,
-                                  acshdr->newbias, printtime, asn->verbose)){
-                        if (status == NO_GOOD_DATA){
-                            /* Turn off further processing... */
-                            acshdr->sci_basic_2d = SKIPPED;
-                            /* Reset STATUS to good now that we have dealt with
-                               this condition. */
-                            status = ACS_OK;
-                        } else {
-                            return (status);
-                        }
+                if (!OmitStep(acscte_sci_sw.pctecorr))
+                {
+                    if ((status = ACSRej_0Wrapper(acsrejc_input,
+                            acshdr->crc_tmp,
+                            acshdr->crcfile,
+                            asn->product[prod].subprod[posid].crc_tmp,
+                            acshdr,
+                            asn,
+                            prod,
+                            posid,
+                            &acs2d_sci_sw,
+                            &sciref,
+                            printtime,
+                            save_crj,
+                            False)))
+                    {
+                        //freeStuff
+                        delete((void**)&acsrejc_input);
+                        return status;
                     }
-
-                    /* commenting this out. will CRC products be a separate
-                       entry in association tables? MRD 10 Mar 2011
-                    updateAsnTable (asn, prod, posid); */
-
-                    /* Free up memory used by acsrejc_input for this
-                       subproduct */
-                    free(acsrejc_input);
-
-                    if (acshdr->sci_basic_2d == PERFORM) {
-                        /* Flat field the summed, cosmic ray rejected image. */
-                        if (ACS2d (acshdr->crc_tmp, acshdr->crcfile,
-                                   &acs2d_sci_sw, &sciref, printtime,
-                                   asn->verbose))
-                            return (status);
-
-                    } else {
-
-                        /* Remember CR-combined image as final output name, since
-                           ACS2D was not run. */
-                        if (CopyFFile (acshdr->crc_tmp, acshdr->crcfile))
-                            return (status);
-                        /*strcpy (acshdr->crc_tmp, acshdr->crcfile);
-                        save_crj = YES;*/
-                    }
-
-                    /* Remember what crc_tmp files to delete */
-                    strcpy (asn->product[prod].subprod[posid].crc_tmp,
-                            acshdr->crc_tmp);
-
-                    /* Done with CRCORR processing so delete _crc_tmp file. */
-                    if (save_crj != YES)
-                        remove (asn->product[prod].subprod[posid].crc_tmp);
                 }
-
+                delete((void**)&acsrejc_input);
             }  /* End of CRCORR processing */
 
             if (asn->debug){
