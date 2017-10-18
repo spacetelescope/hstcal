@@ -50,4 +50,8 @@ void freeOnExit(PtrRegister * reg); //only calls freeAll() followed by freeOnlyR
 void freeAll(PtrRegister * reg); //frees all ptrs registered (excluding itself)
 void freeReg(PtrRegister * reg); //frees ONLY the registers themselves and NOT the pointers in PtrRegister::ptrs
 
+//Other memory related helper functions
+void * newAndZero(void ** ptr, const size_t count, const size_t size);
+void delete(void ** ptr);
+
 #endif

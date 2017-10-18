@@ -78,22 +78,6 @@ void initCTEParamsFast(CTEParamsFast * pars, const unsigned _nTraps,
     *pars->descrip2='\0';
 }
 
-void delete(void ** ptr)
-{
-    if (*ptr)
-    {
-        free(*ptr);
-        *ptr = NULL;
-    }
-}
-
-void * newAndZero(void ** ptr, size_t count, size_t size)
-{
-    delete(ptr);
-    *ptr = calloc(count, size);
-    return *ptr;
-}
-
 int allocateCTEParamsFast(CTEParamsFast * pars)
 {
     PtrRegister ptrReg;

@@ -97,8 +97,6 @@ int cteSmoothImage(const SingleGroup * input, SingleGroup * output, CTEParamsFas
 double find_dadjFast(const unsigned i ,const unsigned j, const unsigned nRows, const float * obsloc[3], const float * rszloc[3], const double readNoiseAmp);
 
 //helpers
-void * newAndZero(void ** ptr, const size_t count, const size_t size);
-void delete(void ** ptr);
 void initCTEParamsFast(CTEParamsFast * pars, const unsigned _nTraps, const unsigned _nRows, const unsigned _nColumns, const unsigned _nScaleTableColumns, const unsigned maxThreads);
 int allocateCTEParamsFast(CTEParamsFast * pars);
 void freeCTEParamsFast(CTEParamsFast * pars);
