@@ -152,3 +152,23 @@ void freeOnExit(PtrRegister * reg)
     //free registers
     freeReg(reg);
 }
+
+void delete(void ** ptr)
+{
+    if (!ptr)
+        return;
+    if (*ptr)
+    {
+        free(*ptr);
+        *ptr = NULL;
+    }
+}
+
+void * newAndZero(void ** ptr, size_t count, size_t size)
+{
+    if (!ptr)
+        return NULL;
+    delete(ptr);
+    *ptr = calloc(count, size);
+    return *ptr;
+}
