@@ -2,7 +2,7 @@
 #include <assert.h>
 
 #include "hstio.h"
-#include <hstcal_memory.h>
+#include "hstcal_memory.h"
 
 void * newPtrRegister()
 {
