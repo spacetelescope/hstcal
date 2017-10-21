@@ -118,7 +118,7 @@ def call(cmd):
     return None
 
 def _get_git_details(ctx):
-    tmp = call('git describe --dirty')
+    tmp = call('git describe --dirty --abbrev=7')
     if tmp:
         ctx.env.gitTag = tmp
 
