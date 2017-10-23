@@ -123,6 +123,10 @@ extern "C" {
 
 # define SZ_PATHNAME 511
 
+#define intFormat "%12d"
+#define floatFormat "%#14.7E"
+#define doubleFormat "%#20.12E"
+
 # if !defined(BOOL_)
 # define BOOL_
 enum Bool_ { False = 0, True = 1 };
@@ -563,11 +567,25 @@ int getKeyI (Hdr *, char *keyword, int *value);
 int getKeyF (Hdr *, char *keyword, float *value);
 int getKeyD (Hdr *, char *keyword, double *value);
 int getKeyS (Hdr *, char *keyword, char *value);
+/*\group(put)*/
 int putKeyB (Hdr *, char *keyword, Bool value, char *comment);
 int putKeyI (Hdr *, char *keyword, int value, char *comment);
 int putKeyF (Hdr *, char *keyword, float value, char *comment);
 int putKeyD (Hdr *, char *keyword, double value, char *comment);
 int putKeyS (Hdr *, char *keyword, char *value, char *comment);
+/*\group(update)*/
+// The following updateKeyX() will only set values for existing keywords
+int updateKeyB (Hdr *, char *keyword, Bool value, char *comment);
+int updateKeyI (Hdr *, char *keyword, int value, char *comment);
+int updateKeyF (Hdr *, char *keyword, float value, char *comment);
+int updateKeyD (Hdr *, char *keyword, double value, char *comment);
+int updateKeyS (Hdr *, char *keyword, char *value, char *comment);
+// Updates existing keyword OR add as history keyword
+int updateKeyOrAddAsHistKeyBool (Hdr *hd, char *keyword, Bool value, char *comment);
+int updateKeyOrAddAsHistKeyInt (Hdr *hd, char *keyword, int value, char *comment);
+int updateKeyOrAddAsHistKeyFloat (Hdr *hd, char *keyword, float value, char *comment);
+int updateKeyOrAddAsHistKeyDouble (Hdr *hd, char *keyword, double value, char *comment);
+int updateKeyOrAddAsHistKeyStr (Hdr *hd, char *keyword, char *value, char *comment);
 /* End high-level keyword access routines */
 
 char *getKwName(FitsKw);

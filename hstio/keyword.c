@@ -4,9 +4,13 @@
 # include <string.h>
 # include <math.h>
 # include <ctype.h>
+#include <assert.h>
 
 # include <float.h>
 # include <limits.h>
+
+#include "hstcalerr.h"
+#include "hstcal.h"
 
 /*
  * M.D. De La Pena 28 January 1998 - Addressed problems with improperly
@@ -642,6 +646,116 @@ int getKeyS (Hdr *hdr, char *keyword, char *value) {
         return (0);
 }
 
+int updateKeyB (Hdr *hdr, char *keyword, Bool value, char *comment) {
+/* Arguments:
+**      hdr     i: pointer to header to be updated
+**      keyword i: name of keyword
+**      value   i: value of keyword
+**      comment i: comment to add with keyword if keyword doesn't exist
+*/
+
+        FitsKw kw;      /* keyword pointer */
+
+        kw = findKw (hdr, keyword);
+        if (kw == NotFound)
+            return KEYWORD_MISSING;
+        else
+            putBoolKw (kw, value);
+
+        if (hstio_err())
+            return (1);
+
+        return (0);
+}
+int updateKeyD (Hdr *hdr, char *keyword, double value, char *comment) {
+
+/* Arguments:
+**      hdr     i: pointer to header to be updated
+**      keyword i: name of keyword
+**      value   i: value of keyword
+**      comment i: comment to add with keyword if keyword doesn't exist
+*/
+
+        FitsKw kw;      /* keyword pointer */
+
+        kw = findKw (hdr, keyword);
+        if (kw == NotFound)
+            return KEYWORD_MISSING;
+        else
+            putDoubleKw (kw, value);
+
+        if (hstio_err())
+            return (1);
+
+        return (0);
+}
+int updateKeyF (Hdr *hdr, char *keyword, float value, char *comment) {
+
+/* Arguments:
+**      hdr     i: pointer to header to be updated
+**      keyword i: name of keyword
+**      value   i: value of keyword
+**      comment i: comment to add with keyword if keyword doesn't exist
+*/
+
+        FitsKw kw;      /* keyword pointer */
+
+        kw = findKw (hdr, keyword);
+        if (kw == NotFound)
+            return KEYWORD_MISSING;
+        else
+            putFloatKw (kw, value);
+
+        if (hstio_err())
+            return (1);
+
+        return (0);
+}
+int updateKeyI (Hdr *hdr, char *keyword, int value, char *comment) {
+
+/* Arguments:
+**      hdr     i: pointer to header to be updated
+**      keyword i: name of keyword
+**      value   i: value of keyword
+**      comment i: comment to add with keyword if keyword doesn't exist
+*/
+
+        FitsKw kw;              /* keyword pointer */
+
+        kw = findKw (hdr, keyword);
+        if (kw == NotFound)
+            return KEYWORD_MISSING;
+        else
+            putIntKw (kw, value);
+
+        if (hstio_err())
+            return (1);
+
+        return (0);
+}
+int updateKeyS (Hdr *hdr, char *keyword, char *value, char *comment) {
+
+/* Arguments:
+**      hdr     i: pointer to header to be updated
+**      keyword i: name of keyword
+**      value   i: value of keyword
+**      comment i: comment to add with keyword if keyword doesn't exist
+*/
+
+        FitsKw kw;              /* keyword pointer */
+
+        kw = findKw (hdr, keyword);
+        if (kw == NotFound)
+            return KEYWORD_MISSING;
+        else
+            putStringKw (kw, value);
+
+        if (hstio_err())
+            return (1);
+
+        return (0);
+}
+
 int putKeyB (Hdr *hdr, char *keyword, Bool value, char *comment) {
 
 /* Arguments:
@@ -925,7 +1039,7 @@ int   putIntKw(FitsKw kw_, int lval) {
             if (getvalue(kw) == -1) return -1;
         }
         memcpy(&(kw->text[10]),BLANK_CARD,20);
-        sprintf(&(kw->text[18]),"%12d",lval);
+        sprintf(&(kw->text[18]),intFormat,lval);
         kw->text[30] = ' ';
         kw->value_end = &(kw->text[29]);
         return 0;
@@ -937,7 +1051,7 @@ int   putFloatKw(FitsKw kw_, float fval) {
             if (getvalue(kw) == -1) return -1;
         }
         memcpy(&(kw->text[10]),BLANK_CARD,20);
-        sprintf(&kw->text[16],"%#14.7E",fval);
+        sprintf(&kw->text[16],floatFormat,fval);
         kw->text[30] = ' ';
         kw->value_end = &(kw->text[29]);
         return 0;
@@ -950,7 +1064,7 @@ int   putDoubleKw(FitsKw kw_, double dval) {
             if (getvalue(kw) == -1) return -1;
         }
         memcpy(&(kw->text[10]),BLANK_CARD,20);
-        sprintf(&kw->text[10],"%#20.12E",dval); /* optimum %23.15E */
+        sprintf(&kw->text[10],doubleFormat,dval); /* optimum %23.15E */
         for (i = 29; i < 10; --i) /* change the E to a D */
             if (kw->text[i] == 'E') { kw->text[i] = 'D'; break; }
         kw->text[30] = ' ';
@@ -1276,3 +1390,106 @@ checkRange (TargetDataType target, NumericResult result) {
 
     return (0);
 }
+
+
+int updateKeyOrAddAsHistKeyBool (Hdr *hd, char *keyword, Bool value, char *comment) {
+/* arguments:
+Hdr *hd           i: pointer to header to be updated
+char *keyword     i: name of keyword
+char *value       i: value to be updated or added
+char *comment     i: comment to add, if keyword doesn't exist
+*/
+    //Update header keyword if keyword exists.
+    int tempStatus = updateKeyB (hd, keyword, value, comment);
+    if (tempStatus == KEYWORD_MISSING)
+    {
+        // add as history if keyword missing
+        char strBuffer[MSG_BUFF_LENGTH];
+        *strBuffer = '\0';
+        if (value == True)
+            sprintf(strBuffer, "%s T %s", keyword, comment);
+        else if(value == False)
+            sprintf(strBuffer, "%s F %s", keyword, comment);
+        else
+            assert(0); // Unimplemented
+        tempStatus = addHistoryKw(hd, strBuffer);
+    }
+    return tempStatus;
+}
+int updateKeyOrAddAsHistKeyInt (Hdr *hd, char *keyword, int value, char *comment) {
+/* arguments:
+Hdr *hd           i: pointer to header to be updated
+char *keyword     i: name of keyword
+char *value       i: value to be updated or added
+char *comment     i: comment to add, if keyword doesn't exist
+*/
+    //Update header keyword if keyword exists.
+    int tempStatus = updateKeyI (hd, keyword, value, comment);
+    if (tempStatus == KEYWORD_MISSING)
+    {
+        // add as history if keyword missing
+        char strBuffer[MSG_BUFF_LENGTH];
+        *strBuffer = '\0';
+        sprintf(strBuffer, "%s " intFormat " %s", keyword, value, comment);
+        tempStatus = addHistoryKw(hd, strBuffer);
+    }
+    return tempStatus;
+}
+int updateKeyOrAddAsHistKeyFloat (Hdr *hd, char *keyword, float value, char *comment) {
+/* arguments:
+Hdr *hd           i: pointer to header to be updated
+char *keyword     i: name of keyword
+char *value       i: value to be updated or added
+char *comment     i: comment to add, if keyword doesn't exist
+*/
+    //Update header keyword if keyword exists.
+    int tempStatus = updateKeyF (hd, keyword, value, comment);
+    if (tempStatus == KEYWORD_MISSING)
+    {
+        // add as history if keyword missing
+        char strBuffer[MSG_BUFF_LENGTH];
+        *strBuffer = '\0';
+        sprintf(strBuffer, "%s " floatFormat " %s", keyword, value, comment);
+        tempStatus = addHistoryKw(hd, strBuffer);
+    }
+    return tempStatus;
+}
+int updateKeyOrAddAsHistKeyDouble (Hdr *hd, char *keyword, double value, char *comment) {
+/* arguments:
+Hdr *hd           i: pointer to header to be updated
+char *keyword     i: name of keyword
+char *value       i: value to be updated or added
+char *comment     i: comment to add, if keyword doesn't exist
+*/
+    //Update header keyword if keyword exists.
+    int tempStatus = updateKeyD (hd, keyword, value, comment);
+    if (tempStatus == KEYWORD_MISSING)
+    {
+        // add as history if keyword missing
+        char strBuffer[MSG_BUFF_LENGTH];
+        *strBuffer = '\0';
+        sprintf(strBuffer, "%s " doubleFormat " %s", keyword, value, comment);
+        tempStatus = addHistoryKw(hd, strBuffer);
+    }
+    return tempStatus;
+}
+int updateKeyOrAddAsHistKeyStr (Hdr *hd, char *keyword, char *value, char *comment) {
+/* arguments:
+Hdr *hd           i: pointer to header to be updated
+char *keyword     i: name of keyword
+char *value       i: value to be updated or added
+char *comment     i: comment to add, if keyword doesn't exist
+*/
+    //Update header keyword if keyword exists.
+    int tempStatus = updateKeyS (hd, keyword, value, comment);
+    if (tempStatus == KEYWORD_MISSING)
+    {
+        // add as history if keyword missing
+        char strBuffer[MSG_BUFF_LENGTH];
+        *strBuffer = '\0';
+        sprintf(strBuffer, "%s %s %s", keyword, value, comment);
+        tempStatus = addHistoryKw(hd, strBuffer);
+    }
+    return tempStatus;
+}
+
