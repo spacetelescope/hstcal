@@ -8,9 +8,9 @@ import pytest
 from astropy.io import fits
 from astropy.table import Table
 
-from ..helpers import (HAS_CALXXX, use_calacs, use_calwf3, use_calstis,
-                       ref_from_image, raw_from_asn, remote_data,
-                       download_file_cgi, download_crds)
+from ..helpers import (slow, HAS_CALXXX, use_calacs, use_calwf3, use_calstis,
+                       ref_from_image, raw_from_asn, download_file_cgi,
+                       download_crds)
 
 
 @use_calacs
@@ -74,7 +74,7 @@ def test_raw_from_asn(tmpdir):
     download_crds('jref', datafile)
 
 
-@remote_data
+@pytest.mark.remote_data
 class TestRemoteData(object):
     """Test remote data acess."""
     prevdir = os.getcwd()  # Need to be here for teardown access
@@ -91,8 +91,8 @@ class TestRemoteData(object):
 
     def test_marker(self, pytestconfig):
         """Check if test not marked for remote data somehow runs this."""
-        if pytestconfig.getoption('remote_data') is not True:
-            pytest.fail('@remote_data was not skipped')
+        if pytestconfig.getoption('remote_data') in ('none', 'astropy'):
+            pytest.fail('@pytest.mark.remote_data was not skipped')
 
     def test_acs_input_data(self):
         """
@@ -123,3 +123,10 @@ class TestRemoteData(object):
         filename = 't3n1116nj_bpx.fits'
         download_crds('jref', filename)
         assert os.path.isfile(filename)
+
+
+@slow
+def test_slow_marker(pytestconfig):
+    """Check if test not marked for slow somehow runs this."""
+    if pytestconfig.getoption('slow') is not True:
+        pytest.fail('@slow was not skipped')

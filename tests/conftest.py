@@ -3,16 +3,15 @@ import pytest
 
 
 def pytest_addoption(parser):
-    parser.addoption("--remote-data", action="store_true",
-                     help="Use remote data.")
+    parser.addoption("--slow", action="store_true",
+                     default=False, help="Run slow tests.")
 
 
 def pytest_configure(config):
     config.getini('markers').append(
-        'remote_data: Run tests that require data from remote servers')
+        'slow: Run tests that are resource intensive')
 
 
 def pytest_runtest_setup(item):
-    if ('remote_data' in item.keywords and
-            not item.config.getvalue("remote_data")):
-        pytest.skip("need --remote-data option to run")
+    if 'slow' in item.keywords and not item.config.getvalue("slow"):
+        pytest.skip("need --slow option to run")

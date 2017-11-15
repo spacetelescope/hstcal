@@ -2,13 +2,14 @@ from __future__ import absolute_import, division, print_function
 
 import subprocess
 
-from ..helpers import BaseACS
+from ..helpers import BaseACS, slow
 
 
 class TestSingleFrame(BaseACS):
     """Process a single SBC dataset."""
     subdir = 'acs_sbc_single'
 
+    @slow
     def test_pre_sm4(self):
         """This was ``sbc_single1``."""
         raw_file = 'j9ic01vpq_raw.fits'

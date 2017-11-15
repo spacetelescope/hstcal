@@ -37,9 +37,10 @@ for(int i = 0; i < args.size(); i++)
         }
         try {
             stage("Test (${name})") {
-                sh 'conda install -q -y pytest astropy'
+                sh 'conda install -q -y pytest requests astropy'
+                sh 'pip install -q pytest-remotedata'
                 withEnv(runtime) {
-                    sh 'pytest --basetemp=tests_output --junitxml results.xml --remote-data tests'
+                    sh 'pytest tests --basetemp=tests_output --junitxml results.xml --remote-data'
                 }
             }
         }

@@ -4,6 +4,6 @@ Python but call the C executables.
 
 Example::
 
-    pytest tests --remote-data [-s] [--basetemp=/my/tmp]
+    pytest tests --remote-data [--slow] [-s] [--basetemp=/my/tmp]
 
 """

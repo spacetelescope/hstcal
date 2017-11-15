@@ -13,9 +13,9 @@ from astropy.io.fits import FITSDiff
 from astropy.table import Table
 from astropy.utils.data import conf
 
-__all__ = ['remote_data', 'use_calacs', 'use_calwf3', 'use_calstis',
-           'download_crds', 'download_file_cgi', 'ref_from_image',
-           'raw_from_asn', 'BaseACS', 'BaseSTIS', 'BaseWFC3IR', 'BaseWFC3UVIS']
+__all__ = ['slow', 'use_calacs', 'use_calwf3', 'use_calstis', 'download_crds',
+           'download_file_cgi', 'ref_from_image', 'raw_from_asn', 'BaseACS',
+           'BaseSTIS', 'BaseWFC3IR', 'BaseWFC3UVIS']
 
 HAS_CALXXX = {}   # Set by set_exe_marker()
 
@@ -43,8 +43,9 @@ def set_exe_marker(instrument):
         HAS_CALXXX[instrument] = False
 
 
-# pytest marker to mark tests which get data from the web
-remote_data = pytest.mark.remote_data
+# pytest marker to mark resource-intensive tests that should not be
+# executed with every commit.
+slow = pytest.mark.slow
 
 # pytest markers to mark tests that use CALXXX
 
@@ -238,7 +239,7 @@ def raw_from_asn(asn_file, suffix='_raw.fits'):
 # Base classes for actual tests.
 # NOTE: Named in a way so pytest will not pick them up here.
 
-@remote_data
+@pytest.mark.remote_data
 class BaseCal(object):
     prevdir = os.getcwd()
     use_ftp_crds = False
@@ -386,4 +387,3 @@ class BaseSTIS(BaseCal):
     ignore_keywords = ['filename', 'date', 'cal_ver', 'history']
     input_loc = 'hstcal/stis'
     ref_loc = 'hstcal/stis/ref'
-    rtol = 1e-6  # Relaxed rtol for now to avoid comparison failure
