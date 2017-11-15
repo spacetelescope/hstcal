@@ -2,6 +2,8 @@ from __future__ import absolute_import, division, print_function
 
 import subprocess
 
+import pytest
+
 from ..helpers import BaseSTIS, download_file_cgi
 
 
@@ -14,6 +16,7 @@ class TestLev1FUVSpec(BaseSTIS):
     """
     subdir = 'stis_fuvspec_lev1'
 
+    @pytest.mark.xfail(reason='Need to figure out OK-fy on Jenkins first')
     def test_lev1(self):
         rootname = 'o5cl02040'
         raw_file = rootname + '_raw.fits'
