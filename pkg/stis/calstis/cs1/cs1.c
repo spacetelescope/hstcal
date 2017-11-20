@@ -280,11 +280,8 @@ int main (int argc, char **argv) {
 	b_imt = c_imtopen (blevlist);
     addPtr(&ptrReg, b_imt, &c_imtclose);
 	n_in = c_imtlen (i_imt);
-    addPtr(&ptrReg, n_in, &c_imtclose);
 	n_out = c_imtlen (o_imt);
-    addPtr(&ptrReg, n_out, &c_imtclose);
 	n_blev = c_imtlen (b_imt);
-    addPtr(&ptrReg, n_blev, &c_imtclose);
 
 	/* The number of input and output files must be the same. */
 	status = 0;
