@@ -151,11 +151,8 @@ int main (int argc, char **argv) {
 	o_imt = c_imtopen (outlist);
     addPtr(&ptrReg, o_imt, &c_imtclose);
 	n_wav = c_imtlen (w_imt);
-    addPtr(&ptrReg, n_wav, &c_imtclose);
 	n_sci = c_imtlen (s_imt);
-    addPtr(&ptrReg, n_sci, &c_imtclose);
 	n_out = c_imtlen (o_imt);
-    addPtr(&ptrReg, n_out, &c_imtclose);
 
 	/* The number of wavecal and science files must be the same.
 	   The output may have been omitted, but if any output was
