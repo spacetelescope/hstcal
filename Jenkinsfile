@@ -51,12 +51,12 @@ for(int i = 0; i < nodes.size(); i++)
                     }
                 }
                 finally {
-                    step([$class: 'XUnitBuilder',
-                        thresholds: [
-                        [$class: 'SkippedThreshold', failureThreshold: '0'],
-                        [$class: 'FailedThreshold', unstableThreshold: '1'],
-                        [$class: 'FailedThreshold', failureThreshold: '6']],
-                        tools: [[$class: 'JUnitType', pattern: '*.xml']]])
+                        step([$class: 'XUnitBuilder',
+                            thresholds: [
+                            [$class: 'SkippedThreshold', unstableThreshold: '', failureThreshold: ''],
+                            [$class: 'FailedThreshold', unstableThreshold: '1', failureThreshold: '6']],
+                            tools: [[$class: 'JUnitType', pattern: '*.xml']]
+                            ])
                 }
             }
         }
