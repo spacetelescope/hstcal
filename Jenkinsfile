@@ -50,7 +50,7 @@ for(int i = 0; i < nodes.size(); i++)
                         }
                     }
                 }
-                catch (e) {
+                finally {
                     step([$class: 'XUnitBuilder',
                         thresholds: [
                         [$class: 'SkippedThreshold', failureThreshold: '0'],
