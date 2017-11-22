@@ -51,12 +51,14 @@ for(int i = 0; i < nodes.size(); i++)
                     }
                 }
                 finally {
+                    if (name == 'release') {
                         step([$class: 'XUnitBuilder',
                             thresholds: [
                             [$class: 'SkippedThreshold', unstableThreshold: '', failureThreshold: ''],
                             [$class: 'FailedThreshold', unstableThreshold: '1', failureThreshold: '6']],
                             tools: [[$class: 'JUnitType', pattern: '*.xml']]
                             ])
+                    }
                 }
             }
         }
