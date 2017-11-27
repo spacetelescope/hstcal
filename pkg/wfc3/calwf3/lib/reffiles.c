@@ -133,7 +133,7 @@ RefFileInfo *ref   io: the list of reference info
     if (!ref)
         return;
 
-	RefFileInfo *current, *next;
+    RefFileInfo *current, *next;
 
 	current = ref->next;		/* don't free the first record */
 	while (current) {
