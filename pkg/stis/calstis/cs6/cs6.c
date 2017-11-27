@@ -180,12 +180,16 @@ int main (int argc, char **argv) {
 
 	    if (MkOutName (finput, isuffix, osuffix, nsuffix,
                 foutput, STIS_FNAME))
+	    {
 	        freeOnExit(&ptrReg);
 	        exit (ERROR_RETURN);
+	    }
 	    if (MkOutName (finput, isuffix, owsuffix, nsuffix,
                 foutw, STIS_FNAME))
+	    {
 	        freeOnExit(&ptrReg);
 	        exit (ERROR_RETURN);
+	    }
 
 	    /* Extract 1-D STIS data. */
 
@@ -203,8 +207,10 @@ int main (int argc, char **argv) {
 	        WhichError (status);
 	    }
 	    if (status)
+	    {
 	        freeOnExit(&ptrReg);
 	        exit (ERROR_RETURN);
+	    }
 	}
 	freeOnExit(&ptrReg);
 	exit (0);

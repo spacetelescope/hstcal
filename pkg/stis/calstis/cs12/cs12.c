@@ -147,9 +147,11 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 	if (which_wavecal[0] != '\0') {
-	    if ((status = WavOption (which_wavecal, &w_option)))
-	        freeOnExit(&ptrReg);
-		exit (status);
+        if ((status = WavOption (which_wavecal, &w_option)))
+        {
+            freeOnExit(&ptrReg);
+            exit (status);
+        }
 	} else {
 	    w_option = STIS_LINEAR;
 	}
