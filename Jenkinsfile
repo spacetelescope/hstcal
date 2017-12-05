@@ -1,70 +1,40 @@
-def nodes = ['linux']
-def release_modes = ['debug', 'optimized', 'release']
-def release_args = ['--debug', '--O3', '--release-with-symbols']
+// Obtain files from source control system.
+if (utils.scm_checkout()) return
 
-def CFLAGS = "CFLAGS=\"-m64\""
-def LDFLAGS = "LDFLAGS=\"-m64\""
-def DEFAULT_FLAGS = "${CFLAGS} ${LDFLAGS}"
-def tasks = [:]
+// Config data to share between builds.
+CFLAGS = 'CFLAGS="-m64"'
+LDFLAGS = 'LDFLAGS="-m64"'
+DEFAULT_FLAGS = "${CFLAGS} ${LDFLAGS}"
+// Some waf flags cause a prompt for input during configuration, hence the 'yes'.
+configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
 
-for(int i = 0; i < nodes.size(); i++)
-{
-    def node_is = nodes[i]
 
-    for(int j = 0; j < release_modes.size(); j++)
-    {
-        def name = release_modes[j]
-        def option = release_args[j]
+// Define each build configuration, copying and overriding values as necessary.
+bc0 = new BuildConfig()
+bc0.nodetype = "linux-stable"
+bc0.build_mode = "debug"
+bc0.env_vars = ['PATH=./_install/bin:$PATH']
+bc0.build_cmds = ["${configure_cmd} --debug",
+                  "./waf build",
+                  "./waf install",
+                  "calacs.e --version"]
 
-        // By default, builds here only test for successful compilation.
-        def test_cmd = 'calacs.e --version'
 
-        // One of them should run "remote_data" tests when in release mode.
-        // "slow" tests should only run in nightly build and not addressed here.
-        if (name == 'release') {
-            test_cmd = 'pytest tests --basetemp=tests_output --junitxml results.xml --remote-data'
-        }
+bc1 = utils.copy(bc0)
+bc1.build_mode = "release"
+bc1.build_cmds[0] = "${configure_cmd} --release-with-symbols"
+bc1.test_cmds = ["conda install -q -y pytest requests astropy",
+                 "pip install -q pytest-remotedata",
+                 "pytest tests --basetemp=tests_output --junitxml results.xml --remote-data"]
+bc1.failedUnstableThresh = 1
+bc1.failedFailureThresh = 6
 
-        tasks["${node_is}/${name}"] = {
-            node {
-                stage("Checkout") {
-                    checkout scm
-                }
 
-                def prefix = pwd() + '/_install'
-                def runtime = ["PATH=${prefix}/bin:${env.PATH}"]
+bc2 = utils.copy(bc0)
+bc2.build_mode = "optimized"
+bc2.build_cmds[0] = "${configure_cmd} --O3"
 
-                stage("Generate (${name})") {
-                    sh "yes '' | ./waf configure --prefix=${prefix} ${option} ${DEFAULT_FLAGS}"
-                    sh './waf build'
-                    sh './waf install'
-                }
-                try {
-                    stage("Test (${name})") {
-                        if (name == 'release') {
-                            sh 'conda install -q -y pytest requests astropy'
-                            sh 'pip install -q pytest-remotedata'
-                        }
-                        withEnv(runtime) {
-                            sh "${test_cmd}"
-                        }
-                    }
-                }
-                finally {
-                    if (name == 'release') {
-                        step([$class: 'XUnitBuilder',
-                            thresholds: [
-                            [$class: 'SkippedThreshold', unstableThreshold: '', failureThreshold: ''],
-                            [$class: 'FailedThreshold', unstableThreshold: '1', failureThreshold: '6']],
-                            tools: [[$class: 'JUnitType', pattern: '*.xml']]
-                            ])
-                    }
-                }
-            }
-        }
-    }
-}
 
-stage("Matrix") {
-    parallel tasks
-}
+// Iterate over configurations that define the (distibuted) build matrix.
+// Spawn a host of the given nodetype for each combination and run in parallel.
+utils.concurrent([bc0, bc1, bc2])
