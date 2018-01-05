@@ -83,7 +83,7 @@ void ACSDefaults (ACSInfo *acs) {
     acs->scibin[1] = 0;
     acs->scigain = 0;
     acs->samebin = 0;
-    acs->newbias = 0;
+    acs->readnoise_only = 0;
 
     /* Initialize flags to not perform the step. */
     acs->sci_basic_ccd = OMIT;

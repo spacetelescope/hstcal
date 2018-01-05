@@ -39,7 +39,7 @@ typedef struct {
     int scibin[2];  /* binning factors */
     int scigain;    /* ccdgain values */
     int samebin;
-    int newbias;
+    int readnoise_only;
 
     /* calibration switches */
     int sci_basic_ccd;  /* do acsccd? (dqicorr or blevcorr) */

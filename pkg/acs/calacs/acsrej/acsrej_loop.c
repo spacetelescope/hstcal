@@ -143,7 +143,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     short   maskdq;
 
     float   efacn, skyvaln, exp2n;
-    int     newbias;
+    int     readnoise_only;
 
     ShortTwoDArray dq2;         /* local array for storing output blv DQ vals */
 
@@ -196,7 +196,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
     nocr = ~crflag;
     nospill = ~SPILL;
     numpix = dim_x * dim_y;
-    newbias = par->newbias;
+    readnoise_only = par->readnoise_only;
 
     /* Set up mask for detecting CR-affected pixels */
     maskdq = OK | EXCLUDE;
@@ -674,7 +674,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                                 sumvar[i] += nse[0] + val/gn[0] + SQ(scale*val);
                                 */
 
-                                if (newbias == 0) {
+                                if (readnoise_only == 0) {
                                     sumvar[i] += nse[0] + val/gn[0];
                                 } else {
                                     sumvar[i] += nse[0];
@@ -689,7 +689,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
                                 /* clip the data at zero */
                                 val = (dum > 0.) ? dum : 0.;
 
-                                if (newbias == 0) {
+                                if (readnoise_only == 0) {
                                     sumvar[i] += nse[1] + val/gn[1];
                                 } else {
                                     sumvar[i] += nse[1];

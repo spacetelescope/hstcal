@@ -47,12 +47,27 @@ int newpar[];       o: array of parameters set by the user
         List all options for user
     */
     if (argc < 3) {
-        syntax_error ("acsrej input output [-t] [-v]");
-        printf("                    [-shadcorr] [-crmask] [-newbias] \n ");
+        syntax_error ("acsrej.e input output [-t] [-v]");
+        printf("                    [-shadcorr] [-crmask] [-readnoise_only] \n");
         printf("                    [-table <filename>] [-scale #]\n");
         printf("                    [-init (med|min)] [-sky (none|mode)]\n");
         printf("                    [-sigmas #] [-radius #] [-thresh #]\n");
-        printf("                    [-pdq #]\n");
+        printf("                    [-pdq #]\n\n");
+		printf("input             comma-delimited string (e.g., filename or filename1,filename2,filename3)\n");
+		printf("output            string\n");
+		printf("-t                print timestamps\n");
+		printf("-v                turn on verbose mode\n");
+		printf("-shadcorr         turn on shutter shading correction (intended for CCD images only)\n");
+		printf("-crmask           flag CR-rejected pixels in the input files\n");
+		printf("-readnoise_only   use read noise and not Poission noise to create ERR array (intended for BIAS images)\n");
+		printf("-table filename   cosmic ray rejection table to use for default parameter values\n");
+		printf("-scale #          multiplicative factor (in percent) applied to noise\n");
+		printf("-init med|min     scheme for computing initial guess image (median or minimum)\n");
+		printf("-sky none|mode    scheme for computing sky levels to be subtracted (none:0.0 or mode:most frequently occurring value)\n");
+		printf("-sigmas #[,#...]  cosmic ray rejection thresholds, no. of thresholds are the no. of iterations\n");
+		printf("-radius #         radius (in pixels) to propagate the cosmic ray\n");
+		printf("-thresh #         cosmic ray rejection propagation threshold\n");
+		printf("-pdq #            data quality flag used for cosmic ray rejection\n\n");
         return(status);
     }
 
@@ -89,8 +104,22 @@ int newpar[];       o: array of parameters set by the user
                 par->shadcorr = 1;
                 ctoken++;
 
+            // This option/variable was previously named "newbias", and it has been renamed
+            // to "readnoise_only" which is more informative.  The variable controls
+            // the type of noise used in the computation of the error (ERR) array.  In particular,
+            // this variable is intended to control the noise used when processing BIAS data.  When
+            // using CALACS, readnoise_only will only be set to "1" (true) for BIAS data.  When using
+            // ACSREJ as a standalone utility, the readnoise_only can be set to "1" for any data.
             } else if (strcmp("newbias", argv[ctoken]+1) == 0) {
-                par->newbias = 1;
+                printf ("\n***************************************************************************************\n");
+				printf ("     As of HSTCAL Version 2.0.0 (CALACS Version 10.0.0 HSTDP 2018_1) the 'newbias'\n ");
+                printf ("    option for ACSREJ has been renamed 'readnoise_only' to clarify functionality.\n ");
+                printf ("    Please update all programs which invoke ACSREJ with this option.\n");
+                printf ("***************************************************************************************\n\n");
+                return (status = INVALID_VALUE);
+
+            } else if (strcmp("readnoise_only", argv[ctoken]+1) == 0) {
+                par->readnoise_only = 1;
                 ctoken++;
 
             } else if (strcmp("crmask", argv[ctoken]+1) == 0) {
@@ -245,7 +274,7 @@ int newpar[];     o: array of parameters set by the user
     par->verbose = 0;
     par->printtime = 0;
     par->shadcorr = 0;
-    par->newbias = 0;
+    par->readnoise_only = 0;
 
     newpar[TOTAL] = 0;
     newpar[SCALENSE] = 0;

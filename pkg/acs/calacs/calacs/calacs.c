@@ -378,7 +378,7 @@ static int ACSRej_0Wrapper(char * inputList,
         Bool updateASNTableFlag)
 {
     if (ACSRej_0 (inputList, crTempName, acshdr->mtype,
-                                  acshdr->newbias, printtime, asn->verbose))
+                                  acshdr->readnoise_only, printtime, asn->verbose))
     {
         if (status == NO_GOOD_DATA)
         {
@@ -1267,7 +1267,7 @@ static int CopyFFile (char *infile, char *outfile) {
    default parameters, copies printtime and verbose into the par structure,
    and calls ACSRej.
 */
-static int ACSRej_0 (char *input, char *output, char *mtype, int newbias, int printtime, int verbose) {
+static int ACSRej_0 (char *input, char *output, char *mtype, int readnoise_only, int printtime, int verbose) {
 
     extern int status;
     clpar par;              /* parameters used */
@@ -1279,7 +1279,7 @@ static int ACSRej_0 (char *input, char *output, char *mtype, int newbias, int pr
     rej_reset (&par, newpar);
     par.printtime = printtime;
     par.verbose = verbose;
-    par.newbias = newbias;
+    par.readnoise_only = readnoise_only;
 
     status = AcsRej (input, output, mtype, &par, newpar);
 

@@ -52,7 +52,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
     float       exp2n, expn;
     int         non_zero;
     Hdr         dqhdr;
-    int         newbias;
+    int         readnoise_only;
 
     void        ipiksrt (float [], int, int[]);
     void        get_nsegn (int, int, int, int, float *, float*, float *, float *);
@@ -65,7 +65,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
     detector = gain.detector;
     chip = gain.chip;
     dqpat = par->badinpdq;
-    newbias = par->newbias;
+    readnoise_only = par->readnoise_only;
 
     ipts = calloc (nimgs, sizeof(int));
     npts = calloc (dim_x, sizeof(int));
@@ -160,7 +160,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                 }
                 raw0 = Pix(sg->sci.data,i,j);
                 exp2n = (expn > 0.) ? expn : 1.;
-                if (newbias == 0) {
+                if (readnoise_only == 0) {
                     Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2n;
                 } else {
                     Pix(sg->err.data,i,j) = (nse[0]) / exp2n;
@@ -186,7 +186,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
 
                 raw0 = Pix(sg->sci.data,i,j);
                 exp2n = (expn > 0.) ? expn : 1.;
-                if (newbias == 0){
+                if (readnoise_only == 0){
                     Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*raw0)) / exp2n;
                 } else {
                     Pix(sg->err.data,i,j) = (nse[1]) / exp2n;
@@ -239,7 +239,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                         if ((bufdq[i] & dqpat) == OK && (efac[n] > 0.)) {
                             Pix(sg->sci.data,i,j) = val;
                             /*Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) / exp2[n];*/
-                            if (newbias == 0){
+                            if (readnoise_only == 0){
                                 Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*signal0)) / exp2[n];
                             } else {
                                 Pix(sg->err.data,i,j) = (nse[0]) / exp2[n];
@@ -266,7 +266,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs, int
                     if ( (n == 0) || (val < Pix(sg->sci.data,i,j) && ((bufdq[i] & dqpat) == OK)) ) {
                         Pix(sg->sci.data,i,j) = val;
                         if (efac[n] > 0.) {
-                            if (newbias == 0){
+                            if (readnoise_only == 0){
                                 Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*signal0)) / exp2[n];
                             } else {
                                 Pix(sg->err.data,i,j) = (nse[1]) / exp2[n];

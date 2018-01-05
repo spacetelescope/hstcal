@@ -37,7 +37,7 @@ typedef struct {
     int     shadcorr;
     int     printtime;
     int     verbose;
-    int     newbias;
+    int     readnoise_only;
 } clpar;
 
 #endif /* INCL_ACSREJ_H */
