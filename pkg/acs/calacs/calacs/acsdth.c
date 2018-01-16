@@ -35,11 +35,11 @@ static int putEmptyDQ(char *, int, DQHdrData *, int);
  Warren J. Hack, 1998 Oct 14:
  Initial version.
  Warren J. Hack, 1999 Nov 11:
- Adds creation of _spt.fits file for output product.
+ Adds creation of SPT file for output product.
  Warren J. Hack, 2000 Jun 23:
  Modified trailer file creation to include ALL input files.
- Also modified _spt.fits file creation to include all extensions
- from input _spt.fits files.
+ Also modified SPT file creation to include all extensions
+ from input SPT files.
  Warren J. Hack, 2002 Feb 6:
  Moved trailer file initialization outside this so that a
  trailer file can be created/appended for all ASN tables regardless
@@ -47,9 +47,6 @@ static int putEmptyDQ(char *, int, DQHdrData *, int);
  This initialization is now handled by CalAcsRun in 'calacs.c'.
  Warren J. Hack, 2002 April 18:
  Eliminated creation of dummy '_dth.fits' product.
- Michele D. De La Pena, 2017 September 26:
- Updated the message regarding the creation of a drizzle-combined data product
- and some cleanup.
 
  int AcsDth (char *input, char *output, int dthcorr, int printtime, int verbose) {
  */
@@ -83,6 +80,12 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 
   /* ----------------------- Start Code --------------------------------*/
 
+	/* Determine the names of the trailer files based on the input
+   and output file names, then initialize the trailer file buffer
+   with those names.
+   */
+
+  /*	InitDthTrl (in_list, output); */
 	root[0] = '\0';
 	sprintf(mtype,"PROD-DTH");
 
@@ -97,18 +100,23 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 	if (printtime)
     TimeStamp ("ACSDTH started", "");
 
-  sprintf(MsgText,"The DrizzlePac software package should be used to generate a drizzle-combined");
+  sprintf(MsgText,"The task PyDrizzle needs to be run in order to generate");
   trlmessage(MsgText);
-  sprintf(MsgText,"data product.  Please see drizzlepac.stsci.edu for details.\n");
+  sprintf(MsgText,"a geometrically corrected, drizzle-combined product.");
+  trlmessage(MsgText);
+  sprintf(MsgText,"PyDrizzle requires PyRAF. See pyraf.stsci.edu for more details.");
   trlmessage(MsgText);
 
-  /* create new _spt.fits file for output product */
+  /* create new SPT file for output product */
   if (mkNewSpt (in_list, mtype, output)) {
     return(status);
   }
 
   c_imtclose(tpin);
 	PrEnd ("ACSDTH");
+
+	/* Write out temp trailer file to final file */
+	WriteTrlFile ();
 
 	return (status);
 }
@@ -210,7 +218,7 @@ void InitDthTrl (char *inlist, char *output) {
 			trlmessage (MsgText);
 		}
 
-		/* Now, convert trailer filename extensions from '.fits' to '.tra' */
+		/* Now, convert trailer filename extensions from '.fits' to '.trl' */
 		if (MkNewExtn (out_name, TRL_EXTN) ) {
 			sprintf(MsgText, "Error creating input trailer filename %s", out_name);
 			trlerror (MsgText);

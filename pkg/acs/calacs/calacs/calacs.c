@@ -53,9 +53,6 @@
  Moved FLSHCORR from ACSCCD to ACS2D.
  PLL, 2013 Aug 9:
  Separated PCTECORR from ACSCCD. Fixed indentation nightmare.
- MDD, 2017 Sept 05:
- Clarify WARNING and ERROR messages associated with _spt files in
- the ACSDTH step.
 */
 
 void updateAsnTable (AsnInfo *, int, int);
@@ -206,57 +203,55 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
         trlmessage("Finished MAMA processing...");
     }
 
-    /* CALACS no longer generates a drizzled product. Drizzle-combined data is generated   
-       by post-CALACS processing. Instead, the "ACSDTH" pipeline step can create both combined 
-       _spt.fits and .tra files. In order to have a combined output _spt.fits file generated, some 
-       _spt.fits files must exist for the filenames listed in the association table.
-    */
- 
-    /* Loop over each entry in the association table to create a combined _spt.fits and a 
-       combined .tra file.  The terminology of "dth" is leftover from the original CALACS 
-       implementation.
-    */
+
+    /* Add DTH processing here... */
+    /* For each DTH product... */
     if (asn.process == FULL){
+        if (asn.verbose) {
+            trlmessage ("CALACS: Building DTH products");
+        }
         acsdth_input = NULL;
         for (prod = 0; prod < asn.numprod; prod++) {
-
-            /* Create the list of input files */
+            /* Create empty DTH product, header only */
+            /* This uses only one sub-product for the header template,
+               but later versions should use a function similar to
+               BuildSumInput to create list of subproducts as inputs...
+            */
             acsdth_input = BuildDthInput (&asn, prod);
 
             /* We always want to create a final concatenated trailer file for
-               the entire association.  Set up the trailer file based on the 
-               association file name itself.
+               the entire association whether there is a product or not. So, we
+               set up the trailer file based on the association file name itself.
             */
 
-            trlmessage ("CALACS: Building combined .tra product");
+            /* If desired, we could optionally use the full _drz.tra filename
+               as the trailer filename, based on the output dither product name.
+            if (strcmp(asn.product[prod].prodname,"") != 0) {
+                InitDthTrl (acsdth_input, asn.product[prod].prodname);
+            } else { */
+
             InitDthTrl(acsdth_input, asn.rootname);
 
-            /* Write out temp trailer file to final file */
-            WriteTrlFile ();
+            /* End brace for optional dither product name assignment...
+            } */
 
-            /* Check if we have a PROD-DTH specified in the association table.  Even
-               though CALACS will not produce the drizzled product, the MEMTYPE of the 
-               rootname of the association dataset can be PROD-DTH.
-            */
+            /* Check if we have a PROD-DTH specified...*/
             if (strcmp(asn.product[prod].prodname, "") != 0) {
 
                 if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
-                    trlmessage ("CALACS: Building combined _spt.fits product");
                     if (AcsDth (acsdth_input, asn.product[prod].prodname, asn.dthcorr, printtime, asn.verbose) )
                         return (status);
 
+                    /* Pass posid of 0 to indicate a PRODUCT is to be updated */
                     updateAsnTable(&asn, prod, NOPOSID);
                 }
             } else {
-                trlwarn ("No combined product specified in the association table - no _spt.fits file to be generated.");
+                trlwarn ("No DTH product name specified. No product created.");
+                /*status = ACS_OK; */
             }
         }
-
-        if (acsdth_input != NULL) {
-            free (acsdth_input);
-        }
+        free (acsdth_input);
     }
-
     if (asn.verbose) {
         trlmessage ("CALACS: Finished processing product ");
     }
