@@ -1,3 +1,6 @@
+Updates for Version 3.4.2 19-Jan-2018 - JAN/MDD
+    - A number of code robustness improvements (address memory leaks, fix detected bugs) were implemented.
+
 Updates for Version 3.4.1 10-Apr-2017 - MLS
     - Fixed missed init for header vars in cte code
 
