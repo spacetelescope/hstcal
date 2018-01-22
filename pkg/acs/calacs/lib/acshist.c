@@ -68,6 +68,9 @@ int pcteHistory (ACSInfo *acs, Hdr *phdr) {
 	if (OmitStep (acs->pctecorr))		/* nothing to do */
     return (status);
 
+    if (UpdateSwitch ("PCTECORR", acs->pctecorr, phdr, &logit))
+        return (status);
+
 	/* Write history records for the PCTE table. */
 	if (logit)
 	{
@@ -87,9 +90,6 @@ int pcteHistory (ACSInfo *acs, Hdr *phdr) {
 	            TabHistory (&acs->pcte, phdr))
 	        return (status);
 	}
-
-    if (UpdateSwitch ("PCTECORR", acs->pctecorr, phdr, &logit))
-        return (status);
 
 	return (status);
 }
