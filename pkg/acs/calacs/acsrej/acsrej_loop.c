@@ -190,6 +190,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
 
     extern int status;
 
+	Hdr		errhdr;				/* error header structure */
     Hdr     dqhdr;              /* data quality header structure */
     int     width;
     int     i, j, k, n, jndx;   /* loop indices */
@@ -482,10 +483,13 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                     if (bufftop < dim_y) {
                         initHdr(&dqhdr);
                         getHeader(ipdq[k], &dqhdr);
+                        initHdr(&errhdr);
+                        getHeader(iperr[k], &errhdr);
                         getFloatLine (ipsci[k], bufftop, buf);  /* e */
                         getFloatLine (iperr[k], bufftop, buferr);  /* e */
                         getShortLine (ipdq[k], bufftop, bufdq);
                         freeHdr(&dqhdr);
+                        freeHdr(&errhdr);
                         /* Scale the input values by the sky and exposure time
                            for comparison to the detection threshhold.
                            Unit is e/s. */
@@ -548,12 +552,15 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                            If no shading correction, shadcorr will be all ONEs,
                            to avoid divide by ZERO errors. */
                         jndx = ii - width;  /* line = 0 */
+                        initHdr(&errhdr);
+                        getHeader(iperr[k], &errhdr);
                         getFloatLine (iperr[k], jndx, buferr);  /* e */
                         getShadcorr (shadbuff, jndx, shad_dimy, dim_x,
                                      efac[k], shadf_x, shadcorr);
                         calc_thresholds(jndx, dim_x, ii, efac[k], exp2[k],
                                         sig2, scale, ave, buferr, shadcorr,
                                         thresh[k], spthresh[k]);
+                        freeHdr(&errhdr);
                     } /* End of loop over each row in scrolling buffers */
                 } /* End loop over images */
             } /* End if...else line > 0 */
