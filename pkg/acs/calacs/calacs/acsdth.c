@@ -100,11 +100,9 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 	if (printtime)
     TimeStamp ("ACSDTH started", "");
 
-  sprintf(MsgText,"The task PyDrizzle needs to be run in order to generate");
+  sprintf(MsgText,"\nThe DrizzlePac software package should be used to generate a drizzle-combined");
   trlmessage(MsgText);
-  sprintf(MsgText,"a geometrically corrected, drizzle-combined product.");
-  trlmessage(MsgText);
-  sprintf(MsgText,"PyDrizzle requires PyRAF. See pyraf.stsci.edu for more details.");
+  sprintf(MsgText,"data product.  Please see drizzlepac.stsci.edu for details.\n");
   trlmessage(MsgText);
 
   /* create new SPT file for output product */
