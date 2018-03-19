@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "fitsio2.h"
+#include "group.h"  /* needed for fits_get_cwd in file_create */
 
 #if defined(unix) || defined(__unix__)  || defined(__unix)
 #include <pwd.h>         /* needed in file_openfile */
@@ -19,7 +20,7 @@
 #endif
 
 #ifdef HAVE_FTRUNCATE
-#if defined(unix) || defined(__unix__)  || defined(__unix)
+#if defined(unix) || defined(__unix__)  || defined(__unix) || defined(HAVE_UNISTD_H)
 #include <unistd.h>  /* needed for getcwd prototype on unix machines */
 #endif
 #endif
@@ -317,7 +318,97 @@ int file_create(char *filename, int *handle)
     FILE *diskfile;
     int ii;
     char mode[4];
+ 
+    int status = 0, rootlen, rootlen2, slen;
+    char *cptr, *cpos;
+    char cwd[FLEN_FILENAME], absURL[FLEN_FILENAME];
+    char rootstring[256], rootstring2[256];
+    char username[FLEN_FILENAME], userroot[FLEN_FILENAME], userroot2[FLEN_FILENAME];
 
+    cptr = getenv("HERA_DATA_DIRECTORY");
+    if (cptr) {
+	/* This environment variable is defined in the Hera data analysis environment. */
+	/* It specifies the root directory path to the users data directories.  */
+	/* CFITSIO will verify that the path to the file that is to be created */
+	/* is within this root directory + the user's home directory name. */
+
+/*
+printf("env = %s\n",cptr);
+*/	
+        if (strlen(cptr) > 200)  /* guard against possible string overflows */
+	    return(FILE_NOT_CREATED); 
+
+	/* environment variable has the form "path/one/;/path/two/" where the */
+	/* second path is optional */
+
+	strcpy(rootstring, cptr);
+	cpos = strchr(rootstring, ';');
+	if (cpos) {
+	    *cpos = '\0';
+	    cpos++;
+	    strcpy(rootstring2, cpos);
+	} else {
+	  *rootstring2 = '\0';
+	}
+/*
+printf("%s, %s\n", rootstring, rootstring2);
+printf("CWD = %s\n", cwd); 
+printf("rootstring=%s, cwd=%s.\n", rootstring, cwd);
+*/
+	/* Get the current working directory */
+	fits_get_cwd(cwd, &status);  
+	slen = strlen(cwd);
+	if (cwd[slen-1] != '/') strcat(cwd,"/"); /* make sure the CWD ends with slash */
+
+
+	/* check that CWD string matches the rootstring */
+	rootlen = strlen(rootstring);
+	if (strncmp(rootstring, cwd, rootlen)) {
+	    ffpmsg("invalid CWD: does not match root data directory");
+	    return(FILE_NOT_CREATED); 
+	} else {
+
+	    /* get the user name from CWD (it follows the root string) */
+	    strncpy(username, cwd+rootlen, 50);  /* limit length of user name */
+	    cpos=strchr(username, '/');
+	    if (!cpos) {
+               ffpmsg("invalid CWD: not equal to root data directory + username");
+               return(FILE_NOT_CREATED); 
+	    } else {
+	        *(cpos+1) = '\0';   /* truncate user name string */
+
+		/* construct full user root name */
+		strcpy(userroot, rootstring);
+		strcat(userroot, username);
+		rootlen = strlen(userroot);
+
+		/* construct alternate full user root name */
+		strcpy(userroot2, rootstring2);
+		strcat(userroot2, username);
+		rootlen2 = strlen(userroot2);
+
+		/* convert the input filename to absolute path relative to the CWD */
+		fits_relurl2url(cwd,  filename,  absURL, &status);
+
+/*
+printf("username = %s\n", username);
+printf("userroot = %s\n", userroot);
+printf("userroot2 = %s\n", userroot2);
+printf("filename = %s\n", filename);
+printf("ABS = %s\n", absURL);
+*/
+		/* check that CWD string matches the rootstring or alternate root string */
+
+		if ( strncmp(userroot,  absURL, rootlen)  &&
+		   strncmp(userroot2, absURL, rootlen2) ) {
+		   ffpmsg("invalid filename: path not within user directory");
+		   return(FILE_NOT_CREATED); 
+		}
+	    }
+	}
+	/* if we got here, then the input filename appears to be valid */
+    }
+    
     *handle = -1;
     for (ii = 0; ii < NMAXFILES; ii++)  /* find empty slot in table */
     {
@@ -391,7 +482,26 @@ int file_size(int handle, LONGLONG *filesize)
 
     diskfile = handleTable[handle].fileptr;
 
-#if _FILE_OFFSET_BITS - 0 == 64
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+ 
+/* call the VISUAL C++ version of the routines which support */
+/*  Large Files (> 2GB) if they are supported (since VC 8.0)  */
+
+    position1 = _ftelli64(diskfile);   /* save current postion */
+    if (position1 < 0)
+        return(SEEK_ERROR);
+
+    if (_fseeki64(diskfile, 0, 2) != 0)  /* seek to end of file */
+        return(SEEK_ERROR);
+
+    position2 = _ftelli64(diskfile);     /* get file size */
+    if (position2 < 0)
+        return(SEEK_ERROR);
+
+    if (_fseeki64(diskfile, position1, 0) != 0)  /* seek back to original pos */
+        return(SEEK_ERROR);
+
+#elif _FILE_OFFSET_BITS - 0 == 64
 
 /* call the newer ftello and fseeko routines , which support */
 /*  Large Files (> 2GB) if they are supported.  */
@@ -484,7 +594,15 @@ int file_seek(int handle, LONGLONG offset)
 */
 {
 
-#if _FILE_OFFSET_BITS - 0 == 64
+#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+    
+     /* Microsoft visual studio C++ */
+     /* _fseeki64 supported beginning with version 8.0 */
+ 
+    if (_fseeki64(handleTable[handle].fileptr, (OFF_T) offset, 0) != 0)
+        return(SEEK_ERROR);
+	
+#elif _FILE_OFFSET_BITS - 0 == 64
 
     if (fseeko(handleTable[handle].fileptr, (OFF_T) offset, 0) != 0)
         return(SEEK_ERROR);
@@ -654,6 +772,12 @@ int file_is_compressed(char *filename) /* I - FITS file name          */
       strcat(filename,".gz");
       if (file_openfile(filename, 0, &diskfile))
       {
+#if HAVE_BZIP2
+        strcpy(tmpfilename,filename);
+        strcat(filename,".bz2");
+        if (file_openfile(filename, 0, &diskfile))
+        {
+#endif
         strcpy(filename, tmpfilename);
         strcat(filename,".Z");
         if (file_openfile(filename, 0, &diskfile))
@@ -681,6 +805,9 @@ int file_is_compressed(char *filename) /* I - FITS file name          */
             }
           }
         }
+#if HAVE_BZIP2
+        }
+#endif
       }
     }
 
@@ -697,7 +824,10 @@ int file_is_compressed(char *filename) /* I - FITS file name          */
          (memcmp(buffer, "\120\113", 2) == 0) ||  /* PKZIP */
          (memcmp(buffer, "\037\036", 2) == 0) ||  /* PACK  */
          (memcmp(buffer, "\037\235", 2) == 0) ||  /* LZW   */
-         (memcmp(buffer, "\037\240", 2) == 0) )   /* LZH   */
+#if HAVE_BZIP2
+         (memcmp(buffer, "BZ",       2) == 0) ||  /* BZip2 */
+#endif
+         (memcmp(buffer, "\037\240", 2) == 0))  /* LZH   */
         {
             return(1);  /* this is a compressed file */
         }

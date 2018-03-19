@@ -17,7 +17,8 @@
     ||  defined (__sparcv9) || (defined(__sparc__) && defined(__arch64__)) \
     ||  defined (__x86_64__) \
     ||  defined (_SX) \
-    ||  defined (__powerpc64__) /* this may be the same as IBMR2Fortran, above */
+    ||  defined (__powerpc64__)\
+    ||  defined (__s390x__)
 
 #define   LONG8BYTES_INT4BYTES
 
@@ -242,7 +243,6 @@ static void C2FcopyLogVect(long size, int *A, char *B)
 /*  the integer unit number and the fitsfile file pointer.         */
 /*-----------------------------------------------------------------*/
 
-#define MAXFITSFILES 200             /*  Array of file pointers indexed  */
 extern fitsfile *gFitsFiles[];       /*    by Fortran unit numbers       */
 
 #define  FITSUNIT_cfINT(N,A,B,X,Y,Z)   INT_cfINT(N,A,B,X,Y,Z)

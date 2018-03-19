@@ -9,6 +9,15 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT
 AC_CONFIG_SRCDIR([fitscore.c])
+AC_CANONICAL_TARGET([])
+
+#--------------------------------------------------------------------
+# CFITSIO Version Numbers:
+#--------------------------------------------------------------------
+AC_SUBST(CFITSIO_MAJOR,3)
+AC_SUBST(CFITSIO_MINOR,43)
+# Increment soname each time the interface changes:
+AC_SUBST(CFITSIO_SONAME,5)
 
 #--------------------------------------------------------------------
 # Command options
@@ -18,6 +27,19 @@ AC_ARG_ENABLE(
   reentrant,
   [AS_HELP_STRING([--enable-reentrant],[Enable reentrant multithreading])],
   [ if test $enableval = yes; then BUILD_REENTRANT=yes; fi ]
+)
+
+SSE_FLAGS=""
+AC_ARG_ENABLE(
+  sse2,
+  [AS_HELP_STRING([--enable-sse2],[Enable use of instructions in the SSE2 extended instruction set])],
+  [ if test $enableval = yes; then SSE_FLAGS="-msse2"; fi ]
+)
+
+AC_ARG_ENABLE(
+  ssse3,
+  [AS_HELP_STRING([--enable-ssse3],[Enable use of instructions in the SSSE3 extended instruction set])],
+  [ if test $enableval = yes; then SSE_FLAGS="$SSE_FLAGS -mssse3"; fi ]
 )
 
 # Define BUILD_HERA when building for HERA project to activate code in
@@ -35,7 +57,6 @@ AC_ARG_WITH(
   gsiftp-flavour,
   [AS_HELP_STRING([--with-gsiftp-flavour[[=PATH]]],[Enable Globus Toolkit gsiftp protocol support])],
   [ if test "x$withval" != "xno"; then
-
         if test "x$withval" != "xyes" ; then
             GSIFTP_FLAVOUR=${withval}
         fi
@@ -48,13 +69,27 @@ AC_ARG_WITH(
   gsiftp,
   [AS_HELP_STRING([--with-gsiftp[[=PATH]]],[Enable Globus Toolkit gsiftp protocol support])],
   [ if test "x$withval" != "xno"; then
-
         if test "x$withval" != "xyes" ; then
-            CFLAGS="$CFLAGS -I${withval}/include/${GSIFTP_FLAVOUR}"
-            LDFLAGS="$LDFLAGS -L${withval}/lib -lglobus_ftp_client_${GSIFTP_FLAVOUR}"
+            GSIFTP_PATH=${withval}
             HAVE_GSIFTP=yes
         fi
         AC_DEFINE(HAVE_GSIFTP,1,[Define if you want Globus Toolkit gsiftp protocol support])
+    fi
+  ]
+)
+
+# Enable support for bzip2 compression (disabled by default):
+AC_ARG_WITH(
+  bzip2,
+  [AS_HELP_STRING([--with-bzip2[[=PATH]]],[Enable bzip2 support. Optional path to the location of include/bzlib.h and lib/libbz2])],
+  [ if test "x$withval" != "xno"; then
+        if test "x$withval" = "xyes" ; then
+            AC_CHECK_HEADERS(bzlib.h,
+              [AC_DEFINE(HAVE_BZIP2,1,[Define if you want bzip2 read support])]
+            )
+        else
+            BZIP2_PATH=${withval}
+        fi
     fi
   ]
 )
@@ -73,24 +108,68 @@ test "$exec_prefix" != NONE -a "$prefix" != "$exec_prefix" \
 	
 
 #--------------------------------------------------------------------
-# Check "uname" to determine system type
+# System type
 #--------------------------------------------------------------------
-AC_CHECK_PROG([uname_found],[uname],[1],[0])
-if test $uname_found -eq 0 ; then
-    echo "cfitsio: No uname found; setting system type to unknown."
-    system="unknown"
-else
-    system=`uname -s`-`uname -r`
-fi
+
+case $host in
+    *cygwin*)
+	ARCH="cygwin"
+	EXT="cygwin"
+	;;
+    *apple-darwin*)
+	# Darwin can be powerpc, i386, or x86_64
+	ARCH=`uname -p`
+	EXT="darwin"
+	;;
+    *freebsd*)
+	ARCH="linux"
+	EXT="lnx"
+	;;
+    *hpux*)
+	ARCH="hp"
+	EXT="hpu"
+	;;
+    *irix*)
+	ARCH="sgi"
+	EXT="sgi"
+	;;
+    *linux*)
+	ARCH="linux"
+	EXT="lnx"
+	;;
+    *mingw32*)
+	#ARCH=""
+	EXT="mingw32"
+	;;
+    *osf1*)
+	ARCH="alpha"
+	EXT="osf"
+	;;
+    *solaris*)
+	ARCH="solaris"
+	EXT="sol"
+	;;
+    *ultrix*)
+	ARCH="dec"
+	EXT="dec"
+	;;
+    *)
+	echo "cfitsio: == Don't know what do do with $host"
+	;;
+esac
 
 
 dnl Checks for programs.
 
 # Try first to find a proprietary C compiler, then gcc
-if test "x$CC" = x; then
-  AC_CHECK_PROGS(CC, cc)
+if test "x$EXT" != xcygwin && test "x$EXT" != xdarwin && test "x$EXT" != xlnx && test "x$EXT" != xmingw32; then
+  if test "x$CC" = x; then
+    AC_CHECK_PROGS(CC, cc)
+  fi
 fi
 AC_PROG_CC
+LDFLAGS="$CFLAGS"
+LDFLAGS_BIN="$LDFLAGS"
 
 if test "x$FC" = "xnone" ; then
   AC_MSG_NOTICE(cfitsio: == Fortran compiler search has been overridden)
@@ -126,6 +205,15 @@ else
   fi
 fi
 
+# ar & ranlib required
+#---------------------
+AC_CHECK_PROG(AR, ar, ar, noar)
+if test $AR = noar; then
+  AC_MSG_ERROR(ar not found in your \$PATH. See your sysdamin.)
+fi
+ARCHIVE="$AR rv"
+AC_SUBST(ARCHIVE)
+
 AC_PROG_RANLIB
 
 dnl Checks for ANSI stdlib.h.
@@ -149,100 +237,88 @@ if test $ANSI_HEADER = no -o $PROTO = no; then
      exit 0;
 fi
 
+dnl Check if C compiler supports sse extended instruction flags.
+if test "x$SSE_FLAGS" != x; then
+    SAVE_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $SSE_FLAGS"
+    AC_MSG_CHECKING([whether $CC accepts $SSE_FLAGS])
+    AC_LANG_PUSH([C])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],[c_has_option=yes],[c_has_option=no])
+    AC_MSG_RESULT($c_has_option)
+    AC_LANG_POP([])
+    if test "$c_has_option" = no; then SSE_FLAGS=""; fi
+    CFLAGS="$SAVE_CFLAGS"
+fi
+AC_SUBST(SSE_FLAGS)
+
 CFLAGS="$CFLAGS"
 LIBPRE=""
 
-case $system in
-    Darwin-*)
+case $host in
+    *cygwin*)
+	CFLAGS="$CFLAGS -DHAVE_POSIX_SIGNALS"
+	;;
+    *apple-darwin*)
         # Build for i386 & x86_64 architectures on Darwin 10.x or newer:
         changequote(,)
-        case $system in
-            Darwin-[56789]*)
+        case $host in
+            *darwin[56789]*)
                 ;;
             *)
                 changequote([,])
-                # Test to see whether the C compiler accepts the "-arch"
-                # flags for building "universal" binaries (Apple XCode only):
-                C_UNIV_SWITCH="-arch i386 -arch x86_64"
-                SAVE_CFLAGS="$CFLAGS"
-                CFLAGS="$CFLAGS $C_UNIV_SWITCH"
-                AC_MSG_CHECKING([whether $CC accepts $C_UNIV_SWITCH])
-                AC_LANG_PUSH([C])
-                AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
-                                  [c_has_option=yes],[c_has_option=no])
-                AC_MSG_RESULT($c_has_option)
-                AC_LANG_POP([])
-                # Value of C_UNIV_SWITCH will be needed later for SHLIB_LD:
-                if test "$c_has_option" = no; then
-                   C_UNIV_SWITCH=""
+                echo "int main(){return(0);}" > /tmp/$$.c
+                $CC -v -o /tmp/$$.out /tmp/$$.c 2> /tmp/$$.log
+                if test `cat /tmp/$$.log | grep -ci 'LLVM'` -ne 0; then APPLEXCODE="yes"; fi
+                if test "x$APPLEXCODE" = xyes; then
+                  # Flags for building Universal binaries:
+                  C_UNIV_SWITCH="-arch i386 -arch x86_64"
+                  CFLAGS="$CFLAGS $C_UNIV_SWITCH"
                 fi
-                CFLAGS="$SAVE_CFLAGS $C_UNIV_SWITCH"
+                # LDFLAGS used by utilities:
+                LDFLAGS_BIN="$LDFLAGS_BIN -Wl,-rpath,\${CFITSIO_LIB}"
                 ;;
         esac
-        # Darwin can be powerpc, i386, or x86_64
-	ARCH=`uname -p`
-	EXT="darwin"
         # For large file support (but may break Absoft compilers):
         AC_DEFINE(_LARGEFILE_SOURCE)
         AC_DEFINE(_FILE_OFFSET_BITS,64)
 	;;
-    SunOS-4*)
-	ARCH="sun"
-	EXT="sun"
-	;;
-    HP-UX-*)
-	ARCH="hp"
-	EXT="hpu"
+    *hpux*)
 	if test "x$CFORTRANFLAGS" = x ; then
 		CFORTRANFLAGS="-Dappendus"
 	fi
 	CFLAGS="$CFLAGS -DPG_PPU" 
 	LIBPRE="-Wl,"
 	;;
-    SunOS-5*)
-	ARCH="solaris"
-	EXT="sol"
-	if test "x$CFORTRANFLAGS" = x ; then
-		CFORTRANFLAGS="-Dsolaris"
-	fi
+    *irix*)
+	CFLAGS="$CFLAGS -DHAVE_POSIX_SIGNALS"
+	RANLIB="touch"
+	;;
+    *linux*)
+        # For large file support:
+        AC_DEFINE(_LARGEFILE_SOURCE)
+        AC_DEFINE(_FILE_OFFSET_BITS,64)
+	;;
+    *mingw32*)
+        AC_MSG_CHECKING([for large file support])
+        AC_COMPILE_IFELSE([AC_LANG_PROGRAM([#include <stdio.h>],
+            [_FILE_OFFSET_BITS_SET_FSEEKO])],[
+            AC_DEFINE(_LARGEFILE_SOURCE)
+            AC_DEFINE(_FILE_OFFSET_BITS,64)
+            AC_MSG_RESULT(yes)
+        ],[AC_MSG_RESULT(no)])
+        ;;
+    *solaris*)
+        if test "x$CFORTRANFLAGS" = x ; then
+                CFORTRANFLAGS="-Dsolaris"
+        fi
         # We need libm on Solaris:
         AC_CHECK_LIB(m, frexp)
         # For large file support:
         AC_DEFINE(_LARGEFILE_SOURCE)
         AC_DEFINE(_FILE_OFFSET_BITS,64)
 	;;
-    OSF1*)
-	ARCH="alpha"
-	EXT="osf"
-	;;
-    IRIX*)
-	ARCH="sgi"
-	EXT="sgi"
-	CFLAGS="$CFLAGS -DHAVE_POSIX_SIGNALS"
-	RANLIB="touch"
-	;;
-    ULTRIX*)
-	ARCH="dec"
-	EXT="dec"
-	;;
-    Linux*)
-	ARCH="linux"
-	EXT="lnx"
-        # For large file support:
-        AC_DEFINE(_LARGEFILE_SOURCE)
-        AC_DEFINE(_FILE_OFFSET_BITS,64)
-	;;
-    FREEBSD*|FreeBSD*)
-	ARCH="linux"
-	EXT="lnx"
-	;;
-    CYGWIN*)
-	ARCH="cygwin"
-	EXT="cygwin"
-	CFLAGS="$CFLAGS -DHAVE_POSIX_SIGNALS"
-	;;
     *)
-		echo "cfitsio: == Don't know what do do with $system"
+		echo "cfitsio: == Don't know what do do with $host"
 	;;
 esac
 
@@ -267,8 +343,8 @@ case $GCC in
 	no)
 		echo "cfitsio: Old CFLAGS is $CFLAGS"
 		CFLAGS=`echo $CFLAGS | sed -e "s/-g/-O/"`
-		case $system in
-		    SunOS-5*)
+		case $host in
+		    *solaris*)
 			changequote(,)
 			if test `echo $CFLAGS | grep -c fast` -gt 0
 			then
@@ -279,7 +355,7 @@ case $GCC in
          		CFLAGS="$CFLAGS -DHAVE_ALLOCA_H -DHAVE_POSIX_SIGNALS"
 			;;
 		    *)
-			echo "== No special changes for $system"
+			echo "== No special changes for $host"
 			;;
 		esac
 		echo "New CFLAGS is $CFLAGS"
@@ -288,30 +364,47 @@ case $GCC in
 		# Don't do anything now
 		;;
 esac
+
+# GSIFTP flags:
+if test "x$GSIFTP_PATH" != x -a "x$GSIFTP_FLAVOUR" != x; then
+   CFLAGS="$CFLAGS -I${GSIFTP_PATH}/include/${GSIFTP_FLAVOUR}"
+   LDFLAGS="$LDFLAGS -L${GSIFTP_PATH}/lib -lglobus_ftp_client_${GSIFTP_FLAVOUR}"
+fi
+
+# BZIP2 flags:
+if test "x$BZIP2_PATH" != x; then
+   CFLAGS="$CFLAGS -I${BZIP2_PATH}/include"
+   LDFLAGS="$LDFLAGS -L${BZIP2_PATH}/lib -lbz2"
+fi
 		
 # Shared library section
 #-------------------------------------------------------------------------------
 SHLIB_LD=:
 SHLIB_SUFFIX=".so"
+CFITSIO_SHLIB=""
+CFITSIO_SHLIB_SONAME=""
 lhea_shlib_cflags=
 case $EXT in
-  cygwin)
+  cygwin|mingw32)
     SHLIB_LD="$CC -shared"
     SHLIB_SUFFIX=".dll"
     ;;
   darwin)
     changequote(,)
-    case $system in
-        Darwin-[56789]*)
-            SHLIB_LD="$CC -dynamiclib"
+    SHLIB_SUFFIX=".dylib"
+    CFITSIO_SHLIB="lib\${PACKAGE}.\${CFITSIO_SONAME}.\${CFITSIO_MAJOR}.\${CFITSIO_MINOR}\${SHLIB_SUFFIX}"
+    CFITSIO_SHLIB_SONAME="lib\${PACKAGE}.\${CFITSIO_SONAME}\${SHLIB_SUFFIX}"
+    case $host in
+        *darwin[56789]*)
+            SHLIB_LD="$CC -dynamiclib -install_name lib\${PACKAGE}.\${CFITSIO_SONAME}\${SHLIB_SUFFIX} -compatibility_version \${CFITSIO_SONAME} -current_version \${CFITSIO_SONAME}.\${CFITSIO_MAJOR}.\${CFITSIO_MINOR}"
             ;;
         *)
-            # Build for i386 & x86_64 architectures on Darwin 10.x or newer:
-            SHLIB_LD="$CC -dynamiclib $C_UNIV_SWITCH" 
+            # Build 'Universal' binaries (i386 & x86_64 architectures) and
+            # use rpath token on Darwin 10.x or newer:
+            SHLIB_LD="$CC -dynamiclib $C_UNIV_SWITCH -headerpad_max_install_names -install_name @rpath/lib\${PACKAGE}.\${CFITSIO_SONAME}\${SHLIB_SUFFIX} -compatibility_version \${CFITSIO_SONAME} -current_version \${CFITSIO_SONAME}.\${CFITSIO_MAJOR}.\${CFITSIO_MINOR}"
             ;;
     esac
     changequote([,])
-    SHLIB_SUFFIX=".dylib"
     lhea_shlib_cflags="-fPIC -fno-common"
     ;;
   hpu)
@@ -320,6 +413,8 @@ case $EXT in
     ;;
   lnx)
     SHLIB_LD=":"
+    CFITSIO_SHLIB="lib\${PACKAGE}\${SHLIB_SUFFIX}.\${CFITSIO_SONAME}.\${CFITSIO_MAJOR}.\${CFITSIO_MINOR}"
+    CFITSIO_SHLIB_SONAME="lib\${PACKAGE}\${SHLIB_SUFFIX}.\${CFITSIO_SONAME}"
     ;;
   osf)
     SHLIB_LD="ld -shared -expect_unresolved '*'"
@@ -337,13 +432,51 @@ case $EXT in
     ;;
 esac
 # Darwin uses gcc (=cc), but needs different flags (see above)
-# if test "x$GCC" = xyes; then
-if test "x$GCC" = xyes && test "x$EXT" != xdarwin && test "x$EXT" != xcygwin; then
-  SHLIB_LD="$CC -shared"
-  lhea_shlib_cflags='-fPIC'
+if test "x$EXT" != xdarwin && test "x$EXT" != xcygwin && test "x$EXT" != xmingw32; then
+  if test "x$GCC" = xyes; then
+    SHLIB_LD="$CC -shared -Wl,-soname,lib\${PACKAGE}\${SHLIB_SUFFIX}.\${CFITSIO_SONAME}"
+    lhea_shlib_cflags='-fPIC'
+  fi
 fi
 if test "x$lhea_shlib_cflags" != x; then
   CFLAGS="$CFLAGS $lhea_shlib_cflags"
+fi
+# Set shared library name for cases in which we aren't setting a 'soname':
+if test "x$CFITSIO_SHLIB" = x; then CFITSIO_SHLIB="lib\${PACKAGE}\${SHLIB_SUFFIX}"; fi
+
+# Curl library (will be pulled in to the shared CFITSIO library):
+# ---------------------------------------------------------------
+CURL_LIB=""
+CURL_INC=""
+# Use curl-config to get compiler & linker flags, if available.
+# On Macs, prefer XCode curl-config, and reject MacPorts version
+# until further notice to prevent build errors:
+if test "x$EXT" = xdarwin -a -x /usr/bin/curl-config; then
+  CURLCONFIG="/usr/bin/curl-config"
+  AC_MSG_RESULT(checking for curl-config... choosing /usr/bin/curl-config on Mac)
+else
+  AC_CHECK_PROG([CURLCONFIG], [curl-config], [curl-config], [], [], [/opt/local/bin/curl-config])
+fi
+if test "x$CURLCONFIG" != x; then
+  CURL_LIB=`$CURLCONFIG --libs`
+  CURL_INC=`$CURLCONFIG --cflags`
+  # Also reject anaconda curl on Macs until further notice:
+  if test "x$EXT" = xdarwin -a `echo $CURL_LIB $CURL_INC | grep -ci anaconda` -gt 0; then
+    AC_MSG_WARN(Rejecting Anaconda curl. Disabling HTTPS support.)
+  else
+    LIBS="$CURL_LIB $LIBS"
+    if test "x$CURL_INC" != x; then
+      CFLAGS="$CURL_INC $CFLAGS"
+    fi
+    AC_DEFINE(CFITSIO_HAVE_CURL)
+  fi
+# No curl-config:
+else
+  AC_MSG_WARN(curl-config not found. Disabling HTTPS support.)
+# Incomplete stubs for possible future use:
+#  AC_CHECK_LIB([curl],[main],[],
+#       [AC_MSG_WARN(Not building curl support for CFITSIO)])
+#  AC_CHECK_HEADER(curl.h,[])
 fi
 
 AC_SUBST(ARCH)dnl
@@ -353,31 +486,34 @@ AC_SUBST(FC)dnl
 AC_SUBST(LIBPRE)dnl
 AC_SUBST(SHLIB_LD)dnl
 AC_SUBST(SHLIB_SUFFIX)dnl
+AC_SUBST(CFITSIO_SHLIB)dnl
+AC_SUBST(CFITSIO_SHLIB_SONAME)dnl
 AC_SUBST(F77_WRAPPERS)
+AC_SUBST(LDFLAGS_BIN)
 
 # ================= test for the unix ftruncate function ================
 
-AC_MSG_CHECKING("whether ftruncate works")
+AC_MSG_CHECKING(whether ftruncate works)
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <unistd.h>
 ]], [[
 ftruncate(0, 0);
 ]])],[
 AC_DEFINE(HAVE_FTRUNCATE)
-AC_MSG_RESULT("yes")
-],[AC_MSG_RESULT("no") ])
+AC_MSG_RESULT(yes)
+],[AC_MSG_RESULT(no) ])
 
 # ---------------------------------------------------------
 # some systems define long long for 64-bit ints
 # ---------------------------------------------------------
  
-AC_MSG_CHECKING("whether long long is defined")
+AC_MSG_CHECKING(whether long long is defined)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <stdlib.h>
 ]], [[
 long long filler;
 ]])],[
 AC_DEFINE(HAVE_LONGLONG)
-AC_MSG_RESULT("yes")
-],[AC_MSG_RESULT("no") ])
+AC_MSG_RESULT(yes)
+],[AC_MSG_RESULT(no) ])
 
 # ==================== SHARED MEMORY DRIVER SECTION =======================
 #
@@ -391,7 +527,7 @@ AC_MSG_RESULT("yes")
 # check is System V IPC is supported on this machine
 # -------------------------------------------------------------------------
 
-AC_MSG_CHECKING("whether system V style IPC services are supported")
+AC_MSG_CHECKING(whether system V style IPC services are supported)
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
@@ -403,8 +539,8 @@ semget(0, 0, 0);
 ]])],[
 AC_DEFINE(HAVE_SHMEM_SERVICES)
 my_shmem=\${SOURCES_SHMEM}
-AC_MSG_RESULT("yes")
-],[AC_MSG_RESULT("no") ])
+AC_MSG_RESULT(yes)
+],[AC_MSG_RESULT(no) ])
 
 AC_SUBST(my_shmem)
 
@@ -412,24 +548,38 @@ AC_SUBST(my_shmem)
 # some systems define flock_t, for others we have to define it ourselves
 # -------------------------------------------------------------------------
 
-AC_MSG_CHECKING("do we have flock_t defined in sys/fcntl.h")
+AC_MSG_CHECKING(do we have flock_t defined in sys/fcntl.h)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/fcntl.h>
 ]], [[
 flock_t filler;
 ]])],[
 AC_DEFINE(HAVE_FLOCK_T)
-AC_MSG_RESULT("yes") 
-],[AC_MSG_RESULT("no") ])
+AC_MSG_RESULT(yes) 
+],[AC_MSG_RESULT(no) ])
 
 if test "$HAVE_FLOCK_T" != 1; then
-   AC_MSG_CHECKING("do we have flock_t defined in sys/flock.h")
+   AC_MSG_CHECKING(do we have flock_t defined in sys/flock.h)
    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/flock.h>
    ]], [[
    flock_t filler;
    ]])],[
    AC_DEFINE(HAVE_FLOCK_T)
-   AC_MSG_RESULT("yes") 
-   ],[AC_MSG_RESULT("no") ])
+   AC_MSG_RESULT(yes) 
+   ],[AC_MSG_RESULT(no) ])
+fi
+
+# ------------------------------------------------------------------------------
+# Define _REENTRANT & add -lpthread to LIBS if reentrant multithreading enabled:
+# ------------------------------------------------------------------------------
+if test "x$BUILD_REENTRANT" = xyes; then
+  AC_DEFINE(_REENTRANT)
+  AC_DEFINE([_XOPEN_SOURCE], [700])
+  # Additional definition needed to get 'union semun' when using
+  # _XOPEN_SOURCE on a Mac:
+  if test "x$EXT" = xdarwin; then
+    AC_DEFINE([_DARWIN_C_SOURCE])
+  fi
+  AC_CHECK_LIB([pthread],[main],[],[AC_MSG_ERROR(Unable to locate pthread library needed when enabling reentrant multithreading)])
 fi
 
 # -------------------------------------------------------------------------
@@ -437,7 +587,7 @@ fi
 # does not define it at all
 # -------------------------------------------------------------------------
 
-AC_MSG_CHECKING("do we have union semun defined")
+AC_MSG_CHECKING(do we have union semun defined)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
@@ -445,8 +595,8 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/ipc.h>
 union semun filler;
 ]])],[
 AC_DEFINE(HAVE_UNION_SEMUN)   
-AC_MSG_RESULT("yes")
-],[AC_MSG_RESULT("no") ])
+AC_MSG_RESULT(yes)
+],[AC_MSG_RESULT(no) ])
 
 # ==================== END OF SHARED MEMORY DRIVER SECTION ================
 # ================= test for the unix networking functions ================
@@ -460,15 +610,6 @@ if test "$cfitsio_have_nsl" = 1 -a "$cfitsio_have_socket" = 1; then
 fi
 
 # ==================== END OF unix networking SECTION ================
-
-# ------------------------------------------------------------------------------
-# Define _REENTRANT & add -lpthread to LIBS if reentrant multithreading enabled:
-# ------------------------------------------------------------------------------
-if test "x$BUILD_REENTRANT" = xyes; then
-  AC_DEFINE(_REENTRANT)
-  AC_CHECK_LIB([pthread],[main],[],[AC_MSG_ERROR(Unable to locate pthread library needed when enabling reentrant multithreading)])
-fi
-# ------------------------------------------------------------------------------
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
