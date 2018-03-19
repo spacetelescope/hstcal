@@ -18,7 +18,6 @@ out = 'build.' + platform.platform()
 
 # A list of subdirectories to recurse into
 SUBDIRS = [
-    'cfitsio', # cfitsio needs to go first
     'applib',
     'cvos',
     'hstio',
@@ -65,7 +64,9 @@ def options(opt):
         '--O3', dest='optO3', action='store_true', default=False,
         help='Create a Release build with full optimization, i.e. with "-O3". \033[91m\033[1mWARNING! This option may produce unvalidated results!\033[0m')
 
-    opt.recurse('cfitsio')
+    opt.add_option(
+        '--with-cfitsio',
+        help='Coerce path to CFITSIO')
 
 
 def _setup_openmp(conf):
@@ -265,6 +266,12 @@ def _determine_sizeof_int(conf):
         execute=True,
         msg='Checking for sizeof(int)')
 
+
+def _use_cfitsio(conf):
+    conf.load('compiler_c')
+    conf.check_cfg(package='cfitsio', args='--cflags --libs', uselib_store='CFITSIO')
+
+
 def configure(conf):
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
@@ -294,6 +301,9 @@ def configure(conf):
     # Check for the existence of a Fortran compiler
     conf.load('compiler_fc')
     conf.check_fortran()
+
+    # Check for cfitsio
+    _use_cfitsio(conf)
 
     # Set the location of the hstcal include directory
     conf.env.INCLUDES = [os.path.abspath('include')] # the hstcal include directory
@@ -360,9 +370,6 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
     conf.start_msg('Linker flags (LDFLAGS)')
     conf.end_msg(' '.join(conf.env['LDFLAGS']) or None)
 
-    # The configuration related to cfitsio is stored in
-    # cfitsio/wscript
-    conf.recurse('cfitsio')
 
 def build(bld):
     if bld.cmd == 'build':
