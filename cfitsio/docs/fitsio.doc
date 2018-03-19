@@ -23,7 +23,7 @@ data arrays by converting them on the fly into a virtual FITS format
 file.  This library was written to provide a powerful yet simple
 interface for accessing FITS files which will run on most commonly used
 computers and workstations. FITSIO supports all the features described
-in the official NOST definition of the FITS format and can read and
+in the official definition of the FITS format and can read and
 write all the currently defined types of extensions, including ASCII
 tables (TABLE), Binary tables (BINTABLE) and IMAGE extensions. The
 FITSIO subroutines insulate the programmer from having to deal with the
@@ -51,29 +51,33 @@ ftp from:
 -
 \newpage
 Any questions, bug reports, or suggested enhancements related to the CFITSIO
-package should be sent to the primary author:
+package should be sent to the FTOOLS Help Desk at the HEASARC:
 -
-        Dr. William Pence                 Telephone:  (301) 286-4599
-        HEASARC, Code 662                 E-mail: William.D.Pence@nasa.gov
-        NASA/Goddard Space Flight Center
-        Greenbelt, MD 20771, USA
+        http://heasarc.gsfc.nasa.gov/cgi-bin/ftoolshelp
 -
+
 This User's Guide assumes that readers already have a general
 understanding of the definition and structure of FITS format files.
 Further information about FITS formats is available from the FITS Support
 Office at {\tt http://fits.gsfc.nasa.gov}.  In particular, the
-'NOST FITS Standard' gives the authoritative definition of the FITS data
-format, and the  `FITS User's Guide' provides additional historical background
-and practical advice on using FITS files.
+'FITS Standard' gives the authoritative definition of the FITS data
+format.  Other documents available at that Web site 
+provide additional historical background
+and practical advice on using FITS files. 
 
+The HEASARC also provides a very sophisticated FITS file analysis
+program called `Fv' which can be used to display and edit the contents
+of any FITS file as well as construct new FITS files from scratch. 
+Fv is freely available for
+most Unix platforms, Mac PCs, and Windows PCs.
 CFITSIO users may also be interested in the FTOOLS package of programs
 that can be used to manipulate and analyze FITS format files.
-Information about FTOOLS can be obtained on the Web or via anonymous
-ftp at:
+Fv and FTOOLS are available from their respective Web sites at:
 -
+        http://fv.gsfc.nasa.gov
         http://heasarc.gsfc.nasa.gov/ftools
-        ftp://legacy.gsfc.nasa.gov/software/ftools/release
 -
+
 
 *II.  Creating FITSIO/CFITSIO 
  
@@ -129,6 +133,7 @@ Alternatively, one may edit the CFLAGS line in the Makefile to add the
 The CFITSIO library is built on Unix systems by typing:
 -
  >  ./configure [--prefix=/target/installation/path]
+                [--enable-sse2] [--enable-ssse3]
  >  make          (or  'make shared')
  >  make install  (this step is optional)
 -
@@ -144,11 +149,16 @@ the CFITSIO library and include files should be installed via the later
    > ./configure --prefix=/usr1/local
 -
 will cause the 'make install' command to copy the CFITSIO libcfitsio file 
-to /usr1/local/lib and the necessary include file to /usr1/local/include
-(assuming of course that the process has permission to write to these 
+to /usr1/local/lib and the necessary include files to /usr1/local/include
+(assuming of course that the  process has permission to write to these 
 directories).
 
-By default this also builds the set of Fortran-callable
+The optional --enable-sse2 and --enable-ssse3 flags will cause configure to 
+attempt to build CFITSIO using faster byte-swapping algorithms.
+See the "Optimizing Programs" section of this manual for
+more information about these options.
+
+By default, the Makefile will be configured to build the set of Fortran-callable
 wrapper routines whose calling sequences are described later in this
 document.
 
@@ -208,40 +218,14 @@ contain a set of Fortran wrapper routines which may be compatible with
 some, but probably not all, available Fortran compilers.  To test if
 they are compatible, compile the program testf77.f and try linking to
 these dll libraries.  If these libraries do not work with a particular
-Fortran compiler, then there are 2 possible solutions.  The first
-solution would be to modify the file cfortran.h for that particular
+Fortran compiler, then it may be necessary to modify the file 
+"cfortran.h" to support that particular
 combination of C and Fortran compilers, and then rebuild the CFITSIO
-dll library.  This will require, however, a some expertise in
+dll library.  This will require, however, some expertise in
 mixed language programming.
-The other solution is to use the older v5.03 Fortran-77 implementation
-of FITSIO that is still available from the FITSIO web-site.  This
-version is no longer supported, but it does provide the basic functions
-for reading and writing FITS files and should be compatible with most
-Fortran compilers.
 
-CFITSIO has currently been tested on the following platforms:
--
-  OPERATING SYSTEM           COMPILER
-   Sun OS                     gcc and cc (3.0.1)
-   Sun Solaris                gcc and cc
-   Silicon Graphics IRIX      gcc and cc
-   Silicon Graphics IRIX64    MIPS
-   Dec Alpha OSF/1            gcc and cc
-   DECstation  Ultrix         gcc
-   Dec Alpha OpenVMS          cc 
-   DEC VAX/VMS                gcc and cc
-   HP-UX                      gcc
-   IBM AIX                    gcc
-   Linux                      gcc
-   MkLinux                    DR3
-   Windows 95/98/NT           Borland C++ V4.5
-   Windows 95/98/NT/ME/XP     Microsoft/Compaq Visual C++ v5.0, v6.0
-   Windows 95/98/NT           Cygwin gcc
-   OS/2                       gcc + EMX
-   MacOS 7.1 or greater       Metrowerks 10.+
--
-CFITSIO will probably run on most other Unix platforms.  Cray
-supercomputers are currently not supported.
+CFITSIO should be compatible with most current ANCI C and C++ compilers:  
+Cray supercomputers are currently not supported.
 
 **B.  Testing the Library
  
@@ -516,6 +500,9 @@ cfortran.h that are necessary to support 64-bit integer values when calling
 C routines from fortran programs.  The cfortran.h macros were originally developed 
 by Burkhard Burow (CERN).
 
+Julian Taylor (ESO, Garching) provided the fast byte-swapping algorithms
+that use the SSE2 and SSSE3 machine instructions available on x86\_64 CPUs.
+
 In addition, many other people have made valuable contributions to the
 development of CFITSIO.  These include (with apologies to others that may
 have inadvertently been omitted):
@@ -537,7 +524,7 @@ Wimmers, Peter Young, Jianjun Xu, and Nelson Zarate.
 *III.  A FITS Primer
 
 This section gives a brief overview of the structure of FITS files.
-Users should refer to the documentation available from the NOST, as
+Users should refer to the documentation available from the FITS Support Office, as
 described in the introduction, for more detailed information on FITS
 formats.
 
@@ -592,7 +579,7 @@ value if there is no specified value string, as in the second example.
 
 The last keyword in the header is always the `END' keyword which has no
 value or comment fields. There are many rules governing the exact
-format of a keyword record (see the NOST FITS Standard) so it is better
+format of a keyword record (see the FITS Standard) so it is better
 to rely on standard interface software like FITSIO to correctly
 construct or to parse the keyword records rather than try to deal
 directly with the raw FITS formats.
@@ -657,15 +644,14 @@ CFITSIO places few restrictions on the size of FITS files that it
 reads or writes.  There are a few limits, however, which may affect
 some extreme cases:
 
-1.  The maximum number of FITS files that may be simultaneously opened
-by CFITSIO is set by NMAXFILES as defined in fitsio2.h.  It is currently
-set = 300 by default.  CFITSIO will allocate about 80 * NMAXFILES bytes
-of memory for internal use.  Note that the underlying C compiler or
-operating system, may have a smaller limit on the number of opened files.
-The C symbolic constant FOPEN\_MAX is intended to define the maximum
-number of files that may open at once (including any other text or
-binary files that may be open, not just FITS files).  On some systems it
-has been found that gcc supports a maximum of 255 opened files.
+1.  The maximum number of FITS files that may be simultaneously opened by
+CFITSIO is set by NMAXFILES, as defined in fitsio2.h.  The current default
+value is 1000, but this may be increased if necessary. Note that CFITSIO 
+allocates NIOBUF * 2880 bytes of I/O buffer space for each file that is 
+opened.  The default value of NIOBUF is 40 (defined in fitsio.h), so this
+amounts to  more than 115K of memory  for each opened file (or 115 MB for
+1000 opened files).  Note that the underlying  operating system, may have a
+lower limit on the number of files that can be opened simultaneously.
 
 2.  By default, CFITSIO can handle FITS files up to 2.1 GB in size (2**31
 bytes).  This file size limit is often imposed by 32-bit operating
@@ -965,7 +951,7 @@ the FTGDES subroutine.
 The ANSI/IEEE-754 floating-point number standard defines certain
 special values that are used to represent such quantities as
 Not-a-Number (NaN), denormalized, underflow, overflow, and infinity.
-(See the Appendix in the NOST FITS standard or the NOST FITS User's
+(See the Appendix in the  FITS standard or the FITS User's
 Guide for a list of these values).  The FITSIO subroutines that read
 floating point data in FITS files recognize these IEEE special values
 and by default interpret the overflow and infinity values as being
@@ -1027,7 +1013,7 @@ actual smaller value just before closing the table.
 **K.  Local FITS Conventions supported by FITSIO
 
 CFITSIO supports several local FITS conventions which are not
-defined in the official NOST FITS standard and which are not
+defined in the official FITS standard and which are not
 necessarily recognized or supported by other FITS software packages.
 Programmers should be cautious about using these features, especially
 if the FITS files that are produced are expected to be processed by
@@ -1109,13 +1095,6 @@ keyword, so this local convention is in compliance with the
 FITS standard, although other FITS readers are not required to
 recognize this convention.
 
-The Binary Table definition document that was approved by the IAU in
-1994 contains an appendix describing an alternate convention for
-specifying arrays of fixed or variable length strings in a binary table
-character column (with the form 'rA:SSTRw/nnn)'.  This appendix was not
-officially voted on by the IAU and hence is still provisional.  FITSIO
-does not currently support this proposal.
-
 ***3.  Keyword Units Strings
 
 One deficiency of the current FITS Standard is that it does not define
@@ -1164,8 +1143,10 @@ contain any printable ASCII text characters, including spaces.  The
 equals sign marks the end of the keyword name and is followed by the
 usual value and comment fields just as in standard FITS keywords.
 Further details of this convention are described at
-http://arcdev.hq.eso.org/dicb/dicd/dic-1-1.4.html (search for
-HIERARCH).
+http://fits.gsfc.nasa.gov/registry/hierarch\_keyword.html
+and in Section 4.4 of the ESO Data Interface Control Document that
+is linked to from 
+http://archive.eso.org/cms/tools-documentation/eso-data-interface-control.html.
 
 This convention allows a much broader range of keyword names 
 than is allowed by the FITS Standard.  Here are more examples
@@ -1208,17 +1189,11 @@ inappropriate usage of CFITSIO routines can greatly slow down the
 execution speed of a program.
 
 The maximum possible I/O speed of CFITSIO depends of course on the type
-of computer system that it is running on.  As a rough guide, the
-current generation of workstations can achieve speeds of 2 -- 10 MB/s
-when reading or writing FITS images and similar, or slightly slower
-speeds with FITS binary tables.  Reading of FITS files can occur at
-even higher rates (30MB/s or more) if the FITS file is still cached in
-system memory following a previous read or write operation on the same
-file.  To more accurately predict the best performance that is possible
-on any particular system, a diagnostic program called ``speed.c'' is
-included with the CFITSIO distribution which can be run to
-approximately measure the maximum possible speed of writing and reading
-a test FITS file.
+of computer system that it is running on.  To get a general idea of what
+data I/O speeds are possible on a particular machine, build the speed.c 
+program that is distributed with CFITSIO (type 'make speed' in the CFITSIO
+directory).  This diagnostic program measures the speed of writing and reading
+back a test FITS image, a binary table, and an ASCII table.
 
 The following 2 sections provide some background on how CFITSIO
 internally manages the data I/O and describes some strategies that may
@@ -1258,8 +1233,7 @@ disk file with a single call to a low-level file read or write
 routine.  The minimum threshold for the number of bytes to read or
 write this way is set by the MINDIRECT parameter and is currently set
 to 3 FITS blocks = 8640 bytes.  This is the most efficient way to read
-or write large chunks of data and can achieve IO transfer rates of
-5 -- 10MB/s or greater.  Note that this fast direct IO process is not
+or write large chunks of data.  Note that this fast direct IO process is not
 applicable when accessing columns of data in a FITS table because the
 bytes are generally not contiguous since they are interleaved by the
 other columns of data in the table.  This explains why the speed for
@@ -1279,7 +1253,54 @@ being read then flushed from a IO buffer multiple times.
 The following section gives more specific suggestions for optimizing
 the use of CFITSIO.
 
-1.  When dealing with a FITS primary array or IMAGE extension, it is
+***2.  Optimization Strategies
+
+1.  Because the data in FITS files is always stored in "big-endian" byte order,
+where the first byte of numeric values contains the most significant bits and the
+last byte contains the least significant bits, CFITSIO must swap the order of the bytes
+when reading or writing FITS files when running on little-endian machines (e.g., 
+Linux and Microsoft Windows operating systems running on PCs with x86 CPUs). 
+
+On fairly new CPUs that support "SSSE3" machine instructions 
+(e.g., starting with Intel Core 2 CPUs in 2007, and in AMD CPUs 
+beginning in 2011) significantly faster 4-byte and 8-byte swapping
+algorithms are available. These faster byte swapping functions are 
+not used by default in CFITSIO (because of the potential code 
+portablility issues), but users can enable them on supported 
+platforms by adding the appropriate compiler flags (-mssse3 with gcc
+or icc on linux) when compiling the swapproc.c source file, which will
+allow the compiler to generate code using the SSSE3 instruction set.
+A convenient way to do this is to configure the CFITSIO library
+with the following command:
+-
+  >  ./configure --enable-ssse3
+-
+Note, however, that a binary executable file that is 
+created using these faster functions will only run on 
+machines that support the SSSE3 machine instructions. It will
+crash on machines that do not support them.
+
+For faster 2-byte swaps on virtually all x86-64 CPUs (even those that
+do not support SSSE3), a variant using only SSE2 instructions exists.
+SSE2 is enabled by default on x86\_64 CPUs with 64-bit operating systems
+(and is also automatically enabled by the --enable-ssse3 flag).
+When running on x86\_64 CPUs with 32-bit operating systems, these faster 
+2-byte swapping algorithms are not used by default in CFITSIO, but can be 
+enabled explicitly with:
+-
+./configure --enable-sse2
+-
+Preliminary testing indicates that these SSSE3 and SSE2 based
+byte-swapping algorithms can boost the CFITSIO performance when 
+reading or writing FITS images by 20\% - 30\% or more.
+It is important to note, however, that compiler optimization must be
+turned on (e.g., by using the -O1 or -O2 flags in gcc) when building
+programs that use these fast byte-swapping algorithms in order
+to reap the full benefit of the SSSE3 and SSE2 instructions; without
+optimization, the code may actually run slower than when using
+more traditional byte-swapping techniques.
+
+2.  When dealing with a FITS primary array or IMAGE extension, it is
 more efficient to read or write large chunks of the  image at a time
 (at least 3 FITS blocks = 8640 bytes) so that the direct IO mechanism
 will be used as described in the previous section.  Smaller chunks of
@@ -1291,7 +1312,7 @@ possible, however, if the array becomes so large that the operating
 system cannot store it all in RAM, then the performance may be degraded
 because of the increased swapping of virtual memory to disk.
 
-2.  When dealing with FITS tables, the most important efficiency factor
+3.  When dealing with FITS tables, the most important efficiency factor
 in the software design is to read or write the data in the FITS file in
 a single pass through the file.  An example of poor program design
 would be to read a large, 3-column table by sequentially reading the
@@ -1330,13 +1351,13 @@ loaded into the I/O buffers displacing data from the original table,
 and should be avoided during the critical period while the table is
 being read or written.
 
-3.  Use binary table extensions rather than ASCII table
+4.  Use binary table extensions rather than ASCII table
 extensions for better efficiency  when dealing with tabular data.  The
 I/O to ASCII tables is slower because of the overhead in formatting or
 parsing the ASCII data fields, and because ASCII tables are about twice
 as large as binary tables with the same information content.
 
-4. Design software so that it reads the FITS header keywords in the
+5. Design software so that it reads the FITS header keywords in the
 same order in which they occur in the file.  When reading keywords,
 FITSIO searches forward starting from the position of the last keyword
 that was read.  If it reaches the end of the header without finding the
@@ -1346,20 +1367,20 @@ the entire FITS header can fit at one time in the available internal I/O
 buffers, then the header keyword access will be very fast and it makes
 little difference which order they are accessed.
 
-5. Avoid the use of scaling (by using the BSCALE and BZERO or TSCAL and
+6. Avoid the use of scaling (by using the BSCALE and BZERO or TSCAL and
 TZERO keywords) in FITS files since the scaling operations add to the
 processing time needed to read or write the data.  In some cases it may
 be more efficient to temporarily turn off the scaling (using ftpscl or
 fttscl) and then read or write the raw unscaled values in the FITS
 file.
 
-6. Avoid using the 'implicit datatype conversion' capability in
+7. Avoid using the 'implicit datatype conversion' capability in
 FITSIO.  For instance, when reading a FITS image with BITPIX = -32
 (32-bit floating point pixels), read the data into a single precision
 floating point data array in the program.  Forcing FITSIO to convert
 the data to a different datatype can significantly slow the program.
 
-7. Where feasible, design FITS binary tables using vector column
+8. Where feasible, design FITS binary tables using vector column
 elements so that the data are written as a contiguous set of bytes,
 rather than as single elements in multiple rows.  For example, it is
 faster to access the data in a table that contains a single row
@@ -1373,12 +1394,12 @@ in the first column is interleaved with the integer value in the second
 column of the same row so CFITSIO has to explicitly move to the
 position of each element to be read or written.
 
-8. Avoid the use of variable length vector columns in binary tables,
+9. Avoid the use of variable length vector columns in binary tables,
 since any reading or writing of these data requires that CFITSIO first
 look up or compute the starting address of each row of data in the
 heap.  In practice, this is probably not a significant efficiency issue.
 
-9. When copying data from one FITS table to another, it is faster to
+10. When copying data from one FITS table to another, it is faster to
 transfer the raw bytes instead of reading then writing each column of
 the table.  The FITSIO subroutines FTGTBS and FTPTBS (for ASCII
 tables), and  FTGTBB and FTPTBB (for binary tables) will perform
@@ -1396,7 +1417,7 @@ and should only be used by programmers who thoroughly understand the
 internal byte structure of the FITS tables they are reading or
 writing.
 
-10. Another strategy for improving the speed of writing a FITS table,
+11. Another strategy for improving the speed of writing a FITS table,
 similar to the previous one, is to directly construct the entire byte
 stream for a whole table row (or multiple rows) within the application
 program and then write it to the FITS file with
@@ -1407,7 +1428,7 @@ difficult to understand and maintain, and it makes the code more system
 dependent (e.g., do the bytes need to be swapped before writing to the
 FITS file?).
 
-11.  Finally, external factors such as the type of magnetic disk
+12.  Finally, external factors such as the type of magnetic disk
 controller (SCSI or IDE), the size of the disk cache, the average seek
 speed of the disk, the amount of disk fragmentation, and the amount of
 RAM available on the system can all have a significant impact on
@@ -1493,12 +1514,12 @@ used by these interface routines.
    open IRAF images (.imh format files) and raw binary data arrays
    with READONLY access by first converting them on the fly into
    virtual FITS images.  See the `Extended File Name Syntax' chapter
-   for more details.  The FTDKOPEN routine simply opens the specified
+   for more details.  The FTDKOPN routine simply opens the specified
    file without trying to interpret the filename using the extended
 >  filename syntax.
 -
         FTOPEN(unit,filename,rwmode, > blocksize,status)
-        FTDKOPEN(unit,filename,rwmode, > blocksize,status)
+        FTDKOPN(unit,filename,rwmode, > blocksize,status)
 -
 >2 Open an existing FITS file with readonly or readwrite access
    and move to a following extension, if one was specified as
@@ -1569,7 +1590,9 @@ used by these interface routines.
     routine is identical
     to the FTITAB routine except that the 2nd and 3rd parameters (that give
     the size of the table) are 64-bit integers rather than 
->   32-bit integers.
+    32-bit integers.  Under normal circumstances, the nrows and nrowsll 
+    paramenters should have a value of 0; CFITSIO will automatically update
+>   the number of rows as data is written to the table.
 -
         FTITAB(unit,rowlen,nrows,tfields,ttype,tbcol,tform,tunit,extname, >
                status)
@@ -1584,7 +1607,9 @@ used by these interface routines.
     routine is identical
     to the FTIBIN routine except that the 2nd parameter (that gives
     the length of the table) is a 64-bit integer rather than 
->   a 32-bit integer.
+    a 32-bit integer. Under normal circumstances, the nrows and nrowsll 
+    paramenters should have a value of 0; CFITSIO will automatically update
+>   the number of rows as data is written to the table.
 -
         FTIBIN(unit,nrows,tfields,ttype,tform,tunit,extname,varidat > status)
         FTIBINLL(unit,nrowsll,tfields,ttype,tform,tunit,extname,varidat > status)
@@ -1705,7 +1730,7 @@ parameters is given at the end of this section.
 **A.  FITS File Open and Close Subroutines: \label{FTOPEN}
 
 >1 Open an existing FITS file with readonly or readwrite access. The 
-FTDKOPEN routine simply opens the specified file without trying to 
+FTDKOPN routine simply opens the specified file without trying to 
 interpret the filename using the extended filename syntax. FTDOPN opens
 the file and 
 also moves to the first HDU containing significant data, if no specific
@@ -1714,7 +1739,7 @@ except that they will move to the first table HDU or image HDU, respectively,
 >if a HDU name or number is not specified as part of the filename.
 -
         FTOPEN(unit,filename,rwmode, > blocksize,status)
-        FTDKOPEN(unit,filename,rwmode, > blocksize,status)
+        FTDKOPN(unit,filename,rwmode, > blocksize,status)
 
         FTDOPN(unit,filename,rwmode, > status)
         FTTOPN(unit,filename,rwmode, > status)
@@ -1925,15 +1950,10 @@ and so on.
 -
         FTTHDU(unit, > hdunum, status)
 -
->7 Create (append) a new empty HDU following the last extension that
-    has been previously accessed by the program.   This will overwrite
-    any extensions in an existing FITS file if the program has not already
-    moved to that (or a later) extension using the FTMAHD or FTMRHD routines.
-    For example, if an existing FITS file contains a primary array and 5 
-    extensions and a program (1) opens the FITS file, (2) moves to
-    extension 4, (3) moves back to the primary array, and (4) then calls
-    FTCRHD, then the new extension will be written following the 4th
->   extension, overwriting the existing 5th extension. 
+>7 Create (append) a new empty HDU at the end of the FITS file.  This
+    new HDU becomes the Current HDU, but it is completely empty and contains
+    no header keywords or data.  It is recommended that FTIIMG, FTITAB or
+>   FTIBIN be used instead of this routine. 
 -
         FTCRHD(unit, > status)
 -
@@ -2425,19 +2445,36 @@ wild card searches.
 -
         FTGKY[EDJKLS](unit,keyword, > keyval,comment,status)
 -
->7  Get a sequence of numbered keyword values.  These
+>7  Read a string-valued keyword and return the string length, the value string, 
+    and/or the comment field. The first routine, FTGKSL, simply
+    returns the length of the character string value of the specified keyword.
+    The second routine, FTGSKY, also returns up to maxchar characters 
+    of the keyword value string, starting with the firstchar character, 
+    and the keyword comment string.
+    The length argument returns the total length of the keyword value string
+    regardless of how much of the string is actually returned (which 
+    depends on the value of the firstchar and maxchar arguments).  These 
+    routines support string keywords that use the CONTINUE convention to
+    continue long string values over multiple FITS header records.  Normally,
+    string-valued keywords have a maximum length of 68 characters, however,
+>   CONTINUE'd string keywords may be arbitrarily long. 
+-
+       FTGKSL(unit,keyword, > length,status)
+       FTGSKY(unit,keyword,firstchar,maxchar,> keyval,length,comment,status)
+-
+>8  Get a sequence of numbered keyword values.  These
 >   routines do not support wild card characters in the root name.
 -
         FTGKN[EDJKLS](unit,keyroot,startno,max_keys, > keyvals,nfound,status)
 -
->8  Get the value of a floating point keyword, returning the integer and
+>9  Get the value of a floating point keyword, returning the integer and
     fractional parts of the value in separate subroutine arguments.
     This subroutine may be used to read any keyword but is especially
 >   useful for reading the 'triple precision' keywords written by FTPKYT.
 -
         FTGKYT(unit,keyword, > intval,dblval,comment,status)
 -
->9  Get the physical units string in an existing keyword.  This
+>10  Get the physical units string in an existing keyword.  This
     routine uses a local convention, shown in the following example,
     in which the keyword units are
     enclosed in square brackets in the beginning of the keyword comment
@@ -2933,7 +2970,7 @@ the underscore character be used in column names (with no embedded
 >   in Chapter 5 for more discussion on how to use this routine.
 
 -
-        FFGRSZ(unit, > nrows,status)
+        FTGRSZ(unit, > nrows,status)
 -
 
 ***2.  Low-Level Table Access Subroutines \label{FTGTBS}
@@ -2990,7 +3027,10 @@ do not use ASCII character codes in the internal data representations
     All the rows FOLLOWING row FROW are shifted down by NROWS rows.  If
     FROW or FROWLL equals 0 then the blank rows are inserted at the beginning of the 
     table.  These routines modify the NAXIS2 keyword to reflect the new 
->   number of rows in the table.  
+    number of rows in the table.  Note that it is *not* necessary to insert rows in a table before
+    writing data to those rows (indeed, it would be inefficient to do so).
+    Instead, one may simply write data to any row of the table, whether that
+>   row of data already exists or not.
 -
         FTIROW(unit,frow,nrows, > status)
         FTIROWLL(unit,frowll,nrowsll, > status)
@@ -3063,8 +3103,11 @@ differs from the data type of the calling subroutine.  The data values are also
 scaled by the TSCALn and TZEROn header values as they are being written to
 or read from the FITS array.  The fttscl subroutine MUST be used to define the
 scaling parameters when writing data to the table or to override the default
-scaling values given in the header
-when reading from the table. 
+scaling values given in the header when reading from the table. 
+Note that it is *not* necessary to insert rows in a table before
+writing data to those rows (indeed, it would be inefficient to do so).
+Instead, one may simply write data to any row of the table, whether that
+row of data already exists or not.
 
     In the case of binary tables with vector elements, the 'felem'
 parameter defines the starting pixel within the element vector.  This
@@ -3260,8 +3303,8 @@ of flags which defines whether the corresponding data pixel is undefined.
         FTGDES(unit,colnum,rownum, > nelements,offset,status) 
         FTGDESLL(unit,colnum,rownum, > nelementsll,offsetll,status) 
 
-        FFGDESS(unit,colnum,firstrow,nrows > nelements,offset, status)
-        FFGDESSLL(unit,colnum,firstrow,nrows > nelementsll,offsetll, status)
+        FTGDESS(unit,colnum,firstrow,nrows > nelements,offset, status)
+        FTGDESSLL(unit,colnum,firstrow,nrows > nelementsll,offsetll, status)
 -
 >12  Write the descriptor for a variable length column in a binary table. 
     These subroutines can be used in conjunction with FTGDES to enable
@@ -3341,9 +3384,13 @@ row ranges.  nranges specifies the number of row ranges, and firstrow
          FTCALC_RNG(inunit, expr, outunit, parName, parInfo,
             nranges, firstrow, lastrow, > status)
 -
->>7 Evaluate the given expression and return information on the result. 
+>7 Evaluate the given expression and return dimension and type information 
+on the result.  The returned dimensions correspond to a single row entry 
+of the requested expression, and are equivalent to the result of fits\_read\_tdim().
+Note that strings are considered to be one element regardless of string length.
+>If maxdim == 0, then naxes is optional.
 -
-         FTTEXP(unit, expr, > datatype, nelem, naxis, naxes, status)        
+         FTTEXP(unit, expr, maxdim > datatype, nelem, naxis, naxes, status)        
 -
  
 
@@ -3632,25 +3679,34 @@ The following utility subroutines may be useful for certain applications:
 -
         FTPSVC(card, > value,comment,status)
 -
->9  Construct a sequence keyword name (ROOT + nnn).
+>9  Construct a properly formated 80-character header keyword record from the
+    input keyword name, keyword value, and keyword comment strings.
+    Hierarchical keyword names (e.g., "ESO TELE CAM") are supported.
+    The value string may contain an integer, floating point, logical, or 
+    quoted character string (e.g., "12", "15.7", "T", 
+>    or "'NGC 1313'").  
+-
+        FTMKKY(keyname, value, comment, > card, status)
+-	  
+>10 Construct a sequence keyword name (ROOT + nnn).
     This subroutine appends the sequence number to the root string to create
 >   a keyword name (e.g., 'NAXIS' + 2 = 'NAXIS2')
 -
         FTKEYN(keyroot,seq_no, > keyword,status)
 -
->10 Construct a sequence keyword name (n + ROOT).
+>11 Construct a sequence keyword name (n + ROOT).
     This subroutine concatenates the sequence number to the front of the
 >   root string to create a keyword name (e.g., 1 + 'CTYP' = '1CTYP')
 -
         FTNKEY(seq_no,keyroot, > keyword,status)
 -
->11 Determine the datatype of a keyword value string.
+>12 Determine the datatype of a keyword value string.
     This subroutine parses the keyword value string (usually columns 11-30
 >   of the header record) to determine its datatype.  
 -
         FTDTYP(value, > dtype,status)
 -
->11 Return the class of input header record.  The record is classified
+>13 Return the class of input header record.  The record is classified
     into one of the following categories (the class values are
     defined in fitsio.h).  Note that this is one of the few FITSIO
 >   routines that does not return a status value. 
@@ -3661,8 +3717,8 @@ The following utility subroutines may be useful for certain applications:
                      XTENSION, TFIELDS, TTYPEn, TBCOLn, TFORMn, THEAP,
                      and the first 4 COMMENT keywords in the primary array
                      that define the FITS format.
-  TYP_CMPRS_KEY  20  The experimental keywords used in the compressed 
-                     image format ZIMAGE, ZCMPTYPE, ZNAMEn, ZVALn,
+  TYP_CMPRS_KEY  20  The keywords used in the compressed image  or table
+                     format, including ZIMAGE, ZCMPTYPE, ZNAMEn, ZVALn,
                      ZTILEn, ZBITPIX, ZNAXISn, ZSCALE, ZZERO, ZBLANK
   TYP_SCAL_KEY   30  BSCALE, BZERO, TSCALn, TZEROn
   TYP_NULL_KEY   40  BLANK, TNULLn
@@ -3686,7 +3742,7 @@ The following utility subroutines may be useful for certain applications:
 
          class = FTGKCL (char *card)
 -
->12 Parse the 'TFORM' binary table column format string.
+>14 Parse the 'TFORM' binary table column format string.
     This subroutine parses the input TFORM character string and returns the
     integer datatype code, the repeat count of the field, and, in the case
     of character string fields, the length of the unit string.  The following
@@ -3707,7 +3763,7 @@ The following utility subroutines may be useful for certain applications:
 
         FTBNFM(tform, > datacode,repeat,width,status)
 -
->13 Parse the 'TFORM' keyword value that defines the column format in
+>15 Parse the 'TFORM' keyword value that defines the column format in
     an ASCII table.  This routine parses the input TFORM character
     string and returns the datatype code, the width of the column,
     and (if it is a floating point column) the number of decimal places
@@ -3724,7 +3780,7 @@ The following utility subroutines may be useful for certain applications:
 -
         FTASFM(tform, > datacode,width,decimals,status)
 -
->14 Calculate the starting column positions and total ASCII table width
+>16 Calculate the starting column positions and total ASCII table width
     based on the input array of ASCII table TFORM values.  The SPACE input
     parameter defines how many blank spaces to leave between each column
     (it is recommended to have one space between columns for better human
@@ -3732,7 +3788,7 @@ The following utility subroutines may be useful for certain applications:
 -
         FTGABC(tfields,tform,space, > rowlen,tbcol,status)
 -
->15 Parse a template string and return a formatted 80-character string
+>17 Parse a template string and return a formatted 80-character string
     suitable for appending to (or deleting from) a FITS header file.  
     This subroutine is useful for parsing lines from an ASCII template file
     and reformatting them into legal FITS header records.  The formatted
@@ -3760,13 +3816,13 @@ The following utility subroutines may be useful for certain applications:
         (numeric, logical, or character string) is automatically determined
         and  the output CARD string is formatted accordingly.  The value
         token may be forced to be interpreted as a string (e.g. if it is a
->       string of numeric digits) by enclosing it in single quotes.
+        string of numeric digits) by enclosing it in single quotes.
+        If the value token is a character string that contains 1 or more 
+        embedded blank space characters or slash ('/') characters then the 
+>       entire character string must be enclosed in single quotes.
 
 >-      The COMMENT token is optional, but if present must be separated from
-        the VALUE token by at least one blank space.  A leading '/' character
-        may be used to mark the beginning of the comment field, otherwise the
-        comment field begins with the first non-blank character following the
->       value token.
+>       the VALUE token by a blank space or a  '/' character.
 
 >-      One exception to the above rules is that if the first non-blank
         character in the template string is a minus sign ('-') followed
@@ -3822,7 +3878,7 @@ The following utility subroutines may be useful for certain applications:
       # the following template line modifies the NAME keyword to OBJECT
       - NAME OBJECT
 -                
->16  Parse the input string containing a list of rows or row ranges, and
+>18  Parse the input string containing a list of rows or row ranges, and
      return integer arrays containing the first and last row in each
      range.  For example, if rowlist = "3-5, 6, 8-9" then it will
      return numranges = 3, rangemin = 3, 6, 8 and rangemax = 5, 6, 9.
@@ -4825,13 +4881,13 @@ also supplied.
 
 The column/keyword filter can be used to perform the following
 operations.  More than one operation may be specified by separating
-them with semi-colons.
+them with commas or semi-colons.
 
 \begin{itemize}
 
 \item
 Copy only a specified list of columns columns to the filtered input file.
-The list of column name should be separated by semi-colons.  Wild card
+The list of column name should be separated by commas or semi-colons.  Wild card
 characters may be used in the column names to match multiple columns.
 If the expression contains both a list of columns to be included and
 columns to be deleted, then all the columns in the original table 
@@ -4879,6 +4935,20 @@ This is especially useful when writing
 a column-related keyword like TUNITn for a newly created column,
 as shown in the following examples.
 
+COMMENT and HISTORY keywords may also be created with the following syntax:
+-
+   #COMMENT = 'This is a comment keyword'
+   #HISTORY = 'This is a history keyword'
+-
+Note that the equal sign and the quote characters will be removed, so
+that the resulting header keywords in these cases will look like this:
+-
+   COMMENT This is a comment keyword
+   HISTORY This is a history keyword
+-
+These two special keywords are always appended to the end of the header
+and will not affect any previously existing COMMENT or HISTORY keywords.
+
 \item
 Recompute (overwrite) the values in an existing column or keyword by
 giving the name followed by an equals sign and an arithmetic
@@ -4903,16 +4973,16 @@ For  complex  or commonly used operations,  one  can also  place the
 operations into an external text  file and import it  into the  column
 filter using  the syntax '[col @filename.txt]'.   The operations can
 extend over multiple lines of the  file, but multiple operations must
-still be separated by semicolons.   Any lines in the external text file
+still be separated by commas or semi-colons.   Any lines in the external text file
 that begin with 2 slash characters ('//') will be ignored and may be
 used to add comments into the file.
 
 Examples:
 -
-   [col Time;rate]               - only the Time and rate columns will
+   [col Time, rate]              - only the Time and rate columns will
                                    appear in the filtered input file.
 
-   [col Time;*raw]               - include the Time column and any other
+   [col Time, *raw]              - include the Time column and any other
                                    columns whose name ends with 'raw'.
 
    [col -TIME; Good == STATUS]   - deletes the TIME column and
@@ -4928,7 +4998,7 @@ Examples:
                                    the output table would only contain
                                    the single 'PI' column.
 
-   [col rate = rate/exposure; TUNIT#(&) = 'counts/s';*]
+   [col rate = rate/exposure, TUNIT#(&) = 'counts/s';*]
                                  - recomputes the rate column by dividing
                                    it by the EXPOSURE keyword value. This
                                    also modifies the value of the TUNITn
@@ -5341,15 +5411,18 @@ value.
 -
     where each "[]" demarks optional parameters. The region file name
     is required and must be  enclosed in quotes.  The remaining
-    parameters are optional.  The region file is an ASCII text file
-    which contains a list of one or more geometric shapes (circle,
+    parameters are optional.  There are 2 supported formats for the
+    region file: ASCII file or FITS binary table.  The region file 
+    contains a list of one or more geometric shapes (circle,
     ellipse, box, etc.) which defines a region on the celestial sphere
     or an area within a particular 2D image.  The region file is
     typically generated using an image display program such as fv/POW
     (distribute by the HEASARC), or ds9 (distributed by the Smithsonian
     Astrophysical Observatory).  Users should refer to the documentation
     provided with these programs for more details on the syntax used in
-    the region files.
+    the region files.  The FITS region file format is defined in a document
+    available from the FITS Support Office at 
+    http://fits.gsfc.nasa.gov/ registry/ region.html
 
     In its simplest form, (e.g., regfilter("region.reg") ) the
     coordinates in the default 'X' and 'Y' columns will be used to
@@ -5689,8 +5762,13 @@ the entire line is treated as a FITS comment keyword (with a blank
 keyword name) and is copied verbatim into the FITS header.
 
 The KEYVALUE field may have any allowed  FITS  data type: character
-string, logical, integer, real, complex integer, or complex real.  The
-character string values need not be enclosed in single quote characters
+string, logical, integer, real, complex integer, or complex real.  Integer
+values must be within the allowed range of a 'signed long' variable;  
+some C compilers only suppport 4-byte long integers with a range 
+from -2147483648 to +2147483647, whereas other C compilers support 8-byte
+integers with a range of plus or minus 2**63.  
+
+The character string values need not be enclosed in single quote characters
 unless they are necessary to distinguish the string from a different
 data type (e.g.  2.0 is a real but '2.0' is a string).  The keyword has
 an undefined (null) value if the template record only contains blanks
@@ -5890,7 +5968,7 @@ do not need to be enclosed in quotes.
  FITS File Open and Close Subroutines: page~\pageref{FTOPEN}
 -
         FTOPEN(unit,filename,rwmode, > blocksize,status)
-        FTDKOPEN(unit,filename,rwmode, > blocksize,status)
+        FTDKOPN(unit,filename,rwmode, > blocksize,status)
         FTNOPN(unit,filename,rwmode, > status)
         FTDOPN(unit,filename,rwmode, > status)
         FTTOPN(unit,filename,rwmode, > status)
@@ -5909,7 +5987,7 @@ do not need to be enclosed in quotes.
         FTEXTN(filename, > nhdu, status)
         FTFLNM(unit, > filename, status)
         FTFLMD(unit, > iomode, status)
-        FFURLT(unit, > urltype, status)
+        FTURLT(unit, > urltype, status)
         FTIURL(filename, > filetype, infile, outfile, extspec, filter, 
                binspec, colspec, status)
         FTRTNM(filename, > rootname, status)
@@ -5999,6 +6077,8 @@ do not need to be enclosed in quotes.
         FTGNXK(unit,inclist,ninc,exclist,nexc, > card,status)
         FTGKEY(unit,keyword, > value,comment,status) 
         FTGKY[EDJKLS](unit,keyword, > keyval,comment,status)
+        FTGKSL(unit,keyword, > length,status)
+        FTGSKY(unit,keyword,firstchar,maxchar,> keyval,length,comment,status)
         FTGKN[EDJKLS](unit,keyroot,startno,max_keys, > keyvals,nfound,status)
         FTGKYT(unit,keyword, > intval,dblval,comment,status)
         FTGUNT(unit,keyword, > units,status)
@@ -6076,7 +6156,7 @@ do not need to be enclosed in quotes.
         FTPTDM(unit,colnum,naxis,naxes, > status)
         FTGTDM(unit,colnum,maxdim, > naxis,naxes,status)
         FTDTDM(unit,tdimstr,colnum,maxdim, > naxis,naxes, status)
-        FFGRSZ(unit, > nrows,status)
+        FTGRSZ(unit, > nrows,status)
 -
  Low-Level Table Access Subroutines: page~\pageref{FTGTBS}
 -
@@ -6168,6 +6248,7 @@ do not need to be enclosed in quotes.
         FTTREC(card, > status)
         FTNCHK(unit, > status)
         FTGKNM(unit, > keyword, keylength, status)
+        FTMKKY(keyword, value,comment, > card, status)
         FTPSVC(card, > value,comment,status)
         FTKEYN(keyroot,seq_no, > keyword,status)
         FTNKEY(seq_no,keyroot, > keyword,status)
@@ -6262,7 +6343,7 @@ inclist  (character array) list of names to be included in search
 incs - (integer array) sampling interval for pixels in each FITS dimension
 intval - (integer) integer part of the keyword value
 iounit - (integer) value of an unused I/O unit number
-iunit - (integer) logical unit number associated with the input FITS file, 1-199
+iunit - (integer) logical unit number associated with the input FITS file, 1-300
 key_no - (integer) sequence number (starting with 1) of the keyword record
 keylength - (integer) length of the keyword name
 keyroot - (character) root string for the keyword name
@@ -6304,7 +6385,7 @@ nextaddr - (integer) starting address (in bytes) of the HDU following the CHDU
 offset - (integer) byte offset in the heap to the first element of the array
 offsetll - (integer*8) byte offset in the heap to the first element of the array
 oldkey - (character) old name of keyword to be modified
-ounit - (integer) logical unit number associated with the output FITS file 1-199
+ounit - (integer) logical unit number associated with the output FITS file 1-300
 pcount - (integer) value of the PCOUNT keyword (usually = 0)
 previous - (integer) if not equal to 0, copy all previous HDUs in the input file
 repeat - (integer) length of element vector (e.g. 12J); ignored for ASCII table
@@ -6346,7 +6427,7 @@ ttype - (character array) label for table column(s)
 tscal - (double precision) scaling factor for table column
 tunit - (character array) physical unit for table column(s)
 tzero - (double precision) scaling zero point for table column
-unit  - (integer) logical unit number associated with the FITS file (1-199)
+unit  - (integer) logical unit number associated with the FITS file (1-300)
 units - (character) the keyword units string (e.g., 'km/s')
 value - (character) the keyword value string
 values - array of data values of the appropriate datatype
@@ -6386,7 +6467,7 @@ FITSIO use.
 111  internal array dimensions exceeded
 112  Cannot modify file with readonly access
 113  Could not allocate memory
-114  illegal logical unit number; must be between 1 - 199, inclusive
+114  illegal logical unit number; must be between 1 - 300, inclusive
 115  NULL input pointer to routine
 116  error seeking position in file
 
@@ -6473,7 +6554,7 @@ FITSIO use.
 323  illegal axis length less than 1
 
 340 NOT_GROUP_TABLE 340   Grouping function error
-341  HDU_ALREADY_MEMBER    
+341 HDU_ALREADY_MEMBER    
 342 MEMBER_NOT_FOUND      
 343 GROUP_NOT_FOUND       
 344 BAD_GROUP_ID          

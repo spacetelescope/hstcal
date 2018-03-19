@@ -355,10 +355,10 @@ int ffpclj( fitsfile *fptr,  /* I - FITS file pointer                       */
   and will be inverse-scaled by the FITS TSCALn and TZEROn values if necessary.
 */
 {
-    int tcode, maxelem, hdutype, writeraw;
+    int tcode, maxelem2, hdutype, writeraw;
     long twidth, incre;
     long ntodo;
-    LONGLONG repeat, startpos, elemnum, wrtptr, rowlen, rownum, remain, next, tnull;
+    LONGLONG repeat, startpos, elemnum, wrtptr, rowlen, rownum, remain, next, tnull, maxelem;
     double scale, zero;
     char tform[20], cform[20];
     char message[FLEN_ERRMSG];
@@ -377,9 +377,10 @@ int ffpclj( fitsfile *fptr,  /* I - FITS file pointer                       */
     /*  Check input and get parameters about the column: */
     /*---------------------------------------------------*/
     if (ffgcprll( fptr, colnum, firstrow, firstelem, nelem, 1, &scale, &zero,
-        tform, &twidth, &tcode, &maxelem, &startpos,  &elemnum, &incre,
+        tform, &twidth, &tcode, &maxelem2, &startpos,  &elemnum, &incre,
         &repeat, &rowlen, &hdutype, &tnull, snull, status) > 0)
         return(*status);
+    maxelem = maxelem2;
 
     if (tcode == TSTRING)   
          ffcfmt(tform, cform);     /* derive C format for writing strings */
@@ -395,7 +396,11 @@ int ffpclj( fitsfile *fptr,  /* I - FITS file pointer                       */
        MACHINE == NATIVE && tcode == TLONG && LONGSIZE == 32)
     {
         writeraw = 1;
-        maxelem = (int) nelem;  /* we can write the entire array at one time */
+        if (nelem < (LONGLONG)INT32_MAX) {
+            maxelem = nelem;
+        } else {
+            maxelem = INT32_MAX/8;
+        }
     }
     else
         writeraw = 0;
@@ -493,7 +498,7 @@ int ffpclj( fitsfile *fptr,  /* I - FITS file pointer                       */
                 /* can't write to string column, so fall thru to default: */
 
             default:  /*  error trap  */
-                sprintf(message, 
+                snprintf(message, FLEN_ERRMSG,
                      "Cannot write numbers to column %d which has format %s",
                       colnum,tform);
                 ffpmsg(message);
@@ -509,7 +514,7 @@ int ffpclj( fitsfile *fptr,  /* I - FITS file pointer                       */
         /*-------------------------*/
         if (*status > 0)  /* test for error during previous write operation */
         {
-          sprintf(message,
+          snprintf(message,FLEN_ERRMSG,
           "Error writing elements %.0f thru %.0f of input data array (ffpclj).",
               (double) (next+1), (double) (next+ntodo));
           ffpmsg(message);
@@ -564,7 +569,7 @@ int ffpcnj( fitsfile *fptr,  /* I - FITS file pointer                       */
 */
 {
     tcolumn *colptr;
-    long  ngood = 0, nbad = 0, ii;
+    LONGLONG  ngood = 0, nbad = 0, ii;
     LONGLONG repeat, first, fstelm, fstrow;
     int tcode, overflow = 0;
  
@@ -1336,10 +1341,10 @@ int ffpcljj(fitsfile *fptr,  /* I - FITS file pointer                       */
   and will be inverse-scaled by the FITS TSCALn and TZEROn values if necessary.
 */
 {
-    int tcode, maxelem, hdutype, writeraw;
+    int tcode, maxelem2, hdutype, writeraw;
     long twidth, incre;
     long  ntodo;
-    LONGLONG repeat, startpos, elemnum, wrtptr, rowlen, rownum, remain, next, tnull;
+    LONGLONG repeat, startpos, elemnum, wrtptr, rowlen, rownum, remain, next, tnull, maxelem;
     double scale, zero;
     char tform[20], cform[20];
     char message[FLEN_ERRMSG];
@@ -1358,9 +1363,10 @@ int ffpcljj(fitsfile *fptr,  /* I - FITS file pointer                       */
     /*  Check input and get parameters about the column: */
     /*---------------------------------------------------*/
     if (ffgcprll( fptr, colnum, firstrow, firstelem, nelem, 1, &scale, &zero,
-        tform, &twidth, &tcode, &maxelem, &startpos,  &elemnum, &incre,
+        tform, &twidth, &tcode, &maxelem2, &startpos,  &elemnum, &incre,
         &repeat, &rowlen, &hdutype, &tnull, snull, status) > 0)
         return(*status);
+    maxelem = maxelem2;
 
     if (tcode == TSTRING)   
          ffcfmt(tform, cform);     /* derive C format for writing strings */
@@ -1376,7 +1382,11 @@ int ffpcljj(fitsfile *fptr,  /* I - FITS file pointer                       */
        MACHINE == NATIVE && tcode == TLONGLONG)
     {
         writeraw = 1;
-        maxelem = (int) nelem;  /* we can write the entire array at one time */
+        if (nelem < (LONGLONG)INT32_MAX/8) {
+            maxelem = nelem;
+        } else {
+            maxelem = INT32_MAX/8;
+        }
     }
     else
         writeraw = 0;
@@ -1474,7 +1484,7 @@ int ffpcljj(fitsfile *fptr,  /* I - FITS file pointer                       */
                 /* can't write to string column, so fall thru to default: */
 
             default:  /*  error trap  */
-                sprintf(message, 
+                snprintf(message, FLEN_ERRMSG,
                      "Cannot write numbers to column %d which has format %s",
                       colnum,tform);
                 ffpmsg(message);
@@ -1490,7 +1500,7 @@ int ffpcljj(fitsfile *fptr,  /* I - FITS file pointer                       */
         /*-------------------------*/
         if (*status > 0)  /* test for error during previous write operation */
         {
-          sprintf(message,
+          snprintf(message,FLEN_ERRMSG,
           "Error writing elements %.0f thru %.0f of input data array (ffpclj).",
               (double) (next+1), (double) (next+ntodo));
           ffpmsg(message);
@@ -1545,7 +1555,7 @@ int ffpcnjj(fitsfile *fptr,  /* I - FITS file pointer                       */
 */
 {
     tcolumn *colptr;
-    long  ngood = 0, nbad = 0, ii;
+    LONGLONG  ngood = 0, nbad = 0, ii;
     LONGLONG repeat, first, fstelm, fstrow;
     int tcode, overflow = 0;
 
