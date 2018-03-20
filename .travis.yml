@@ -1,74 +1,50 @@
 language: c
+sudo: false
 
 env:
   global:
     # Set defaults to avoid repeating in most cases
-    - MAIN_CMD="python --version"
-    - SETUP_CMD=""
-    - EXE_PREFIX="/tmp/miniconda3"
-    - CONDA_DEPS="cfitsio curl gcc pkg-config"
-    - PYTHON_VERSION=3.6
     - ASTROCONDA=http://ssb.stsci.edu/astroconda
+    - CONDA_DEPS="cfitsio curl gcc pkg-config"
+    - EXE_PREFIX="/tmp/miniconda3"
+    - PYTHON_VERSION=3.6
+    - WAF_ARGS_CONFIGURE="-v"
+    - WAF_ARGS_BUILD="-v"
+    - WAF_ARGS_INSTALL="-v"
 
 matrix:
   fast_finish: true
 
   include:
   - os: linux
-    sudo: false
     compiler: gcc
     env:
       - PYTHON_VERSION=2.7
 
   - os: linux
-    sudo: false
     compiler: gcc
     env:
       - PYTHON_VERSION=3.5
 
   - os: linux
-    sudo: false
     compiler: gcc
 
   - os: osx
-    env:
-      - PYTHON_VERSION=2.7
-      - CFLAGS="-m64"
-      - LDFLAGS="-m64 -Wl,-rpath $EXE_PREFIX/envs/test/lib"
-
-  - os: osx
-    env:
-      - PYTHON_VERSION=3.5
-      - CFLAGS="-m64"
-      - LDFLAGS="-m64 -Wl,-rpath $EXE_PREFIX/envs/test/lib"
-
-  - os: osx
-    env:
-      - CFLAGS="-m64"
-      - LDFLAGS="-m64 -Wl,-rpath $EXE_PREFIX/envs/test/lib"
-
-  - os: osx
     compiler: clang
     env:
       - PYTHON_VERSION=2.7
       - CC="clang"
-      - CFLAGS="-arch x86_64"
-      - LDFLAGS="-arch x86_64"
 
   - os: osx
     compiler: clang
     env:
       - PYTHON_VERSION=3.5
       - CC="clang"
-      - CFLAGS="-arch x86_64"
-      - LDFLAGS="-arch x86_64"
 
   - os: osx
     compiler: clang
     env:
       - CC="clang"
-      - CFLAGS="-arch x86_64"
-      - LDFLAGS="-arch x86_64"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CONDA_INSTALLER=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh; fi
@@ -81,9 +57,10 @@ before_install:
 
 install:
   - conda install --yes -c $ASTROCONDA $CONDA_DEPS
-  - ./waf configure --prefix=$CONDA_PREFIX
-  - ./waf build
-  - ./waf install
+  - ./waf configure --prefix=$CONDA_PREFIX $WAF_ARGS_CONFIGURE
+  - ./waf build $WAF_ARGS_BUILD
+  - ./waf install $WAF_ARGS_INSTALL
 
 script:
-  - $MAIN_CMD $SETUP_CMD
+  # Without this dead call, "language: c" runs its own WAF-unaware script
+  - python --version
