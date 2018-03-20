@@ -6,8 +6,9 @@ env:
     - MAIN_CMD="python --version"
     - SETUP_CMD=""
     - EXE_PREFIX="/tmp/miniconda3"
-    - CONDA_DEPS="gcc"
+    - CONDA_DEPS="cfitsio gcc"
     - PYTHON_VERSION=3.6
+    - ASTROCONDA=http://ssb.stsci.edu/astroconda
 
 matrix:
   fast_finish: true
@@ -79,7 +80,7 @@ before_install:
   - source activate test
 
 install:
-  - conda install --yes $CONDA_DEPS
+  - conda install --yes -c $ASTROCONDA $CONDA_DEPS
   - ./waf configure --prefix=$CONDA_PREFIX
   - ./waf build
   - ./waf install
