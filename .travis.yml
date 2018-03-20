@@ -6,7 +6,7 @@ env:
     - MAIN_CMD="python --version"
     - SETUP_CMD=""
     - EXE_PREFIX="/tmp/miniconda3"
-    - CONDA_DEPS="cfitsio gcc"
+    - CONDA_DEPS="cfitsio curl gcc pkg-config"
     - PYTHON_VERSION=3.6
     - ASTROCONDA=http://ssb.stsci.edu/astroconda
 
