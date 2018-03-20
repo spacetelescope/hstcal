@@ -269,7 +269,17 @@ def _determine_sizeof_int(conf):
 
 def _use_cfitsio(conf):
     conf.load('compiler_c')
-    conf.check_cfg(package='cfitsio', args='--cflags --libs', uselib_store='CFITSIO')
+
+    if conf.options.with_cfitsio:
+        # Manual override of CFITSIO root path via --with-cfitsio
+        base = os.path.abspath(conf.options.with_cfitsio)
+        conf.env.INCLUDES_CFITSIO = os.path.join(base, 'include')
+        conf.env.LIBPATH_CFITSIO = os.path.join(base, 'lib')
+        conf.env.LIB_CFITSIO = ['cfitsio', 'pthread', 'curl']
+        conf.env.DEFINES += ['HAVE_CFITSIO=1']
+    else:
+        # Let pkg-config figure it out (default behavior)
+        conf.check_cfg(package='cfitsio', args='--cflags --libs', uselib_store='CFITSIO')
 
 
 def configure(conf):
