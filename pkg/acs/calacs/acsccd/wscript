@@ -7,6 +7,7 @@ def build(bld):
         use = ['hstcallib', 'calacs', 'imphttab'] + bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
+        rpath=bld.env.LIBPATH_CFITSIO,
         install_path = '${PREFIX}/bin'
         )
 
