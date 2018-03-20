@@ -18,5 +18,6 @@ def build(bld):
         use = bld.env.LOCAL_LIBS,
         lib = bld.env.EXTERNAL_LIBS,
         libpath = bld.env.LIBPATH,
+        rpath=bld.env.LIBPATH_CFITSIO,
         install_path = bld.env.INSTALL_LIB and '${PREFIX}/lib'
         )
