@@ -66,7 +66,7 @@ def options(opt):
 
     opt.add_option(
         '--with-cfitsio',
-        help='Coerce path to CFITSIO')
+        help='Path to CFITSIO installation directory')
 
 
 def _setup_openmp(conf):
