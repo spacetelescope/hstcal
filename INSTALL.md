@@ -115,7 +115,7 @@ To enable support for debugging symbols run, `./waf configure --debug`
 
 ## build.cfg file
 
-Shell arguments passed to `configure` (or `./waf configure`) may be issued via `build.cfg`.  This configuration file may contain any arguments accepted by `./waf configure`.  An example is given in the `build.cfg.example` file.
+Shell arguments normally passed to `./waf configure` may be issued via `build.cfg`.  This configuration file may contain any arguments accepted by `./waf configure`.  An example is given in the `build.cfg.example` file.
 
 
 # Notes for developers
