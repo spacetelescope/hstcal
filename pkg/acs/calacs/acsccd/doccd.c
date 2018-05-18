@@ -13,12 +13,16 @@
  11-Dec-2012 PLL: Moved FLSHCORR stuff to ACS2D.
  12-Aug-2012 PLL: Separated PCTECORR from ACSCCD.
  21-Feb-2017 PLL: Added SINKCORR.
+ 16-May-2018 MDD: Specific supported subarrays can now be bias shift
+     corrected. Clarified the logic that determines if data is processed 
+     with doBlev or bias_shift/cross_talk/destripe correction.
 
 ** This code is a trimmed down version of CALSTIS1 do2d.c.
 */
 # include <string.h>
 # include <stdio.h>
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "hstio.h"
 
@@ -27,12 +31,30 @@
 # include "hstcalerr.h"
 
 
-static void dqiMsg (ACSInfo *, int);
-/*static void AtoDMsg (ACSInfo *, int);*/ /* Not used */
-static void BiasMsg (ACSInfo *, int);
-static void BlevMsg (ACSInfo *, int);
-static void SinkMsg (ACSInfo *, int);
+static void dqiMsg (ACSInfo *, const int);
+static void BiasMsg (ACSInfo *, const int);
+static void BlevMsg (ACSInfo *, const int);
+static void SinkMsg (ACSInfo *, const int);
 
+/* This variable contains the subarray aperture names for the officially supported
+   subarrays since ~Cycle 24.  The polarizer and ramp subarray apertures did NOT 
+   change aperture names, even though the dimensions of the data changed to accommodate 
+   overscan.  In addition to checking the aperture name, the dimensions will also need 
+   to be checked for pol/ramp data to determine if the bias shift correction 
+   can be applied.
+
+   The non-pol and non-ramp data adopted new aperture names for easy identification.
+   These apertures contain physical overscan.  The new "-2K" subarrays also have virtual 
+   overscan so the bias shift correction can be applied to this data. At this time,
+   bias shift correction can only be applied to data with both physical and virtual
+   overscan so the "fat zero" value can be computed.
+*/
+static const char *subApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
+                                     "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-MRAMPQ", "WFC2-ORAMPQ",
+                                     "WFC1-POL0UV", "WFC1-POL0V", "WFC2-POL0UV", "WFC2-POL0V",
+                                     "WFC1-POL60UV", "WFC1-POL60V", "WFC2-POL60UV", "WFC2-POL60V",
+                                     "WFC1-POL120UV", "WFC1-POL120V", "WFC2-POL120UV", "WFC2-POL120V"};
+static const int numSupportedSubApertures = sizeof(subApertures) / sizeof(subApertures[0]);
 
 int DoCCD (ACSInfo *acs_info) {
 
@@ -42,25 +64,13 @@ int DoCCD (ACSInfo *acs_info) {
 
     extern int status;
 
-    SingleGroup * x;  /* used for both input and output */
-    ACSInfo * acs;    /* hold a copy of the acs_info struct for each extension */
-    int option = 0;
-    float meanblev;   /* mean value of overscan bias (for history) */
-    int driftcorr;    /* true means bias level was corrected for drift */
-    int done;         /* true means the input SingleGroup has been freed */
-    int sizex, sizey;  /* size of output image */
-
-    int i, j;  /* loop index */
-    int * overscan;
-    int * blevcorr;
     char buff[ACS_FITS_REC+1];
-    Bool subarray;
 
     int to_electrons(ACSInfo *, SingleGroup *);
     int doBias (ACSInfo *, SingleGroup *);
     int biasHistory (ACSInfo *, Hdr *);
     int doBlev (ACSInfo *, SingleGroup *, int, float *, int *, int *);
-    int bias_shift_corr(ACSInfo *, SingleGroup *, SingleGroup *);
+    int bias_shift_corr(ACSInfo *, int, ...);
     void cross_talk_corr(ACSInfo *, SingleGroup *);
     int doDestripe(ACSInfo *, SingleGroup *, SingleGroup *);
     int blevHistory (ACSInfo *, Hdr *, int, int);
@@ -81,22 +91,35 @@ int DoCCD (ACSInfo *acs_info) {
     void TimeStamp (char *, char *);
     void UCalVer (Hdr *);
     void UFilename (char *, Hdr *);
-    int FindOverscan (ACSInfo *, int, int, int *);
+    int FindOverscan (ACSInfo *, int, int, int *, int *);
     int GetCCDTab (ACSInfo *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
 
     /*========================Start Code here =======================*/
 
-    /* set up an array of SingleGroups to hold all image extensions */
-    x = (SingleGroup *) malloc(acs_info->nimsets * sizeof(SingleGroup));
-    acs = (ACSInfo *) malloc(acs_info->nimsets * sizeof(ACSInfo));
-    overscan = (int *) malloc(acs_info->nimsets * sizeof(int));
-    blevcorr = (int *) malloc(acs_info->nimsets * sizeof(int));
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
 
+    /* set up an array of SingleGroups to hold all image extensions */
+    SingleGroup * x = NULL;   /* used for both input and output */
+    x = (SingleGroup *) malloc(acs_info->nimsets * sizeof(SingleGroup));
+    if (!x)
+       return (status = OUT_OF_MEMORY);
+    addPtr(&ptrReg, x, &free);
+
+    ACSInfo * acs   = NULL;   /* hold a copy of the acs_info struct for each extension */
+    acs = (ACSInfo *) malloc(acs_info->nimsets * sizeof(ACSInfo));
+    if (!acs) {
+       freeOnExit (&ptrReg);
+       return (status = OUT_OF_MEMORY);
+    }
+    addPtr(&ptrReg, acs, &free);
+
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         initSingleGroup(&x[i]);
         acs[i] = *acs_info;
-    }
+    }}
 
     if (acs_info->printtime)
         TimeStamp ("Open SingleGroup now...", "");
@@ -107,14 +130,15 @@ int DoCCD (ACSInfo *acs_info) {
        processing step functions and pass along modified input image
        from one step to the next...
     */
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         getSingleGroup(acs[i].input, i+1, &x[i]);
-
         if (hstio_err()) {
-            freeSingleGroup(&x[i]);
+            freeOnExit (&ptrReg);
             return (status = OPEN_FAILED);
         }
-    }
+        addPtr(&ptrReg, &x[i], &freeSingleGroup);
+    }}
 
     if (acs_info->printtime)
         TimeStamp ("Input read into memory", acs_info->rootname);
@@ -122,16 +146,20 @@ int DoCCD (ACSInfo *acs_info) {
     /* Get header info that varies from imset to imset necessary
        for reading CCDTAB.
     */
+    Bool subarray = False;
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
-            freeSingleGroup(&x[i]);
+            freeOnExit (&ptrReg);
             return (status);
         }
 
         /* Read in keywords from primary header... */
 
-        if (GetKeyBool(x[i].globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
+        if (GetKeyBool(x[i].globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray)) {
+            freeOnExit (&ptrReg);
             return (status);
+        }
 
         if (subarray)
             acs[i].subarray = YES;
@@ -143,278 +171,582 @@ int DoCCD (ACSInfo *acs_info) {
         */
         /* Get values from tables, using same function used in ACSCCD. */
         if (GetCCDTab(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny)) {
-            freeSingleGroup(&x[i]);
+            freeOnExit (&ptrReg);
             return (status);
         }
-    }
+    }}
 
-    if (PutKeyFlt(x[0].globalhdr, "ATODGNA", acs[0].atodgain[0], ""))
+    int primaryIdx = 0;
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNA", acs[primaryIdx].atodgain[0], "")) {
+        freeOnExit (&ptrReg);
         return (status);
-    if (PutKeyFlt(x[0].globalhdr, "ATODGNB", acs[0].atodgain[1], ""))
+    }
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNB", acs[primaryIdx].atodgain[1], "")) {
+        freeOnExit (&ptrReg);
         return (status);
-    if (PutKeyFlt(x[0].globalhdr, "ATODGNC", acs[0].atodgain[2], ""))
+    }
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNC", acs[primaryIdx].atodgain[2], "")) {
+        freeOnExit (&ptrReg);
         return (status);
-    if (PutKeyFlt(x[0].globalhdr, "ATODGND", acs[0].atodgain[3], ""))
+    }
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGND", acs[primaryIdx].atodgain[3], "")) {
+        freeOnExit (&ptrReg);
         return (status);
-    if (PutKeyFlt(x[0].globalhdr, "READNSEA", acs[0].readnoise[0], ""))
+    }
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSEA", acs[primaryIdx].readnoise[0], "")) {
+        freeOnExit (&ptrReg);
         return (status);
-    if (PutKeyFlt(x[0].globalhdr, "READNSEB", acs[0].readnoise[1], ""))
+    }
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSEB", acs[primaryIdx].readnoise[1], "")) {
+        freeOnExit (&ptrReg);
         return (status);
-    if (PutKeyFlt(x[0].globalhdr, "READNSEC", acs[0].readnoise[2], ""))
+    }
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSEC", acs[primaryIdx].readnoise[2], "")) {
+        freeOnExit (&ptrReg);
         return (status);
-    if (PutKeyFlt(x[0].globalhdr, "READNSED", acs[0].readnoise[3], ""))
+    }
+    if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSED", acs[primaryIdx].readnoise[3], "")) {
+        freeOnExit (&ptrReg);
         return (status);
+    }
 
     trlmessage("\n");
 
-    PrRefInfo("ccdtab", acs[0].ccdpar.name, acs[0].ccdpar.pedigree,
-              acs[0].ccdpar.descrip, acs[0].ccdpar.descrip2);
+    PrRefInfo("ccdtab", acs[primaryIdx].ccdpar.name, acs[primaryIdx].ccdpar.pedigree,
+              acs[primaryIdx].ccdpar.descrip, acs[primaryIdx].ccdpar.descrip2);
 
-    if (CCDHistory(&acs[0], x[0].globalhdr))
+    if (CCDHistory(&acs[primaryIdx], x[primaryIdx].globalhdr)) {
+        freeOnExit (&ptrReg);
         return (status);
+    }
 
     /* Get overscan region information from OSCNTAB */
+    int * overscan = NULL;
+    int * virtOverscan = NULL;
+    overscan = (int *) malloc(acs_info->nimsets * sizeof(int));
+    if (!overscan) {
+       freeOnExit (&ptrReg);
+       return (status = OUT_OF_MEMORY);
+    }
+    addPtr (&ptrReg, overscan, &free);
+
+    virtOverscan = (int *) malloc(acs_info->nimsets * sizeof(int));
+    if (!virtOverscan) {
+       freeOnExit (&ptrReg);
+       return (status = OUT_OF_MEMORY);
+    }
+    addPtr (&ptrReg, virtOverscan, &free);
+
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (FindOverscan(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny,
-                         &overscan[i])) {
-            freeSingleGroup(&x[i]);
+                         &overscan[i], &virtOverscan[i])) {
+            freeOnExit (&ptrReg);
             return (status);
         }
-    }
+    }}
 
     /************************************************************************/
     /* Data quality initialization and (for the CCDs) check saturation. */
-    dqiMsg(&acs[0], 1);
+    const int nextver = 1;
+    dqiMsg(&acs[primaryIdx], nextver);
 
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].dqicorr == PERFORM || acs[i].dqicorr == DUMMY) {
-            if (doDQI(&acs[i], &x[i]))
+            if (doDQI(&acs[i], &x[i])) {
+                freeOnExit (&ptrReg);
                 return (status);
+            }
         }
-    }
+    }}
 
     PrSwitch("dqicorr", COMPLETE);
 
     if (acs_info->printtime)
         TimeStamp("DQICORR complete", acs_info->rootname);
 
-    if (!OmitStep(acs[0].dqicorr))
-        if (dqiHistory(&acs[0], x[0].globalhdr))
+    if (!OmitStep(acs[primaryIdx].dqicorr)) {
+        if (dqiHistory(&acs[primaryIdx], x[primaryIdx].globalhdr)) {
+            freeOnExit (&ptrReg);
             return (status);
+        }
+    }
     /************************************************************************/
 
     /************************************************************************/
     /* Subtract bias image. */
-    BiasMsg(&acs[0], 1);
+    BiasMsg(&acs[primaryIdx], nextver);
 
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM) {
-            if (doBias(&acs[i], &x[i]))
+            if (doBias(&acs[i], &x[i])) {
+                freeOnExit (&ptrReg);
                 return (status);
+            }
         }
-    }
+    }}
 
     PrSwitch("biascorr", COMPLETE);
 
     if (acs_info->printtime)
         TimeStamp ("BIASCORR complete", acs_info->rootname);
 
-    if (!OmitStep(acs[0].biascorr))
-        if (biasHistory(&acs[0], x[0].globalhdr))
+    if (!OmitStep(acs[primaryIdx].biascorr)) {
+        if (biasHistory(&acs[primaryIdx], x[primaryIdx].globalhdr)) {
+            freeOnExit (&ptrReg);
             return (status);
+       }
+    }
     /************************************************************************/
 
     /************************************************************************/
     /* convert data to electrons */
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (to_electrons(&acs[i], &x[i])) {
-            freeSingleGroup(&x[i]);
+            freeOnExit (&ptrReg);
             return (status);
         }
 
         if (PutKeyStr(&x[i].sci.hdr, "BUNIT", "ELECTRONS", "")) {
-            freeSingleGroup(&x[i]);
+            freeOnExit (&ptrReg);
             return (status);
         }
         if (PutKeyStr(&x[i].err.hdr, "BUNIT", "ELECTRONS", "")) {
-            freeSingleGroup(&x[i]);
+            freeOnExit (&ptrReg);
             return (status);
         }
-    }
+    }}
     /************************************************************************/
 
     /************************************************************************/
     /* Subtract bias level determined from overscan. */
-    BlevMsg(&acs[0], 1);
+    BlevMsg(&acs[primaryIdx], nextver);
 
+    int * blevcorr = NULL;
+    blevcorr = (int *) malloc(acs_info->nimsets * sizeof(int));
+    if (!blevcorr) {
+       freeOnExit (&ptrReg);
+       return (OUT_OF_MEMORY);
+    }
+    addPtr (&ptrReg, blevcorr, free);
+
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         blevcorr[i] = PERFORM;
-    }
+    }}
 
-    /* default blev case, do original bias level subtraction */
-    if (acs_info->blevcorr == PERFORM &&
-        ((acs_info->expstart < SM4MJD && acs_info->detector == WFC_CCD_DETECTOR) ||
-         (acs_info->detector == WFC_CCD_DETECTOR && acs_info->subarray == YES) ||
-         (acs_info->detector != WFC_CCD_DETECTOR))) {
-        for (i = 0; i < acs_info->nimsets; i++) {
-            /* This is set based on results of FindOver */
-            done = overscan[i];
+    /* The logic here has been re-written (1) to accommodate the new subarrays
+       (Ref: ISR ACS 2017-03) which can be bias shift corrected ("*-2K" data only at 
+       this time), and (2) the head of the ACS team requested the logic be clarified.  
+       This code is verbose and potentially harder to maintain, but the logic is clearer
+       for the scientist reading the code.
 
-            if (doBlev(&acs[i], &x[i], acs[i].chip, &meanblev, &done,
-                       &driftcorr))
-                return (status);
+       NOTE: The variable "done" is overloaded.  When done = overscan[i], this means
+       a column was matched in the OSCNTAB for the image and there is physical overscan
+       in the image.  Variable "done" is updated in doblev() to indicate the bias has
+       been determined from the overscan region rather than using a default bias obtained
+       from CCDTAB.
+    */
 
-            if (done) {
-                trlmessage("Bias level from overscan has been subtracted;");
+    int done = NO;       
+    int driftcorr = NO;     /* true means bias level was corrected for drift */
+    Bool isSupportedSubAperture = NO;
+    float meanblev = 0.0;   /* mean value of overscan bias (for history) */
+    if (acs_info->blevcorr == PERFORM) {
 
-                if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
-                              "mean of bias levels subtracted in electrons")) {
+       /* This block handles only the WFC detector */
+       if (acs_info->detector == WFC_CCD_DETECTOR) {
+
+          /* If this is subarray data, determine if it is supported for the bias shift 
+             correction.  Compare the aperture name against the array of supported
+             apertures.  Use the aperture name and not the date as the discriminant 
+             as the date is fuzzy - some supported subarrays were acquired before the 
+             official name change, and some old style subarrays were acquired after the 
+             change.  This scheme works fine for non-polarization and non-ramp data as the
+             "*-2K" apertures have both physical and virtual overscan.  These are needed
+             to compute the "fat zero" (aka magic square) value needed for the bias
+             shift correction.  The "*-1K and *-512" subarrays do not have virtual 
+             overscan which is needed at this time for fat zero.
+
+             For polarization and ramp subarrays, the aperture names did not change.  For 
+             this data, the dimensions of the image also have to be checked to determine 
+             if there are both physical and virtual overscan sections so the bias shift 
+             correction can be applied.
+          */
+          if (acs_info->subarray == YES) {
+             {unsigned int i;
+             for (i = 0; i < numSupportedSubApertures; i++) {
+                 if (strcmp(acs_info->aperture, subApertures[i]) == 0) {
+
+                    /* If this is polarization or ramp data, then the size of the science
+                       array must also be checked to make sure there is physical and
+                       virtual overscan data.  This does not need to be checked explicitly
+                       for non-polarization or non-ramp data, but the comparison works for 
+                       this data too.  Only need to check one virtOverscan value in the array. 
+
+                       NOTE:Just because the aperture is supported does not mean the bias
+                       shift correction will be applied.  The DS_int and gain criteria also
+                       have to be satisfied.
+                    */
+                    if (virtOverscan[0]) {
+                       isSupportedSubAperture = YES;
+                       trlmessage("This subarray data is supported for the bias shift correction.");
+                    }
+                 }
+             }}
+          }
+
+          /* Only Pre-SM4 WFC data - this is the original bias level subtraction */
+          if (acs_info->expstart < SM4MJD) {
+
+             {unsigned int i;
+             for (i = 0; i < acs_info->nimsets; i++) {
+
+                 /* The variable done is set to the results of FindOver indicating there is
+                    physical overscan. */
+                 done = overscan[i];
+
+                 if (doBlev(&acs[i], &x[i], acs[i].chip, &meanblev, &done, &driftcorr)) {
+                    freeOnExit (&ptrReg);
                     return (status);
-                }
+                 }
 
-                sprintf(MsgText, "     mean of bias levels subtracted was %.6g electrons.", meanblev);
-                trlmessage(MsgText);
+                 /* Variable done is overwritten in doBlev if bias is determined from overscan region */
+                 if (done) {
+                    trlmessage("Bias level from overscan has been subtracted;");
 
-            } else {
-                trlmessage("Default bias level from CCDTAB was subtracted.");
-            }
+                    if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
+                                   "mean of bias levels subtracted in electrons")) {
+                       freeOnExit (&ptrReg);
+                       return (status);
+                    }
 
-            /* Provide immediate feedback to the user on the values computed
-               for each AMP, but only for those amps used for the chip being
-               processed.
-            */
-            for (j = 0; j < NAMPS; j++){
-                if (acs[i].blev[j] != 0.) {
-                    sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
+                    sprintf(MsgText, "     mean of bias levels subtracted was %.6g electrons.", meanblev);
                     trlmessage(MsgText);
 
-                    acs_info->blev[j] = acs[i].blev[j];
+                 } else {
+                       trlmessage("Default bias level from CCDTAB was subtracted.");
+                 }
+
+                 /* Provide immediate feedback to the user on the values computed
+                    for each AMP, but only for those amps used for the chip being
+                    processed.
+                 */
+                 {unsigned int j;
+                 for (j = 0; j < NAMPS; j++) {
+                     if (acs[i].blev[j] != 0.) {
+                         sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
+                         trlmessage(MsgText);
+
+                         acs_info->blev[j] = acs[i].blev[j];
+                     }
+                 }}
+
+                 /* Set this to complete so overscan-trimmed image will be written out. */
+                 blevcorr[i] = COMPLETE;
+
+             }} /* End loop over imsets */
+  
+             PrSwitch("blevcorr", COMPLETE);
+  
+             if (acs_info->printtime)
+                TimeStamp("BLEVCORR complete", acs_info->rootname);
+
+          /* End Pre-SM4 WFC data */
+          } else {
+
+             /* Post-SM4 WFC data - Fullframe data with DS_int and gain of 2 will 
+                have bias shift, cross talk, and destripe corrections applied.  Supported
+                subarray data with DS_int and gain of 2 will have the bias shift applied as
+                cross talk and destripe do not apply to subarray data.
+             */
+
+             /* The variable done is set based on results of FindOver */
+             done = NO;
+             if ((overscan[0] == YES) && (overscan[1] == YES)) 
+                done = YES;
+           
+             /* Process full frame data */
+             if (acs_info->subarray == NO) {
+
+                if (done) {
+                   PrSwitch("blevcorr", PERFORM);
+
+                   /* Only do bias-shift and cross talk corrections of images taken
+                      with gain = 2 and in dual-slope integrator mode.  These corrections
+                      are done on a per chip basis (one chip per imset).
+                   */
+                   if (strcmp(acs_info->jwrotype, "DS_INT") == 0 &&
+                           acs_info->ccdgain == 2) {
+                      trlmessage("Performing bias-shift and cross talk corrections for full frame data.");
+
+                      if (bias_shift_corr(acs_info, acs_info->nimsets, &x[0], &x[1])) {
+                         freeOnExit (&ptrReg);
+                         return status;
+                      }
+        
+                      {unsigned int i;
+                      for (i = 0; i < acs_info->nimsets; i++) {
+                          cross_talk_corr(&acs[i], &x[i]);
+                      }}
+                   } else {
+                      trlmessage("WFC readout type/gain not set as needed, no bias shift nor cross talk correction done for full frame data.");
+                   }
+
+                   trlmessage("Performing stripe removal and bias level subtraction for full frame data.");
+
+                   if (doDestripe(acs_info, &x[0], &x[1])) {
+                      freeOnExit (&ptrReg);
+                      return status;
+                   }
+
+                   {unsigned int i;
+                   for (i = 0; i < acs_info->nimsets; i++) {
+                       blevcorr[i] = COMPLETE;
+                   }}
+
+                   PrSwitch("blevcorr", COMPLETE);
+   
+                   if (acs_info->printtime) {
+                       TimeStamp("BLEVCORR complete", acs->rootname);
+                   }
+                } else {
+                   trlmessage("Overscan missing, no destriping or bias level subtraction possible for full frame data.");
                 }
-            }
 
-            /* Set this to complete so overscan-trimmed image will be
-               written out.
-            */
-            blevcorr[i] = COMPLETE;
-        }
+                driftcorr = NO;
 
-        PrSwitch("blevcorr", COMPLETE);
+             /* Process subarray data */
+             } else {
 
-        if (acs_info->printtime)
-            TimeStamp("BLEVCORR complete", acs_info->rootname);
+                /* Supported subarray data with physical and virtual overscan can be
+                   processed in the same manner as full frame data.  The data must
+                   also be DS_int with a gain of 2.
 
-    /* post SM4, full frame WFC case */
-    } else if (acs_info->blevcorr == PERFORM && acs_info->expstart > SM4MJD &&
-               acs_info->detector == WFC_CCD_DETECTOR &&
-               acs_info->subarray == NO) {
+                   No need to check "done" here as the isSupportedSubAperture has been set based upon
+                   tha array names of supported subarrays AND the determination they have virtual overscan 
+                   according to the image size (e.g., WFC1A-2K with size 2072x2068).
+                */
+                if ((isSupportedSubAperture == YES) && (strcmp(acs_info->jwrotype, "DS_INT") == 0) &&
+                              (acs_info->ccdgain == 2)) {
+                   PrSwitch("blevcorr", PERFORM);
 
-        /* This is set based on results of FindOver */
-        if (overscan[0] == YES && overscan[1] == YES) {
-            done = overscan[0];
-        } else {
-            done = NO;
-        }
+                   trlmessage("Performing bias-shift correction for subarray data.");
+                      
+                   /* Only bias shift correction is done for subarray data. For a supported
+                      subarray, there is only one amp on a single chip in use. 
+                   */
+                   if (bias_shift_corr(acs_info, 1, &x[0])) {
+                      freeOnExit (&ptrReg);
+                      return status;
+                   }
+                     
+                   /* There is only one imset for supported subarrays */
+                   blevcorr[primaryIdx] = COMPLETE;
+                   PrSwitch("blevcorr", COMPLETE);
+   
+                   if (acs_info->printtime) {
+                      TimeStamp("BLEVCORR complete", acs->rootname);
+                   }
 
-        if (done) {
-            PrSwitch("blevcorr", PERFORM);
+                   driftcorr = NO;
 
-            /* only do bias-shift and cross talk corrections of images taken
-               with gain = 2 and in dual-slope integrator mode. */
-            if (strcmp(acs_info->jwrotype, "DS_int") == 0 &&
-                    acs_info->ccdgain == 2) {
-                trlmessage("Performing bias-shift and cross talk corrections.");
+                   /* Unsupported subarray apertures and other oddities.  These
+                      are processed using the original/old bias correction algorithm.
+                   */ 
+                } else {
+                   trlmessage("WFC readout is not a supported subarray or type/gain not set as needed for new bias level algorithm for subarray data.");
+                   trlmessage("Data to be processed with original bias level algorithm.");
 
-                if (bias_shift_corr(acs_info, &x[0], &x[1])) {
-                    return status;
-                }
+                   {unsigned int i;
+                   for (i = 0; i < acs_info->nimsets; i++) {
 
-                for (i = 0; i < acs_info->nimsets; i++) {
-                    cross_talk_corr(&acs[i], &x[i]);
-                }
-            }
+                       /* This is set based on results of FindOver */
+                       done = overscan[i];
 
-            trlmessage("Performing stripe removal and bias level subtraction.");
+                       if (doBlev(&acs[i], &x[i], acs[i].chip, &meanblev, &done, &driftcorr)) {
+                          freeOnExit (&ptrReg);
+                          return (status);
+                       }
 
-            if (doDestripe(acs_info, &x[0], &x[1])) {
-                return status;
-            }
+                       /* Variable done is overwritten in doBlev if bias is determined from overscan region */
+                       if (done) {
+                          trlmessage("Bias level from overscan has been subtracted;");
+ 
+                          if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
+                                         "mean of bias levels subtracted in electrons")) {
+                             freeOnExit (&ptrReg);
+                             return (status);
+                          }
 
+                          sprintf(MsgText, "     mean of bias levels subtracted was %.6g electrons.", meanblev);
+                          trlmessage(MsgText);
+
+                       } else {
+                          trlmessage("Default bias level from CCDTAB was subtracted.");
+                       }
+
+                       /* Provide immediate feedback to the user on the values computed
+                          for each AMP, but only for those amps used for the chip being
+                          processed.
+                       */
+                       {unsigned int j;
+                       for (j = 0; j < NAMPS; j++) {
+                           if (acs[i].blev[j] != 0.) {
+                               sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
+                               trlmessage(MsgText);
+
+                               acs_info->blev[j] = acs[i].blev[j];
+                           }
+                       }}
+
+                       /* Set this to complete so overscan-trimmed image will be written out. */
+                       blevcorr[i] = COMPLETE;
+                   }}
+  
+                   PrSwitch("blevcorr", COMPLETE);
+
+                   if (acs_info->printtime)
+                      TimeStamp("BLEVCORR complete", acs_info->rootname);
+ 
+                } /* End subarray processing */
+
+             } /* End of full frame/subarray data */
+
+          } /* End of Pre-/Post-SM4 data */
+
+       } /* End of only WFC detector */
+
+       /* All HRC data - use the original bias level subtraction correction */
+       else {
+            {unsigned int i;
             for (i = 0; i < acs_info->nimsets; i++) {
+                /* This is set based on results of FindOver */
+                done = overscan[i];
+
+                if (doBlev(&acs[i], &x[i], acs[i].chip, &meanblev, &done, &driftcorr)) {
+                   freeOnExit (&ptrReg);
+                   return (status);
+                }
+  
+                /* Variable done is overwritten in doBlev if bias is determined from overscan region */
+                if (done) {
+                   trlmessage("Bias level from overscan has been subtracted;");
+
+                   if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
+                                  "mean of bias levels subtracted in electrons")) {
+                      freeOnExit (&ptrReg);
+                      return (status);
+                   }
+
+                   sprintf(MsgText, "     mean of bias levels subtracted was %.6g electrons.", meanblev);
+                   trlmessage(MsgText);
+
+                } else {
+                   trlmessage("Default bias level from CCDTAB was subtracted.");
+                }
+
+                /* Provide immediate feedback to the user on the values computed
+                   for each AMP, but only for those amps used for the chip being
+                   processed.
+                */
+                {unsigned int j;
+                for (j = 0; j < NAMPS; j++) {
+                    if (acs[i].blev[j] != 0.) {
+                        sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
+                        trlmessage(MsgText);
+
+                        acs_info->blev[j] = acs[i].blev[j];
+                    }
+                }}
+
+                /* Set this to complete so overscan-trimmed image will be written out. */
                 blevcorr[i] = COMPLETE;
-            }
+            }}
 
             PrSwitch("blevcorr", COMPLETE);
+ 
+            if (acs_info->printtime)
+               TimeStamp("BLEVCORR complete", acs_info->rootname);
 
-            if (acs_info->printtime) {
-                TimeStamp("BLEVCORR complete", acs->rootname);
-            }
-        } else {
-            trlmessage("Overscan missing, no destriping or bias level subtraction possible.");
-        }
+       } /* End for HRC data */
+ 
+    } /* End of BLEVCORR = PERFORM */
 
-        driftcorr = NO;
-    }
-
-    if (!OmitStep(acs[0].blevcorr))
-        if (blevHistory(&acs[0], x[0].globalhdr, done, driftcorr))
+    if (!OmitStep(acs[primaryIdx].blevcorr)) {
+        if (blevHistory(&acs[primaryIdx], x[primaryIdx].globalhdr, done, driftcorr)) {
+            freeOnExit (&ptrReg);
             return (status);
+        }
+    }
     /************************************************************************/
 
     /************************************************************************/
     /* Fill in the error array, if it initially contains all zeros. */
     if (acs->noisecorr == PERFORM) {
+        {unsigned int i;
         for (i = 0; i < acs_info->nimsets; i++) {
-            if (doNoise(&acs[i], &x[i], &done))
+            if (doNoise(&acs[i], &x[i], &done)) {
+                freeOnExit (&ptrReg);
                 return (status);
-        }
+            }
+        }}
 
         if (done) {
-            if (noiseHistory(x[0].globalhdr))
+            if (noiseHistory(x[primaryIdx].globalhdr)) {
+                freeOnExit (&ptrReg);
                 return (status);
+            }
 
             trlmessage("\n    Uncertainty array initialized,");
             buff[0] = '\0';
 
             sprintf(MsgText, "    readnoise =");
+            {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
-                if (acs[0].readnoise[i] > 0) {
-                    sprintf(buff, "%.5g,",acs[0].readnoise[i]);
+                if (acs[primaryIdx].readnoise[i] > 0) {
+                    sprintf(buff, "%.5g,",acs[primaryIdx].readnoise[i]);
                     strcat(MsgText, buff);
                 }
-            }
+            }}
 
-            if (acs[0].readnoise[NAMPS-1] > 0) {
-                sprintf(buff, "%.5g",acs[0].readnoise[NAMPS-1]);
+            if (acs[primaryIdx].readnoise[NAMPS-1] > 0) {
+                sprintf(buff, "%.5g",acs[primaryIdx].readnoise[NAMPS-1]);
                 strcat(MsgText, buff);
             }
             trlmessage(MsgText);
 
             sprintf(MsgText, "    gain =");
+            {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
-                if (acs[0].atodgain[i] > 0) {
-                    sprintf(buff, "%.5g,",acs[0].atodgain[i]);
+                if (acs[primaryIdx].atodgain[i] > 0) {
+                    sprintf(buff, "%.5g,",acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
-            }
+            }}
 
-            if (acs[0].atodgain[NAMPS-1] > 0) {
-                sprintf(buff, "%.5g",acs[0].atodgain[NAMPS-1]);
+            if (acs[primaryIdx].atodgain[NAMPS-1] > 0) {
+                sprintf(buff, "%.5g",acs[primaryIdx].atodgain[NAMPS-1]);
                 strcat(MsgText, buff);
             }
             trlmessage(MsgText);
             sprintf(MsgText, "   default bias levels =");
 
+            {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
-                if (acs[0].ccdbias[i] > 0) {
+                if (acs[primaryIdx].ccdbias[i] > 0) {
                     sprintf(buff, "%.5g,",
-                            acs[0].ccdbias[i] * acs[0].atodgain[i]);
+                            acs[primaryIdx].ccdbias[i] * acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
-            }
+            }}
 
-            if (acs[0].ccdbias[NAMPS-1] > 0) {
+            if (acs[primaryIdx].ccdbias[NAMPS-1] > 0) {
                 sprintf(buff, "%.5g",
-                        acs[0].ccdbias[NAMPS-1] * acs[0].atodgain[NAMPS-1]);
+                        acs[primaryIdx].ccdbias[NAMPS-1] * acs[primaryIdx].atodgain[NAMPS-1]);
                 strcat(MsgText, buff);
             }
             trlmessage(MsgText);
@@ -427,13 +759,16 @@ int DoCCD (ACSInfo *acs_info) {
 
     /************************************************************************/
     /* Flag sink pixels.                                                    */
-    SinkMsg (&acs[0], 1);
+    SinkMsg (&acs[primaryIdx], nextver);
 
     if (acs->sinkcorr == PERFORM) {
+        {unsigned int i;
         for (i = 0; i < acs_info->nimsets; i++) {
-            if (SinkDetect(&acs[i], &x[i]))
+            if (SinkDetect(&acs[i], &x[i])) {
+                freeOnExit (&ptrReg);
                 return (status);
-        }
+            }
+        }}
 
         PrSwitch("sinkcorr", COMPLETE);
 
@@ -441,20 +776,25 @@ int DoCCD (ACSInfo *acs_info) {
             TimeStamp("SINKCORR complete", acs_info->rootname);
     }
 
-    if ((status = sinkHistory(&acs[0], x[0].globalhdr)))
+    if ((status = sinkHistory(&acs[primaryIdx], x[primaryIdx].globalhdr))) {
+        freeOnExit (&ptrReg);
         return (status);
+    }
     /************************************************************************/
 
     /* Write this imset to the output file.  The
        CAL_VER and FILENAME keywords will be updated, and the primary
        header will be written.
     */
-    UCalVer(x[0].globalhdr);
-    UFilename(acs_info->output, x[0].globalhdr);
+    UCalVer(x[primaryIdx].globalhdr);
+    UFilename(acs_info->output, x[primaryIdx].globalhdr);
 
     /* If BLEVCORR was performed, then output trimmed image,
        otherwise output full image...
     */
+    int option = 0; /* Write data to disk */
+    int sizex = 0, sizey = 0;  /* size of output image */
+    {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (blevcorr[i] == COMPLETE || acs[i].blevcorr == COMPLETE) {
             /* BLEVCORR was completed, so overscan regions can be trimmed... */
@@ -477,10 +817,14 @@ int DoCCD (ACSInfo *acs_info) {
             sizey = x[i].sci.data.ny - (acs[i].trimy[0] + acs[i].trimy[1]);
 
             /* Update SIZAXIS keywords to reflect the new trimmed image size. */
-            if (PutKeyInt(&x[i].sci.hdr, "SIZAXIS1", sizex,""))
+            if (PutKeyInt(&x[i].sci.hdr, "SIZAXIS1", sizex,"")) {
+                freeOnExit (&ptrReg);
                 return (status);
-            if (PutKeyInt(&x[i].sci.hdr, "SIZAXIS2", sizey,""))
+            }
+            if (PutKeyInt(&x[i].sci.hdr, "SIZAXIS2", sizey,"")) {
+                freeOnExit (&ptrReg);
                 return (status);
+            }
 
             /* Now, write out updated trimmed data to disk... */
             putSingleGroupSect(acs_info->output, i+1, &x[i], acs[i].trimx[0],
@@ -499,29 +843,27 @@ int DoCCD (ACSInfo *acs_info) {
             putSingleGroup(acs_info->output, i+1, &x[i], option);
         }
 
+        /* If putSingleGroup/putSingleGroupSect failed above, then error out. */
         if (hstio_err()) {
             sprintf(MsgText, "Couldn't write imset %d.", i+1);
             trlerror(MsgText);
+            freeOnExit (&ptrReg);
             return (status = WRITE_FAILED);
         }
 
         if (acs_info->printtime)
             TimeStamp ("Output written to disk", acs_info->rootname);
 
-        /* Free x, which still has memory allocated. */
-        freeSingleGroup (&x[i]);
-    }
+        /* x[i] memory will be freed on exit */
+    }}
 
-    free(x);
-    free(acs);
-    free(overscan);
-    free(blevcorr);
+    freeOnExit (&ptrReg);
 
     return (status);
 }
 
 
-static void dqiMsg (ACSInfo *acs, int extver) {
+static void dqiMsg (ACSInfo *acs, const int extver) {
     int OmitStep (int);
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
@@ -536,25 +878,7 @@ static void dqiMsg (ACSInfo *acs, int extver) {
 }
 
 
-/* Not used */
-/*
-static void AtoDMsg (ACSInfo *acs, int extver) {
-    int OmitStep (int);
-    void PrSwitch (char *, int);
-    void PrRefInfo (char *, char *, char *, char *, char *);
-
-    trlmessage ("\n");
-    PrSwitch ("atodcorr", acs->atodcorr);
-
-    if (extver == 1 && !OmitStep (acs->atodcorr)) {
-        PrRefInfo ("atodtab", acs->atod.name, acs->atod.pedigree,
-                   acs->atod.descrip, acs->atod.descrip2);
-    }
-}
-*/
-
-
-static void BiasMsg (ACSInfo *acs, int extver) {
+static void BiasMsg (ACSInfo *acs, const int extver) {
     int OmitStep (int);
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
@@ -569,7 +893,7 @@ static void BiasMsg (ACSInfo *acs, int extver) {
 }
 
 
-static void BlevMsg (ACSInfo *acs, int extver) {
+static void BlevMsg (ACSInfo *acs, const int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
     int OmitStep (int);
@@ -584,7 +908,7 @@ static void BlevMsg (ACSInfo *acs, int extver) {
 }
 
 
-static void SinkMsg (ACSInfo *acs, int extver) {
+static void SinkMsg (ACSInfo *acs, const int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
     int OmitStep (int);

@@ -21,6 +21,7 @@
  29-Oct-2001 WJH - Updated to use default value for CCDOFST[A,B,C.D] of 3
  4-Dec-2001 WJH - Read in EXPSTART and EXPEND for computing darktime.
  12-Dec-2012 PLL - Changed FLASHDUR and FLASHSTA defaults.
+ 26-Jul-2018 MDD - Convert APERTURE and JWROTYPE values to upper-case. 
  */
 
 int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
@@ -33,7 +34,6 @@ int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
 	extern int status;
   
 	int nextend;			/* number of FITS extensions */
-	int i;
 	Bool subarray;
   
 	int GetKeyInt (Hdr *, char *, int, int, int *);
@@ -46,14 +46,23 @@ int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
   
 	if (GetKeyStr (phdr, "ROOTNAME", NO_DEFAULT, "",
                  acs->rootname, ACS_CBUF))
-    return (status);
+       return (status);
   
 	if (GetKeyStr (phdr, "APERTURE", USE_DEFAULT, "", acs->aperture, ACS_CBUF))
-    return (status);
+       return (status);
+    {unsigned int i;
+       for (i=0; i < strlen(acs->aperture); i++) {
+           acs->aperture[i] = toupper (acs->aperture[i]);
+    }}
+
 	if (GetKeyStr (phdr, "OBSTYPE", USE_DEFAULT, "", acs->obstype, ACS_CBUF))
     return (status);
-  if (GetKeyStr (phdr, "JWROTYPE", USE_DEFAULT, "", acs->jwrotype, ACS_CBUF))
-    return (status);
+    if (GetKeyStr (phdr, "JWROTYPE", USE_DEFAULT, "", acs->jwrotype, ACS_CBUF))
+       return (status);
+    {unsigned int i;
+       for (i=0; i < strlen(acs->jwrotype); i++) {
+           acs->jwrotype[i] = toupper (acs->jwrotype[i]);
+    }}
   
 	if (GetKeyStr (phdr, "DETECTOR", NO_DEFAULT, "", acs->det, ACS_CBUF))
     return (status);
@@ -111,10 +120,10 @@ int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
                    acs->ccdamp, NAMPS))
       return (status);
     
+    {unsigned int i;
     for (i=0; i < strlen(acs->ccdamp) ; i++) {
-			/* Convert each letter in CCDAMP to upper-case. */
-      if (islower (acs->ccdamp[i]))
-				acs->ccdamp[i] = toupper (acs->ccdamp[i]);
+      /* Convert each letter in CCDAMP to upper-case. */
+      acs->ccdamp[i] = toupper (acs->ccdamp[i]);
       
 			/* Verify that only the letters 'ABCD' are in the string. */
       if (strchr ("ABCD", acs->ccdamp[i]) == NULL) {
@@ -122,7 +131,7 @@ int GetACSKeys (ACSInfo *acs, Hdr *phdr) {
 				trlerror (MsgText);
 				return (status = INVALID_VALUE);
       }
-		}
+    }}
     
     if (GetKeyFlt (phdr, "CCDGAIN", USE_DEFAULT, 1, &acs->ccdgain))
       return (status);

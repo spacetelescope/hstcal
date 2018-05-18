@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdarg.h> /* Supports the variable number of parameters for bias_shift_corr() */
+#include <ctype.h>
+#include <assert.h>
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 #include "hstio.h"
 
@@ -36,36 +40,75 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup * 
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
                             int amp, double * array);
 
+/* Remove the signal dependent bias shift from post-SM4 full frame WFC data
+ * (based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1202.pdf),
+ * as well as from supported subarray data (~post-mid-2016) as identified by
+ * specific aperture names 
+ * (based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1703.pdf).
+ *
+ * chip2 consists of amps C & D, chip1 consists of amps A & B. 
+ *
+ * Because full frame data uses both chips, but supported subarray data
+ * is only from a single amp (therefore, a portion of a single chip), this
+ * routine has a variable number of input SingleGroups.
+ *
+ * *** This routine should be modified according to issues discussed in PR #312 and noted in IT #334. ***
+ *
+ * 16-May-2018 M.D. De La Pena: Generalized bias_shift_corr() to handle subarray data.
+ */
+int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
-/* remove signal dependent bias shift from post-SM4 full frame WFC data.
- * based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1202.pdf
- * chip2 is amps C & D, chip1 is amps A & B. */
-int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
+  /* This function has built in assumptions regarding the data being passed */
+  assert (acs != NULL);  /* Make sure the ACSInfo structure is defined */
+  assert ((nGroups == 1) || (nGroups == 2)); /* Must be at least one and no more than two SingleGroups */
+  assert (((nGroups == 1) && (acs->subarray == YES)) || ((nGroups == 2) && (acs->subarray == NO)));  /* Subarray has one and full frame has two SingleGroups */
+
+  /* Code to handle variable number of input parameters.  The number of SingleGroup is 2 when 
+     processing a full frame (2 chips - all 4 amps) and only 1 when processing a supported subarray 
+     (1 chip from a single amp).
+  */
+  SingleGroup *sg[nGroups];
+  va_list arguments;
+
+  /* Initializing arguments to store all the values being passed to this routine via "...".
+   * The nGroups value and the number of SingleGroups actually passed must match. 
+   */
+  va_start (arguments, nGroups);
+  {
+       /* sg[0] is chip2 and sg[1] is chip 1 for a full frame image */
+       {unsigned int i;
+       for (i = 0; i < nGroups; i++) {
+           sg[i] = NULL;
+           sg[i] = va_arg (arguments, SingleGroup *);
+           if (!sg[i]) {
+              return (status = INTERNAL_ERROR);
+           } 
+       }}
+  }
+  va_end (arguments);
+
   extern int status;
-  
-  int i, j, k;     /* iteration variables */
-  
-  /* array for amp data and amp data + gap pixels */
-  double * ampdata, * ampdata_gap;
-  
+
   const double serial_freq = 1000./22.;    /* serial pixel frequency */
   const double parallel_shift = 3.212;     /* parallel shift time */
   
   /* number of virtual pixels at end of each row */
   const int ngap_pix = (int) (serial_freq * parallel_shift + 0.5);
   
-  const int arr_rows = chip2->sci.data.ny;
-  const int arr_cols = chip2->sci.data.nx/2;
+  /* There is always at least one SingleGroup - use sg[0] to get the image size of a single amp.
+   * If this is a full frame image, then "nx" represents all the columns across both amps plus
+   * the physical overscan and must be divided by 2.  If this is a subarray, then "nx" represents
+   * just the columns for a single amp plus physical overscan.
+   */
+  const int arr_rows = sg[0]->sci.data.ny;
+  const int arr_cols = (acs->subarray == NO) ? sg[0]->sci.data.nx/2 : sg[0]->sci.data.nx;
   
   /* total number of real and gap pixels per quadrant */
   const int nquad_pix = (arr_cols + ngap_pix) * arr_rows;
   
-  /* array of true DC bias levels */
-  double * dc_bias_levels;
-  
   /* arrays below are in order of amp A, B, C, D */
   
-  /* time constant of AC high pass filter in external pre-amp. */
+  /* time constant of AC high pass filter in external pre-amp in microseconds */
   const double time_const[NAMPS] = {37.290251, 36.180001, 37.867770, 42.461249};
 
   /* ratio of DC offset shift and pixel signal */
@@ -73,115 +116,167 @@ int bias_shift_corr(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   
   /* DSI sensitivity */
   const double dsi_sens[NAMPS] = {2.9188919e-3, 10.805754e-3, 12.432145e-3, 3.8596253e-3};
-    
-  /* factor combining time constant and clocking frequency */
-  double factor;
-  
-  /* summation variables */
-  double sum;
-  int num;
-  double magic_square_mean;
-  
-  /* allocate space for data arrays */
-  ampdata = malloc(arr_rows * arr_cols * sizeof(double));
-  ampdata_gap = malloc(nquad_pix * sizeof(double));
-  
-  /* allocate space for true DC bias levels array */
-  dc_bias_levels = malloc((nquad_pix + 1) * sizeof(double));
-  
-  for (i = 0; i < NAMPS; i++) {
-    /* put a single amp's data into ampdata */
-    if (i < 2) {
-      make_amp_array(arr_rows, arr_cols, chip1, i, ampdata);
-    } else {
-      make_amp_array(arr_rows, arr_cols, chip2, i, ampdata);
-    }
-       
-    /* calculate "magic square mean" */
-    sum = 0.0;
-    num = 0;
-    
-    for (j = 2057; j <= 2066; j++) {
-      for (k = 13; k <= 22; k++) {
-        sum += ampdata[arr_cols*j + k];
-        num++;
-      }
-    }
-    
-    magic_square_mean = sum / (double) num;
-    
-    /* make amp + gap array */
-    for (j = 0; j < arr_rows; j++) {
-      for (k = 0; k < (arr_cols + ngap_pix); k++) {
-        if (k < arr_cols) {
-          ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
-        } else {
-          ampdata_gap[(arr_cols + ngap_pix)*j + k] = magic_square_mean;
-        }
-      }
-    }
 
-    /* calculate true DC bias levels */
-    factor = 1.0 - exp(-1.0 / (time_const[i] * serial_freq));
-    
-    dc_bias_levels[0] = magic_square_mean * dc_ratio[i];
-    
-    for (j = 1; j < nquad_pix + 1; j++) {
-      dc_bias_levels[j] = ampdata_gap[j-1] * factor * dc_ratio[i] + 
-                            (1.0 - factor) * dc_bias_levels[j-1];
-    }
-    
-    /* calculate correction to data */
-    for (j = 0; j < nquad_pix; j++) {
-      ampdata_gap[j] = (ampdata_gap[j] - dsi_sens[i] * dc_bias_levels[j+1]) -
-                          (10./22.) * (dc_bias_levels[j+1] - dc_bias_levels[j]);
-    }
-    
-    /* copy corrected data back to ampdata */
-    for (j = 0; j < arr_rows; j++) {
-      for (k = 0; k < arr_cols; k++) {
-        ampdata[arr_cols*j + k] = ampdata_gap[(arr_cols + ngap_pix)*j + k];
-      }
-    }
-    
-    /* re-calculate "magic square mean" */
-    sum = 0.0;
-    num = 0;
-    
-    for (j = 2057; j <= 2066; j++) {
-      for (k = 13; k <= 22; k++) {
-        sum += ampdata[arr_cols*j + k];
-        num++;
-      }
-    }
-    
-    magic_square_mean = sum / (double) num;
-    /* Keep track of the total bias correction applied to each AMP region */
-    acs->blev[i] += magic_square_mean;
-    /* Report to the user the contribution to the bias level correction 
-       made by this processing step.
-    */
-    sprintf(MsgText, "Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[i], magic_square_mean);
-    trlmessage(MsgText);
-    
-    /* subtract "magic square mean" from data*/
-    for (j = 0; j < arr_rows; j++) {
-      for (k = 0; k < arr_cols; k++) {
-        ampdata[arr_cols*j + k] -= magic_square_mean;
-      }
-    }
-    
-    /* copy modified data back to SingleGroup structs */
-    if (i < 2) {
-      unmake_amp_array(arr_rows, arr_cols, chip1, i, ampdata);
-    } else {
-      unmake_amp_array(arr_rows, arr_cols, chip2, i, ampdata);
-    }
+  PtrRegister ptrReg;
+  initPtrRegister(&ptrReg);
+
+  /* array of true DC bias levels */
+  double * dc_bias_levels = NULL;
+  dc_bias_levels = malloc((nquad_pix + 1) * sizeof(double));
+  if (!dc_bias_levels) {
+     freeOnExit (&ptrReg);
+     return (status = OUT_OF_MEMORY);
   }
+  addPtr(&ptrReg, dc_bias_levels, &free);
+    
+  /* array for amp data and amp data + gap pixels */
+  double *ampdata = malloc(arr_rows * arr_cols * sizeof(double));
+  if (!ampdata) {
+     freeOnExit (&ptrReg);
+     return (status = OUT_OF_MEMORY);
+  }
+  addPtr(&ptrReg, ampdata, &free);
+  double *ampdata_gap = malloc(nquad_pix * sizeof(double));
+  if (!ampdata_gap) {
+     freeOnExit (&ptrReg);
+     return (status = OUT_OF_MEMORY);
+  }
+  addPtr(&ptrReg, ampdata_gap, &free);
   
-  free(ampdata);
-  free(ampdata_gap);
-  free(dc_bias_levels);
+  /* For full frame data, there are four amps in use.  For supported subarray
+   * data, there is only one amp in use.  The actual amp in use must be determined. 
+   */
+  int numAmpsInUse = (acs->subarray == YES) ? 1 : NAMPS;
+  
+  /* Loop over all the amps for full frame data (total of 4 amps, 0 to 3) or just use 
+   * the single amp value corresponding to the supported subarray (1 amp, value defined in acs.h).
+   */
+  int ampInUse = 0;
+  {unsigned int i;
+  for (i = 0; i < numAmpsInUse; i++) {
+      ampInUse = i;
+      if ((i == 0) && (acs->subarray == YES)) {
+         if (strcmp (acs->ccdamp, "A") == 0)
+            ampInUse = AMP_A;
+         else if (strcmp (acs->ccdamp, "B") == 0)
+            ampInUse = AMP_B;
+         else if (strcmp (acs->ccdamp, "C") == 0)
+            ampInUse = AMP_C;
+         else if (strcmp (acs->ccdamp, "D") == 0)
+            ampInUse = AMP_D;
+      } 
+
+      /* put a single amp's data into ampdata */
+      if (acs->subarray == YES) {
+         make_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
+      } else {
+         if (i < 2) {
+            make_amp_array(arr_rows, arr_cols, sg[1], ampInUse, ampdata);
+         } else {
+            make_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
+         }
+      }
+       
+      /* calculate "magic square mean" - this works for any single amp */
+      double sum = 0.0;
+      int num = 0;
+      double magic_square_mean = 0.0;
+    
+      {unsigned int j, k;
+      for (j = 2057; j <= 2066; j++) {
+          for (k = 13; k <= 22; k++) {
+              sum += ampdata[arr_cols*j + k];
+              num++;
+          }
+      }}
+    
+      magic_square_mean = sum / (double) num;
+    
+      /* make amp + gap array */
+      {unsigned int j, k;
+      for (j = 0; j < arr_rows; j++) {
+          for (k = 0; k < (arr_cols + ngap_pix); k++) {
+              if (k < arr_cols) {
+                 ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
+              } else {
+                 ampdata_gap[(arr_cols + ngap_pix)*j + k] = magic_square_mean;
+              }
+        }
+      }}
+
+      /* factor combining time constant and clocking frequency */
+      double factor = 1.0 - exp(-1.0 / (time_const[ampInUse] * serial_freq));
+    
+      /* calculate true DC bias levels */
+      dc_bias_levels[0] = magic_square_mean * dc_ratio[ampInUse];
+    
+      {unsigned int j;
+      for (j = 1; j < nquad_pix + 1; j++) {
+          dc_bias_levels[j] = ampdata_gap[j-1] * factor * dc_ratio[ampInUse] + 
+                            (1.0 - factor) * dc_bias_levels[j-1];
+      }}
+    
+      /* calculate correction to data */
+      {unsigned int j;
+      for (j = 0; j < nquad_pix; j++) {
+          ampdata_gap[j] = (ampdata_gap[j] - dsi_sens[ampInUse] * dc_bias_levels[j+1]) -
+                          (10./22.) * (dc_bias_levels[j+1] - dc_bias_levels[j]);
+      }}
+    
+      /* copy corrected data back to ampdata */
+      {unsigned int j, k;
+      for (j = 0; j < arr_rows; j++) {
+          for (k = 0; k < arr_cols; k++) {
+              ampdata[arr_cols*j + k] = ampdata_gap[(arr_cols + ngap_pix)*j + k];
+          }
+      }}
+    
+      /* re-calculate "magic square mean" */
+      sum = 0.0;
+      num = 0;
+      magic_square_mean = 0.0;
+    
+      {unsigned int j, k;
+      for (j = 2057; j <= 2066; j++) {
+          for (k = 13; k <= 22; k++) {
+              sum += ampdata[arr_cols*j + k];
+              num++;
+          }
+      }}
+    
+      magic_square_mean = sum / (double) num;
+
+      /* Keep track of the total bias correction applied to each AMP region */
+      acs->blev[ampInUse] += magic_square_mean;
+
+      /* Report to the user the contribution to the bias level correction 
+         made by this processing step.
+      */
+      sprintf(MsgText, "Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[ampInUse], magic_square_mean);
+      trlmessage(MsgText);
+    
+      /* subtract "magic square mean" from data*/
+      {unsigned int j, k;
+      for (j = 0; j < arr_rows; j++) {
+          for (k = 0; k < arr_cols; k++) {
+              ampdata[arr_cols*j + k] -= magic_square_mean;
+          }
+      }}
+    
+      /* copy modified data back to SingleGroup structs */
+
+      if (acs->subarray == YES) {
+         unmake_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
+      } else {
+         if (i < 2) {
+            unmake_amp_array(arr_rows, arr_cols, sg[1], ampInUse, ampdata);
+         } else {
+            unmake_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
+         }
+      }
+  }}
+  
+  freeOnExit(&ptrReg);
   
   return status;
 }
@@ -894,6 +989,7 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *i
       array[i*arr_cols + j] = Pix(im->sci.data, c, r);
     }
   }
+trlmessage (MsgText);
 
   return status;
 }

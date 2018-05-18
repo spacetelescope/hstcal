@@ -13,6 +13,10 @@
 # define BINNED_READOUT      3
 */
 
+/* This is a TEMPORARY and ugly stopgap until this value, as well as other values in blev_funcs_postsm4.c,
+   are put into a reference file. */
+# define SZ_VIRTOVERSCAN 20
+
 # define NUMCOLS 18
 
 typedef struct {
@@ -129,22 +133,26 @@ static int CloseOverTab (TblInfo *);
    2016-11-22 P. L. Lim    Use fullframe logic for everything. New OSCNTAB is
                            needed for all WFC and HRC exposures as this is not
                            backward compatible.
+   2017-06-24 M.D. De La Pena  Added indicator for presence of virtual overscan.
 */
-int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
+int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan, int *virtOverscan) {
     /* arguments:
        ACSInfo *acs          i: structure with all values from OSCNTAB
        int nx, ny            i: lengths of first and second image axes
        int overscan          o: indicates whether there is overscan or not
+       int virtOverscan      o: indicater for presence of virtual overscan
     */
 
     extern int status;
-    int row;
     TblInfo tabinfo;
     TblRow tabrow;
-    int foundit;
 
     int SameInt (int, int);
     int SameString (char *, char *);
+
+    int foundit = NO;
+    *overscan = NO;
+    *virtOverscan = NO;
 
     /* Open the OSCNTAB parameters table and find columns. */
     if (OpenOverTab (acs->oscn.name, &tabinfo))
@@ -152,10 +160,7 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
 
     /* Check each row for a match with ccdamp, chip,
        binx, and biny, and get info from the matching row. */
-
-    foundit = NO;
-    *overscan = NO;
-
+    {unsigned int row;
     for (row = 1; row <= tabinfo.nrows; row++) {
 
         /* Read the current row into tabrow. */
@@ -190,9 +195,13 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan) {
             acs->biassectb[0] = tabrow.biassectb[0] - 1;
             acs->biassectb[1] = tabrow.biassectb[1] - 1;
 
+            /* Is there virtual overscan? */
+            if ((tabrow.trimy[0] == SZ_VIRTOVERSCAN) || (tabrow.trimy[1] == SZ_VIRTOVERSCAN))
+               *virtOverscan = YES;
+
             break;
         }
-    }
+    }}
 
 
     if(CloseOverTab (&tabinfo))
