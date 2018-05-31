@@ -8,6 +8,7 @@
 # include <stdlib.h>		/* calloc */
 # include <math.h>		/* fabs */
 
+#include "hstcal_memory.h"
 #include "hstcal.h"
 # include "hstio.h"
 # include "acs.h"
@@ -28,10 +29,9 @@
  assume ratio of bin factors to be 1.
  
  The value of MEANDARK is calculated based on the weighted average
- of each lines' dark value.  The weighting is based on the percent of 
- good pixels in each line, so only pixels not flagged BAD (in some way)
- will contribute to the average, and each line will contribute only 
- as much as the line has good pixels. 
+ of the image where the weighting is based on the percent of 
+ good pixels in the image.  Only pixels not flagged BAD (in some way)
+ will contribute to the average.
  
  Warren Hack, 1998 June 11:
  Initial ACS Version.
@@ -53,152 +53,174 @@
  Reverted back to using EXPTIME for scaling dark image.
  Pey Lian Lim, 2012 Dec 11:
  Now use DARKTIME for scaling dark image.
+ M.D. De La Pena, 2018 June 05:
+ Dark correction processing is now done on the entire image instead of 
+ line by line. Also, performed some clean up and new commentary.
  */
 
 int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   
   /* arguments:
    ACSInfo *acs     i: calibration switches, etc
-   SingleGroup *x    io: image to be calibrated; written to in-place
-   float *meandark    o: mean of dark image values subtracted
-   */
+   SingleGroup *x  io: image to be calibrated; written to in-place
+   float *meandark  o: mean of dark image values subtracted
+  */
   
   extern int status;
 
   const float darkscaling = 3.0;  /* Extra idle time */
   
-  SingleGroupLine y, z;	/* y and z are scratch space */
-  int extver = 1;		/* get this imset from dark image */
-  int rx, ry;		/* for binning dark down to size of x */
-  int x0, y0;		/* offsets of sci image */
-  int same_size;		/* true if no binning of ref image required */
-  int avg = 0;		/* bin2d should sum values within each bin */
-  int scilines; 			/* number of lines in science image */
-  int i, j;
-  float mean, dark;
-  float weight, wdark;    /* weights for line averages */
+  int extver = 1;	/* get this imset from dark image */
+
+  /* Assumption is the science and dark images are the same size and bin factor */
+  int rx = 1, ry = 1;  /* for binning dark image down to size of x */
+  int x0 = 0, y0 = 0;  /* offsets of science image */
+  int same_size = 1;   /* true if no binning of dark image required */
+
+  int scicols;      /* number of columns in science image */
+  int scirows;      /* number of rows in science image */
+  double mean;      /* mean value for the image */
+  double weight;    /* weight value for the image (No. good pixels/all pixels) */
   int update;
   float darktime;
   
-  int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
-  int sub1d (SingleGroup *, int, SingleGroupLine *);
-  int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
   int DetCCDChip (char *, int, int, int *);
-  void AvgSciValLine (SingleGroupLine *, short, float *, float *);
-  int multk1d (SingleGroupLine *, float);
+
+  /* 2D routines based on 1D counterparts - process in 2D instead of line by line */
+  int trim2d (SingleGroup *, int, int, int, int, int, SingleGroup *);
+  int sub2d (SingleGroup *, SingleGroup *);
+  int multk2d (SingleGroup *, float);
+  void AvgSciVal (SingleGroup *, short, double *, double *);
+  int FindBin (SingleGroup *, SingleGroup *, int *, int *, int *, int *, int *);
   
-  
-	initSingleGroupLine (&y);
-	
-	scilines = x->sci.data.ny;
+  /* Get the dimensions of the science data */
+  scicols = x->sci.data.nx;
+  scirows = x->sci.data.ny; 
 
   /* Compute DARKTIME */
   /* SBC does not have FLASH keywords */
   if (acs2d->detector == MAMA_DETECTOR)
-    darktime = acs2d->exptime;
+     darktime = acs2d->exptime;
   else {
-    darktime = acs2d->exptime + acs2d->flashdur;
+     darktime = acs2d->exptime + acs2d->flashdur;
 
-    /* Post-SM4 non-BIAS WFC only */
-    /* TARGNAME unavailable, assume EXPTIME=0 means BIAS */
-    if (acs2d->detector == WFC_CCD_DETECTOR && acs2d->expstart > SM4MJD && acs2d->exptime > 0)
-      darktime += darkscaling;
+     /* Post-SM4 non-BIAS WFC only */
+     /* TARGNAME unavailable, assume EXPTIME=0 means BIAS */
+     if (acs2d->detector == WFC_CCD_DETECTOR && acs2d->expstart > SM4MJD && acs2d->exptime > 0)
+        darktime += darkscaling;
   }
   
-	/* Compute correct extension version number to extract from
-   reference image to correspond to CHIP in science data.
-   */
-	if (acs2d->pctecorr == PERFORM) {
-    if (DetCCDChip (acs2d->darkcte.name, acs2d->chip, acs2d->nimsets, &extver) )
-      return (status);
+  /* Compute correct extension version number to extract from
+     reference image to correspond to CHIP in science data.
+  */
+  if (acs2d->pctecorr == PERFORM) {
+     if (DetCCDChip (acs2d->darkcte.name, acs2d->chip, acs2d->nimsets, &extver) )
+        return (status);
   } else {
-    if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) )
-      return (status);
+     if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) )
+        return (status);
   }
 	
-	if (acs2d->verbose) {
-		sprintf(MsgText,"Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
-		trlmessage(MsgText);
-	}
-  
-	/* Get the dark image data. */
-  if (acs2d->pctecorr == PERFORM) {
-    openSingleGroupLine (acs2d->darkcte.name, extver, &y);
-  } else {
-    openSingleGroupLine (acs2d->dark.name, extver, &y);
+  if (acs2d->verbose) {
+     sprintf(MsgText,"Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
+     trlmessage(MsgText);
   }
-	if (hstio_err())
-    return (status = OPEN_FAILED);
   
-  
-	/* Compare binning of science image and reference image;
-   get same_size and high_res flags, and get info about
-   binning and offset for use by bin2d.
-   */
-	if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
-    return (status);
+  /* Create a pointer register for bookkeeping purposes and to ease cleanup */
+  PtrRegister ptrReg;
+  initPtrRegister(&ptrReg);
+
+  /* Initialize and get the dark image data */
+  SingleGroup y; /* scratch space */
+  initSingleGroup (&y);
+
+  addPtr(&ptrReg, &y, &freeSingleGroup);
+
+  if (acs2d->pctecorr == PERFORM) {
+      getSingleGroup (acs2d->darkcte.name, extver, &y);
+  } else {
+      getSingleGroup (acs2d->dark.name, extver, &y);
+  }
+
+  if (hstio_err()) {
+     freeOnExit(&ptrReg);
+     return (status = OPEN_FAILED);
+  }
+
+  /* Compare binning of science image and reference image; get same_size 
+     and high_res flags, and get info about binning and offset for 
+     use by bin2d.
+  */
+  if (FindBin (x, &y, &same_size, &rx, &ry, &x0, &y0)) {
+     freeOnExit(&ptrReg);
+     return (status);
+  }
   
   if (rx != 1 || ry != 1) {
-		sprintf(MsgText,"Reference image and input are not binned to the same pixel size!");
-		trlmessage(MsgText);
+     sprintf(MsgText,"Reference image and input are not binned to the same pixel size!");
+     trlmessage(MsgText);
   }
-	if (acs2d->verbose){
-		sprintf(MsgText,"Image has an offset of %d,%d",x0,y0);
-		trlmessage(MsgText);
-	}
+  if (acs2d->verbose){
+     sprintf(MsgText,"Image has an offset of %d,%d",x0,y0);
+     trlmessage(MsgText);
+  }
   
-	mean = 0.0;
-  weight = 0.0;
-  
-	/* Bin the dark image down to the actual size of x. */
-  
-	initSingleGroupLine (&z);
-	allocSingleGroupLine (&z, x->sci.data.nx);
-	for (i=0, j=y0; i < scilines; i++,j++) { 
+  /* Trim the dark image (y->z) down to the actual size of the science image (x). */
+  SingleGroup z; /* scratch space */
+  initSingleGroup (&z);
+  allocSingleGroup (&z, scicols, scirows, True);
+
+  addPtr(&ptrReg, &z, &freeSingleGroup);
+
+  if (hstio_err()) {
+     freeOnExit(&ptrReg);
+     return (status = ALLOCATION_PROBLEM);
+  }
     
-    /* We are working with a sub-array and need to apply the
+  /* We are working with a sub-array and need to apply the
      proper section from the reference image to the science image.
-     */
-		if (acs2d->pctecorr == PERFORM) {
-      getSingleGroupLine (acs2d->darkcte.name, j, &y);
-    } else {
-      getSingleGroupLine (acs2d->dark.name, j, &y);
-    }
+     update = NO = do not update the header of the scratch image
+  */
+  update = NO;
+  if (trim2d (&y, x0, y0, rx, ry, update, &z)) {
+     trlerror ("(darkcorr) size mismatch.");
+     freeOnExit(&ptrReg);
+     return (status);
+  }
     
-    /*
-     rx = 1;
-     */
-    update = NO;
+  /* Multipy the dark image (SCI and ERR extensions) by the darktime constant. */
+  if (multk2d(&z, darktime)) {
+     freeOnExit(&ptrReg);
+     return (status);
+  }
     
-    if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
-			trlerror ("(darkcorr) size mismatch.");
-			return (status);
-    }
-    
-    multk1d(&z, darktime);
-    
-    AvgSciValLine (&z, acs2d->sdqflags, &dark, &wdark);
-    
-		/* Sum the contribution from each line */			
-		mean += dark * wdark;
-		weight += wdark;
-    
-    status = sub1d (x, i, &z);
-		if (status)
-			return (status);
-	}
-	freeSingleGroupLine (&z);			/* done with z */
-  
-  /*	} */
-  
-	closeSingleGroupLine (&y);
-	freeSingleGroupLine (&y);
-  
-	/* Compute the mean for the entire image */	
-	if (scilines > 0) 
-		*meandark = mean / weight; 
-	else 
-		*meandark = 0.;
+  /* Compute the average of all the good pixels in the science image, as well as 
+     a weight = (number of good pixels / total number of pixels).
+  */
+  mean   = 0.0;
+  weight = 0.0;
+  AvgSciVal (&z, acs2d->sdqflags, &mean, &weight);
+
+  /* Subtract the dark data from the science data */
+  if (sub2d (x, &z)) {
+     freeOnExit(&ptrReg);
+     return (status);
+  }
+
+  /* Compute the weighted mean for the image */	
+  /* *** MDD FIX - Not sure this is really needed anymore */
+  /*
+  *meandark = 0.0;
+  if ( (weight > 0.0) && (scirows > 0) )
+     *meandark = (float) (mean / weight); 
+  */
+  /* This is to force a compatibility match to the previous version of the
+     code.  
+  */
+  *meandark = mean;
 	
-	return (status);
+  /* Free up the scratch data */
+  freeOnExit(&ptrReg);
+
+  return (status);
 }

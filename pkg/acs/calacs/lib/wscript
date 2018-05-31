@@ -17,8 +17,8 @@ def build(bld):
             median.c   mkname.c   mkoutname.c   mkspt.c   mult1d.c
             multk1d.c   multk2d.c   omitstep.c   parseamps.c   parsedate.c
             prinfo.c   reffiles.c   rowpedigree.c   sameint.c   spline.c
-            streqic.c   sub1d.c   tabhistory.c   tabpedigree.c
-            timestamp.c   trim.c   ucalver.c   ufilename.c
+            streqic.c   sub1d.c   sub2d.c	tabhistory.c   tabpedigree.c
+            timestamp.c   trim.c   trim2d.c		ucalver.c   ufilename.c
             unbinline.c   whicherror.c  toelectrons.c
 
             ../acs2d/acs2d.c   ../acs2d/do2d.c   ../acs2d/dodark.c
