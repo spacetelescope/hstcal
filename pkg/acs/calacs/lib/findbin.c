@@ -25,6 +25,12 @@
    really needed only for MAMA data where the dispersion is high
    enough that Doppler convolution must be applied to the reference
    data.
+
+   M.D. De La Pena: 05 June 2018
+   Retrieved the true FindBin routine from the WFC3 /lib software directory 
+   and appended the routine to this file in order to support the dark 
+   correction algorithm which now works on an entire image rather than 
+   line by line processing.  
 */
 
 /*
@@ -199,7 +205,6 @@ static int getBin (int *sci_corner, int *ref_corner, int *sci_bin, int
 }
 #endif
 
-
 /*
 ** Developed to support line-by-line operations within CALACS.
 ** Based on FindBin but operates on 1 line of reference data at a time.
@@ -295,3 +300,105 @@ int *x0, *y0      o: location of start of subimage in ref image
 	return (status);
 }
 
+/* Routine retrieved from the WFC3 /lib/findbin.c file. Note: the
+   WFC3 file is different than the ACS file, so only this routine
+   was copied.
+*/
+int FindBin (SingleGroup *x, SingleGroup *y, int *same_size,
+        int *rx, int *ry, int *x0, int *y0) {
+
+    /* arguments:
+       SingleGroup *x    i: science image
+       SingleGroup *y    i: reference image
+       int *same_size    o: true if zero offset and same size and binning
+       int *rx, *ry      o: ratio of bin sizes
+       int *x0, *y0      o: location of start of subimage in ref image
+    */
+
+    extern int status;
+
+    int sci_bin[2];			/* bin size of science image */
+    int sci_corner[2];		/* science image corner location */
+    int ref_bin[2];			/* bin size of reference image */
+    int ref_corner[2];		/* ref image corner location */
+    int rsize = 1;
+    int cshift[2];			/* shift of sci relative to ref */
+    int ratiox, ratioy;		/* local variables for rx, ry */
+    int xzero, yzero;		/* local variables for x0, y0 */
+
+    int GetCorner (Hdr *, int, int *, int *);
+    
+    ratiox = 1;
+    ratioy = 1;
+    xzero  = 0;
+    yzero  = 0;
+    
+    /* Get bin sizes of science and reference images from headers. */
+    if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+        return (status);
+    if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
+        return (status);
+
+    if (sci_corner[0] == ref_corner[0] &&
+            sci_corner[1] == ref_corner[1] &&
+            sci_bin[0] == ref_bin[0] &&
+            sci_bin[1] == ref_bin[1] &&
+            x->sci.data.nx == y->sci.data.nx &&
+            x->sci.data.ny == y->sci.data.ny) {
+
+        /* We can use the reference image directly, without binning
+           and without extracting a subset.
+         */
+        *same_size = 1;
+        *rx = 1;
+        *ry = 1;
+        *x0 = 0;
+        *y0 = 0;
+
+    } else if (ref_bin[0] > sci_bin[0] ||
+            ref_bin[1] > sci_bin[1]) {
+
+        /* Reference image is binned more than the science image. */
+        *same_size = 0;
+
+        *rx = ref_bin[0] / sci_bin[0];
+        *ry = ref_bin[1] / sci_bin[1];
+        *x0 = (sci_corner[0] - ref_corner[0]) / ref_bin[0];
+        *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
+        status = REF_TOO_SMALL;
+        return (status);
+
+    } else {
+
+        /* We must bin, extract subset, or both. */
+        *same_size = 0;
+
+        /* ratio of bin sizes */
+        ratiox = sci_bin[0] / ref_bin[0];
+        ratioy = sci_bin[1] / ref_bin[1];
+        if (ratiox * ref_bin[0] != sci_bin[0] ||
+                ratioy * ref_bin[1] != sci_bin[1]){
+            status = SIZE_MISMATCH;
+            return (status);
+        }
+
+        /* cshift is the offset in units of unbinned (or low-res)
+           pixels.  Divide by ref_bin to convert to units of pixels
+           in the reference image.
+         */
+        cshift[0] = sci_corner[0] - ref_corner[0];
+        cshift[1] = sci_corner[1] - ref_corner[1];
+        xzero = cshift[0] / ref_bin[0];
+        yzero = cshift[1] / ref_bin[1];
+        if (xzero * ref_bin[0] != cshift[0] ||
+                yzero * ref_bin[1] != cshift[1]) {
+            trlwarn ("Subimage offset not divisible by bin size.");
+        }
+        *rx = ratiox;
+        *ry = ratioy;
+        *x0 = xzero;
+        *y0 = yzero;
+    }
+
+    return (status);
+}
