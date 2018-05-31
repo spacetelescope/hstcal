@@ -37,6 +37,91 @@ static void setAtomicInt(int * atom, const int value)
         *atom = value;
     }
 }
+int forwardModel(const SingleGroup * input, SingleGroup * output, SingleGroup * trapPixelMap, CTEParamsFast * ctePars)
+{
+    extern int status;
+
+   if (!input || !output || !trapPixelMap || !ctePars)
+       return (status = ALLOCATION_PROBLEM);
+
+   //WARNING - assumes column major storage order
+   assert(trapPixelMap->sci.data.storageOrder == COLUMNMAJOR);
+   assert(input->sci.data.storageOrder == COLUMNMAJOR);
+   output->sci.data.storageOrder = COLUMNMAJOR;
+
+   const unsigned nRows = output->sci.data.ny;
+   const unsigned nColumns = output->sci.data.nx;
+   const FloatTwoDArray * cteRprof  = &ctePars->rprof->data;
+   const FloatTwoDArray * cteCprof = &ctePars->cprof->data;
+
+   Bool allocationFail = False;
+   Bool runtimeFail = False;
+#ifdef _OPENMP
+   #pragma omp parallel shared(input, output, ctePars, cteRprof, cteCprof, trapPixelMap, allocationFail, runtimeFail, status)
+#endif
+   {
+       int localStatus = HSTCAL_OK; //Note: used to set extern int status atomically, note global status takes last set value
+       //Thread local pointer register
+       PtrRegister localPtrReg;
+       initPtrRegister(&localPtrReg);
+
+       double * model = malloc(sizeof(*model)*nRows);
+       addPtr(&localPtrReg, model, &free);
+       if (!model)
+           setAtomicFlag(&allocationFail);
+
+       float * traps = NULL;
+
+       //Allocate all local memory before anyone proceeds
+#ifdef _OPENMP
+       #pragma omp barrier
+#endif
+       if (!allocationFail)
+       {
+           {unsigned j;
+#ifdef _OPENMP
+           #pragma omp for schedule(dynamic)
+#endif
+           for (j = 0; j < nColumns; ++j)
+           {
+               // Can't use memcpy as diff types
+               // Do in place (in a distributed context)
+               {unsigned i;
+               for (i = 0; i < nRows; ++i)
+                   model[i] = PixColumnMajor(input->sci.data,i,j);
+               }
+
+               traps = &(PixColumnMajor(trapPixelMap->sci.data, 0, j));
+
+               if ((localStatus = simulateColumnReadout(model, traps, ctePars, cteRprof, cteCprof, nRows, ctePars->n_par)))
+               {
+                   setAtomicFlag(&runtimeFail);
+                   setAtomicInt(&status, localStatus);
+               }
+               // Update source array
+               // Can't use memcpy as arrays of diff types
+               {unsigned i;
+               for (i = 0; i < nRows; ++i)
+                   PixColumnMajor(output->sci.data, i, j) = model[i];
+               }
+           }} //end loop over columns
+       }
+       freeOnExit(&localPtrReg);
+   }// close scope for #pragma omp parallel
+   if (allocationFail)
+   {
+       sprintf(MsgText, "Out of memory in inverseCTEBlur()");
+       trlerror(MsgText);
+       return (status = OUT_OF_MEMORY);
+   }
+   if (runtimeFail)
+   {
+       sprintf(MsgText, "Runtime fail in inverseCTEBlur()");
+       trlerror(MsgText);
+       return status;
+   }
+   return (status);
+}
 int inverseCTEBlur(const SingleGroup * input, SingleGroup * output, SingleGroup * trapPixelMap, CTEParamsFast * ctePars)
 {
     extern int status;

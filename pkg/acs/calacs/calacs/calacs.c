@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>    /* calloc */
 # include <string.h>
+# include <stdbool.h>
 
 #include "hstcal.h"
 # include "xtables.h"   /* for IRAFPointer definition */
@@ -446,7 +447,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
     void FreeRefFile (RefFileInfo *);
     int ACSRefInit (ACSInfo *, CalSwitch *, RefFileInfo *);
     int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int);
-    int ACScte (char *, char *, CalSwitch *, RefFileInfo *, int, int, int, const unsigned cteAlgorithmGen, const char *);
+    int ACScte (char *, char *, CalSwitch *, RefFileInfo *, int, int, int, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd, const bool forwardModelOnly);
     int ACS2d (char *, char *,CalSwitch *, RefFileInfo *, int, int);
     int GetAsnMember (AsnInfo *, int, int, int, ACSInfo *);
     int GetSingle (AsnInfo *, ACSInfo *);
@@ -609,9 +610,10 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
 
                 /* Do PCTECORR now. */
                 if (acshdr->sci_basic_cte == PERFORM) {
+                    // ``forwardModelOnly = false`` because it is not part of the pipeline processing.
                     if (ACScte(acshdr->blv_tmp, acshdr->blc_tmp,
                                &acscte_sci_sw, &sciref, printtime,
-                               asn->verbose, nThreads, cteAlgorithmGen, pcteTabNameFromCmd)) { //this is the line
+                               asn->verbose, nThreads, cteAlgorithmGen, pcteTabNameFromCmd, false)) {
                         return (status);
                     }
                 }
