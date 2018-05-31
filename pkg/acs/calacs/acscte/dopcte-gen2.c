@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
@@ -30,7 +31,7 @@ static int insertAmp(SingleGroup * amp, const SingleGroup * image, const unsigne
 static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
 
-int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
+int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly)
 {
 
     /* arguments:
@@ -158,13 +159,20 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
             return (status = ALLOCATION_PROBLEM);
         }
 
-        //CALCULATE THE SMOOTH READNOISE IMAGE
-        trlmessage("(pctecorr) Calculating smooth readnoise image...");
-        if (ctePars->noise_mit != 0)
+        if (forwardModelOnly)
         {
-            trlerror("(pctecorr) Only noise model 0 implemented!");
-            freeOnExit(&ptrReg);
-            return (status = ERROR_RETURN);
+            // Not needed as we won't be smoothing.
+        }
+        else
+        {
+            //CALCULATE THE SMOOTH READNOISE IMAGE
+            trlmessage("(pctecorr) Calculating smooth readnoise image...");
+            if (ctePars->noise_mit != 0)
+            {
+                trlerror("(pctecorr) Only noise model 0 implemented!");
+                freeOnExit(&ptrReg);
+                return (status = ERROR_RETURN);
+            }
         }
         SingleGroup smoothedImage;
         initSingleGroup(&smoothedImage);
@@ -176,12 +184,24 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
         }
         setStorageOrder(&smoothedImage, COLUMNMAJOR);
 
-        // do some smoothing on the data so we don't amplify the read noise.
-        if ((status = cteSmoothImage(&columnMajorImage, &smoothedImage, ctePars, ctePars->rn_amp)))
+        if (forwardModelOnly)
         {
-            freeOnExit(&ptrReg);
-            return (status);
-       }
+            // Don't actually smooth but copy to smoothedImage
+            if ((status = copySingleGroup(&smoothedImage, &columnMajorImage, COLUMNMAJOR)))
+            {
+                freeOnExit(&ptrReg);
+                return (status = ALLOCATION_PROBLEM);
+            }
+        }
+        else
+        {
+            // do some smoothing on the data so we don't amplify the read noise.
+            if ((status = cteSmoothImage(&columnMajorImage, &smoothedImage, ctePars, ctePars->rn_amp)))
+            {
+                freeOnExit(&ptrReg);
+                return (status);
+            }
+        }
        trlmessage("(pctecorr) ...complete.");
 
        trlmessage("(pctecorr) Creating charge trap image...");
@@ -201,13 +221,26 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage)
        }
        trlmessage("(pctecorr) ...complete.");
 
-       trlmessage("(pctecorr) Running correction algorithm...");
-       //perform CTE correction
        SingleGroup * cteCorrectedImage = &columnMajorImage;
-       if ((status = inverseCTEBlur(&smoothedImage, cteCorrectedImage, &trapPixelMap, ctePars)))
+       if (forwardModelOnly)
        {
-           freeOnExit(&ptrReg);
-           return status;
+           trlmessage("(pctecorr) Running forward model simulation...");
+           //perform CTE correction
+           if ((status = forwardModel(&smoothedImage, cteCorrectedImage, &trapPixelMap, ctePars)))
+           {
+               freeOnExit(&ptrReg);
+               return status;
+           }
+       }
+       else
+       {
+           trlmessage("(pctecorr) Running correction algorithm...");
+           //perform CTE correction
+           if ((status = inverseCTEBlur(&smoothedImage, cteCorrectedImage, &trapPixelMap, ctePars)))
+           {
+               freeOnExit(&ptrReg);
+               return status;
+           }
        }
        freePtr(&ptrReg, &trapPixelMap);
        trlmessage("(pctecorr) ...complete.");

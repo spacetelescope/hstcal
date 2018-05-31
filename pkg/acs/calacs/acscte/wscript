@@ -10,7 +10,8 @@ def build(bld):
                   'getctesw.c',
                   'pcte_fixycte.c',
                   'pcte_funcs.c',
-                  'maincte.c'
+                  'maincte.c',
+                  'main.c'
                   ],
         target = 'acscte.e',
         includes = ['.',
