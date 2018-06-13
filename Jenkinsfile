@@ -12,7 +12,7 @@ configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
 // Define each build configuration, copying and overriding values as necessary.
 bc0 = new BuildConfig()
 bc0.nodetype = "linux-stable"
-bc0.build_mode = "debug"
+bc0.name = "debug"
 bc0.env_vars = ['PATH=./_install/bin:$PATH']
 bc0.build_cmds = ["${configure_cmd} --debug",
                   "./waf build",
@@ -21,7 +21,7 @@ bc0.build_cmds = ["${configure_cmd} --debug",
 
 
 bc1 = utils.copy(bc0)
-bc1.build_mode = "release"
+bc1.name = "release"
 bc1.build_cmds[0] = "${configure_cmd} --release-with-symbols"
 bc1.test_cmds = ["conda install -q -y pytest requests astropy",
                  "pip install -q pytest-remotedata",
@@ -31,7 +31,7 @@ bc1.failedFailureThresh = 6
 
 
 bc2 = utils.copy(bc0)
-bc2.build_mode = "optimized"
+bc2.name = "optimized"
 bc2.build_cmds[0] = "${configure_cmd} --O3"
 
 
