@@ -21,6 +21,7 @@ SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 include_directories(include)
 add_subdirectory(hstio)
+add_subdirectory(tables)
 
 #set(hstio_lib_sources
 #	hstio/hstio.c
