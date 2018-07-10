@@ -20,7 +20,10 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 include_directories(include)
+add_subdirectory(applib)
+add_subdirectory(cvos)
 add_subdirectory(hstio)
+add_subdirectory(lib)
 add_subdirectory(tables)
 
 #set(hstio_lib_sources
