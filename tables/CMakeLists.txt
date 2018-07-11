@@ -1,6 +1,5 @@
 project(tables)
-pkg_check_modules(cfitsio cfitsio>=3.2.8 REQUIRED)
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} SHARED
 	addCol.c
 	c_imt.c
 	c_irafinit.c
@@ -44,15 +43,13 @@ add_library(${PROJECT_NAME}
 	tbSaveInfo.c
 	tbl_util.c
 )
-include_directories(${PROJECT_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME}
-	${cfitsio_LIBRARIES}
-)
-target_include_directories(${PROJECT_NAME}
-	PUBLIC ${cfitsio_INCLUDE_DIRS}
+	PUBLIC ${cfitsio_LDFLAGS}
+	PRIVATE hstio
 )
 target_include_directories(${PROJECT_NAME}
 	PUBLIC ${HSTCAL_include}
+	PUBLIC ${cfitsio_INCLUDE_DIRS}
 )
 target_compile_options(${PROJECT_NAME}
 	PUBLIC ${cfitsio_CFLAGS_OTHER}

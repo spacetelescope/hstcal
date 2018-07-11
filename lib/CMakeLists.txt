@@ -1,12 +1,14 @@
 project(hstcalib)
-pkg_check_modules(cfitsio cfitsio>=3.2.8 REQUIRED)
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} SHARED
+	getphttab.c
 	hstcal_memory.c
 	hstcalversion.c
 	trlbuf.c
 )
 target_link_libraries(${PROJECT_NAME}
-	${cfitsio_LIBRARIES}
+	hstio
+	tables
+	${cfitsio_LDFLAGS}
 )
 target_include_directories(${PROJECT_NAME}
 	PUBLIC ${HSTCAL_include}
