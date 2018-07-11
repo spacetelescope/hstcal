@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.11)
 project(HSTCAL)
+enable_language(C)
 
 find_package(PkgConfig)
+pkg_check_modules(cfitsio cfitsio REQUIRED)
 
 #set(CMAKE_MACOSX_RPATH 1)
 
@@ -21,10 +23,13 @@ SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
 include_directories(include)
 add_subdirectory(applib)
+add_subdirectory(ctegen2)
 add_subdirectory(cvos)
 add_subdirectory(hstio)
 add_subdirectory(lib)
 add_subdirectory(tables)
+add_subdirectory(pkg)
+
 
 #set(hstio_lib_sources
 #	hstio/hstio.c
