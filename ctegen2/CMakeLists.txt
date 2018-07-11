@@ -1,12 +1,12 @@
 project(ctegen2)
 find_package(OpenMP COMPONENTS C)
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME} STATIC
 	ctegen2.c
 	ctehelpers.c
 )
 target_link_libraries(${PROJECT_NAME}
-	PUBLIC acs
+	#PUBLIC acs
 	PUBLIC hstio
 	PUBLIC tables
 )
