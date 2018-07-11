@@ -31,3 +31,6 @@ if (OpenMP_FOUND)
 	)
 endif()
 
+install(TARGETS ${PROJECT_NAME}
+	DESTINATION lib
+)
