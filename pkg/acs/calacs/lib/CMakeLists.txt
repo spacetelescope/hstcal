@@ -1,8 +1,68 @@
 project(acs)
 add_library(${PROJECT_NAME} SHARED
+	acs2d/acs2d.c
+	acs2d/do2d.c
+	acs2d/dodark.c
+	acs2d/doflash.c
+	acs2d/doflat.c
+	acs2d/dononlin.c
+	acs2d/dophot.c
+	acs2d/doshad.c
+	acs2d/dospot.c
+	acs2d/get2dflags.c
+	acs2d/get2dsw.c
+	acs2d/getlintab.c
+	acs2d/getspottab.c
+	acs2d/photmode.c
+	acs2d/sanity2d.c
+	acsccd/acsccd.c
+	acsccd/blev_funcs_postsm4.c
+	acsccd/blevdrift.c
+	acsccd/blevfit.c
+	acsccd/doatod.c
+	acsccd/dobias.c
+	acsccd/doblev.c
+	#acsccd/doblev_v504.c # ... what??
+	acsccd/doccd.c
+	acsccd/dosink.c
+	acsccd/findblev.c
+	acsccd/findover.c
+	acsccd/getacsflag.c
+	acsccd/getccdsw.c
+	acscte/acscte.c
+	acscte/docte.c
+	acscte/dopcte-gen2.c
+	acscte/dopcte.c
+	acscte/getcteflag.c
+	acscte/getctesw.c
+	acscte/pcte_fixycte.c
+	acscte/pcte_funcs.c
 	acshist.c
 	acsinfo.c
+	acsrej/acsrej.c
+	acsrej/acsrej_check.c
+	acsrej/acsrej_do.c
+	acsrej/acsrej_init.c
+	acsrej/acsrej_loop.c
+	acsrej/acsrej_sky.c
+	acsrej/cr_history.c
+	acsrej/cr_mode.c
+	acsrej/cr_scaling.c
+	acsrej/piksrt.c
+	acsrej/readpar.c
+	acsrej/rej_command.c
 	acssect.c
+	acssum/acssum.c
+	calacs/acsdth.c
+	calacs/acsinit.c
+	calacs/acsmember.c
+	calacs/acstable.c
+	calacs/calacs.c
+	calacs/getflags.c
+	calacs/getnewref.c
+	calacs/getsciinfo.c
+	calacs/refexist.c
+	calacs/sciflags.c
 	addk2d.c
 	bin2d.c
 	bincoords.c
@@ -70,6 +130,7 @@ target_include_directories(${PROJECT_NAME}
 	PUBLIC ${PROJECT_SOURCE_DIR}/../include
 )
 target_link_libraries(${PROJECT_NAME}
+	PUBLIC ctegen2
 	PUBLIC hstcalib
 )
 install(TARGETS ${PROJECT_NAME}

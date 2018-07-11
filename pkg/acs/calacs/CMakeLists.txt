@@ -1,7 +1,3 @@
 add_subdirectory(lib)
-add_subdirectory(acs2d)
-add_subdirectory(acsccd)
-add_subdirectory(acscte)
-add_subdirectory(acsrej)
-add_subdirectory(acssum)
-add_subdirectory(calacs)
+
+
