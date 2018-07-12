@@ -1,17 +1,17 @@
 # vim: set syntax=python:
 
-LIBRARIES = [
-    'calstis'
+SUBDIRS = [
+    'lib',
+    'cs0',
+    'cs1',
+    'cs2',
+    'cs4',
+    'cs6',
+    'cs7',
+    'cs11',
+    'cs12'
     ]
 
 def build(bld):
-    for library in LIBRARIES:
-        bld.recurse(library)
-
-    bld(name='stis',
-        depends_on=[
-            'cs0.e',
-            'cs1.e',
-            'cs2.e',
-            'cs6.e'],
-        always=True)
+    for subdir in SUBDIRS:
+        bld.recurse(subdir)

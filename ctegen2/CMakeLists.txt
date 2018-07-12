@@ -13,10 +13,9 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
 	PUBLIC ${PROJECT_NAME_SOURCE_DIR}
 	PUBLIC ${HSTCAL_include}
-	PUBLIC ../pkg/acs/calacs/acscte
-	PUBLIC ../pkg/acs/calacs/include
-	PUBLIC ../pkg/wfc3/calwf3/include
-	PUBLIC ../pkg/wfc3/calwf3/wf3cte
+	PUBLIC ../pkg/acs/include
+	PUBLIC ../pkg/wfc3/include
+	PUBLIC ../pkg/stis/include
 )
 
 if (OpenMP_FOUND)
