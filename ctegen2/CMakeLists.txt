@@ -25,9 +25,6 @@ if (OpenMP_FOUND)
 	target_compile_options(${PROJECT_NAME}
 		PUBLIC ${OpenMP_C_FLAGS}
 	)
-	target_compile_definitions(${PROJECT_NAME}
-		PUBLIC HAVE_OPENMP=1
-	)
 endif()
 
 install(TARGETS ${PROJECT_NAME}
