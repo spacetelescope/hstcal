@@ -15,7 +15,7 @@ smoke.build_cmds = [
     "cd _build && make install",
 ]
 smoke.test_cmds = [
-    "for ex in ${PREFIX}/bin/*.e ; do $ex --help || true; done",
+    "for ex in ${PREFIX}/bin/*.e ; do \$ex --help || true; done",
 ]
 
 utils.run([smoke])
