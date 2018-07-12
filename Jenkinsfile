@@ -6,7 +6,7 @@ CONDA_DEPS = "cmake cfitiso"
 PREFIX = "/tmp/hstcal"
 
 smoke = new BuildConfig()
-smoke.node_type = "linux"
+smoke.nodetype = "linux"
 smoke.name = 'Simple'
 smoke.build_cmds = [
     "sudo yum install -y ${OS_DEPS}",
