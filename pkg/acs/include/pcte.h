@@ -2,7 +2,7 @@
 #define PCTE_INCL
 
 #include "hstio.h"
-#include "../../../../ctegen2/ctegen2.h"
+#include "../../../ctegen2/ctegen2.h"
 
 /* constants describing the CTE parameters reference file */
 #define NUM_PHI 11  /* number of phi values in cte params file */

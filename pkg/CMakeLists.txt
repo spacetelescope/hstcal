@@ -1,3 +1,3 @@
-add_subdirectory(acs/calacs)
-add_subdirectory(wfc3/calwf3)
-add_subdirectory(stis/calstis)
+add_subdirectory(acs)
+add_subdirectory(wfc3)
+add_subdirectory(stis)
