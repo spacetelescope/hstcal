@@ -12,7 +12,7 @@ smoke.env_vars = [
     "PKG_CONFIG_PATH=/opt/conda/lib/pkgconfig"
 ]
 smoke.build_cmds = [
-    "sudo yum install --yes --quiet ${OS_DEPS}",
+    "sudo yum install -y --quiet ${OS_DEPS}",
     "conda config --add channels ${ASTROCONDA}",
     "conda install --quiet ${CONDA_DEPS}",
     "mkdir _build",
