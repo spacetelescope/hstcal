@@ -21,6 +21,9 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 # the RPATH to be used when installing, but only if it's not a system directory
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
+# Keep things looking the way they used to
+SET(CMAKE_EXECUTABLE_SUFFIX_C ".e")
+
 include_directories(include)
 add_subdirectory(applib)
 add_subdirectory(ctegen2)
