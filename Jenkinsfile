@@ -10,7 +10,7 @@ smoke.nodetype = "linux"
 smoke.name = 'Simple'
 smoke.build_cmds = [
     "sudo yum install -y ${OS_DEPS}",
-    "conda config --channels --add ${ASTROCONDA}",
+    "conda config --add channels ${ASTROCONDA}",
     "conda install ${CONDA_DEPS}",
     "mkdir _build",
     "cd _build && cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX}",
