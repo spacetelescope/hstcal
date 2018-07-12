@@ -5,6 +5,8 @@ OS_DEPS = "gcc gfortran libgomp pkgconfig"
 PREFIX = "/tmp/hstcal"
 
 smoke = new BuildConfig()
+smoke.node_type = "linux"
+smoke.name = 'Simple'
 smoke.build_cmds = [
     "yum install -y ${OS_DEPS}",
     "conda config --channels --add ${ASTROCONDA}",
