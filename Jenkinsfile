@@ -8,10 +8,13 @@ PREFIX = "/tmp/hstcal"
 smoke = new BuildConfig()
 smoke.nodetype = "linux"
 smoke.name = 'Simple'
+smoke.env_vars = [
+    "PKG_CONFIG_PATH=/opt/conda/lib/pkgconfig"
+]
 smoke.build_cmds = [
-    "sudo yum install -y ${OS_DEPS}",
+    "sudo yum install --yes --quiet ${OS_DEPS}",
     "conda config --add channels ${ASTROCONDA}",
-    "conda install ${CONDA_DEPS}",
+    "conda install --quiet ${CONDA_DEPS}",
     "mkdir _build",
     "cd _build && cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX}",
     "cd _build && make",
