@@ -8,7 +8,7 @@ smoke = new BuildConfig()
 smoke.node_type = "linux"
 smoke.name = 'Simple'
 smoke.build_cmds = [
-    "yum install -y ${OS_DEPS}",
+    "sudo yum install -y ${OS_DEPS}",
     "conda config --channels --add ${ASTROCONDA}",
     "conda install cfitsio",
     "mkdir _build",
