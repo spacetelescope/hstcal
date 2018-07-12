@@ -6,6 +6,7 @@
 
 # include "stis.h"
 # include "calstis0.h"
+# include "cs2_reset.h"
 # include "hstcalerr.h"
 
 /* calstis0 -- integrated calstis processing
@@ -749,7 +750,6 @@ static int CalStis2_0 (char *input, char *output, int printtime, int verbose) {
 	int status;
 	clpar 	par;			/* parameters used */
 	int 	newpar[MAX_PAR+1];	/* user specifiable parameters */
-	void cs2_reset (clpar *, int []);
 
 	cs2_reset (&par, newpar);
 	par.printtime = printtime;

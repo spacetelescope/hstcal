@@ -6,3 +6,6 @@ add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME}
 	PUBLIC ${HSTCAL_include}
 )
+install(TARGETS ${PROJECT_NAME}
+	DESTINATION lib
+)

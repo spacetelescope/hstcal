@@ -79,7 +79,7 @@ add_library(${PROJECT_NAME} SHARED
 	wf32d/dophot.c
 	wf32d/doshad.c
 	wf32d/get2dflags.c
-	wf32d/get2dsw.c
+	#wf32d/get2dsw.c # ... what?
 	wf32d/photmode.c
 	wf32d/sanity2d.c
 	wf32d/wf32d.c
