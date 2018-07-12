@@ -2,6 +2,7 @@ if (utils.scm_checkout()) return
 
 ASTROCONDA = "http://ssb.stsci.edu/astroconda"
 OS_DEPS = "gcc gfortran libgomp pkgconfig"
+CONDA_DEPS = "cmake cfitiso"
 PREFIX = "/tmp/hstcal"
 
 smoke = new BuildConfig()
@@ -10,7 +11,7 @@ smoke.name = 'Simple'
 smoke.build_cmds = [
     "sudo yum install -y ${OS_DEPS}",
     "conda config --channels --add ${ASTROCONDA}",
-    "conda install cfitsio",
+    "conda install ${CONDA_DEPS}",
     "mkdir _build",
     "cd _build && cmake .. -DCMAKE_INSTALL_PREFIX=${PREFIX}",
     "cd _build && make",
