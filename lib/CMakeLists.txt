@@ -1,5 +1,6 @@
-project(hstcalib)
+project(hstcalib C Fortran)
 add_library(${PROJECT_NAME} SHARED
+	ncarfft.f
 	getphttab.c
 	hstcal_memory.c
 	hstcalversion.c
