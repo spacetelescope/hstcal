@@ -25,7 +25,7 @@ SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 SET(CMAKE_EXECUTABLE_SUFFIX_C ".e")
 
 include_directories(include)
-add_subdirectory(applib)
+#add_subdirectory(applib)
 add_subdirectory(ctegen2)
 add_subdirectory(cvos)
 add_subdirectory(hstio)

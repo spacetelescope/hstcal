@@ -18,6 +18,10 @@ target_include_directories(${PROJECT_NAME}
 	PUBLIC ../pkg/stis/include
 )
 
+target_compile_options(${PROJECT_NAME}
+	PUBLIC "-fPIC"
+)
+
 if (OpenMP_FOUND)
 	target_link_libraries(${PROJECT_NAME}
 		PUBLIC ${OpenMP_C_LIB_NAMES}
