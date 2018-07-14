@@ -256,7 +256,6 @@ target_include_directories(${PROJECT_NAME}
 	PUBLIC ${PROJECT_SOURCE_DIR}/../include/idtalg
 )
 target_link_libraries(${PROJECT_NAME}
-	PUBLIC ncarfft
 	PUBLIC ctegen2
 	PUBLIC hstcalib
 )
