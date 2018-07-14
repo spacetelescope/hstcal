@@ -2,7 +2,7 @@ if (utils.scm_checkout()) return
 
 ASTROCONDA = "http://ssb.stsci.edu/astroconda"
 OS_DEPS = "gcc gfortran libgomp pkgconfig"
-CONDA_DEPS = "cmake cfitsio"
+CONDA_DEPS = "cmake cfitsio=3.280"
 PREFIX = "/tmp/hstcal"
 
 smoke = new BuildConfig()
