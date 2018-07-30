@@ -111,6 +111,7 @@
 # include <unistd.h>
 # include <assert.h>
 # include <stdlib.h>
+# include <stdbool.h>
 
 # include "hstio.h"
 # include "hstcalerr.h"
@@ -180,6 +181,123 @@ HSTIOError hstio_err(void) {
 
 char *hstio_errmsg(void) {
         return error_msg;
+}
+
+int getNumHDUs(const char * fileName, int * hduNum)
+{
+    *hduNum = 0;
+    assert(fileName && *fileName!='\0');
+
+    fitsfile * fptr = NULL;
+    int tmpStatus = HSTCAL_OK;
+    fits_open_file(&fptr, fileName, READONLY, &tmpStatus);
+    if (tmpStatus)
+        return tmpStatus;
+    if (!fptr)
+        return OPEN_FAILED;
+
+    if (fits_get_num_hdus(fptr, hduNum, &tmpStatus))
+    {
+        int closeStatus = HSTCAL_OK;
+        fits_close_file(fptr, &closeStatus);
+        return tmpStatus;
+    }
+    fits_close_file(fptr, &tmpStatus);
+    return HSTCAL_OK;
+}
+
+int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtName, int * total)
+{
+    *total = 0;
+    assert(fileName && *fileName!='\0');
+
+    int hduNum = 0;
+    int tmpStatus = HSTCAL_OK;
+    if ((tmpStatus = getNumHDUs(fileName, &hduNum)))
+        return tmpStatus;
+
+    if (hduNum < 1)
+        return HSTCAL_OK;
+
+    // open file
+    fitsfile * fptr = NULL;
+    fits_open_file(&fptr, fileName, READONLY, &tmpStatus);
+    if (tmpStatus)
+        return tmpStatus;
+    if (!fptr)
+        return OPEN_FAILED;
+
+    // Determine which method to use:
+    // nimsets = [hdu.name for hdu in hduList].count(setContainsExtName)
+    // OR
+    // nimsets = len(set([hdu.ver for hdu in hduList]))
+    const bool usingExtName = setContainsExtName && *setContainsExtName != '\0' ? true : false;
+    const char * key = usingExtName ? "EXTNAME" : "EXTVER";
+
+    int encounteredList[hduNum]; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
+    unsigned encounteredListCursor = 0; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
+    // open each HDU and count
+    {unsigned i;
+    for (i = 1; i <= hduNum; ++i) // HDUs are 1 based
+    {
+        int loopStatus = HSTCAL_OK; // dec here to auto reset
+        int hduType = ANY_HDU;
+        if (fits_movabs_hdu(fptr, i, &hduType, &loopStatus))
+        {
+            // Since we already know the total number of HDUs, if we can't
+            // move through all of them, a real IO error has occurred.
+            int closeStatus = HSTCAL_OK;
+            fits_close_file(fptr, &closeStatus);
+            return loopStatus;
+        }
+
+        // Get keyword value
+        char keyValue[FLEN_VALUE];
+        if (fits_read_key(fptr, TSTRING, key, keyValue, NULL, &loopStatus))
+        {
+            if (loopStatus == KEY_NO_EXIST || loopStatus == VALUE_UNDEFINED)
+                continue; // ignore missing keys and empty values of EXTVER and EXTNAME
+            int closeStatus = HSTCAL_OK;
+            fits_close_file(fptr, &closeStatus);
+            return loopStatus;
+        }
+
+        if (usingExtName)
+        {
+            // (python) nimsets = [hdu.name for hdu in hduList].count(setContainsExtName)
+            int match = FALSE;
+            int exact = FALSE;
+            int caseSensitive = TRUE;
+            fits_compare_str(setContainsExtName, keyValue, caseSensitive, &match, &exact);
+            if (match || exact)
+                (*total)++;
+        }
+        else
+        {
+            // (python) nimsets = len(set([hdu.ver for hdu in hduList]))
+            int extVer = atoi(keyValue);
+            bool alreadyCounted = false;
+            // Ugly, but list size should be small so who cares
+            {unsigned j;
+            for (j = 0; j < encounteredListCursor; ++j)
+            {
+                if (extVer == encounteredList[j])
+                {
+                    alreadyCounted = true;
+                    break;
+                }
+            }}
+            // Add to list and inc. total
+            if (!alreadyCounted)
+            {
+                encounteredList[encounteredListCursor++] = extVer;
+                (*total)++;
+            }
+        }
+    }}
+
+    fits_close_file(fptr, &tmpStatus);
+    return HSTCAL_OK;
 }
 
 int push_hstioerr(HSTIOErrHandler x) {
