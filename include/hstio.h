@@ -794,6 +794,7 @@ void freeSingleGroupLine  (SingleGroupLine *);
 
 int getNumHDUs(const char * fileName, int * hduNum);
 int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtName, int * total);
+int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtName, const int hduType, int * total);
 
 #if defined(__cplusplus)
 }

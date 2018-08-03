@@ -208,6 +208,11 @@ int getNumHDUs(const char * fileName, int * hduNum)
 
 int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtName, int * total)
 {
+    return findTotalNumberOfHDUSets(fileName, setContainsExtName, IMAGE_HDU, total);
+}
+
+int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtName, const int hduType, int * total)
+{
     *total = 0;
     assert(fileName && *fileName!='\0');
 
@@ -240,9 +245,9 @@ int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtNa
     {unsigned i;
     for (i = 1; i <= hduNum; ++i) // HDUs are 1 based
     {
-        int loopStatus = HSTCAL_OK; // dec here to auto reset
-        int hduType = ANY_HDU;
-        if (fits_movabs_hdu(fptr, i, &hduType, &loopStatus))
+        int loopStatus = HSTCAL_OK; // decl here to auto reset
+        int extHDUType = ANY_HDU; // This is populated by fits_movabs_hdu() but init anyhow
+        if (fits_movabs_hdu(fptr, i, &extHDUType, &loopStatus))
         {
             // Since we already know the total number of HDUs, if we can't
             // move through all of them, a real IO error has occurred.
@@ -250,6 +255,10 @@ int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtNa
             fits_close_file(fptr, &closeStatus);
             return loopStatus;
         }
+
+        // Check for HDU type correctness
+        if (hduType != ANY_HDU && extHDUType != hduType)
+            continue;
 
         // Get keyword value
         char keyValue[FLEN_VALUE];
