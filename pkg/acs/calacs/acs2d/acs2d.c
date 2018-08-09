@@ -16,6 +16,7 @@
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names for calacs */
 # include "trlbuf.h"
+# include "getacskeys.h"
 
 void Init2DTrl (char *, char *);
 
@@ -41,7 +42,6 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	int Do2D (ACSInfo *, int);
 	int FileExists (char *);
 	int Get2dFlags (ACSInfo *, Hdr *);
-	int GetACSKeys (ACSInfo *, Hdr *);
 	int GetLinTab (ACSInfo *);
 	void Sanity2d (ACSInfo *);
 	void TimeStamp (char *, char *);
@@ -107,7 +107,7 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	/* Get keyword values from primary header using same function 
 		used in ACSCCD
 	*/
-	if (GetACSKeys (&acs2d, &phdr)) {
+	if (getAndCheckACSKeys (&acs2d, &phdr)) {
 		freeHdr (&phdr);
 	    return (status);
 	}

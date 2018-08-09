@@ -8,6 +8,7 @@
 # include   "rej.h"
 # include   "hstcalerr.h"
 # include   "acsinfo.h"
+# include   "getacskeys.h"
 
 
 static int getACSnsegn (Hdr *, char *, multiamp *, multiamp *);
@@ -383,7 +384,6 @@ static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int
     char tabname[CHAR_LINE_LENGTH];
 
     void ACSInit (ACSInfo *);
-    int GetACSKeys (ACSInfo *, Hdr *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
     int GetCCDTab (ACSInfo *, int, int);
 
@@ -400,7 +400,7 @@ static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int
         Get keyword values from primary header using same function
         used in ACSCCD.
     */
-    if (GetACSKeys (&acsrej, hdr)) {
+    if (getAndCheckACSKeys (&acsrej, hdr)) {
         freeHdr (hdr);
         return (status);
     }

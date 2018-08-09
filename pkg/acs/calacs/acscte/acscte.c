@@ -17,6 +17,7 @@
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names */
 # include "trlbuf.h"
+# include "getacskeys.h"
 
 void InitCTETrl (char * input, char * output, const char * isuffix, const char * osuffix);
 
@@ -40,7 +41,6 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
     int DoCTE (ACSInfo *, const bool forwardModelOnly);
     int FileExists (char *);
     int GetCTEFlags (ACSInfo *, Hdr *);
-    int GetACSKeys (ACSInfo *, Hdr *);
     void TimeStamp (char *, char *);
     void PrBegin (char *);
     void PrEnd (char *);
@@ -114,10 +114,25 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
         return (status);
 
     /* Get keyword values from primary header. */
-    if (GetACSKeys (&acs, &phdr)) {
+    if (getAndCheckACSKeys (&acs, &phdr)) {
         freeHdr (&phdr);
         return (status);
     }
+
+    if (forwardModelOnly)
+    {
+        // Only model full IMSETS defined as ("SCI", "ERR", "DQ") extensions
+        if ((status = findTotalNumberOfImsets(acs.input, "SCI", &(acs.nimsets))))
+            return status;
+
+        if (acs.nimsets < 1)
+        {
+            sprintf (MsgText, "N IMSETS found = %d; must be at least %d.", acs.nimsets, 1);
+            trlerror (MsgText);
+            return INVALID_VALUE;
+        }
+    }
+
     /* If we have MAMA data, do not even proceed here... */
     if (acs.detector == MAMA_DETECTOR) {
         /* Return ACS_OK, since processing can proceed, just with a
