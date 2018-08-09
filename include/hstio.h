@@ -8,7 +8,7 @@ extern "C" {
 # include <stdlib.h>
 # include <stdio.h>
 
-# define HSTIO_VERSION "HSTIO Version 2.6 (11-Mar-2010)"
+# define HSTIO_VERSION "HSTIO Version 2.7 (09-Aug-2018)"
 
 /*
 ** Data Structures and I/O Function Declarations for
