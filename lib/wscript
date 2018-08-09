@@ -5,7 +5,8 @@ def build(bld):
         source = [
             'hstcal_memory.c',
             'trlbuf.c',
-            'hstcalversion.c'
+            'hstcalversion.c',
+            'str_util.c'
             ],
         target = 'hstcallib',
         includes = ['./',

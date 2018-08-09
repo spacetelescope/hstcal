@@ -15,6 +15,7 @@
 # include "hstcalerr.h"
 # include "acscorr.h"		/* calibration switch names */
 # include "trlbuf.h"
+# include "getacskeys.h"
 
 static int BiasKeywords (ACSInfo *);
 void InitCCDTrl (char *, char *);
@@ -47,7 +48,6 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     int DoCCD (ACSInfo *);
     int FileExists (char *);
     int GetACSFlags (ACSInfo *, Hdr *);
-    int GetACSKeys (ACSInfo *, Hdr *);
     void TimeStamp (char *, char *);
     void PrBegin (char *);
     void PrEnd (char *);
@@ -121,7 +121,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
         return (status);
 
     /* Get keyword values from primary header. */
-    if (GetACSKeys (&acs, &phdr)) {
+    if (getAndCheckACSKeys (&acs, &phdr)) {
         freeHdr (&phdr);
         return (status);
     }

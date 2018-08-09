@@ -48,6 +48,7 @@ typedef struct {
     int ncombine;                   /* number previously summed together */
     int nimsets;                    /* number of "groups" in file */
     int members;                /* # of members associated with this exposure */
+    int nextend;                    // # of extensions in file = ``NEXTEND``
     char mtype[SZ_STRKWVAL+1];      /* Role of exposure in association */
 
     /* Exposure time keywords */
