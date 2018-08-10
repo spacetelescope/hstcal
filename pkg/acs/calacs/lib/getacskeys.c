@@ -58,7 +58,6 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
 	if (GetKeyStr (phdr, "DETECTOR", NO_DEFAULT, "", acs->det, ACS_CBUF))
     return (status);
 
-  
   /* Grating or mirror name. */
   if (GetKeyStr (phdr, "FILTER1", USE_DEFAULT, "", acs->filter1, ACS_CBUF))
     return (status);
@@ -82,7 +81,7 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
   
 	/* Get CCD-specific parameters. */
   
-    if (acs->detector != MAMA_DETECTOR)
+    if (strcmp (acs->det, "SBC") != 0)
     {
         if (GetKeyStr (phdr, "CCDAMP", NO_DEFAULT, "",
                        acs->ccdamp, NAMPS))
