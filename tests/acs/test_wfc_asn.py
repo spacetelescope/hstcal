@@ -1,80 +1,45 @@
-from __future__ import absolute_import, division, print_function
-
-import os
+"""Tests for ACS/WFC ASN files."""
 import subprocess
+import pytest
 
-from astropy.io import fits
-
-from ..helpers import BaseACS, download_file_cgi, raw_from_asn
+from ..helpers import BaseACS
 
 
-class TestFullframeAsn(BaseACS):
+# NOTE: This is slow test due to PCTECORR=PERFORM
+@pytest.mark.slow
+class TestFullFrameASN(BaseACS):
     """
     Process pre- and post-SM4 fullframe WFC datasets using CR-SPLIT=2 with all
     standard calibration steps turned on.
     """
-    subdir = 'acs_wfc_asn'
+    detector = 'wfc'
 
-    def test_fullframe_presm4(self):
-        """This was ``wfc_asn1.``"""
-        rootname = 'j6lq01010'
+    # NOTE:
+    # j6lq01010 = pre-SM4, was wfc_asn1
+    # jbdf08010 = post-SM4, was wfc_asn2
+    @pytest.mark.parametrize(
+        ('rootname', 'outroots'),
+        [('j6lq01010', ['j6lq01011', 'j6lq01naq', 'j6lq01ndq']),
+         ('jbdf08010', ['jbdf08011', 'jbdf08ufq', 'jbdf08uhq'])])
+    def test_fullframe(self, rootname, outroots):
         asn_file = rootname + '_asn.fits'
-        asn0_file = asn_file + '.orig'
 
         # Prepare input files.
-        download_file_cgi(self.tree, self.input_loc, asn0_file,
-                          timeout=self.timeout)
-        os.rename(asn0_file, asn_file)
-        for raw_file in raw_from_asn(asn_file):
-            self.get_input_file(raw_file)
-
-            # Disable PCTECORR for now until we can handle long
-            # execution time without timeout from CI provider.
-            with fits.open(raw_file, mode='update') as pf:
-                pf[0].header['PCTECORR'] = 'OMIT'
+        self.get_input_file(asn_file)
 
         # Run CALACS
         subprocess.call(['calacs.e', asn_file, '-v'])
 
-        # Compare results
-        # j6lq01naq_fl?.fits tested in wfc_single1
-        #
-        # TAKEN OUT FOR NOW:
-        # ('j6lq01011_crc.fits', 'j6lq01011_crc_ref_gen2cte.fits')
-        # ('j6lq01ndq_flc.fits', 'j6lq01ndq_flc_ref_gen2cte.fits')
-        outputs = [('j6lq01011_crj.fits', 'j6lq01011_crj_ref.fits'),
-                   ('j6lq01ndq_flt.fits', 'j6lq01ndq_flt_ref.fits')]
-        self.compare_outputs(outputs)
-
-    def test_fullframe_postsm4(self):
-        """This was ``wfc_asn2.``"""
-        rootname = 'jbdf08010'
-        asn_file = rootname + '_asn.fits'
-        asn0_file = asn_file + '.orig'
-
-        # Prepare input files.
-        download_file_cgi(self.tree, self.input_loc, asn0_file,
-                          timeout=self.timeout)
-        os.rename(asn0_file, asn_file)
-        for raw_file in raw_from_asn(asn_file):
-            self.get_input_file(raw_file)
-
-            # Disable PCTECORR for now until we can handle long
-            # execution time without timeout from CI provider.
-            with fits.open(raw_file, mode='update') as pf:
-                pf[0].header['PCTECORR'] = 'OMIT'
-
-        # Run CALACS
-        subprocess.call(['calacs.e', asn_file, '-v'])
-        #subprocess.call(['calacs.e', asn_file, '-v', '--ctegen', '2', '--pctetab',
-        #        '/grp/hst/cdbs/jref/16k1747tj_cte.fits'])
-
-        # Compare results
-        # jbdf08ufq_fl?.fits tested in wfc_single1
-        #
-        # TAKEN OUT FOR NOW:
-        # ('jbdf08011_crc.fits', 'jbdf08011_crc_ref_gen2cte.fits')
-        # ('jbdf08uhq_flc.fits', 'jbdf08uhq_flc_ref_gen2cte.fits')
-        outputs = [('jbdf08011_crj.fits', 'jbdf08011_crj_ref.fits'),
-                   ('jbdf08uhq_flt.fits', 'jbdf08uhq_flt_ref.fits')]
+        # Compare results.
+        # The first outroot is the output from whole ASN,
+        # the rest are individual members.
+        outputs = [('{}_crj.fits'.format(outroots[0]),
+                    '{}_crj_ref.fits'.format(outroots[0])),
+                   ('{}_crc.fits'.format(outroots[0]),
+                    '{}_crc_ref_gen2cte.fits'.format(outroots[0]))]
+        for outroot in outroots[1:]:
+            outputs += [('{}_flt.fits'.format(outroot),
+                         '{}_flt_ref.fits'.format(outroot)),
+                        ('{}_flc.fits'.format(outroot),
+                         '{}_flc_ref_gen2cte.fits'.format(outroot))]
         self.compare_outputs(outputs)

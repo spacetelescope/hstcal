@@ -1,103 +1,52 @@
-from __future__ import absolute_import, division, print_function
-
 import subprocess
-
-from astropy.io import fits
+import pytest
 
 from ..helpers import BaseACS
 
 
-class TestFullframeSingle(BaseACS):
+class TestFullFrameSingle(BaseACS):
     """
-    Process pre- and post-SM4 single fullframe WFC datasets.
-    usage: pytest -r a -s --remote-data --basetemp=/processingDirectory test_wfc_single.py
+    Process pre- and post-SM4 single fullframe WFC datasets
+    using all standard calibration steps and the
+    Generation 2 CTE correction.
 
-    This class is a subclass of BaseCal->BaseACS and extends the functionality of these superclasses 
-    to invoke very specific regression test cases.
+    For pre-SM4, apply the original BLEVCORR algorithm,
+    but no bias drift correction.
+
+    For post-SM4, apply the 'new' BLEVCORR algorithm,
+    which includes bias shift, cross talk, and destripe corrections.
     """
+    detector = 'wfc'
 
-    subdir = 'acs_wfc_single'
-
-    def test_fullframe_single_presm4(self):
-        """
-        Process a single WFC file of pre-SM4 data using all standard calibration steps.
-
-        Apply the original BLEVCORR algorithm, but no bias drift correction, and use
-        the Generation 2 CTE correction. (wfc_single1)
-        """
-        raw_file = 'j6lq01naq_raw.fits'
+    def _single_raw_calib(self, rootname):
+        raw_file = '{}_raw.fits'.format(rootname)
 
         # Prepare input file.
         self.get_input_file(raw_file)
 
-        # Disable PCTECORR for now until we can handle long
-        # execution time without timeout from CI provider.
-        with fits.open(raw_file, mode='update') as pf:
-            pf[0].header['PCTECORR'] = 'OMIT'
-
         # Run CALACS
         subprocess.call(['calacs.e', raw_file, '-v'])
-        #subprocess.call(['calacs.e', raw_file, '-v', '--ctegen', '2',
-        #                        '--pctetab', '/grp/hst/cdbs/jref/16k1747tj_cte.fits'])
 
         # Compare results
-        outputs = [('j6lq01naq_flt.fits', 'j6lq01naq_flt_ref_gen2cte.fits')]
-        #outputs = [('j6lq01naq_flt.fits', 'j6lq01naq_flt_ref_gen2cte.fits'),
-        #           ('j6lq01naq_flc.fits', 'j6lq01naq_flc_ref_gen2cte.fits')]
+        outputs = [('{}_flt.fits'.format(rootname),
+                    '{}_flt_ref.fits'.format(rootname)),
+                   ('{}_flc.fits'.format(rootname),
+                    '{}_flc_ref_gen2cte.fits'.format(rootname))]
         self.compare_outputs(outputs)
 
-    def test_fullframe_single_postsm4(self):
-        """
-        Process a single WFC file of post-SM4 data using all standard calibration steps.
+    # NOTE: This is slow test due to PCTECORR=PERFORM
+    # NOTE:
+    # j6lq01naq = pre-SM4, was wfc_single1
+    # jbdf08ufq = post-SM4, was wfc_single2
+    @pytest.mark.slow
+    @pytest.mark.parametrize(
+        'rootname', ['j6lq01naq', 'jbdf08ufq'])
+    def test_fullframe_single(self, rootname):
+        self._single_raw_calib(rootname)
 
-        Apply the ``new`` BLEVCORR algorithm which includes bias shift, cross talk, 
-        and destripe corrections, and use the Generation 2 CTE correction. (wfc_single2)
-        """
-        raw_file = 'jbdf08ufq_raw.fits'
-
-        # Prepare input file.
-        self.get_input_file(raw_file)
-
-        # Disable PCTECORR for now until we can handle long
-        # execution time without timeout from CI provider.
-        with fits.open(raw_file, mode='update') as pf:
-            pf[0].header['PCTECORR'] = 'OMIT'
-
-        # Run CALACS
-        subprocess.call(['calacs.e', raw_file, '-v'])
-        #subprocess.call(['calacs.e', raw_file, '-v', '--ctegen', '2',
-        #                        '--pctetab', '/grp/hst/cdbs/jref/16k1747tj_cte.fits'])
-
-        # Compare results
-        outputs = [('jbdf08ufq_flt.fits', 'jbdf08ufq_flt_ref_gen2cte.fits')]
-        #outputs = [('jbdf08ufq_flt.fits', 'jbdf08ufq_flt_ref_gen2cte.fits'),
-        #           ('jbdf08ufq_flc.fits', 'jbdf08ufq_flc_ref_gen2cte.fits')]
-        self.compare_outputs(outputs)
-
+    # NOTE: This is not marked slow to run one PCTECORR=PERFORM
+    #       for a push event on GitHub. This alone takes about 8 mins.
+    # NOTE:
+    # jbdf08uf2 = post-SM4 with FLSHCORR, was wfc_single3
     def test_fullframe_single_postsm4_flshcorr(self):
-        """
-        Process a single WFC file of post-SM4 data using all standard calibration steps, 
-
-        plus FLSHCORR.  Apply the ``new`` BLEVCORR algorithm which includes bias shift, 
-        cross talk, and destripe corrections, and use the Generation 2 CTE correction. (wfc_single3)
-        """
-        raw_file = 'jbdf08uf2_raw.fits'
-
-        # Prepare input file.
-        self.get_input_file(raw_file)
-
-        # Disable PCTECORR for now until we can handle long
-        # execution time without timeout from CI provider.
-        with fits.open(raw_file, mode='update') as pf:
-            pf[0].header['PCTECORR'] = 'OMIT'
-
-        # Run CALACS
-        subprocess.call(['calacs.e', raw_file, '-v'])
-        #subprocess.call(['calacs.e', raw_file, '-v', '--ctegen', '2',
-        #                        '--pctetab', '/grp/hst/cdbs/jref/16k1747tj_cte.fits'])
-
-        # Compare results
-        outputs = [('jbdf08uf2_flt.fits', 'jbdf08uf2_flt_ref_gen2cte.fits')]
-        #outputs = [('jbdf08uf2_flt.fits', 'jbdf08uf2_flt_ref_gen2cte.fits'),
-        #           ('jbdf08uf2_flc.fits', 'jbdf08uf2_flc_ref_gen2cte.fits')]
-        self.compare_outputs(outputs)
+        self._single_raw_calib('jbdf08uf2')

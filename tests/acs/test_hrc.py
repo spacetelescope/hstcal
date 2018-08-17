@@ -1,9 +1,8 @@
-from __future__ import absolute_import, division, print_function
+"""Tests for ACS/HRC."""
 
-import os
 import subprocess
 
-from ..helpers import BaseACS, download_file_cgi, raw_from_asn
+from ..helpers import BaseACS
 
 
 class TestMosaicBox(BaseACS):
@@ -14,19 +13,14 @@ class TestMosaicBox(BaseACS):
     .. note:: This was ``hrc_asn1``.
 
     """
-    subdir = 'acs_hrc_asn1'
+    detector = 'hrc'
 
     def test_4point_mosaic(self):
         rootname = 'j6m901020'
         asn_file = rootname + '_asn.fits'
-        asn0_file = asn_file + '.orig'
 
         # Prepare input files.
-        download_file_cgi(self.tree, self.input_loc, asn0_file,
-                          timeout=self.timeout)
-        os.rename(asn0_file, asn_file)
-        for raw_file in raw_from_asn(asn_file):
-            self.get_input_file(raw_file)
+        self.get_input_file(asn_file)
 
         # Run CALACS
         subprocess.call(['calacs.e', asn_file, '-v'])
