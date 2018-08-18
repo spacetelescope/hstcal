@@ -289,7 +289,7 @@ class BaseWFC3(BaseCal):
     """Base class for all WFC3 tests."""
     instrument = 'wfc3'
     ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
-                       'extname', 'rootname']
+                       'extname', 'rootname', 'cal_ver', 'history']
 
 
 @use_calstis
