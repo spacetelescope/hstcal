@@ -23,11 +23,12 @@ bc0.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
 
 bc1 = utils.copy(bc0)
 bc1.build_mode = "release"
+// Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal',
-                'jref=/grp/hst/cdbs/jref/',
-                'iref=/grp/hst/cdbs/iref/',
-                'oref=/grp/hst/cdbs/oref/']
+                'jref=./',
+                'iref=./',
+                'oref=./']
 bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "conda install -q -y cfitsio pkg-config pytest requests astropy",
                   "pip install git+https://github.com/pllim/ci_watson.git@new-plugins#egg=ci-watson",
