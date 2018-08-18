@@ -176,8 +176,8 @@ class BaseCal:
 
         """
         # Copy over main input file.
-        get_bigdata(self.env, self.instrument, self.detector,
-                    'input', filename)
+        dest = get_bigdata(self.env, self.instrument, self.detector,
+                           'input', filename)
 
         # For historical reason, need to remove ".orig" suffix if it exists.
         if filename.endswith('.orig'):
@@ -193,17 +193,32 @@ class BaseCal:
         else:
             all_raws = [filename]
 
+        first_pass = ('JENKINS_URL' in os.environ and
+                      'ssbjenkins' in os.environ['JENKINS_URL'])
+
         for raw in all_raws:
             ref_files = calref_from_image(raw)
+
             for ref_file in ref_files:
                 # Special reference files that live with inputs.
                 if ('$' not in ref_file and
                         os.path.basename(ref_file) == ref_file):
                     get_bigdata(self.env, self.instrument, self.detector,
                                 'input', ref_file)
+                    continue
+
+                # Jenkins cannot see Central Storage on push event,
+                # and somehow setting, say, jref to "." does not work anymore.
+                # So, we need this hack.
+                if '$' in ref_file and first_pass:
+                    first_pass = False
+                    if not os.path.isdir('/grp/hst/cdbs'):
+                        ref_path = os.path.dirname(dest) + os.sep
+                        var = ref_file.split('$')[0]
+                        os.environ[var] = ref_path  # hacky hack hack
+
                 # Download reference files, if needed only.
-                else:
-                    download_crds(ref_file, timeout=self.timeout)
+                download_crds(ref_file, timeout=self.timeout)
 
     def compare_outputs(self, outputs, atol=0, rtol=1e-7, raise_error=True,
                         ignore_keywords_overwrite=None):
