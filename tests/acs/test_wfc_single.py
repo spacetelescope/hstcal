@@ -44,9 +44,11 @@ class TestFullFrameSingle(BaseACS):
     def test_fullframe_single(self, rootname):
         self._single_raw_calib(rootname)
 
+    # TODO: Remove slow marker before merge!
     # NOTE: This is not marked slow to run one PCTECORR=PERFORM
     #       for a push event on GitHub. This alone takes about 8 mins.
     # NOTE:
     # jbdf08uf2 = post-SM4 with FLSHCORR, was wfc_single3
+    @pytest.mark.slow
     def test_fullframe_single_postsm4_flshcorr(self):
         self._single_raw_calib('jbdf08uf2')
