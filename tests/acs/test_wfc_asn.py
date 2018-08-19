@@ -17,10 +17,13 @@ class TestFullFrameASN(BaseACS):
     # NOTE:
     # j6lq01010 = pre-SM4, was wfc_asn1
     # jbdf08010 = post-SM4, was wfc_asn2
+    # NOTE:
+    # j6lq01naq and jbdf08ufq excluded from comparison for now, see
+    # https://github.com/spacetelescope/hstcal/pull/71#issuecomment-414132998
     @pytest.mark.parametrize(
         ('rootname', 'outroots'),
-        [('j6lq01010', ['j6lq01011', 'j6lq01naq', 'j6lq01ndq']),
-         ('jbdf08010', ['jbdf08011', 'jbdf08ufq', 'jbdf08uhq'])])
+        [('j6lq01010', ['j6lq01011', 'j6lq01ndq']),
+         ('jbdf08010', ['jbdf08011', 'jbdf08uhq'])])
     def test_fullframe(self, rootname, outroots):
         asn_file = rootname + '_asn.fits'
 
