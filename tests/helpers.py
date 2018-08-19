@@ -11,7 +11,7 @@ from astropy.io import fits
 from astropy.io.fits import FITSDiff
 
 __all__ = ['use_calacs', 'use_calwf3', 'use_calstis', 'calref_from_image',
-           'BaseACS', 'BaseSTIS', 'BaseWFC3']
+           'BaseACS', 'BaseWFC3', 'BaseSTIS', 'fix_keywords']
 
 HAS_CALXXX = {}   # Set by set_exe_marker()
 
@@ -297,3 +297,83 @@ class BaseSTIS(BaseCal):
     """Base class for all STIS tests."""
     instrument = 'stis'
     ignore_keywords = ['filename', 'date', 'cal_ver', 'history']
+
+
+def fix_keywords(key_fix_directive, file_pattern='*.fits', upload_login=None,
+                 upload_env='dev', upload_type=None):
+    """
+    Fix keywords that trip up Jenkins CI.
+    For example, reference files hardcoded to
+    ``/grp/hst/...`` that is not always accessible.
+
+    This is not used directly by CI, but rather is
+    used to prepare files for CI runs.
+
+    Parameters
+    ----------
+    key_fix_directive : dict
+        Dictionary defining the directive on how to
+        fix up keyword(s) in the selected file(s)
+        in the form of ``{key: (ext, wrong, correct)}``.
+        Keyword is case-insensitive but value is case-sensitive.
+        Example::
+
+            {'PCTETAB': (0, '/grp/hst/cdbs/jref/filename.fits',
+                         'jref$filename.fits'),
+             'FLSHFILE': (0, 'jref$localfile.fits',
+                          'localfile.fits')}
+
+    file_pattern : str
+        File selection pattern used by :py:mod:`glob`.
+
+    upload_login : tuple of str or `None`
+        ``(username, token)`` is needed for uploading
+        corrected file to Artifactory. If `None` or
+        invalid, upload is skipped.
+
+    upload_env : {'dev', 'public'}
+        Testing environment of upload destination.
+        Default is 'dev'.
+
+    upload_type : str or `None`
+        A valid type (e.g., 'input' or 'truth') is
+        needed for upload. Otherwise, upload is skipped.
+
+    """
+    import glob
+    import subprocess
+
+    do_upload = (upload_login is not None and upload_type is not None and
+                 len(upload_login) == 2)
+    base_url = ('https://bytesalad.stsci.edu/artifactory/'
+                'scsb-hstcal/{}'.format(upload_env))
+    status_msgs = []
+
+    for fname in glob.iglob(file_pattern):
+        updated = []
+
+        with fits.open(fname, mode='update') as pf:
+            ins = pf[0].header['INSTRUME'].strip().lower()
+            det = pf[0].header['DETECTOR'].strip().lower()
+            for key, (ext, wrong, correct) in key_fix_directive.items():
+                hdr = pf[ext].header
+                if key in hdr and hdr[key].strip() == wrong:
+                    pf[ext].header[key] = correct
+                    updated.append(key)
+
+        if len(updated) > 0:
+            status_msgs.append('{} updated: {}'.format(fname, updated))
+            if do_upload:
+                url = '{}/{}/{}/{}/'.format(base_url, ins, det, upload_type)
+                retcode = subprocess.call([
+                    'curl', '-u{}:{}'.format(*upload_login), '-T', fname, url])
+                if retcode == 0:
+                    status_msgs.append('\tUploaded to {}'.format(url))
+                else:
+                    status_msgs.append(
+                        '\tUpload to {} failed with {}'.format(url, retcode))
+
+    # Print status messages at the very end so they won't get drown out
+    # by Artifactory JSON output.
+    print()
+    print(os.linesep.join(status_msgs))
