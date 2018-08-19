@@ -25,8 +25,7 @@ bc1 = utils.copy(bc0)
 bc1.build_mode = "release"
 // Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
-                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal',
-                'RUNNING_ON_JENKINS=1']
+                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal']
 bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "conda install -q -y cfitsio pkg-config pytest requests astropy",
                   "pip install git+https://github.com/pllim/ci_watson.git@new-plugins#egg=ci-watson",
@@ -34,7 +33,7 @@ bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
-bc1.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata --slow -v"]
+bc1.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata -v"]
 bc1.failedUnstableThresh = 1
 bc1.failedFailureThresh = 6
 
