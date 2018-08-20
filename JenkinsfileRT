@@ -15,6 +15,7 @@ bc1 = new BuildConfig()
 bc1.nodetype = "linux-stable"
 bc1.build_mode = "release"
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
+                'OMP_NUM_THREADS=8',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal',
                 'jref=/grp/hst/cdbs/jref/',
                 'iref=/grp/hst/cdbs/iref/',
