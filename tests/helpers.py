@@ -120,7 +120,7 @@ def calref_from_image(input_image):
 # NOTE: Named in a way so pytest will not pick them up here.
 # NOTE: bigdata marker requires TEST_BIGDATA environment variable to
 #       point to a valid big data directory, whether locally or on Artifactory.
-# NOTE: envopt would point tests to "dev" or "public".
+# NOTE: envopt would point tests to "dev" or "stable".
 # NOTE: _jail fixture ensures each test runs in a clean tmpdir.
 @pytest.mark.bigdata
 @pytest.mark.usefixtures('_jail', 'envopt')
@@ -142,7 +142,7 @@ class BaseCal:
 
         Parameters
         ----------
-        envopt : {'dev', 'public'}
+        envopt : {'dev', 'stable'}
             This is a ``pytest`` fixture that defines the test
             environment in which input and truth files reside.
 
@@ -331,7 +331,7 @@ def fix_keywords(key_fix_directive, file_pattern='*.fits', upload_login=None,
         corrected file to Artifactory. If `None` or
         invalid, upload is skipped.
 
-    upload_env : {'dev', 'public'}
+    upload_env : {'dev', 'stable'}
         Testing environment of upload destination.
         Default is 'dev'.
 
