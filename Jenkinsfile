@@ -28,7 +28,7 @@ bc1.env_vars = ['PATH=./_install/bin:$PATH',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal']
 bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "conda install -q -y cfitsio pkg-config pytest requests astropy",
-                  "pip install git+https://github.com/spacetelescope/ci_watson.git@master#egg=ci-watson",
+                  "pip install ci-watson",
                   "${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
