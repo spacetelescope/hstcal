@@ -1,7 +1,6 @@
 # HSTCAL
 
 [![Travis CI](https://travis-ci.org/spacetelescope/hstcal.svg?branch=master)](https://travis-ci.org/spacetelescope/hstcal)
-
 [![Jenkins CI](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/master/badge/icon)](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/master/)
 
 Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
@@ -21,9 +20,10 @@ $ source activate calib
 # Use HSTCAL
 $ calacs.e [...]
 $ calwf3.e [...]
-$ cal[...].e
+$ cs[...].e
 ```
 
 ## Source Installation
 
-To install HSTCAL from source please follow the instructions provided in `INSTALL.md`.
+To install HSTCAL from source please follow the instructions provided in
+`INSTALL.md`.
