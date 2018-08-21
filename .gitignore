@@ -3,3 +3,5 @@
 bin.*
 build.*
 Makefile
+__pycache__
+.cache

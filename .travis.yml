@@ -16,31 +16,6 @@ matrix:
   fast_finish: true
 
   include:
-  - os: linux
-    compiler: gcc
-    env:
-      - PYTHON_VERSION=2.7
-
-  - os: linux
-    compiler: gcc
-    env:
-      - PYTHON_VERSION=3.5
-
-  - os: linux
-    compiler: gcc
-
-  - os: osx
-    compiler: clang
-    env:
-      - PYTHON_VERSION=2.7
-      - CC="clang"
-
-  - os: osx
-    compiler: clang
-    env:
-      - PYTHON_VERSION=3.5
-      - CC="clang"
-
   - os: osx
     compiler: clang
     env:

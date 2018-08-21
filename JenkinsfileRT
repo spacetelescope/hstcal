@@ -1,0 +1,36 @@
+// Obtain files from source control system.
+// [skip ci] and [ci skip] have no effect here.
+if (utils.scm_checkout(['skip_disable':true])) return
+
+// Config data to share between builds.
+CFLAGS = ''
+LDFLAGS = ''
+DEFAULT_FLAGS = "${CFLAGS} ${LDFLAGS}"
+// Some waf flags cause a prompt for input during configuration, hence the 'yes'.
+configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
+
+
+// Run nightly tests, which include the slow ones.
+bc1 = new BuildConfig()
+bc1.nodetype = "linux-stable"
+bc1.build_mode = "release"
+bc1.env_vars = ['PATH=./_install/bin:$PATH',
+                'OMP_NUM_THREADS=8',
+                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal',
+                'jref=/grp/hst/cdbs/jref/',
+                'iref=/grp/hst/cdbs/iref/',
+                'oref=/grp/hst/cdbs/oref/']
+bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
+                  "conda install -q -y cfitsio pkg-config pytest requests astropy",
+                  "pip install ci-watson",
+                  "${configure_cmd} --release-with-symbols",
+                  "./waf build",
+                  "./waf install",
+                  "calacs.e --version"]
+bc1.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata --slow -v"]
+bc1.failedUnstableThresh = 1
+bc1.failedFailureThresh = 6
+
+// Iterate over configurations that define the (distibuted) build matrix.
+// Spawn a host of the given nodetype for each combination and run in parallel.
+utils.run([bc1])
