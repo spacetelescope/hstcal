@@ -12,10 +12,10 @@ class TestWFCSubarray(BaseACS):
 
     # NOTE: This has PCTECORR=OMIT.
     # NOTE:
-    # j9j902b6q = was wfc_sub1
+    # j9j902b6q = Pre-SM4 data with overscan, was wfc_sub1
     # jb2t11seq = Post-SM4 data with overscan, was wfc_sub2
-    # j8c103xaq = Pre-SM4, was wfc_sub3
-    # jb2t11se2 = Post-SM4 with overscan and FLSHCORR, was wfc_sub4
+    # j8c103xaq = Pre-SM4 data withOUT overscan, was wfc_sub3
+    # jb2t11se2 = Post-SM4 data with overscan and FLSHCORR, was wfc_sub4
     @pytest.mark.parametrize(
         'rootname', ['j9j902b6q', 'jb2t11seq', 'j8c103xaq', 'jb2t11se2'])
     def test_subarray(self, rootname):
