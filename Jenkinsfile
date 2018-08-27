@@ -12,7 +12,7 @@ configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
 // Define each build configuration, copying and overriding values as necessary.
 bc0 = new BuildConfig()
 bc0.nodetype = "linux-stable"
-bc0.build_mode = "debug"
+bc0.name = "debug"
 bc0.env_vars = ['PATH=./_install/bin:$PATH']
 bc0.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "conda install -q -y cfitsio pkg-config",
@@ -22,7 +22,7 @@ bc0.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "calacs.e --version"]
 
 bc1 = utils.copy(bc0)
-bc1.build_mode = "release"
+bc1.name = "release"
 // Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
                 'OMP_NUM_THREADS=8',
@@ -40,7 +40,7 @@ bc1.failedFailureThresh = 6
 
 
 bc2 = utils.copy(bc0)
-bc2.build_mode = "optimized"
+bc2.name = "optimized"
 bc2.build_cmds[2] = "${configure_cmd} --O3"
 
 
