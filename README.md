@@ -3,6 +3,9 @@
 [![Travis CI](https://travis-ci.org/spacetelescope/hstcal.svg?branch=master)](https://travis-ci.org/spacetelescope/hstcal)
 [![Jenkins CI](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/master/badge/icon)](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/master/)
 
+Nightly regression test results are available only from within the STScI network at this time.
+https://boyle.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
+
 Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
 
 ## Install using Conda
@@ -27,3 +30,4 @@ $ cs[...].e
 
 To install HSTCAL from source please follow the instructions provided in
 `INSTALL.md`.
+
