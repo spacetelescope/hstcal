@@ -5,7 +5,7 @@
 
 Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
 
-Nightly regression test results are available only from within the STScI network at this time.
+Nightly regression test results are available only from within the STScI network at this time.  
 https://boyle.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
 
 ## Install using Conda
