@@ -9,16 +9,7 @@ class TestIR15ASN(BaseWFC3):
     """Tests for WFC3/IR."""
     detector = 'ir'
 
-    # NOTE:
-    # ib1f23010 = Ported from calwf3_ir_15a
-    # ib1f23020 = Ported from calwf3_ir_02 (15b internally)
-    # NOTE:
-    # https://github.com/spacetelescope/hstcal/pull/71#issuecomment-414132998
-    @pytest.mark.parametrize(
-        ('rootname', 'outroots'),
-        [('ib1f23010', ['ib1f23qhq', 'ib1f23qjq', 'ib1f23qlq', 'ib1f23qmq']),
-         ('ib1f23020', ['ib1f23qoq', 'ib1f23qwq'])])
-    def test_fullframe(self, rootname, outroots):
+    def _asn_calib(self, rootname, outroots):
         asn_file = rootname + '_asn.fits'
 
         # Prepare input files.
@@ -41,3 +32,15 @@ class TestIR15ASN(BaseWFC3):
                         ('{}_flt.fits'.format(outroot),
                          '{}_flt_ref.fits'.format(outroot))]
         self.compare_outputs(outputs)
+
+    # NOTE:
+    # ib1f23010 = Ported from calwf3_ir_15a
+    # ib1f23020 = Ported from calwf3_ir_02 (15b internally)
+    # NOTE:
+    # https://github.com/spacetelescope/hstcal/pull/71#issuecomment-414132998
+    @pytest.mark.parametrize(
+        ('rootname', 'outroots'),
+        [('ib1f23010', ['ib1f23qhq', 'ib1f23qjq', 'ib1f23qlq', 'ib1f23qmq']),
+         ('ib1f23020', ['ib1f23qoq', 'ib1f23qwq'])])
+    def test_ir_15asn(self, rootname, outroots):
+        self._asn_calib(rootname, outroots)
