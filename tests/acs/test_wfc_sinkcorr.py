@@ -12,6 +12,7 @@ class TestSinkcorr(BaseACS):
     """
     detector = 'wfc'
 
+    @pytest.mark.xfail
     def test_fullframe_sinkcorr(self):
         """Ported from ``wfc_sinkcorr``, routine test_sinkcorr_fullframe."""
         raw_file = 'jd1y03r5q_raw.fits'
@@ -26,6 +27,7 @@ class TestSinkcorr(BaseACS):
         outputs = [('jd1y03r5q_flt.fits', 'jd1y03r5q_flt_ref.fits')]
         self.compare_outputs(outputs)
 
+    @pytest.mark.xfail
     def test_subarray_sinkcorr(self):
         """Ported from ``wfc_sinkcorr``, routine test_sinkcorr_subarr."""
         raw_file = 'jd0q13ktq_raw.fits'
