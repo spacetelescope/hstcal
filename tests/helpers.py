@@ -66,8 +66,7 @@ def calref_from_image(input_image):
         ('ACS', 'WFC'): ['CCDTAB'],
         ('ACS', 'HRC'): ['CCDTAB'],
         ('ACS', 'SBC'): ['CCDTAB'],
-        ('WFC3', 'UVIS1'): ['CCDTAB'],
-        ('WFC3', 'UVIS2'): ['CCDTAB'],
+        ('WFC3', 'UVIS'): ['CCDTAB'],
         ('WFC3', 'IR'): ['CCDTAB'],
         ('STIS', 'CCD'): ['CCDTAB'],
         ('STIS', 'FUV-MAMA'): ['CCDTAB', 'DISPTAB', 'INANGTAB', 'APDESTAB',
@@ -78,12 +77,12 @@ def calref_from_image(input_image):
     # NOTE: Add additional mapping as needed.
     # Map *CORR to associated CRDS reference file.
     corr_lookup = {
-        'DQICORR': ['BPIXTAB'],
+        'DQICORR': ['BPIXTAB', 'SNKCFILE'],
         'ATODCORR': ['ATODTAB'],
         'BLEVCORR': ['OSCNTAB'],
         'SINKCORR': ['SNKCFILE'],
         'BIASCORR': ['BIASFILE'],
-        'PCTECORR': ['PCTETAB', 'DRKCFILE'],
+        'PCTECORR': ['PCTETAB', 'DRKCFILE', 'BIACFILE'],
         'FLSHCORR': ['FLSHFILE'],
         'CRCORR': ['CRREJTAB'],
         'SHADCORR': ['SHADFILE'],
