@@ -41,11 +41,13 @@ def test_calref_from_image(_jail):
     hdu.header['SINKCORR'] = 'PERFORM'
     hdu.header['SNKCFILE'] = 'N/A'
     hdu.header['PCTECORR'] = 'OMIT'
-    hdu.header['PCTETAB'] = 'jref$dummy_file_2.fits'  # Should not matter
+    hdu.header['PCTETAB'] = 'jref$dummy_file_2.fits'
     datafile = 'dummy_raw.fits'
     hdu.writeto(datafile, overwrite=True)
 
+    # Get all the references files at this time regardless of 'CORR' setting
     ref_files = calref_from_image(datafile)
     assert sorted(ref_files) == ['dummy_file_1.fits',
+                                 'jref$dummy_file_2.fits',
                                  'jref$t3n1116nj_bpx.fits',
                                  'jref$xa81715gj_ccd.fits']
