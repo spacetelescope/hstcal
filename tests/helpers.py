@@ -107,10 +107,14 @@ def calref_from_image(input_image):
 
     for step in corr_lookup:
         # Not all images have the CORR step and it is not always on.
-        if (step not in hdr) or (hdr[step].strip().upper() != 'PERFORM'):
+        # Download ALL reference files associated with a calibration 
+        # step present in the header
+        if (step not in hdr):
             continue
 
-        ref_files += ref_from_image(input_image, corr_lookup[step])
+        single_step_files = ref_from_image(input_image, corr_lookup[step])
+        if (single_step_files):
+            ref_files += single_step_files
 
     return ref_files
 
