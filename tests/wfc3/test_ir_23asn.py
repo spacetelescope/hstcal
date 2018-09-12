@@ -24,6 +24,6 @@ class TestIR23ASN(BaseWFC3):
 
         for rn in flist:
             outputs += [(rn + '_flt.fits', rn + '_flt_ref.fits'),
-                       (rn + '_ima.fits', rn + '_ima_ref.fits')]
+                        (rn + '_ima.fits', rn + '_ima_ref.fits')]
 
         self.compare_outputs(outputs)
