@@ -34,7 +34,7 @@ bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
-bc1.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata -v"]
+bc1.test_cmds = ["pytest tests/acs/test_wfc_single.py  --basetemp=tests_output --junitxml results.xml --bigdata -v"]
 bc1.failedUnstableThresh = 1
 bc1.failedFailureThresh = 6
 
