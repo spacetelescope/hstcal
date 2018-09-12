@@ -39,7 +39,7 @@ class TestMosaic(BaseACS):
     @pytest.mark.xfail
     def test_3point_mosaic(self):
         """ 
-        Process an HRC mossaic dataset using 3 dither positions with
+        Process an HRC mosaic dataset using 3 dither positions with
         NUM_EXP=2 (RPT-OBS) at each of the dither positions and only
         DQICORR, BLEVCORR, BIASCORR, DARKCORR, FLATCORR, PHOTCORR,
         RPTCORR, and DITHCORR are set to PERFORM.

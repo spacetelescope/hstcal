@@ -3,7 +3,7 @@ import pytest
 
 from ..helpers import BaseWFC3
 
-#@pytest.mark.slow
+@pytest.mark.slow
 class TestIR12ASN(BaseWFC3):
     """Tests for WFC3/IR."""
     detector = 'ir'
