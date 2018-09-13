@@ -61,9 +61,7 @@ use_calstis = pytest.mark.skipif(not HAS_CALXXX['stis'], reason='no CALSTIS')
 def calref_from_image(input_image):
     """
     Return a list of reference filenames, as defined in the primary
-    header of the given input image, necessary for calibration; i.e.,
-    only those associated with ``*CORR`` set to ``PERFORM`` will be
-    considered.
+    header of the given input image, necessary for calibration.
     """
     # NOTE: Add additional mapping as needed.
     # Map mandatory CRDS reference file for instrument/detector combo.
@@ -115,11 +113,11 @@ def calref_from_image(input_image):
         # Not all images have the CORR step and it is not always on.
         # Download ALL reference files associated with a calibration
         # step present in the header
-        if (step not in hdr):
+        if step not in hdr:
             continue
 
         single_step_files = ref_from_image(input_image, corr_lookup[step])
-        if (single_step_files):
+        if single_step_files:
             ref_files += single_step_files
 
     return ref_files
