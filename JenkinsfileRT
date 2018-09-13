@@ -16,7 +16,7 @@ bc.nodetype = "RHEL-6"
 bc.name = "release"
 bc.env_vars = ['PATH=./_install/bin:$PATH',
                 'OMP_NUM_THREADS=8',
-                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal',
+                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
                 'jref=/grp/hst/cdbs/jref/',
                 'iref=/grp/hst/cdbs/iref/',
                 'oref=/grp/hst/cdbs/oref/']
