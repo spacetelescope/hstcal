@@ -15,7 +15,8 @@ class TestLev1FUVSpec(BaseSTIS):
 
         # Prepare input files.
         self.get_input_file(raw_file)
-        get_bigdata(self.env, 'stis', 'fuv-mama', 'input', wav_file)
+        get_bigdata('scsb-hstcal', self.env, 'stis', 'fuv-mama', 'input',
+                    wav_file)
 
         # Run CALSTIS (equivalent to stistools.calstis.calstis)
         subprocess.call(['cs0.e', raw_file, '-v'])
