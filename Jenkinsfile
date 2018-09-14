@@ -26,7 +26,7 @@ bc1.name = "release"
 // Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
                 'OMP_NUM_THREADS=8',
-                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory/scsb-hstcal']
+                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory']
 bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
                   "conda install -q -y cfitsio pkg-config pytest requests astropy",
                   "pip install ci-watson",

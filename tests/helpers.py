@@ -2,9 +2,10 @@
 
 import os
 from distutils.spawn import find_executable
+from functools import partial
 
 import pytest
-from ci_watson.artifactory_helpers import get_bigdata
+from ci_watson.artifactory_helpers import get_bigdata as _get_bigdata
 from ci_watson.hst_helpers import raw_from_asn, ref_from_image, download_crds
 
 from astropy.io import fits
@@ -14,6 +15,11 @@ __all__ = ['use_calacs', 'use_calwf3', 'use_calstis', 'calref_from_image',
            'BaseACS', 'BaseWFC3', 'BaseSTIS', 'fix_keywords']
 
 HAS_CALXXX = {}   # Set by set_exe_marker()
+
+# Overload generic get_bigdata to include repo root dir.
+# This is to accomodate developers who have to run big data tests across
+# several repositories using the same TEST_BIGDATA env var.
+get_bigdata = partial(_get_bigdata, 'scsb-hstcal')
 
 
 # NOTE: This is because HSTCAL allows partial installation via --targets
@@ -55,9 +61,7 @@ use_calstis = pytest.mark.skipif(not HAS_CALXXX['stis'], reason='no CALSTIS')
 def calref_from_image(input_image):
     """
     Return a list of reference filenames, as defined in the primary
-    header of the given input image, necessary for calibration; i.e.,
-    only those associated with ``*CORR`` set to ``PERFORM`` will be
-    considered.
+    header of the given input image, necessary for calibration.
     """
     # NOTE: Add additional mapping as needed.
     # Map mandatory CRDS reference file for instrument/detector combo.
@@ -107,13 +111,13 @@ def calref_from_image(input_image):
 
     for step in corr_lookup:
         # Not all images have the CORR step and it is not always on.
-        # Download ALL reference files associated with a calibration 
+        # Download ALL reference files associated with a calibration
         # step present in the header
-        if (step not in hdr):
+        if step not in hdr:
             continue
 
         single_step_files = ref_from_image(input_image, corr_lookup[step])
-        if (single_step_files):
+        if single_step_files:
             ref_files += single_step_files
 
     return ref_files
