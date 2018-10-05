@@ -1357,9 +1357,14 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
         } /*totflux > 1, catch for subarrays*/
 
 #pragma omp critical (cte)
-        for (j=0; j< RAZ_ROWS; j++){
-            if (Pix(rz.dq.data,i,j)){
-                Pix(rc.sci.data,i,j)= pix_modl[j];
+        {    // Adding explicit scope for crit-sec, however, it isn't actually needed
+             // since the array access isn't thread overlapping. If it were, the
+             // entire core parallel CTE computation above would not be possible as
+             // it too would need to be within in a crit-sec.
+            for (j=0; j< RAZ_ROWS; j++){
+                if (Pix(rz.dq.data,i,j)){
+                    Pix(rc.sci.data,i,j)= pix_modl[j];
+                }
             }
         }
 
