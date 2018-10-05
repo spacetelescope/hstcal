@@ -1356,7 +1356,6 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             } while (REDO); /*replacing goto 9999*/
         } /*totflux > 1, catch for subarrays*/
 
-#pragma omp critical (cte)
         for (j=0; j< RAZ_ROWS; j++){
             if (Pix(rz.dq.data,i,j)){
                 Pix(rc.sci.data,i,j)= pix_modl[j];
