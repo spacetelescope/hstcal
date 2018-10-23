@@ -27,10 +27,15 @@ bc1.name = "release"
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
                 'OMP_NUM_THREADS=8',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory']
-bc1.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
-                  "conda install -q -y cfitsio pkg-config pytest requests astropy",
-                  "pip install ci-watson",
-                  "${configure_cmd} --release-with-symbols",
+bc.conda_channels = ['http://ssb.stsci.edu/astroconda']
+bc.conda_packages = ['python=3.6',
+                     'ci-watson',
+                     'cfitsio',
+                     'pkg-config',
+                     'pytest=3.8.2',
+                     'requests',
+                     'astropy']
+bc1.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
