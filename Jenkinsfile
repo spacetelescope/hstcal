@@ -14,9 +14,11 @@ bc0 = new BuildConfig()
 bc0.nodetype = "linux-stable"
 bc0.name = "debug"
 bc0.env_vars = ['PATH=./_install/bin:$PATH']
-bc0.build_cmds = ["conda config --add channels http://ssb.stsci.edu/astroconda",
-                  "conda install -q -y cfitsio pkg-config",
-                  "${configure_cmd} --debug",
+bc0.conda_channels = ['http://ssb.stsci.edu/astroconda']
+bc0.conda_packages = ['python=3.6',
+                     'cfitsio',
+                     'pkg-config']
+bc0.build_cmds = ["${configure_cmd} --debug",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
@@ -27,8 +29,7 @@ bc1.name = "release"
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
                 'OMP_NUM_THREADS=8',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory']
-bc.conda_channels = ['http://ssb.stsci.edu/astroconda']
-bc.conda_packages = ['python=3.6',
+bc1.conda_packages = ['python=3.6',
                      'ci-watson',
                      'cfitsio',
                      'pkg-config',
