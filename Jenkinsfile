@@ -47,7 +47,7 @@ bc1.failedFailureThresh = 6
 
 bc2 = utils.copy(bc0)
 bc2.name = "optimized"
-bc2.build_cmds[2] = "${configure_cmd} --O3"
+bc2.build_cmds[0] = "${configure_cmd} --O3"
 
 
 // Iterate over configurations that define the (distibuted) build matrix.
