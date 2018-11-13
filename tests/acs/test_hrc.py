@@ -36,7 +36,6 @@ class TestMosaic(BaseACS):
                    ('j6m901deq_flt.fits', 'j6m901deq_flt_ref.fits')]
         self.compare_outputs(outputs)
 
-    @pytest.mark.xfail
     def test_3point_mosaic(self):
         """ 
         Process an HRC mosaic dataset using 3 dither positions with
