@@ -29,7 +29,7 @@ bc.conda_channels = ['http://ssb.stsci.edu/astroconda']
 bc.conda_packages = ['python=3.6',
                      'cfitsio',
                      'pkg-config',
-                     'pytest=3.8.2',
+                     'pytest',
                      'requests',
                      'astropy']
 

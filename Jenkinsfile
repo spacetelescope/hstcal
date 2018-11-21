@@ -33,7 +33,7 @@ bc1.conda_packages = ['python=3.6',
                      'ci-watson',
                      'cfitsio',
                      'pkg-config',
-                     'pytest=3.8.2',
+                     'pytest',
                      'requests',
                      'astropy']
 bc1.build_cmds = ["${configure_cmd} --release-with-symbols",
