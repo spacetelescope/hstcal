@@ -27,7 +27,7 @@ bc1 = utils.copy(bc0)
 bc1.name = "release"
 // Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
 bc1.env_vars = ['PATH=./_install/bin:$PATH',
-                'OMP_NUM_THREADS=8',
+                'OMP_NUM_THREADS=4',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory']
 bc1.conda_packages = ['python=3.6',
                      'ci-watson',
