@@ -25,7 +25,7 @@ bc = new BuildConfig()
 bc.nodetype = "RHEL-6"
 bc.name = "release"
 bc.env_vars = ['PATH=./_install/bin:$PATH',
-                'OMP_NUM_THREADS=8',
+                'OMP_NUM_THREADS=4',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
                 'jref=/grp/hst/cdbs/jref/',
                 'iref=/grp/hst/cdbs/iref/',
