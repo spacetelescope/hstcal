@@ -14,6 +14,11 @@ DEFAULT_FLAGS = "${CFLAGS} ${LDFLAGS}"
 // Some waf flags cause a prompt for input during configuration, hence the 'yes'.
 configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
 
+// Configure artifactory ingest
+data_config = new DataConfig()
+data_config.server_id = 'bytesalad'
+data_config.root = 'tests_output'
+data_config.match_prefix = '(.*)_result' // .json is appended automatically
 
 // Run nightly tests, which include the slow ones.
 bc = new BuildConfig()
@@ -33,7 +38,7 @@ bc.conda_packages = ['python=3.6',
                      'requests',
                      'astropy']
 
-bc.build_cmds = ["pip install ci-watson",
+bc.build_cmds = ["pip install git+https://github.com/spacetelescope/ci_watson.git@master",
                   "${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
@@ -41,6 +46,9 @@ bc.build_cmds = ["pip install ci-watson",
 bc.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata --slow -v"]
 bc.failedUnstableThresh = 1
 bc.failedFailureThresh = 6
+
+// Upload artifacts
+bc.test_configs = [data_config]
 
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.

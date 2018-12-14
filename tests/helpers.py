@@ -5,6 +5,8 @@ from distutils.spawn import find_executable
 from functools import partial
 
 import pytest
+from ci_watson.artifactory_helpers import (
+    generate_upload_params, generate_upload_schema)
 from ci_watson.artifactory_helpers import get_bigdata as _get_bigdata
 from ci_watson.hst_helpers import raw_from_asn, ref_from_image, download_crds
 
@@ -142,6 +144,10 @@ class BaseCal:
     # To be defined by test class in actual test modules.
     detector = ''
 
+    # Where artifacts go in Artifactory.
+    # Set to None if you do not want this functionality.
+    results_root = 'scsb-hstcal-results'
+
     @pytest.fixture(autouse=True)
     def setup_class(self, envopt):
         """
@@ -228,7 +234,7 @@ class BaseCal:
                 download_crds(ref_file, timeout=self.timeout)
 
     def compare_outputs(self, outputs, atol=0, rtol=1e-7, raise_error=True,
-                        ignore_keywords_overwrite=None):
+                        ignore_keywords_overwrite=None, verbose=True):
         """
         Compare CALXXX output with "truth" using ``fitsdiff``.
 
@@ -252,6 +258,9 @@ class BaseCal:
             If not `None`, these will overwrite
             ``self.ignore_keywords`` for the calling test.
 
+        verbose : bool
+            Print extra info to screen.
+
         Returns
         -------
         report : str
@@ -261,6 +270,7 @@ class BaseCal:
         """
         all_okay = True
         creature_report = ''
+        updated_outputs = []  # To track outputs for Artifactory JSON schema
 
         if ignore_keywords_overwrite is None:
             ignore_keywords = self.ignore_keywords
@@ -274,11 +284,20 @@ class BaseCal:
                              ignore_keywords=ignore_keywords)
             creature_report += fdiff.report()
 
-            if not fdiff.identical and all_okay:
+            if not fdiff.identical:
                 all_okay = False
+                # Only keep track of failed results which need to
+                # be used to replace the truth files (if OK).
+                updated_outputs.append((actual, desired))
 
-        if not all_okay and raise_error:
-            raise AssertionError(os.linesep + creature_report)
+        if not all_okay:
+            if self.results_root is not None:  # pragma: no cover
+                schema_pattern, tree, testname = generate_upload_params(
+                    self.results_root, updated_outputs, verbose=verbose)
+                generate_upload_schema(schema_pattern, tree, testname)
+
+            if raise_error:
+                raise AssertionError(os.linesep + creature_report)
 
         return creature_report
 
