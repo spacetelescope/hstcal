@@ -11,7 +11,6 @@ class TestUVIS05ASN(BaseWFC3):
 
     detector = 'uvis'
 
-    @pytest.mark.xfail
     def test_uvis_05asn(self):
         """Ported from ``calwf3_uvis_05``."""
         asn_file = 'iacr51010_asn.fits'
