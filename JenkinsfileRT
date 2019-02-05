@@ -36,10 +36,10 @@ bc.conda_packages = ['python=3.6',
                      'pkg-config',
                      'pytest=3.8.2',
                      'requests',
-                     'astropy']
+                     'astropy',
+                     'ci-watson']
 
-bc.build_cmds = ["pip install git+https://github.com/spacetelescope/ci_watson.git@master",
-                  "${configure_cmd} --release-with-symbols",
+bc.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
