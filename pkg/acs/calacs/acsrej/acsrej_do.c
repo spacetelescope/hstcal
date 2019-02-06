@@ -39,6 +39,8 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], IODescPtr [], clpar *);
   15-Sep-2015   P.L. Lim        Corrected unit verbiage in header comments
                                 (sky is electrons, not DN).
                                 Added doc. Cleaned up codes.
+  27-Feb-2019   M.D. DeLaPena   Read the IMAGETYP keyword from Primary of first image
+                                as this info is needed by acsrej_loop.
 */
 int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                int newpar[]) {
@@ -67,6 +69,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     char        root[CHAR_FNAME_LENGTH];    /* ROOTNAME for output CRJ file */
     char        uroot[CHAR_FNAME_LENGTH];   /* Upper case version of rootname */
     char        *shadrefname;
+    char        imagetyp[ACS_CBUF];
 
     int         ext[MAX_FILES];
     int         dim_x, dim_y;       /* image dimensions */
@@ -105,7 +108,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                          char [][CHAR_FNAME_LENGTH], int [], int, clpar *, int, int,
                          int, float [], multiamp, multiamp, float [], float [],
                          FloatTwoDArray *, FloatTwoDArray *, float *,
-                         ShortTwoDArray *, int *, char *);
+                         ShortTwoDArray *, int *, char *, char *);
     int     PutKeyFlt (Hdr *, char *, float, char *);
     int     PutKeyDbl (Hdr *, char *, double, char *);
     int     PutKeyStr (Hdr *, char *, char *, char *);
@@ -153,6 +156,15 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         numext = nextend / EXT_PER_GROUP;
     else
         numext = 1;
+
+    /* While the primary header is available, get the image type which is now 
+       needed in acsrej_loop.c.  The interest here are the specific cases of 
+       combining BIAS or DARK images to generate calibration images, so only 
+       need to read the IMAGETYP keyword from the first image. */
+    if (GetKeyStr (&phdr, "IMAGETYP", NO_DEFAULT, "", imagetyp, ACS_CBUF)) {
+        trlkwerr ("IMAGETYP", fimage);
+        return(status = KEYWORD_MISSING);
+    }
 
     shadswitch = 0;
     /* Check to see if SHADCORR was set to PERFORM in image header */
@@ -215,111 +227,106 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     /* for the case of all images have zero exposure time (BIAS),
        use equal exposure time of 1. */
     if (exptot == 0.) {
-        for (n = 0; n < nimgs; ++n) {
-            efac[n] = 1.;
-        }
-        texpt = (float) nimgs;
-        non_zero = nimgs;
-    } else {
-        texpt = exptot;
-    }
+		for (n = 0; n < nimgs; ++n) {
+			efac[n] = 1.;
+		}
+		texpt = (float) nimgs;
+		non_zero = nimgs;
+	} else {
+		texpt = exptot;
+	}
 
-    /* Now, start the extver loop. */
-    for (extver = 1; extver <= numext; extver++) {
-        if (par->printtime) {
-            TimeStamp ("Start cosmic ray rejection", "");
-        }
+	/* Now, start the extver loop. */
+	for (extver = 1; extver <= numext; extver++) {
+		if (par->printtime) {
+			TimeStamp ("Start cosmic ray rejection", "");
+		}
 
-        /* open input files and temporary files, check the parameters */
-        if (acsrej_check (tpin, extver, numext, par, newpar, imgname, ext,
-                          ipsci, iperr, ipdq, &noise, &gain, &dim_x, &dim_y,
-                          nimgs, efac)) {
-            WhichError (status);
-            return(status);
-        }
+		/* open input files and temporary files, check the parameters */
+		if (acsrej_check (tpin, extver, numext, par, newpar, imgname, ext,
+						  ipsci, iperr, ipdq, &noise, &gain, &dim_x, &dim_y,
+						  nimgs, efac)) {
+			WhichError (status);
+			return(status);
+		}
 
-        /* Now that we have read in SHADCORR, report if it will be performed */
-        PrSwitch ("shadcorr", par->shadcorr);
+		/* Now that we have read in SHADCORR, report if it will be performed */
+		PrSwitch ("shadcorr", par->shadcorr);
 
-        /* read in the parameters.
-           NOTE: newpar is useless after this */
-        if ( rejpar_in (par, newpar, nimgs, exptot, &niter, sigma) )
-            return(status);
+		/* read in the parameters.
+		   NOTE: newpar is useless after this */
+		if ( rejpar_in (par, newpar, nimgs, exptot, &niter, sigma) )
+			return(status);
 
-        /* allocate array space */
-        efacsum = calloc (dim_x*dim_y, sizeof(float));
-        work    = calloc (nimgs*dim_x, sizeof(float));
+		/* allocate array space */
+		efacsum = calloc (dim_x*dim_y, sizeof(float));
+		work    = calloc (nimgs*dim_x, sizeof(float));
 
-        /* calculate the sky levels */
-        acsrej_sky (par->sky, ipsci, ipdq, nimgs, par->badinpdq, skyval);
-        if (status != ACS_OK) {
-            WhichError (status);
-            return (status);
-        }
-        if (par->verbose) {
-            for (n = 0; n < nimgs; n++) {
-                sprintf (MsgText, "sky of '%s[sci,%d]' is %0.3f electrons",
-                         imgname[n], ext[n], skyval[n]);
-                trlmessage (MsgText);
-            }
-        }
+		/* calculate the sky levels */
+		acsrej_sky (par->sky, ipsci, ipdq, nimgs, par->badinpdq, skyval);
+		if (status != ACS_OK) {
+			WhichError (status);
+			return (status);
+		}
+		if (par->verbose) {
+			for (n = 0; n < nimgs; n++) {
+				sprintf (MsgText, "sky of '%s[sci,%d]' is %0.3f electrons",
+						 imgname[n], ext[n], skyval[n]);
+				trlmessage (MsgText);
+			}
+		}
 
-        /* use the first input image to set up the data structure */
-        initSingleGroup (&sg);
+		/* use the first input image to set up the data structure */
+		initSingleGroup (&sg);
 
-        /* Find the first image in the input list which has an
-           EXPTIME > 0. To use for initializing the output SingleGroup.
-        */
-        found = 0;
-        n = 0;
-        /* By default, simply use the first one, so initialize accordingly. */
-        strcpy (imgdefault, imgname[0]);
-        do {
-            if (efac[n] > 0.) {
-                strcpy(imgdefault, imgname[n]);
-                found = 1;
-            }
-            n++;
-        } while (found == 0);
+		/* Find the first image in the input list which has an
+		   EXPTIME > 0. To use for initializing the output SingleGroup.
+		*/
+		found = 0;
+		n = 0;
+		/* By default, simply use the first one, so initialize accordingly. */
+		strcpy (imgdefault, imgname[0]);
+		do {
+			if (efac[n] > 0.) {
+				strcpy(imgdefault, imgname[n]);
+				found = 1;
+			}
+			n++;
+		} while (found == 0);
 
-        getSingleGroup (imgdefault, extver, &sg);
+		getSingleGroup (imgdefault, extver, &sg);
 
-        if (non_zero > 1) {
-            /* compute the initial pixel values to be used to compare against
-               all images. */
-            if (non_zero < nimgs) {
-                trlwarn ("Some input exposures had EXPTIME = 0.");
-            }
-            if (acsrej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y, efac,
-                             skyval, &sg, work)) {
-                WhichError(status);
-                closeSciDq(nimgs, ipsci, iperr, ipdq, par);
-                return (status);
-            }
+		if (non_zero > 1) {
+			/* compute the initial pixel values to be used to compare against
+			   all images. */
+			if (non_zero < nimgs) {
+				trlwarn ("Some input exposures had EXPTIME = 0.");
+			}
+			if (acsrej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y, efac,
+							 skyval, &sg, work)) {
+				WhichError(status);
+				closeSciDq(nimgs, ipsci, iperr, ipdq, par);
+				return (status);
+			}
 
-            if (par->printtime)
-                TimeStamp ("Calculated initial guess for extension", "");
+			if (par->printtime)
+				TimeStamp ("Calculated initial guess for extension", "");
 
-            /* do the iterative cosmic ray rejection calculations */
-            if (acsrej_loop (ipsci, iperr, ipdq, imgname, ext, nimgs, par,
-                             niter, dim_x, dim_y, sigma, noise, gain, efac,
-                             skyval, &sg.sci.data, &sg.err.data, efacsum,
-                             &sg.dq.data, &nrej, shadref.name)) {
-                WhichError(status);
-                closeSciDq(nimgs, ipsci, iperr, ipdq, par);
-                return (status);
-            }
-        } else {
-            trlwarn ("Cosmic-ray rejection NOT performed!");
-            if (non_zero > 0) {
-                trlwarn ("Some input exposures had EXPTIME = 0.");
-                trlwarn ("Output product will not be cosmic-ray cleaned!");
-            }
-            /* This is commented to support combining BIAS exposures */
-            /*else {
-                trlwarn ("ALL input exposures had EXPTIME = 0.");
-                trlwarn ("Output product will be BLANK!");
-            } */
+			/* do the iterative cosmic ray rejection calculations */
+			if (acsrej_loop (ipsci, iperr, ipdq, imgname, ext, nimgs, par,
+							 niter, dim_x, dim_y, sigma, noise, gain, efac,
+							 skyval, &sg.sci.data, &sg.err.data, efacsum,
+							 &sg.dq.data, &nrej, shadref.name, imagetyp)) {
+				WhichError(status);
+				closeSciDq(nimgs, ipsci, iperr, ipdq, par);
+				return (status);
+			}
+		} else {
+			trlwarn ("Cosmic-ray rejection NOT performed!");
+			if (non_zero > 0) {
+				trlwarn ("Some input exposures had EXPTIME = 0.");
+				trlwarn ("Output product will not be cosmic-ray cleaned!");
+			}
         } /* End if(non_zero) block */
 
         /* must close all images, now that we are done reading them */
