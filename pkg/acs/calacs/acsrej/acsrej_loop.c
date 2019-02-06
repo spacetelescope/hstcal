@@ -3,13 +3,14 @@
 # include   <stdlib.h>
 # include   <math.h>
 
-#include "hstcal.h"
+# include   "hstcal.h"
 # include   "hstio.h"
 
 # include   "acs.h"
 # include   "acsrej.h"
 # include   "rej.h"
 # include   "hstcalerr.h"
+# include   "str_util.h"
 
 /* local mask values */
 # define    OK          (short)0
@@ -137,6 +138,8 @@ Code Outline:
   12-Jan-2016   P.L. Lim    Calculations now entirely in electrons.
   14-Jan-2016   P.L. Lim    Replace threshold formula with ERR. Cleaned up
                             threshold calculation function.
+  26-Feb-2019   M.D. DeLaPena Check the IMAGETYP and adjust the maskdq
+                            for BIAS and DARK images.
 */
 int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                  char imgname[][CHAR_FNAME_LENGTH], int grp [], int nimgs,
@@ -144,7 +147,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                  float sigma[], multiamp noise, multiamp gain,
                  float efac[], float skyval[], FloatTwoDArray *ave,
                  FloatTwoDArray *avevar, float *efacsum,
-                 ShortTwoDArray *dq, int *nrej, char *shadfile) {
+                 ShortTwoDArray *dq, int *nrej, char *shadfile, char *imagetyp) {
     /*
       Parameters:
 
@@ -186,6 +189,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                   CR flags in the last iteration. This is used to
                   calculate REJ_RATE keyword value in CRJ/CRC output image.
       shadfile i: SHADFILE filename. This is used to apply SHADCORR.
+      imagetyp i: Image type or exposure identifier (e.g., bias, dark).
     */
 
     extern int status;
@@ -199,7 +203,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
     float   sig2, psig2, rej2;  /* square of something */
     float   *exp2;              /* square of exptime per image*/
     float   scale, val, dum;
-    short   sval, crflag, nocr, nospill, dqpat;
+    short   sval, crflag, nocr, nospill, dqpat, nobadpix;
     short   maskdq;
 
     float   efacn, skyvaln;
@@ -252,16 +256,33 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
     /* Initialization */
     crflag = par->crval;
     dqpat = par->badinpdq;
+    
     scale = par->scalense / 100.;
     nocr = ~crflag;
     nospill = ~SPILL;
+
+    /* Here nobadpix is using EXCLUDE just as a convenience as EXCLUDE is set to 4, but 
+       EXCLUDE is a local variable only.  The nobadpix is turning ON all bit settings 
+       except for the bad pixel value of 4 which would come from the bad pixel table.
+    */
+    nobadpix = ~EXCLUDE;
+
     numpix = dim_x * dim_y;
     readnoise_only = par->readnoise_only;
 
-    /* Set up mask for detecting CR-affected pixels */
-    maskdq = OK | EXCLUDE;
-    maskdq = maskdq | HIT;
+    /* If BIAS or DARK frames, do not use the EXCLUDE value pixels for maskdq  
+       per Git Issue #373.  
+
+       Set up maskdq for detecting CR-affected pixels
+    */
+    upperCase(imagetyp);
+    maskdq = OK | HIT;
     maskdq = maskdq | SPILL;
+    if ( (strncmp(imagetyp, "BIAS", 4) != 0) && (strncmp(imagetyp, "DARK", 4) != 0) ) {
+        maskdq = maskdq | EXCLUDE;
+    }
+sprintf (MsgText, "********** dqpat %d crflag %d niter %d maskdq %d", dqpat, crflag, niter, maskdq);
+trlmessage (MsgText);
 
     /* Define the buffer size for scrolling up the image. */
     width = (int) ceil(par->radius);  /* radius (pix) to propagate CR */
@@ -807,6 +828,13 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                                the output image array */
                             } else {
                                 sval = sval & nocr;
+                            }
+
+                            /* If BIAS or DARK frames, remove the BADPIXEL value 
+                               from the final output DQ array */
+                            if ( (strncmp(imagetyp, "BIAS", 4) == 0) || 
+                                 (strncmp(imagetyp, "DARK", 4) == 0) ) {
+                                 sval = sval & nobadpix;
                             }
 
                             /* Store the values arrived at so far in the
