@@ -19,9 +19,14 @@
     time-dependent sensitivity to be applied properly to SBC.
 
 ### 06-Mar-2019 - MDD -- Version 10.2.0
+<<<<<<< HEAD
     For bias or dark images, ACSREJ ignores the bad pixels (BPIXTAB flag of 4) 
     during the combination process for the SCI and ERR arrays (i.e. treat bad 
     pixels as normal pixels).
+=======
+    For bias or dark images, ACSREJ ignores the bad pixels during the combination 
+    process for the SCI and ERR arrays (i.e. treat bad pixels as normal pixels).
+>>>>>>> Final adjustments for combining bias and dark images
 
 ### 09-Aug-2018 - JAN/MDD -- Version 10.1.0
     The dark correction, DARKCORR step of the ACS2D algorithm, has been modified
