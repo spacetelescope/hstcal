@@ -11,7 +11,7 @@ configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
 
 // Define each build configuration, copying and overriding values as necessary.
 bc0 = new BuildConfig()
-bc0.nodetype = "linux-stable"
+bc0.nodetype = "python3.6"
 bc0.name = "debug"
 bc0.env_vars = ['PATH=./_install/bin:$PATH']
 bc0.conda_channels = ['http://ssb.stsci.edu/astroconda']
