@@ -1,5 +1,7 @@
  06-Mar-2019:  CALACS 10.2.0 ACSREJ treats Bias and Dark image combination
-                             differently than other data.
+                             differently than other data.  ACSREJ ignores the 
+                             bad pixels (BPIXTAB flag of 4) during the combination 
+                             (i.e. treat bad pixels as normal pixels).
  09-Aug-2018:  CALACS 10.1.0 ACS2D/DARKCORR step works directly on the full 2D
                              data rather than on a line-by-line basis PR#315.
                              ACSCCD/BLEVCORR step accommodates the new supported
