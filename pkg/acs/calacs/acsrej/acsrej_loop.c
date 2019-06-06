@@ -139,7 +139,9 @@ Code Outline:
   14-Jan-2016   P.L. Lim    Replace threshold formula with ERR. Cleaned up
                             threshold calculation function.
   26-Feb-2019   M.D. DeLaPena Check the IMAGETYP and adjust the dqpat and maskdq
-                            for BIAS and DARK images.
+                            for BIAS and DARK images.  Bad pixels (BPIXTAB flag of 4) 
+                            are ignored during the combination process for the 
+                            SCI and ERR arrays (i.e. treat bad pixels as normal pixels).
 */
 int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                  char imgname[][CHAR_FNAME_LENGTH], int grp [], int nimgs,
