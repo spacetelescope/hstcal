@@ -1,4 +1,5 @@
 #include <stdio.h>
+# include "trlbuf.h"
 /*
     PIKSRT  -   Sorting by straight insertion. 
     Sorts an array arrayOfFloats[0...n-1] of float type into ascending numerical 
@@ -16,6 +17,7 @@
 void piksrt (float arrayOfFloats[], int arrayLength) {
     float value;
     int position;
+    trlmessage (MsgText);
 
     /* Loop over the full input array */
     for (int j = 1; j < arrayLength; j++) {
@@ -43,6 +45,7 @@ void ipiksrt (float arrayOfFloats[], int arrayLength, int arrayOfInts[]) {
     float fValue;
     int iValue;
     int position;
+    trlmessage (MsgText);
 
     /* Loop over the input array */
     for (int j = 1; j < arrayLength; j++) {

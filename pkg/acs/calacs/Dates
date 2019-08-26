@@ -1,3 +1,6 @@
+ 24-Jun-2020:  CALACS 10.2.4 Removed/modified/updated routines which used copyrighted
+                             code. Updates implemented Oct 2019, but installation delayed 
+                             for higher priority updates.
  29-Apr-2020   CALACS 10.2.3 Modified "dodqi" to accommodate the A-to-D saturation threshold 
                              which is now defined in the CCDTAB. The threshold is no longer 
                              a constant and has different behavior pre- and post-SM4.

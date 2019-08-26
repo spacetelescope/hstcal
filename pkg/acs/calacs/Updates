@@ -1,3 +1,9 @@
+Update for version 10.2.4 - 24-Jun-2020 (MDD)
+    pkg/acs/calacs/Dates
+    pkg/acs/calacs/History
+    pkg/acs/calacs/Updates
+    pkg/acs/calacs/acsrej/piksrt.c
+
 Update for version 10.2.3 - 29-Apr-2020 (MDD)
 	pkg/acs/calacs/Dates
 	pkg/acs/calacs/History

@@ -1,3 +1,10 @@
+24-Jun-2020 - MDD - Version 3.5.1
+    - Replaced/modified routines based upon copyright numerical recipes routines.
+      Updates implemented Oct 2019, but installation delayed for higher priority updates.
+
+14-Oct-2018 - JAN/MDD - Version 3.5.0 (never released)
+    - Bug fixes to the CTE correction to fix out of bounds memory access and remove unnecessary critical section.
+
 19-Jan-2018 - JAN/MDD - Version 3.4.2
     - A number of code robustness improvements (address memory leaks, fix detected bugs) were implemented.
 
