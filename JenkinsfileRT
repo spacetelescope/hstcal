@@ -24,7 +24,8 @@ data_config.match_prefix = '(.*)_result' // .json is appended automatically
 bc = new BuildConfig()
 bc.nodetype = "RHEL-6"
 bc.name = "release"
-bc.env_vars = ['PATH=./_install/bin:$PATH',
+// Note: The source tree is placed in the 'clone' subdir by the CI system.
+bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
                 'OMP_NUM_THREADS=8',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
                 'jref=/grp/hst/cdbs/jref/',
