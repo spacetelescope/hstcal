@@ -13,7 +13,7 @@ configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
 bc0 = new BuildConfig()
 bc0.nodetype = "python3.6"
 bc0.name = "debug"
-bc0.env_vars = ['PATH=./_install/bin:$PATH']
+bc0.env_vars = ['PATH=./clone/_install/bin:$PATH']
 bc0.conda_channels = ['http://ssb.stsci.edu/astroconda']
 bc0.conda_packages = ['python=3.6',
                      'cfitsio',
@@ -22,6 +22,7 @@ bc0.build_cmds = ["${configure_cmd} --debug",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
+
 
 bc1 = utils.copy(bc0)
 bc1.name = "release"
@@ -36,10 +37,7 @@ bc1.conda_packages = ['python=3.6',
                      'pytest=3.8.2',
                      'requests',
                      'astropy']
-bc1.build_cmds = ["pwd",
-                  "ls",
-                  "env",
-                  "${configure_cmd} --release-with-symbols",
+bc1.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
