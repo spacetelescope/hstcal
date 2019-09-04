@@ -5,7 +5,7 @@ env:
   global:
     # Set defaults to avoid repeating in most cases
     - ASTROCONDA=http://ssb.stsci.edu/astroconda
-    - CONDA_DEPS="cfitsio curl gcc pkg-config"
+    - CONDA_DEPS="cfitsio curl pkg-config"
     - EXE_PREFIX="/tmp/miniconda3"
     - PYTHON_VERSION=3.6
     - WAF_ARGS_CONFIGURE="-v"
@@ -32,6 +32,7 @@ before_install:
 
 install:
   - conda install --yes -c $ASTROCONDA $CONDA_DEPS
+  - conda install --yes -c conda-forge gcc
   - ./waf configure --prefix=$CONDA_PREFIX $WAF_ARGS_CONFIGURE
   - ./waf build $WAF_ARGS_BUILD
   - ./waf install $WAF_ARGS_INSTALL
