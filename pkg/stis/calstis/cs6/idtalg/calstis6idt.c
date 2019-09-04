@@ -1745,69 +1745,65 @@ return: the median.
 }
 
 
+#define D_SWAP(a,b) { double temp=(a);(a)=(b);(b)=temp; }
 
-
-# define  SWAP(a,b)  temp=(a);(a)=(b);(b)=temp;
-
-/*
- *  SELECT  -  Selects k-th smallest value in vector.
+/* Algorithm in the public domain (http://blog.beamng.com/a-faster-selection-algorithm/)
+ * with modifications to maintain the HSTCAL interface and added some error checking.
+ * Note: The code needs more than 2 elements to work.
  *
- *  From "Numerical Recipes - The Art of Scientific Computing",
- *  Press, W.H., Teukolsky, S.A., Vetterling, W.T. and Flannery, B.P.,
- *  2nd edition, Cambridge University Press, 1995.
+ * This routine maintains the same interface as the original routine.
+ * Arrays are 1-indexed, thus the calling sequence should be
+ * something as:
+ *  med = select ((long)(n+1)/2, (long)n, array-1);
  *
- *  Vectors are 1-indexed, thus the calling sequence should be
- *  something as:
- *
- *  med = select ((long)(n+1)/2, (long)n, temp-1);
- *
- *  where `temp' is a standard, 0-indexed, 1-dimensional C array.
+ * k: the K-th smallest value in array, range = [1:length]
+ * length: length of the array
+ * array: the array to search
  */
+static double Select (unsigned long k, unsigned long length, double *array) {
+    unsigned long l=0, m=length-1, i=l, j=m;
+    double x;
 
-static double Select (unsigned long k, unsigned long n, double *arr) {
+    /* The original routine did no checking internally, but if its calling
+     * routine returns 0.0, it is an "OUT_OF_MEMORY" error.  This is kludgy,
+     * but it is the only method to return an error in the current context.
+     */
+    if ((length < 2) || (k <= 0) || (k > length)) {
+        //sprintf (MsgText, "Requested value %d is out of range (1 - %d}", k, length);
+        //trlerror (MsgText)
+        return (0.0);
+    }
 
-        unsigned long  i, ir, j, l, mid;
-        double         a, temp;
+    /* Adjust k to be for a zero-indexed array */
+    array += 1;
+    k--;
 
-        l = 1;
-        ir = n;
-        for (;;) {
-            if (ir <= l+1) {
-                if (ir == l+1 && arr[ir] < arr[l]) {
-                    SWAP(arr[l], arr[ir])
-                }
-                return arr[k];
-            } else {
-                mid = (l+ir) >> 1;
-                SWAP(arr[mid], arr[l+1])
-                if (arr[l] > arr[ir]) {
-                    SWAP(arr[l], arr[ir])
-                }
-                if (arr[l+1] > arr[ir]) {
-                    SWAP(arr[l+1], arr[ir])
-                }
-                if (arr[l] > arr[l+1]) {
-                    SWAP(arr[l], arr[l+1])
-                }
-                i = l+1;
-                j = ir;
-                a = arr[l+1];
-                for (;;) {
-                    do i++; while (arr[i] < a);
-                    do j--; while (arr[j] > a);
-                    if (j < i) break;
-                    SWAP(arr[i], arr[j])
-                }
-                arr[l+1] = arr[j];
-                arr[j]   = a;
-                if (j >= k) ir = j - 1;
-                if (j <= k) l  = i;
-            }
+    while (l < m) {
+        if(array[k] < array[i]) D_SWAP(array[i], array[k]);
+        if(array[j] < array[i]) D_SWAP(array[i], array[j]);
+        if(array[j] < array[k]) D_SWAP(array[k], array[j]);
+
+        x=array[k];
+        while (j > k && i < k) {
+            do i++; while (array[i] < x);
+            do j--; while (array[j] > x);
+
+            D_SWAP(array[i], array[j]);
         }
+        i++; j--;
 
+        if (j < k) {
+            while (array[i] < x) i++;
+            l = i; j = m;
+        }
+        if (k < i) {
+            while (x < array[j]) j--;
+            m = j; i = l;
+        }
+    }
+    return array[k];
 }
-# undef  SWAP
-
+# undef  D_SWAP
 
 
 /*
@@ -1852,7 +1848,6 @@ int msize;		i: size of mline array
 	    }
 	}
 }
-
 
 
 /*

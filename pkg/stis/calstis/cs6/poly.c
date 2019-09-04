@@ -8,23 +8,27 @@ static int  Slfit (double *, double *, double *, int, double *, int *, int,
                    double **, void (*funcs)(double, double [], int));
 static int Sgaussj (double **, int, double **, int);
 static void Scovsrt (double **covar, int ma, int ia[], int mfit);
-static int *ivector(long nl, long nh);
-static void free_ivector(int *v, long nl, long nh);
-static void free_dvector(double *v, long nl, long nh);
-static double *dvector(long nl, long nh);
-static double **dmatrix(long nrl, long nrh, long ncl, long nch);
-static void free_dmatrix(double **m, long nrl, long nrh, long ncl, long nch);
+static int *intVector(long nLow, long nHigh);
+static void free_intVector(int *v, long nLow);
+static void free_dblVector(double *v, long nLow);
+static double *dblVector(long nLow, long nHigh);
+static double **dmatrix(long lowRow, long highRow, long lowCol, long highCol);
+static void free_dmatrix(double **m, long lowRow, long lowCol);
 static void nrerror(char *);
 
+void swap(double *a, double *b) {
+    double temp = *a;
+    *a = *b;
+    *b = temp;
+}
 
 /*
    Polynomial least squares fit.
 
-   We use for now Numerical Recipes routines modified to work in
-   double precision, and to handle a origin-offseted data set, in
-   order to improve accuracy.
-
-
+   Modified/updated original routines to move away from copyright
+   code.  These routines work in double precision, and handle a 
+   origin-offseted data set, in order to improve accuracy.  Improved
+   comments and variable naming.
 
    Revision history:
    ----------------
@@ -39,9 +43,7 @@ static void nrerror(char *);
 
 void poly (double x, double values[], int n) {
 
-	int i;
-
-	for (i = 1; i <= n; i++)
+	for (int i = 1; i <= n; i++)
 	    values[i] = pow ((double)x, (double)(i-1));
 }
 
@@ -70,7 +72,7 @@ int ndat;		i:  number of data points
 int degree;		i:  degree of polynomial to fit
 double coeff[];		o:  output coefficients
 */
-	int i, nterm, nav, *ia, status;
+	int nterm, nav, *ia, status;
 	double *a, *x, *y, *sig, **covar, avx, avy;
 
 	nterm = degree + 1;
@@ -82,7 +84,7 @@ double coeff[];		o:  output coefficients
 	avx = 0.0;
 	avy = 0.0;
 	nav = 0;
-	for (i = 0; i < ndat; i++) {
+	for (int i = 0; i < ndat; i++) {
 	    if (iw[i] > 0.0) {
 	        avx += ix[i];
 	        avy += iy[i];
@@ -98,15 +100,15 @@ double coeff[];		o:  output coefficients
 	}
 
 	/* Alloc memory. */
-	ia    = ivector (1, nterm);
-	a     = dvector (1, nterm);
-	x     = dvector (1, ndat);
-	y     = dvector (1, ndat);
-	sig   = dvector (1, ndat);
-	covar = dmatrix (1, nterm, 1, nterm);
+	ia    = intVector ((long)1, (long)nterm);
+	a     = dblVector ((long)1, (long)nterm);
+	x     = dblVector ((long)1, (long)ndat);
+	y     = dblVector ((long)1, (long)ndat);
+	sig   = dblVector ((long)1, (long)ndat);
+	covar = dmatrix ((long)1, (long)nterm, (long)1, (long)nterm);
 
 	/* Initialize data arrays for fitting routine. */
-	for (i = 1; i <= ndat; i++) {
+	for (int i = 1; i <= ndat; i++) {
 	    x[i]   = ix[i-1] - avx;
 	    y[i]   = iy[i-1] - avy;
 	    if (iw[i-1] > 0.0)
@@ -114,25 +116,26 @@ double coeff[];		o:  output coefficients
 	    else
 	        sig[i] = 1.0;
 	}
-	for (i = 1; i <= nterm; ia[i++] = 1);
+	for (int i = 1; i <= nterm; ia[i++] = 1);
 
 	/* Solve. */
+    printf("******** Calling Slfit ***********");
 	if ((status = Slfit (x, y, sig, ndat, a, ia, nterm, covar, poly)))
 	    return (status);
 
 	/* Store coefficients. */
 	coeff[0] = avx;
 	coeff[1] = avy;
-	for (i = 1; i <= nterm; i++)
+	for (int i = 1; i <= nterm; i++)
 	    coeff[i+1] = a[i];
 
 	/* Free memory. */
-	free_dmatrix (covar, 1, nterm, 1, nterm);
-	free_dvector (sig,   1, ndat);
-	free_dvector (y,     1, ndat);
-	free_dvector (x,     1, ndat);
-	free_dvector (a,     1, nterm);
-	free_ivector (ia,    1, nterm);
+	free_dmatrix (covar, (long)1, (long)1);
+	free_dblVector (sig, (long)1);
+	free_dblVector (y, (long)1);
+	free_dblVector (x, (long)1);
+	free_dblVector (a, (long)1);
+	free_intVector (ia, (long)1);
 
 	return (0);
 }
@@ -152,223 +155,276 @@ double coeff[];		i:  coefficients
 int degree;		i:  degree of polynomial
 double oy[];		o:  output values
 */
-	int i, j;
-
-	for (i = 0; i < ndat; i++) {
+	for (int i = 0; i < ndat; i++) {
 	    oy[i] = 0.0;
-	    for (j = 0; j <= degree; j++)
+	    for (int j = 0; j <= degree; j++)
 	        oy[i] += coeff[j+2] * pow (ix[i] - coeff[0], (double)j);
 	    oy[i] += coeff[1];
 	}
 }
 
-
 /*
-   Numerical Recipes code.
 
-   This code was modified from its original form to:
-
-   - return an error code instead of aborting plain and simple.
-   - use double precision throughout.
-   - chisq computation removed.
+   The least squares fit:
+   - returns an error code
+   - use double precision
+   - has no chisq computation
 */
 
 
-static int Slfit (double x[], double y[], double sig[], int ndat, double a[],
-                  int ia[], int ma, double **covar,
+static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double coeff[],
+                  int coeffMask[], int ndim, double **covar,
                   void (*funcs)(double, double [], int))
 {
-	int i,j,k,l,m,mfit=0,status;
-	double ym,wt,sig2i,**beta,*afunc;
+	int mfit = 0, status;
+	double ym, weight, sig2i, **beta, *basisFunc;
 
-	beta=dmatrix(1,ma,1,1);
-	afunc=dvector(1,ma);
-	for (j=1;j<=ma;j++)
-		if (ia[j]) mfit++;
+	beta = dmatrix((long)1, (long)ndim, (long)1, (long)1);
+	basisFunc = dblVector((long)1, (long)ndim);
+
+	for (int j = 1; j <= ndim; j++)
+		if (coeffMask[j]) 
+            mfit++;
+
 	if (mfit == 0) {
-	    printf ("lfit: no parameters to be fitted\n");
+	    printf ("lfit: There are no parameters to be fit.\n");
 	    return (1);
 	}
-	for (j=1;j<=mfit;j++) {
-		for (k=1;k<=mfit;k++) covar[j][k]=0.0;
-		beta[j][1]=0.0;
+
+	for (int j = 1; j <= mfit; j++) {
+		for (int k = 1; k <= mfit; k++) 
+            covar[j][k] = 0.0;
+		beta[j][1] = 0.0;
 	}
-	for (i=1;i<=ndat;i++) {
-		(*funcs)(x[i],afunc,ma);
-		ym=y[i];
-		if (mfit < ma) {
-			for (j=1;j<=ma;j++)
-				if (!ia[j]) ym -= a[j]*afunc[j];
+
+    /* Declare this for the remainder of the routine to avoid
+     * confusion for the reader.
+     */
+    int j, k, l, m;
+	for (int i = 1; i <= ndat; i++) {
+		(*funcs)(xdat[i], basisFunc, ndim);
+		ym = ydat[i];
+		if (mfit < ndim) {
+			for (j = 1; j <= ndim; j++)
+				if (!coeffMask[j]) 
+                    ym -= coeff[j] * basisFunc[j];
 		}
-		sig2i=1.0/sqrt(sig[i]);
-		for (j=0,l=1;l<=ma;l++) {
-			if (ia[l]) {
-				wt=afunc[l]*sig2i;
-				for (j++,k=0,m=1;m<=l;m++)
-					if (ia[m]) covar[j][++k] += wt*afunc[m];
-				beta[j][1] += ym*wt;
+		sig2i = 1.0 / sqrt(sigma[i]);
+		for (j = 0, l = 1; l <= ndim; l++) {
+			if (coeffMask[l]) {
+				weight = basisFunc[l] * sig2i;
+				for (j++, k = 0, m = 1; m <= l; m++)
+					if (coeffMask[m]) 
+                        covar[j][++k] += weight * basisFunc[m];
+				beta[j][1] += ym * weight;
 			}
 		}
 	}
-	for (j=2;j<=mfit;j++)
-		for (k=1;k<j;k++)
-			covar[k][j]=covar[j][k];
-	if ((status = Sgaussj(covar,mfit,beta,1)))
+
+	for (j = 2; j <= mfit; j++)
+		for (k = 1; k < j; k++)
+			covar[k][j] = covar[j][k];
+
+	if ((status = Sgaussj(covar, mfit, beta, 1)))
 	    return (status);
-	for (j=0,l=1;l<=ma;l++)
-		if (ia[l]) a[l]=beta[++j][1];
-	Scovsrt (covar,ma,ia,mfit);
-	free_dvector(afunc,1,ma);
-	free_dmatrix(beta,1,ma,1,1);
+
+	for (j = 0, l = 1; l <= ndim; l++)
+		if (coeffMask[l]) 
+            coeff[l] = beta[++j][1];
+
+	Scovsrt (covar, ndim, coeffMask, mfit);
+
+	free_dblVector(basisFunc, (long)1);
+	free_dmatrix(beta, (long)1, (long)1);
+
 	return (0);
 }
 
-#define SWAP(a,b) {swap=(a);(a)=(b);(b)=swap;}
-
-static void Scovsrt (double **covar, int ma, int ia[], int mfit)
+/*
+ * Redistribute the covariance values into the full covariance
+ * matrix 
+ */
+static void Scovsrt (double **covar, int ndim, int data[], int mfit)
 {
-	int i,j,k;
-	double swap;
+	int k = mfit;
 
-	for (i=mfit+1;i<=ma;i++)
-		for (j=1;j<=i;j++) covar[i][j]=covar[j][i]=0.0;
-	k=mfit;
-	for (j=ma;j>=1;j--) {
-		if (ia[j]) {
-			for (i=1;i<=ma;i++) SWAP(covar[i][k],covar[i][j])
-			for (i=1;i<=ma;i++) SWAP(covar[k][i],covar[j][i])
+	for (int i = mfit + 1; i <= ndim; i++) {
+		for (int j = 1; j <= i; j++) {
+            covar[i][j] = 0.0;
+            covar[j][i] = 0.0;
+        }
+    }
+
+	for (int j = ndim; j >= 1; j--) {
+		if (data[j]) {
+			for (int i = 1; i <= ndim; i++) 
+                swap(&covar[i][k], &covar[i][j]);
+			for (int i = 1; i <= ndim; i++) 
+                swap(&covar[k][i], &covar[j][i]);
 			k--;
 		}
 	}
 }
-#undef SWAP
 
-#define SWAP(a,b) {temp=(a);(a)=(b);(b)=temp;}
-
+/*
+ * Gauss Jordan elimination with full pivot.  The full pivot means
+ * there is a row exchange to move the fabs(element) to the pivotal
+ * position.  In addition, there is a column exchange to maximize
+ * the absolute value of the pivot.
+ */
 static int Sgaussj (double **a, int n, double **b, int m)
 {
-	int *indxc,*indxr,*ipiv;
-	int i,icol,irow,j,k,l,ll;
-	double big,dum,pivinv,temp;
+	int *index_col, *index_row, *index_pivot;
+	int col, row;
+	double maxElement, temp, pivot_element;
 
-	indxc=ivector(1,n);
-	indxr=ivector(1,n);
-	ipiv=ivector(1,n);
-	for (j=1;j<=n;j++) ipiv[j]=0;
-	for (i=1;i<=n;i++) {
-		big=0.0;
-		for (j=1;j<=n;j++)
-			if (ipiv[j] != 1)
-				for (k=1;k<=n;k++) {
-					if (ipiv[k] == 0) {
-						if (fabs(a[j][k]) >= big) {
-							big=fabs(a[j][k]);
-							irow=j;
-							icol=k;
+	index_col = intVector((long)1, (long)n);
+	index_row = intVector((long)1, (long)n);
+	index_pivot = intVector((long)1, (long)n);
+
+	for (int j = 1; j <= n; j++) 
+        index_pivot[j] = 0;
+
+    /*
+     * Choose the largest element as the pivot which is overall a good choice.
+     */
+	for (int i = 1; i <= n; i++) {
+		maxElement = 0.0;
+		for (int j = 1; j <= n; j++) {
+			if (index_pivot[j] != 1)
+				for (int k = 1; k <= n; k++) {
+					if (index_pivot[k] == 0) {
+						if (fabs(a[j][k]) >= maxElement) {
+							maxElement = fabs(a[j][k]);
+							row = j;
+							col = k;
 						}
-					} else if (ipiv[k] > 1) {
-	                                    printf
-                                           ("gaussj: Singular Matrix-1\n");
-	                                    return (1);
-	                                }
+					} else if (index_pivot[k] > 1) {
+	                    printf
+                        ("gaussj: Singular Matrix when choosing largest element.\n");
+	                    return (1);
+	                }
 				}
-		++(ipiv[icol]);
-		if (irow != icol) {
-			for (l=1;l<=n;l++) SWAP(a[irow][l],a[icol][l])
-			for (l=1;l<=m;l++) SWAP(b[irow][l],b[icol][l])
+        }
+		++(index_pivot[col]);
+
+        /*
+         * Exchange the rows to put the pivot on the diagonal
+         */
+		if (row != col) {
+			for (int l = 1; l <= n; l++) 
+                swap(&a[row][l], &a[col][l]);
+			for (int l = 1; l <= m; l++) 
+                swap(&b[row][l], &b[col][l]);
 		}
-		indxr[i]=irow;
-		indxc[i]=icol;
-		if (a[icol][icol] == 0.0) {
-                    printf("gaussj: Singular Matrix-2\n");
-	            return (1);
-	        }
-		pivinv=1.0/a[icol][icol];
-		a[icol][icol]=1.0;
-		for (l=1;l<=n;l++) a[icol][l] *= pivinv;
-		for (l=1;l<=m;l++) b[icol][l] *= pivinv;
-		for (ll=1;ll<=n;ll++)
-			if (ll != icol) {
-				dum=a[ll][icol];
-				a[ll][icol]=0.0;
-				for (l=1;l<=n;l++) a[ll][l] -= a[icol][l]*dum;
-				for (l=1;l<=m;l++) b[ll][l] -= b[icol][l]*dum;
+ 
+        /*
+         * Divide the pivot row by the pivot element, but make
+         * sure there is no divide-by-zero.
+         */
+		index_row[i] = row;
+		index_col[i] = col;
+		if (a[col][col] == 0.0) {
+            printf("gaussj: Singular Matrix - pivot element is zero.\n");
+	        return (1);
+	    }
+
+		pivot_element = 1.0 / a[col][col];
+		a[col][col] = 1.0;
+
+		for (int l = 1; l <= n; l++) 
+            a[col][l] *= pivot_element;
+
+		for (int l = 1; l <= m; l++) 
+            b[col][l] *= pivot_element;
+
+        /*
+         * Reduce the rows, except for the pivot row.
+         */
+		for (int j = 1; j <= n; j++) {
+			if (j != col) {
+				temp = a[j][col];
+				a[j][col] = 0.0;
+				for (int l = 1; l <= n; l++) 
+                   a[j][l] -= a[col][l] * temp;
+				for (int l = 1; l <= m; l++) 
+                   b[j][l] -= b[col][l] * temp;
 			}
+        }
 	}
-	for (l=n;l>=1;l--) {
-		if (indxr[l] != indxc[l])
-			for (k=1;k<=n;k++)
-				SWAP(a[k][indxr[l]],a[k][indxc[l]]);
+
+    /*
+     * Fix up the inverse matrix by re-arranging the columns in the 
+     * reverse order the initial matrix was built.
+     */
+	for (int l = n; l >= 1; l--) {
+		if (index_row[l] != index_col[l])
+			for (int k = 1; k <= n; k++)
+				swap(&a[k][index_row[l]], &a[k][index_col[l]]);
 	}
-	free_ivector(ipiv,1,n);
-	free_ivector(indxr,1,n);
-	free_ivector(indxc,1,n);
+
+	free_intVector(index_pivot, 1);
+	free_intVector(index_row, 1);
+	free_intVector(index_col, 1);
+
 	return (0);
 }
-#undef SWAP
 
-static int *ivector(nl,nh)
-long nh,nl;
-{
+static int *intVector(long nLow, long nHigh) {
 	int *v;
 
-	v=(int *)malloc((unsigned int) ((nh-nl+1+1)*sizeof(int)));
-	if (!v) nrerror("allocation failure in ivector()");
-	return v-nl+1;
+	v = (int *)malloc((unsigned int) ((nHigh - nLow + 1 + 1) * sizeof(int)));
+	if (!v) 
+        nrerror("Memory allocation failure in intVector().");
+	return v - nLow + 1;
 }
 
-static double *dvector(long nl, long nh)
-{
+static double *dblVector(long nLow, long nHigh) {
 	double *v;
 
-	v=(double *)malloc((size_t) ((nh-nl+1+1)*sizeof(double)));
-	if (!v) nrerror("allocation failure in dvector()");
-	return v-nl+1;
+	v = (double *)malloc((size_t) ((nHigh - nLow + 1 + 1) * sizeof(double)));
+	if (!v) 
+        nrerror("Memory allocation failure in dblVector().");
+	return v - nLow + 1;
 }
 
-static double **dmatrix(nrl,nrh,ncl,nch)
-long nch,ncl,nrh,nrl;
-{
-	long i, nrow=nrh-nrl+1,ncol=nch-ncl+1;
+static double **dmatrix(long lowRow, long highRow, long lowCol, long highCol) {
+    long nrow = highRow-lowRow+1; 
+    long ncol = highCol-lowCol+1;
 	double **m;
 
-	m=(double **) malloc((unsigned int)((nrow+1)*sizeof(double*)));
-	if (!m) nrerror("allocation failure 1 in matrix()");
+	m = (double **) malloc((unsigned int) ((nrow + 1) * sizeof(double*)));
+	if (!m) nrerror("Memory allocation failure 1 in matrix().");
 	m += 1;
-	m -= nrl;
+	m -= lowRow;
 
-	m[nrl]=(double *) malloc((unsigned int)((nrow*ncol+1)*sizeof(double)));
-	if (!m[nrl]) nrerror("allocation failure 2 in matrix()");
-	m[nrl] += 1;
-	m[nrl] -= ncl;
+	m[lowRow]=(double *) malloc((unsigned int) ((nrow*ncol + 1) * sizeof(double)));
+	if (!m[lowRow]) nrerror("Memory allocation failure 2 in matrix().");
+	m[lowRow] += 1;
+	m[lowRow] -= lowCol;
 
-	for(i=nrl+1;i<=nrh;i++) m[i]=m[i-1]+ncol;
+	for (long i = lowRow + 1; i <= highRow; i++) 
+        m[i] = m[i-1] + ncol;
 
 	return m;
 }
 
-static void free_ivector(int *v, long nl, long nh)
-{
-	free((char*) (v+nl-1));
+static void free_intVector(int *v, long nLow) {
+	free((char*) (v+nLow-1));
 }
 
-static void free_dvector(v,nl,nh)
-double *v;
-long nh,nl;
-{
-	free((char*) (v+nl-1));
+static void free_dblVector(double *v, long nLow) {
+	free((char*) (v + nLow - 1));
 }
 
-static void free_dmatrix(double **m, long nrl, long nrh, long ncl, long nch)
-{
-	free((char*) (m[nrl]+ncl-1));
-	free((char*) (m+nrl-1));
+static void free_dmatrix(double **m, long lowRow, long lowCol) {
+	free((char*) (m[lowRow] + lowCol - 1));
+	free((char*) (m + lowRow - 1));
 }
 
-static void nrerror(char error_text[])
-{
-	fprintf(stderr,"Numerical Recipes run-time error...\n");
-	fprintf(stderr,"%s\n",error_text);
-	fprintf(stderr,"...now exiting to system...\n");
+static void nrerror(char error_text[]) {
+	fprintf(stderr, "Run-time error...\n");
+	fprintf(stderr, "%s\n",error_text);
+	fprintf(stderr, "...now exiting to system...\n");
 	exit(1);
 }
