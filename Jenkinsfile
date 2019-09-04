@@ -26,7 +26,7 @@ bc0.build_cmds = ["${configure_cmd} --debug",
 bc1 = utils.copy(bc0)
 bc1.name = "release"
 // Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
-bc1.env_vars = ['PATH=./_install/bin:$PATH',
+bc1.env_vars = ['PATH=./clone/_install/bin:$PATH',
                 'OMP_NUM_THREADS=8',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory']
 bc1.conda_packages = ['python=3.6',
