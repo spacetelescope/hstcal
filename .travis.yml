@@ -5,7 +5,7 @@ env:
   global:
     # Set defaults to avoid repeating in most cases
     - ASTROCONDA=http://ssb.stsci.edu/astroconda
-    - CONDA_DEPS="cfitsio curl pkg-config"
+    - CONDA_DEPS="cfitsio curl gcc pkg-config"
     - EXE_PREFIX="/tmp/miniconda3"
     - PYTHON_VERSION=3.6
     - WAF_ARGS_CONFIGURE="-v"
@@ -20,6 +20,7 @@ matrix:
     compiler: clang
     env:
       - CC="clang"
+      - CONDA_DEPS="cfitsio curl clang_osx-64 gfortran_osx-64 pkg-config"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CONDA_INSTALLER=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh; fi
@@ -32,7 +33,6 @@ before_install:
 
 install:
   - conda install --yes -c $ASTROCONDA $CONDA_DEPS
-  - conda install --yes -c conda-forge gcc
   - ./waf configure --prefix=$CONDA_PREFIX $WAF_ARGS_CONFIGURE
   - ./waf build $WAF_ARGS_BUILD
   - ./waf install $WAF_ARGS_INSTALL
