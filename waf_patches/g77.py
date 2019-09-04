@@ -57,7 +57,7 @@ def get_g77_version(conf, fc):
         conf.fatal('Could not determine the compiler type')
 
     # --- now get more detailed info -- see c_config.get_cc_version
-    cmd = fc + ['-dM', '-E', '-']
+    cmd = fc  # + ['-dM', '-E', '-']
     out, err = fc_config.getoutput(conf, cmd, stdin=True)
 
     if out.find('__GNUC__') < 0:
