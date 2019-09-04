@@ -39,7 +39,9 @@ bc.conda_packages = ['python=3.6',
                      'astropy',
                      'ci-watson']
 
-bc.build_cmds = ["${configure_cmd} --release-with-symbols",
+bc.build_cmds = ["pwd",
+		"env",
+		  "${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
