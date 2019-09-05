@@ -31,6 +31,7 @@ add_library(${PROJECT_NAME} SHARED
 	acsccd/getccdsw.c
 	acscte/acscte.c
 	acscte/docte.c
+	acscte/domaincte.c
 	acscte/dopcte-gen2.c
 	acscte/dopcte.c
 	acscte/getcteflag.c
@@ -114,11 +115,13 @@ add_library(${PROJECT_NAME} SHARED
 	spline.c
 	streqic.c
 	sub1d.c
+	sub2d.c
 	tabhistory.c
 	tabpedigree.c
 	timestamp.c
 	toelectrons.c
 	trim.c
+	trim2d.c
 	ucalver.c
 	ufilename.c
 	unbinline.c

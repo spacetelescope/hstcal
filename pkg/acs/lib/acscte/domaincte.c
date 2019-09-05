@@ -226,7 +226,7 @@ int doMainCTE (int argc, char **argv) {
             }
             else if (strncmp(argv[i], "--forwardModelOnly", 18) == 0)
             {
-                printf("WARNING: running CTE forward model only");
+                printf("WARNING: running CTE forward model only\n");
                 forwardModelOnly = true;
                 continue;
             }

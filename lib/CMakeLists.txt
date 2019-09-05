@@ -4,6 +4,7 @@ add_library(${PROJECT_NAME} SHARED
 	getphttab.c
 	hstcal_memory.c
 	hstcalversion.c
+	str_util.c
 	trlbuf.c
 )
 target_link_libraries(${PROJECT_NAME}
