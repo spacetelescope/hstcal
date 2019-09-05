@@ -52,6 +52,24 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
+project(acscteforwardmodel)
+add_executable(${PROJECT_NAME}
+	src/mainacscteforwardmodel.c
+)
+target_include_directories(${PROJECT_NAME}
+	PUBLIC ${HSTCAL_include}
+	PUBLIC ${PROJECT_NAME}/../include
+)
+target_link_libraries(${PROJECT_NAME}
+	PUBLIC acs
+	PUBLIC ctegen2
+	PUBLIC hstcalib
+)
+install(TARGETS ${PROJECT_NAME}
+	DESTINATION bin
+)
+
+
 project(acsrej)
 add_executable(${PROJECT_NAME}
 	src/mainrej.c
@@ -62,6 +80,7 @@ target_include_directories(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC acs
+	PUBLIC hstcalib
 )
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION bin
