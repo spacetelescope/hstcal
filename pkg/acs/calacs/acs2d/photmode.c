@@ -100,11 +100,10 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
             }
 	    }
     }
-    /* Add 'mjd#' keyword to PHOTMODE string, but only for WFC and HRC */
-	if (acs2d->detector != MAMA_DETECTOR) {
-        sprintf (scratch, " MJD#%0.4f", acs2d->expstart);
-        strcat (photstr,scratch);
-    }
+    /* Add 'mjd#' keyword to PHOTMODE string, modified (Git Issue #435)
+       to apply to all ACS detectors */
+    sprintf (scratch, " MJD#%0.4f", acs2d->expstart);
+    strcat (photstr,scratch);
 
     if (acs2d->verbose){
         sprintf(MsgText,"Keyword PHOTMODE built as: %s",photstr);
