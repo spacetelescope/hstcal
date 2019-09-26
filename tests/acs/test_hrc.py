@@ -12,6 +12,10 @@ class TestMosaic(BaseACS):
     """
     detector = 'hrc'
 
+    ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
+                       'opus_ver', 'cal_ver', 'proctime', 'history',
+                       'bitpix', 'naxis', 'extend', 'simple']
+
     def test_4point_mosaic(self):
         """
         Process an HRC mosaic dataset using the standard HRC-MOSAIC-BOX 
@@ -34,7 +38,7 @@ class TestMosaic(BaseACS):
                    ('j6m901c3q_flt.fits', 'j6m901c3q_flt_ref.fits'),
                    ('j6m901d9q_flt.fits', 'j6m901d9q_flt_ref.fits'),
                    ('j6m901deq_flt.fits', 'j6m901deq_flt_ref.fits')]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestMosaic.ignore_keywords)
 
     def test_3point_mosaic(self):
         """ 
@@ -59,4 +63,4 @@ class TestMosaic(BaseACS):
         outputs = [('j8cd02011_crj.fits', 'j8cd02011_sfl_ref.fits'),
                    ('j8cd020a1_crj.fits', 'j8cd020a1_sfl_ref.fits'),
                    ('j8cd020k1_crj.fits', 'j8cd020k1_sfl_ref.fits')]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestMosaic.ignore_keywords)

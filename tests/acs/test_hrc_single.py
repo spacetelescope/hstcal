@@ -18,6 +18,10 @@ class TestSingle(BaseACS):
     """
     detector = 'hrc'
 
+    ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
+                       'opus_ver', 'cal_ver', 'proctime', 'history',
+                       'bitpix', 'naxis', 'extend', 'simple']
+
     def _single_raw_calib(self, rootname):
         raw_file = '{}_raw.fits'.format(rootname)
 
@@ -30,7 +34,7 @@ class TestSingle(BaseACS):
         # Compare results
         outputs = [('{}_flt.fits'.format(rootname),
                     '{}_flt_ref.fits'.format(rootname))]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestSingle.ignore_keywords)
 
     # NOTE:
     # j8bt02loq = was hrc_single1
