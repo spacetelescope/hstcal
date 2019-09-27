@@ -1,3 +1,8 @@
+### 25-Sep-2019 - MDD -- Version 10.2.1
+    CALACS has been modified to allow the PHOTMODE keyword to be updated with
+    the MJD for the SBC, in addition to the HRC and WFC. This will allow
+    time-dependent sensitivity to be applied properly to SBC.
+
 ### 06-Mar-2019 - MDD -- Version 10.2.0
     For bias or dark images, ACSREJ ignores the bad pixels (BPIXTAB flag of 4) 
     during the combination process for the SCI and ERR arrays (i.e. treat bad 

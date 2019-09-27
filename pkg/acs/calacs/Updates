@@ -1,3 +1,9 @@
+update for version 10.2.1 - 25-Sep-2019 (MDD)
+    pkg/acs/calacs/Dates
+    pkg/acs/calacs/History
+    pkg/acs/calacs/Updates
+    pkg/acs/calacs/acs2d/photmode.c
+
 Update for version 10.2.0 - 06-Mar-2019 (MDD)
     pkg/acs/calacs/acsrej/acsrej_do.c
     pkg/acs/calacs/acsrej/acsrej_loop.c
