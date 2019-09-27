@@ -9,6 +9,9 @@ class TestWFCSubarray(BaseACS):
     Process a single WFC subarray with all standard calibration steps on.
     """
     detector = 'wfc'
+    ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
+                       'opus_ver', 'cal_ver', 'proctime', 'history',
+                       'bitpix', 'naxis', 'extend', 'simple']
 
     # NOTE: This has PCTECORR=OMIT.
     # NOTE:
@@ -30,7 +33,7 @@ class TestWFCSubarray(BaseACS):
         # Compare results
         outputs = [('{}_flt.fits'.format(rootname),
                     '{}_flt_ref.fits'.format(rootname))]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestWFCSubarray.ignore_keywords)
 
     # NOTE: This is slow test due to PCTECORR=PERFORM
     @pytest.mark.slow
@@ -49,4 +52,4 @@ class TestWFCSubarray(BaseACS):
         # Compare results
         outputs = [('jb5s01fnq_flt.fits', 'jb5s01fnq_flt_ref.fits'),
                    ('jb5s01fnq_flc.fits', 'jb5s01fnq_flc_ref_gen2cte.fits')]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestWFCSubarray.ignore_keywords)

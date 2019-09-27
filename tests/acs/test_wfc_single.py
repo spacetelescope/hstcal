@@ -17,6 +17,9 @@ class TestFullFrameSingle(BaseACS):
     which includes bias shift, cross talk, and destripe corrections.
     """
     detector = 'wfc'
+    ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
+                       'opus_ver', 'cal_ver', 'proctime', 'history',
+                       'bitpix', 'naxis', 'extend', 'simple']
 
     def _single_raw_calib(self, rootname):
         raw_file = '{}_raw.fits'.format(rootname)
@@ -32,7 +35,7 @@ class TestFullFrameSingle(BaseACS):
                     '{}_flt_ref.fits'.format(rootname)),
                    ('{}_flc.fits'.format(rootname),
                     '{}_flc_ref_gen2cte.fits'.format(rootname))]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestFullFrameSingle.ignore_keywords)
 
     # NOTE: This is slow test due to PCTECORR=PERFORM
     # NOTE:

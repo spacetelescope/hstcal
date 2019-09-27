@@ -13,6 +13,9 @@ class TestFullFrameASN(BaseACS):
     standard calibration steps turned on.
     """
     detector = 'wfc'
+    ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
+                       'opus_ver', 'cal_ver', 'proctime', 'history',
+                       'bitpix', 'naxis', 'extend', 'simple']
 
     # NOTE:
     # j6lq01010 = pre-SM4, was wfc_asn1
@@ -45,4 +48,4 @@ class TestFullFrameASN(BaseACS):
                          '{}_flt_ref.fits'.format(outroot)),
                         ('{}_flc.fits'.format(outroot),
                          '{}_flc_ref_gen2cte.fits'.format(outroot))]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestFullFrameASN.ignore_keywords)

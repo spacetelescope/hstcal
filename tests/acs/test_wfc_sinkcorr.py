@@ -11,6 +11,9 @@ class TestSinkcorr(BaseACS):
     and no PCTE correction.
     """
     detector = 'wfc'
+    ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
+                       'opus_ver', 'cal_ver', 'proctime', 'history',
+                       'bitpix', 'naxis', 'extend', 'simple']
 
     def test_fullframe_sinkcorr(self):
         """Ported from ``wfc_sinkcorr``, routine test_sinkcorr_fullframe."""
@@ -24,7 +27,7 @@ class TestSinkcorr(BaseACS):
 
         # Compare results
         outputs = [('jd1y03r5q_flt.fits', 'jd1y03r5q_flt_ref.fits')]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestSinkcorr.ignore_keywords)
 
     def test_subarray_sinkcorr(self):
         """Ported from ``wfc_sinkcorr``, routine test_sinkcorr_subarr."""
@@ -38,4 +41,4 @@ class TestSinkcorr(BaseACS):
 
         # Compare results
         outputs = [('jd0q13ktq_flt.fits', 'jd0q13ktq_flt_ref.fits')]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestSinkcorr.ignore_keywords)

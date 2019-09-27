@@ -9,6 +9,9 @@ class TestSingleFrame(BaseACS):
     """Process a single SBC dataset."""
     detector = 'sbc'
 
+    ignore_keywords = ['filename', 'date', 'iraf-tlm', 'fitsdate',
+                       'opus_ver', 'cal_ver', 'proctime', 'history',
+                       'bitpix', 'naxis', 'extend', 'simple']
     # NOTE:
     # j9ic01vpq = pre-SM4, was sbc_single1
     # jbdf10ykq = post-SM4, was sbc_single2
@@ -28,4 +31,4 @@ class TestSingleFrame(BaseACS):
         # Compare results
         outputs = [('{}_flt.fits'.format(rootname),
                     '{}_flt_ref.fits'.format(rootname))]
-        self.compare_outputs(outputs)
+        self.compare_outputs(outputs, ignore_keywords_overwrite=TestSingleFrame.ignore_keywords)
