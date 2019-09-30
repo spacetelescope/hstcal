@@ -26,11 +26,11 @@ bc.nodetype = "RHEL-6"
 bc.name = "release"
 // Note: The source tree is placed in the 'clone' subdir by the CI system.
 bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
-                'OMP_NUM_THREADS=4',
-                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
-                'jref=/grp/hst/cdbs/jref/',
-                'iref=/grp/hst/cdbs/iref/',
-                'oref=/grp/hst/cdbs/oref/']
+               'OMP_NUM_THREADS=4',
+               'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
+               'jref=/grp/hst/cdbs/jref/',
+               'iref=/grp/hst/cdbs/iref/',
+               'oref=/grp/hst/cdbs/oref/']
 bc.conda_channels = ['http://ssb.stsci.edu/astroconda']
 bc.conda_packages = ['python=3.6',
                      'cfitsio',
@@ -40,10 +40,10 @@ bc.conda_packages = ['python=3.6',
                      'astropy',
                      'ci-watson']
 
-bc.build_cmds = ["${configure_cmd} --release-with-symbols",
-                  "./waf build",
-                  "./waf install",
-                  "calacs.e --version"]
+bc.build_cmds = ["${configure_cmd} --release-with-symbols -v",
+                 "./waf build -v",
+                 "./waf install -v",
+                 "calacs.e --version"]
 bc.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata --slow -v"]
 bc.failedUnstableThresh = 1
 bc.failedFailureThresh = 6
@@ -51,7 +51,12 @@ bc.failedFailureThresh = 6
 // Upload artifacts
 bc.test_configs = [data_config]
 
+// Also run on OSX
+bc_osx = utils.copy(bc)
+bc_osx.nodetype = "osx"
+bc_osx.env_vars += ['CC=clang']
+
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
 // Also apply the job configuration defined in `jobconfig` above.
-utils.run([bc, jobconfig])
+utils.run([bc, bc_osx, jobconfig])
