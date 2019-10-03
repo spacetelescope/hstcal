@@ -53,8 +53,7 @@ bc2.build_cmds[0] = "${configure_cmd} --O3"
 // Had problem with making copy.
 // Run actual tests in OSX
 bc3 = new BuildConfig()
-// EXP: Will things pass again if I comment this out? Joe H wants to know.
-// bc3.nodetype = "osx"
+bc3.nodetype = "osx"
 bc3.name = "release"
 // Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
 bc3.env_vars = ['PATH=./clone/_install/bin:$PATH',
@@ -79,4 +78,6 @@ bc3.failedFailureThresh = 6
 
 // Iterate over configurations that define the (distibuted) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
-utils.run([bc0, bc1, bc2, bc3])
+// Run OSX in a separate call to avoid env var clobbering.
+utils.run([bc0, bc1, bc2])
+utils.run([bc3])

@@ -82,4 +82,6 @@ bc_osx.failedFailureThresh = 6
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
 // Also apply the job configuration defined in `jobconfig` above.
-utils.run([bc, bc_osx, jobconfig])
+// Run OSX in a separate call to avoid env var clobbering.
+utils.run([bc, jobconfig])
+utils.run([bc_osx])
