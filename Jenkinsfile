@@ -41,7 +41,7 @@ bc1.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version"]
-bc1.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata -v"]
+bc1.test_cmds = ["pytest tests/stis --basetemp=tests_output --junitxml results.xml --bigdata -v"]
 bc1.failedUnstableThresh = 1
 bc1.failedFailureThresh = 6
 
