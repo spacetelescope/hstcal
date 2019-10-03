@@ -37,9 +37,9 @@ bc1.conda_packages = ['python=3.6',
                       'pytest',
                       'requests',
                       'astropy']
-bc1.build_cmds = ["${configure_cmd} --release-with-symbols -v",
-                  "./waf build -v",
-                  "./waf install -v",
+bc1.build_cmds = ["${configure_cmd} --release-with-symbols",
+                  "./waf build",
+                  "./waf install",
                   "calacs.e --version"]
 bc1.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata -v"]
 bc1.failedUnstableThresh = 1
@@ -50,10 +50,31 @@ bc2 = utils.copy(bc0)
 bc2.name = "optimized"
 bc2.build_cmds[0] = "${configure_cmd} --O3"
 
+// Had problem with making copy.
 // Run actual tests in OSX
-bc3 = utils.copy(bc1)
+bc3 = new BuildConfig()
 bc3.nodetype = "osx"
-bc3.env_vars += ['CC=clang']
+bc3.name = "release"
+// Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
+bc3.env_vars = ['PATH=./clone/_install/bin:$PATH',
+                'OMP_NUM_THREADS=4',
+                'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
+                'CC=clang']
+bc3.conda_channels = ['http://ssb.stsci.edu/astroconda']
+bc3.conda_packages = ['python=3.6',
+                      'ci-watson',
+                      'cfitsio',
+                      'pkg-config',
+                      'pytest',
+                      'requests',
+                      'astropy']
+bc3.build_cmds = ["${configure_cmd} --release-with-symbols -v",
+                  "./waf build -v",
+                  "./waf install -v",
+                  "calacs.e --version"]
+bc3.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata -v"]
+bc3.failedUnstableThresh = 1
+bc3.failedFailureThresh = 6
 
 // Iterate over configurations that define the (distibuted) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
