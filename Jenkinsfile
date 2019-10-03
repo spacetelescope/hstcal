@@ -53,7 +53,8 @@ bc2.build_cmds[0] = "${configure_cmd} --O3"
 // Had problem with making copy.
 // Run actual tests in OSX
 bc3 = new BuildConfig()
-bc3.nodetype = "osx"
+// EXP: Will things pass again if I comment this out? Joe H wants to know.
+// bc3.nodetype = "osx"
 bc3.name = "release"
 // Would be nice if Jenkins can access /grp/hst/cdbs/xxxx directly.
 bc3.env_vars = ['PATH=./clone/_install/bin:$PATH',
