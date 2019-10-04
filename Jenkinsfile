@@ -3,7 +3,7 @@ if (utils.scm_checkout()) return
 
 // Config data to share between builds.
 runtime = "./runtime"
-pth = "PATH=./clone/_install/bin:${runtime}/bin:$PATH"
+pth = "PATH=./clone/_install/bin:${runtime}/bin:\$PATH"
 configure_cmd = "cmake -DCMAKE_INSTALL_PREFIX=${runtime}"
 
 // Define each build configuration, copying and overriding values as necessary.
