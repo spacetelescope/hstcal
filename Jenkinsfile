@@ -2,8 +2,8 @@
 if (utils.scm_checkout()) return
 
 // Config data to share between builds.
-prefix = "${WORKSPACE}/runtime"
-configure_cmd = "cmake -DCMAKE_INSTALL_PREFIX=${prefix}"
+def prefix = "${env.WORKSPACE}/runtime"
+def configure_cmd = "cmake -DCMAKE_INSTALL_PREFIX=${prefix}"
 
 // Define each build configuration, copying and overriding values as necessary.
 bc0 = new BuildConfig()
