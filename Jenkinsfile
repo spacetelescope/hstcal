@@ -2,7 +2,7 @@
 if (utils.scm_checkout()) return
 
 // Config data to share between builds.
-def configure_cmd = "cmake -DCMAKE_INSTALL_PREFIX=${prefix}"
+def configure_cmd = "cmake -DCMAKE_INSTALL_PREFIX=./runtime"
 
 // Define each build configuration, copying and overriding values as necessary.
 bc0 = new BuildConfig()
