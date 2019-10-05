@@ -11,7 +11,7 @@ bc0.name = "debug"
 bc0.env_vars = ['PATH=./clone/_install/bin:runtime/bin:$PATH',
                 'PKG_CONFIG_PATH=$CONDA_PREFIX/lib/pkgconfig',
                 'LD_LIBRARY_PATH=runtime/lib',
-                'LDFLAGS="-Wl,-rpath=runtime/lib:$CONDA_PREFIX/lib"'
+                'LDFLAGS="-Wl,-rpath=runtime/lib:$CONDA_PREFIX/lib"',
                 'OMP_NUM_THREADS=8']
 bc0.conda_channels = ['http://ssb.stsci.edu/astroconda']
 bc0.conda_packages = ['python=3.6',
