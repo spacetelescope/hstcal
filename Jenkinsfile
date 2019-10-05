@@ -2,16 +2,16 @@
 if (utils.scm_checkout()) return
 
 // Config data to share between builds.
-def prefix = "${env.WORKSPACE}/runtime"
 def configure_cmd = "cmake -DCMAKE_INSTALL_PREFIX=${prefix}"
 
 // Define each build configuration, copying and overriding values as necessary.
 bc0 = new BuildConfig()
 bc0.nodetype = "python3.6"
 bc0.name = "debug"
-bc0.env_vars = ['PATH=./clone/_install/bin:' + prefix + '/bin:$PATH',
+bc0.env_vars = ['PATH=./clone/_install/bin:runtime/bin:$PATH',
                 'PKG_CONFIG_PATH=$CONDA_PREFIX/lib/pkgconfig',
-                'LD_LIBRARY_PATH=' + prefix + '/lib',
+                'LD_LIBRARY_PATH=runtime/lib',
+                'LDFLAGS="-Wl,-rpath=runtime/lib:$CONDA_PREFIX/lib"'
                 'OMP_NUM_THREADS=8']
 bc0.conda_channels = ['http://ssb.stsci.edu/astroconda']
 bc0.conda_packages = ['python=3.6',
