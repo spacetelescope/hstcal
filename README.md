@@ -36,12 +36,12 @@ $ cs[...].e
 
 ## Source Installation
 
-###Note###
+##Note##
 ```
  This involves compilation of C code which requires that a C compiler and all dependent libraries be installed on your system prior to installing this package.
 ```
 1. Clone the package from github onto your local system using:
 
-  git clone https://github.com/spacetelescope/hstcal.git
+  `git clone https://github.com/spacetelescope/hstcal.git`
 
 2. Compile the code using the instructions provided in `INSTALL.md`.
