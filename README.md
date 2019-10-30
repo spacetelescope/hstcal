@@ -10,7 +10,7 @@ https://plwishmaster.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
 
 ## Install using Conda
 
-HSTCAL can be obtained as part of the `Astroconda Pipeline Builds <https://astroconda.readthedocs.io/en/latest/releases.html>`_.  The simplest way to get the most recent environment would be:
+HSTCAL can be obtained as part of the [Astroconda Pipeline Builds]: /https://astroconda.readthedocs.io/en/latest/releases.html [Astroconda Pipeline Builds].  The simplest way to get the most recent environment would be:
 
 1.  Install Miniconda or Anaconda (if not already installed) using `these instructions<https://astroconda.readthedocs.io/en/latest/getting_started.html>`_.  
 
