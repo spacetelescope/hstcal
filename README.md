@@ -14,7 +14,7 @@ HSTCAL can be obtained as part of the
 **Astroconda Pipeline Builds** at <https://astroconda.readthedocs.io/en/latest/releases.html>.  
 The simplest way to get the most recent environment would be:
 
-1.  Install Miniconda or Anaconda (if not already installed) using `these instructions<https://astroconda.readthedocs.io/en/latest/getting_started.html>`_.  
+1.  Install Miniconda or Anaconda (if not already installed) using the instructions at <https://astroconda.readthedocs.io/en/latest/getting_started.html>.  
 
 2.  Create a conda environment with the HSTCAL included:
 
