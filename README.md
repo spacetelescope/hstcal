@@ -36,9 +36,9 @@ $ cs[...].e
 
 ## Source Installation
 
-**Note:**
-
-** This involves compilation of C code which requires that a C compiler and all dependent libraries be installed on your system prior to installing this package. **
+**Note:
+This involves compilation of C code which requires that a C compiler and all dependent libraries be
+installed on your system prior to installing this package.**
 
 1. Clone the package from github onto your local system using:
 
