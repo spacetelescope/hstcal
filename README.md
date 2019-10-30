@@ -10,6 +10,12 @@ https://plwishmaster.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
 
 ## Install using Conda
 
+HSTCAL can be obtained as part of the `Astroconda Pipeline Builds <https://astroconda.readthedocs.io/en/latest/releases.html>_.  The simplest way to get the most recent environment would be:
+
+1.  Install Miniconda or Anaconda (if not already installed) using `these instructions<https://astroconda.readthedocs.io/en/latest/getting_started.html>`_.  
+
+2.  Create a conda environment with the HSTCAL included:
+
 ```bash
 # Add the AstroConda channel to ~/.condarc
 $ conda channel --add http://ssb.stsci.edu/astroconda
@@ -28,5 +34,10 @@ $ cs[...].e
 
 ## Source Installation
 
-To install HSTCAL from source please follow the instructions provided in
-`INSTALL.md`.
+..note::  This involves compilation of C code which requires that a C compiler and all dependent libraries be installed on your system prior to installing this package.
+
+#. Clone the package from github onto your local system using:
+
+  git clone https://github.com/spacetelescope/hstcal.git
+
+#. Compile the code using the instructions provided in `INSTALL.md`.
