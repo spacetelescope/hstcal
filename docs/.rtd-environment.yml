@@ -1,13 +1,10 @@
-name: drizzlepac
+name: hstcal
 channels:
     - defaults
 dependencies:
     - "python>=3.5"
     - setuptools
-    - numpy
     - numpydoc
-    - scipy
-    - "astropy>=3.1"
     - graphviz
     - pip:
       - -e ..
@@ -16,21 +13,4 @@ dependencies:
       - stsci_rtd_theme
       - sphinx_automodapi
       - matplotlib
-      - acstools
-      - spherical_geometry
-      - fitsblender
-      - nictools
-      - pyregion
-      - stwcs
-      - spherical-geometry
-      - stsci.tools
-      - "stsci.image>=2.3.0"
-      - stsci.imagestats
-      - stsci.skypac
-      - stsci.stimage
-      - "tweakwcs>=0.4.0"
-      - stregion
-      - astroquery
-      - photutils
-      - pysynphot
       - lxml
