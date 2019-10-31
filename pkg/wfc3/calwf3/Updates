@@ -2,7 +2,7 @@ Updates for Version 3.5.1 24-Jun-2020 - MDD
     - Replaced/modified routines based upon copyright numerical recipes routines.
       Updates implemented Oct 2019, but installation delayed for higher priority updates.
 
-Updates for Version 3.5.0 14-Oct-2018 - JAN/MDD (never released)
+Updates for Version 3.5.0 14-Oct-2018 - JAN/MDD
     - Bug fixes to the CTE correction to fix out of bounds memory access and remove unnecessary critical section.
 
 Updates for Version 3.4.2 19-Jan-2018 - JAN/MDD
