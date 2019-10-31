@@ -22,6 +22,7 @@ ACS
 -----
 `http://acstools.readthedocs.io/en/latest/ <http://acstools.readthedocs.io/en/latest/>`_
 
+
 WFC3
 -----
 `http://wfc3tools.readthedocs.io/en/latest/ <http://wfc3tools.readthedocs.io/en/latest/>`_
@@ -35,3 +36,8 @@ STIS
 COS
 -----
 `http://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html <http://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html>`_
+
+
+Drizzlepac
+-----------
+`http://www.stsci.edu/scientific-community/software/drizzlepac.html <http://www.stsci.edu/scientific-community/software/drizzlepac.html>`_
