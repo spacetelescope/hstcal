@@ -45,8 +45,8 @@ installed on your system prior to installing this package; specifically,**
   - pkg-config (https://www.freedesktop.org/wiki/Software/pkg-config)
   - python >=2.7 (https://www.python.org)
   - GCC may be supplemented by Clang under the following conditions:
-  - Clang must be compiled with OpenMP support
-  - A Fortran compiler must be available in $PATH
+    * Clang must be compiled with OpenMP support
+    * A Fortran compiler must be available in $PATH
 
 Instructions:
 
