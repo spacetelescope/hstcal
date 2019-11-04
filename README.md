@@ -38,7 +38,7 @@ $ cs[...].e
 
 **Note:
 This involves compilation of C code which requires that a C compiler and all dependent libraries be
-installed on your system prior to installing this package; specifically,
+installed on your system prior to installing this package; specifically,**
   - cfitsio >=3.430 (https://heasarc.gsfc.nasa.gov/fitsio/fitsio.html)
   - gcc >=4.4.7 (https://gcc.gnu.org)
   - openmp (http://www.openmp.org/)
@@ -47,7 +47,8 @@ installed on your system prior to installing this package; specifically,
   - GCC may be supplemented by Clang under the following conditions:
   - Clang must be compiled with OpenMP support
   - A Fortran compiler must be available in $PATH
-**
+
+Instructions:
 
 1. Clone the package from github onto your local system using:
 
