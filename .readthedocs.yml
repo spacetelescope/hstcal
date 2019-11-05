@@ -1,6 +1,6 @@
 type: sphinx
 python:
     version: 3
-    setup_py_install: true
+    setup_py_install: false
 conda:
     file: docs/.rtd-environment.yml
