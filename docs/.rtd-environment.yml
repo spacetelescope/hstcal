@@ -1,0 +1,16 @@
+name: hstcal
+channels:
+    - defaults
+dependencies:
+    - "python>=3.5"
+    - setuptools
+    - numpydoc
+    - graphviz
+    - pip:
+      - -e ..
+      - "sphinx<=1.8.5"
+      - sphinx_rtd_theme
+      - stsci_rtd_theme
+      - sphinx_automodapi
+      - matplotlib
+      - lxml

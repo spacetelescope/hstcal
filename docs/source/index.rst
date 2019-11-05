@@ -1,5 +1,8 @@
+.. _hstcal:
+
+=======
 HSTCAL
-======
+=======
 HSTCAL is a C-based package which is comprised of the science calibration
 software in support of the Advanced Camera for Surveys (ACS), Space Telescope
 Imaging Spectrograph (STIS), and Wide Field Camera 3 pipelines. Initially, the
@@ -12,16 +15,29 @@ can HST data be processed using the C code directly via the C executables,
 but the pipelines can also run by using a high-level Python interface.  The
 Python interface scripts are thin wrappers for the C executables.
 
+
 Detailed documentation for each instrument's calibration processing code can currently be found in the following locations:
 
-ACS:
-http://acstools.readthedocs.io/en/latest/
+ACS
+-----
+`http://acstools.readthedocs.io/en/latest/ <http://acstools.readthedocs.io/en/latest/>`_
 
-WFC3:
-http://wfc3tools.readthedocs.io/en/latest/
 
-STIS:
-http://stistools.readthedocs.io/en/latest/
+WFC3
+-----
+`http://wfc3tools.readthedocs.io/en/latest/ <http://wfc3tools.readthedocs.io/en/latest/>`_
 
-COS:
-http://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html
+
+STIS
+-----
+`http://stistools.readthedocs.io/en/latest/ <http://stistools.readthedocs.io/en/latest/>`_
+
+
+COS
+-----
+`http://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html <http://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html>`_
+
+
+Drizzlepac
+-----------
+`http://www.stsci.edu/scientific-community/software/drizzlepac.html <http://www.stsci.edu/scientific-community/software/drizzlepac.html>`_
