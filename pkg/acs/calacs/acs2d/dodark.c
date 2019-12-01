@@ -56,6 +56,10 @@
  M.D. De La Pena, 2018 June 05:
  Dark correction processing is now done on the entire image instead of 
  line by line. Also, performed some clean up and new commentary.
+ M.D. De La Pena, 2019 November 26:
+ Remove hard-coded darkscaling value and read new post-flashed and
+ unflashed columns from updated CCDTAB reference file. 
+ 
  */
 
 int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
@@ -68,7 +72,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   
   extern int status;
 
-  const float darkscaling = 3.0;  /* Extra idle time */
+  //const float darkscaling = 3.0;  /* Extra idle time */
   
   int extver = 1;	/* get this imset from dark image */
 
