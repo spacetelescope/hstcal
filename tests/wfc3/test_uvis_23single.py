@@ -27,8 +27,11 @@ class TestUVIS23Single(BaseWFC3):
 
     # Ported from ``calwf3_uv_23``.
     @pytest.mark.parametrize(
+        'rootname', ['iaco02czq'])
+        """
         'rootname', ['iaco02czq', 
                      'iaco02d3q', 
                      'iaco02dbq'])
+        """
     def test_uvis_23single(self, rootname):
         self._single_raw_calib(rootname)
