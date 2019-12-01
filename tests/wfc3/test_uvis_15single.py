@@ -3,7 +3,7 @@ import pytest
 
 from ..helpers import BaseWFC3
 
-@pytest.mark.slow
+@pytest.mark.skip
 class TestUVIS15Single(BaseWFC3):
     """
     Test pos UVIS2 GRW+75D5824
