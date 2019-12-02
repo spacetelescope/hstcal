@@ -28,11 +28,9 @@ class TestUVIS28Single(BaseWFC3):
     # Ported from ``calwf3_uv_28``.
     @pytest.mark.parametrize(
         'rootname', ['ibc301s2q'])
-        """
-        'rootname', ['ibc301s2q', 
-                     'ibc303nfq', 
-                     'ibc303nkq', 
-                     'ibc303o4q'])
-        """
+        # 'rootname', ['ibc301s2q', 
+        #             'ibc303nfq', 
+        #             'ibc303nkq', 
+        #             'ibc303o4q'])
     def test_uvis_28single(self, rootname):
         self._single_raw_calib(rootname)

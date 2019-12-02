@@ -28,14 +28,12 @@ class TestUVIS16Single(BaseWFC3):
     # Ported from ``calwf3_uv_16``.
     @pytest.mark.parametrize(
         'rootname', ['ibcz21doq'])
-        """
-        'rootname', ['ibcz21doq', 
-                     'ibcz21dpq', 
-                     'ibcz21drq', 
-                     'ibcz21dsq', 
-                     'ibcz21dtq', 
-                     'ibcz21duq', 
-                     'ibcz21dvq'])
-        """
+        # 'rootname', ['ibcz21doq', 
+        #             'ibcz21dpq', 
+        #             'ibcz21drq', 
+        #             'ibcz21dsq', 
+        #             'ibcz21dtq', 
+        #             'ibcz21duq', 
+        #             'ibcz21dvq'])
     def test_uvis_16single(self, rootname):
         self._single_raw_calib(rootname)

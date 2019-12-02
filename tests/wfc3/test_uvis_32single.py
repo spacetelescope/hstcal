@@ -29,12 +29,10 @@ class TestUVIS32Single(BaseWFC3):
     # Ported from ``calwf3_uv_32``.
     @pytest.mark.parametrize(
         'rootname', ['ib3805v0q'])
-        """
-        'rootname', ['ib3805v0q', 
-                     'ib2kabmaq', 
-                     'ib3503wwq', 
-                     'ibde04msq', 
-                     'icoc14hcq'])
-        """
+        # 'rootname', ['ib3805v0q', 
+        #             'ib2kabmaq', 
+        #             'ib3503wwq', 
+        #             'ibde04msq', 
+        #             'icoc14hcq'])
     def test_uvis_32single(self, rootname):
         self._single_raw_calib(rootname)
