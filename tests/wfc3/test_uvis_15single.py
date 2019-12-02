@@ -3,6 +3,9 @@ import pytest
 
 from ..helpers import BaseWFC3
 
+# This test is curretnly skipped as it contains 100 (!) files to 
+# be processed and has timed out in the past.  Once all the regression
+# tests are re-assessed, this test may well be deleted.
 @pytest.mark.skip
 class TestUVIS15Single(BaseWFC3):
     """

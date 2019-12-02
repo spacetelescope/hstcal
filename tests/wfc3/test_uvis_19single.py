@@ -28,13 +28,11 @@ class TestUVIS19Single(BaseWFC3):
     # Ported from ``calwf3_uv_19``.
     @pytest.mark.parametrize(
         'rootname', ['ib6wr9axq'])
-        """
-        'rootname', ['ib6wr9axq', 
-                     'ib6wr9azq', 
-                     'ib6wr9baq', 
-                     'ib6wr9bcq', 
-                     'ib6wr9bpq', 
-                     'ib6wr9brq'])
-        """
+        # 'rootname', ['ib6wr9axq', 
+        #             'ib6wr9azq', 
+        #             'ib6wr9baq', 
+        #             'ib6wr9bcq', 
+        #             'ib6wr9bpq', 
+        #             'ib6wr9brq'])
     def test_uvis_19single(self, rootname):
         self._single_raw_calib(rootname)
