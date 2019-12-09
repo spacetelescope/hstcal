@@ -7,6 +7,18 @@
    M. Sosey Aug-2016 Adapted to be used with Subarrays as well as full frame arrays,
    as long as the subarray contains physical overscan pixels, which don't include the science team subarrays
    which can span quads.
+
+   J. Anderson Nov-2019
+   M.D. De La Pena Dec-2019: This routine has been significantly upgraded by J. Anderson (JA) and delivered
+   in November 2019.  As JA is the resource for this algorithm, I have only cleaned up the comments,
+   AND.
+   I explicitly made an effort to maintain the coding style of Jof JA.
+***  JAY: The following (1) code is what should be used now
+***       * no longer do any smoothing step first
+***       * I removed the complicated scaling procedure, 
+***         since it's currrently not implemented and including
+***         it would make the code-replacement process more 
+***         complicated.
 */
 
 # include <time.h>
@@ -20,7 +32,7 @@
 #  include <omp.h>
 # endif
 
-#include "hstcal.h"
+# include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "wf3info.h"
@@ -28,6 +40,19 @@
 # include "wf3corr.h"
 # include "cte.h"
 # include "trlbuf.h"
+
+int sub_ctecor_v2c(float *, 
+                   float *,
+                   int,  
+                   double *,
+                   double *,
+                   float *, 
+                   float *, 
+                   float,
+                   float,
+                   int,
+                   int,
+                   float *); 
 
 int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
@@ -75,8 +100,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     extern int status;
 
     WF3Info wf3; /*structure with calibration switches and reference files for passing*/
-    Hdr phdr; /*primary header for input image, all output information saved here*/
-    Hdr scihdr; /*science header in case of subarray image to detect chip*/
+    Hdr phdr;    /*primary header for input image, all output information saved here*/
+    Hdr scihdr;  /*science header in case of subarray image to detect chip*/
     IODescPtr ip = NULL;
 
     CTEParams cte_pars; /*STRUCTURE HOLDING THE MODEL PARAMETERS*/
@@ -109,6 +134,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     /* init header vars */
     initHdr(&phdr);
     initHdr(&scihdr);
+
+    int ret;
 
     /*check if this is a subarray image.
       This is necessary because the CTE routine will start with the raw images
@@ -453,36 +480,55 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     }
 
-
     /*CONVERT TO RAZ, SUBTRACT BIAS AND CORRECT FOR GAIN*/
     if (raw2raz(&wf3, &cd, &ab, &raz))
         return (status);
 
-    /***CALCULATE THE SMOOTH READNOISE IMAGE***/
-    trlmessage("CTE: Calculating smooth readnoise image");
+    SingleGroup fff;                                              
+    initSingleGroup(&fff);
+    allocSingleGroup(&fff, RAZ_COLS, RAZ_ROWS, True);
 
+    double cte_ff;
 
-    /***CREATE THE NOISE MITIGATION MODEL ***/
-    if (cte_pars.noise_mit == 0) {
-        if (raz2rsz(&wf3, &raz, &rsz, cte_pars.rn_amp, max_threads))
-            return (status);
-    } else {
-        trlmessage("Only noise model 0 implemented!");
-        return (status=ERROR_RETURN);
-    }
+    cte_ff=  (wf3.expstart       - cte_pars.cte_date0)/ 
+             (cte_pars.cte_date1 - cte_pars.cte_date0);
 
-    /***CONVERT THE READNOISE SMOOTHED IMAGE TO RSC IMAGE
-      THIS IS WHERE THE CTE GETS CALCULATED         ***/
-    if (rsz2rsc(&wf3, &rsz, &rsc, &cte_pars))
-        return (status);
+    printf("CTE_FF: %8.3f \n",cte_ff);
 
-    /*** CREATE THE FINAL CTE CORRECTED IMAGE, PUT IT BACK INTO ORIGNAL RAW FORMAT***/
-    for (i=0;i<RAZ_COLS;i++){
-        for(j=0; j<RAZ_ROWS; j++){
-           Pix(chg.sci.data,i,j) = (Pix(rsc.sci.data,i,j) - Pix(rsz.sci.data,i,j))/wf3.ccdgain;
-           Pix(rzc.sci.data,i,j) =  Pix(raw.sci.data,i,j) + Pix(chg.sci.data,i,j);
+    cte_pars.scale_frac=cte_ff;                                      
+
+    for(i=0;i<RAZ_COLS;i++) { 
+        for(j=0;j<RAZ_ROWS;j++) {  
+            Pix(fff.sci.data,i,j) =  cte_ff * (j+1)/((double)2048.0);
         }
     }
+
+    /* Invoke the updated CTE correction which does the read-noise 
+       mitigation in each of the three forward-model iterations.
+    */
+    trlmessage("CTE: jumping into the routine...");
+    ret = sub_ctecor_v2c(raz.sci.data.data,
+                         fff.sci.data.data,
+                         999,
+                         cte_pars.qlevq_data,
+                         cte_pars.dpdew_data,
+                         cte_pars.rprof->data.data,
+                         cte_pars.cprof->data.data,
+                         cte_pars.rn_amp,
+                         cte_pars.thresh,
+                         cte_pars.n_forward,
+                         cte_pars.n_par,
+                         rzc.sci.data.data);
+    trlmessage("CTE: returning from the routine...");
+
+    for (i=0;i<RAZ_COLS;i++){
+        for (j=0;j<RAZ_ROWS;j++){
+             Pix(chg.sci.data,i,j) = (Pix(rzc.sci.data,i,j) - Pix(raz.sci.data,i,j))/wf3.ccdgain; 
+             Pix(rzc.sci.data,i,j) =  Pix(raw.sci.data,i,j) + Pix(chg.sci.data,i,j);
+        }
+    }
+
+    freeSingleGroup(&fff);
 
     /*BACK TO NORMAL FORMATTING*/
     /*Copies rzc data to cd->sci.data and ab->sci.data */
@@ -997,7 +1043,7 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
     dval9 = 0.;
 
     /*COMPARE THE SURROUNDING PIXELS*/
-    if (i==1 &&  RAZ_ROWS-1>j  && j>0 ) {
+    if (i==1 &&  RAZ_ROWS-1>=j  && j>0 ) {
 
         dval9 = obsloc[i][j-1]  - rszloc[i][j-1] +
             obsloc[i][j]    - rszloc[i][j]  +
@@ -1069,6 +1115,7 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
   rac = raw + ((rsc-rsz) / gain )
 
  ***/
+
 int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
     extern int status;
@@ -1263,8 +1310,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
 
         if (totflux >= 1) {/*make sure the column has flux in it*/
             NREDO=0; /*START OUT NOT NEEDING TO MITIGATE CRS*/
+            REDO=0; /*FALSE*/
             do { /*replacing goto 9999*/
-                REDO=0; /*FALSE*/
                 /*STARTING WITH THE OBSERVED IMAGE AS MODEL, ADOPT THE SCALING FOR THIS COLUMN*/
                 for (j=0; j<RAZ_ROWS; j++){
                     pix_modl[j] =  Pix(rz.sci.data,i,j);
@@ -1356,6 +1403,7 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             } while (REDO); /*replacing goto 9999*/
         } /*totflux > 1, catch for subarrays*/
 
+#pragma omp critical (cte)
         for (j=0; j< RAZ_ROWS; j++){
             if (Pix(rz.dq.data,i,j)){
                 Pix(rc.sci.data,i,j)= pix_modl[j];
@@ -1583,4 +1631,400 @@ int initCTETrl (char *input, char *output) {
     InitTrlFile (trl_in, trl_out);
 
     return(status);
+}
+
+
+/* 
+
+   #2 int sim_colreadout_l_uvis_w    --- CTE correction for one column
+   #3 int sub_ctecor_v2c             --- reverse CTE correction for image
+
+*/ 
+
+
+
+
+/* ------------------------------------------- */
+/*                                             */
+/*  Readnoise correction for a single column.  */
+/*                                             */
+/* ------------------------------------------- */
+
+
+int rm_rnZ_colj(double *pixj_chg, 
+                double *pixj_rnz, 
+                double *pixj_rsz, 
+                double RNMIT)      {
+
+       int    NIT;
+       int    j;
+
+       double   dd;
+       double   dtot;
+       int      ntot;
+       double   ftot;
+       double   rtot;
+       double   RNN;
+       double   RNU;
+       double   sqrt();
+
+       int      pixj_ffu[2070];
+  
+       int      NITMAX;
+
+       NITMAX = 299;
+
+       for(j=0;j<2070;j++) {  
+           pixj_rsz[j] = pixj_chg[j];
+           pixj_rnz[j] = 0.0;
+           pixj_ffu[j] = 0.0;
+           } 
+
+       for(NIT=1;NIT<NITMAX;NIT++) {  
+           RNN = RNMIT*(1.00+5.0*NIT/299.0);
+           for(j=1;j<2070-1;j++) {  
+              dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
+              pixj_ffu[j] = 0.0;
+              if (fabs(dd) < RNN) { 
+                  if (dd >  RNMIT/5.0) dd =  RNMIT/5.0;
+                  if (dd < -RNMIT/5.0) dd = -RNMIT/5.0;
+                  pixj_rnz[j  ] = pixj_rnz[j  ] + dd*0.50;
+                  pixj_rnz[j-1] = pixj_rnz[j-1] - dd*0.25;
+                  pixj_rnz[j+1] = pixj_rnz[j+1] - dd*0.25;
+                  pixj_ffu[j  ] = 1.0; 
+                  }
+              }
+          for(j=0;j<2070;j++) { 
+              pixj_rsz[j] = pixj_chg[j] - pixj_rnz[j]; 
+              }
+          dtot = 0.;
+          ntot = 0.;
+          ftot = 0.;
+          rtot = 0.;
+          for(j=0+1;j<2048-1;j++) { 
+             ftot = ftot + pixj_ffu[j];
+             dtot = dtot + pixj_rnz[j]*pixj_rnz[j];
+             dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
+             rtot = rtot + dd*dd;
+             ntot = ntot + 1; }
+          RNU = sqrt(dtot/ftot);
+
+          if (RNU > RNMIT) return(0);
+          }
+
+       return(0); 
+       }
+
+
+
+/* ---------------------------------------------------------------*/
+/*                                                                */
+/*   CTE correction for a single column.                          */ 
+/*                                                                */
+/*   TDIM is the length of the trails that are being considered.  */
+/*                                                                */
+/* ---------------------------------------------------------------*/
+
+#define _TDIM_ 60
+ 
+int sim_colreadout_l_uvis_w(double *pixi,     // input column array (JDIM)
+                            double *pixo,     // outout column array (JDIM)
+                            double *pixf,     // scaling of model for each pixel (JDIM)
+                            int    J1,        // bottom and top pixel in column
+                            int    J2,        // bottom and top pixel in column
+                            int    JDIM,      // number of pixels in column
+                            double *q_w,      // the charge level for trap#W (_WDIM_)
+                            double *dpde_w,   // the amt of charge this trap grabs (_WDIM_)
+                            int    NITs,      // the num of iterations (dpde-->dpde/NITs)
+                            float *rprof_wt,  // the trap emission for t=T (_WDIM_,100)
+                            float *cprof_wt,  // the amount left in trap after t=T emission (_WDIM_,100)
+                            int    Ws)  {
+
+      int    j;       // pixel location up the column
+
+      double ftrap;   // total number of electrons in the trap
+      int    ttrap;   // shifts since the trap was last filled
+
+      int    w;       // trap counter
+
+      double pmax;    // max pixel value in the column - tells us the highest relevant trap numbrer
+      int    Wf;      // highest relevant trap number
+
+      double prel_1;  // amount in incidental release from trap
+      double prel_2;  // amount in flush release of trap
+      double pgrb_3;  // amount grabbed by filling trap
+
+      float rprof_t[_TDIM_];              
+      float cprof_t[_TDIM_];              
+
+      /* Bounds checking */
+      if (Ws>999) {
+          printf("Ws error\n");
+          return(1); 
+      }
+
+      /* Figure out which traps we do not need 
+         to worry about in this column
+      */
+      pmax = 10;
+      for(j=0;j<JDIM;j++) {
+         pixo[j] = pixi[j];
+         if (pixo[j] > pmax) pmax = pixo[j];
+      }
+
+      /* Figure out the highest trap number we need to consider */
+      Wf = 1;
+      for (w=0;w<Ws;w++) {
+         if (pmax >=q_w[w]) Wf = w;
+      }
+
+      /* Go thru the traps one at a time (from highest to lowest q)
+         and see when they get filled and emptied; adjust the
+         pixel values accordingly
+      */
+      for (w=Wf;w>=0;w--) {   // loop backwards
+
+         for(ttrap=0;ttrap<_TDIM_;ttrap++) { 
+             rprof_t[ttrap] = rprof_wt[w+ttrap*999];
+             cprof_t[ttrap] = cprof_wt[w+ttrap*999];
+         }
+                                                       
+         /* Initialize the flux in the trap to zero */
+         ftrap =   0.0;
+
+         /* Initialize the time-since-flush to the max */
+         ttrap =  _TDIM_ + 1;
+
+         /* Go up the column, pixel-by-pixel */
+         for (j=J1;j<J2;j++) {
+            
+            /* If we have an inversion of the density (i.e., a readout-cosmic issue),
+               then we do not want to flush too much
+            */
+            if (j>J1) {
+                if (pixf[j] < pixf[j-1]) {
+                    ftrap = pixf[j]/
+                            pixf[j-1]*ftrap;
+                }
+            }
+
+            /* Set up accounting of pixel value changes */
+            prel_1 = 0.;   // charge to be released
+            prel_2 = 0.;   // charge to be flushed out
+            pgrb_3 = 0.;   // charge to be trapped
+
+            /* Filled/refilled trap#W */
+            if (pixo[j] >= q_w[w]) {
+
+                /* Need to flush before filling? */
+                if (ttrap < (_TDIM_)) {
+
+                    /* Increment time since filled */
+                    ttrap = ttrap + 1;
+
+                    /* Flush out amount for this shift, and ...*/
+                    prel_1 = rprof_t[ttrap-1]*ftrap;
+
+                    /* ...flush out the rest */
+                    prel_2 = cprof_t[ttrap-1]*ftrap;
+                }
+
+                /* Amount to hold in the trap */
+                ftrap  = dpde_w[w]/NITs*pixf[j];
+ 
+                /* Subtract that amount held from the pixel and reset 
+                   the time-since-filled counter
+                */
+                pgrb_3 = ftrap;
+                ttrap = 0;
+            }
+
+            /* trap#W not filled at this time */
+            else {
+
+                /* Check if the trap contains charge, and if so, then
+                   release the appropriate number of electrons
+                */
+                if (ttrap < (_TDIM_)) {
+                    ttrap = ttrap + 1;
+                    prel_1 = rprof_t[ttrap-1]*ftrap;
+                }
+            }
+
+            /* Make adjustments to the output pixel: add the trail emission, 
+               flush the trap, and fill the trap
+            */
+            pixo[j] = pixo[j] + prel_1 + prel_2 - pgrb_3;
+         }
+      }
+      return(0);
+     }
+
+
+/* --------------------------------- */
+/*                                   */ 
+/*   CTE correction for one column.  */
+/*                                   */ 
+/* --------------------------------- */
+
+
+int sub_ctecor_v2c(float *pixz_raz, 
+                   float *pixz_fff,
+                   int Ws,
+                   double *q_w,
+                   double *dpde_w,
+                   float *rprof_wt, 
+                   float *cprof_wt, 
+                   float PCTERNOI,
+                   float FIX_ROCR,
+                   int PCTENFOR,
+                   int PCTENPAR,
+                   float *pixz_rzc) 
+      { 
+
+      extern int status;
+
+      int i;
+      int j;
+      int jj;
+      int jmax;
+
+      int    NITFOR, NITFORs;
+      int    NITPAR, NITPARs;
+      double RNOI;
+      int    ret;
+
+      double *pixj_fff;
+      double *pixj_raz;
+      double *pixj_mod;
+      double *pixj_rnz;
+      double *pixj_rsz;
+      double *pixj_org;
+      double *pixj_obs;
+      double *pixj_chg;
+
+      int NCRX;
+      int DONE;
+
+      int NDONE = 0;
+
+      FILE *fp;
+
+      RNOI    = PCTERNOI;
+      NITFORs = PCTENFOR;
+      NITPARs = PCTENPAR;
+
+      printf("                             \n");
+      printf("   INSIDE sub_ctecor_v2.f... \n");
+      printf("          ---> PCTERNOI: %8.4f \n",PCTERNOI);
+      printf("          ---> FIX_ROCR: %8.4f \n",FIX_ROCR);
+      printf("          --->  NITFORs: %5d \n",NITFORs);
+      printf("          --->  NITPARs: %5d \n",NITPARs);
+      printf("                             \n");
+
+      fp = fopen("fixrocr.out","w");
+
+      #pragma omp parallel \
+       shared(pixz_raz,pixz_fff,pixz_rzc,              \
+              NITPARs,NITFORs,                         \
+              q_w,dpde_w,                              \
+              rprof_wt,cprof_wt,Ws,NDONE)              \
+       private(i,j,ret,NCRX, DONE, NITFOR,NITPAR,      \
+               pixj_fff, pixj_raz, pixj_mod, pixj_rnz, \
+               pixj_rsz, pixj_org, pixj_obs, pixj_chg)
+
+      #pragma omp for
+
+
+      for(i=0;i<8412;i++) {  
+
+         pixj_fff = malloc(2070*8);
+         pixj_raz = malloc(2070*8);
+         pixj_mod = malloc(2070*8);
+         pixj_rnz = malloc(2070*8);
+         pixj_rsz = malloc(2070*8);
+         pixj_org = malloc(2070*8);
+         pixj_obs = malloc(2070*8);
+         pixj_chg = malloc(2070*8);
+
+         for(j=0;j<2070;j++) { 
+            pixj_raz[j] = pixz_raz[i+j*8412]; 
+            pixj_fff[j] = pixz_fff[i+j*8412]; 
+         }
+
+         NCRX = 0;
+         DONE = 0;
+         while(!DONE) { 
+             NCRX = NCRX + 1;
+             DONE = 1;
+             for (j=0;j<2070;j++) { 
+                pixj_mod[j] = pixj_raz[j];           
+                pixj_chg[j] = 0.0;
+             }
+             for(NITFOR=0;NITFOR<NITFORs;NITFOR++) {
+                 ret = rm_rnZ_colj(pixj_mod,pixj_rnz,pixj_rsz,RNOI);
+                 for(j=0;j<2070;j++) { 
+                    pixj_org[j] = pixj_rsz[j]; 
+                 }
+                 for(NITPAR=1;NITPAR<=NITPARs;NITPAR++) { 
+                     ret = sim_colreadout_l_uvis_w(pixj_org,
+                                                   pixj_obs,
+                                                   pixj_fff,
+                                                   0001,2070,2070,
+                                                   q_w,dpde_w,NITPARs,
+                                                   rprof_wt,cprof_wt,Ws);
+                     for (j=0;j<2070;j++) { 
+                        pixj_org[j] = pixj_obs[j];
+                     }
+                 }
+                 for(j=0;j<2070;j++) { 
+                     pixj_chg[j] = pixj_obs[j] - pixj_rsz[j];
+                     pixj_mod[j] = pixj_raz[j] - pixj_chg[j];
+                 }
+             }
+             if (FIX_ROCR<0) { 
+                 for(j=0015;j<=2060;j++) { 
+                     if (pixj_mod[j] < FIX_ROCR && 
+                         pixj_mod[j]-pixj_raz[j] < FIX_ROCR && 
+                         pixj_mod[j] < pixj_mod[j+1] && 
+                         pixj_mod[j] < pixj_mod[j-1]) {
+                         jmax = j;
+                         for(jj=j-2;jj<j;jj++) {    
+                             if (pixj_mod[jj  ]-pixj_raz[jj  ] >    
+                                 pixj_mod[jmax]-pixj_raz[jmax]) {
+                                 jmax = jj;
+                             }
+                         }
+                        if (pixj_mod[jmax]-pixj_raz[jmax] > -2.5*FIX_ROCR) {
+                            pixj_fff[jmax] = pixj_fff[jmax]*0.90;        
+                            DONE = NCRX >= 10;
+                        }
+                     }
+                 }
+             }
+         }
+
+         for(j=0;j<2070;j++) { 
+             pixz_rzc[i+j*8412] = pixj_mod[j];
+             pixz_fff[i+j*8412] = pixj_fff[j];
+         }
+
+         free(pixj_fff);
+         free(pixj_raz);
+         free(pixj_mod);
+         free(pixj_rnz);
+         free(pixj_rsz);
+         free(pixj_org);
+         free(pixj_obs);
+         free(pixj_chg);
+
+         fprintf(fp,"%4d %4d \n",i,NCRX);
+
+         NDONE++;
+         if (NDONE==(NDONE/100)*100) { printf("  i = %5d   %5d  %5d \n",i,NCRX,NDONE); }
+
+      }
+
+      fclose(fp);
+      return(status);
 }
