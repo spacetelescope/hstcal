@@ -8,17 +8,11 @@
    as long as the subarray contains physical overscan pixels, which don't include the science team subarrays
    which can span quads.
 
-   J. Anderson Nov-2019
    M.D. De La Pena Dec-2019: This routine has been significantly upgraded by J. Anderson (JA) and delivered
-   in November 2019.  As JA is the resource for this algorithm, I have only cleaned up the comments,
-   AND.
-   I explicitly made an effort to maintain the coding style of Jof JA.
-***  JAY: The following (1) code is what should be used now
-***       * no longer do any smoothing step first
-***       * I removed the complicated scaling procedure, 
-***         since it's currrently not implemented and including
-***         it would make the code-replacement process more 
-***         complicated.
+   in November 2019.  As JA is the important resource for this algorithm, I have only cleaned up the comments
+   in his original delivered version, fixed up brace placement, and created defines for some of the 
+   hard-coded values.  Minimal changes were done explicitly to keep the code in a form familiar to JA for 
+   possible future modifications.  Deprecated routines: find_dadj, rsz2rsc, inverse_cte_blur, and raz2rsz.
 */
 
 # include <time.h>
@@ -40,6 +34,20 @@
 # include "wf3corr.h"
 # include "cte.h"
 # include "trlbuf.h"
+
+/* 
+    These are defined in wf3.h.
+    NAMPS       4
+    RAZ_COLS 8412
+    RAZ_ROWS 2070
+*/
+
+# define NITMAX 299          /* Maximum number of iterations */
+# define P_OVRSCN 25         /* Physical overscan */
+# define V_OVRSCNX2 60       /* Virtual overscan x 2 */
+# define XAMP_SCI_DIM 2048   /* X dimension of each AMP of science pixels */
+# define YAMP_SCI_DIM 2051   /* Y dimension of each AMP of science pixels */
+# define WsMAX 999           /* Maximum number of traps */
 
 int sub_ctecor_v2c(float *, 
                    float *,
@@ -336,7 +344,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             start = sci_corner[0] - ref_corner[0];
             finish = start + subcd.sci.data.nx;
-            if ( start >= 25 &&  finish + 60 <= (RAZ_COLS/2) - 25){
+            if ( start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN){
                 sprintf(MsgText,"Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
                 trlmessage(MsgText);
                 return(ERROR_RETURN);
@@ -398,7 +406,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             start = sci_corner[0] - ref_corner[0];
             finish = start + subab.sci.data.nx;
-            if ( start >= 25 &&  finish + 60 <= (RAZ_COLS/2) - 25){
+            if ( start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN){
                 sprintf(MsgText,"Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
                 trlmessage(MsgText);
                 return(ERROR_RETURN);
@@ -499,7 +507,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     for(i=0;i<RAZ_COLS;i++) { 
         for(j=0;j<RAZ_ROWS;j++) {  
-            Pix(fff.sci.data,i,j) =  cte_ff * (j+1)/((double)2048.0);
+            Pix(fff.sci.data,i,j) =  cte_ff * (j+1)/((double)XAMP_SCI_DIM);
         }
     }
 
@@ -509,7 +517,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     trlmessage("CTE: jumping into the routine...");
     ret = sub_ctecor_v2c(raz.sci.data.data,
                          fff.sci.data.data,
-                         999,
+                         WsMAX,
                          cte_pars.qlevq_data,
                          cte_pars.dpdew_data,
                          cte_pars.rprof->data.data,
@@ -646,16 +654,16 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
     extern int status;
 
     int i,j,k;              /*loop counters*/
-    int subcol = (RAZ_COLS/4); /* for looping over quads  */
+    int subcol = (RAZ_COLS/NAMPS); /* for looping over quads  */
     extern int status;      /* variable for return status */
-    float bias_post[4];
-    float bsig_post[4];
-    float bias_pre[4];
-    float bsig_pre[4];
+    float bias_post[NAMPS];
+    float bsig_post[NAMPS];
+    float bias_pre[NAMPS];
+    float bsig_pre[NAMPS];
     float gain;
 
     /*INIT THE ARRAYS*/
-    for(i=0;i<4;i++){
+    for(i=0;i<NAMPS;i++){
         bias_post[i]=0.;
         bsig_post[i]=0.;
         bias_pre[i]=0.;
@@ -674,7 +682,7 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
     */
     if (wf3->subarray){
         findPreScanBias(raz, bias_pre, bsig_pre);
-        for (k=0;k<4;k++){
+        for (k=0;k<NAMPS;k++){
             for (i=0; i<subcol;i++){
                 for (j=0;j<RAZ_ROWS; j++){
                     if(Pix(raz->dq.data,i+k*subcol,j)){
@@ -686,7 +694,7 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
         }
     } else {
         findPostScanBias(raz, bias_post, bsig_post);
-        for (k=0;k<4;k++){
+        for (k=0;k<NAMPS;k++){
             for (i=0; i<subcol;i++){
                 for (j=0;j<RAZ_ROWS; j++){
                     Pix(raz->sci.data,i+k*subcol,j) -= bias_post[k];
@@ -703,7 +711,11 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
   add some history information to the header
 
   Jay gave no explanation why plist is limited to 55377 for full arrays, his
-  subarray limitation was just 1/4 of this value
+  subarray limitation was just 1/4 of this value.  The value 55377 is the number of 
+  post-scan pixels in the physical pixel vertical extent (27 x 2051 = 55377).
+  Value 2051 is the veritical number of science pixels in an amp, and 
+  27 is the 30 post-scan pixels with two pixels stripped from the left boundary
+  and one stripped from the right boundary.
 
   the serial virtual overscan pixels are also called the trailing-edge pixels
   these only exist in full frame images
@@ -733,12 +745,12 @@ int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
         plist[i]=0.;
     }
 
-    for (k=0;k<4;k++){  /*for each quadrant cdab = 0123*/
+    for (k=0;k<NAMPS;k++){  /*for each quadrant cdab = 0123*/
         npix=0; /*reset for each quad*/
         rmean=0.;
         rsigma=0.;
         for (i=RAZ_ROWS+5;i<= subcol-1; i++){ /*quad area for post scan bias pixels*/
-            for (j=0; j<2051; j++){
+            for (j=0; j<YAMP_SCI_DIM; j++){
                 if (npix < arrsize){
                     if ( Pix(raz->dq.data,i+k*subcol,j)) {
                         plist[npix] = Pix(raz->sci.data,i+k*subcol,j);
@@ -798,12 +810,12 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
         plist[i]=0.;
     }
 
-    for (k=0;k<4;k++){  /*for each quadrant, CDAB ordered*/
+    for (k=0;k<NAMPS;k++){  /*for each quadrant, CDAB ordered*/
         npix=0;
         rmean=0.;
         rsigma=0.;
-        for (i=5;i<25; i++){
-            for (j=0; j<2051; j++){ /*all rows*/
+        for (i=5;i<P_OVRSCN; i++){
+            for (j=0; j<YAMP_SCI_DIM; j++){ /*all rows*/
                 if (npix < arrsize ){
                     if (Pix(raz->dq.data,i+(k*subcol),j)){
                         plist[npix] = Pix(raz->sci.data,i+k*subcol,j);
@@ -836,6 +848,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
 }
 
 
+/* Deprecated routine - December 2019 */
 int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int max_threads){
     /*
        This routine will read in a RAZ image and will output the smoothest
@@ -994,6 +1007,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
 }
 
 
+/* Deprecated routine - December 2019 */
 int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS], double rnsig, double *d){
     /*
        This function determines for a given pixel how it can
@@ -1043,7 +1057,7 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
     dval9 = 0.;
 
     /*COMPARE THE SURROUNDING PIXELS*/
-    if (i==1 &&  RAZ_ROWS-1>=j  && j>0 ) {
+    if (i==1 &&  RAZ_ROWS-1>j  && j>0 ) {
 
         dval9 = obsloc[i][j-1]  - rszloc[i][j-1] +
             obsloc[i][j]    - rszloc[i][j]  +
@@ -1113,9 +1127,9 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
   rsz is the readnoise smoothed image
   rsc is the coorection output image
   rac = raw + ((rsc-rsz) / gain )
+***/
 
- ***/
-
+/* Deprecated routine - December 2019 */
 int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
     extern int status;
@@ -1129,11 +1143,11 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
     float hardset=0.0;
 
     /*These are already in the parameter structure
-      int     Ws              the number of traps < 999999, taken from pctetab read
+      int     Ws              the number of traps < WsMAX, taken from pctetab read
       int     q_w[TRAPS];     the run of charge with level  cte->qlevq_data[]
       float   dpde_w[TRAPS];  the run of charge loss with level cte->dpdew_data[]
 
-      float   rprof_wt[TRAPS][100]; the emission probability as fn of downhill pixel, TRAPS=999
+      float   rprof_wt[TRAPS][100]; the emission probability as fn of downhill pixel, TRAPS=WsMAX
       float   cprof_wt[TRAPS][100]; the cumulative probability cprof_t( 1)  = 1. - rprof_t(1)
 
       The rprof array gives the fraction of charge that comes out of every parallel serial-shift
@@ -1171,7 +1185,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
             if (ro <0 ) ro=0.;
             if (ro > 2.999) ro=2.999; /*only 4 quads, 0 to 3*/
             io = (int) floor(ro); /*force truncation towards 0 for pos numbers*/
-            cte_j= (j+1) / 2048.0;
+            cte_j= (j+1) / (float)XAMP_SCI_DIM;
             cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (ro-io);
             Pix(pixz_fff.sci.data,i,j) =  (cte_i*cte_j);
         }
@@ -1200,7 +1214,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
   CTE_FF is found using the observation date of the data
   FIX_ROCRs is cte->fix_rocr
-  Ws is the number of TRAPS that are < 999999
+  Ws is the number of TRAPS that are < WsMAX 
 
   this is sub_wfc3uv_raz2rac_par in jays code
 
@@ -1213,6 +1227,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
   This is a big old time sink function
  ***/
 
+/* Deprecated routine - December 2019 */
 int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEParams *cte, int verbose, double expstart){
 
     extern int status;
@@ -1310,8 +1325,8 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
 
         if (totflux >= 1) {/*make sure the column has flux in it*/
             NREDO=0; /*START OUT NOT NEEDING TO MITIGATE CRS*/
-            REDO=0; /*FALSE*/
             do { /*replacing goto 9999*/
+              REDO=0; /*FALSE*/
                 /*STARTING WITH THE OBSERVED IMAGE AS MODEL, ADOPT THE SCALING FOR THIS COLUMN*/
                 for (j=0; j<RAZ_ROWS; j++){
                     pix_modl[j] =  Pix(rz.sci.data,i,j);
@@ -1403,7 +1418,6 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
             } while (REDO); /*replacing goto 9999*/
         } /*totflux > 1, catch for subarrays*/
 
-#pragma omp critical (cte)
         for (j=0; j< RAZ_ROWS; j++){
             if (Pix(rz.dq.data,i,j)){
                 Pix(rc.sci.data,i,j)= pix_modl[j];
@@ -1444,11 +1458,11 @@ int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEPa
 
 
   JDIM == RAZ_ROWS
-  WDIM == TRAPS  Ws is the input traps number < 999999
+  WDIM == TRAPS  Ws is the input traps number < WsMAX
   NITs == cte_pars->n_par
 
   These are already in the parameter structure CTEParams
-  int     Ws              the number of traps < 999999
+  int     Ws              the number of traps < WsMAX
   float     q_w[TRAPS];     the run of charge with level  == qlevq_data
   float   dpde_w[TRAPS];  the run of charge loss with level == dpdew_data
   float   rprof_wt[TRAPS][100]; the emission probability as fn of downhill pixel == rprof fits image
@@ -1668,52 +1682,64 @@ int rm_rnZ_colj(double *pixj_chg,
        double   RNU;
        double   sqrt();
 
-       int      pixj_ffu[2070];
-  
-       int      NITMAX;
+       int      pixj_ffu[RAZ_ROWS];
 
-       NITMAX = 299;
-
-       for(j=0;j<2070;j++) {  
+       for(j=0;j<RAZ_ROWS;j++) {  
            pixj_rsz[j] = pixj_chg[j];
            pixj_rnz[j] = 0.0;
            pixj_ffu[j] = 0.0;
-           } 
+       } 
 
+       /* 
+        * For each interation, allow a bit more noise.  This way we can
+        * stop when just enough is allowed to go through the column from 2nd
+        * to 2nd from the top.
+        */
        for(NIT=1;NIT<NITMAX;NIT++) {  
-           RNN = RNMIT*(1.00+5.0*NIT/299.0);
-           for(j=1;j<2070-1;j++) {  
+           RNN = RNMIT*(1.00+5.0*NIT/(float)NITMAX);
+           for(j=1;j<RAZ_ROWS-1;j++) {  
+
+              /* Compare each pixel to the average of its up/down neighbors */
               dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
               pixj_ffu[j] = 0.0;
+
+              /* If the pixel is within the readnoise window... */
               if (fabs(dd) < RNN) { 
+                  /* Cap the adjustments we are willing to make at any time to 20% */
                   if (dd >  RNMIT/5.0) dd =  RNMIT/5.0;
                   if (dd < -RNMIT/5.0) dd = -RNMIT/5.0;
+                  /* Take half of the maximum adjustment from the current pixel... */
                   pixj_rnz[j  ] = pixj_rnz[j  ] + dd*0.50;
+                  /* ...and give half of the value to the pixel below and above */
                   pixj_rnz[j-1] = pixj_rnz[j-1] - dd*0.25;
                   pixj_rnz[j+1] = pixj_rnz[j+1] - dd*0.25;
+                  /* Flag this pixel to be in the readnoise range so we can track
+                   * the total noise in the nominal pixels 
+                   */
                   pixj_ffu[j  ] = 1.0; 
-                  }
               }
-          for(j=0;j<2070;j++) { 
+          }
+          for(j=0;j<RAZ_ROWS;j++) { 
               pixj_rsz[j] = pixj_chg[j] - pixj_rnz[j]; 
-              }
+          }
           dtot = 0.;
           ntot = 0.;
           ftot = 0.;
           rtot = 0.;
-          for(j=0+1;j<2048-1;j++) { 
+          for(j=0+1;j<XAMP_SCI_DIM-1;j++) { 
              ftot = ftot + pixj_ffu[j];
              dtot = dtot + pixj_rnz[j]*pixj_rnz[j];
              dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
              rtot = rtot + dd*dd;
-             ntot = ntot + 1; }
+             ntot = ntot + 1; 
+          }
           RNU = sqrt(dtot/ftot);
 
           if (RNU > RNMIT) return(0);
-          }
+       }
 
        return(0); 
-       }
+}
 
 
 
@@ -1758,7 +1784,7 @@ int sim_colreadout_l_uvis_w(double *pixi,     // input column array (JDIM)
       float cprof_t[_TDIM_];              
 
       /* Bounds checking */
-      if (Ws>999) {
+      if (Ws>WsMAX) {
           printf("Ws error\n");
           return(1); 
       }
@@ -1785,8 +1811,8 @@ int sim_colreadout_l_uvis_w(double *pixi,     // input column array (JDIM)
       for (w=Wf;w>=0;w--) {   // loop backwards
 
          for(ttrap=0;ttrap<_TDIM_;ttrap++) { 
-             rprof_t[ttrap] = rprof_wt[w+ttrap*999];
-             cprof_t[ttrap] = cprof_wt[w+ttrap*999];
+             rprof_t[ttrap] = rprof_wt[w+ttrap*WsMAX];
+             cprof_t[ttrap] = cprof_wt[w+ttrap*WsMAX];
          }
                                                        
          /* Initialize the flux in the trap to zero */
@@ -1892,7 +1918,7 @@ int sub_ctecor_v2c(float *pixz_raz,
       int    NITFOR, NITFORs;
       int    NITPAR, NITPARs;
       double RNOI;
-      int    ret;
+      int ret;
 
       double *pixj_fff;
       double *pixj_raz;
@@ -1936,20 +1962,20 @@ int sub_ctecor_v2c(float *pixz_raz,
       #pragma omp for
 
 
-      for(i=0;i<8412;i++) {  
+      for(i=0;i<RAZ_COLS;i++) {  
 
-         pixj_fff = malloc(2070*8);
-         pixj_raz = malloc(2070*8);
-         pixj_mod = malloc(2070*8);
-         pixj_rnz = malloc(2070*8);
-         pixj_rsz = malloc(2070*8);
-         pixj_org = malloc(2070*8);
-         pixj_obs = malloc(2070*8);
-         pixj_chg = malloc(2070*8);
+         pixj_fff = malloc(RAZ_ROWS*8);
+         pixj_raz = malloc(RAZ_ROWS*8);
+         pixj_mod = malloc(RAZ_ROWS*8);
+         pixj_rnz = malloc(RAZ_ROWS*8);
+         pixj_rsz = malloc(RAZ_ROWS*8);
+         pixj_org = malloc(RAZ_ROWS*8);
+         pixj_obs = malloc(RAZ_ROWS*8);
+         pixj_chg = malloc(RAZ_ROWS*8);
 
-         for(j=0;j<2070;j++) { 
-            pixj_raz[j] = pixz_raz[i+j*8412]; 
-            pixj_fff[j] = pixz_fff[i+j*8412]; 
+         for(j=0;j<RAZ_ROWS;j++) { 
+            pixj_raz[j] = pixz_raz[i+j*RAZ_COLS]; 
+            pixj_fff[j] = pixz_fff[i+j*RAZ_COLS]; 
          }
 
          NCRX = 0;
@@ -1957,33 +1983,33 @@ int sub_ctecor_v2c(float *pixz_raz,
          while(!DONE) { 
              NCRX = NCRX + 1;
              DONE = 1;
-             for (j=0;j<2070;j++) { 
+             for (j=0;j<RAZ_ROWS;j++) { 
                 pixj_mod[j] = pixj_raz[j];           
                 pixj_chg[j] = 0.0;
              }
              for(NITFOR=0;NITFOR<NITFORs;NITFOR++) {
                  ret = rm_rnZ_colj(pixj_mod,pixj_rnz,pixj_rsz,RNOI);
-                 for(j=0;j<2070;j++) { 
+                 for(j=0;j<RAZ_ROWS;j++) { 
                     pixj_org[j] = pixj_rsz[j]; 
                  }
                  for(NITPAR=1;NITPAR<=NITPARs;NITPAR++) { 
                      ret = sim_colreadout_l_uvis_w(pixj_org,
                                                    pixj_obs,
                                                    pixj_fff,
-                                                   0001,2070,2070,
+                                                   1,RAZ_ROWS,RAZ_ROWS,
                                                    q_w,dpde_w,NITPARs,
                                                    rprof_wt,cprof_wt,Ws);
-                     for (j=0;j<2070;j++) { 
+                     for (j=0;j<RAZ_ROWS;j++) { 
                         pixj_org[j] = pixj_obs[j];
                      }
                  }
-                 for(j=0;j<2070;j++) { 
+                 for(j=0;j<RAZ_ROWS;j++) { 
                      pixj_chg[j] = pixj_obs[j] - pixj_rsz[j];
                      pixj_mod[j] = pixj_raz[j] - pixj_chg[j];
                  }
              }
              if (FIX_ROCR<0) { 
-                 for(j=0015;j<=2060;j++) { 
+                 for(j=15;j<=2060;j++) { 
                      if (pixj_mod[j] < FIX_ROCR && 
                          pixj_mod[j]-pixj_raz[j] < FIX_ROCR && 
                          pixj_mod[j] < pixj_mod[j+1] && 
@@ -1995,18 +2021,18 @@ int sub_ctecor_v2c(float *pixz_raz,
                                  jmax = jj;
                              }
                          }
-                        if (pixj_mod[jmax]-pixj_raz[jmax] > -2.5*FIX_ROCR) {
-                            pixj_fff[jmax] = pixj_fff[jmax]*0.90;        
-                            DONE = NCRX >= 10;
-                        }
+                         if (pixj_mod[jmax]-pixj_raz[jmax] > -2.5*FIX_ROCR) {
+                             pixj_fff[jmax] = pixj_fff[jmax]*0.90;        
+                             DONE = NCRX >= 10;
+                         }
                      }
                  }
              }
          }
 
-         for(j=0;j<2070;j++) { 
-             pixz_rzc[i+j*8412] = pixj_mod[j];
-             pixz_fff[i+j*8412] = pixj_fff[j];
+         for(j=0;j<RAZ_ROWS;j++) { 
+             pixz_rzc[i+j*RAZ_COLS] = pixj_mod[j];
+             pixz_fff[i+j*RAZ_COLS] = pixj_fff[j];
          }
 
          free(pixj_fff);
@@ -2020,8 +2046,9 @@ int sub_ctecor_v2c(float *pixz_raz,
 
          fprintf(fp,"%4d %4d \n",i,NCRX);
 
+         /* This variable exists for debuggin purposes. */
          NDONE++;
-         if (NDONE==(NDONE/100)*100) { printf("  i = %5d   %5d  %5d \n",i,NCRX,NDONE); }
+         /*if (NDONE==(NDONE/100)*100) { printf("  i = %5d   %5d  %5d \n",i,NCRX,NDONE); }*/
 
       }
 
