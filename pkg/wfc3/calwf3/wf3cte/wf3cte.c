@@ -8,11 +8,12 @@
    as long as the subarray contains physical overscan pixels, which don't include the science team subarrays
    which can span quads.
 
-   M.D. De La Pena Dec-2019: This routine has been significantly upgraded by J. Anderson (JA) and delivered
+   M.D. De La Pena Dec-2019: This routine has been significantly upgraded by Jay Anderson (JA) and delivered
    in November 2019.  As JA is the important resource for this algorithm, I have only cleaned up the comments
    in his original delivered version, fixed up brace placement, and created defines for some of the 
    hard-coded values.  Minimal changes were done explicitly to keep the code in a form familiar to JA for 
    possible future modifications.  Deprecated routines: find_dadj, rsz2rsc, inverse_cte_blur, and raz2rsz.
+   The deprecated routines still exist in this source file at this time for easy reference for JA.
 */
 
 # include <time.h>
@@ -848,7 +849,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
 }
 
 
-/* Deprecated routine - December 2019 */
+/* DEPRECATED routine - December 2019 */
 int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int max_threads){
     /*
        This routine will read in a RAZ image and will output the smoothest
@@ -1007,7 +1008,7 @@ int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int 
 }
 
 
-/* Deprecated routine - December 2019 */
+/* DEPRECATED routine - December 2019 */
 int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS], double rnsig, double *d){
     /*
        This function determines for a given pixel how it can
@@ -1123,13 +1124,12 @@ int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS]
 }
 
 
+/* DEPRECATED routine - December 2019 */
 /*** THIS ROUTINE PERFORMS THE CTE CORRECTIONS
   rsz is the readnoise smoothed image
   rsc is the coorection output image
   rac = raw + ((rsc-rsz) / gain )
 ***/
-
-/* Deprecated routine - December 2019 */
 int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
     extern int status;
@@ -1208,6 +1208,7 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
 
 
 
+/* DEPRECATED routine - December 2019 */
 /*** this routine does the inverse CTE blurring... it takes an observed
   image and generates the image that would be pushed through the readout
   algorithm to generate the observation
@@ -1226,8 +1227,6 @@ int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
   fff is the input cte scaling array calculated over all pixels
   This is a big old time sink function
  ***/
-
-/* Deprecated routine - December 2019 */
 int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEParams *cte, int verbose, double expstart){
 
     extern int status;
