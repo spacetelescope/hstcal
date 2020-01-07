@@ -99,6 +99,8 @@
 #include "hstcalversion.h"
 #include "hstio.h"
 
+char MsgText[MSG_BUFF_LENGTH];
+int status;
 const unsigned initLength = 2; // Should always be > 0 to prevent issues with use of realloc().
 
 /* Internal trailer file buffer routines */
@@ -109,7 +111,7 @@ static void CatTrlFile (FILE *ip, FILE *op);
 static void CatTrlFile_NoEOF (FILE *ip, FILE *op);
 static int AppendTrlFile(void);
 
-extern struct TrlBuf trlbuf;
+struct TrlBuf trlbuf;
 
 int InitTrlFile (char *inlist, char *output)
 {

@@ -1,8 +1,5 @@
 # Installation
 
-HSTCAL uses the WAF build system. A precompiled copy of WAF has been included at the top-level of this project for your convenience.
-
-
 ## Supported Platforms
 
 - Linux >=RHEL6
@@ -11,6 +8,7 @@ HSTCAL uses the WAF build system. A precompiled copy of WAF has been included at
 
 ## Requirements
 
+- cmake >=3.11 (https://cmake.org)
 - cfitsio >=3.430 (https://heasarc.gsfc.nasa.gov/fitsio/fitsio.html)
 - gcc >=4.4.7 (https://gcc.gnu.org)
 - openmp (http://www.openmp.org/)
@@ -39,7 +37,9 @@ GCC may be supplemented by Clang under the following conditions:
 - If `pkg-config` is not installed, define the path to CFITSIO manually via the `--with-cfitsio` argument:
 
     ```
-    ./waf configure --with-cfitsio=$HOME/programs/cfitsio
+    mkdir _build
+    cd _build
+    cmake .. -DWITH_CFITSIO=$HOME/programs/cfitsio
     ```
 
 
@@ -50,33 +50,27 @@ The LLVM/Clang suite provided by Apple XCode is not sufficient to compile HSTCAL
 
 ## Compiling HSTCAL
 
-_For a complete listing of useful configuration and build options, run_ `./waf --help`
-
 1. Configure
 
     ```
-    ./waf configure --prefix=$HOME/hstcal
+    mkdir _build
+    cd _build
+    cmake .. -DCMAKE_INSTAL_PREFIX=$HOME/hstcal
     ```
 
 2. Build
 
     ```
-    ./waf build
+    make
     ```
 
-3. Test [OPTIONAL]
+3. Install [OPTIONAL]
 
     ```
-    ./waf test
+    make install
     ```
 
-4. Install [OPTIONAL]
-
-    ```
-    ./waf install
-    ```
-
-5. Add HSTCAL to `$PATH`
+4. Add HSTCAL to `$PATH`
 
     ```bash
     export PATH=$HOME/hstcal/bin:$PATH
@@ -85,16 +79,16 @@ _For a complete listing of useful configuration and build options, run_ `./waf -
 
 ## Build Targets
 
-To install individual parts of HSTCAL, use the `--targets` option. For example, to install the `acs` and `lib` targets, do the following:
+To install individual parts of HSTCAL...
 
 ```
-./waf install --targets=acs,lib
+make install acscte
 ```
 
 To list available build targets:
 
 ```
-./waf configure list
+make help
 ```
 
 Some common targets include:
@@ -104,24 +98,8 @@ Target | Description
 acs    | calacs
 wf3    | calwf3 and other WFC3-related tools
 stis   | calstis
-lib    | static libraries and header files for the included libraries
-test   | self-test executables
 
 
 ## Debugging
 
-To enable support for debugging symbols run, `./waf configure --debug`
-
-
-## build.cfg file
-
-Shell arguments normally passed to `./waf configure` may be issued via `build.cfg`.  This configuration file may contain any arguments accepted by `./waf configure`.  An example is given in the `build.cfg.example` file.
-
-
-# Notes for developers
-
-
-## Using headers
-
-
-C has two forms of `#include` syntax, `#include "foo.h"` (i.e. `include/foo.h`) for local include files, and `#include <foo.h>` (i.e. `/usr/include/foo.h`) for system include files.  WAF does not track changes to system include files, so the first syntax should be used whenever including files within the project.
+To enable support for debugging symbols use one of the following defines, `cmake .. -DCMAKE_BUILD_TYPE=[RelWithDebInfo|Debug]`
