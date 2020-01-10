@@ -22,6 +22,7 @@
  4-Dec-2001 WJH - Read in EXPSTART and EXPEND for computing darktime.
  12-Dec-2012 PLL - Changed FLASHDUR and FLASHSTA defaults.
  26-Jul-2018 MDD - Convert APERTURE and JWROTYPE values to upper-case. 
+ 05-Dec-2019 MDD - Read the DARKTIME keyword and convert FLASHSTA to upper-case.
  */
 
 int getACSKeys (ACSInfo *acs, Hdr *phdr) {
@@ -113,6 +114,9 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
             return (status);
         if (GetKeyStr (phdr, "FLASHSTA", USE_DEFAULT, "", acs->flashstatus, ACS_CBUF))
             return (status);
+
+	    if (GetKeyDbl (phdr, "DARKTIME", USE_DEFAULT, 0., &acs->darktime))
+        return (status);
     }
 	return (status);
 }
@@ -143,6 +147,7 @@ int checkACSKeys(ACSInfo *acs)
 
     upperCase(&acs->aperture);
     upperCase(&acs->jwrotype);
+    upperCase(&acs->flashstatus);
 
     // Convert number of extensions to number of SingleGroups.
     // NOTE: this is technically incorrect and instead findTotalNumberOfImsets()

@@ -87,6 +87,9 @@ void errchk ();                 /* HSTIO error check */
 
 # define        SM4MJD          54967
 
+/* October 01, 2016: Date of first observation in Cycle 24. The new ACS subarray configurations validated for Cycle 24. */
+# define        CYCLE24         57662
+
 /* A reference image. */
 typedef struct {
     char name[CHAR_FNAME_LENGTH];            /* name of image */

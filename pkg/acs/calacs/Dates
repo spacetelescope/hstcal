@@ -1,3 +1,10 @@
+ 10-Jan-2020   CALACS 10.2.2 Removed hard-coded darktime scaling value and read new 
+                             post-flashed and unflashed columns from updated CCDTAB reference 
+                             file to use for the offset to the DARKTIME FITS keyword value 
+                             under appropropriate date and supported subarray criteria.  The 
+                             DARKTIME keyword value is now the default scaling factor for the 
+                             superdarks, with the offset being an additive correction to DARKTIME 
+                             under appropriate circumstances.
  25-Sep-2019   CALACS 10.2.1 CALACS has been modified to allow the PHOTMODE keyword
                              to be updated with the MJDUTC for the SBC, in addition to
                              the HRC and WFC. This will allow time-dependent sensitivity
