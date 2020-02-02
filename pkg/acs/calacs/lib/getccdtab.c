@@ -196,14 +196,7 @@ int     dimy      i: number of lines in exposure
 		acs->ampx = (tabrow.ampx > dimx) ? dimx : tabrow.ampx;
 		acs->ampy = tabrow.ampy;		
 		acs->saturate = tabrow.saturate;
-		//break;
-	    sprintf (MsgText, "Matching row FOUND in CCDTAB `%s'.", acs->ccdpar.name);
-        trlmessage(MsgText);
-		sprintf (MsgText, "CCDAMP %s, CCDGAIN %4.1f, CCDOFFST %d,%d,%d,%d, OVERHEADPOST %f OVERHEADUN %f",
-		acs->ccdamp, acs->ccdgain, acs->ccdoffset[0], acs->ccdoffset[1],
-		acs->ccdoffset[2], acs->ccdoffset[3], acs->overhead_postflashed, acs->overhead_unflashed);
-        trlmessage(MsgText);
-        break;
+		break;
 	    }
 	}
 

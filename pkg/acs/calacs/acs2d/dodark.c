@@ -57,21 +57,23 @@
  Dark correction processing is now done on the entire image instead of 
  line by line. Also, performed some clean up and new commentary.
  M.D. De La Pena, 2019 November 26:
- Removed hard-coded darktime scaling value and read new 
- post-flashed and unflashed columns from updated CCDTAB reference 
- file to use for the offset to the DARKTIME FITS keyword value 
- under appropropriate date and supported subarray criteria.  The 
- DARKTIME keyword value is now the default scaling factor for the 
- superdarks, with the offset being an additive correction to DARKTIME 
+ Removed hard-coded darktime scaling value and read new
+ post-flashed and unflashed columns from updated CCDTAB reference
+ file to use for the offset to the DARKTIME FITS keyword value
+ under appropropriate date and supported subarray criteria.  The
+ DARKTIME keyword value is now the default scaling factor for the
+ superdarks, with the offset being an additive correction to DARKTIME
  under appropriate circumstances.
- 
  */
 static const char *subApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
                                      "WFC1A-1K", "WFC1B-1K", "WFC2C-1K", "WFC2D-1K",
                                      "WFC1A-512", "WFC1B-512", "WFC2C-512", "WFC2D-512",
                                      "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-ORAMPQ",
                                      "WFC1-POL0UV", "WFC1-POL0V", 
+                                     "WFC1-POL60UV", "WFC1-POL60V", 
+                                     "WFC1-POL120UV", "WFC1-POL120V", 
                                      "WFC1-SMFL"};
+
 static const int numSupportedSubApertures = sizeof(subApertures) / sizeof(subApertures[0]);
 
 int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
@@ -118,8 +120,10 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
 
   /*
      The overhead offset time is a function of full-frame vs subarray and post-flash vs unflashed 
-     and has been determined empirically for CCD data.  The appropriate overhead for full-frame or
-     subarray was extracted from the calibration file during the table read.
+     and has been determined empirically for CCD data.  Both the unflashed and post-flash
+     overhead values for full-frame or subarray were extracted from the calibration file 
+     during the table read.  Now it is just necessary to determine which offset actually
+     applies.
   */
 
   /* Unflashed observation */
@@ -130,14 +134,10 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
         darktimeOffset = acs2d->overhead_postflashed;
   }
 
-  sprintf(MsgText, "Darktime from header: %f Exp: %f FlashDur: %f darktimeOffset: %f\n", darktimeFromHeader, acs2d->exptime,
-      acs2d->flashdur, darktimeOffset);
-  trlmessage(MsgText);
-
   /* 
      Compute the final darktime based upon the date of full-frame or subarray data.
      The full-frame overhead offset is applicable to all data post-SM4.  The subarray 
-     overhead offset is applicable to all data post-CYCLE24 and only for supported
+     overhead offset is applicable to all data post-CYCLE24 and ONLY for supported
      subarrays. 
   */
   darktime = darktimeFromHeader;  /* Default */
@@ -147,8 +147,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      if (acs2d->subarray == NO) {
          if (acs2d->expstart >= SM4MJD)
               darktime = darktimeFromHeader + darktimeOffset;
-
-         sprintf(MsgText, "Full Frame darktime: %f\n", darktime);
+         sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", darktime);
          trlmessage(MsgText);
 
      /* Subarray data */
@@ -157,19 +156,14 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
              for (unsigned int i = 0; i < numSupportedSubApertures; i++) {
                  if (strcmp(acs2d->aperture, subApertures[i]) == 0) {
                      darktime = darktimeFromHeader + darktimeOffset;
-                     sprintf(MsgText, "Supported Subarray darktime: %f aperture: %s\n", darktime, subApertures[i]);
+                     sprintf(MsgText, "Supported Subarray adjusted Darktime: %f for aperture: %s\n", darktime, subApertures[i]);
                      trlmessage(MsgText);
                      break;
                  }
-                 sprintf(MsgText, "Supported Subarray aperture: %s\n", subApertures[i]);
-                 trlmessage(MsgText);
              }
          }
      }
   }
-        
-  sprintf(MsgText, "Final darktime: %f", darktime);
-  trlmessage(MsgText);
 
   /* Compute correct extension version number to extract from
      reference image to correspond to CHIP in science data.
