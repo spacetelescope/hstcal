@@ -31,7 +31,7 @@ bc1.env_vars = ['PATH=./clone/_install/bin:$PATH',
                 'OMP_NUM_THREADS=4',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory']
 bc1.conda_packages = ['python=3.6',
-                     'ci-watson=0.4',
+                     'ci-watson<0.5',
                      'cfitsio',
                      'pkg-config',
                      'pytest',
