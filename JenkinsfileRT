@@ -38,7 +38,7 @@ bc.conda_packages = ['python=3.6',
                      'pytest',
                      'requests',
                      'astropy',
-                     'ci-watson']
+                     'ci-watson=0.4']
 
 bc.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
