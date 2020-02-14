@@ -31,16 +31,14 @@ bc1.env_vars = ['PATH=./clone/_install/bin:$PATH',
                 'OMP_NUM_THREADS=4',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory']
 bc1.conda_packages = ['python=3.6',
-                     'ci-watson',
                      'cfitsio',
                      'pkg-config',
-                     'pytest',
-                     'requests',
                      'astropy']
 bc1.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
-                  "calacs.e --version"]
+                  "calacs.e --version",
+                  "pip install pytest ci-watson"]
 bc1.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata -v"]
 bc1.failedUnstableThresh = 1
 bc1.failedFailureThresh = 6

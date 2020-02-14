@@ -35,15 +35,13 @@ bc.conda_channels = ['http://ssb.stsci.edu/astroconda']
 bc.conda_packages = ['python=3.6',
                      'cfitsio',
                      'pkg-config',
-                     'pytest',
-                     'requests',
-                     'astropy',
-                     'ci-watson']
+                     'astropy']
 
 bc.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
-                  "calacs.e --version"]
+                  "calacs.e --version",
+                  "pip install pytest ci-watson"]
 bc.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata --slow -v"]
 bc.failedUnstableThresh = 1
 bc.failedFailureThresh = 6
