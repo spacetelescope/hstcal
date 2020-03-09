@@ -12,8 +12,10 @@
    in November 2019.  As JA is the important resource for this algorithm, I have only cleaned up the comments
    in his original delivered version, fixed up brace placement, and created defines for some of the 
    hard-coded values.  Minimal changes were done explicitly to keep the code in a form familiar to JA for 
-   possible future modifications.  Deprecated routines: find_dadj, rsz2rsc, inverse_cte_blur, and raz2rsz.
-   The deprecated routines still exist in this source file at this time for easy reference for JA.
+   possible future modifications.
+
+   M.D. De La Pena Mar-2020: Further changes to accommodate subarrays - only evaluate valid (non-zero) pixels.
+   Updates received from Jay Anderson. Removed deprecated routines: find_dadj, rsz2rsc, inverse_cte_blur, and raz2rsz.
 */
 
 # include <time.h>
@@ -50,6 +52,12 @@
 # define YAMP_SCI_DIM 2051   /* Y dimension of each AMP of science pixels */
 # define WsMAX 999           /* Maximum number of traps */
 
+/* Used in find_raz2rnoival */
+# define SPREAD_FOR_HISTO 4.5
+# define LOW_CLIP 3.75
+# define HIGH_CLIP 9.75
+# define NUM_BINS 1001
+
 int sub_ctecor_v2c(float *, 
                    float *,
                    int,  
@@ -62,6 +70,10 @@ int sub_ctecor_v2c(float *,
                    int,
                    int,
                    float *); 
+
+float find_raz2rnoival(float *, 
+                       float *, 
+                       float *);
 
 int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
@@ -84,13 +96,15 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     CTEDATE1 - reference date of CTE model pinning, in MJD
 
     PCTETLEN - max length of CTE trail
-    PCTERNOI - readnoise amplitude for clipping
     PCTESMIT - number of iterations used in CTE forward modeling
     PCTESHFT - number of iterations used in the parallel transfer
     PCTENSMD - readnoise mitigation algorithm
     PCTETRSH - over-subtraction threshold
     PCTEFRAC - cte scaling frac calculated from expstart
-    PCTERNOI - the readnoise clipping level to use
+    PCTERNOI - the readnoise clipping level to use ***NOTE: This value is no longer used
+               from the PCTETAB.  If PCTERNOI keyword value in the raw science image 
+               header is non-zero, it will be used for the CTE computations.  Otherwise,
+               the value is computed on-the-fly based upon the raw image data. (March 2020)
 
     #These are taken from getreffiles.c
     DRKCFILE is a new dark reference file used only in the CTE branch *_DRC.fits
@@ -143,6 +157,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     /* init header vars */
     initHdr(&phdr);
     initHdr(&scihdr);
+
+    float readNoise = 0.0;
 
     int ret;
 
@@ -512,7 +528,32 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         }
     }
 
-    /* Invoke the updated CTE correction which does the read-noise 
+    /* 
+     * If the PCTERNOI value from the primary header of the science image is non-zero, it is
+     * used in the CTE algorithm.  Otherwise the read noise must be computed via find_raz2rnoival.
+     * FLOAT_RNOIVAL and FLOAT_BKGDVAL are designed to be for diagnostic purposes only.
+     */
+    float FLOAT_RNOIVAL = 0.;
+    float FLOAT_BKGDVAL = 0.;
+    readNoise = wf3.pcternoi;
+    sprintf(MsgText, "PCTERNOI: %8.4f (source: primary header of science image)\n\n", readNoise);
+    trlmessage(MsgText);
+    /* Comparison should be OK - read from FITS header and no computation */
+    if (readNoise == 0.0) {
+        readNoise = find_raz2rnoival(raz.sci.data.data, &FLOAT_RNOIVAL, &FLOAT_BKGDVAL);
+        sprintf(MsgText, "RNOIVAL: %8.4f BKGDVAL: %8.4f\n", FLOAT_RNOIVAL, FLOAT_BKGDVAL);
+        trlmessage(MsgText);
+        sprintf(MsgText, "PCTERNOI: %8.4f (source: computed on-the-fly from science image)", readNoise);
+        trlmessage(MsgText);
+        sprintf(MsgText, "This computed value supersedes any value obtained from the primary\nheader of the science image.\n\n");
+        trlmessage(MsgText);
+    }
+
+    /* The PCTERNOI value actually used is written to the PCTERNOI keyword in
+     * the output image header when it is updated below for a final time.
+     */
+      
+    /* Invoke the updated CTE correction which does the read noise 
        mitigation in each of the three forward-model iterations.
     */
     trlmessage("CTE: jumping into the routine...");
@@ -523,7 +564,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
                          cte_pars.dpdew_data,
                          cte_pars.rprof->data.data,
                          cte_pars.cprof->data.data,
-                         cte_pars.rn_amp,
+                         readNoise,
                          cte_pars.thresh,
                          cte_pars.n_forward,
                          cte_pars.n_par,
@@ -557,6 +598,9 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             PutKeyDbl(subcd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
             trlmessage("PCTEFRAC saved to header");
 
+            PutKeyFlt(subcd.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
+            trlmessage("PCTERNOI saved to header");
+
             Full2Sub(&wf3, &subcd, &cd, 0, 1, 1);
             putSingleGroup(output, 1, &subcd,0);
             freeSingleGroup(&subcd);
@@ -569,6 +613,9 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
             PutKeyDbl(subab.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
             trlmessage("PCTEFRAC saved to header");
+
+            PutKeyFlt(subab.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
+            trlmessage("PCTERNOI saved to header");
 
             Full2Sub(&wf3, &subab, &ab, 0, 1, 1);
             putSingleGroup(output, 1, &subab,0);
@@ -583,6 +630,9 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
         PutKeyDbl(cd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
         trlmessage("PCTEFRAC saved to header");
+
+        PutKeyFlt(cd.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
+        trlmessage("PCTERNOI saved to header");
 
         putSingleGroup(output,cd.group_num, &cd,0);
         putSingleGroup(output,ab.group_num, &ab,0);
@@ -848,608 +898,6 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
     return status;
 }
 
-
-/* DEPRECATED routine - December 2019 */
-int raz2rsz(WF3Info *wf3, SingleGroup *raz, SingleGroup *rsz, double rnsig, int max_threads){
-    /*
-       This routine will read in a RAZ image and will output the smoothest
-       image that is consistent with being the observed image plus readnoise. (RSZ image)
-       This is necessary because we want the CTE-correction algorithm to produce the smoothest
-       possible reconstruction, consistent with the original image and the
-       known readnoise.  This algorithm constructs a model that is smooth
-       where the pixel-to-pixel variations can be thought of as being related
-       to readnoise, but if the variations are too large, then it respects
-       the pixel values.  Basically... it uses a 2-sigma threshold.
-
-       This is strategy #1 in a two-pronged strategy to mitigate the readnoise
-       amplification.  Strategy #2 will be to not iterate when the deblurring
-       is less than the readnoise.
-
-*/
-
-    extern int status;
-
-    int i, j, NIT; /*loop variables*/
-    int imid;
-    double dptr=0.0;
-    double  rms=0.0;
-    double  rmsu=0.0;
-    double nrms=0.0;
-    double nrmsu=0.0;
-    float hardset=0.0f;
-    double setdbl=0.0;
-
-
-    /*1D ARRAYS FOR CENTRAL AND NEIGHBORING RAZ_COLS*/
-    double obs_loc[3][RAZ_ROWS] ;
-    double rsz_loc[3][RAZ_ROWS] ;
-
-    NIT=1;
-
-    /*ALL ELEMENTS TO FLAG*/
-    for(i=0;i<3;i++){
-        for (j=0; j<RAZ_ROWS; j++){
-            obs_loc[i][j]=setdbl;
-            rsz_loc[i][j]=setdbl;
-        }
-    }
-
-    /***INITIALIZE THE LOCAL IMAGE GROUPS***/
-    SingleGroup rnz;
-    initSingleGroup(&rnz);
-    allocSingleGroup(&rnz, RAZ_COLS, RAZ_ROWS, True);
-
-    SingleGroup zadj;
-    initSingleGroup(&zadj);
-    allocSingleGroup(&zadj, RAZ_COLS, RAZ_ROWS, True);
-
-
-    /*COPY THE RAZ IMAGE INTO THE RSZ OUTPUT IMAGE
-      AND INITIALIZE THE OTHER IMAGES*/
-    for(i=0;i<RAZ_COLS;i++){
-        for (j=0;j<RAZ_ROWS;j++){
-            Pix(rsz->sci.data,i,j) = Pix(raz->sci.data,i,j);
-            Pix(rsz->dq.data,i,j) = Pix(raz->dq.data,i,j);
-            Pix(rnz.sci.data,i,j) = hardset;
-            Pix(zadj.sci.data,i,j) = hardset;
-        }
-    }
-
-
-    /*THE RSZ IMAGE JUST GETS UPDATED AS THE RAZ IMAGE IN THIS CASE*/
-    if (rnsig < 0.1){
-        trlmessage("rnsig < 0.1, No read-noise mitigation needed");
-        return(status);
-    }
-
-    /*GO THROUGH THE ENTIRE IMAGE AND ADJUST PIXELS TO MAKE THEM
-      SMOOTHER, BUT NOT SO MUCH THAT IT IS NOT CONSISTENT WITH
-      READNOISE.  DO THIS IN BABY STEPS SO THAT EACH ITERATION
-      DOES VERY LITTLE ADJUSTMENT AND INFORMATION CAN GET PROPAGATED
-      DOWN THE LINE.
-      */
-
-    rms=setdbl;
-
-    for(NIT=1; NIT<=100; NIT++){
-        #pragma omp parallel for schedule(dynamic) \
-        private(i,j,imid,obs_loc,rsz_loc,dptr)\
-        shared(raz, rsz, rnsig,rms,nrms, zadj)
-        for(i=0; i<RAZ_COLS; i++){
-            imid=i;
-            /*RESET TO MIDDLE RAZ_COLS AT ENDPOINTS*/
-            if (imid < 1)
-                imid=1;
-            if (imid == RAZ_COLS-1)
-                imid = RAZ_COLS-2;
-
-            /*COPY THE MIDDLE AND NEIGHBORING PIXELS FOR ANALYSIS*/
-            for(j=0; j<RAZ_ROWS; j++){
-                obs_loc[0][j] = Pix(raz->sci.data,imid-1,j);
-                obs_loc[1][j] = Pix(raz->sci.data,imid,j);
-                obs_loc[2][j] = Pix(raz->sci.data,imid+1,j);
-
-                rsz_loc[0][j] = Pix(rsz->sci.data,imid-1,j);
-                rsz_loc[1][j] = Pix(rsz->sci.data,imid,j);
-                rsz_loc[2][j] = Pix(rsz->sci.data,imid+1,j);
-            }
-            for (j=0; j<RAZ_ROWS; j++){
-             if(Pix(raz->dq.data,imid,j)) {
-                find_dadj(1+i-imid,j, obs_loc, rsz_loc, rnsig, &dptr);
-                Pix(zadj.sci.data,i,j) = dptr;
-              }
-            }
-        } /*end the parallel for*/
-
-        /*NOW GO OVER ALL THE RAZ_COLS AND RAZ_ROWS AGAIN TO SCALE THE PIXELS
-        */
-        for(i=0; i<RAZ_COLS;i++){
-            for(j=0; j<RAZ_ROWS; j++){
-                if (Pix(raz->dq.data,i,j)){
-                    Pix(rsz->sci.data,i,j) +=  (Pix(zadj.sci.data,i,j)*0.75);
-                    Pix(rnz.sci.data,i,j) = (Pix(raz->sci.data,i,j) - Pix(rsz->sci.data,i,j));
-                }
-            }
-        }
-
-        rms=setdbl;
-        nrms=setdbl;
-
-        /*This is probably a time sink because the arrays are being
-          accessed out of storage order, careful of page faults */
-        #pragma omp parallel for schedule(dynamic,1)\
-        private(i,j,rmsu,nrmsu) \
-        shared(raz,rsz,rms,rnsig,nrms)
-        for(j=0; j<RAZ_ROWS; j++){
-            nrmsu=setdbl;
-            rmsu=setdbl;
-            for(i = 0;i<RAZ_COLS; i++){
-                if ( (fabs(Pix(raz->sci.data,i,j)) > 0.1) ||
-                        (fabs(Pix(rsz->sci.data,i,j)) > 0.1) ){
-                    rmsu  +=  ( Pix(rnz.sci.data,i,j) * Pix(rnz.sci.data,i,j) );
-                    nrmsu += 1.0;
-                }
-            }
-            #pragma omp critical (rms)
-            {   rms  += rmsu;
-                nrms += nrmsu;
-            }
-        }
-        rms = sqrt(rms/nrms);
-
-        /*epsilon type comparison*/
-        if ( (rnsig-rms) < 0.00001) break; /*this exits the NIT for loop*/
-    } /*end NIT*/
-
-    freeSingleGroup(&zadj);
-    freeSingleGroup(&rnz);
-
-    return (status);
-}
-
-
-/* DEPRECATED routine - December 2019 */
-int find_dadj(int i ,int j, double obsloc[][RAZ_ROWS], double rszloc[][RAZ_ROWS], double rnsig, double *d){
-    /*
-       This function determines for a given pixel how it can
-       adjust in a way that is not inconsistent with its being
-       readnoise.  To do this, it looks at its upper and lower
-       neighbors and sees whether it is consistent with either
-       (modulo readnoise).  To the extent that it is consistent
-       then move it towards them.  But also bear in mind that
-       that we don't want it to be more than 2 RN sigmas away
-       from its original value.  This is pretty much a tug of
-       war... with readnoise considerations pushing pixels to
-       be closer to their neighbors, but the original pixel
-       values also pull to keep the pixel where it was.  Some
-       accommodation is made for both considerations.
-       */
-
-    extern int status;
-
-    double mval=0.0;
-    double    dval0, dval0u, w0;
-    double    dval9, dval9u, w9;
-    double    dmod1, dmod1u, w1;
-    double    dmod2, dmod2u, w2;
-
-    dval0=0.;
-    dval0u=0.;
-    w0=0.;
-    dval9=0.;
-    dval9u=0.;
-    w9=0.;
-    dmod1=0.;
-    dmod1u=0.;
-    w1=0.;
-    dmod2=0.;
-    dmod2u=0.;
-    w2=0.;
-
-    mval = rszloc[i][j];
-    dval0  = obsloc[i][j] - mval;
-    dval0u = dval0;
-
-    if (dval0u >1.0)
-        dval0u =  1.0;
-    if (dval0u <-1.0)
-        dval0u = -1.0;
-
-    dval9 = 0.;
-
-    /*COMPARE THE SURROUNDING PIXELS*/
-    if (i==1 &&  RAZ_ROWS-1>j  && j>0 ) {
-
-        dval9 = obsloc[i][j-1]  - rszloc[i][j-1] +
-            obsloc[i][j]    - rszloc[i][j]  +
-            obsloc[i][j+1]  - rszloc[i][j+1] +
-            obsloc[i-1][j-1]- rszloc[i-1][j-1] +
-            obsloc[i-1][j]  - rszloc[i-1][j] +
-            obsloc[i-1][j+1]- rszloc[i-1][j+1] +
-            obsloc[i+1][j-1]- rszloc[i+1][j-1] +
-            obsloc[i+1][j]  - rszloc[i+1][j] +
-            obsloc[i+1][j+1]- rszloc[i+1][j+1];
-    }
-
-    dval9 =dval9 / 9.;
-    dval9u = dval9;
-
-    if (dval9u > (rnsig*0.33))
-        dval9u =  rnsig*0.33;
-    if (dval9u <  rnsig*-0.33)
-        dval9u = rnsig*-0.33;
-
-    dmod1 = 0.;
-    if (j>0)
-        dmod1 = rszloc[i][j-1] - mval;
-
-    dmod1u = dmod1;
-    if (dmod1u > rnsig*0.33)
-        dmod1u =  rnsig*0.33;
-    if (dmod1u < rnsig*-0.33)
-        dmod1u = rnsig*-0.33;
-
-    dmod2 = 0.;
-    if (j < RAZ_ROWS-1)
-        dmod2 =  rszloc[i][j+1] - mval;
-
-    dmod2u = dmod2;
-    if (dmod2u > rnsig*0.33)
-        dmod2u =  rnsig*0.33;
-    if (dmod2u < rnsig*-0.33)
-        dmod2u = rnsig*-0.33;
-
-
-    /*
-       IF IT'S WITHIN 2 SIGMA OF THE READNOISE, THEN
-       TEND TO TREAT AS READNOISE; IF IT'S FARTHER OFF
-       THAN THAT, THEN DOWNWEIGHT THE INFLUENCE
-       */
-    w0 =   (dval0*dval0) / ((dval0*dval0)+ 4.0*(rnsig*rnsig));
-    w9 =   (dval9*dval9) / ((dval9*dval9)+ 18.0*(rnsig*rnsig));
-    w1 = (4*rnsig*rnsig) / ((dmod1*dmod1)+4.0*(rnsig*rnsig));
-    w2 = (4*rnsig*rnsig) / ((dmod2*dmod2)+4.0*(rnsig*rnsig));
-
-    /*(note that with the last two, if a pixel
-      is too discordant with its upper or lower
-      that neighbor has less of an ability to
-      pull it)*/
-
-    *d = ((dval0u * w0 * 0.25f) + /* desire to keep the original pixel value */
-            (dval9u*w9*0.25f) + /* desire to keep the original sum over 3x3*/
-            (dmod1u*w1*0.25f) + /*desire to get closer to the pixel below*/
-            (dmod2u*w2*0.25f)) ; /*desire to get closer to the pixel above*/
-
-    return(status);
-}
-
-
-/* DEPRECATED routine - December 2019 */
-/*** THIS ROUTINE PERFORMS THE CTE CORRECTIONS
-  rsz is the readnoise smoothed image
-  rsc is the coorection output image
-  rac = raw + ((rsc-rsz) / gain )
-***/
-int rsz2rsc(WF3Info *wf3, SingleGroup *rsz, SingleGroup *rsc, CTEParams *cte) {
-
-    extern int status;
-
-    int i,j;
-    double cte_i=0.0;
-    double cte_j=0.0;
-    double ro=0;
-    int io=0;
-    double ff_by_col[RAZ_COLS][4];
-    float hardset=0.0;
-
-    /*These are already in the parameter structure
-      int     Ws              the number of traps < WsMAX, taken from pctetab read
-      int     q_w[TRAPS];     the run of charge with level  cte->qlevq_data[]
-      float   dpde_w[TRAPS];  the run of charge loss with level cte->dpdew_data[]
-
-      float   rprof_wt[TRAPS][100]; the emission probability as fn of downhill pixel, TRAPS=WsMAX
-      float   cprof_wt[TRAPS][100]; the cumulative probability cprof_t( 1)  = 1. - rprof_t(1)
-
-      The rprof array gives the fraction of charge that comes out of every parallel serial-shift
-      the cummulative distribution in cprof then tells you what's left
-
-*/
-
-    SingleGroup pixz_fff;
-    initSingleGroup(&pixz_fff);
-    allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS, True);
-
-    /*SCALE BY 1 UNLESS THE PCTETAB SAYS OTHERWISE, I IS THE PACKET NUM
-      THIS IS A SAFETY LOOP INCASE NOT ALL THE COLUMNS ARE POPULATED
-      IN THE REFERENCE FILE*/
-
-    for(i=0; i<RAZ_COLS;i++){
-        ff_by_col[i][0]=1.;
-        ff_by_col[i][1]=1.;
-        ff_by_col[i][2]=1.;
-        ff_by_col[i][3]=1.;
-        j= cte->iz_data[i]; /*which column to scale*/
-        ff_by_col[j][0]=cte->scale512[i];
-        ff_by_col[j][1]=cte->scale1024[i];
-        ff_by_col[j][2]=cte->scale1536[i];
-        ff_by_col[j][3]=cte->scale2048[i];
-
-        /*CALCULATE THE CTE CORRECTION FOR EVERY PIXEL
-          Index is figured on the final size of the image
-          not the current size. Moved above
-          */
-
-        for(j=0; j<RAZ_ROWS; j++){
-            Pix(pixz_fff.sci.data,i,j)=hardset;
-            ro = j/512.0; /*ro can be zero, it's an index*/
-            if (ro <0 ) ro=0.;
-            if (ro > 2.999) ro=2.999; /*only 4 quads, 0 to 3*/
-            io = (int) floor(ro); /*force truncation towards 0 for pos numbers*/
-            cte_j= (j+1) / (float)XAMP_SCI_DIM;
-            cte_i= ff_by_col[i][io] + (ff_by_col[i][io+1] -ff_by_col[i][io]) * (ro-io);
-            Pix(pixz_fff.sci.data,i,j) =  (cte_i*cte_j);
-        }
-    }
-
-    /*FOR REFERENCE TO JAYS CODE, FF_BY_COL IS WHAT'S IN THE SCALE BY COLUMN
-
-      int   iz_data[RAZ_ROWS];  column number in raz format
-      double scale512[RAZ_ROWS];      scaling appropriate at row 512
-      double scale1024[RAZ_ROWS];     scaling appropriate at row 1024
-      double scale1536[RAZ_ROWS];     scaling appropriate at row 1536
-      double scale2048[RAZ_ROWS];     scaling appropriate at row 2048
-      */
-
-    /*THIS IS RAZ2RAC_PAR IN JAYS CODE - MAIN CORRECTION LOOP IN HERE*/
-    inverse_cte_blur(rsz, rsc, &pixz_fff, cte, wf3->verbose,wf3->expstart);
-    freeSingleGroup(&pixz_fff);
-    return(status);
-}
-
-
-
-/* DEPRECATED routine - December 2019 */
-/*** this routine does the inverse CTE blurring... it takes an observed
-  image and generates the image that would be pushed through the readout
-  algorithm to generate the observation
-
-  CTE_FF is found using the observation date of the data
-  FIX_ROCRs is cte->fix_rocr
-  Ws is the number of TRAPS that are < WsMAX 
-
-  this is sub_wfc3uv_raz2rac_par in jays code
-
-  floor rounds to negative infinity
-  ceiling rounds to positive infinity
-  truncate rounds up or down to zero
-  round goes to the nearest integer
-
-  fff is the input cte scaling array calculated over all pixels
-  This is a big old time sink function
- ***/
-int inverse_cte_blur(SingleGroup *rsz, SingleGroup *rsc, SingleGroup *fff, CTEParams *cte, int verbose, double expstart){
-
-    extern int status;
-
-    /*looping vars*/
-    int NREDO, REDO;
-    int NITINV, NITCTE;
-    int i;
-    int j,jj;
-    double dmod;
-    int jmax;
-    float hardset=0.0f;
-    int totflux=0;
-
-    double cte_ff; /*cte scaling based on observation date*/
-    double setdbl=0.0;
-
-    /*DEFINE TO MAKE PRIVATE IN PARALLEL RUN*/
-    double *pix_obsd=&setdbl;
-    double *pix_modl=&setdbl;
-    double *pix_curr=&setdbl;
-    double *pix_init=&setdbl;
-    double *pix_read=&setdbl;
-    double *pix_ctef=&setdbl;
-
-    /*STARTING DEFAULTS*/
-    NITINV=1;
-    NITCTE=1;
-    cte_ff=0.0;
-    jmax=0;
-    dmod=0.0;
-
-    /*LOCAL IMAGES TO PLAY WITH, THEY WILL REPLACE THE INPUTS*/
-    SingleGroup rz; /*pixz_raz*/
-    initSingleGroup(&rz);
-    allocSingleGroup(&rz, RAZ_COLS, RAZ_ROWS, True);
-
-    SingleGroup rc; /*pixz_rac*/
-    initSingleGroup(&rc);
-    allocSingleGroup(&rc, RAZ_COLS, RAZ_ROWS, True);
-
-    SingleGroup pixz_fff; /*pixz_fff*/
-    initSingleGroup(&pixz_fff);
-    allocSingleGroup(&pixz_fff, RAZ_COLS, RAZ_ROWS, True);
-
-
-    /*USE EXPSTART YYYY-MM-DD TO DETERMINE THE CTE SCALING
-      APPROPRIATE FOR THE GIVEN DATE. WFC3/UVIS WAS
-      INSTALLED AROUND MAY 11,2009 AND THE MODEL WAS
-      CONSTRUCTED TO BE VALID AROUND SEP 3, 2012, A LITTLE
-      OVER 3 YEARS AFTER INSTALLATION*/
-
-    cte_ff=  (expstart - cte->cte_date0)/ (cte->cte_date1 - cte->cte_date0);
-    cte->scale_frac=cte_ff;   /*save to param structure for header update*/
-
-    if(verbose){
-        sprintf(MsgText,"CTE_FF (scaling fraction by date) = %g",cte_ff);
-        trlmessage(MsgText);
-    }
-
-    /*SET UP THE SCALING ARRAY WITH INPUT DATA, hardset arrays for safety*/
-    for (i=0;i<RAZ_COLS;i++){
-        for(j=0;j<RAZ_ROWS;j++){
-            Pix(rc.sci.data,i,j)=hardset;
-            Pix(rz.sci.data,i,j)=hardset;
-            Pix(pixz_fff.sci.data,i,j)=hardset;
-            Pix(rz.sci.data,i,j) = Pix(rsz->sci.data,i,j);
-            Pix(rz.dq.data,i,j) = Pix(rsz->dq.data,i,j);
-            Pix(pixz_fff.sci.data,i,j) =  cte_ff * Pix(fff->sci.data,i,j);
-        }
-    }
-
-    #pragma omp parallel for schedule (dynamic,1) \
-    private(dmod,i,j,jj,jmax,REDO,NREDO,totflux, \
-            pix_obsd,pix_modl,pix_curr,pix_init,\
-            pix_read,pix_ctef,NITINV,NITCTE)\
-    shared(rc,rz,cte,pixz_fff)
-
-    for (i=0; i< RAZ_COLS; i++){
-        pix_obsd = (double *) calloc(RAZ_ROWS, sizeof(double));
-        pix_modl = (double *) calloc(RAZ_ROWS, sizeof(double));
-        pix_curr = (double *) calloc(RAZ_ROWS, sizeof(double));
-        pix_init = (double *) calloc(RAZ_ROWS, sizeof(double));
-        pix_read = (double *) calloc(RAZ_ROWS, sizeof(double));
-        pix_ctef = (double *) calloc(RAZ_ROWS, sizeof(double));
-
-        totflux=0;
-        /*HORIZONTAL PRE/POST SCAN POPULATION */
-        for (j=0; j< RAZ_ROWS; j++){
-            if(Pix(rz.dq.data,i,j)){
-                pix_obsd[j] = Pix(rz.sci.data,i,j); /*starts as input RAZ*/
-                totflux += 1;
-            }
-        }
-
-        if (totflux >= 1) {/*make sure the column has flux in it*/
-            NREDO=0; /*START OUT NOT NEEDING TO MITIGATE CRS*/
-            do { /*replacing goto 9999*/
-              REDO=0; /*FALSE*/
-                /*STARTING WITH THE OBSERVED IMAGE AS MODEL, ADOPT THE SCALING FOR THIS COLUMN*/
-                for (j=0; j<RAZ_ROWS; j++){
-                    pix_modl[j] =  Pix(rz.sci.data,i,j);
-                    pix_ctef[j] =  Pix(pixz_fff.sci.data,i,j);
-                }
-                /*START WITH THE INPUT ARRAY BEING THE LAST OUTPUT
-                  IF WE'VE CR-RESCALED, THEN IMPLEMENT CTEF*/
-                for (NITINV=1; NITINV<=cte->n_forward; NITINV++){
-                    for (j=0; j<RAZ_ROWS; j++){
-                        pix_curr[j]=pix_modl[j];
-                        pix_read[j]=pix_modl[j];
-                        pix_ctef[j]=Pix(pixz_fff.sci.data,i,j);
-                    }
-
-                    /*TAKE EACH PIXEL DOWN THE DETECTOR IN NCTENPAR=7*/
-                    for (NITCTE=1; NITCTE<=cte->n_par; NITCTE++){
-                        sim_colreadout_l(pix_curr, pix_read, pix_ctef, cte);
-
-                        /*COPY THE JUST UPDATED READ OUT IMAGE INTO THE INPUT IMAGE*/
-                        for (j=0; j< RAZ_ROWS; j++){
-                            pix_curr[j]=pix_read[j];
-                        }
-                    } /* end NITCTE */
-
-                    /*DAMPEN THE ADJUSTMENT IF IT IS CLOSE TO THE READNOISE, THIS IS
-                      AN ADDITIONAL AID IN MITIGATING THE IMPACT OF READNOISE*/
-                    for (j=0; j< RAZ_ROWS; j++){
-                        dmod =  (pix_obsd[j] - pix_read[j]);
-                        if (NITINV < cte->n_forward){
-                            dmod *= (dmod*dmod) /((dmod*dmod) + (cte->rn_amp * cte->rn_amp));
-                        }
-                        pix_modl[j] += dmod; /*dampen each pixel as the best is determined*/
-                    }
-                } /*NITINV end*/
-
-                /*LOOK FOR AND DOWNSCALE THE CTE MODEL IF WE FIND
-                  THE TELL-TALE SIGN OF READOUT CRS BEING OVERSUBTRACTED;
-                  IF WE FIND ANY THEN GO BACK UP AND RERUN THIS COLUMN
-
-
-                  THE WFC3 UVIS MODEL SEARCHES FOR OVERSUBTRACTED TRAILS.
-                  WHICH ARE  DEFINED AS EITHER:
-
-                  - A SINGLE PIXEL VALUE BELOW -10E-
-                  - TWO CONSECUTIVE PIXELS TOTALING -12 E-
-                  - THREE TOTALLING -15 E-
-
-                  WHEN WE DETECT SUCH AN OVER-SUBTRACTED TAIL, WE ITERATIVELY REDUCE
-                  THE LOCAL CTE SCALING BY 25% UNTIL THE TRAIL IS
-                  NO LONGER NEGATIVE  THIS DOES NOT IDENTIFY ALL READOUT-CRS, BUT IT DOES
-                  DEAL WITH MANY OF THEM. FOR IMAGES THAT HAVE BACKGROUND GREATER THAN 10 OR SO,
-                  THIS WILL STILL END UP OVERSUBTRACTING CRS A BIT, SINCE WE ALLOW
-                  THEIR TRAILS TO BE SUBTRACTED DOWN TO -10 RATHER THAN 0.
-
-*/
-                if (cte->fix_rocr) {
-                    for (j=10; j< RAZ_ROWS-2; j++){
-                        if (  (( cte->thresh > pix_modl[j] ) &&
-                                    ( cte->thresh > (pix_modl[j] - pix_obsd[j]))) ||
-
-                                (((pix_modl[j] + pix_modl[j+1]) < -12.) &&
-                                 (pix_modl[j] + pix_modl[j+1] - pix_obsd[j] - pix_obsd[j+1] < -12.)) ||
-
-                                (((pix_modl[j] + pix_modl[j+1] + pix_modl[j+2]) < -15.) &&
-                                 ((pix_modl[j] + pix_modl[j+1] + pix_modl[j+2] -pix_obsd[j] -
-                                   pix_obsd[j+1] - pix_obsd[j+2]) <-15.))  ){
-
-                            jmax=j;
-
-                            /*GO DOWNSTREAM AND LOOK FOR THE OFFENDING CR*/
-                            for (jj=j-10; jj<=j;jj++){
-                                if ( (pix_modl[jj] - pix_obsd[jj]) >
-                                        (pix_modl[jmax] - pix_obsd[jmax]) ) {
-                                    jmax=jj;
-                                }
-                            }
-                            /* DOWNGRADE THE CR'S SCALING AND ALSO FOR THOSE
-                               BETWEEN THE OVERSUBTRACTED PIXEL AND IT*/
-                            for (jj=jmax; jj<=j;jj++){
-                                Pix(pixz_fff.sci.data,i,jj) *= 0.75;
-                            }
-                            REDO=1; /*TRUE*/
-                        } /*end if*/
-                    } /*end for  j*/
-                }/*end fix cr*/
-
-                if (REDO) NREDO +=1;
-                if (NREDO == 5)  REDO=0; /*stop*/
-            } while (REDO); /*replacing goto 9999*/
-        } /*totflux > 1, catch for subarrays*/
-
-        for (j=0; j< RAZ_ROWS; j++){
-            if (Pix(rz.dq.data,i,j)){
-                Pix(rc.sci.data,i,j)= pix_modl[j];
-            }
-        }
-
-        free(pix_obsd);
-        free(pix_modl);
-        free(pix_curr);
-        free(pix_init);
-        free(pix_read);
-        free(pix_ctef);
-
-    } /*end i*/
-
-    for (i=0; i< RAZ_COLS; i++){
-        for (j=0; j< RAZ_ROWS; j++){
-            if(Pix(rsz->dq.data,i,j)){
-                Pix(rsz->sci.data,i,j) = Pix(rz.sci.data,i,j);
-                Pix(rsc->sci.data,i,j) = Pix(rc.sci.data,i,j);
-                Pix(fff->sci.data,i,j) = Pix(pixz_fff.sci.data,i,j);
-            }
-        }
-    }
-
-    freeSingleGroup(&rz);
-    freeSingleGroup(&rc);
-    freeSingleGroup(&pixz_fff);
-
-    return(status);
-}
-
-
 /*This is the workhorse subroutine; it simulates the readout
   of one column pixi() and outputs this to pixo() using a single
   iteration.  It can be called successively to do the transfer
@@ -1689,6 +1137,24 @@ int rm_rnZ_colj(double *pixj_chg,
            pixj_ffu[j] = 0.0;
        } 
 
+       /*
+        * Find the upper and lower limits where there are valid
+        * pixels - this is done to accommodate subarrays
+        */
+       int j1 = XAMP_SCI_DIM;
+       int j2 = 2;
+
+       /* There are no "greater than zero" pixels below j1 */
+       for (j=2; j<=XAMP_SCI_DIM-1; j++) {
+           if (j1==XAMP_SCI_DIM-1 && pixj_chg[j] > 0) 
+               j1 = j;
+       }
+       /* There are no "greater than zero" pixels above j2*/
+       for (j=XAMP_SCI_DIM-1; j>=2; j--) {
+           if (j2==2 && pixj_chg[j] > 0) 
+               j2 = j;
+       }
+
        /* 
         * For each interation, allow a bit more noise.  This way we can
         * stop when just enough is allowed to go through the column from 2nd
@@ -1696,7 +1162,9 @@ int rm_rnZ_colj(double *pixj_chg,
         */
        for(NIT=1;NIT<NITMAX;NIT++) {  
            RNN = RNMIT*(1.00+5.0*NIT/(float)NITMAX);
-           for(j=1;j<RAZ_ROWS-1;j++) {  
+
+           /* Bounds of this loop include only the non-zero portion of the data */
+           for(j=j1; j<=j2; j++) {
 
               /* Compare each pixel to the average of its up/down neighbors */
               dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
@@ -1718,14 +1186,16 @@ int rm_rnZ_colj(double *pixj_chg,
                   pixj_ffu[j  ] = 1.0; 
               }
           }
-          for(j=0;j<RAZ_ROWS;j++) { 
+          /* Bounds of this loop include only the non-zero portion of the data */
+          for(j=j1; j<=j2; j++) { 
               pixj_rsz[j] = pixj_chg[j] - pixj_rnz[j]; 
           }
           dtot = 0.;
           ntot = 0.;
           ftot = 0.;
           rtot = 0.;
-          for(j=0+1;j<XAMP_SCI_DIM-1;j++) { 
+          /* Bounds of this loop include only the non-zero portion of the data */
+          for(j=j1; j<=j2; j++) { 
              ftot = ftot + pixj_ffu[j];
              dtot = dtot + pixj_rnz[j]*pixj_rnz[j];
              dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
@@ -2053,4 +1523,184 @@ int sub_ctecor_v2c(float *pixz_raz,
 
       fclose(fp);
       return(status);
+}
+
+/*
+ * This routine dynamically determines the noise in the input image.
+ */
+float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDVAL) { 
+
+      /* Return value */
+      float RNOIVALo;
+
+      int i, j, ik;
+
+      float     b, d;
+      int       ih, iih;
+      long      dhist[NUM_BINS], dcum[NUM_BINS], vtot;
+      long      vhist[NUM_BINS], vcum[NUM_BINS], dtot;
+      int       ivmin, id1, id2;
+      int       idmin, iv1, iv2;
+      long long vsum;
+      long long nsum;
+
+      int       j1, j2;
+
+      float RNOIVAL;
+      float RNOIVALu;
+
+      float BKGDVAL;
+      float BKGDVALu;
+
+      FLOAT_RNOIVAL[0] = 3.33;
+      FLOAT_BKGDVAL[0] = raz_cdab[0];
+
+      /*
+       * Distill the image variation information and background into quick histograms 
+       */
+      for (ih=1; ih<=NUM_BINS; ih++) {
+          dhist[ih-1] = 0;
+          vhist[ih-1] = 0;
+      }
+
+      for (i=2; i<=RAZ_COLS; i++) { 
+          /*
+           * Find the upper and lower limits where there are valid pixels
+           * to accommodate subarrays
+           */
+          j1 = XAMP_SCI_DIM-1;
+          j2 = 2;
+
+          /* There are no "greater than zero" pixels below j1 */
+          for (j=2; j<=XAMP_SCI_DIM-1; j++) { 
+             if (j1==XAMP_SCI_DIM-1 && raz_cdab[i+(j-1)*RAZ_COLS-1] > 0) 
+                 j1 = j;
+          } 
+
+          /* There are no "greater than zero" pixels above j2 */
+          for (j=XAMP_SCI_DIM-1; j>=2; j--) { 
+             if (j2==2 && raz_cdab[i+(j-1)*RAZ_COLS-1] > 0) 
+                 j2 = j;
+          } 
+
+          /*
+           * Process the valid pixels. "ik" is the chip horizontal locator.
+           * For each pixel in the recorded part of the detector, find the
+           * average of the surrounding 8 pixels
+           */
+          for (j=j1; j<=j2; j++) {
+              ik = i - (i-1)/2103*2103;
+              if (ik > 25 && ik < XAMP_SCI_DIM+24) {
+                  b = (raz_cdab[i-1+(j+1-1)*RAZ_COLS-1]
+                      +raz_cdab[i  +(j+1-1)*RAZ_COLS-1]
+                      +raz_cdab[i+1+(j+1-1)*RAZ_COLS-1]
+                      +raz_cdab[i-1+(j  -1)*RAZ_COLS-1] 
+                      +raz_cdab[i+1+(j  -1)*RAZ_COLS-1] 
+                      +raz_cdab[i-1+(j-1-1)*RAZ_COLS-1]
+                      +raz_cdab[i  +(j-1-1)*RAZ_COLS-1]
+                      +raz_cdab[i+1+(j-1-1)*RAZ_COLS-1])/8.00;
+
+                 /* Local residual as proxy for noise */
+                 d = raz_cdab[i+(j-1)*RAZ_COLS-1] - b;
+
+                 /* Locate within the histogram bin; 4.5 is to spread the values out.
+                  * The value of 4.5 is 3 times the gain, where the gain is 1.5
+                  */
+                 ih = 501 + d*(SPREAD_FOR_HISTO) + 0.5;
+                 if (ih < 1)
+                     ih = 1;                                   
+                 if (ih > NUM_BINS)
+                     ih = NUM_BINS;
+
+                 /* Increment the histogram bin */
+                 dhist[ih-1] = dhist[ih-1] + 1;
+  
+                 /* Locate the pixel value within the histogram bin */
+                 ih = 501 + raz_cdab[i+(j-1)*RAZ_COLS-1]*(SPREAD_FOR_HISTO) + 0.5;
+
+                 if (ih < 1)
+                     ih = 1;
+                 if (ih > NUM_BINS)
+                     ih = NUM_BINS;
+                
+                 /* Increment the histogram bin */
+                 vhist[ih-1] = vhist[ih-1] + 1;
+              }
+          }
+      }
+
+      /* Compute the cumulative distribution for the noise and for the background */
+      dtot = 0;
+      vtot = 0;
+      for (ih=1; ih<=NUM_BINS; ih++) {                  
+         if (ih > 1 && ih < NUM_BINS) {
+             dtot = dtot + dhist[ih-1];
+             vtot = vtot + vhist[ih-1];
+         }
+         dcum[ih-1] = dtot;
+         vcum[ih-1] = vtot;
+      }
+
+      idmin = 999;
+      ivmin = 999;
+    
+      /*
+       * Find the closest 75% of the points and use them to determine the noise
+       * and the background
+       */
+      for (ih=1; ih<=NUM_BINS-1; ih++) {
+          for (iih=ih+1; iih<=NUM_BINS-1; iih++) {
+              if (dcum[iih-1]-dcum[ih-1] > 0.75*dtot && iih-ih < idmin) {
+                  id1   = ih;
+                  id2   = iih;
+                  idmin = iih-ih;   
+              }
+
+              if (vcum[iih-1]-vcum[ih-1] > 0.75*vtot && iih-ih < ivmin) { 
+                  iv1   = ih;
+                  iv2   = iih;
+                  ivmin = iih-ih;
+              }      
+          }
+      }
+
+      nsum = 0;
+      vsum = 0;
+
+      for (ih=iv1; ih<=iv2; ih++) { 
+         nsum = nsum + vhist[ih-1];
+         vsum = vsum + vhist[ih-1]*(ih-501);
+      }
+
+      printf("  \n");
+      printf("   vsum: %12lld  \n",vsum);
+      printf("   nsum: %12lld  \n",nsum);
+      printf("  \n");
+      printf("   dbar: %12.2f   \n",idmin/2.30*(SPREAD_FOR_HISTO));
+      printf("   vbar: %12.2f %12lld %12lld \n",vsum/nsum*(SPREAD_FOR_HISTO),vsum,nsum);
+      printf("  \n");
+
+      RNOIVAL  = (int)(idmin/2.30/(SPREAD_FOR_HISTO)/sqrt(1+1/8.0)*4+0.5)/4.00;
+      RNOIVAL  =       idmin/2.30/(SPREAD_FOR_HISTO)/sqrt(1+1/8.0);
+      RNOIVALu = RNOIVAL;
+      if (RNOIVALu > HIGH_CLIP) 
+          RNOIVALu = HIGH_CLIP;
+
+      BKGDVAL  = 1.*vsum/nsum/(SPREAD_FOR_HISTO);
+      BKGDVALu = BKGDVAL;
+      if (BKGDVALu > 999.9) 
+          BKGDVALu = 999.9;
+
+      /* Values which can be used for diagnostic analysis */
+      *FLOAT_RNOIVAL = RNOIVALu;
+      *FLOAT_BKGDVAL = BKGDVALu;
+
+      /* LOW_CLIP and HIGH_CLIP are imposed limits on the computed noise value */
+      RNOIVALo = RNOIVALu;
+      if (RNOIVALo < LOW_CLIP) 
+          RNOIVALo = LOW_CLIP;
+      if (RNOIVALo > HIGH_CLIP) 
+          RNOIVALo = HIGH_CLIP;
+
+      return(RNOIVALo);
 }

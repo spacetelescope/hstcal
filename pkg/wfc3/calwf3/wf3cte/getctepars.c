@@ -4,6 +4,10 @@ MLS 2015: read in the CTE parameters from the PCTETAB file
     Jan 19, 2016: MLS  Updated to check for existence of PCTENSMD in 
                   raw science header
 
+    Mar 05, 2020: MDD  Do not read PCTERNOI from the reference file header
+                  and removed its associated variable.  The value is now 
+                  obtained from the raw file, or it is computed on-the-fly 
+                  based on data.
 */
 
 # include <time.h>
@@ -31,7 +35,6 @@ void initCTEParams(CTEParams *pars){
     pars->cte_date1=0.0f;
     pars->cte_traps=0.0f;
     pars->cte_len=0;
-    pars->rn_amp=0.0f; 
     pars->n_forward=0; 
     pars->n_par=0;
     pars->scale_frac=0.0f; /*will be updated during routine run*/
@@ -178,16 +181,6 @@ No.    Name         Type      Cards   Dimensions   Format
 	}
 
 	sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
-	trlmessage(MsgText);
-
-	/* GET READ NOISE CLIPPING LEVEL */
-	if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
-		cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
-		status = KEYWORD_MISSING;
-		return status;
-	}
-
-	sprintf(MsgText,"PCTERNOI: %f",pars->rn_amp);
 	trlmessage(MsgText);
 
 	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
@@ -496,19 +489,21 @@ No.    Name         Type      Cards   Dimensions   Format
         'CTEDATE0':54962.0, #date of uvis installation in HST in MJD
         'CTEDATE1':56173.0, #reference date of cte model pinning in MJd
         'PCTETLEN':60, #max length of CTE trail
-        'PCTERNOI':3.25, #read noise amplitude, clipping limit
         'PCTENFOR':5 ,#number of iterations used in cte forward modeling
         'PCTENPAR':7 ,#number of iterations used in parallel transfer
         'PCTENSMD':0 ,#read noise mitigation algorithm
         'PCTETRSH':-10.0 ,#over subtraction threshold, always use reference value
         'FIXROCR' : 1, #set to 1 for true, fix the readout cr's
+        ***NOTE: The PCTERNOI value is no longer used from the PCTETAB.  If the PCTERNOI
+                 keyword value in the raw science image header is non-zero, it will be used 
+                 for the CTE computations.  Otherwise, the value is computed on-the-fly based 
+                 upon the raw image data. (March 2020)
 
  */
 int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 
 	extern int status;
 
-	double rn_amp;
     int cte_len;
     int n_forward;
     int n_par;
@@ -572,22 +567,6 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
         return (status=HEADER_PROBLEM);
         }
     }
-    
-    /*check the PCTERNOI keyword in header*/
-	if (GetKeyDbl(group->globalhdr, "PCTERNOI", NO_DEFAULT, -999, &rn_amp)) {
-		trlmessage("(pctecorr) Error reading PCTERNOI keyword from header");
-        return (status=HEADER_PROBLEM);
-	}
-        
-    if ( (rn_amp >1.) && (rn_amp != pars->rn_amp)){
-        pars->rn_amp=rn_amp;
-    } else {
-        if(PutKeyDbl(group->globalhdr, "PCTERNOI", pars->rn_amp,"read noise amp clip limit")){
-            trlmessage("(pctecorr) Error updating PCTERNOI in header");
-        return (status=HEADER_PROBLEM);
-        }
-    }
-    
     
 	/* get number of iterations used in forward model */
 	if (GetKeyInt(group->globalhdr, "PCTENFOR", NO_DEFAULT, -999, &n_forward)) {

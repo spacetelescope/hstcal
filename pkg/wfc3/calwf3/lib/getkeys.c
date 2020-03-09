@@ -35,6 +35,9 @@
 		      with new IR timing patterns.
     09-Jan-2009 HAB - Eliminated use of default values for FILTER and CCDGAIN
 		      keywords. It will now be an error if they aren't present.
+    04-Mar-2020 MDD - Read PCTERNOI from the primary header of the raw file to
+              determine if it has been set to a non-zero value to be used in
+              the CTE reduction.
 */
 
 int GetKeys (WF3Info *wf3, Hdr *phdr) {
@@ -163,6 +166,13 @@ Hdr *phdr        i: primary header
 		return (status);
 	    if (GetKeyStr (phdr, "FLASHSTA", NO_DEFAULT, "", wf3->flashstatus,
 			   SZ_CBUF))
+		return (status);
+
+        /* Read the PCTERNOI keyword - If this keyword has a non-zero value in the raw
+         * file header, then the CTE algorithm will adopt this value for use in the CTE
+         * reduction instead of computing it explicitly.
+         */
+	    if (GetKeyFlt (phdr, "PCTERNOI", USE_DEFAULT, 0., &wf3->pcternoi))
 		return (status);
 
 	} else {
