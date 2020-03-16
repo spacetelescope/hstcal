@@ -63,7 +63,8 @@
  under appropropriate date and supported subarray criteria.  The
  DARKTIME keyword value is now the default scaling factor for the
  superdarks, with the offset being an additive correction to DARKTIME
- under appropriate circumstances.
+ under appropriate circumstances. The offset values is applicable for 
+ WFC and HRC only.
  */
 static const char *subApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
                                      "WFC1A-1K", "WFC1B-1K", "WFC2C-1K", "WFC2D-1K",
@@ -139,6 +140,9 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      The full-frame overhead offset is applicable to all data post-SM4.  The subarray 
      overhead offset is applicable to all data post-CYCLE24 and ONLY for supported
      subarrays. 
+
+     Effectively the additive factor only applies to ACS/WFC as the HRC was no longer
+     operational by SM4MJD or CYCLE24, and SBC is a MAMA detector.
   */
   darktime = darktimeFromHeader;  /* Default */
   if (acs2d->detector != MAMA_DETECTOR) {
