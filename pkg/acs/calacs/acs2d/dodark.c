@@ -149,8 +149,9 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
 
      /* Full-frame data */
      if (acs2d->subarray == NO) {
-         if (acs2d->expstart >= SM4MJD)
+         if (acs2d->expstart >= SM4MJD) {
               darktime = darktimeFromHeader + darktimeOffset;
+         }
          sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", darktime);
          trlmessage(MsgText);
 
@@ -173,11 +174,13 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      reference image to correspond to CHIP in science data.
   */
   if (acs2d->pctecorr == PERFORM) {
-     if (DetCCDChip (acs2d->darkcte.name, acs2d->chip, acs2d->nimsets, &extver) )
+     if (DetCCDChip (acs2d->darkcte.name, acs2d->chip, acs2d->nimsets, &extver) ) {
         return (status);
+     }
   } else {
-     if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) )
+     if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) ) {
         return (status);
+     }
   }
 	
   if (acs2d->verbose) {
@@ -266,13 +269,6 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      return (status);
   }
 
-  /* Compute the weighted mean for the image */	
-  /* *** MDD FIX - Not sure this is really needed anymore */
-  /*
-  *meandark = 0.0;
-  if ( (weight > 0.0) && (scirows > 0) )
-     *meandark = (float) (mean / weight); 
-  */
   /* This is to force a compatibility match to the previous version of the
      code.  
   */

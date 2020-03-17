@@ -55,6 +55,7 @@ class TestDarktimeSingle(BaseACS):
     # j59l54gjq, pre-SM4, unflashed, full-frame
     # jch001zdq, post-SM4, postflashed, full-frame
     # jdw002gdq, post-SM4, unflashed, full-frame
+    @pytest.mark.skip(reason="CTE is too slow to run under nominal conditions.")
     @pytest.mark.bigdata
     @pytest.mark.slow
     @pytest.mark.parametrize(
