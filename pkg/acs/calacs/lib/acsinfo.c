@@ -11,6 +11,7 @@
    17-Apr-2002 WJH - removed all references to 'statcorr'.
    12-Dec-2012 PLL - added CTE corrected flash reference file.
    12-Aug-2013 PLL - Tidied up code layout.
+   05-Dec-2019 MDD - Added overhead for post-flash, unflashed, and DARKTIME values.
 */
 #include <string.h>
 
@@ -100,6 +101,9 @@ void ACSInit (ACSInfo *acs) {
     acs->biassectb[1] = 0;
     acs->flashdur = 0;
     acs->flashstatus[0] = '\0';
+    acs->overhead_postflashed = 0.;
+    acs->overhead_unflashed = 0.;
+    acs->darktime = 0.;
 
     /* Initialize Calibration switches */
     acs->dqicorr = OMIT;

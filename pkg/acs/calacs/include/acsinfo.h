@@ -91,6 +91,9 @@ typedef struct {
     int biassectb[2];   /* Columns to use for trailing overscan region */
     float flashdur; 	/* duration of post-flash (in seconds) */
     char flashstatus[ACS_CBUF+1];		/* status of post-flash exposure */
+    float overhead_postflashed;  /* Overhead for post-flashed observations (s) */
+    float overhead_unflashed;    /* Overhead for unflashed observations (s) */
+    double darktime;    /* total time for dark current to accrue (s) */
 
     /* calibration flags (switches) for ACSCCD */
     int dqicorr;        /* data quality initialization */

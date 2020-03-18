@@ -8,6 +8,8 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"
 
+/* This is the number of non-optional columns */
+/* The two additional columns, PEDIGREE and DESCRIP, are optional */
 # define NUMCOLS 26			/* Defined locally to be specific to CCDTAB */
 
 typedef struct {
@@ -26,6 +28,8 @@ typedef struct {
 	IRAFPointer cp_saturate;
 	IRAFPointer cp_pedigree;
 	IRAFPointer cp_descrip;
+    IRAFPointer cp_overhead_postflashed;  /* overhead for post-flashed observations */
+    IRAFPointer cp_overhead_unflashed; /* overhead for unflashed observations */
     int intgain;
 	int nrows;			/* number of rows in table */
 } TblInfo;
@@ -43,6 +47,8 @@ typedef struct {
 	int ampx;
 	int ampy;
 	float saturate;
+    float overhead_postflashed;
+    float overhead_unflashed;
 } TblRow;
 
 static int OpenCCDTab (char *, TblInfo *);
@@ -67,6 +73,8 @@ static int CloseCCDTab (TblInfo *);
 		SATURATE:  CCD saturation threshold
 		AMPX:	first column affected by second amp on multiamp readout (int)
 		AMPY: 	first line affected by second set of amps on multiamp readout (int)
+        OVRHFLS:  overhead for post-flashed observations
+        OVRHUFLS: overhead for unflashed observations
 
    The table is read to find the row for which the CCDAMP matches the
    expected amplifier string (from the image header) and for which the
@@ -75,8 +83,8 @@ static int CloseCCDTab (TblInfo *);
    must match exactly the value read from the row, including the order of
    the AMPs listed in CCDAMP.  The AMPs should be listed in increasing
    value, from A to D, for whichever AMPs are used.  The matching row is
-   then read to get the actual gain, bias, readnoise, and saturation
-   level.
+   then read to get the actual gain, bias, readnoise, saturation level,
+   and observational overheads.
    
 ** This was only modified to read ACS specific columns from CCDTAB.  May
 **	still need to be modified to support multiple AMP readout from a single
@@ -92,6 +100,8 @@ static int CloseCCDTab (TblInfo *);
     29-Oct-2001 WJH: Revised to replace CCDBIAS column with CCDBIAS[A,B,C,D]
         to table.  Also use CCDOFST[A,B,C,D] to select appropriate row as 
         well. 
+    26-Nov-2019 MDD: Updated to read the OVRHFLS and OVRHUFLS columns containing
+        the commanding overheads for post-flashed and unflashed observations.
 */
 
 int GetCCDTab (ACSInfo *acs, int dimx, int dimy) {
@@ -161,6 +171,10 @@ int     dimy      i: number of lines in exposure
 		    sprintf (MsgText, "Row %d of CCDTAB is DUMMY.", row);
 			trlwarn (MsgText);
 		}
+      
+        /* Read the overhead time (s) for post-flashed and unflashed observations */
+        acs->overhead_postflashed = tabrow.overhead_postflashed;
+        acs->overhead_unflashed = tabrow.overhead_unflashed;
 
 		for (i = 0; i < NAMPS; i++){
 			/* If the amp is used, keep the value, otherwise set to zero*/
@@ -205,8 +219,7 @@ int     dimy      i: number of lines in exposure
 }
 
 /* This routine opens the CCD parameters table, finds the columns that we
-   need, and gets the total number of rows in the table.  The columns are 
-   CCDAMP, CCDGAIN, CCDBIAS, and READNSE.
+   need, and gets the total number of rows in the table.
 */
 
 static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
@@ -224,7 +237,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	char *colnames[NUMCOLS] ={"CCDAMP", "CCDCHIP", "CCDGAIN", "BINAXIS1",
     "BINAXIS2", "CCDOFSTA", "CCDOFSTB", "CCDOFSTC", "CCDOFSTD","CCDBIASA", 
     "CCDBIASB","CCDBIASC","CCDBIASD","ATODGNA", "ATODGNB", "ATODGNC", "ATODGND", "READNSEA", "READNSEB", 
-    "READNSEC", "READNSED", "AMPX", "AMPY", "SATURATE"};
+    "READNSEC", "READNSED", "AMPX", "AMPY", "SATURATE", "OVRHFLS", "OVRHUFLS"};
 
 	int PrintMissingCols (int, int, int *, char **, char *, IRAFPointer);
 
@@ -244,7 +257,6 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	    trlerror ("Out of memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
-
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
@@ -280,6 +292,8 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "AMPX", &tabinfo->cp_ampx);
 	c_tbcfnd1 (tabinfo->tp, "AMPY", &tabinfo->cp_ampy);
 	c_tbcfnd1 (tabinfo->tp, "SATURATE", &tabinfo->cp_saturate);
+	c_tbcfnd1 (tabinfo->tp, "OVRHFLS", &tabinfo->cp_overhead_postflashed);
+	c_tbcfnd1 (tabinfo->tp, "OVRHUFLS", &tabinfo->cp_overhead_unflashed);
 	
 	/* Initialize counters here... */
 	missing = 0;
@@ -312,6 +326,8 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_ampx == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_ampy == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_saturate == 0) { missing++; nocol[i] = YES;} i++;
+	if (tabinfo->cp_overhead_postflashed == 0) { missing++; nocol[i] = YES;} i++;
+	if (tabinfo->cp_overhead_unflashed == 0) { missing++; nocol[i] = YES;} i++;
 	
 	if (PrintMissingCols (missing, NUMCOLS, nocol, colnames, "CCDTAB", tabinfo->tp) )
 		return(status);
@@ -367,9 +383,7 @@ IRAFPointer tp		i: pointer to table, close it if necessary
 	}
 	return(status);
 }
-/* This routine reads the relevant data from one row.  The amplifier
-   number, CCD gain, bias, and readnoise are gotten.
-*/
+/* This routine reads all the relevant data from one row. */
 
 static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
@@ -459,6 +473,13 @@ static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	    return (status = TABLE_ERROR);
 		
 	c_tbegtr (tabinfo->tp, tabinfo->cp_saturate, row, &tabrow->saturate);
+	if (c_iraferr())
+	    return (status = TABLE_ERROR);
+
+	c_tbegtr (tabinfo->tp, tabinfo->cp_overhead_postflashed, row, &tabrow->overhead_postflashed);
+	if (c_iraferr())
+	    return (status = TABLE_ERROR);
+	c_tbegtr (tabinfo->tp, tabinfo->cp_overhead_unflashed, row, &tabrow->overhead_unflashed);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
 

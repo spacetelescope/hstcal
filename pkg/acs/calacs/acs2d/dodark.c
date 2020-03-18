@@ -56,7 +56,26 @@
  M.D. De La Pena, 2018 June 05:
  Dark correction processing is now done on the entire image instead of 
  line by line. Also, performed some clean up and new commentary.
+ M.D. De La Pena, 2019 November 26:
+ Removed hard-coded darktime scaling value and read new
+ post-flashed and unflashed columns from updated CCDTAB reference
+ file to use for the offset to the DARKTIME FITS keyword value
+ under appropropriate date and supported subarray criteria.  The
+ DARKTIME keyword value is now the default scaling factor for the
+ superdarks, with the offset being an additive correction to DARKTIME
+ under appropriate circumstances. The offset values is applicable for 
+ WFC and HRC only.
  */
+static const char *subApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
+                                     "WFC1A-1K", "WFC1B-1K", "WFC2C-1K", "WFC2D-1K",
+                                     "WFC1A-512", "WFC1B-512", "WFC2C-512", "WFC2D-512",
+                                     "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-ORAMPQ",
+                                     "WFC1-POL0UV", "WFC1-POL0V", 
+                                     "WFC1-POL60UV", "WFC1-POL60V", 
+                                     "WFC1-POL120UV", "WFC1-POL120V", 
+                                     "WFC1-SMFL"};
+
+static const int numSupportedSubApertures = sizeof(subApertures) / sizeof(subApertures[0]);
 
 int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   
@@ -68,8 +87,6 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   
   extern int status;
 
-  const float darkscaling = 3.0;  /* Extra idle time */
-  
   int extver = 1;	/* get this imset from dark image */
 
   /* Assumption is the science and dark images are the same size and bin factor */
@@ -82,7 +99,9 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   double mean;      /* mean value for the image */
   double weight;    /* weight value for the image (No. good pixels/all pixels) */
   int update;
-  float darktime;
+  float darktimeFromHeader;  /* base darktime value based upon FITS keyword DARKTIME from image header */
+  float darktime;        /* final darktime value after applicable offset, if any */
+  float darktimeOffset;  /* overhead offset time (s) based upon full-frame/subarray and post-flashed/unflashed */
   
   int DetCCDChip (char *, int, int, int *);
 
@@ -97,28 +116,71 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   scicols = x->sci.data.nx;
   scirows = x->sci.data.ny; 
 
-  /* Compute DARKTIME */
-  /* SBC does not have FLASH keywords */
-  if (acs2d->detector == MAMA_DETECTOR)
-     darktime = acs2d->exptime;
-  else {
-     darktime = acs2d->exptime + acs2d->flashdur;
+  /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
+  darktimeFromHeader = (float)acs2d->darktime;
 
-     /* Post-SM4 non-BIAS WFC only */
-     /* TARGNAME unavailable, assume EXPTIME=0 means BIAS */
-     if (acs2d->detector == WFC_CCD_DETECTOR && acs2d->expstart > SM4MJD && acs2d->exptime > 0)
-        darktime += darkscaling;
+  /*
+     The overhead offset time is a function of full-frame vs subarray and post-flash vs unflashed 
+     and has been determined empirically for CCD data.  Both the unflashed and post-flash
+     overhead values for full-frame or subarray were extracted from the calibration file 
+     during the table read.  Now it is just necessary to determine which offset actually
+     applies.
+  */
+
+  /* Unflashed observation */
+  darktimeOffset = acs2d->overhead_unflashed;
+ 
+  /* Post-flashed observation */
+  if ((acs2d->flashdur > 0.0) && (strcmp(acs2d->flashstatus, "SUCCESSFUL") == 0)) {
+        darktimeOffset = acs2d->overhead_postflashed;
   }
-  
+
+  /* 
+     Compute the final darktime based upon the date of full-frame or subarray data.
+     The full-frame overhead offset is applicable to all data post-SM4.  The subarray 
+     overhead offset is applicable to all data post-CYCLE24 and ONLY for supported
+     subarrays. 
+
+     Effectively the additive factor only applies to ACS/WFC as the HRC was no longer
+     operational by SM4MJD or CYCLE24, and SBC is a MAMA detector.
+  */
+  darktime = darktimeFromHeader;  /* Default */
+  if (acs2d->detector != MAMA_DETECTOR) {
+
+     /* Full-frame data */
+     if (acs2d->subarray == NO) {
+         if (acs2d->expstart >= SM4MJD) {
+              darktime = darktimeFromHeader + darktimeOffset;
+         }
+         sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", darktime);
+         trlmessage(MsgText);
+
+     /* Subarray data */
+     } else {
+         if (acs2d->expstart >= CYCLE24) {
+             for (unsigned int i = 0; i < numSupportedSubApertures; i++) {
+                 if (strcmp(acs2d->aperture, subApertures[i]) == 0) {
+                     darktime = darktimeFromHeader + darktimeOffset;
+                     sprintf(MsgText, "Supported Subarray adjusted Darktime: %f for aperture: %s\n", darktime, subApertures[i]);
+                     trlmessage(MsgText);
+                     break;
+                 }
+             }
+         }
+     }
+  }
+
   /* Compute correct extension version number to extract from
      reference image to correspond to CHIP in science data.
   */
   if (acs2d->pctecorr == PERFORM) {
-     if (DetCCDChip (acs2d->darkcte.name, acs2d->chip, acs2d->nimsets, &extver) )
+     if (DetCCDChip (acs2d->darkcte.name, acs2d->chip, acs2d->nimsets, &extver) ) {
         return (status);
+     }
   } else {
-     if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) )
+     if (DetCCDChip (acs2d->dark.name, acs2d->chip, acs2d->nimsets, &extver) ) {
         return (status);
+     }
   }
 	
   if (acs2d->verbose) {
@@ -207,13 +269,6 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      return (status);
   }
 
-  /* Compute the weighted mean for the image */	
-  /* *** MDD FIX - Not sure this is really needed anymore */
-  /*
-  *meandark = 0.0;
-  if ( (weight > 0.0) && (scirows > 0) )
-     *meandark = (float) (mean / weight); 
-  */
   /* This is to force a compatibility match to the previous version of the
      code.  
   */

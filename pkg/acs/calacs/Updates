@@ -1,4 +1,16 @@
-update for version 10.2.1 - 25-Sep-2019 (MDD)
+Update for version 10.2.2 - 10-Jan-2020 (MDD)
+    pkg/acs/calacs/Dates
+    pkg/acs/calacs/History
+    pkg/acs/calacs/Updates
+    pkg/acs/calacs/acs2d/dodark.c
+    pkg/acs/calacs/include/acs.h
+	pkg/acs/calacs/include/acsinfo.h
+	pkg/acs/calacs/include/acsversion.h
+	pkg/acs/calacs/lib/acsinfo.c
+	pkg/acs/calacs/lib/getacskeys.c
+	pkg/acs/calacs/lib/getccdtab.c
+
+Update for version 10.2.1 - 25-Sep-2019 (MDD)
     pkg/acs/calacs/Dates
     pkg/acs/calacs/History
     pkg/acs/calacs/Updates
