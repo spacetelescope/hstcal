@@ -16,6 +16,7 @@
 
    M.D. De La Pena Mar-2020: Further changes to accommodate subarrays - only evaluate valid (non-zero) pixels.
    Updates received from Jay Anderson. Removed deprecated routines: find_dadj, rsz2rsc, inverse_cte_blur, and raz2rsz.
+   Small bug found in original subarray code during testing.
 */
 
 # include <time.h>
@@ -1141,7 +1142,7 @@ int rm_rnZ_colj(double *pixj_chg,
         * Find the upper and lower limits where there are valid
         * pixels - this is done to accommodate subarrays
         */
-       int j1 = XAMP_SCI_DIM;
+       int j1 = XAMP_SCI_DIM-1;
        int j2 = 2;
 
        /* There are no "greater than zero" pixels below j1 */
