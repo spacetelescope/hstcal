@@ -72,7 +72,7 @@ int main (int argc, char **argv) {
     char *isuffix[] = {"_raw", "_blv_tmp", "_blc_tmp", "_crj_tmp", "_crc_tmp"};
     char *osuffix[] = {"_flt", "_flt",     "_flc",     "_crj",     "_crc"};
 
-    int nsuffix = 3;
+    int nsuffix = 5;
 
     /* A structure to pass the calibration switches to acs2d */
     CalSwitch acs2d_sw;
