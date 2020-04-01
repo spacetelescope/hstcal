@@ -8,7 +8,7 @@ Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
 Nightly regression test results are available only from within the STScI network at this time.
 https://plwishmaster.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
 
-## Install using Conda
+## Install using Conda (Complete Calbration Environment)
 
 HSTCAL can be obtained as part of the
 **Astroconda Pipeline Builds** at <https://astroconda.readthedocs.io/en/latest/releases.html>.  
@@ -33,6 +33,18 @@ $ calacs.e [...]
 $ calwf3.e [...]
 $ cs[...].e
 ```
+
+## Install using Conda (HSTCAL only)
+
+To install only HSTCAL into an existing enviroment, you need to provide
+the exact version desired, as `conda install hstcal` will not install the
+latest version due to a known resolver issue.
+
+```bash
+$ conda install hstcal==X.Y.Z -c http://ssb.stsci.edu/astroconda
+```
+
+Where `X.Y.Z` is the desired version number.
 
 ## Source Installation
 
