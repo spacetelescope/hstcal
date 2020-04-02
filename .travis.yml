@@ -1,3 +1,4 @@
+#bump
 language: c
 
 env:
@@ -25,7 +26,6 @@ jobs:
       - CC="clang"
       - FC="/usr/local/bin/gfortran"
       - WAF_ARGS_CONFIGURE="-v --with-cfitsio=$EXE_PREFIX/envs/test"
-
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CONDA_INSTALLER=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y update && sudo apt-get -y install gfortran; fi
@@ -45,5 +45,4 @@ install:
   - ./waf install $WAF_ARGS_INSTALL
 
 script:
-  # Without this dead call, "language: c" runs its own WAF-unaware script
-  - echo
+  -for e in $(find $CONDA_PREFIX/bin -name '*.e'); do /bin/echo -n "Check '$e --version'..." && (($e --version &>/tmp/output.log && echo "OK") || (echo "FAILED (exit: $?)" && cat /tmp/output.log)); done
