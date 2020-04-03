@@ -45,4 +45,4 @@ install:
   - ./waf install $WAF_ARGS_INSTALL
 
 script:
-  -for e in $(find $CONDA_PREFIX/bin -name '*.e'); do /bin/echo -n "Check '$e --version'..." && (($e --version &>/tmp/output.log && echo "OK") || (echo "FAILED (exit: $?)" && cat /tmp/output.log)); done
+  - .ci/bin/check_exec --version -- $(find $CONDA_PREFIX/bin -name '*.e')

@@ -36,7 +36,6 @@ function init_check_exec() {
         programs+=("$1")
         shift
     done
-
 }
 
 
@@ -82,7 +81,7 @@ for program in "${programs[@]}"; do
         echo "FAILED (code: $code)";
         echo
         /bin/echo -n "OUTPUT: "
-        if (( $(du -b $logfile | awk '{ print $1 }') > 0 )); then
+        if (( $(du $logfile | awk '{ print $1 }') > 0 )); then
             echo
             cat "${logfile}"
         else
