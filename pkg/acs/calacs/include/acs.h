@@ -25,8 +25,6 @@ typedef unsigned char Byte;
 
 # define MAX_DQ     65535
 
-# define ATOD_SATURATE 65534
-
 /* Number of lines to extract from binned images for unbinning */
 # define SECTLINES  2
 

@@ -104,6 +104,11 @@ static void DQINormal (DQHdrData *, double *, TblRow *);
  Modified to optionally check against CCDAMP and CCDGAIN values.
  This would support tables without these columns to apply to all
  configurations, yet still work with current tables with all columns. 
+
+ 2020 April 29, MDD:
+ Modified to accommodate the A-to-D saturation threshold now being defined 
+ in the CCDTAB. The threshold is no longer a constant and has different 
+ behavior pre- and post-SM4.
  */
 
 int doDQI (ACSInfo *acs, SingleGroup *x) {
@@ -125,6 +130,7 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
 	int i, j;					/* indexes for scratch array ydq */
 	short sum_dq;				/* for binning data quality array */
 	float sat;
+    int atod_sat;
   
 	int row;					/* loop index for row number */
   int dimx, dimy;
@@ -144,26 +150,28 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
   
 	/* For the CCD, check for and flag saturation. */
 	sat = acs->saturate;
+    atod_sat = acs->atod_saturate;
   
 	if (acs->detector != MAMA_DETECTOR) {
-    dimx = x->sci.data.nx;
-    dimy = x->sci.data.ny;
-    for (j = 0;  j < dimy;  j++) {
-      for (i = 0;  i < dimx;  i++) {
-        /* Flag a-to-d saturated pixels with 2048 dq bit */
-        if (Pix (x->sci.data, i, j) > ATOD_SATURATE) {
-			    sum_dq = DQPix (x->dq.data, i, j) | ATODSAT;
-			    DQSetPix (x->dq.data, i, j, sum_dq);	/* a-to-d saturated */
-        }   
+        dimx = x->sci.data.nx;
+        dimy = x->sci.data.ny;
+        for (j = 0;  j < dimy;  j++) {
+            for (i = 0;  i < dimx;  i++) {
+                /* Flag a-to-d saturated pixels with 2048 dq bit */
+                if (Pix (x->sci.data, i, j) >= atod_sat) {
+			        sum_dq = DQPix (x->dq.data, i, j) | ATODSAT;
+			        DQSetPix (x->dq.data, i, j, sum_dq);	/* a-to-d saturated */
+                }   
         
-        /* Flag full-well or A-TO-D saturated pixels with 256 dq bit*/             
-		    if (Pix (x->sci.data, i, j) > sat || Pix (x->sci.data, i, j) > ATOD_SATURATE) {
-			    sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
-			    DQSetPix (x->dq.data, i, j, sum_dq);	/* full-well saturated */
-		    }
-      }
-    }
+                /* Flag full-well or A-TO-D saturated pixels with 256 dq bit*/             
+                if (Pix (x->sci.data, i, j) > sat || Pix (x->sci.data, i, j) >= atod_sat) {
+			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
+			        DQSetPix (x->dq.data, i, j, sum_dq);	/* full-well saturated */
+		        }
+            }
+        }
 	}
+
 	/* Get the linear transformations. */
 	if (GetLT0 (&x->sci.hdr, ri_m, ri_v))		/* zero indexed LTV */
     return (status);

@@ -1,3 +1,6 @@
+ 29-Apr-2020   CALACS 10.2.3 Modified "dodqi" to accommodate the A-to-D saturation threshold 
+                             which is now defined in the CCDTAB. The threshold is no longer 
+                             a constant and has different behavior pre- and post-SM4.
  10-Jan-2020   CALACS 10.2.2 Removed hard-coded darktime scaling value and read new 
                              post-flashed and unflashed columns from updated CCDTAB reference 
                              file to use for the offset to the DARKTIME FITS keyword value 

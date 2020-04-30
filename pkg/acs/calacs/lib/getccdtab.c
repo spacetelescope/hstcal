@@ -10,7 +10,7 @@
 
 /* This is the number of non-optional columns */
 /* The two additional columns, PEDIGREE and DESCRIP, are optional */
-# define NUMCOLS 26			/* Defined locally to be specific to CCDTAB */
+# define NUMCOLS 27			/* Defined locally to be specific to CCDTAB */
 
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */
@@ -25,6 +25,7 @@ typedef struct {
 	IRAFPointer cp_readnoise[NAMPS];
 	IRAFPointer cp_ampx;
 	IRAFPointer cp_ampy;
+    IRAFPointer cp_atod_saturate;
 	IRAFPointer cp_saturate;
 	IRAFPointer cp_pedigree;
 	IRAFPointer cp_descrip;
@@ -46,6 +47,7 @@ typedef struct {
 	float readnoise[NAMPS];
 	int ampx;
 	int ampy;
+    int atod_saturate;
 	float saturate;
     float overhead_postflashed;
     float overhead_unflashed;
@@ -70,6 +72,7 @@ static int CloseCCDTab (TblInfo *);
 		CCDBIAS[A,B,C,D]:  calibrated bias offset for each amp of CCD (float)
 		ATODGN[A,B,C,D]:  actual gain of amps 1-4 used for readouts(double)
 		READNSE[A,B,C,D]:  typical value of readout noise for each amp(double)
+        ATODSAT: A-to-D saturation level
 		SATURATE:  CCD saturation threshold
 		AMPX:	first column affected by second amp on multiamp readout (int)
 		AMPY: 	first line affected by second set of amps on multiamp readout (int)
@@ -102,6 +105,7 @@ static int CloseCCDTab (TblInfo *);
         well. 
     26-Nov-2019 MDD: Updated to read the OVRHFLS and OVRHUFLS columns containing
         the commanding overheads for post-flashed and unflashed observations.
+    29-Apr-2020 MDD: Updated to read the new ATODSAT column.
 */
 
 int GetCCDTab (ACSInfo *acs, int dimx, int dimy) {
@@ -195,6 +199,7 @@ int     dimy      i: number of lines in exposure
         */
 		acs->ampx = (tabrow.ampx > dimx) ? dimx : tabrow.ampx;
 		acs->ampy = tabrow.ampy;		
+        acs->atod_saturate = tabrow.atod_saturate;
 		acs->saturate = tabrow.saturate;
 		break;
 	    }
@@ -237,7 +242,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	char *colnames[NUMCOLS] ={"CCDAMP", "CCDCHIP", "CCDGAIN", "BINAXIS1",
     "BINAXIS2", "CCDOFSTA", "CCDOFSTB", "CCDOFSTC", "CCDOFSTD","CCDBIASA", 
     "CCDBIASB","CCDBIASC","CCDBIASD","ATODGNA", "ATODGNB", "ATODGNC", "ATODGND", "READNSEA", "READNSEB", 
-    "READNSEC", "READNSED", "AMPX", "AMPY", "SATURATE", "OVRHFLS", "OVRHUFLS"};
+    "READNSEC", "READNSED", "AMPX", "AMPY", "ATODSAT", "SATURATE", "OVRHFLS", "OVRHUFLS"};
 
 	int PrintMissingCols (int, int, int *, char **, char *, IRAFPointer);
 
@@ -291,6 +296,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "READNSED", &tabinfo->cp_readnoise[3]);
 	c_tbcfnd1 (tabinfo->tp, "AMPX", &tabinfo->cp_ampx);
 	c_tbcfnd1 (tabinfo->tp, "AMPY", &tabinfo->cp_ampy);
+	c_tbcfnd1 (tabinfo->tp, "ATODSAT", &tabinfo->cp_atod_saturate);
 	c_tbcfnd1 (tabinfo->tp, "SATURATE", &tabinfo->cp_saturate);
 	c_tbcfnd1 (tabinfo->tp, "OVRHFLS", &tabinfo->cp_overhead_postflashed);
 	c_tbcfnd1 (tabinfo->tp, "OVRHUFLS", &tabinfo->cp_overhead_unflashed);
@@ -325,6 +331,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_readnoise[3] == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_ampx == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_ampy == 0 ) { missing++; nocol[i] = YES;} i++;
+	if (tabinfo->cp_atod_saturate == 0) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_saturate == 0) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_overhead_postflashed == 0) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_overhead_unflashed == 0) { missing++; nocol[i] = YES;} i++;
@@ -472,6 +479,10 @@ static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
 		
+	c_tbegti (tabinfo->tp, tabinfo->cp_atod_saturate, row, &tabrow->atod_saturate);
+	if (c_iraferr())
+	    return (status = TABLE_ERROR);
+
 	c_tbegtr (tabinfo->tp, tabinfo->cp_saturate, row, &tabrow->saturate);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
