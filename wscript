@@ -338,6 +338,9 @@ def configure(conf):
 
     _determine_sizeof_int(conf)
 
+    if conf.check_cc(cflags='-std=c99'):
+        conf.env.append_value('CFLAGS', '-std=c99')
+
     # check whether the compiler supports -02 and add it to CFLAGS if it does
     if conf.options.debug:
         if conf.check_cc(cflags='-g'):
