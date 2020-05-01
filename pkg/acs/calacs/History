@@ -2,7 +2,7 @@
     Modified "dodqi" to accommodate the A-to-D saturation threshold 
     which is now defined in the CCDTAB. The threshold is no longer 
     a constant and has different behavior pre- and post-SM4.
-    Updated CCDTAB files for HRC and WFC.
+    This modification uses Updated CCDTAB files for HRC and WFC.
 
 ### 10-Jan-2020 - MDD -- Version 10.2.2
     Removed hard-coded darktime scaling value and read new post-flashed and
