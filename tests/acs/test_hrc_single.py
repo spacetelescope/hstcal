@@ -38,10 +38,9 @@ class TestSingle(BaseACS):
 
     # NOTE:
     # j8bt02loq = was hrc_single1
-    # j8cd02tyq = was hrc_single2
-    # j8bt02lo2 = was hrc_single3 with FLSHCORR
+    # j8bt02lo2 = was hrc_single1 with FLSHCORR
     @pytest.mark.parametrize(
-        'rootname', ['j8bt02loq', 'j8cd02tyq', 'j8bt02lo2'])
+        'rootname', ['j8bt02loq', 'j8bt02lo2'])
     def test_fullframe_single(self, rootname):
         self._single_raw_calib(rootname)
 
