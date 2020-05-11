@@ -210,6 +210,10 @@ def _check_mac_osx_version(floor_version):
         >>> _determine_mac_osx_floor(0x0A0C01)
         False
 
+        # Failed to execute `sw_vers -ProductVersion`
+        >>> _determine_mac_osx_floor(0x0A0500)
+        None
+
     Encoding:
         OS Version      Encoded Version
         -----------     ---------------
@@ -225,7 +229,11 @@ def _check_mac_osx_version(floor_version):
     '''
 
     assert isinstance(floor_version, int)
-    s = platform.popen("/usr/bin/sw_vers -productVersion").read()
+    s = call("/usr/bin/sw_vers -productVersion")
+
+    # Shell call failed
+    if s is None:
+        return None
 
     # Extract the integer values between the '.'s
     osx_version_major, osx_version_minor, osx_version_patch = tuple(int(x) for x in s.strip().split('.'))
@@ -247,8 +255,14 @@ def _determine_mac_osx_fortran_flags(conf):
     if platform.system() == 'Darwin' :
         conf.start_msg('Checking Mac OS-X version')
 
-        if _check_mac_osx_version(0x0A0500):
+        acceptable = _check_mac_osx_version(0x0A0500)
+        if acceptable:
             conf.end_msg('done', 'GREEN')
+        elif acceptable is None:
+            conf.end_msg(
+                "Failed to detect operating system version",
+                'RED')
+            exit(1)
         else:
             conf.end_msg(
                 "Unsupported OS X version detected (<10.5.0)",
