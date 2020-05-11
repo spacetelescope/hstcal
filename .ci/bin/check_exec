@@ -1,0 +1,102 @@
+#!/bin/bash
+argc=$#
+argv=("$@")
+
+
+# Does argv contain '--'?
+#
+# returns:
+#  0 = no
+#  1 = yes
+function has_double_dash() {
+    local have_double_dash=0
+    for arg in "${argv[@]}"; do
+        if [[ "$arg" == "--" ]]; then
+            have_double_dash=1
+        fi
+    done
+    echo $have_double_dash
+}
+
+# Copy arguments and programs to appropriate global arrays
+#
+# params:
+#  array = arguments passed to the program (i.e. "${argv[@]}")
+#
+# returns:
+#  nothing
+function init_check_exec() {
+    while [[ $1 != "--" ]] && [[ $# != 0 ]]; do
+        args+=("$1")
+        shift
+    done
+    shift
+
+    while [[ $# != 0 ]]; do
+        programs+=("$1")
+        shift
+    done
+}
+
+
+# main
+
+logfile=
+errors=0
+args=()
+programs=()
+
+if [[ ${argc} < 2 ]]; then
+    echo "usage: $0 {argument ...} -- {program ...}"
+    echo
+    echo "argument  -  Argument(s) to pass to {program ...}"
+    echo "--        -  Delimiter to separate arguments from programs (required)"
+    echo "program   -  Program(s) to execute"
+    echo
+    exit 1
+fi
+
+if [[ $(has_double_dash) == 0 ]]; then
+    echo "'--' not found in argument list." >&2
+    exit 1
+fi
+
+init_check_exec "${argv[@]}"
+
+logfile=$(mktemp)
+if [[ ! -f ${logfile} ]] || [[ -z ${logfile} ]]; then
+    echo "Failed to create temporary file." >&2
+    exit 1
+fi
+
+for program in "${programs[@]}"; do
+    /bin/echo -n "Checking '$(basename $program) ${args[@]}'... "
+
+    # Execute program with arguments
+    ${program} ${args[@]} &>${logfile}
+    code=$?
+
+    # Check exit code
+    if (( $code != 0 )); then
+        echo "FAILED (code: $code)";
+        echo
+        /bin/echo -n "OUTPUT: "
+        if (( $(du $logfile | awk '{ print $1 }') > 0 )); then
+            echo
+            cat "${logfile}"
+        else
+            echo "[No output]"
+        fi
+
+        echo
+        (( errors++ ))
+    else
+        echo "OK"
+    fi
+done
+
+# nuke log file
+[[ -f "${logfile}" ]] && rm -f "${logfile}"
+
+(( $errors != 0 )) && exit 1
+exit 0
