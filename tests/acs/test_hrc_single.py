@@ -6,14 +6,13 @@ from ..helpers import BaseACS
 
 class TestSingle(BaseACS):
     """
-    Process single HRC dataset using using all standard calibration 
-    steps.
+    Process single HRC dataset using all standard calibration steps.
 
     Process single HRC dataset with DQICORR, BLEVCORR, BIASCORR,
     DARKCORR, FLATCORR, PHOTCORR, RPTCORR, and DITHCORR set to PERFORM.
     RPTCORR not actually done as there is only one image.
 
-    Process single HRC dataset using using all standard calibration 
+    Process single HRC dataset using all standard calibration 
     steps and FLSHCORR.
     """
     detector = 'hrc'
