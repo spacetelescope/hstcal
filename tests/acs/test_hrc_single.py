@@ -12,8 +12,7 @@ class TestSingle(BaseACS):
     DARKCORR, FLATCORR, PHOTCORR, RPTCORR, and DITHCORR set to PERFORM.
     RPTCORR not actually done as there is only one image.
 
-    Process single HRC dataset using all standard calibration 
-    steps and FLSHCORR.
+    Process single HRC dataset using all standard calibration steps and FLSHCORR.
     """
     detector = 'hrc'
 
