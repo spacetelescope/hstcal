@@ -12,6 +12,8 @@
         PhotInfo to only contain a single set of arrays for wave and thru.
     2001-12-04 WJH: Added expstart and expend.
     2017-02-21 PLL: Added SINKCORR varibles.
+    2020-01-10 MDD: Added overhead_postflashed and overhead_unflashed variables.
+    2020-04-29 MDD: Added atod_saturate variable.
 */
 
 #include "hstio.h"
@@ -82,6 +84,7 @@ typedef struct {
     double blev[NAMPS];  /* bias level value fit for each amp from overscan*/
     int ampx;           /* first column affected by amps on 2/4amp readout*/
     int ampy;           /* first row affected by amps on 2/4amp readout*/
+    int atod_saturate;  /* A-to-D saturation level */
     float saturate;     /* CCD saturation level */
     int trimx[2];       /* Width of overscan to trim off ends of each line */
     int trimy[2];       /* Amount of overscan to trim off ends of each col */

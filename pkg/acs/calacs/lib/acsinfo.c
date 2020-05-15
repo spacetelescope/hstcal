@@ -12,6 +12,7 @@
    12-Dec-2012 PLL - added CTE corrected flash reference file.
    12-Aug-2013 PLL - Tidied up code layout.
    05-Dec-2019 MDD - Added overhead for post-flash, unflashed, and DARKTIME values.
+   29-Apr-2020 MDD - Added overhead for atod_saturate value.
 */
 #include <string.h>
 
@@ -86,6 +87,7 @@ void ACSInit (ACSInfo *acs) {
     }
     acs->ampx = 0;
     acs->ampy = 0;
+    acs->atod_saturate = 0;
     acs->saturate = 0.;
     acs->trimx[0] = 0;
     acs->trimx[1] = 0;
