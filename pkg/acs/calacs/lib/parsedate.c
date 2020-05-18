@@ -41,6 +41,9 @@ int parseObsDate (Hdr *phdr, time_t *date) {
     /* Convert the stime structure into a real number */
     *date = mktime(&stime);
 
+    /* Clean up */
+    free(cp);
+
     return (status);
 }
 
@@ -109,6 +112,9 @@ int parseTabDate (char *date, time_t *dtime) {
 
     /* Convert the stime structure into a real number */
     *dtime = mktime(&stime);
+
+    /* Clean up */
+    free(cp);
 
     return (status);
 }
