@@ -2130,6 +2130,8 @@ static void BuildTempNames (char *basename, char *out1, char *out2, char *out3) 
 	strcat (out3, separator);
 	strcat (out3, "TEMPIMA1_");
 	strcat (out3, file_name);
+
+	free(aname);
 }
 
 
