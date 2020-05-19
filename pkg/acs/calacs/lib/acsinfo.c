@@ -13,6 +13,7 @@
    12-Aug-2013 PLL - Tidied up code layout.
    05-Dec-2019 MDD - Added overhead for post-flash, unflashed, and DARKTIME values.
    29-Apr-2020 MDD - Added overhead for atod_saturate value.
+   11-May-2020 MDD - Added variable, satmap - the reference image for full-well saturation
 */
 #include <string.h>
 
@@ -132,6 +133,7 @@ void ACSInit (ACSInfo *acs) {
     InitRefTab (&(acs->oscn));
     InitRefTab (&(acs->atod));
     InitRefTab (&(acs->pcte));
+    InitRefImg (&(acs->satmap));
 
     /* Initialize reference images and tables for ACS2D */
     InitRefImg (&(acs->dark));

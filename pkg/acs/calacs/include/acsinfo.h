@@ -14,6 +14,7 @@
     2017-02-21 PLL: Added SINKCORR varibles.
     2020-01-10 MDD: Added overhead_postflashed and overhead_unflashed variables.
     2020-04-29 MDD: Added atod_saturate variable.
+    2020-05-11 MDD: Added satmap variable.
 */
 
 #include "hstio.h"
@@ -131,6 +132,7 @@ typedef struct {
     RefTab atod;        /* analog to digital correction table */
     RefTab spot;        /* Spotflat offset table */
     RefImage sink;      /* sink pixel image */
+    RefImage satmap;    /* full-well saturation image */
 
     /* calibration images and tables for ACSCTE */
     RefTab pcte;        /* Pixel CTE parameters table */

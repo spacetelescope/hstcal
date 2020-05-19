@@ -685,6 +685,24 @@ int DoCCD (ACSInfo *acs_info) {
     /************************************************************************/
 
     /************************************************************************/
+    /* Strictly speaking, the application of the full-well saturation image is
+       not a calibration step (i.e., there is no SATCORR), but the application
+       of a 2D image to flag pixels versus using a single scalar to flag 
+       saturated pixels as previously done in dqicorr needs to be done here
+       (after BIASCORR and BLEVCORR).
+    */
+    for (unsigned int i = 0; i < acs_info->nimsets; i++) {
+        if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
+            if (applyFullWellSat(&acs[i], &x[i])) {
+                freeOnExit (&ptrReg);
+                return (status);
+            }
+        }
+    }
+
+    /************************************************************************/
+
+    /************************************************************************/
     /* Fill in the error array, if it initially contains all zeros. */
     if (acs->noisecorr == PERFORM) {
         {unsigned int i;

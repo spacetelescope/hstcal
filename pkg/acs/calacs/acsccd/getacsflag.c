@@ -44,6 +44,9 @@ static int checkSink (Hdr *, ACSInfo *, int *, int *);
  Pey Lian Lim, 2017 Feb 21:
  Added new SINKCORR.
  **
+
+ Michele De La Pena, 2020 May 18:
+ Added new SATUFILE: Full-well saturation image.
 */
 int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 
@@ -172,7 +175,6 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
             return (status);
         }
 
-
         if (GetImageRef (acs->refnames, phdr,
                          "BIASFILE", &acs->bias, &acs->biascorr))
             return (status);
@@ -181,6 +183,18 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
             MissingFile ("BIASFILE", acs->bias.name, missing);
         if (acs->biascorr == PERFORM)
             (*nsteps)++;
+
+        /* 
+          Also check for the new full-well saturation image which is
+          applied after BIASCORR, conversion to elections, and BLEVCORR
+          are done.
+       */
+        if (GetImageRef (acs->refnames, phdr,
+                         "SATUFILE", &acs->satmap, &acs->biascorr))
+            return (status);
+
+        if (acs->bias.exists != EXISTS_YES)
+            MissingFile ("SATUFILE", acs->satmap.name, missing);
     }
 
     return (status);
