@@ -119,8 +119,6 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 		trlmessage (MsgText);
 	}
 
-
-
 	/* Update the photometry keyword values in the SCI and GLOBAL header. */
 	if (PutKeyFlt (&x->sci.hdr, "PHOTFLAM", obs.photflam,
 				"Inverse sensitivity, ergs/cm2/A/e-"))
