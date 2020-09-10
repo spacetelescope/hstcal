@@ -3,9 +3,6 @@ language: c
 env:
   global:
     # Set defaults to avoid repeating in most cases
-    - ASTROCONDA=http://ssb.stsci.edu/astroconda
-    - CONDA_DEPS="cfitsio curl pkg-config"
-    - EXE_PREFIX="/tmp/miniconda3"
     - PYTHON_VERSION=3.7
     - WAF_ARGS_CONFIGURE="-v"
     - WAF_ARGS_BUILD="-v"
@@ -26,20 +23,14 @@ jobs:
     dist: xenial
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export CONDA_INSTALLER=https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -y update && sudo apt-get -y install gfortran; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CONDA_INSTALLER=https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh; fi
-    # "|| true" is bad, but tar failing to set permissions is too. oh well.
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -L https://downloads.sourceforge.net/project/hpc/hpc/g95/gfortran-8.3-bin.tar.gz | sudo tar xfvz - -C / || true; fi
-  - wget $CONDA_INSTALLER
-  - bash Miniconda3-latest-*.sh -b -p $EXE_PREFIX
-  - export PATH=$EXE_PREFIX/bin:$PATH
-  - conda create -q --yes -n test python=$PYTHON_VERSION
-  - source activate test
+  - sudo apt-get -y update
+  - sudo apt-get -y install gfortran
+  - sudo apt-get -y install cfitsio
+  - sudo apt-get -y install curl
+  - sudo apt-get -y install pkg-config
 
 install:
-  - conda install --yes -c $ASTROCONDA $CONDA_DEPS
-  - ./waf configure --prefix=$CONDA_PREFIX $WAF_ARGS_CONFIGURE
+  - ./waf configure $WAF_ARGS_CONFIGURE
   - ./waf build $WAF_ARGS_BUILD
   - ./waf install $WAF_ARGS_INSTALL
 
