@@ -3,6 +3,7 @@ language: c
 env:
   global:
     # Set defaults to avoid repeating in most cases
+    - EXE_PREFIX="/tmp/miniconda3"
     - PYTHON_VERSION=3.7
     - WAF_ARGS_CONFIGURE="-v"
     - WAF_ARGS_BUILD="-v"
@@ -23,6 +24,8 @@ jobs:
     dist: xenial
 
 before_install:
+  - mkdir $EXE_PREFIX $EXE_PREFIX/bin
+  - export PATH=$EXE_PREFIX/bin:$PATH
   - sudo apt-get -y update
   - sudo apt-get -y install gfortran
   - sudo apt-get -y install libcfitsio-dev
@@ -30,7 +33,7 @@ before_install:
   - sudo apt-get -y install pkg-config
 
 install:
-  - ./waf configure $WAF_ARGS_CONFIGURE
+  - ./waf configure --prefix=$EXE_PREFIX $WAF_ARGS_CONFIGURE
   - ./waf build $WAF_ARGS_BUILD
   - ./waf install $WAF_ARGS_INSTALL
 
