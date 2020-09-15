@@ -4,6 +4,7 @@ import pytest
 from ..helpers import BaseWFC3
 
 
+@pytest.mark.skip(reason="Duplicate test.")
 class TestUVIS14Single(BaseWFC3):
     """
     Test pos UVIS2 GD-71
