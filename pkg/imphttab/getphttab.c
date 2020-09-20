@@ -15,6 +15,10 @@ PLL, 12/2013 Allow MJD extrapolation using simple straight line from
 MLS: 07/2015 Cleand up for unused variables and warning
 MLS: 08/2015 Added some initializations the clang complained about
 
+MDD: 03/2020 Ensure obs->obsmode is an empty string at the beginning of
+             this routine - this was a lurking bug raised in the case of 
+             multiple Imsets and parameterized value.
+
 */
 # include <stdio.h>
 # include <string.h>
@@ -149,7 +153,6 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     } else {
         tabinfo.parnum = getIntKw(key);
     }
-
 
     /* Read in PHOTZPT keyword value from Primary header */
     key = findKw (&tphdr, "PHOTZPT");
@@ -445,6 +448,9 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
      */
     status = AllocPhotPar(obs,n);
 
+    /* Ensure the obs->obsmode is empty */
+    strcpy(obs->obsmode,"");
+
     if (status > PHOT_OK){
         printf("\n==>ERROR: Problems allocating memory for ObsmodeVars.\n");
         return(status);
@@ -521,7 +527,6 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
         for (i=0;i<obselems;i++)
             free(obsnames[i]);
         free(obsnames);
-
     } else {
         strcpy(obs->obsmode, photmode);
     }
@@ -958,6 +963,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 bindx[1] = points[pdim][1].pos[deltadim];
                 bvals[0] = points[pdim][0].value;
                 bvals[1] = points[pdim][1].value;
+
                 /* Perform interpolation now and record the results */
                 rinterp = linterp(bindx, 2, bvals, obsvals[deltadim]);
 

@@ -37,6 +37,8 @@
 	Changed UVIS channel to use UVIS1 and UVIS2 for each chip and to
 	use new "cal" keyword for UVIS channel. Removed use of DN keyword
 	for IR exposures because they're now in units of electrons.
+   M.De La Pena, 2020 Feb 28:
+    Added MJD in order to enable a time-dependent photometric correction.
 */
 
 int PhotMode (WF3Info *wf32d, Hdr *hdr) {
@@ -76,9 +78,10 @@ Hdr *hdr	io: image header to be modified
 	    strcat (photstr, wf32d->filter);
 	}
 
-	/* Add the CAL keyword for UVIS exposures */
+    /* Add 'MJD#' keyword to PHOTMODE string for UVIS detector only */
 	if (wf32d->detector == CCD_DETECTOR)
-	    strcat (photstr, " CAL");
+        sprintf (scratch, " MJD#%0.4f", wf32d->expstart);
+        strcat (photstr, scratch);
 
 	if (wf32d->verbose) {
 	    sprintf (MsgText, "Keyword PHOTMODE built as: %s", photstr);

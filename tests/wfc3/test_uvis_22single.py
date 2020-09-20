@@ -4,6 +4,7 @@ import pytest
 from ..helpers import BaseWFC3
 
 
+@pytest.mark.skip(reason="Duplicate test. Part of ASN test.")
 class TestUVIS22Single(BaseWFC3):
     """
     Test pos UVIS2 NGC4639 data
