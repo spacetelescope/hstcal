@@ -160,6 +160,8 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
     extern int status;
 
+    int saveBiasCorr = GOOD_PEDIGREE;
+
     int calswitch;
     int GetSwitch (Hdr *, char *, int *);
     int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
@@ -184,16 +186,27 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
         if (acs->biascorr == PERFORM)
             (*nsteps)++;
 
+        /* Save the value for recovery */
+        saveBiasCorr = acs->biascorr;
+
         /* 
           Also check for the new full-well saturation image which is
           applied after BIASCORR, conversion to elections, and BLEVCORR
-          are done.
+          are done. Since the reference file is not associated with its
+          own "calibration step keyword" (e.g., SATUCORR), just using the 
+          BIASCORR key as a standin here - make sure the BIASCORR retains 
+          its value as set in the above code.
+
+          This is a kludge.
        */
-        if (GetImageRef (acs->refnames, phdr,
+        if (GetImageRef (acs->refnames, phdr, 
                          "SATUFILE", &acs->satmap, &acs->biascorr))
             return (status);
 
-        if (acs->bias.exists != EXISTS_YES)
+        /* Recover the biascorr setting */
+        acs->biascorr = saveBiasCorr;
+
+        if (acs->satmap.exists != EXISTS_YES)
             MissingFile ("SATUFILE", acs->satmap.name, missing);
     }
 
