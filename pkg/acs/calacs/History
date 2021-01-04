@@ -1,7 +1,7 @@
-### XX-Nov-2020 - MDD - Version 10.2.5 
+### 31-Dec-2020 - MDD - Version 10.2.5 
     Implementation to use an image to detect and flag full-well 
     saturation versus a simple scalar.  The new routine, 
-    applyfwsat.c, is modelled on dobias.c. The detect/flagging 
+    dofwsat.c, is modelled on dobias.c. The detect/flagging 
     occurs after bias correction, conversion to electrons, and 
     blev correction. 
 

@@ -16,6 +16,8 @@
  16-May-2018 MDD: Specific supported subarrays can now be bias shift
      corrected. Clarified the logic that determines if data is processed 
      with doBlev or bias_shift/cross_talk/destripe correction.
+ 14-May-2020: MDD: Modified to apply the full-well saturation flags stored
+     as an image to the data instead of in the doDQI step.
 
 ** This code is a trimmed down version of CALSTIS1 do2d.c.
 */
@@ -684,6 +686,30 @@ int DoCCD (ACSInfo *acs_info) {
     }
     /************************************************************************/
 
+    /************************************************************************/
+    /* Apply the saturation image.
+       Strictly speaking, the application of the full-well saturation image is
+       not a calibration step (i.e., there is no SATCORR), but the application
+       of a 2D image to flag pixels versus using a single scalar to flag
+       saturated pixels as previously done in dqicorr needs to be done here
+       after BIASCORR and BLEVCORR.  This should only be done if both
+       BIASCORR and BLEVCORR have been performed, and the data has been
+       converted to electrons. */
+    {unsigned int i;
+    for (i = 0; i < acs_info->nimsets; i++) {
+        if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
+            sprintf(MsgText, "Full-well saturation flagging being performed for imset %d.\n", i+1);
+            trlmessage(MsgText);
+            if (doFullWellSat(&acs[i], &x[i])) {
+                freeOnExit (&ptrReg);
+                return (status);
+            }
+        } else {
+            sprintf(MsgText, "No Full-well saturation flagging being performed for imset %d.\n", i+1);
+            trlwarn(MsgText);
+        }
+    }}
+    /************************************************************************/
 
     /************************************************************************/
     /* Fill in the error array, if it initially contains all zeros. */
@@ -827,35 +853,9 @@ int DoCCD (ACSInfo *acs_info) {
                 return (status);
             }
 
-            /************************************************************************/
-            /* Strictly speaking, the application of the full-well saturation image is
-               not a calibration step (i.e., there is no SATCORR), but the application
-               of a 2D image to flag pixels versus using a single scalar to flag 
-               saturated pixels as previously done in dqicorr needs to be done here
-               (after BIASCORR, BLEVCORR, and trim).
-            */
-            for (unsigned int j = 0; j < acs_info->nimsets; j++) {
-                if (acs[j].biascorr == PERFORM && acs[j].blevcorr == PERFORM) {
-                    if (applyFullWellSat(&acs[j], &x[j])) {
-                        freeOnExit (&ptrReg);
-                        return (status);
-                    }
-                }
-            }
-            /*
-            if (applyFullWellSat(&acs[i], &x[i])) {
-                freeOnExit (&ptrReg);
-                return (status);
-            }
-            */
-
-            /************************************************************************/
-
             /* Now, write out updated trimmed data to disk... */
             putSingleGroupSect(acs_info->output, i+1, &x[i], acs[i].trimx[0],
                                acs[i].trimy[0], sizex, sizey, option);
-
-            printf("Output file: %s\n", acs_info->output);
 
         } else {
             /* BLEVCORR was not completed, so keep overscan regions... */

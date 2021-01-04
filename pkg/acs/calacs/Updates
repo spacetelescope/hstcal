@@ -1,8 +1,8 @@
-Update for version 10.2.5 - XX-Nov-2020 (MDD)
+Update for version 10.2.5 - 31-Dec-2020 (MDD)
 	pkg/acs/calacs/Dates
 	pkg/acs/calacs/History
 	pkg/acs/calacs/Updates
-	pkg/acs/calacs/acsccd/applyfwsat.c
+	pkg/acs/calacs/acsccd/dofwsat.c
 	pkg/acs/calacs/acsccd/doccd.c
 	pkg/acs/calacs/acsccd/getacsflag.c
 	pkg/acs/calacs/cfiles.log

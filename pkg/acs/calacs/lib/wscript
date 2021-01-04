@@ -32,7 +32,7 @@ def build(bld):
             ../acsccd/doccd.c    ../acsccd/findblev.c ../acsccd/dosink.c
             ../acsccd/findover.c ../acsccd/getacsflag.c
             ../acsccd/getccdsw.c ../acsccd/blev_funcs_postsm4.c
-            ../acsccd/applyfwsat.c
+            ../acsccd/dofwsat.c
 
             ../acscte/docte.c        ../acscte/acscte.c
             ../acscte/getcteflag.c   ../acscte/getctesw.c  ../acscte/dopcte.c

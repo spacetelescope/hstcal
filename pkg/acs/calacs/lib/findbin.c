@@ -67,28 +67,27 @@ int *x0, *y0      o: location of start of subimage in ref image
 	if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
 	    return (status);
 
-    printf("findbin. sci_bin: %d %d  ref_bin: %d %d\n", sci_bin[0], sci_bin[1], ref_bin[0], ref_bin[1]);
-    printf("findbin. sci_corner: %d %d  ref_corner: %d %d\n", sci_corner[0], sci_corner[1], ref_corner[0], ref_corner[1]);
+    sprintf(MsgText, "findbin. sci_bin: %d %d  ref_bin: %d %d\n", sci_bin[0], sci_bin[1], ref_bin[0], ref_bin[1]);
+    trlmessage(MsgText);
+    sprintf(MsgText, "findbin. sci_corner: %d %d  ref_corner: %d %d\n", sci_corner[0], sci_corner[1], ref_corner[0], ref_corner[1]);
+    trlmessage(MsgText);
 
+    /* Full frame image - ACS CCD data are not binned. */
 	if (sci_corner[0] == ref_corner[0] &&
 	    sci_corner[1] == ref_corner[1] &&
 	    sci_bin[0] == ref_bin[0] &&
 	    sci_bin[1] == ref_bin[1] &&
 	    x->sci.data.nx == y->sci.tot_nx) {
 
-	    /* We can use the reference image directly, without binning
-		and without extracting a subset.
-	    */
 	    *same_size = 1;
 		*rx = 1;
 		*ry = 1;
 		*x0 = 0;
 		*y0 = 0;
 
+	/* Reference image is binned more than the science image. */
 	} else if (ref_bin[0] > sci_bin[0] ||
 		   ref_bin[1] > sci_bin[1]) {
-
-	    /* Reference image is binned more than the science image. */
 
 	    *rx = ref_bin[0] / sci_bin[0];
 	    *ry = ref_bin[1] / sci_bin[1];
@@ -96,8 +95,8 @@ int *x0, *y0      o: location of start of subimage in ref image
 	    *y0 = (sci_corner[1] - ref_corner[1]) / ref_bin[1];
 	    *same_size = 0;
 
-	} else {
-        /* For subarray input images, whether they are binned or not... */
+    /* Subarray */
+    } else {
 	    *same_size = 0;
 
 	    /* ratio of bin sizes */
