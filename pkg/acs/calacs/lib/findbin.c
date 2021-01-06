@@ -67,11 +67,6 @@ int *x0, *y0      o: location of start of subimage in ref image
 	if (GetCorner (&y->sci.hdr, rsize, ref_bin, ref_corner))
 	    return (status);
 
-    sprintf(MsgText, "findbin. sci_bin: %d %d  ref_bin: %d %d\n", sci_bin[0], sci_bin[1], ref_bin[0], ref_bin[1]);
-    trlmessage(MsgText);
-    sprintf(MsgText, "findbin. sci_corner: %d %d  ref_corner: %d %d\n", sci_corner[0], sci_corner[1], ref_corner[0], ref_corner[1]);
-    trlmessage(MsgText);
-
     /* Full frame image - ACS CCD data are not binned. */
 	if (sci_corner[0] == ref_corner[0] &&
 	    sci_corner[1] == ref_corner[1] &&

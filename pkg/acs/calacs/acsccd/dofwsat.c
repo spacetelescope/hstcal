@@ -47,7 +47,6 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     int xdim;
     int ydim;				/* number of lines in science image */
     int i, j, k;
-    int update;
 	short sum_dq;
     int xbeg, ybeg;			/* Beginning pixels for saturation image overlay */
     int xend, yend;			/* Beginning pixels for saturation image overlay */
@@ -116,10 +115,6 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 	    return (status);
 	if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner))
 	    return (status);
-    sprintf(MsgText, "dofwsat. sci_bin: %d %d  ref_bin: %d %d\n", sci_bin[0], sci_bin[1], ref_bin[0], ref_bin[1]);
-    trlmessage(MsgText);
-    sprintf(MsgText, "dofwsat. sci_corner: %d %d  ref_corner: %d %d\n", sci_corner[0], sci_corner[1], ref_corner[0], ref_corner[1]);
-    trlmessage(MsgText);
 
     /* Compute the output size */
     xdim = x->sci.data.nx - (acs->trimx[0] + acs->trimx[1]);
@@ -134,8 +129,6 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         ybeg = abs(sci_corner[1]);
         xend = xbeg + xdim;
         yend = ybeg + ydim;
-        sprintf(MsgText, "**** dofwsat. xbeg: %d ybeg: %d xdim: %d ydim: %d\n", xbeg, ybeg, xdim, ydim);
-        trlmessage(MsgText);
 
         /* Loop over the lines in the science image, excluding the overscan lines */
         {unsigned int  j;
@@ -170,13 +163,6 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
            k - index for line in reference image
            y0 - line in reference image corresponding to line in input image
         */
-        initSingleGroupLine (&z);
-        allocSingleGroupLine (&z, x->sci.data.nx);
-        sprintf(MsgText, "Y scistart: %d  satstart: %d sciend: %d dim: %d\n", 0, y0, yend, ydim);
-        trlmessage(MsgText);
-        sprintf(MsgText, "X scistart: %d  satstart: %d sciend: %d dim: %d\n", 0, x0, xend, xdim);
-        trlmessage(MsgText);
-
         {unsigned int j, k;
         for (j = 0, k = y0; j < ydim; j++, k++) {
 
@@ -190,18 +176,15 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
                 trlerror(MsgText);
             }
 
-            update = NO;
-
             {unsigned int i, l;
             for (i = 0, l = x0; i < xdim; i++, l++) {
                 /* Flag full-well saturated pixels with 256 dq bit*/             
-		        if (Pix (x->sci.data, i, j) > z.sci.line[l]) {
+		        if (Pix (x->sci.data, i, j) > y.sci.line[l]) {
 			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix (x->dq.data, i, j, sum_dq);
 		        }
             }}
         }}
-        freeSingleGroupLine (&z);			/* done with z */
     }
 
     closeSingleGroupLine (&y);

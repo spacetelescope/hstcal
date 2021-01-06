@@ -14,7 +14,7 @@
     2017-02-21 PLL: Added SINKCORR varibles.
     2020-01-10 MDD: Added overhead_postflashed and overhead_unflashed variables.
     2020-04-29 MDD: Added atod_saturate variable.
-    2020-05-11 MDD: Added satmap variable.
+    2020-05-11 MDD: Added satmap variable. This renders "saturate" variable obsolete.
 */
 
 #include "hstio.h"
@@ -86,7 +86,7 @@ typedef struct {
     int ampx;           /* first column affected by amps on 2/4amp readout*/
     int ampy;           /* first row affected by amps on 2/4amp readout*/
     int atod_saturate;  /* A-to-D saturation level */
-    float saturate;     /* CCD saturation level */
+    float saturate;     /* CCD saturation level OBSOLETE */
     int trimx[2];       /* Width of overscan to trim off ends of each line */
     int trimy[2];       /* Amount of overscan to trim off ends of each col */
     int vx[2];

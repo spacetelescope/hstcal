@@ -2,13 +2,15 @@ Update for version 10.2.5 - 31-Dec-2020 (MDD)
 	pkg/acs/calacs/Dates
 	pkg/acs/calacs/History
 	pkg/acs/calacs/Updates
-	pkg/acs/calacs/acsccd/dofwsat.c
 	pkg/acs/calacs/acsccd/doccd.c
+	pkg/acs/calacs/acsccd/dofwsat.c
 	pkg/acs/calacs/acsccd/getacsflag.c
-	pkg/acs/calacs/cfiles.log
+	pkg/acs/calacs/include/acsdq.h
 	pkg/acs/calacs/include/acsinfo.h
+	pkg/acs/calacs/include/acsversion.h
 	pkg/acs/calacs/lib/acsinfo.c
 	pkg/acs/calacs/lib/dodqi.c
+	pkg/acs/calacs/lib/findbin.c
 	pkg/acs/calacs/lib/wscript
 
 Update for version 10.2.4 - 24-Jun-2020 (MDD)
