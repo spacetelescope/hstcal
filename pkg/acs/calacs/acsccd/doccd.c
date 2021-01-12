@@ -694,18 +694,19 @@ int DoCCD (ACSInfo *acs_info) {
        saturated pixels as previously done in dqicorr needs to be done here
        after BIASCORR and BLEVCORR.  This should only be done if both
        BIASCORR and BLEVCORR have been performed, and the data has been
-       converted to electrons. */
+       converted to electrons.  This flagging is only applicable for the
+       two CCDs (WFC and HRC). */
     {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
-            sprintf(MsgText, "Full-well saturation flagging being performed for imset %d.\n", i+1);
+            sprintf(MsgText, "\nFull-well saturation flagging being performed for imset %d.\n", i+1);
             trlmessage(MsgText);
             if (doFullWellSat(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return (status);
             }
         } else {
-            sprintf(MsgText, "No Full-well saturation flagging being performed for imset %d.\n", i+1);
+            sprintf(MsgText, "\nNo Full-well saturation flagging being performed for imset %d.\n", i+1);
             trlwarn(MsgText);
         }
     }}
