@@ -1404,8 +1404,6 @@ int sub_ctecor_v2c(float *pixz_raz,
 
       int NDONE = 0;
 
-      FILE *fp;
-
       RNOI    = PCTERNOI;
       NITFORs = PCTENFOR;
       NITPARs = PCTENPAR;
@@ -1417,8 +1415,6 @@ int sub_ctecor_v2c(float *pixz_raz,
       printf("          --->  NITFORs: %5d \n",NITFORs);
       printf("          --->  NITPARs: %5d \n",NITPARs);
       printf("                             \n");
-
-      fp = fopen("fixrocr.out","w");
 
       #pragma omp parallel \
        shared(pixz_raz,pixz_fff,pixz_rzc,              \
@@ -1514,15 +1510,12 @@ int sub_ctecor_v2c(float *pixz_raz,
          free(pixj_obs);
          free(pixj_chg);
 
-         fprintf(fp,"%4d %4d \n",i,NCRX);
-
          /* This variable exists for debuggin purposes. */
          NDONE++;
          /*if (NDONE==(NDONE/100)*100) { printf("  i = %5d   %5d  %5d \n",i,NCRX,NDONE); }*/
 
       }
 
-      fclose(fp);
       return(status);
 }
 
