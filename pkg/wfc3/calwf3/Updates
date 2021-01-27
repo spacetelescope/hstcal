@@ -1,5 +1,6 @@
 Updates for Version 3.6.0 31-Dec-2020 - MDD
     - Implementation of a significantly upgraded CTE correction as defined/derived by J. Anderson.
+      The upgraded CTE algorithm is also streamlined and executes faster then the previous version.
 
 Updates for Version 3.5.2 12-Aug-2020 - MDD
     - Added MJD as a parameterized variable for the PHOTMODE keyword to
