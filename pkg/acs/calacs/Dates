@@ -1,8 +1,8 @@
- 31-Dec-2020   CALACS 10.2.5 Implementation to use an image to detect and flag full-well 
-                             saturation versus a simple scalar.  The new routine, 
-                             dofwsat.c, is modelled on dobias.c. The detect/flagging 
-                             occurs after bias correction, conversion to electrons, and 
-                             blev correction. 
+ 31-Dec-2020   CALACS 10.3.0 Implementation to use an image to detect and flag full-well
+                             saturation versus a simple scalar.  The new routine,
+                             dofwsat.c, is modelled on dobias.c. The detect/flagging
+                             occurs after bias correction, conversion to electrons, and
+                             blev correction.
  24-Jun-2020:  CALACS 10.2.4 Removed/modified/updated routines which used copyrighted
                              code. Updates implemented Oct 2019, but installation delayed 
                              for higher priority updates.
