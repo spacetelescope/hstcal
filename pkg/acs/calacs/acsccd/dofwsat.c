@@ -22,11 +22,12 @@
   the saturation image properly overlaid on the science data.
   Note that formerly the full-well saturation flags were applied during
   doDQI.
-  *** The process of applying a saturation image is an awkward retro-fit. ***
 
   Michele De La Pena, 2020 May 14
   Initial implementation of the full-well saturation flagging done
   via an image.
+  Michele De La Pena, 2021 Feb 03
+  Read entire saturation image into memory rather than line by line access.
  */
 
 int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
@@ -39,6 +40,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     extern int status;
 
     SingleGroupLine y, z;	/* y and z are scratch space */
+    SingleGroup satimage;   /* storage for entire saturation image */
     int extver = 1;			/* get this imset from bias image */
     int rx, ry;				/* for binning bias image down to size of x */
     int x0, y0;				/* offsets of sci image */
@@ -60,8 +62,6 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int, int *);
 	int GetCorner (Hdr *, int, int *, int *);
-
-    initSingleGroupLine (&y);  /* A single line of the saturation image data */
 
     /* Initialize local variables */
     rx = 1;
@@ -85,6 +85,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         return (status);
 
     /* Get the first line of saturation image data */
+    initSingleGroupLine (&y);
     openSingleGroupLine (acs->satmap.name, extver, &y);
     if (hstio_err())
         return (status = OPEN_FAILED);
@@ -103,12 +104,25 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
         return (status);
 
+
     /* Get the bin factor and "corner" (xpixel and ypixel) where science data actually 
        begins (versus overscan) in the science and the saturation image data */
 	if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
 	    return (status);
 	if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner))
 	    return (status);
+
+    /* Clean up the SingleGroupLine object */
+    closeSingleGroupLine (&y);
+    freeSingleGroupLine (&y);
+
+    /* Get the full saturation image */
+    initSingleGroup(&satimage);
+    getSingleGroup(acs->satmap.name, extver, &satimage);
+    if (hstio_err()) {
+        freeSingleGroup (&satimage);
+        return (status = OPEN_FAILED);
+    }
 
     /* Compute the output size */
     xdim = x->sci.data.nx - (acs->trimx[0] + acs->trimx[1]);
@@ -129,14 +143,9 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         for (j = ybeg; j < yend; j++) {
             {unsigned int  i;
             for (i = xbeg;  i < xend;  i++) {
-                status = getSingleGroupLine (acs->satmap.name, j, &y);
-                if (status) {
-                    sprintf(MsgText,"Could not read line %d from satmap image.", j+1);
-                    trlerror(MsgText);
-                }
 
                 /* Flag full-well saturated pixels with 256 dq bit*/             
-		        if (Pix (x->sci.data, i, j) > y.sci.line[i]) {
+		        if (Pix (x->sci.data, i, j) > Pix(satimage.sci.data, i, j)) {
 			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix (x->dq.data, i, j, sum_dq);
                 }
@@ -166,16 +175,11 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
                Working with a sub-array so need to apply the proper 
                section from the reference image to the science image.
             */
-            status = getSingleGroupLine (acs->satmap.name, k, &y);
-            if (status) {
-                sprintf(MsgText,"Could not read line %d from Full-well Saturation image.", k+1);
-                trlerror(MsgText);
-            }
 
             {unsigned int i, l;
             for (i = 0, l = x0; i < xdim; i++, l++) {
                 /* Flag full-well saturated pixels with 256 dq bit*/             
-		        if (Pix (x->sci.data, i, j) > y.sci.line[l]) {
+		        if (Pix (x->sci.data, i, j) > Pix(satimage.sci.data, l, k)) {
 			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix (x->dq.data, i, j, sum_dq);
 		        }
@@ -185,8 +189,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         trlmessage(MsgText);
     }
 
-    closeSingleGroupLine (&y);
-    freeSingleGroupLine (&y);
+    freeSingleGroup (&satimage);
 
     return (status);
 }
