@@ -87,7 +87,7 @@ def calref_from_image(input_image):
         'ATODCORR': ['ATODTAB'],
         'BLEVCORR': ['OSCNTAB'],
         'SINKCORR': ['SNKCFILE'],
-        'BIASCORR': ['BIASFILE'],
+        'BIASCORR': ['BIASFILE', 'SATUFILE'],
         'PCTECORR': ['PCTETAB', 'DRKCFILE', 'BIACFILE'],
         'FLSHCORR': ['FLSHFILE'],
         'CRCORR': ['CRREJTAB'],

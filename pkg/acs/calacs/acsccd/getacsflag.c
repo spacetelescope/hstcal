@@ -44,6 +44,9 @@ static int checkSink (Hdr *, ACSInfo *, int *, int *);
  Pey Lian Lim, 2017 Feb 21:
  Added new SINKCORR.
  **
+
+ Michele De La Pena, 2020 May 18:
+ Added new SATUFILE: Full-well saturation image.
 */
 int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 
@@ -157,6 +160,8 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
     extern int status;
 
+    int saveBiasCorr = GOOD_PEDIGREE;
+
     int calswitch;
     int GetSwitch (Hdr *, char *, int *);
     int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
@@ -172,7 +177,6 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
             return (status);
         }
 
-
         if (GetImageRef (acs->refnames, phdr,
                          "BIASFILE", &acs->bias, &acs->biascorr))
             return (status);
@@ -181,6 +185,29 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
             MissingFile ("BIASFILE", acs->bias.name, missing);
         if (acs->biascorr == PERFORM)
             (*nsteps)++;
+
+        /* Save the value for recovery */
+        saveBiasCorr = acs->biascorr;
+
+        /* 
+          Also check for the new full-well saturation image which is
+          applied after BIASCORR, conversion to elections, and BLEVCORR
+          are done. Since the reference file is not associated with its
+          own "calibration step keyword" (e.g., SATUCORR), just using the 
+          BIASCORR key as a standin here - make sure the BIASCORR retains 
+          its value as set in the above code.
+
+          This is a kludge.
+       */
+        if (GetImageRef (acs->refnames, phdr, 
+                         "SATUFILE", &acs->satmap, &acs->biascorr))
+            return (status);
+
+        /* Recover the biascorr setting */
+        acs->biascorr = saveBiasCorr;
+
+        if (acs->satmap.exists != EXISTS_YES)
+            MissingFile ("SATUFILE", acs->satmap.name, missing);
     }
 
     return (status);
