@@ -4,6 +4,7 @@ import pytest
 from ..helpers import BaseWFC3
 
 
+@pytest.mark.xfail(reason="Temporary xfail. New input/truth files on Artifactory, but branch not merged.")
 class TestUVIS01ASN(BaseWFC3):
     """
     Tests for WFC3/UVIS.
