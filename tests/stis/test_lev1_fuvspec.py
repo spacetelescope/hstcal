@@ -1,4 +1,5 @@
 import subprocess
+import pytest
 from ci_watson.artifactory_helpers import get_bigdata
 
 from ..helpers import BaseSTIS
