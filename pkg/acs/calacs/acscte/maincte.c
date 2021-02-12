@@ -5,8 +5,9 @@
 # include <time.h>
 # include <string.h>
 #include <stdbool.h>
+#include <limits.h>
 
-int status = 0;			/* zero is OK */
+extern int status;			/* zero is OK */
 
 # include <c_iraf.h>		/* for c_irafinit */
 #include "hstcal_memory.h"
@@ -26,6 +27,7 @@ int status = 0;			/* zero is OK */
 #  include <omp.h>
 # endif
 
+static char *program;
 struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
@@ -43,7 +45,7 @@ int doMainCTE (int argc, char **argv);
 
 static void printSyntax()
 {
-    printf ("syntax:  acscte.e [--help] [-t] [-v] [-q] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] [--forwardModelOnly] input [output]\n");
+    printf ("syntax:  %s [--help] [-t] [-v] [-q] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] [--forwardModelOnly] input [output]\n", program);
 }
 static void printHelp(void)
 {
@@ -102,6 +104,11 @@ int doMainCTE (int argc, char **argv) {
     int LoadHdr (char *, Hdr *);
     int GetSwitch (Hdr *, char *, int *);
 
+    /* For program basename */
+    char program_buf[PATH_MAX];
+
+    status = 0;
+
     c_irafinit (argc, argv);
 
     PtrRegister ptrReg;
@@ -132,6 +139,16 @@ int doMainCTE (int argc, char **argv) {
 
     /* Initial values. */
     initSwitch (&ccd_sw);
+
+    /* Obtain program basename */
+    if ((program = strrchr(argv[0], '/')) != NULL) {
+        strcpy(program_buf, program + 1);
+        program = program_buf;
+    }
+
+    if (!strcmp(program, "acsforwardmodel.e")) {
+        forwardModelOnly = true;
+    }
 
     for (i = 1;  i < argc;  i++) {
 
@@ -213,7 +230,7 @@ int doMainCTE (int argc, char **argv) {
                 if (argv[i][1] == '-')
                 {
                     printf ("Unrecognized option %s\n", argv[i]);
-                    printSyntax();
+                    printSyntax(program);
                     freeOnExit(&ptrReg);
                     exit (ERROR_RETURN);
                 }

@@ -4,7 +4,7 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
-int status = 0;			/* zero is OK */
+extern int status;
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
@@ -55,6 +55,7 @@ int main (int argc, char **argv) {
 	void WhichError (int);
 
 /*===========================================================================*/
+    status = 0;
 
 	/* Initialize IRAF interface */
 	c_irafinit (argc, argv);

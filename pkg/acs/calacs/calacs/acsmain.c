@@ -17,7 +17,7 @@
 /* CALACS driver: retrieves input table name and calls pipeline
 */
 
-int	status;		/* value of zero indicates OK */
+extern int	status;
 struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */

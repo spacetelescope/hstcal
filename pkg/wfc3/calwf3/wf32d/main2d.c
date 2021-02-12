@@ -5,7 +5,7 @@
 # include <time.h>
 # include <string.h>
 
-int status = 0;			/* zero is OK */
+extern int status;
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
@@ -91,6 +91,7 @@ int main (int argc, char **argv) {
 	void initCCDSwitches (CCD_Switch *);
 
 /*===========================================================================*/
+    status = 0;
 
 	/* Initialize IRAF interface environment */
 	c_irafinit (argc, argv);
