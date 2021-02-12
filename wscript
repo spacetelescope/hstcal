@@ -340,8 +340,11 @@ def configure(conf):
     # A list of external libraries that are typically linked with the
     # executables
     conf.env.EXTERNAL_LIBS = ['m']
+
     if sys.platform.startswith('sunos'):
         conf.env.EXTERNAL_LIBS += ['socket', 'nsl']
+    elif sys.platform.startswith('linux'):
+        conf.env.EXTERNAL_LIBS += ['rt']
 
     # A list of paths in which to search for external libraries
     conf.env.LIBPATH = []
