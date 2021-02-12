@@ -59,7 +59,7 @@ StisInfo1 *sts     i: calibration switches, etc
 SingleGroup *x    io: image to be calibrated; primary header is modified
 */
 
-	int status;
+	extern int status;
 
 	PhotPar obs;
 

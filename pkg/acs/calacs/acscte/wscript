@@ -2,15 +2,7 @@
 
 def build(bld):
     t = bld.program(
-        source = ['acscte.c',
-                  'docte.c',
-                  'dopcte.c',
-                  'dopcte-gen2.c',
-                  'getcteflag.c',
-                  'getctesw.c',
-                  'pcte_fixycte.c',
-                  'pcte_funcs.c',
-                  'maincte.c',
+        source = ['maincte.c',
                   'main.c'
                   ],
         target = 'acscte.e',
@@ -23,3 +15,4 @@ def build(bld):
         rpath=bld.env.LIBPATH_CFITSIO,
         install_path = '${PREFIX}/bin'
         )
+    bld.install_as('${PREFIX}/bin/acsforwardmodel.e', 'acscte.e')

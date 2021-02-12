@@ -15,7 +15,7 @@
 # include "hstcalversion.h"
 # include "trlbuf.h"
 
-int status = 0;             /* zero is OK */
+extern int status;
 struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
@@ -31,6 +31,8 @@ int main (int argc, char **argv) {
     int rej_command (int, char **, char **, char *, clpar *, int []);
     int Wf3Rej (char *, char *, char *, clpar *, int []);
     void WhichError (int);
+
+    status = 0;
 
     /* Initialize the IRAF interface */
     c_irafinit (argc, argv);

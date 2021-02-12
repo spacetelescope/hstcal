@@ -45,7 +45,7 @@ static void printHelp(void)
 
 int main (int argc, char **argv) {
 
-	int status;		/* zero is OK */
+	extern int status;		/* zero is OK */
 	char *wavlist;		/* list of input wavecal file names */
 	char *scilist;		/* list of input science file names */
 	char *outlist;		/* list of output file names */

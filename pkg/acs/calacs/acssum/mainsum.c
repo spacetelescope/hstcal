@@ -4,7 +4,7 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
-int status = 0;			/* zero is OK */
+extern int status;			/* zero is OK */
 
 # include <c_iraf.h>		/* for c_irafinit */
 
@@ -54,6 +54,7 @@ int main (int argc, char **argv) {
 	int MkName (char *, char *, char *, char *, char *, int);
 	void WhichError (int);
 
+    status = 0;
 	c_irafinit (argc, argv);
 
 	PtrRegister ptrReg;

@@ -14,7 +14,7 @@
 # include "hstcalversion.h"
 #include "trlbuf.h"
 
-int status = 0;             /* zero is OK */
+extern int status;             /* zero is OK */
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
@@ -30,6 +30,8 @@ int main (int argc, char **argv) {
     int rej_command (int, char **, char **, char *, clpar *, int []);
     int AcsRej (char *, char *, char *, clpar *, int []);
     void WhichError (int);
+
+    status = 0;
 
     c_irafinit (argc, argv);
 

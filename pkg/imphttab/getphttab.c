@@ -32,6 +32,7 @@ MDD: 03/2020 Ensure obs->obsmode is an empty string at the beginning of
 # include "imphttab.h"
 # include "c_iraf.h"  /* For Bool type */
 
+
 /* Internal functions to be used to interpret IMPHTTAB ref tables */
 static int OpenPhotTab (char *, char *, PhtCols *);
 static int ReadPhotTab (PhtCols *, int, PhtRow *);

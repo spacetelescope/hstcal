@@ -116,6 +116,9 @@
 # include "hstio.h"
 # include "hstcalerr.h"
 
+/* Global status tracker */
+int status;
+
 int fcloseNull(FILE * stream)
 {
     if (!stream)
