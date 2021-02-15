@@ -7,6 +7,7 @@
 # include <stdio.h>
 # include <stdlib.h>		/* calloc */
 # include <math.h>		/* fabs */
+# include <string.h>
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
