@@ -96,6 +96,7 @@ int DoCCD (ACSInfo *acs_info) {
     int FindOverscan (ACSInfo *, int, int, int *, int *);
     int GetCCDTab (ACSInfo *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
+    int doFullWellSat(ACSInfo *, SingleGroup *);
 
     /*========================Start Code here =======================*/
 
