@@ -82,6 +82,10 @@
     value to scale subarray images which have only 1 set of science
     images. When the chip being processed is chip2, then the flam
     for chip1 will be saved in the structure for use in fluxcorr.
+
+    M. De La Pena 2020 March:
+    Read the PCTERNOI value from the raw image header for possible 
+    use in the CTE reduction.
  
 */
 
@@ -160,6 +164,7 @@ typedef struct {
     int biassectd[2];   /* Columns to use for trailing overscan region amp 2 */
     float flashdur;	/* duration of post-flash (in seconds) */
     char flashstatus[SZ_CBUF+1]; /* status of post-flash exposure */
+    float pcternoi;     /* Read noise amplitude */
 
     /* IR-specific info */
     int group;		/* current group being processed */

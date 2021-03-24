@@ -16,7 +16,6 @@ typedef struct {
     double dpdew_data[TRAPS];/*trap size in electrons*/
     double cte_date0; /*date of uvis install on hst in mjd*/
     double cte_date1; /*date of cte model pinning mjd*/
-    double   rn_amp; /*read noise amplitude for clipping */
     double scale_frac; /*scaling of cte model relative to ctedate1*/
     double thresh; /*over subtraction threshold*/
     int cte_len; /*max length of cte trail */
