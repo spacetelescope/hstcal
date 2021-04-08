@@ -230,7 +230,7 @@ int doMainCTE (int argc, char **argv) {
                 if (argv[i][1] == '-')
                 {
                     printf ("Unrecognized option %s\n", argv[i]);
-                    printSyntax(program);
+                    printSyntax();
                     freeOnExit(&ptrReg);
                     exit (ERROR_RETURN);
                 }
