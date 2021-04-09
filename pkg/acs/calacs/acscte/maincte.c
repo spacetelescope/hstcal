@@ -142,8 +142,13 @@ int doMainCTE (int argc, char **argv) {
 
     /* Obtain program basename */
     if ((program = strrchr(argv[0], '/')) != NULL) {
+
         strcpy(program_buf, program + 1);
         program = program_buf;
+
+    } else {
+
+        program = argv[0];
     }
 
     if (!strcmp(program, "acsforwardmodel.e")) {
