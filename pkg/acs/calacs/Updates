@@ -1,3 +1,27 @@
+Update for version 10.3.2 - 26-Apr-2021 (MDD)
+	pkg/acs/calacs/Dates
+	pkg/acs/calacs/History
+	pkg/acs/calacs/Updates
+	pkg/acs/calacs/acscte/maincte.c
+	pkg/acs/calacs/acscte/wscript
+	pkg/acs/calacs/include/acsversion.h
+
+Update for version 10.3.1 - 07-Apr-2021 (MDD)
+	pkg/acs/calacs/acscte/maincte.c
+	pkg/acs/calacs/include/acsversion.h
+
+Update - 12-Feb-2021 (JH)
+    pkg/acs/calacs/acs2d/main2d.c
+    pkg/acs/calacs/acsccd/mainccd.c
+    pkg/acs/calacs/acscte/forward_model/main.c
+    pkg/acs/calacs/acscte/forward_model/wscript
+    pkg/acs/calacs/acscte/maincte.c
+    pkg/acs/calacs/acscte/wscript
+    pkg/acs/calacs/acsrej/mainrej.c
+    pkg/acs/calacs/acssum/mainsum.c
+    pkg/acs/calacs/calacs/acsmain.c
+    pkg/acs/calacs/calacs/wscript
+   
 Update for version 10.3.0 - 31-Dec-2020 (MDD)
 	pkg/acs/calacs/Dates
 	pkg/acs/calacs/History

@@ -15,4 +15,4 @@ def build(bld):
         rpath=bld.env.LIBPATH_CFITSIO,
         install_path = '${PREFIX}/bin'
         )
-    bld.install_as('${PREFIX}/bin/acsforwardmodel.e', 'acscte.e')
+    bld.install_as('${PREFIX}/bin/acscteforwardmodel.e', 'acscte.e')

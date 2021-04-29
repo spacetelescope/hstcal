@@ -1,8 +1,25 @@
+ 26-Apr-2021   CALACS 10.3.2 Fixed a bug introduced when the build manager reworked code to
+                             remove circular dependencies caused by the introduction of the
+                             acscteforwardmodel code.  The name of the executable was
+                             inadvertently changed from "acscteforwardmodel.e" to
+                             "acsforwardmodel.e".  The ACS team requested the name be
+                             changed back to the original as scripts and documentation
+                             are impacted.
+ 07-Apr-2021   CALACS 10.3.1 Fixed a bug introduced when the build manager reworked code to
+                             remove circular dependencies caused by the introduction of the
+                             acscteforwardmodel code.  Resolved the segmentation fault when
+                             trying to execute the standalone executables "acscte.e" and
+                             "acsforwardmodel.e".
+ 12-Feb-2021                 Done during build creation for operations for 10.3.0 -
+                             Build manager made changes to the main routines and wscript
+                             files (predominantly) to eliminate some circular dependency.
  31-Dec-2020   CALACS 10.3.0 Implementation to use an image to detect and flag full-well
                              saturation versus a simple scalar.  The new routine,
                              dofwsat.c, is modelled on dobias.c. The detect/flagging
                              occurs after bias correction, conversion to electrons, and
-                             blev correction.
+                             blev correction.  Build manager made changes to the main
+                             routines and wscript files (predominantly) to eliminate
+                             some circular dependency.
  24-Jun-2020:  CALACS 10.2.4 Removed/modified/updated routines which used copyrighted
                              code. Updates implemented Oct 2019, but installation delayed 
                              for higher priority updates.

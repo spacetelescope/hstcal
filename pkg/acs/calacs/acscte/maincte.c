@@ -151,7 +151,7 @@ int doMainCTE (int argc, char **argv) {
         program = argv[0];
     }
 
-    if (!strcmp(program, "acsforwardmodel.e")) {
+    if (!strcmp(program, "acscteforwardmodel.e")) {
         forwardModelOnly = true;
     }
 
