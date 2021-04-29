@@ -17,6 +17,9 @@
    M.D. De La Pena Mar-2020: Further changes to accommodate subarrays - only evaluate valid (non-zero) pixels.
    Updates received from Jay Anderson. Removed deprecated routines: find_dadj, rsz2rsc, inverse_cte_blur, and raz2rsz.
    Small bug found in original subarray code during testing.
+
+   M.D. De La Pena Apr-2021: Fix to address a problem detected when processing a Tungsten flat with a high
+   background.  Uninitialized values were used for further computation causing an eventual exception. 
 */
 
 # include <time.h>
@@ -1549,6 +1552,11 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       FLOAT_RNOIVAL[0] = 3.33;
       FLOAT_BKGDVAL[0] = raz_cdab[0];
 
+      iv1 = 1;
+      iv2 = 999;
+      id1 = 1;
+      id2 = 999;
+
       /*
        * Distill the image variation information and background into quick histograms 
        */
@@ -1662,10 +1670,19 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       vsum = 0;
 
       for (ih=iv1; ih<=iv2; ih++) { 
-         nsum = nsum + vhist[ih-1];
-         vsum = vsum + vhist[ih-1]*(ih-501);
+          nsum = nsum + vhist[ih-1];
+          vsum = vsum + vhist[ih-1]*(ih-501);
       }
 
+      if (vsum==0 || nsum==0) {
+         RNOIVALu = 9.75 ;
+         BKGDVALu = 999.9 ;
+         *FLOAT_RNOIVAL = RNOIVALu;
+         *FLOAT_BKGDVAL = BKGDVALu;
+         return(RNOIVALu);
+      }
+
+      /* For debugging purposes only
       printf("  \n");
       printf("   vsum: %12lld  \n",vsum);
       printf("   nsum: %12lld  \n",nsum);
@@ -1673,6 +1690,7 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       printf("   dbar: %12.2f   \n",idmin/2.30*(SPREAD_FOR_HISTO));
       printf("   vbar: %12.2f %12lld %12lld \n",vsum/nsum*(SPREAD_FOR_HISTO),vsum,nsum);
       printf("  \n");
+      */
 
       RNOIVAL  = (int)(idmin/2.30/(SPREAD_FOR_HISTO)/sqrt(1+1/8.0)*4+0.5)/4.00;
       RNOIVAL  =       idmin/2.30/(SPREAD_FOR_HISTO)/sqrt(1+1/8.0);

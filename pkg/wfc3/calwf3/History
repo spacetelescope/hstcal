@@ -1,3 +1,7 @@
+### 28-Apr-2021 - MDD - Version 3.6.1
+    - Bug fix to address a problem detected when processing a Tungsten flat with a high background.
+      Uninitialized values were used for further computation causing an eventual exception.
+
 ### 31-Dec-2020 - MDD - Version 3.6.0
     - Implementation of a significantly upgraded CTE correction as defined/derived by J. Anderson.
       The upgraded CTE algorithm is also streamlined and executes faster then the previous version.
