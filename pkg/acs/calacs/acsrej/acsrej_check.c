@@ -30,6 +30,7 @@ static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
   20-Oct-1999 W.J. Hack  getACSnsegn function revised to use 'for' loop
                          to read keywords.
   19-Oct-2015 P.L. Lim   Calculations all done in electrons now.
+  30-Apr-2021 M.D. DeLaPena Compute the cumulative flash duration over all images.
 */
 
 int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
@@ -37,7 +38,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                   char imgname[][CHAR_FNAME_LENGTH], int grp[],
                   IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                   multiamp *noise, multiamp *gain, int *dim_x, int *dim_y,
-                  int nimgs, float efac[MAX_FILES]) {
+                  int nimgs, float efac[MAX_FILES], float *cumFlashDur) {
     /*
       Parameters:
 
@@ -62,6 +63,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                        All images must have the same dimension.
       nimgs   i: Number of input images.
       efac    i: Exposure times (seconds) for input images.
+      cumFlashDur o: Cumulative flash duration over all images.
     */
 
     extern int status;
@@ -78,6 +80,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     int         i;
     int         chip;
     int         ampx, ampy;
+    float       totalFlashDuration;
 
     int         GetKeyInt (Hdr *, char *, int, int, int *);
     int         GetKeyFlt (Hdr *, char *, int, float, float *);
@@ -101,6 +104,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     flashdur = 0.0;
     flashlevel = 0.0;
     flashlevel0 = 0.0;
+    totalFlashDuration = 0.0;
 
     /* loop through all input files */
     for (k = 0; k < nimgs; ++k) {
@@ -146,6 +150,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                 return(status = KEYWORD_MISSING);
             }
             flashlevel = flashdur / efac[k];
+            totalFlashDuration += flashdur;
         } else {
             flshcorr = OMIT; /* OMIT/COMPLETE = flsh is not an issue anymore */
         }
@@ -305,6 +310,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
         closeImage (ip);
         freeHdr (&prihdr);
     } /* End loop over k (images in input list) */
+    *cumFlashDur = totalFlashDuration;
 
     /* Record noise and gain values for use in rest of ACSREJ */
     for (i = 0; i < NAMPS; i++) {
