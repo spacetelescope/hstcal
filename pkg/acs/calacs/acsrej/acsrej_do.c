@@ -42,7 +42,8 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], IODescPtr [], clpar *);
   27-Feb-2019   M.D. DeLaPena   Read the IMAGETYP keyword from Primary of first image
                                 as this info is needed by acsrej_loop.
   30-Apr-2021   M.D. DeLaPena   Read the FLASHDUR keyword from Primary of all the input
-                                images in order to compute the cumulative value.
+                                images in order to compute the cumulative value and update
+                                FLASHDUR in the blv_tmp/blc_tmp file(s).
 */
 int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                int newpar[]) {
