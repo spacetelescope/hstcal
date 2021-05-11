@@ -399,7 +399,13 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                    "Total sky level (electrons)");
         PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej / texpt,
                    "Cosmic ray impact rate (pixels/sec)");
+
+        /* Cannot update the comment portion of the FITS card for an existing keyword
+           with the high-level interface so using lower-level functions for the update.
+        */
         PutKeyFlt (sg.globalhdr, "FLASHDUR", cumFlashDur, "");
+        FitsKw kw = findKw(sg.globalhdr, "FLASHDUR");
+        putKwComm(kw, "Cumulative exposure time in seconds");
 
         if (par->shadcorr) {
             logit = 0;
