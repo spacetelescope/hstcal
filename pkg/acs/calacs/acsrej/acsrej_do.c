@@ -41,6 +41,9 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], IODescPtr [], clpar *);
                                 Added doc. Cleaned up codes.
   27-Feb-2019   M.D. DeLaPena   Read the IMAGETYP keyword from Primary of first image
                                 as this info is needed by acsrej_loop.
+  30-Apr-2021   M.D. DeLaPena   Read the FLASHDUR keyword from Primary of all the input
+                                images in order to compute the cumulative value and update
+                                FLASHDUR in the blv_tmp/blc_tmp file(s).
 */
 int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                int newpar[]) {
@@ -84,6 +87,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int         non_zero;           /* number of input images with EXPTIME>0 */
     int         found;
     char        imgdefault[CHAR_FNAME_LENGTH];  /* name of first input image with EXPTIME > 0. */
+    float       cumFlashDur;
 
     int     GetSwitch (Hdr *, char *, int *);
     int     UpdateSwitch (char *, int, Hdr *, int *);
@@ -95,7 +99,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     acsrej_check (IRAFPointer, int, int, clpar *, int [],
                           char [][CHAR_FNAME_LENGTH], int [], IODescPtr [],
                           IODescPtr [], IODescPtr [], multiamp *, multiamp *,
-                          int *, int *, int, float []);
+                          int *, int *, int, float [], float *);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
                         double *);
     int     rejpar_in(clpar *, int [], int, float, int *, float []);
@@ -245,7 +249,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		/* open input files and temporary files, check the parameters */
 		if (acsrej_check (tpin, extver, numext, par, newpar, imgname, ext,
 						  ipsci, iperr, ipdq, &noise, &gain, &dim_x, &dim_y,
-						  nimgs, efac)) {
+						  nimgs, efac, &cumFlashDur)) {
 			WhichError (status);
 			return(status);
 		}
@@ -395,6 +399,13 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                    "Total sky level (electrons)");
         PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej / texpt,
                    "Cosmic ray impact rate (pixels/sec)");
+
+        /* Cannot update the comment portion of the FITS card for an existing keyword
+           with the high-level interface so using lower-level functions for the update.
+        */
+        PutKeyFlt (sg.globalhdr, "FLASHDUR", cumFlashDur, "");
+        FitsKw kw = findKw(sg.globalhdr, "FLASHDUR");
+        putKwComm(kw, "Cumulative exposure time in seconds");
 
         if (par->shadcorr) {
             logit = 0;
