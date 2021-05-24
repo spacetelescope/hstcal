@@ -1,7 +1,13 @@
- 03-May-2021   CALACS 10.3.3 Fixed a bug associated with the FLASHDUR computation.  The FLASHDUR
+ 24-May-2021   CALACS 10.3.3 Fixed a bug associated with the FLASHDUR computation.  The FLASHDUR
                              keyword was updated in the CRJ/CRC headers to be the sum of
                              the individual input images as this keyword is used in ACS2D to
-                             scale the flash reference file for flash correction.
+                             scale the flash reference file for flash correction.  Fixed a bug
+                             associated with the DARKTIME computation.  Code written for CALACS
+                             10.2.2 was moved from ACS2D to ACSCCD so every BLV_TMP file has the
+                             correct DARKTIME keyword value.  Also, the DARKTIME keyword was updated
+                             in the CRJ/CRC headers to be the sum of the individual input images. Only
+                             the DARKTIME value in the input file header is used to scale the dark
+                             reference file for the dark correction.
  26-Apr-2021   CALACS 10.3.2 Fixed a bug introduced when the build manager reworked code to
                              remove circular dependencies caused by the introduction of the
                              acscteforwardmodel code.  The name of the executable was

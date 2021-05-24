@@ -66,17 +66,11 @@
  superdarks, with the offset being an additive correction to DARKTIME
  under appropriate circumstances. The offset values is applicable for 
  WFC and HRC only.
+ M.D. De La Pena, 2021 May 24:
+ Moved the computation of the darktime with the additive correction using
+ post-flashed and unflashed values in the CCDTAB to the acsccd module.
+ In this way every blv_tmp will have the correct DARKTIME keyword value.
  */
-static const char *subApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
-                                     "WFC1A-1K", "WFC1B-1K", "WFC2C-1K", "WFC2D-1K",
-                                     "WFC1A-512", "WFC1B-512", "WFC2C-512", "WFC2D-512",
-                                     "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-ORAMPQ",
-                                     "WFC1-POL0UV", "WFC1-POL0V", 
-                                     "WFC1-POL60UV", "WFC1-POL60V", 
-                                     "WFC1-POL120UV", "WFC1-POL120V", 
-                                     "WFC1-SMFL"};
-
-static const int numSupportedSubApertures = sizeof(subApertures) / sizeof(subApertures[0]);
 
 int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   
@@ -100,9 +94,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   double mean;      /* mean value for the image */
   double weight;    /* weight value for the image (No. good pixels/all pixels) */
   int update;
-  float darktimeFromHeader;  /* base darktime value based upon FITS keyword DARKTIME from image header */
-  float darktime;        /* final darktime value after applicable offset, if any */
-  float darktimeOffset;  /* overhead offset time (s) based upon full-frame/subarray and post-flashed/unflashed */
+  float darktime;  /* darktime value based upon FITS keyword DARKTIME from image header */
   
   int DetCCDChip (char *, int, int, int *);
 
@@ -118,58 +110,9 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   scirows = x->sci.data.ny; 
 
   /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
-  darktimeFromHeader = (float)acs2d->darktime;
-
-  /*
-     The overhead offset time is a function of full-frame vs subarray and post-flash vs unflashed 
-     and has been determined empirically for CCD data.  Both the unflashed and post-flash
-     overhead values for full-frame or subarray were extracted from the calibration file 
-     during the table read.  Now it is just necessary to determine which offset actually
-     applies.
-  */
-
-  /* Unflashed observation */
-  darktimeOffset = acs2d->overhead_unflashed;
- 
-  /* Post-flashed observation */
-  if ((acs2d->flashdur > 0.0) && (strcmp(acs2d->flashstatus, "SUCCESSFUL") == 0)) {
-        darktimeOffset = acs2d->overhead_postflashed;
-  }
-
-  /* 
-     Compute the final darktime based upon the date of full-frame or subarray data.
-     The full-frame overhead offset is applicable to all data post-SM4.  The subarray 
-     overhead offset is applicable to all data post-CYCLE24 and ONLY for supported
-     subarrays. 
-
-     Effectively the additive factor only applies to ACS/WFC as the HRC was no longer
-     operational by SM4MJD or CYCLE24, and SBC is a MAMA detector.
-  */
-  darktime = darktimeFromHeader;  /* Default */
-  if (acs2d->detector != MAMA_DETECTOR) {
-
-     /* Full-frame data */
-     if (acs2d->subarray == NO) {
-         if (acs2d->expstart >= SM4MJD) {
-              darktime = darktimeFromHeader + darktimeOffset;
-         }
-         sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", darktime);
-         trlmessage(MsgText);
-
-     /* Subarray data */
-     } else {
-         if (acs2d->expstart >= CYCLE24) {
-             for (unsigned int i = 0; i < numSupportedSubApertures; i++) {
-                 if (strcmp(acs2d->aperture, subApertures[i]) == 0) {
-                     darktime = darktimeFromHeader + darktimeOffset;
-                     sprintf(MsgText, "Supported Subarray adjusted Darktime: %f for aperture: %s\n", darktime, subApertures[i]);
-                     trlmessage(MsgText);
-                     break;
-                 }
-             }
-         }
-     }
-  }
+  darktime = (float)acs2d->darktime;
+  sprintf(MsgText,"Darktime from header %f", darktime);
+  trlmessage(MsgText);
 
   /* Compute correct extension version number to extract from
      reference image to correspond to CHIP in science data.
