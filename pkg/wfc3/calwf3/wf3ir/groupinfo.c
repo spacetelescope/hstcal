@@ -97,7 +97,7 @@ int getDataUnits (WF3Info *wf3, Hdr *header) {
 */
 
 	/* Local variables */
-	char units[9];				/* BUNIT keyword value */
+	char units[12];				/* BUNIT keyword value */
 
 	/* Read the BUNIT keyword */
 	units[0] = '\0';
