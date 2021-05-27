@@ -4,7 +4,7 @@
                              scale the flash reference file for flash correction.  Fixed a bug
                              associated with the DARKTIME computation.  Code written for CALACS
                              10.2.2 was moved from ACS2D to ACSCCD so every BLV_TMP file has the
-                             correct DARKTIME keyword value.  Also, the DARKTIME keyword was updated
+                             correct DARKTIME keyword value. Also, the DARKTIME keyword was updated
                              in the CRJ/CRC headers to be the sum of the individual input images. Only
                              the DARKTIME value in the input file header is used to scale the dark
                              reference file for the dark correction.
