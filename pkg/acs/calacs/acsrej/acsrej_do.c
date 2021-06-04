@@ -88,6 +88,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int         found;
     char        imgdefault[CHAR_FNAME_LENGTH];  /* name of first input image with EXPTIME > 0. */
     float       cumFlashDur;
+    float       cumDarktime;
 
     int     GetSwitch (Hdr *, char *, int *);
     int     UpdateSwitch (char *, int, Hdr *, int *);
@@ -99,7 +100,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     acsrej_check (IRAFPointer, int, int, clpar *, int [],
                           char [][CHAR_FNAME_LENGTH], int [], IODescPtr [],
                           IODescPtr [], IODescPtr [], multiamp *, multiamp *,
-                          int *, int *, int, float [], float *);
+                          int *, int *, int, float [], float *, float *);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
                         double *);
     int     rejpar_in(clpar *, int [], int, float, int *, float []);
@@ -249,7 +250,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		/* open input files and temporary files, check the parameters */
 		if (acsrej_check (tpin, extver, numext, par, newpar, imgname, ext,
 						  ipsci, iperr, ipdq, &noise, &gain, &dim_x, &dim_y,
-						  nimgs, efac, &cumFlashDur)) {
+						  nimgs, efac, &cumFlashDur, &cumDarktime)) {
 			WhichError (status);
 			return(status);
 		}
@@ -406,6 +407,10 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         PutKeyFlt (sg.globalhdr, "FLASHDUR", cumFlashDur, "");
         FitsKw kw = findKw(sg.globalhdr, "FLASHDUR");
         putKwComm(kw, "Cumulative exposure time in seconds");
+
+        PutKeyFlt (sg.globalhdr, "DARKTIME", cumDarktime, "");
+        kw = findKw(sg.globalhdr, "DARKTIME");
+        putKwComm(kw, "Cumulative dark time in seconds");
 
         if (par->shadcorr) {
             logit = 0;

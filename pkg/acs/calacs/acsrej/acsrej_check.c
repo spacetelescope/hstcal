@@ -31,6 +31,8 @@ static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
                          to read keywords.
   19-Oct-2015 P.L. Lim   Calculations all done in electrons now.
   30-Apr-2021 M.D. DeLaPena Compute the cumulative flash duration over all images.
+  24-May-2021 M.D. DeLaPena Compute the cumulative value of the DARKTIME keywords and
+                         reset the CRJ/CRC DARKTIME to this cumulativate valuve.
 */
 
 int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
@@ -38,7 +40,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                   char imgname[][CHAR_FNAME_LENGTH], int grp[],
                   IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                   multiamp *noise, multiamp *gain, int *dim_x, int *dim_y,
-                  int nimgs, float efac[MAX_FILES], float *cumFlashDur) {
+                  int nimgs, float efac[MAX_FILES], float *cumFlashDur, float *cumDarktime) {
     /*
       Parameters:
 
@@ -64,6 +66,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
       nimgs   i: Number of input images.
       efac    i: Exposure times (seconds) for input images.
       cumFlashDur o: Cumulative flash duration over all images.
+      cumDarktime o: Cumulative darktime over all images.
     */
 
     extern int status;
@@ -74,13 +77,14 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     char        det[ACS_CBUF], flashcur[ACS_CBUF], flashcur0[ACS_CBUF];
     int         detector, flshcorr, flshcorr0;
     float       flashdur, flashlevel, flashlevel0;
+    float       darktime;
     multiamp    gn, ron;
     char        ccdamp[NAMPS+1], ccdamp0[NAMPS+1];
     int         k, n;
     int         i;
     int         chip;
     int         ampx, ampy;
-    float       totalFlashDuration;
+    float       totalFlashDuration, totalDarktime;
 
     int         GetKeyInt (Hdr *, char *, int, int, int *);
     int         GetKeyFlt (Hdr *, char *, int, float, float *);
@@ -105,6 +109,8 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     flashlevel = 0.0;
     flashlevel0 = 0.0;
     totalFlashDuration = 0.0;
+    darktime = 0.0;
+    totalDarktime = 0.0;
 
     /* loop through all input files */
     for (k = 0; k < nimgs; ++k) {
@@ -133,6 +139,12 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
             trlkwerr ("CCDAMP", fdata);
             return(status = KEYWORD_MISSING);
         }
+
+        if (GetKeyFlt (&prihdr, "DARKTIME", USE_DEFAULT, 0.0, &darktime)) {
+            trlkwerr ("DARKTIME", fdata);
+            return(status = KEYWORD_MISSING);
+        }
+        totalDarktime += darktime;
 
         /* Post-flash keywords */
         if (GetSwitch (&prihdr, "FLSHCORR", &flshcorr)) {
@@ -311,6 +323,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
         freeHdr (&prihdr);
     } /* End loop over k (images in input list) */
     *cumFlashDur = totalFlashDuration;
+    *cumDarktime = totalDarktime;
 
     /* Record noise and gain values for use in rest of ACSREJ */
     for (i = 0; i < NAMPS; i++) {

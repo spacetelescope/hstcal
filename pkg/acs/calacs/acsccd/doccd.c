@@ -1,5 +1,4 @@
 /* Do basic CCD image reduction for the current set of extensions.
- The primary header will be updated with history information, and the calibration
  switches in the header will be reset from "PERFORM" to "COMPLETE".
 
  01-Jun-1998 WJH: Revised to only perform CCD operations on ACS observations.
@@ -18,6 +17,14 @@
      with doBlev or bias_shift/cross_talk/destripe correction.
  14-May-2020: MDD: Modified to apply the full-well saturation flags stored
      as an image to the data instead of in the doDQI step.
+ 24-May-2021 MDD: Read the post-flashed and unflashed columns from the CCDTAB
+     reference file to use for the offset to the DARKTIME FITS keyword value
+     under appropropriate date and supported subarray criteria.  The DARKTIME
+     keyword value is now the default scaling factor for the superdarks, with
+     the offset being an additive correction to DARKTIME under appropriate
+     circumstances. The offset values is applicable for WFC and HRC only.
+     The code was moved from acs2d/dodark.c which contained the original
+     implementation.
 
 ** This code is a trimmed down version of CALSTIS1 do2d.c.
 */
@@ -58,6 +65,17 @@ static const char *subApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-
                                      "WFC1-POL120UV", "WFC1-POL120V", "WFC2-POL120UV", "WFC2-POL120V"};
 static const int numSupportedSubApertures = sizeof(subApertures) / sizeof(subApertures[0]);
 
+static const char *darkSubApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
+                                     "WFC1A-1K", "WFC1B-1K", "WFC2C-1K", "WFC2D-1K",
+                                     "WFC1A-512", "WFC1B-512", "WFC2C-512", "WFC2D-512",
+                                     "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-ORAMPQ",
+                                     "WFC1-POL0UV", "WFC1-POL0V", 
+                                     "WFC1-POL60UV", "WFC1-POL60V", 
+                                     "WFC1-POL120UV", "WFC1-POL120V", 
+                                     "WFC1-SMFL"};
+
+static const int numSupportedDarkSubApertures = sizeof(darkSubApertures) / sizeof(darkSubApertures[0]);
+
 int DoCCD (ACSInfo *acs_info) {
 
     /* arguments:
@@ -69,6 +87,7 @@ int DoCCD (ACSInfo *acs_info) {
     char buff[ACS_FITS_REC+1];
 
     int to_electrons(ACSInfo *, SingleGroup *);
+    int computeDarktime(ACSInfo *, SingleGroup *);
     int doBias (ACSInfo *, SingleGroup *);
     int biasHistory (ACSInfo *, Hdr *);
     int doBlev (ACSInfo *, SingleGroup *, int, float *, int *, int *);
@@ -688,6 +707,17 @@ int DoCCD (ACSInfo *acs_info) {
     /************************************************************************/
 
     /************************************************************************/
+    /* Compute the DARKTIME */
+    {unsigned int i;
+    for (i = 0; i < acs_info->nimsets; i++) {
+        if (computeDarktime(&acs[i], &x[i])) {
+            freeOnExit (&ptrReg);
+            return (status);
+        }
+    }}
+    /************************************************************************/
+
+    /************************************************************************/
     /* Apply the saturation image.
        Strictly speaking, the application of the full-well saturation image is
        not a calibration step (i.e., there is no SATCORR), but the application
@@ -889,6 +919,78 @@ int DoCCD (ACSInfo *acs_info) {
     freeOnExit (&ptrReg);
 
     return (status);
+}
+
+/*
+ * This routine updates the DARKTIME keyword such that every BLV_TMP file will
+ * have the correct DARKTIME value.
+ */
+int computeDarktime(ACSInfo *acs, SingleGroup *x) {
+
+    float darktimeFromHeader;  /* base darktime value from FITS keyword DARKTIME in image header */
+    float darktimeOffset;      /* overhead offset time (s) based upon full-frame/subarray and post-flashed/unflashed */
+    float darktime;            /* final darktime value after applicable offset, if any */
+
+    int PutKeyFlt (Hdr *, char *, float, char *);
+
+    /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
+    darktimeFromHeader = (float)acs->darktime;
+
+    /*
+       The overhead offset time is a function of full-frame vs subarray and post-flash vs unflashed 
+       and has been determined empirically for CCD data.  Both the unflashed and post-flash
+       overhead values for full-frame or subarray were extracted from the calibration file 
+       during the table read.  Now it is just necessary to determine which offset actually
+       applies.
+    */
+
+    /* Unflashed observation */
+    darktimeOffset = acs->overhead_unflashed;
+ 
+    /* Post-flashed observation */
+    if ((acs->flashdur > 0.0) && (strcmp(acs->flashstatus, "SUCCESSFUL") == 0)) {
+          darktimeOffset = acs->overhead_postflashed;
+    }
+
+    /* 
+       Compute the final darktime based upon the date of full-frame or subarray data.
+       The full-frame overhead offset is applicable to all data post-SM4.  The subarray 
+       overhead offset is applicable to all data post-CYCLE24 and ONLY for supported
+       subarrays. 
+  
+       Effectively the additive factor only applies to ACS/WFC as the HRC was no longer
+       operational by SM4MJD or CYCLE24, and SBC is a MAMA detector.
+    */
+    darktime = darktimeFromHeader;  /* Default */
+
+    /* Full-frame data */
+    if (acs->subarray == NO) {
+      if (acs->expstart >= SM4MJD) {
+        darktime = darktimeFromHeader + darktimeOffset;
+      }
+      sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", darktime);
+      trlmessage(MsgText);
+
+    /* Subarray data */
+    } else {
+      if (acs->expstart >= CYCLE24) {
+        for (unsigned int i = 0; i < numSupportedDarkSubApertures; i++) {
+            if (strcmp(acs->aperture, darkSubApertures[i]) == 0) {
+                darktime = darktimeFromHeader + darktimeOffset;
+                sprintf(MsgText, "Supported Subarray adjusted Darktime: %f for aperture: %s\n", darktime, darkSubApertures[i]);
+                trlmessage(MsgText);
+                break;
+            }
+        }
+      }
+    }
+    sprintf(MsgText, "DARKTIME from SCI header: %f  Offset from CCDTAB: %f  Final DARKTIME: %f", darktimeFromHeader, darktimeOffset, darktime);
+    trlmessage(MsgText);
+
+    (void) PutKeyFlt(x->globalhdr, "DARKTIME", darktime, "");
+
+    sprintf(MsgText, "Updated DARKTIME %f.", darktime);
+    trlmessage(MsgText);
 }
 
 
