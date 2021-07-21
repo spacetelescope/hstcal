@@ -117,10 +117,6 @@ int main (int argc, char **argv) {
         freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
-    inlist[0] = '\0';
-    outlist[0] = '\0';
-    input[0] = '\0';
-    output[0] = '\0';
 
     /* Initialize the lists of reference file keywords and names. */
     InitRefFile (&refnames);
@@ -180,7 +176,7 @@ int main (int argc, char **argv) {
                 }
             }
         } else if (inlist[0] == '\0') {
-            strcpy (inlist, argv[i]);
+            strncpy (inlist, argv[i], sizeof(inlist));
         } else if (outlist[0] == '\0') {
             strcpy (outlist, argv[i]);
         } else {
