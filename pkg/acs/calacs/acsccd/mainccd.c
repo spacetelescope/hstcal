@@ -62,6 +62,7 @@ int main (int argc, char **argv) {
     int verbose = NO;	/* print additional info? */
     int quiet = NO;	/* print additional info? */
     int too_many = 0;	/* too many command-line arguments? */
+    int too_long = 0; /* command-line argument too long? */
     int i, j;		/* loop indexes */
     int k;
 
@@ -142,6 +143,7 @@ int main (int argc, char **argv) {
             switch_on = 1;
         } else if (argv[i][0] == '-') {
         **********/
+        too_long = strlen(argv[i]) > CHAR_LINE_MAX;
         if (argv[i][0] == '-') {
             if (!(strcmp(argv[i],"--version")))
             {
@@ -176,14 +178,25 @@ int main (int argc, char **argv) {
                 }
             }
         } else if (inlist[0] == '\0') {
-            strncpy (inlist, argv[i], sizeof(inlist));
+            strncpy (inlist, argv[i], CHAR_LINE_LENGTH);
         } else if (outlist[0] == '\0') {
-            strcpy (outlist, argv[i]);
+            strncpy (outlist, argv[i], CHAR_LINE_LENGTH);
         } else {
             too_many = 1;
         }
     }
-    if (inlist[0] == '\0' || too_many) {
+    
+    if (inlist[0] == '\0' || too_many || too_long) {
+        if (too_many) {
+            fprintf(stderr, "ERROR: Too many arguments\n");
+        }
+        
+        if (too_long) {
+            fprintf(stderr, "ERROR: Input path exceeds maximum supported length (%zu > %d)\n",
+                    strlen(argv[i]),
+                    CHAR_LINE_LENGTH);
+        }
+        
         printSyntax();
         /*
         printf ("  command-line switches:\n");
