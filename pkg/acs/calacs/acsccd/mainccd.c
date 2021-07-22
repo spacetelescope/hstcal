@@ -143,7 +143,7 @@ int main (int argc, char **argv) {
             switch_on = 1;
         } else if (argv[i][0] == '-') {
         **********/
-        too_long = strlen(argv[i]) > CHAR_LINE_MAX;
+        too_long = strlen(argv[i]) > CHAR_LINE_LENGTH;
         if (argv[i][0] == '-') {
             if (!(strcmp(argv[i],"--version")))
             {
