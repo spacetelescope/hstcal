@@ -192,8 +192,7 @@ int main (int argc, char **argv) {
         }
         
         if (too_long) {
-            fprintf(stderr, "ERROR: Input path exceeds maximum supported length (%zu > %d)\n",
-                    strlen(argv[i]),
+            fprintf(stderr, "ERROR: Input path exceeds maximum supported length (%d)\n",
                     CHAR_LINE_LENGTH);
         }
         
