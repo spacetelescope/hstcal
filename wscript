@@ -163,7 +163,7 @@ def _gen_distinfo(data):
 
 
 def _get_distinfo():
-    """Creates a DISTINFO file using information from git
+    """Extract data from the DISTINFO file
     """
     global APPNAME
     global VERSION
