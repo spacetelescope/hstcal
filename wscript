@@ -11,10 +11,23 @@ from waflib import Task
 from waflib import Utils
 from waflib import TaskGen
 
-APPNAME = "HSTCAL"
-
 top = '.'
 out = 'build.' + platform.platform()
+out_include_dir = os.path.abspath(os.path.join(out, 'include'))
+
+APPNAME = "hstcal"
+VERSION = "UNKNOWN"
+BRANCH = "UNKNOWN"
+COMMIT = "UNKNOWN"
+
+# DISTINFO controls distribution archive versioning
+DISTINFO = os.path.abspath(os.path.join(top, "DISTINFO"))
+DISTINFO_KEYS = [
+    "APPNAME",
+    "VERSION",
+    "BRANCH",
+    "COMMIT",
+]
 
 # A list of subdirectories to recurse into
 SUBDIRS = [
@@ -28,9 +41,6 @@ SUBDIRS = [
     'pkg',
     'tables',
     ]
-
-# Have 'waf dist' create tar.gz files, rather than tar.bz2 files
-Scripting.g_gz = 'gz'
 
 # Have gcc supersede clang
 from waflib.Tools.compiler_c import c_compiler
@@ -134,56 +144,120 @@ def call(cmd):
 
     return None
 
+
+def _gen_distinfo(data):
+    """Generates a DISTINFO file
+    data: [["key", "value"], ["key", "value"], ...]
+    """
+
+    # Generate DISTINFO file UNLESS we are building from an archive
+    if os.path.exists('.git') and os.path.exists(DISTINFO):
+        return
+
+    # Write data pairs to DISTINFO file
+    with open(DISTINFO, 'w+') as fp:
+        for key_dist in DISTINFO_KEYS:
+            for name, value in data:
+                if name == key_dist:
+                    fp.write("{}:{}\n".format(name, value))
+
+
+def _get_distinfo():
+    """Creates a DISTINFO file using information from git
+    """
+    global APPNAME
+    global VERSION
+    global BRANCH
+    global COMMIT
+
+    # Die silently when there's nothing to do
+    if not os.path.exists(DISTINFO):
+        return
+
+    with open(DISTINFO, 'r') as fp:
+        for record in fp:
+            record = record.strip()
+            if not record:
+                continue
+
+            name, value = record.split(":", 1)
+            for key_dist in DISTINFO_KEYS:
+                if name == key_dist:
+                    if name == "APPNAME":
+                        APPNAME = value
+                    if name == "VERSION":
+                        VERSION = value
+                    if name == "BRANCH":
+                        BRANCH = value
+                    if name == "COMMIT":
+                        COMMIT = value
+
+
 def _get_git_details(ctx):
+    global APPNAME
+    global VERSION
+    global BRANCH
+    global COMMIT
+
+    # Handle building from a archive
+    if not os.path.exists(".git") and os.path.exists(DISTINFO):
+        print("Using DISTINFO file")
+        _get_distinfo()
+        return
+
     tmp = call('git describe --dirty --abbrev=7')
     if tmp:
-        ctx.env.gitTag = tmp
+        VERSION = tmp
 
     tmp = call('git rev-parse HEAD')
     if tmp:
-        ctx.env.gitCommit = tmp
+        COMMIT = tmp
 
     tmp = call('git rev-parse --abbrev-ref HEAD')
     if tmp:
-        ctx.env.gitBranch = tmp
+        BRANCH = tmp
+
+
+def _gen_version_header(ctx):
+    """Generate a C header to provide versioning data to hstcal's programs
+    """
+    data = [
+        ["APPNAME", APPNAME],
+        ["VERSION", VERSION],
+        ["BRANCH", BRANCH],
+        ["COMMIT", COMMIT],
+    ]
+    _gen_distinfo(data)
+
+    filename = os.path.join(out_include_dir, 'version.h')
+    label = "HEADER_" + os.path.basename(filename).replace(".", "_").upper()
+
+    os.makedirs(out_include_dir, exist_ok=True)
+    with open(filename, 'w+') as hdr:
+        hdr.write("#ifndef {}\n".format(label))
+        hdr.write("#define {}\n".format(label))
+        for key, value in data:
+            hdr.write("#define {} \"{}\"\n".format(key, value))
+        hdr.write("#endif  /* {} */\n".format(label))
+
 
 def _use_git_details(ctx):
     _get_git_details(ctx)
 
+    # Include generated header(s)
+    ctx.env.append_value('CFLAGS', '-I{}'.format(out_include_dir))
+
+    # Inform user
     ctx.start_msg("Building app")
     ctx.end_msg(APPNAME, _warn_color(APPNAME, "UNKNOWN"))
     ctx.start_msg("Version")
-    ctx.end_msg(ctx.env.gitTag, _warn_color(ctx.env.gitTag, "UNKNOWN"))
+    ctx.end_msg(VERSION, _warn_color(VERSION, "UNKNOWN"))
     ctx.start_msg("git HEAD commit")
-    ctx.end_msg(ctx.env.gitCommit, _warn_color(ctx.env.gitCommit, "UNKNOWN"))
+    ctx.end_msg(COMMIT, _warn_color(COMMIT, "UNKNOWN"))
     ctx.start_msg("git branch")
-    ctx.end_msg(ctx.env.gitBranch, _warn_color(ctx.env.gitBranch, "UNKNOWN"))
+    ctx.end_msg(BRANCH, _warn_color(BRANCH, "UNKNOWN"))
 
-    ctx.env.append_value('CFLAGS', '-D APPNAME="{0}"'.format(APPNAME))
-    ctx.env.append_value('CFLAGS', '-D VERSION="{0}"'.format(ctx.env.gitTag))
-    ctx.env.append_value('CFLAGS', '-D BRANCH="{0}"'.format(ctx.env.gitBranch))
-    ctx.env.append_value('CFLAGS', '-D COMMIT="{0}"'.format(ctx.env.gitCommit))
 
-def _is_same_git_details(ctx, diffList):
-    oldTag = ctx.env.gitTag[:]
-    oldCommit = ctx.env.gitCommit[:]
-    oldBranch = ctx.env.gitBranch[:]
-
-    _get_git_details(ctx)
-
-    isSame = True
-
-    if ctx.env.gitTag != oldTag:
-        diffList.append("'{0}' -> '{1}'".format(oldTag, ctx.env.gitTag))
-        isSame = False
-    if ctx.env.gitCommit != oldCommit:
-        diffList.append("'{0}' -> '{1}'\n".format(oldCommit, ctx.env.gitCommit))
-        isSame = False
-    if ctx.env.gitBranch != oldBranch:
-        diffList.append("'{0}' -> '{1}'\n".format(oldBranch, ctx.env.gitBranch))
-        isSame = False
-
-    return isSame
 
 def _check_mac_osx_version(floor_version):
     '''
@@ -300,10 +374,6 @@ def configure(conf):
     # NOTE: All of the variables in conf.env are defined for use by
     # wscript files in subdirectories.
 
-    conf.env.gitTag = "UNKNOWN"
-    conf.env.gitCommit = "UNKNOWN"
-    conf.env.gitBranch = "UNKNOWN"
-
     # Read in options from a file.  The file is just a set of
     # commandline arguments in the same syntax.  May be spread across
     # multiple lines.
@@ -318,6 +388,7 @@ def configure(conf):
         fd.close()
 
     _use_git_details(conf)
+    _gen_version_header(conf)
 
     # Load C compiler support
     conf.load('compiler_c')
@@ -353,7 +424,7 @@ def configure(conf):
 
     _setup_openmp(conf)
 
-    _determine_sizeof_int(conf)
+    #_determine_sizeof_int(conf)
 
     if conf.check_cc(cflags='-std=gnu99'):
         conf.env.append_value('CFLAGS', '-std=gnu99')
@@ -401,17 +472,32 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
     conf.end_msg(' '.join(conf.env['LDFLAGS']) or None)
 
 
-def build(bld):
-    if bld.cmd == 'build':
-        diffList = []
-        if not _is_same_git_details(bld, diffList):
-            diffString = ''
-            for item in diffList:
-                diffString = diffString + item + '\n'
-            bld.fatal("ERROR: git details differ between current source \
-tree and build configuration. Please run 'configure' again to \
-update the build configuration.\n{0}".format(diffString))
+def dist(ctx):
+    ctx.algo = 'tar.gz'
 
+    # Manually include project files in the archive
+    ctx.files = ctx.path.ant_glob('**/*', excl=[
+        '.git*',
+        '.waf*',
+        '.lock-*',
+        'Makefile',
+        '__pycache__',
+        '**/__pycache__',
+        '.cache',
+        '**/.cache',
+        out,
+        'bin.*',
+        '*.tar.*',
+        '*.zip'])
+
+    # Update version information
+    _get_git_details(ctx)
+
+    # call 'waf dist' directly to generate an archive
+    Scripting.dist(ctx)
+
+
+def build(bld):
     bld(name='lib', always=True)
     bld(name='test', always=True)
 
