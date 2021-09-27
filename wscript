@@ -145,9 +145,9 @@ def call(cmd):
     return None
 
 
-def _gen_distinfo(data):
+def _gen_distinfo(ctx):
     """Generates a DISTINFO file
-    data: [["key", "value"], ["key", "value"], ...]
+    ctx.git_data: [["key", "value"], ["key", "value"], ...]
     """
 
     # Generate DISTINFO file UNLESS we are building from an archive
@@ -163,7 +163,7 @@ def _gen_distinfo(data):
     print("Generating DISTINFO file")
     with open(DISTINFO, 'w+') as fp:
         for key_dist in DISTINFO_KEYS:
-            for name, value in data:
+            for name, value in ctx.git_data:
                 if name == key_dist:
                     fp.write("{}:{}\n".format(name, value))
 
@@ -209,6 +209,7 @@ def _get_git_details(ctx):
     if not os.path.exists(".git") and os.path.exists(DISTINFO):
         print("Using DISTINFO file")
         _get_distinfo()
+        _gen_version_header(ctx)
         return
 
     tmp = call('git describe --dirty --abbrev=7')
@@ -223,26 +224,27 @@ def _get_git_details(ctx):
     if tmp:
         BRANCH = tmp
 
+    _gen_version_header(ctx)
+    _gen_distinfo(ctx)
+
 
 def _gen_version_header(ctx):
     """Generate a C header to provide versioning data to hstcal's programs
     """
-    data = [
+    filename = os.path.join(out_include_dir, 'version.h')
+    label = "HEADER_" + os.path.basename(filename).replace(".", "_").upper()
+    ctx.git_data = [
         ["APPNAME", APPNAME],
         ["VERSION", VERSION],
         ["BRANCH", BRANCH],
         ["COMMIT", COMMIT],
     ]
-    _gen_distinfo(data)
-
-    filename = os.path.join(out_include_dir, 'version.h')
-    label = "HEADER_" + os.path.basename(filename).replace(".", "_").upper()
 
     os.makedirs(out_include_dir, exist_ok=True)
     with open(filename, 'w+') as hdr:
         hdr.write("#ifndef {}\n".format(label))
         hdr.write("#define {}\n".format(label))
-        for key, value in data:
+        for key, value in ctx.git_data:
             hdr.write("#define {} \"{}\"\n".format(key, value))
         hdr.write("#endif  /* {} */\n".format(label))
 
@@ -262,7 +264,6 @@ def _use_git_details(ctx):
     ctx.end_msg(COMMIT, _warn_color(COMMIT, "UNKNOWN"))
     ctx.start_msg("git branch")
     ctx.end_msg(BRANCH, _warn_color(BRANCH, "UNKNOWN"))
-
 
 
 def _check_mac_osx_version(floor_version):
@@ -394,7 +395,6 @@ def configure(conf):
         fd.close()
 
     _use_git_details(conf)
-    _gen_version_header(conf)
 
     # Load C compiler support
     conf.load('compiler_c')
@@ -497,17 +497,20 @@ def _dist_setup(ctx):
         '*.zip'])
 
     # Update version information
-    Scripting.run_command('configure')
+    _get_git_details(ctx)
 
 
 def dist(ctx):
     _dist_setup(ctx)
+
     # call 'waf dist' directly to generate an archive
     Scripting.dist(ctx)
 
 
 def distcheck(ctx):
     _dist_setup(ctx)
+
+    # call 'waf distcheck' directly to smoke test building from an archive
     Scripting.distcheck(ctx)
 
 
