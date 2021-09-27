@@ -151,7 +151,7 @@ def _gen_distinfo(data):
     """
 
     # Generate DISTINFO file UNLESS we are building from an archive
-    if os.path.exists('.git') and os.path.exists(DISTINFO):
+    if not os.path.exists('.git') and os.path.exists(DISTINFO):
         return
 
     # Write data pairs to DISTINFO file
@@ -472,7 +472,7 @@ Press any key to continue or Ctrl+c to abort...\033[0m"""
     conf.end_msg(' '.join(conf.env['LDFLAGS']) or None)
 
 
-def dist(ctx):
+def _dist_setup(ctx):
     ctx.algo = 'tar.gz'
 
     # Manually include project files in the archive
@@ -493,8 +493,15 @@ def dist(ctx):
     # Update version information
     _get_git_details(ctx)
 
+def dist(ctx):
+    _dist_setup(ctx)
     # call 'waf dist' directly to generate an archive
     Scripting.dist(ctx)
+
+
+def distcheck(ctx):
+    _dist_setup(ctx)
+    Scripting.distcheck(ctx)
 
 
 def build(bld):
