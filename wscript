@@ -152,9 +152,16 @@ def _gen_distinfo(data):
 
     # Generate DISTINFO file UNLESS we are building from an archive
     if not os.path.exists('.git') and os.path.exists(DISTINFO):
+        print("Building from distribution archive")
         return
 
+    # Remove previous edition of the file
+    if os.path.exists(DISTINFO):
+    	print("Removing previous DISTINFO file")
+    	os.unlink(DISTINFO)
+
     # Write data pairs to DISTINFO file
+    print("Generating DISTINFO file")
     with open(DISTINFO, 'w+') as fp:
         for key_dist in DISTINFO_KEYS:
             for name, value in data:
