@@ -157,7 +157,6 @@ def _gen_distinfo(data):
 
     # Remove previous edition of the file
     if os.path.exists(DISTINFO):
-    	print("Removing previous DISTINFO file")
     	os.unlink(DISTINFO)
 
     # Write data pairs to DISTINFO file
@@ -498,7 +497,8 @@ def _dist_setup(ctx):
         '*.zip'])
 
     # Update version information
-    _get_git_details(ctx)
+    Scripting.run_command('configure')
+
 
 def dist(ctx):
     _dist_setup(ctx)
