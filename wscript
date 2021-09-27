@@ -157,7 +157,7 @@ def _gen_distinfo(ctx):
 
     # Remove previous edition of the file
     if os.path.exists(DISTINFO):
-    	os.unlink(DISTINFO)
+        os.unlink(DISTINFO)
 
     # Write data pairs to DISTINFO file
     print("Generating DISTINFO file")
