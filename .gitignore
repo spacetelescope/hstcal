@@ -1,3 +1,5 @@
+DISTINFO
+*.tar.*
 .lock-waf*
 .waf*
 bin.*
