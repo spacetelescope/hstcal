@@ -25,6 +25,11 @@
      circumstances. The offset values is applicable for WFC and HRC only.
      The code was moved from acs2d/dodark.c which contained the original
      implementation.
+ 11-Jan-2022 MDD: Only call computeDarktime() once to compute the updated 
+     DARKTIME primary keyword. Update the keyword in main to avoid passing
+     of the reference of the output data unnecessarily. Return type of the
+     computeDarktime() is void.  Mods triggered by routine failing under the
+     condaforge compilation.
 
 ** This code is a trimmed down version of CALSTIS1 do2d.c.
 */
@@ -87,7 +92,7 @@ int DoCCD (ACSInfo *acs_info) {
     char buff[ACS_FITS_REC+1];
 
     int to_electrons(ACSInfo *, SingleGroup *);
-    int computeDarktime(ACSInfo *, SingleGroup *);
+    void computeDarktime(ACSInfo *, float *);
     int doBias (ACSInfo *, SingleGroup *);
     int biasHistory (ACSInfo *, Hdr *);
     int doBlev (ACSInfo *, SingleGroup *, int, float *, int *, int *);
@@ -708,13 +713,15 @@ int DoCCD (ACSInfo *acs_info) {
 
     /************************************************************************/
     /* Compute the DARKTIME */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
-        if (computeDarktime(&acs[i], &x[i])) {
-            freeOnExit (&ptrReg);
-            return (status);
-        }
-    }}
+    float darktime = 0.0;  /* final darktime value after applicable offset, if any */
+
+    /* Only need to invoke once as the needed keywords are inherited from
+       the primary, and the DARKTIME applies to all imsets */
+    computeDarktime(&acs[0], &darktime);
+    if (PutKeyFlt(x[0].globalhdr, "DARKTIME", darktime, "")) {
+        freeOnExit (&ptrReg);
+        return (status);
+    }
     /************************************************************************/
 
     /************************************************************************/
@@ -922,16 +929,13 @@ int DoCCD (ACSInfo *acs_info) {
 }
 
 /*
- * This routine updates the DARKTIME keyword such that every BLV_TMP file will
- * have the correct DARKTIME value.
+ * This routine updates the DARKTIME value such that every BLV_TMP file will
+ * have the correct DARKTIME keyword.
  */
-int computeDarktime(ACSInfo *acs, SingleGroup *x) {
+void computeDarktime(ACSInfo *acs, float *darktime) {
 
     float darktimeFromHeader;  /* base darktime value from FITS keyword DARKTIME in image header */
     float darktimeOffset;      /* overhead offset time (s) based upon full-frame/subarray and post-flashed/unflashed */
-    float darktime;            /* final darktime value after applicable offset, if any */
-
-    int PutKeyFlt (Hdr *, char *, float, char *);
 
     /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
     darktimeFromHeader = (float)acs->darktime;
@@ -961,14 +965,14 @@ int computeDarktime(ACSInfo *acs, SingleGroup *x) {
        Effectively the additive factor only applies to ACS/WFC as the HRC was no longer
        operational by SM4MJD or CYCLE24, and SBC is a MAMA detector.
     */
-    darktime = darktimeFromHeader;  /* Default */
+    *darktime = darktimeFromHeader;  /* Default */
 
     /* Full-frame data */
     if (acs->subarray == NO) {
       if (acs->expstart >= SM4MJD) {
-        darktime = darktimeFromHeader + darktimeOffset;
+        *darktime = darktimeFromHeader + darktimeOffset;
       }
-      sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", darktime);
+      sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", *darktime);
       trlmessage(MsgText);
 
     /* Subarray data */
@@ -976,20 +980,15 @@ int computeDarktime(ACSInfo *acs, SingleGroup *x) {
       if (acs->expstart >= CYCLE24) {
         for (unsigned int i = 0; i < numSupportedDarkSubApertures; i++) {
             if (strcmp(acs->aperture, darkSubApertures[i]) == 0) {
-                darktime = darktimeFromHeader + darktimeOffset;
-                sprintf(MsgText, "Supported Subarray adjusted Darktime: %f for aperture: %s\n", darktime, darkSubApertures[i]);
+                *darktime = darktimeFromHeader + darktimeOffset;
+                sprintf(MsgText, "Supported Subarray adjusted Darktime: %f for aperture: %s\n", *darktime, darkSubApertures[i]);
                 trlmessage(MsgText);
                 break;
             }
         }
       }
     }
-    sprintf(MsgText, "DARKTIME from SCI header: %f  Offset from CCDTAB: %f  Final DARKTIME: %f", darktimeFromHeader, darktimeOffset, darktime);
-    trlmessage(MsgText);
-
-    (void) PutKeyFlt(x->globalhdr, "DARKTIME", darktime, "");
-
-    sprintf(MsgText, "Updated DARKTIME %f.", darktime);
+    sprintf(MsgText, "DARKTIME from SCI header: %f  Offset from CCDTAB: %f  Final DARKTIME: %f", darktimeFromHeader, darktimeOffset, *darktime);
     trlmessage(MsgText);
 }
 
