@@ -1,3 +1,8 @@
+ 11-Jan-2022   CALACS 10.3.4 Fixed a bug which was triggered ONLY when executing the condaforge
+                             distribution on MacOS where failure was due to a missing return statement.
+                             Only call computeDarktime() once to compute the updated 
+                             DARKTIME primary keyword and function return is now void. Update
+                             the keyword in main to avoid passing extra data by reference.
  24-May-2021   CALACS 10.3.3 Fixed a bug associated with the FLASHDUR computation.  The FLASHDUR
                              keyword was updated in the CRJ/CRC headers to be the sum of
                              the individual input images as this keyword is used in ACS2D to

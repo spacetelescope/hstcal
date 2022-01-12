@@ -2,8 +2,8 @@
 #define INCL_ACSVERSION_H
 
 /* This string is written to the output primary header as CAL_VER. */
-#define ACS_CAL_VER "10.3.3 (24-May-2021)"
-#define ACS_CAL_VER_NUM "10.3.3"
+#define ACS_CAL_VER "10.3.4 (11-Jan-2022)"
+#define ACS_CAL_VER_NUM "10.3.4"
 
 /* name and version number of the CTE correction algorithm */
 #define ACS_GEN1_CTE_NAME "PixelCTE 2012"
