@@ -1,4 +1,9 @@
 ### 11-Jan-2022 - MDD - Version 10.3.4   
+    Update to the cosmic ray rejection algorithm as to the way
+    the output ERR extension is computed for the CRJ file. The 
+    output ERR is now propagated from the usable input ERR extensions
+    versus being computed by a model.
+
     Fixed a bug which was triggered ONLY when executing the condaforge
     distribution on MacOS where failure was due to a missing return 
     statement.  Only call computeDarktime() once to compute the updated

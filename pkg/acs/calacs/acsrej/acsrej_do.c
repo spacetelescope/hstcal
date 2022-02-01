@@ -360,8 +360,6 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                     /* SCI: Convert e/s to electrons, add sky back in */
                     PPix(&sg.sci.data, i, j) = (PPix(&sg.sci.data, i, j) *
                                                 texpt) + skysum;
-                    /* ERR: Convert e/s to electrons */
-                    PPix(&sg.err.data, i, j) *= texpt;
                 }
             }
         } else {
