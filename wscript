@@ -212,7 +212,7 @@ def _get_git_details(ctx):
         _gen_version_header(ctx)
         return
 
-    tmp = call('git describe --dirty --abbrev=7')
+    tmp = call('git describe --contains --dirty --abbrev=7')
     if tmp:
         VERSION = tmp
 
