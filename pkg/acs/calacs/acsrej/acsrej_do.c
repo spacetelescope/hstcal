@@ -360,10 +360,13 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
                     /* SCI: Convert e/s to electrons, add sky back in */
                     PPix(&sg.sci.data, i, j) = (PPix(&sg.sci.data, i, j) *
                                                 texpt) + skysum;
-                    /* ERR: Convert e/s to electrons */
-                    PPix(&sg.err.data, i, j) *= texpt;
                 }
             }
+            /* Set at least one pixel to a different value to insure
+               that an image array actually gets produced.  This was done
+               so the result of a test where the input ERR are all zero will
+               produce an actual output ERR array. */
+            PPix(&sg.err.data, 0, 0) = -1.;
         } else {
             /* DQ values here do not make sense, but I guess it is not
                a real issue because the output is dummy anyway. */
