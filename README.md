@@ -19,11 +19,8 @@ The simplest way to get the most recent environment would be:
 2.  Create a conda environment with the HSTCAL included:
 
 ```bash
-# Add the AstroConda channel to ~/.condarc
-$ conda channel --add http://ssb.stsci.edu/astroconda
-
 # Create a dedicated calibration environment
-$ conda create -n calib python=3 stsci-hst
+$ conda create -n calib --file [insert URL of conda environment yaml file]
 
 # Activate the environment
 $ source activate calib
