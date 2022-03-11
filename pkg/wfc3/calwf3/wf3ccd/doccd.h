@@ -41,5 +41,6 @@ int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *,int *, int *)
 int Full2Sub(WF3Info *, SingleGroup *, SingleGroup *, int, int, int);
 int Sub2Full(WF3Info *, SingleGroup *, SingleGroup *, int, int, int );
 int CreateEmptyChip(WF3Info *, SingleGroup *);
+int doFullWellSat(WF3Info *, SingleGroup *);
 
 #endif /* INCL_DOCCD_H */

@@ -17,7 +17,7 @@
 # define UNSTABLE         32    /* IR unstable pixel */
 # define WARMPIX          64    /* warm pixel */
 # define BADBIAS         128    /* bad bias value */
-# define SATPIXEL        256    /* full-well or a-to-d saturated pixel */
+# define SATPIXEL        256    /* full-well saturated pixel */
 # define BADFLAT         512    /* bad flatfield value */
 # define TRAP           1024    /* UVIS charge trap, SINK pixel */
 # define SPIKE          1024    /* CR spike detected during cridcalc IR */ 
