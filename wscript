@@ -218,10 +218,10 @@ def _get_git_details(ctx):
 
     # Report a shadowed release tag if one exists, otherwise fallback to
     # the generic description method. The generic method does NOT
-    # account for shadows. This might retun a release candidate tag if the point
+    # account for shadows. This might return a release candidate tag if the point
     # release tag shares the same commit hash. This is purely aesthetic.
     #
-    # To avoid this scenario one must commit a change to teh repository prior to
+    # To avoid this scenario one must commit a change to the repository prior to
     # tagging a final point release.
     tmp = call(cmd_describe + ' --contains') or \
         call(cmd_describe)
