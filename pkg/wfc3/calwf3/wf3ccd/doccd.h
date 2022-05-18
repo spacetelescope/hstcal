@@ -4,6 +4,7 @@
 /*USEFUL LIB FUNCTIONS*/
 static void AtoDMsg (WF3Info *, int);
 static void BiasMsg (WF3Info *, int);
+static void SatMsg (WF3Info *, int);
 static void FlashMsg (WF3Info *, int);
 static void BlevMsg (WF3Info *, int);
 static void dqiMsg  (WF3Info *, int);
@@ -13,6 +14,7 @@ int GetCorner (Hdr *, int , int *, int *);
 int doAtoD (WF3Info *, SingleGroup *);
 int atodHistory (WF3Info *, Hdr *);
 int doBias (WF3Info *, SingleGroup *);
+int doFullWellSat(WF3Info *, SingleGroup *);
 int biasHistory (WF3Info *, Hdr *);
 int doFlash (WF3Info *, SingleGroup *, float *);
 int flashHistory (WF3Info *, Hdr *);
@@ -41,6 +43,5 @@ int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *,int *, int *)
 int Full2Sub(WF3Info *, SingleGroup *, SingleGroup *, int, int, int);
 int Sub2Full(WF3Info *, SingleGroup *, SingleGroup *, int, int, int );
 int CreateEmptyChip(WF3Info *, SingleGroup *);
-int doFullWellSat(WF3Info *, SingleGroup *);
 
 #endif /* INCL_DOCCD_H */

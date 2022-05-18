@@ -88,8 +88,8 @@
     use in the CTE reduction.
 
     M. De La Pena 2022 February:
-    Added the satmap variable which renders the "saturate" variable
-    obsolete.
+    Added the satmap variable which rendered the "saturate" variable
+    obsolete.  Removed "saturate" as a cleanup operation.
  
 */
 
@@ -157,7 +157,6 @@ typedef struct {
     float mean_gain;    /* mean actual gain of all amps */
     int ampx;           /* first column affected by amps on 2/4amp readout*/
     int ampy;           /* first row affected by amps on 2/4amp readout*/
-    float saturate;     /* CCD saturation level OBSOLETE since satmap implemented*/
     int trimx[4];       /* Width of overscan to trim off ends of each line */
     int trimy[2];       /* Amount of overscan to trim off ends of each col */
     int vx[4];

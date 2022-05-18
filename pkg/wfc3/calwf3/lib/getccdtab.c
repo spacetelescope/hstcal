@@ -23,7 +23,6 @@ typedef struct {
 	IRAFPointer cp_readnoise[NAMPS];
 	IRAFPointer cp_ampx;
 	IRAFPointer cp_ampy;
-	IRAFPointer cp_saturate;
 	IRAFPointer cp_pedigree;
 	IRAFPointer cp_descrip;
 	int nrows;			/* number of rows in table */
@@ -40,7 +39,6 @@ typedef struct {
 	float readnoise[NAMPS];
 	int ampx;
 	int ampy;
-	float saturate;
 } TblRow;
 
 static int OpenCCDTab (char *, TblInfo *);
@@ -112,6 +110,10 @@ static int CloseCCDTab (TblInfo *);
     21 Oct 2009: H.Bushouse:
 	Added computation of mean_gain to GetCCDTab. mean_gain is now used
 	in flatcorr steps for doing gain conversion.
+
+    16 Feb 2022: M. De La Pena:
+    The "saturate" variable became obsolete once the full-well saturation
+    map was implemented. Removed "saturate" as a cleanup operation.
 */
 
 int GetCCDTab (WF3Info *wf3, int dimx, int dimy) {
@@ -188,15 +190,14 @@ int     dimy      i: number of lines in exposure
 		}
 		wf3->mean_gain /= NAMPS;
 
-                /* For WFC3/UVIS exposures, correct ampx to match the actual
-		   size of the image for more seamless processing of subarrays.
-		   Leave ampx as is for WFC3/IR exposures. */
+        /* For WFC3/UVIS exposures, correct ampx to match the actual
+           size of the image for more seamless processing of subarrays.
+           Leave ampx as is for WFC3/IR exposures. */
 		if (wf3->detector == CCD_DETECTOR)
 		    wf3->ampx = (tabrow.ampx > dimx) ? dimx : tabrow.ampx;
 		else
 		    wf3->ampx = tabrow.ampx;
 		wf3->ampy = tabrow.ampy;		
-		wf3->saturate = tabrow.saturate;
 
 		break;
 	    }
@@ -276,7 +277,6 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "READNSED", &tabinfo->cp_readnoise[3]);
 	c_tbcfnd1 (tabinfo->tp, "AMPX", &tabinfo->cp_ampx);
 	c_tbcfnd1 (tabinfo->tp, "AMPY", &tabinfo->cp_ampy);
-	c_tbcfnd1 (tabinfo->tp, "SATURATE", &tabinfo->cp_saturate);
 	
 	/* Initialize counters here... */
 	missing = 0;
@@ -308,7 +308,6 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_readnoise[3] == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_ampx == 0 ) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_ampy == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_saturate == 0) { missing++; nocol[i] = YES;} i++;
 	
 	if (PrintMissingCols (missing, NUMCOLS, nocol, colnames, "CCDTAB", tabinfo->tp) )
 		return(status);
@@ -437,10 +436,6 @@ static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
 		
-	c_tbegtr (tabinfo->tp, tabinfo->cp_saturate, row, &tabrow->saturate);
-	if (c_iraferr())
-	    return (status = TABLE_ERROR);
-
 	return (status);
 }
 

@@ -57,7 +57,7 @@
 
     M. De La Pena February 2022
     Modified to apply the full-well saturation flags stored as an image
-    to the data instead of in the doDQI step.
+    to the data in doFullWellSat() instead of in the doDQI step.
 
  */
 
@@ -239,7 +239,6 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (dqiHistory (wf3, x.globalhdr))
             return (status);
 
-
     /* ANALOG TO DIGITAL CORRECTION. */
     AtoDMsg (wf3, extver);
     if (wf3->atodcorr == PERFORM) {
@@ -321,14 +320,14 @@ int DoCCD (WF3Info *wf3, int extver) {
        Strictly speaking, the application of the full-well saturation image is
        not a calibration step (i.e., there is no SATCORR), but the application
        of a 2D image to flag pixels versus using a single scalar to flag
-       saturated pixels as previously done in dqicorr needs to be done here
-       after BLEVCORR and BIASCORR.  This should only be done if both
-       BLEVCORR and BIASCORR have been performed, and the data has been
-       converted to electrons.  This flagging is only applicable for the UVIS. */
-    /*** MDD: Check units are electrons and "if" statements is correct. ***/
+       saturated pixels as previously done in DQICORR will be done in doFullWellSat()
+       after BLEVCORR and BIASCORR.  This correction should only be done if both
+       BLEVCORR and BIASCORR have been performed.  This flagging is only applicable
+       for the UVIS. */
 
     if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM) {
-        sprintf(MsgText, "\nFull-well saturation flagging being performed.\n");
+        SatMsg (wf3, extver);
+        sprintf(MsgText, "\nFull-well saturation flagging being performed.");
         trlmessage(MsgText);
         if (doFullWellSat(wf3, &x)) {
             return (status);
@@ -573,6 +572,20 @@ static void BiasMsg (WF3Info *wf3, int extver) {
 
         PrRefInfo ("biasfile", wf3->bias.name, wf3->bias.pedigree,
                 wf3->bias.descrip, "");
+    }
+}
+
+static void SatMsg (WF3Info *wf3, int extver) {
+
+    int OmitStep (int);
+    void PrSwitch (char *, int);
+    void PrRefInfo (char *, char *, char *, char *, char *);
+
+    trlmessage ("");
+    if (extver == 1 && !OmitStep (wf3->biascorr)) {
+
+        PrRefInfo ("satufile", wf3->satmap.name, wf3->satmap.pedigree,
+                wf3->satmap.descrip, "");
     }
 }
 
