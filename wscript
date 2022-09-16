@@ -317,10 +317,10 @@ def _check_mac_osx_version(floor_version):
         return None
 
     # Extract the integer values between the '.'s
-    osx_version_major, osx_version_minor, osx_version_patch = tuple(int(x) for x in s.strip().split('.'))
+    osx_version_major, osx_version_minor = tuple(int(x) for x in s.strip().split('.'))
 
-    # Convert major/minor/patch values into a single 24-bit integer
-    osx_version = (osx_version_major & 0xff) << 16 | (osx_version_minor & 0xff) << 8 | (osx_version_patch & 0xff )
+    # Convert major/minor values into a single 24-bit integer
+    osx_version = (osx_version_major & 0xff) << 16 | (osx_version_minor & 0xff) << 8
 
     # If the operating system version does meet or exceed the minimum
     if osx_version < floor_version:
