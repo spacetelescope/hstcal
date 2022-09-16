@@ -54,6 +54,10 @@ target_include_directories(${PROJECT_NAME}
 target_compile_options(${PROJECT_NAME}
 	PUBLIC ${cfitsio_CFLAGS_OTHER}
 )
+set_target_properties(${PROJECT_NAME}
+	PROPERTIES
+	OUTPUT_NAME hst${PROJECT_NAME}
+)
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION lib
 )

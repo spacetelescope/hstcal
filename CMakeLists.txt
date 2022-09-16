@@ -4,6 +4,9 @@ enable_language(C)
 
 find_package(PkgConfig)
 pkg_check_modules(cfitsio cfitsio REQUIRED)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/include)
+execute_process(COMMAND ${CMAKE_SOURCE_DIR}/.ci/bin/git_version)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 #set(CMAKE_MACOSX_RPATH 1)
 

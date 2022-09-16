@@ -155,6 +155,10 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC ctegen2
 	PUBLIC hstcalib
 )
+set_target_properties(${PROJECT_NAME}
+	PROPERTIES
+	OUTPUT_NAME hst${PROJECT_NAME}
+)
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION lib
 )

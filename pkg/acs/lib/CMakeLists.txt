@@ -24,6 +24,7 @@ add_library(${PROJECT_NAME} SHARED
 	acsccd/doblev.c
 	#acsccd/doblev_v504.c # ... what??
 	acsccd/doccd.c
+	acsccd/dofwsat.c
 	acsccd/dosink.c
 	acsccd/findblev.c
 	acsccd/findover.c
@@ -135,6 +136,10 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC ctegen2
 	PUBLIC hstcalib
+)
+set_target_properties(${PROJECT_NAME}
+	PROPERTIES
+	OUTPUT_NAME hst${PROJECT_NAME}
 )
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION lib

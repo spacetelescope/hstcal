@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+if [ -f "DISTINFO" ]; then
+    read -r VERSION COMMIT BRANCH < DISTINFO
+else
+    VERSION=$(git describe --dirty --abbrev=7)
+    COMMIT=$(git rev-parse HEAD)
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+fi
+
+if [ -z "$VERSION" ]; then
+    VERSION="unknown"
+fi
+
+if [ -z "$COMMIT" ]; then
+    COMMIT="unknown"
+fi
+
+if [ -z "$BRANCH" ]; then
+    BRANCH="unknown"
+fi
+
+cat << EOF > version.h
+#ifndef HSTCAL_VERSION_H
+#define HSTCAL_VERSION_H
+#define VERSION "$VERSION"
+#define COMMIT "$COMMIT"
+#define BRANCH "$BRANCH"
+#endif // HSTCAL_VERSION_H
+EOF
