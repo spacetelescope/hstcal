@@ -212,15 +212,27 @@ def _get_git_details(ctx):
         _gen_version_header(ctx)
         return
 
-    tmp = call('git describe --dirty --abbrev=7')
+    cmd_describe = 'git describe --dirty --abbrev=7'
+    cmd_hash = 'git rev-parse HEAD'
+    cmd_branch = 'git rev-parse --abbrev-ref HEAD'
+
+    # Report a shadowed release tag if one exists, otherwise fallback to
+    # the generic description method. The generic method does NOT
+    # account for shadows. This might return a release candidate tag if the point
+    # release tag shares the same commit hash. This is purely aesthetic.
+    #
+    # To avoid this scenario one must commit a change to the repository prior to
+    # tagging a final point release.
+    tmp = call(cmd_describe + ' --contains') or \
+        call(cmd_describe)
     if tmp:
         VERSION = tmp
 
-    tmp = call('git rev-parse HEAD')
+    tmp = call(cmd_hash)
     if tmp:
         COMMIT = tmp
 
-    tmp = call('git rev-parse --abbrev-ref HEAD')
+    tmp = call(cmd_branch)
     if tmp:
         BRANCH = tmp
 
