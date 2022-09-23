@@ -43,7 +43,7 @@ int GetSwitch (Hdr *, char *, int *);
 void initCCDSwitches (CCD_Switch *);
 static void printSyntax(void)
 {
-    printf ("syntax:  WF3cte [--help] [-v] [-1] [--version] [--gitinfo] input output\n");
+    printf ("syntax:  wf3cte.e [--help] [-v] [-1] [-r] [-t] [--version] [--gitinfo] input\n");
 }
 static void printHelp(void)
 {
@@ -56,16 +56,16 @@ struct TrlBuf trlbuf = { 0 };
 
 /* 
 
-This is the main module for WF3CTE.  It gets the input and output
-file names, calibration switches, and flags, and then calls WFC3cte.
+This is the main module for WF3CTE standalone task.  It gets the input
+file name(s), calibration switches, flags, and then calls WFC3cte.
 This is necessary for the task to act standalone.
 
 */
 
 int main (int argc, char **argv) {
 
-    char *inlist;		/* input blv_tmp file name */
-    char *outlist;		/* output blc_tmp file name */
+    char *inlist;		/* input raw file name */
+    char *outlist;		/* output rac_tmp file name */
     int printtime = NO;	/* print time after each step? */
     int verbose = NO;	/* print additional info? */
     int quiet = NO;	/* print additional info? */
@@ -130,7 +130,7 @@ int main (int argc, char **argv) {
         if (argv[i][0] == '-') {
             if (!(strcmp(argv[i],"--version")))
             {
-                printf("%s\n",WF3_CAL_VER);
+                printf("%s\n",WF3_CAL_VER_NUM);
                 freeOnExit(&ptrReg);
                 exit(0);
             }
