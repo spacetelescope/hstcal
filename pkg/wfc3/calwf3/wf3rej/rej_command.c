@@ -15,6 +15,36 @@ static int getArgS (char **, int, int *, short *);
 static int getArgR (char **, int, int *, float *);
 static int getArgT (char **, int, int *, char *);
 
+static void printSyntax(void) {
+    printf("    syntax:  wf3rej.e input output [-t] [-v]\n");
+    printf("                      [-shadcorr] [-crmask]\n");
+    printf("                      [-table <filename>] [-scale #]\n");
+    printf("                      [-init (med|min)] [-sky (none|mode)]\n");
+    printf("                      [-sigmas #] [-radius #] [-thresh #]\n");
+    printf("                      [-pdq #]\n");
+    printf("                      [-r]\n");
+
+    printf("    -v: verbose\n");
+    printf("    -t: print the timestamps\n");
+    printf("    -shadcorr: perform shading shutter correction\n");
+    printf("    -crmask: flag CR in input DQ images\n");
+    printf("    -table <filename>: the crrejtab filename\n");
+    printf("    -scale <number>: scale factor for noise\n");
+    printf("    -init <med|min>: initial value estimate scheme\n");
+    printf("    -sky <none|median|mode>: how to compute sky\n");
+    printf("    -sigmas: rejection levels for each iteration\n");
+    printf("    -radius <number>: CR expansion radius\n");
+    printf("    -thresh <number> : rejection propagation threshold\n");
+    printf("    -pdq <number>: data quality flag bits to reject\n\n");
+
+    printf("    Usage\n");
+    printf("    Process data with timestamps and a custom cosmic ray rejection table:\n");
+    printf("    wf3rej.e ipppssoot_flc.fits,ipppssoot_flc.fits output.fits -t -table mycrejtab.fits\n\n");
+
+    printf("    Print the code version and exit:\n");
+    printf("    wf3rej.e -r\n\n");
+}
+
 /*  
    Processes command-line parameters for Wf3Rej.
 
@@ -23,6 +53,9 @@ static int getArgT (char **, int, int *, char *);
    27 Aug 98  -  Adapted from CALSTIS2 cs2_command.c (WJ Hack)
    
    31  Jul 2015 - propagated memory fix from calacs (MLS)
+
+   27 Sep 2022: Make interface more robust with a better syntax/usage message
+                based upon user inquiries (MDD)
    
 */
 
@@ -32,7 +65,7 @@ int rej_command (int argc, char **argv, char **input, char *output,
 /* arguments
 int argc;           i: number of input command-line parameters
 char **argv;	    i: input command-line parameters
-char **input;        o: input file name or file list, not asn
+char **input;       o: input file list, not asn
 char *output;       o: output file name
 clpar *par;         o: user specified parameters
 int newpar[];       o: array of parameters set by the user
@@ -45,32 +78,30 @@ int newpar[];       o: array of parameters set by the user
     /* Reset the parameters */
     rej_reset (par, newpar); 
 
-    
     /* Not enough arguments or just wants version number; List all options for user */
     if (argc < 3  ) {
-        if (argc >= 2){
+        if (argc == 2) {
             if (strcmp("-r", argv[1]) == 0) { 
                 printf ("Current version: %s\n", WF3_CAL_VER);
                 exit(0);
-            }
-            if (argv[ctoken][2] == '-') {
-                printf("You need to speficy an output image name");
-                exit(0);
+            } else if (argv[1][0] == '-') {
+                printf("\nUnrecognized option. You need to specify input and output image names.\n\n");
+                printSyntax();
+                exit(ERROR_RETURN);
+            } else {
+                printf("\nYou need to specify both input and output image names.\n\n");
+                printSyntax();
+                exit(ERROR_RETURN);
             }
         } else {
-            printf(" wf3rej input output [-t] [-v]");
-            printf("                    [-shadcorr] [-crmask]\n ");
-            printf("                    [-table <filename>] [-scale #]\n");
-            printf("                    [-init (med|min)] [-sky (none|mode)]\n");
-            printf("                    [-sigmas #] [-radius #] [-thresh #]\n");
-            printf("                    [-pdq #]\n"); 
-            printf("                    [-r]\n");
+            printSyntax();
             exit(ERROR_RETURN);
         }
     }       
+
     /* Get names of input and output files. These are mandatory. */
-    if ((*input = calloc(strlen(argv[1]) + 1, sizeof(char)))== NULL){
-        printf("Cannot allocate memory for input\n");
+    if ((*input = calloc(strlen(argv[1]) + 1, sizeof(char)))== NULL) {
+        printf("\nCannot allocate memory for input\n");
         return(status=OUT_OF_MEMORY);
     }
     
@@ -84,81 +115,87 @@ int newpar[];       o: array of parameters set by the user
 
             /* switch must begin with a "-" */
             if (argv[ctoken][0] != '-') {
-                return(syntax_error (argv[ctoken]));
+                printf("\nUnrecognized option: %s\n\n", argv[ctoken]);
+                printSyntax();
+                exit(ERROR_RETURN);
             } else {
 
-            /* These do not require additional arguments. */
-            if (strcmp("t", argv[ctoken]+1) == 0) { 
-                par->printtime = 1;
-                ctoken++;
+                /* These do not require additional arguments. */
+                if (strcmp("t", argv[ctoken]+1) == 0) { 
+                    par->printtime = 1;
+                    ctoken++;
 
-            } else if (strcmp("v", argv[ctoken]+1) == 0) { 
-                par->verbose = 1;
-                ctoken++;
-            } else if (strcmp("shadcorr", argv[ctoken]+1) == 0) { 
-                par->shadcorr = 1;
-                ctoken++;
+                } else if (strcmp("v", argv[ctoken]+1) == 0) { 
+                    par->verbose = 1;
+                    ctoken++;
 
-            } else if (strcmp("crmask", argv[ctoken]+1) == 0) { 
-                par->mask = 1;
-                newpar[CRMASK] = 1;
-                newpar[TOTAL]++;
-                ctoken++;
+                } else if (strcmp("shadcorr", argv[ctoken]+1) == 0) { 
+                    par->shadcorr = 1;
+                    ctoken++;
 
-            /* These require one additional argument, which is
-               handled by the getArg functions.
-            */
+                } else if (strcmp("crmask", argv[ctoken]+1) == 0) { 
+                    par->mask = 1;
+                    newpar[CRMASK] = 1;
+                    newpar[TOTAL]++;
+                    ctoken++;
 
-            } else if (strcmp("table", argv[ctoken]+1) == 0) { 
-                if (getArgT (argv, argc, &ctoken, par->tbname))
-                    return (status = INVALID_VALUE);
+                /* These require one additional argument, which is
+                   handled by the getArg functions.
+                */
 
-            } else if (strcmp("scale", argv[ctoken]+1) == 0) { 
-                newpar[TOTAL]++;
-                newpar[SCALENSE] = 1;
-                if (getArgR (argv, argc, &ctoken, &par->scalense))
-                    return (status = INVALID_VALUE);
+                } else if (strcmp("table", argv[ctoken]+1) == 0) { 
+                    if (getArgT (argv, argc, &ctoken, par->tbname))
+                        return (status = INVALID_VALUE);
 
-            } else if (strcmp("init", argv[ctoken]+1) == 0) { 
-                newpar[TOTAL]++;
-                newpar[INITGUES] = 1;
-                if (getArgT (argv, argc, &ctoken, par->initgues))
-                    return (status = INVALID_VALUE);
+                } else if (strcmp("scale", argv[ctoken]+1) == 0) { 
+                    newpar[TOTAL]++;
+                    newpar[SCALENSE] = 1;
+                    if (getArgR (argv, argc, &ctoken, &par->scalense))
+                        return (status = INVALID_VALUE);
 
-            } else if (strcmp("sky", argv[ctoken]+1) == 0) { 
-                newpar[TOTAL]++;
-                newpar[SKYSUB] = 1;
-                if (getArgT (argv, argc, &ctoken, par->sky))
-                    return (status = INVALID_VALUE);
+                } else if (strcmp("init", argv[ctoken]+1) == 0) { 
+                    newpar[TOTAL]++;
+                    newpar[INITGUES] = 1;
+                    if (getArgT (argv, argc, &ctoken, par->initgues))
+                        return (status = INVALID_VALUE);
 
-            } else if (strcmp("sigmas", argv[ctoken]+1) == 0) { 
-                newpar[TOTAL]++;
-                newpar[CRSIGMAS] = 1;
-                if (getArgT (argv, argc, &ctoken, par->sigmas))
-                    return (status = INVALID_VALUE);
+                } else if (strcmp("sky", argv[ctoken]+1) == 0) { 
+                    newpar[TOTAL]++;
+                    newpar[SKYSUB] = 1;
+                    if (getArgT (argv, argc, &ctoken, par->sky))
+                        return (status = INVALID_VALUE);
 
-            } else if (strcmp("radius", argv[ctoken]+1) == 0) { 
-                newpar[TOTAL]++;
-                newpar[CRRADIUS] = 1;
-                if (getArgR (argv, argc, &ctoken, &par->radius))
-                    return (status = INVALID_VALUE);
+                } else if (strcmp("sigmas", argv[ctoken]+1) == 0) { 
+                    newpar[TOTAL]++;
+                    newpar[CRSIGMAS] = 1;
+                    if (getArgT (argv, argc, &ctoken, par->sigmas))
+                        return (status = INVALID_VALUE);
 
-            } else if (strcmp("thresh", argv[ctoken]+1) == 0) { 
-                newpar[TOTAL]++;
-                newpar[CRTHRESH] = 1;
-                if (getArgR (argv, argc, &ctoken, &par->thresh))
-                    return (status = INVALID_VALUE);
+                } else if (strcmp("radius", argv[ctoken]+1) == 0) { 
+                    newpar[TOTAL]++;
+                    newpar[CRRADIUS] = 1;
+                    if (getArgR (argv, argc, &ctoken, &par->radius))
+                        return (status = INVALID_VALUE);
 
-            } else if (strcmp("pdq", argv[ctoken]+1) == 0) { 
-                newpar[TOTAL]++;
-                newpar[BADINPDQ] = 1;
-                if (getArgS (argv, argc, &ctoken, &par->badinpdq))
-                    return (status = INVALID_VALUE);
+                } else if (strcmp("thresh", argv[ctoken]+1) == 0) { 
+                    newpar[TOTAL]++;
+                    newpar[CRTHRESH] = 1;
+                    if (getArgR (argv, argc, &ctoken, &par->thresh))
+                        return (status = INVALID_VALUE);
 
-            /* No match. */
-            } else
-                return (syntax_error (argv[ctoken]));
-            } 
+                } else if (strcmp("pdq", argv[ctoken]+1) == 0) { 
+                    newpar[TOTAL]++;
+                    newpar[BADINPDQ] = 1;
+                    if (getArgS (argv, argc, &ctoken, &par->badinpdq))
+                        return (status = INVALID_VALUE);
+
+                /* No match. */
+                } else {
+                    printf("\nUnrecognized option: %s\n\n", argv[ctoken]);
+                    printSyntax();
+                    exit(ERROR_RETURN);
+                } 
+            }
         }
     }
 
