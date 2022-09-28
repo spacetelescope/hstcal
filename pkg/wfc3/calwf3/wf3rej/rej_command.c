@@ -24,6 +24,7 @@ static void printSyntax(void) {
     printf("                      [-pdq #]\n");
     printf("                      [-r]\n");
 
+    printf("    -r: report version of code and exit\n");
     printf("    -v: verbose\n");
     printf("    -t: print the timestamps\n");
     printf("    -shadcorr: perform shading shutter correction\n");
