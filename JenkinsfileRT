@@ -22,7 +22,7 @@ data_config.match_prefix = '(.*)_result' // .json is appended automatically
 
 // Run nightly tests, which include the slow ones.
 bc = new BuildConfig()
-bc.nodetype = "RHEL-6"
+bc.nodetype = "RHEL-7"
 bc.name = "release"
 // Note: The source tree is placed in the 'clone' subdir by the CI system.
 bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
@@ -31,8 +31,8 @@ bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
                 'jref=/grp/hst/cdbs/jref/',
                 'iref=/grp/hst/cdbs/iref/',
                 'oref=/grp/hst/cdbs/oref/']
-bc.conda_channels = ['http://ssb.stsci.edu/astroconda']
-bc.conda_packages = ['python=3.6',
+bc.conda_channels = ['http://conda.anaconda.org/conda-forge/']
+bc.conda_packages = ['python=3.9',
                      'cfitsio',
                      'pkg-config',
                      'astropy']
@@ -41,6 +41,8 @@ bc.build_cmds = ["${configure_cmd} --release-with-symbols",
                   "./waf build",
                   "./waf install",
                   "calacs.e --version",
+                  "calwf3.e --version",
+                  "cs0.e --version",
                   "pip install pytest ci-watson"]
 bc.test_cmds = ["pytest tests --basetemp=tests_output --junitxml results.xml --bigdata --slow -v"]
 bc.failedUnstableThresh = 1
@@ -49,7 +51,11 @@ bc.failedFailureThresh = 6
 // Upload artifacts
 bc.test_configs = [data_config]
 
+bc1 = utils.copy(bc)
+bc1.name = "linux"
+bc1.nodetype = "linux"
+
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
 // Also apply the job configuration defined in `jobconfig` above.
-utils.run([bc, jobconfig])
+utils.run([bc, bc1, jobconfig])
