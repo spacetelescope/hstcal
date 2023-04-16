@@ -227,7 +227,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
             {unsigned int  i;
             for (i = xbeg[0];  i < xend[0];  i++) {
                 /* Flag full-well saturated pixels with 256 dq bit*/             
-                if (Pix(x->sci.data, i, j) > Pix(satimage.sci.data, i, j) / wf3->mean_gain) {
+                if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, i, j) / wf3->mean_gain)) {
                     sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);
                 }
@@ -273,7 +273,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
                     k += 60;
 
                 /* Flag full-well saturated pixels with 256 dq bit*/             
-		        if (Pix(x->sci.data, i, j) > Pix(satimage.sci.data, k, l) / wf3->mean_gain) {
+		        if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, k, l) / wf3->mean_gain)) {
 			        sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);
 		        }
