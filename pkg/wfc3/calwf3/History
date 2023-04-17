@@ -1,4 +1,4 @@
-### 16-Feb-2022 - MDD - Version 3.7.0
+### 17-Apr-2023 - MDD - Version 3.7.0
     -  Implementation to use an image to detect and flag full-well saturation versus a simple scalar.
        The new routine, dofwsat.c, is similar to what has been done for calacs. The WFC3 implementation
        is more complicated in that there are serial virtual overscan columns, as well as binned images,

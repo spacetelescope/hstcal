@@ -25,7 +25,18 @@
   Initial implementation of the full-well saturation flagging done
   via an image.  Based on a similar routine written for ACS, as well as
   WFC3 doflash to accommodate binned or subarray data.
+
+  Michele De La Pena, 2023 April 17
+  Replace hardcoded values with variables isolated to this module.
+  
  */
+
+/* SIZE_SV_OVERSCAN is the size of the serial virtual overscan region 
+   (in pixels) between amps on the same chip.  
+   END_PIX_AC_AMP is the last pixel value (0-based system) of amp A 
+   or C (CCD area plus serial phyical overscan */
+# define SIZE_SV_OVERSCAN 60
+# define END_PIX_AC_AMP 2072 
 
 int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
@@ -146,12 +157,12 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
         wf3->ampy = ydim;
 
         /* The image starts in the B or D regions so we can just shift the starting pixel */
-        if (x0 > 2072) {
+        if (x0 > END_PIX_AC_AMP) {
             if (wf3->verbose) {
                 sprintf (MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ", x0, y0);
                 trlmessage (MsgText);
             }
-            x0 += 60;
+            x0 += SIZE_SV_OVERSCAN;
             if (wf3->verbose) {
                 sprintf (MsgText,"(%d,%d) to avoid virtual overscan in reference image", x0, y0);
                 trlmessage (MsgText);
@@ -159,9 +170,9 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
         /* The subarray starts somewhere in A or C and might straddle the virtual overscan region */
         } else {
-            if ((x0 + xdim) > 2072) {
+            if ((x0 + xdim) > END_PIX_AC_AMP) {
                 straddle = 1;
-                overstart = 2073 - x0;
+                overstart = (END_PIX_AC_AMP + 1) - x0;
             }
         }
     }
@@ -270,7 +281,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
                 /* Increase the value of l to jump over the virtual overscan */
                 if (i == overstart)
-                    k += 60;
+                    k += SIZE_SV_OVERSCAN;
 
                 /* Flag full-well saturated pixels with 256 dq bit*/             
 		        if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, k, l) / wf3->mean_gain)) {
