@@ -25,7 +25,7 @@ static void printSyntax(void) {
     printf("                      [-r]\n");
 
     printf("    -r: report version of code and exit\n");
-    printf("    -v: verbose\n");
+    printf("    -v: verbose mode\n");
     printf("    -t: print the timestamps\n");
     printf("    -shadcorr: perform shading shutter correction\n");
     printf("    -crmask: flag CR in input DQ images\n");
@@ -33,7 +33,7 @@ static void printSyntax(void) {
     printf("    -scale <number>: scale factor for noise\n");
     printf("    -init <med|min>: initial value estimate scheme\n");
     printf("    -sky <none|median|mode>: how to compute sky\n");
-    printf("    -sigmas: rejection levels for each iteration\n");
+    printf("    -sigmas <sigma_values>: rejection levels for each iteration\n");
     printf("    -radius <number>: CR expansion radius\n");
     printf("    -thresh <number> : rejection propagation threshold\n");
     printf("    -pdq <number>: data quality flag bits to reject\n\n");
