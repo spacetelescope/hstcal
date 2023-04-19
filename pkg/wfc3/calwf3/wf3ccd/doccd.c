@@ -63,7 +63,7 @@
 
 # include <string.h>
 # include <stdio.h>
-#include "hstcal.h"
+# include "hstcal.h"
 # include "hstio.h"
 # include "wf3.h"
 # include "wf3info.h"
@@ -364,8 +364,8 @@ int DoCCD (WF3Info *wf3, int extver) {
                 */
 
                 /* Make temporary full group
-                 use the sinkfile as the reference
-                sub2full will reset the pixel values
+                   use the sinkfile as the reference
+                   sub2full will reset the pixel values
                 */
                 initSingleGroup(&fullarray);
                 allocSingleGroup(&fullarray,RAZ_COLS/2,RAZ_ROWS, True);
