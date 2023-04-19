@@ -1,3 +1,10 @@
+Updates for Version 3.7.0 17-Apr-2023 - MDD
+    -  Implementation to use an image to detect and flag full-well saturation versus a simple scalar.
+       The new routine, dofwsat.c, is similar to what has been done for calacs. The WFC3 implementation
+       is more complicated in that there are serial virtual overscan columns, as well as binned images,
+       to accommodate.  The detection/flagging occurs after blev and bias correction while the output is
+       still in counts.
+
 Updates for Version 3.6.2 27-May-2021 - MDD
     - Bug fix to address calwf3.e crashing (Abort trap: 6) when taking an existing *_ima.fits (IR) file
       (produced with FLATCORR=PERFORM and CRCORR=OMIT) with CRCORR set to PERFORM. This reentrant

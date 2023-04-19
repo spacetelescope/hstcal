@@ -86,6 +86,10 @@
     M. De La Pena 2020 March:
     Read the PCTERNOI value from the raw image header for possible 
     use in the CTE reduction.
+
+    M. De La Pena 2022 February:
+    Added the satmap variable which rendered the "saturate" variable
+    obsolete.  Removed "saturate" as a cleanup operation.
  
 */
 
@@ -153,7 +157,6 @@ typedef struct {
     float mean_gain;    /* mean actual gain of all amps */
     int ampx;           /* first column affected by amps on 2/4amp readout*/
     int ampy;           /* first row affected by amps on 2/4amp readout*/
-    float saturate;     /* CCD saturation level */
     int trimx[4];       /* Width of overscan to trim off ends of each line */
     int trimy[2];       /* Amount of overscan to trim off ends of each col */
     int vx[4];
@@ -227,6 +230,7 @@ typedef struct {
     RefImage nlin;	    /* non-linearity coefficients image */
     RefImage zoff;      /* super zero  */
     RefTab pctetab;     /*uvis CTE parameter table*/
+    RefImage satmap;    /* full-well saturation image */
     
 } WF3Info;
 

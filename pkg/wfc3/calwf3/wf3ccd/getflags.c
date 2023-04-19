@@ -34,6 +34,9 @@ int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
     for each reference file, as well as verifying correct selection criteria
     such as DETECTOR, FILTER, and CCDGAIN.
 
+   M. De La Pena, 2022 February 
+    Added new SATUFILE: Full-well saturation image.
+
 */
 
 int GetFlags (WF3Info *wf3, Hdr *phdr) {
@@ -148,6 +151,8 @@ int *nsteps      io: incremented if this step can be performed
 
 	extern int status;
 
+    int saveBiasCorr = GOOD_PEDIGREE;
+
 	int calswitch;
 	int GetSwitch (Hdr *, char *, int *);
 	void MissingFile (char *, char *, int *);
@@ -164,24 +169,45 @@ int *nsteps      io: incremented if this step can be performed
 		return (status);
 	    }
 
-	    if (GetImageRef (wf3->refnames, phdr, "BIASFILE", &wf3->bias, 
-			     &wf3->biascorr))
-		return (status);
-	    if (wf3->bias.exists != EXISTS_YES) {
-		MissingFile ("BIASFILE", wf3->bias.name, missing);
+        if (GetImageRef (wf3->refnames, phdr, "BIASFILE", &wf3->bias, &wf3->biascorr))
+            return (status);
 
-	    } else {
+        if (wf3->bias.exists != EXISTS_YES) {
+            MissingFile ("BIASFILE", wf3->bias.name, missing);
+        } else {
 
-		/* Is the FILETYPE appropriate for a BIAS file? */
-		CheckImgType (&wf3->bias, "BIAS", "BIASFILE", missing);
+            /* Is the FILETYPE appropriate for a BIAS file? */
+            CheckImgType (&wf3->bias, "BIAS", "BIASFILE", missing);
 
-		/* Does it have the correct GAIN value? */
-		if (CheckGain(wf3->bias.name, wf3->ccdgain, "CCDGAIN", missing))
-		    return (status);
-	    }
+            /* Does it have the correct GAIN value? */
+            if (CheckGain(wf3->bias.name, wf3->ccdgain, "CCDGAIN", missing))
+                return (status);
+        }
 
 	    if (wf3->biascorr == PERFORM)
 		(*nsteps)++;
+
+        /* Save the value for recovery */
+        saveBiasCorr = wf3->biascorr;
+
+        /* 
+          Also check for the new full-well saturation image which is
+          applied after BLEVCORR and BIASCORR are done. Since the reference
+          file is not associated with its own "calibration step keyword"
+          (e.g., SATUCORR), just using the BIASCORR key as a standin here - 
+          make sure the BIASCORR retains its value as set in the above code.
+
+          This is a kludge.
+       */
+        if (GetImageRef (wf3->refnames, phdr,
+                         "SATUFILE", &wf3->satmap, &wf3->biascorr))
+            return (status);
+
+        /* Recover the biascorr setting */
+        wf3->biascorr = saveBiasCorr;
+
+        if (wf3->satmap.exists != EXISTS_YES)
+            MissingFile ("SATUFILE", wf3->satmap.name, missing);
 	}
 
 	return (status);
