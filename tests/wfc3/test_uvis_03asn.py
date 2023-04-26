@@ -25,6 +25,6 @@ class TestUVIS03ASN(BaseWFC3):
         flist = ['ibbq01msq', 'ibbq01mrq', 'ibbq01mqq']
 
         for rn in flist:
-            outputs = [(rn + '_flt.fits', rn + '_flt_ref.fits')]
+            outputs += [(rn + '_flt.fits', rn + '_flt_ref.fits')]
 
         self.compare_outputs(outputs)
