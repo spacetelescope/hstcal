@@ -22,7 +22,7 @@ class TestIR03ASN(BaseWFC3):
         flist = ['ib1f23qmq', 'ib1f23qlq', 'ib1f23qjq', 'ib1f23qhq']
 
         for rn in flist:
-            outputs = [(rn + '_flt.fits', rn + '_flt_ref.fits'),
+            outputs += [(rn + '_flt.fits', rn + '_flt_ref.fits'),
                        (rn + '_ima.fits', rn + '_ima_ref.fits')]
 
         self.compare_outputs(outputs)
