@@ -24,7 +24,11 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # the RPATH to be used when installing, but only if it's not a system directory
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+if(NOT APPLE)
+    SET(CMAKE_INSTALL_RPATH $ORIGIN/../lib)
+else()
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+endif()
 
 # always warn regardless of build mode
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
@@ -34,7 +38,7 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wall -Wextra")
 SET(CMAKE_EXECUTABLE_SUFFIX_C ".e")
 
 include_directories(include)
-#add_subdirectory(applib)
+
 add_subdirectory(ctegen2)
 add_subdirectory(cvos)
 add_subdirectory(hstio)
