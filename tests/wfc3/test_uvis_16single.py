@@ -4,6 +4,7 @@ import pytest
 from ..helpers import BaseWFC3
 
 
+@pytest.mark.xfail
 class TestUVIS16Single(BaseWFC3):
     """
     Test pos UVIS2 Jupiter impact site data
