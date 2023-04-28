@@ -90,6 +90,7 @@ add_library(${PROJECT_NAME} SHARED
 	wf3ccd/doblev.c
 	wf3ccd/doccd.c
 	wf3ccd/doflash.c
+    wf3ccd/dofwsat.c
 	wf3ccd/findblev.c
 	wf3ccd/findover.c
 	wf3ccd/getccdsw.c

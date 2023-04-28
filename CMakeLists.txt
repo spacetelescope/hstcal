@@ -8,6 +8,8 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINAR
 execute_process(COMMAND ${CMAKE_SOURCE_DIR}/.ci/bin/git_version)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+set(CMAKE_C_STANDARD 99)
+
 #set(CMAKE_MACOSX_RPATH 1)
 
 # use, i.e. don't skip the full RPATH for the build tree
