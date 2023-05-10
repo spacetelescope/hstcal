@@ -9,7 +9,6 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
->>>>>>> 3f0833e9 (Ignore cmake)
 .lock-waf*
 .waf*
 bin.*
