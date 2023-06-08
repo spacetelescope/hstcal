@@ -59,6 +59,12 @@
     Modified to apply the full-well saturation flags stored as an image
     to the data in doFullWellSat() instead of in the doDQI step.
 
+    M. De La Pena June 2023
+    Only try to access the SATUFILE keyword if it is actually available in
+    the header.  If the keyword is missing or does not contain a filename,
+    the algorithm will indicate the original method of flagging saturated
+    pixels by using a single value threshold should be used.
+
  */
 
 # include <string.h>
