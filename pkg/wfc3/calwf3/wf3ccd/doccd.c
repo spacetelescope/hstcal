@@ -325,17 +325,14 @@ int DoCCD (WF3Info *wf3, int extver) {
        BLEVCORR and BIASCORR have been performed.  This flagging is only applicable
        for the UVIS. */
 
-    if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM) {
+    if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM && wf3->scalar_satflag == False) {
         SatMsg (wf3, extver);
         sprintf(MsgText, "\nFull-well saturation flagging being performed.");
         trlmessage(MsgText);
         if (doFullWellSat(wf3, &x)) {
             return (status);
         }
-    } else {
-        sprintf(MsgText, "\nNo Full-well saturation flagging being performed.\n");
-        trlwarn(MsgText);
-    }
+    } 
 
     /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
      IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE

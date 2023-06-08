@@ -37,6 +37,12 @@ int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
    M. De La Pena, 2022 February 
     Added new SATUFILE: Full-well saturation image.
 
+   M. De La Pena, 2023 May
+    Only try to access the SATUFILE keyword if it is actually available in
+    the header.  If the keyword is missing or does not contain a filename,
+    the algorithm will indicate the original method of flagging saturated
+    pixels by using a single value threshold should be used.
+
 */
 
 int GetFlags (WF3Info *wf3, Hdr *phdr) {
@@ -201,13 +207,26 @@ int *nsteps      io: incremented if this step can be performed
        */
         if (GetImageRef (wf3->refnames, phdr,
                          "SATUFILE", &wf3->satmap, &wf3->biascorr))
+        {
+            wf3->scalar_satflag = True;
+	        sprintf (MsgText, "SATUFILE not found or cannot be opened.");
+	        trlerror (MsgText);
+	        sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
+	        trlmessage(MsgText);
             return (status);
+        }
 
         /* Recover the biascorr setting */
         wf3->biascorr = saveBiasCorr;
 
-        if (wf3->satmap.exists != EXISTS_YES)
+        /* Accommodate a missing SATUFILE keyword or associated value */
+        if (wf3->satmap.exists != EXISTS_YES) {
+            wf3->scalar_satflag = True;
             MissingFile ("SATUFILE", wf3->satmap.name, missing);
+            *missing = 0;
+	        sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
+	        trlmessage(MsgText);
+        }
 	}
 
 	return (status);

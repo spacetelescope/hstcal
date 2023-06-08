@@ -40,7 +40,7 @@ char *refname     o: directory name and reference file name
 
 	if (!foundit) {
 	    if (GetKeyStr (phdr, keyword, USE_DEFAULT, "", refname, CHAR_LINE_LENGTH))
-		return (status);
+		    return (status);
 	}
 
 	return (status);

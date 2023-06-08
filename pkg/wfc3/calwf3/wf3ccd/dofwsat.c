@@ -254,7 +254,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
                 }
             }}
         }}
-        sprintf(MsgText, "Full-frame full-well saturation image flagging step done.");
+        sprintf(MsgText, "Full-frame full-well saturation image flagging step done.\n");
         trlmessage(MsgText);
 
     /* Subarray */

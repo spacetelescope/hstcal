@@ -90,6 +90,14 @@
     M. De La Pena 2022 February:
     Added the satmap variable which rendered the "saturate" variable
     obsolete.  Removed "saturate" as a cleanup operation.
+
+    M. De La Pena 2023 June:
+    Resurrect the "saturate" variable as the full-well flagging can
+    be done using a saturation image, or in the case of a missing
+    SATUFILE FITS keyword, using a single threshold value which was
+    the original algorithm in doDQI. Added a flag, scalar_satflag, to
+    indicate which method should be used for the full-well saturation
+    flagging.
  
 */
 
@@ -157,6 +165,8 @@ typedef struct {
     float mean_gain;    /* mean actual gain of all amps */
     int ampx;           /* first column affected by amps on 2/4amp readout*/
     int ampy;           /* first row affected by amps on 2/4amp readout*/
+    float saturate;     /* full-well saturation threshold as a single value */
+    Bool scalar_satflag;/* indicator whether threshold value vs saturation image should be used */
     int trimx[4];       /* Width of overscan to trim off ends of each line */
     int trimy[2];       /* Amount of overscan to trim off ends of each col */
     int vx[4];
