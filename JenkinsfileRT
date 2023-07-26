@@ -12,7 +12,7 @@ CFLAGS = ''
 LDFLAGS = ''
 DEFAULT_FLAGS = "${CFLAGS} ${LDFLAGS}"
 // Some waf flags cause a prompt for input during configuration, hence the 'yes'.
-configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
+configure_cmd = "cmake . -DCMAKE_INSTALL_PREFIX=./_install ${DEFAULT_FLAGS}"
 
 // Configure artifactory ingest
 data_config = new DataConfig()
@@ -35,11 +35,12 @@ bc.conda_channels = ['http://conda.anaconda.org/conda-forge/']
 bc.conda_packages = ['python=3.9',
                      'cfitsio',
                      'pkg-config',
-                     'astropy']
+                     'astropy',
+                     'cmake']
 
-bc.build_cmds = ["${configure_cmd} --release-with-symbols",
-                  "./waf build",
-                  "./waf install",
+bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo",
+                  "make",
+                  "make install",
                   "calacs.e --version",
                   "calwf3.e --version",
                   "cs0.e --version",
