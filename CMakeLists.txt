@@ -25,7 +25,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # the RPATH to be used when installing, but only if it's not a system directory
 if(NOT APPLE)
-    SET(CMAKE_INSTALL_RPATH $ORIGIN/../lib)
+    SET(CMAKE_INSTALL_RPATH $ORIGIN/../lib:${CMAKE_INSTALL_PREFIX}/lib)
 else()
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 endif()
