@@ -2,7 +2,7 @@
     -  Implementation to use an image to detect and flag full-well saturation versus a simple scalar.
        The new routine, dofwsat.c, is similar to what has been done for calacs. The WFC3 implementation
        is more complicated in that there are serial virtual overscan columns, as well as binned images,
-       to accommodate.  The detection/flagging occurs after blev and bias correction while the output is
+       to accommodate.  The detection/flagging occurs after blev and bias corrections while the output is
        still in counts.  If the SATUFILE keyword is missing from the FITS header, or the keyword does
        not have a valid filename as a value, the code will revert to using the original method of flagging
        full-well saturation.  The flagging will be done in doDQI and use a single value as the saturation 
