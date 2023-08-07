@@ -190,13 +190,13 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	if (wf3->dqicorr != PERFORM && wf3->dqicorr != DUMMY)
 	    return (status);
 
-    /* Issue a message so it is clear that saturation flagging is 
-       being done here in DODQI using scalar *IF* wf3->scalar_satflag is True.
-    */
-    if (wf3->scalar_satflag == True) {
-        sprintf (MsgText, "Full-well saturation flagging being applied during doDQI using a single threshold value.");
-        trlmessage (MsgText);
-    }
+	/* Issue a message so it is clear that saturation flagging is 
+		being done here in DODQI using scalar *IF* wf3->scalar_satflag is True.
+	*/
+	if (wf3->scalar_satflag == True) {
+		sprintf (MsgText, "Full-well saturation flagging being applied during doDQI using a single threshold value.");
+		trlmessage (MsgText);
+	}
 
 	/* For the CCD, check for and flag saturation. */
 	sat = wf3->saturate;
