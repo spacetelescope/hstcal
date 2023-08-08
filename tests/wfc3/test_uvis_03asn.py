@@ -24,6 +24,7 @@ class TestUVIS03ASN(BaseWFC3):
         # Excluded ('ibbq01010_spt.fits', 'ibbq01010_spt_ref.fits')
         flist = ['ibbq01msq', 'ibbq01mrq', 'ibbq01mqq']
 
+        outputs = []
         for rn in flist:
             outputs += [(rn + '_flt.fits', rn + '_flt_ref.fits')]
 
