@@ -24,7 +24,8 @@ class TestUVIS04ASN(BaseWFC3):
         # Excluded ('ib1f23040_spt.fits', 'ib1f23040_spt_ref.fits')
         flist = ['ib1f23r0q', 'ib1f23qyq']
 
+        outputs = []
         for rn in flist:
-            outputs = [(rn + '_flt.fits', rn + '_flt_ref.fits')]
+            outputs += [(rn + '_flt.fits', rn + '_flt_ref.fits')]
 
         self.compare_outputs(outputs)

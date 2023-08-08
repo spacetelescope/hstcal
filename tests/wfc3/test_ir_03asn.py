@@ -21,8 +21,9 @@ class TestIR03ASN(BaseWFC3):
         # Excluded ('ib1f23010_spt.fits', 'ib1f23010_spt_ref.fits')
         flist = ['ib1f23qmq', 'ib1f23qlq', 'ib1f23qjq', 'ib1f23qhq']
 
+        outputs = []
         for rn in flist:
-            outputs = [(rn + '_flt.fits', rn + '_flt_ref.fits'),
+            outputs += [(rn + '_flt.fits', rn + '_flt_ref.fits'),
                        (rn + '_ima.fits', rn + '_ima_ref.fits')]
 
         self.compare_outputs(outputs)

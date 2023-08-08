@@ -25,7 +25,8 @@ class TestUVIS08ASN(BaseWFC3):
         # Excluded ('ibbsa5010_spt.fits', 'ibbsa5010_spt_ref.fits')
         flist = ['ibbsa5ivq', 'ibbsa5iuq', 'ibbsa5itq', 'ibbsa5isq']
 
+        outputs = []
         for rn in flist:
-            outputs = [(rn + '_flt.fits', rn + '_flt_ref.fits')]
+            outputs += [(rn + '_flt.fits', rn + '_flt_ref.fits')]
 
         self.compare_outputs(outputs)
