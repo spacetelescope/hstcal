@@ -59,6 +59,12 @@
     Modified to apply the full-well saturation flags stored as an image
     to the data in doFullWellSat() instead of in the doDQI step.
 
+    M. De La Pena June 2023
+    Only try to access the SATUFILE keyword if it is actually available in
+    the header.  If the keyword is missing or does not contain a filename,
+    the algorithm will indicate the original method of flagging saturated
+    pixels by using a single value threshold should be used.
+
  */
 
 # include <string.h>
@@ -325,17 +331,14 @@ int DoCCD (WF3Info *wf3, int extver) {
        BLEVCORR and BIASCORR have been performed.  This flagging is only applicable
        for the UVIS. */
 
-    if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM) {
+    if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM && wf3->scalar_satflag == False) {
         SatMsg (wf3, extver);
         sprintf(MsgText, "\nFull-well saturation flagging being performed.");
         trlmessage(MsgText);
         if (doFullWellSat(wf3, &x)) {
             return (status);
         }
-    } else {
-        sprintf(MsgText, "\nNo Full-well saturation flagging being performed.\n");
-        trlwarn(MsgText);
-    }
+    } 
 
     /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
      IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE

@@ -127,6 +127,13 @@ static void FirstLast (double *, double *, int *, int *, int *, int *,
     pixel value being greater than a defined scalar value.  Use of a
     new full-well saturation image supersedes the functionality previously
     done in this routine.
+
+   M. De La Pena, 2023 May
+    Resurrected the ability to flag full-well saturated pixels based upon
+    a science pixel value being greater than a defined scalar value.  This
+    was done at the request of the WFC3 team so that a user can have their
+    processed data flagged even if no saturation image is present. 
+
 */
 
 int doDQI (WF3Info *wf3, SingleGroup *x) {
@@ -160,6 +167,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	int i, j, i0, j0;	/* indexes for scratch array ydq */
 	int m, n;		/* indexes for data quality array in x */
 	short sum_dq;		/* for binning data quality array */
+	float sat;			/* saturation threshold */
 
 	int row;		/* loop index for row number */
 	int dimx, dimy;
@@ -182,7 +190,16 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	if (wf3->dqicorr != PERFORM && wf3->dqicorr != DUMMY)
 	    return (status);
 
+	/* Issue a message so it is clear that saturation flagging is 
+		being done here in DODQI using scalar *IF* wf3->scalar_satflag is True.
+	*/
+	if (wf3->scalar_satflag == True) {
+		sprintf (MsgText, "Full-well saturation flagging being applied during doDQI using a single threshold value.");
+		trlmessage (MsgText);
+	}
+
 	/* For the CCD, check for and flag saturation. */
+	sat = wf3->saturate;
 	if (wf3->detector != IR_DETECTOR) {
             dimx = x->sci.data.nx;
             dimy = x->sci.data.ny;
@@ -193,6 +210,14 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 				if (Pix (x->sci.data, i, j) > ATOD_SATURATE) {
 					sum_dq = DQPix (x->dq.data, i, j) | ATODSAT;
 					DQSetPix (x->dq.data, i, j, sum_dq); /* atod sat */
+				}
+
+				if (wf3->scalar_satflag == True) {
+					/* Flag full-well or a-to-d saturated pixels with 256 bit */
+					if (Pix (x->sci.data, i, j) > sat || Pix (x->sci.data, i, j) > ATOD_SATURATE) {
+						sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
+						DQSetPix (x->dq.data, i, j, sum_dq);	/* saturated */
+					}
 				}
 			}
 	    }
