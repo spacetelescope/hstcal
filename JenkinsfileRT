@@ -40,7 +40,7 @@ bc.conda_packages = ['python=3.9',
                      'astropy',
                      'cmake']
 
-bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=gcc",
+bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=\$(which gcc)",
                   "make",
                   "make install",
                   "calacs.e --version",
