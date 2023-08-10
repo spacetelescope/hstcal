@@ -22,7 +22,7 @@ data_config.match_prefix = '(.*)_result' // .json is appended automatically
 
 // Run nightly tests, which include the slow ones.
 bc = new BuildConfig()
-bc.nodetype = "RHEL-7"
+bc.nodetype = "linux"
 bc.name = "release"
 // Note: The source tree is placed in the 'clone' subdir by the CI system.
 bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
@@ -55,8 +55,7 @@ bc.failedFailureThresh = 6
 bc.test_configs = [data_config]
 
 bc1 = utils.copy(bc)
-bc1.name = "linux"
-bc1.nodetype = "linux"
+bc1.nodetype = "macos"
 
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
