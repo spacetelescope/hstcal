@@ -55,6 +55,7 @@ bc.failedFailureThresh = 6
 bc.test_configs = [data_config]
 
 bc1 = utils.copy(bc)
+bc1.name = "release"
 bc1.nodetype = "macos"
 
 // Iterate over configurations that define the (distributed) build matrix.
