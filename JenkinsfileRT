@@ -23,9 +23,9 @@ data_config.match_prefix = '(.*)_result' // .json is appended automatically
 // Run nightly tests, which include the slow ones.
 bc = new BuildConfig()
 bc.nodetype = "linux"
-bc.name = "release"
+bc.name = "linux/release"
 // Note: The source tree is placed in the 'clone' subdir by the CI system.
-bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
+bc.env_vars = ['PATH=./clone/_install/bin:/usr/local/bin:$PATH',
                 'OMP_NUM_THREADS=4',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
                 'jref=/grp/hst/cdbs/jref/',
@@ -40,7 +40,7 @@ bc.conda_packages = ['python=3.9',
                      'astropy',
                      'cmake']
 
-bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=\$(which gcc)",
+bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo",
                   "make",
                   "make install",
                   "calacs.e --version",
@@ -55,7 +55,8 @@ bc.failedFailureThresh = 6
 bc.test_configs = [data_config]
 
 bc1 = utils.copy(bc)
-bc1.name = "release"
+bc1.build_cmds[0] = "${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=gcc-13"
+bc1.name = "macos/release"
 bc1.nodetype = "macos"
 
 // Iterate over configurations that define the (distributed) build matrix.
