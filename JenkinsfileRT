@@ -33,6 +33,8 @@ bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
                 'oref=/grp/hst/cdbs/oref/']
 bc.conda_channels = ['http://conda.anaconda.org/conda-forge/']
 bc.conda_packages = ['python=3.9',
+                     'compilers',
+                     'bzip2',
                      'cfitsio',
                      'pkg-config',
                      'astropy',
