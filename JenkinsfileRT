@@ -55,13 +55,15 @@ bc.failedFailureThresh = 6
 bc.test_configs = [data_config]
 
 bc1 = utils.copy(bc)
+bc1.env_vars += ["CC=/usr/local/bin/gcc-13",
+                 "CXX=/usr/local/bin/g++-13",
+                 "FC=/usr/local/bin/gfortran-13"]
 bc1.conda_packages = ['python=3.9',
                      'bzip2',
                      'cfitsio',
                      'pkg-config',
                      'astropy',
                      'cmake']
-bc1.build_cmds[0] = "${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=/usr/local/bin/gcc-13 -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran-13"
 bc1.name = "release"
 bc1.nodetype = "macos"
 
