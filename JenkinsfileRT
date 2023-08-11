@@ -55,7 +55,7 @@ bc.failedFailureThresh = 6
 bc.test_configs = [data_config]
 
 bc1 = utils.copy(bc)
-bc1.env_vars += ['LDFLAGS=-L/usr/local/opt/libomp/lib -Wl,-rpath,/usr/local/opt/libomp/lib -Wl,-rpath,\$CONDA_PREFIX/lib' -Wl,-rpath,/usr/local/lib',
+bc1.env_vars += ['LDFLAGS=-L/usr/local/opt/libomp/lib -Wl,-rpath,/usr/local/opt/libomp/lib -Wl,-rpath,\$CONDA_PREFIX/lib -Wl,-rpath,/usr/local/lib',
                  'CFLAGS=-I/usr/local/opt/libomp/include',
                  'CC=/usr/local/bin/gcc-13',
                  'CXX=/usr/local/bin/g++-13',
