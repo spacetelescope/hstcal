@@ -64,11 +64,12 @@ bc1.conda_packages = ['python=3.9',
                      'pkg-config',
                      'astropy',
                      'cmake']
-bc1.build_cmds[0] = ["printenv | sort; echo; ls -l /usr/local/bin; ${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo"]
+bc1.build_cmds[0] = "printenv | sort; echo; ls -l /usr/local/bin; ${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo"
 bc1.name = "macos_release"
 bc1.nodetype = "macos"
 
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
 // Also apply the job configuration defined in `jobconfig` above.
-utils.run([bc, bc1, jobconfig])
+//utils.run([bc, bc1, jobconfig])
+utils.run([bc1, jobconfig])
