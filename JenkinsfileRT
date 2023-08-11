@@ -64,7 +64,7 @@ bc1.conda_packages = ['python=3.9',
                      'pkg-config',
                      'astropy',
                      'cmake']
-bc.build_cmds[0] = ["printenv | sort; echo; ls -l /usr/local/bin; ${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo"]
+bc1.build_cmds[0] = ["printenv | sort; echo; ls -l /usr/local/bin; ${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo"]
 bc1.name = "macos_release"
 bc1.nodetype = "macos"
 
