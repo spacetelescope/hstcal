@@ -55,9 +55,9 @@ bc.failedFailureThresh = 6
 bc.test_configs = [data_config]
 
 bc1 = utils.copy(bc)
-bc1.env_vars += ["CC=/usr/local/bin/gcc-13",
-                 "CXX=/usr/local/bin/g++-13",
-                 "FC=/usr/local/bin/gfortran-13"]
+bc1.env_vars += ["CC=/usr/local/opt/gcc/bin/gcc-13",
+                 "CXX=/usr/local/opt/gcc/bin/g++-13",
+                 "FC=/usr/local/opt/gcc/bin/gfortran-13"]
 bc1.conda_packages = ['python=3.9',
                      'bzip2',
                      'cfitsio',
