@@ -8,11 +8,7 @@ jobconfig = new JobConfig()
 jobconfig.post_test_summary = true
 
 // Config data to share between builds.
-CFLAGS = ''
-LDFLAGS = ''
-DEFAULT_FLAGS = "${CFLAGS} ${LDFLAGS}"
-// Some waf flags cause a prompt for input during configuration, hence the 'yes'.
-configure_cmd = "cmake . -DCMAKE_INSTALL_PREFIX=./_install ${DEFAULT_FLAGS}"
+configure_cmd = "cmake . -DCMAKE_INSTALL_PREFIX=./_install"
 
 // Configure artifactory ingest
 data_config = new DataConfig()
@@ -72,5 +68,4 @@ bc1.nodetype = "macos"
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
 // Also apply the job configuration defined in `jobconfig` above.
-//utils.run([bc, bc1, jobconfig])
-utils.run([bc1, jobconfig])
+utils.run([bc, bc1, jobconfig])
