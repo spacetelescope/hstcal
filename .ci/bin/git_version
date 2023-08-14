@@ -1,11 +1,33 @@
 #!/usr/bin/env bash
+set -x
 
-if [ -f "DISTINFO" ]; then
-    read -r VERSION COMMIT BRANCH < DISTINFO
+vcfile="DISTINFO"
+srcdir="$1"
+
+if [ -z "$srcdir" ]; then
+    echo "Source directory path required" >&2
+    exit 1
+fi
+
+if [ ! -f "$srcdir/CMakeLists.txt" ]; then
+    echo "Not a cmake source directory: $srcdir" >&2
+    exit 1
+fi
+
+if [ -f "$srcdir/DISTINFO" ]; then
+    vcfile="$srcdir/DISTINFO"
+fi
+
+if [ -f "$vcfile" ]; then
+    read -r VERSION COMMIT BRANCH <<< $(<${vcfile})
 else
-    VERSION=$(git describe --dirty --abbrev=7)
-    COMMIT=$(git rev-parse HEAD)
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    if git --version &>/dev/null; then
+        VERSION=$(git describe --dirty --abbrev=7)
+        COMMIT=$(git rev-parse HEAD)
+        BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    else
+        echo "Git not found. Using default version values." >&2
+    fi
 fi
 
 if [ -z "$VERSION" ]; then
@@ -28,3 +50,11 @@ cat << EOF > version.h
 #define BRANCH "$BRANCH"
 #endif // HSTCAL_VERSION_H
 EOF
+
+cat << EOF > "$vcfile"
+$VERSION
+$COMMIT
+$BRANCH
+EOF
+
+printf "$VERSION"

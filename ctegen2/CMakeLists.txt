@@ -1,5 +1,12 @@
 project(ctegen2)
+
 find_package(OpenMP COMPONENTS C)
+if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
+	if(APPLE)
+		message("Apple Clang does not support OpenMP. Disabled.")
+		set(ENABLE_OPENMP OFF)
+	endif()
+endif()
 
 # Circular dependency on ACS, so this MUST be STATIC
 add_library(${PROJECT_NAME} STATIC
@@ -22,7 +29,7 @@ target_compile_options(${PROJECT_NAME}
 	PUBLIC "-fPIC"
 )
 
-if (OpenMP_FOUND)
+if(OpenMP_FOUND AND ENABLE_OPENMP)
 	target_link_libraries(${PROJECT_NAME}
 		PUBLIC ${OpenMP_C_LIB_NAMES}
 	)
