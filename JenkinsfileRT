@@ -21,7 +21,7 @@ bc = new BuildConfig()
 bc.nodetype = "linux"
 bc.name = "release"
 // Note: The source tree is placed in the 'clone' subdir by the CI system.
-bc.env_vars = ['PATH=./clone/_install/bin:/usr/local/bin:$PATH',
+bc.env_vars = ['PATH=/usr/local/bin:$PATH',
                 'OMP_NUM_THREADS=4',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
                 'jref=/grp/hst/cdbs/jref/',
@@ -36,7 +36,7 @@ bc.conda_packages = ['python=3.9',
                      'astropy',
                      'cmake']
 
-bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo",
+bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=\$CONDA_PREFIX",
                   "make",
                   "make install",
                   "calacs.e --version",
