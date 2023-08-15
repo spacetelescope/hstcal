@@ -71,4 +71,4 @@ bc1.test_configs = []
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
 // Also apply the job configuration defined in `jobconfig` above.
-utils.run([bc, bc1, jobconfig])
+utils.run([jobconfig, bc, bc1])
