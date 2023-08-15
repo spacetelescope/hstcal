@@ -4,7 +4,6 @@ import pytest
 from ..helpers import BaseWFC3
 
 
-@pytest.mark.xfail
 class TestUVIS13Single(BaseWFC3):
     """
     Test pos UVIS2 DARK images

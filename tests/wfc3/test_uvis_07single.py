@@ -4,7 +4,6 @@ import pytest
 from ..helpers import BaseWFC3
 
 
-@pytest.mark.xfail
 class TestUVIS07Single(BaseWFC3):
     """
     Tests for WFC3/UVIS.

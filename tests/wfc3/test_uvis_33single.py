@@ -4,7 +4,6 @@ import pytest
 from ..helpers import BaseWFC3
 
 
-@pytest.mark.xfail
 class TestUVIS33Single(BaseWFC3):
     """
     Test pos UVIS2 subarray data with on CTE correction
