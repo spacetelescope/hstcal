@@ -4,7 +4,6 @@ import pytest
 from ..helpers import BaseWFC3
 
 
-@pytest.mark.xfail
 class TestUVIS29Single(BaseWFC3):
     """
     Test pos UVIS2 PN-G351.3+07.6 data
