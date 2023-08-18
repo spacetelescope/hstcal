@@ -12,7 +12,7 @@ https://plwishmaster.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
 HSTCAL can be obtained as part of the
 **Space Telescope Environment (stenv)** at <https://stenv.readthedocs.io/en/latest/>, 
 a conda environment.  The instructions found at this URL describe choosing Miniconda 
-or Anaconda (if not already installed), choosing an ``stenv`` release, building the ``stenv``
+or Anaconda (if not already installed), choosing the ``stenv`` release, building the ``stenv``
 environment from the YAML file, and activating your new environment. Once your environment
 is activated, you can invoke any of the HSTCAL executables.
 
