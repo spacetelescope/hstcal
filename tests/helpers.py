@@ -85,7 +85,7 @@ def calref_from_image(input_image):
     corr_lookup = {
         'DQICORR': ['BPIXTAB', 'SNKCFILE'],
         'ATODCORR': ['ATODTAB'],
-        'BLEVCORR': ['OSCNTAB'],
+        'BLEVCORR': ['OSCNTAB', 'SATUFILE'],
         'SINKCORR': ['SNKCFILE'],
         'BIASCORR': ['BIASFILE', 'SATUFILE'],
         'PCTECORR': ['PCTETAB', 'DRKCFILE', 'BIACFILE'],
