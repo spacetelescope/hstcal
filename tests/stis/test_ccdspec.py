@@ -5,11 +5,10 @@ from ..helpers import BaseSTIS
 
 
 class TestLev1FUVSpec(BaseSTIS):
-    """Level 1 FUV-MAMA spectroscopy."""
+    """Level 1 CCD spectroscopy."""
     detector = 'ccd'
 
     def test_lev1(self):
-        """This was ``calstis_lev1_FUVspec``."""
         raw_file = 'o55108010_raw.fits'
         wav_file = 'o55108010_wav.fits'
 
