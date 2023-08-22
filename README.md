@@ -1,6 +1,5 @@
 # HSTCAL
 
-[![Travis CI](https://travis-ci.org/spacetelescope/hstcal.svg?branch=master)](https://travis-ci.org/spacetelescope/hstcal)
 [![Jenkins CI](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/master/badge/icon)](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/master/)
 
 Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
@@ -11,23 +10,13 @@ https://plwishmaster.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
 ## Install using Conda (Complete Calibration Environment)
 
 HSTCAL can be obtained as part of the
-**Astroconda Pipeline Builds** at <https://astroconda.readthedocs.io/en/latest/releases.html>.  
-The simplest way to get the most recent environment would be:
-
-1.  Install Miniconda or Anaconda (if not already installed) using the instructions at <https://astroconda.readthedocs.io/en/latest/getting_started.html>.  
-
-2.  Create a conda environment with the HSTCAL included:
+**Space Telescope Environment (stenv)** at <https://stenv.readthedocs.io/en/latest/>, 
+a conda environment.  The instructions found at this URL describe choosing Miniconda 
+or Anaconda (if not already installed), choosing the ``stenv`` release, building the ``stenv``
+environment from the YAML file, and activating your new environment. Once your environment
+is activated, you can invoke any of the HSTCAL executables.
 
 ```bash
-# Add the AstroConda channel to ~/.condarc
-$ conda channel --add http://ssb.stsci.edu/astroconda
-
-# Create a dedicated calibration environment
-$ conda create -n calib python=3 stsci-hst
-
-# Activate the environment
-$ source activate calib
-
 # Use HSTCAL
 $ calacs.e [...]
 $ calwf3.e [...]
@@ -36,15 +25,14 @@ $ cs[...].e
 
 ## Install using Conda (HSTCAL only)
 
-To install only HSTCAL into an existing enviroment, you need to provide
-the exact version desired, as `conda install hstcal` will not install the
-latest version due to a known resolver issue.
+The HSTCAL package is resident on conda-forge
+<https://anaconda.org/conda-forge/hstcal>, and you can use the following
+command to perform the installation.
 
 ```bash
-$ conda install hstcal==X.Y.Z -c http://ssb.stsci.edu/astroconda
+$ conda install -c conda-forge hstcal==X.Y.Z
 ```
-
-Where `X.Y.Z` is the desired version number.
+The `X.Y.Z` is the desired version number.
 
 ## Source Installation
 
