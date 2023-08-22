@@ -1,11 +1,9 @@
 import subprocess
-import pytest
 from ci_watson.artifactory_helpers import get_bigdata
 
 from ..helpers import BaseSTIS
 
 
-@pytest.mark.skip(reason="Temporary skip.")
 class TestLev1FUVSpec(BaseSTIS):
     """Level 1 FUV-MAMA spectroscopy."""
     detector = 'fuv-mama'
