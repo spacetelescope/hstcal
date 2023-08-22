@@ -227,7 +227,17 @@ int *nsteps      io: incremented if this step can be performed
 	        sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
 	        trlmessage(MsgText);
         }
-	}
+    /* 
+      At the least BIASCORR is not set to PERFORM, so issue a message and set the scalar_satflag so
+      the 2D saturation image will not be used.
+    */
+	} else {
+        wf3->scalar_satflag = True;
+	    sprintf (MsgText, "BIASCORR is *NOT* set to PERFORM.");
+	    trlmessage(MsgText);
+	    sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.\n");
+	    trlmessage(MsgText);
+    }
 
 	return (status);
 }
