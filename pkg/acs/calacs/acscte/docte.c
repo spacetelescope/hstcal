@@ -3,6 +3,8 @@
  switches in the header will be reset from "PERFORM" to "COMPLETE".
 
  12-Aug-2012 PLL: Separated PCTECORR from ACSCCD.
+ 14-Sep-2023 MDD: Updated to accommodate only the "Parallel/Serial PixelCTE 2023"
+     (aka Generation 3) correction.
 
 */
 # include <string.h>
@@ -38,14 +40,13 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
     extern int status;
 
-    SingleGroup * x;    /* used for both input and output */
+    SingleGroup * x;  /* used for both input and output */
     ACSInfo * acs;    /* hold a copy of the acs_info struct for each extension */
     int option = 0;
 
     int i;        /* loop index */
     Bool subarray;
     int CCDHistory (ACSInfo *, Hdr *);
-    int doPCTEGen1 (ACSInfo *, SingleGroup *);
     int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly);
     int pcteHistory (ACSInfo *, Hdr *);
     int GetACSGrp (ACSInfo *, Hdr *);
@@ -164,10 +165,19 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     {
         PtrRegister ptrReg;//move this up later
         initPtrRegister(&ptrReg);
+
+        /* This variable will hold the serial(x) and then the parallel(y) CTE
+           values. */
         CTEParamsFast ctePars;
 
         //NOTE: The char * below should be const but this would require a massive refactoring.
         char * cteTabFilename = acs->pcte.name;
+
+        // Generation 1 CTE algorithm is obsolete.
+        // Generation 3 CTE algorithm is the Generation 2 algorithm applied to both
+        // parallel AND serial trails.  There is no longer any choice for the
+        // generation of the CTE algorithm. It is "generation 3", but it is preferably
+        // referenced as the "Parallel and Serial CTE correction".
 
         //open PCTETAB and check for CTE algorithm version name: CTE_NAME
         char cteName[SZ_CBUF];
@@ -175,52 +185,52 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         int cteAlgorithmGen = 0;
         int tmpStatus = getCTE_NAME(cteTabFilename, cteName, SZ_CBUF);
         if (tmpStatus == KEYWORD_MISSING)
-            cteAlgorithmGen = 1;
+        {
+            trlerror("(pctecorr) No CTE_NAME keyword found in the primary header of PCTETAB file.");
+            trlerror("(pctecorr) This version of PCTETAB is obsolete - use the 'Parallel and Serial PixelCTE 2023' PCTETAB.");
+            freeOnExit(&ptrReg);
+            return (status = ERROR_RETURN);
+        }
         else if (tmpStatus)
         {
             freeOnExit(&ptrReg);
             return (status = tmpStatus);
         }
+        else if (strcmp(cteName, ACS_GEN3_CTE_NAME) == 0)
+        {
+            cteAlgorithmGen = 3;
+            trlmessage("(pctecorr) Parallel and Serial PCTETAB file auto-detected.");
+        }
         else if (strcmp(cteName, ACS_GEN2_CTE_NAME) == 0)
         {
-            cteAlgorithmGen = 2;
-            trlmessage("(pctecorr) Generation 2 PCTETAB file auto-detected.");
+            trlerror("(pctecorr) Generation 2 PCTETAB file auto-detected.");
+            trlerror("(pctecorr) This version of PCTETAB is obsolete - use the 'Parallel and Serial PixelCTE 2023' PCTETAB.");
+            freeOnExit(&ptrReg);
+            return (status = ERROR_RETURN);
         }
         else
         {
-            cteAlgorithmGen = 1;
-            trlmessage("(pctecorr) Generation 1 PCTETAB file auto-detected.");
-        }
-
-        if (acs_info->cteAlgorithmGen && (acs_info->cteAlgorithmGen != cteAlgorithmGen))
-        {
-            char msgBuffer[MSG_BUFF_LENGTH];
-            sprintf(msgBuffer, "(pctecorr) Cmd line option '--ctegen %d' specified yet gen%d algorithm detected in PCTETAB (CTE_NAME).",
-                    acs_info->cteAlgorithmGen, cteAlgorithmGen);
-            trlerror(msgBuffer);
+            trlerror("(pctecorr) Generation 1 PCTETAB file auto-detected.");
+            trlerror("(pctecorr) This version of PCTETAB is obsolete - use the 'Parallel and Serial PixelCTE 2023' PCTETAB.");
             freeOnExit(&ptrReg);
-            return (status = CAL_FILE_MISSING);
-        }
-        else if (!acs_info->cteAlgorithmGen && (cteAlgorithmGen != 2))
-        {
-            char msgBuffer[MSG_BUFF_LENGTH];
-            sprintf(msgBuffer, "(pctecorr) Gen%d algorithm detected in PCTETAB (CTE_NAME). Default is gen2, use '--ctegen %d' to override.",
-                    cteAlgorithmGen, cteAlgorithmGen);
-            trlerror(msgBuffer);
-            freeOnExit(&ptrReg);
-            return (status = CAL_FILE_MISSING);
+            return (status = ERROR_RETURN);
         }
         acs_info->cteAlgorithmGen = cteAlgorithmGen;
 
-        if (acs_info->cteAlgorithmGen == 2)
+        sprintf(MsgText, "(pctecorr) Reading CTE parameters from PCTETAB file: '%s'...", cteTabFilename);
+        trlmessage(MsgText);
+        if ((status = PutKeyStr(x[0].globalhdr, "PCTETAB", cteTabFilename, "CTE Correction Table")))
         {
-            sprintf(MsgText, "(pctecorr) Reading CTE parameters from PCTETAB file: '%s'...", cteTabFilename);
-            trlmessage(MsgText);
-            if ((status = PutKeyStr(x[0].globalhdr, "PCTETAB", cteTabFilename, "CTE Correction Table")))
-            {
-                trlerror("(pctecorr) failed to update PCTETAB keyword in image header");
-                return status;
-            }
+            trlerror("(pctecorr) failed to update PCTETAB keyword in image header");
+            return status;
+        }
+
+
+        /* 
+           Loop to control the application of the CTE corrections - the serial(x) correction
+           will be done first, then the parallel(y) correction will be done.
+        */
+
             //Get parameters from PCTETAB reference file
             addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
             unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
@@ -233,58 +243,46 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                 return (status);
             }
 
+            
             if ((status = loadPCTETAB(cteTabFilename, &ctePars)))
             {
                 freeOnExit(&ptrReg);
                 return (status);
             }
 
-            if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
-            {
-                freeOnExit(&ptrReg);
-                return (status);
-            }
-
-            ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
-
-            if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars)))
-            {
-                freeOnExit(&ptrReg);
-                return (status);
-            }
-
-            sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
-            trlwarn(MsgText);
-            sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
-                    ctePars.n_forward);
-            trlmessage(MsgText);
-            sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
-                    ctePars.n_par);
-            trlmessage(MsgText);
-            sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
-            trlmessage(MsgText);
-
-            trlmessage("(pctecorr) PCTETAB read");
+        if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
+        {
+            freeOnExit(&ptrReg);
+            return (status);
         }
+
+        ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
+
+        if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars)))
+        {
+            freeOnExit(&ptrReg);
+            return (status);
+        }
+
+        sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
+        trlwarn(MsgText);
+        sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
+                ctePars.n_forward);
+        trlmessage(MsgText);
+        sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
+                ctePars.n_par);
+        trlmessage(MsgText);
+        sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
+        trlmessage(MsgText);
+
+        trlmessage("(pctecorr) PCTETAB read");
 
         for (i = 0; i < acs_info->nimsets; i++)
         {
             clock_t begin = (double)clock();
-            if (acs_info->cteAlgorithmGen == 1)//make explicit as not using bool
+            if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly)))
             {
-                if (forwardModelOnly)
-                {
-                    trlerror("--forwardModelOnly NOT compatible with 1st generation CTE algorithm");
-                    freeOnExit(&ptrReg);
-                    return (INVALID_VALUE);
-                }
-                if ((status = doPCTEGen1(&acs[i], &x[i])))
-                    return status;
-            }
-            else
-            {
-                if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly)))
-                    return status;
+                return status;
             }
             double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
             sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
@@ -302,12 +300,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         if (pcteHistory(&acs[0], x[0].globalhdr))
             return (status);
 
-        if (acs_info->cteAlgorithmGen == 1)
-        	UCteVer(x[0].globalhdr, ACS_GEN1_CTE_NAME, ACS_GEN1_CTE_VER);
-        else if (acs_info->cteAlgorithmGen == 2)
-        	UCteVer(x[0].globalhdr, ACS_GEN2_CTE_NAME, ACS_GEN2_CTE_VER);
-        else
-        	assert(0);//unimplemented
+        UCteVer(x[0].globalhdr, ACS_GEN3_CTE_NAME, ACS_GEN3_CTE_VER);
 
     } else if (acs_info->pctecorr == OMIT) {
         /* this is just to make sure that the PCTECORR flag is set to OMIT in the
