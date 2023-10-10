@@ -194,6 +194,7 @@ int *nsteps      io: incremented if this step can be performed
             sprintf (MsgText, "There is an issue with the BIASFILE, so BIASCORR will not be performed.\n");
             trlwarn(MsgText);
             sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
+            trlmessage(MsgText);
             return (status);
         }
 
