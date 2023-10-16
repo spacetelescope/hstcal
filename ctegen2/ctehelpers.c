@@ -182,8 +182,7 @@ MDD Sept 2023: Implementation to support a PCTETAB which is an
     now contain both parallel(y) and serial(x) CTE information.
 */
 
-//int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn) {
-int loadPCTETAB (char *filename, CTEParamsFast *pars) {
+int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn) {
 /* Read the cte parameters from the reference table PCTETAB
 
        These are taken from the PCTETAB global header:
@@ -204,7 +203,7 @@ int loadPCTETAB (char *filename, CTEParamsFast *pars) {
        The parallel/serial PCTETAB which supports the latest CTE algorithm
        has
           CTE_VER = '3.0     '
-          CTE_NAME= 'Parallel/Serial PixelCTE 2023'
+          CTE_NAME= 'Par/Serial PixelCTE 2023'
 
        The table has a primary HDU and 8 extensions.  Extensions 1-4 apply
        to the parallel CTE and extensions 5-8 apply to the serial CTE.
@@ -229,11 +228,7 @@ No.    Name         Type      Cards   Dimensions   Format
     /* The "extn" parameter indicates the starting extension for the QPROF table to be read
        as this routine will be called twice - first for the serial(5) and then for the
        parallel(1) CTE correction. */ 
-    /*
-    Bool skipLoadHdr = False
-    if (extn == 1)
-       skipLoadHdr = True
-    */
+    Bool skipLoadHdr = extn == 1 ? True : False;  
 
     /* NAMES OF DATA COLUMNS WE WANT FROM THE FILE, DATA WILL BE STORED IN THE PARS STRUCTURE */
     /* QPROF table - the last column is a description string */
@@ -248,7 +243,8 @@ No.    Name         Type      Cards   Dimensions   Format
     const char sens1536[] = "SENS_1536";
     const char sens2048[] = "SENS_2048";
 
-    Bool skipLoadHdr = False;
+    // MDD Test
+    skipLoadHdr = False;
     if (!skipLoadHdr)
     {
         /* HSTIO VARIABLES */
@@ -366,10 +362,12 @@ No.    Name         Type      Cards   Dimensions   Format
     }
 
     /****************************************************************************/
-    /* READ  DATA FROM FIRST TABLE EXTENSIONS */
-    sprintf(filename_wext, "%s[%i]", filename, 1);
+    /* READ DATA FROM THE SPECIFIED QPROF TABLE - EXTENSIONS 1 and 5 */
+    sprintf(filename_wext, "%s[%i]", filename, extn);
 
-    /* OPEN  PARAMETERS FILE TO EXTENSION NUMBER 1 */
+    sprintf(MsgText,"Opening %s to read QPROF table.",filename_wext);
+    ctemessage(MsgText);
+    /* OPEN PARAMETERS FILE TO QPROF EXTENSION */
     IRAFPointer tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0); // xtables table pointer
     if (c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
@@ -457,14 +455,16 @@ No.    Name         Type      Cards   Dimensions   Format
     trlmessage(MsgText);
     */
 
-    /* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
+    /* CLOSE CTE PARAMETERS FILE FOR QPROF EXTENSION */
     c_tbtClose((void*)&tbl_ptr);
     assert(!tbl_ptr);
     /****************************************************************************/
     /****************************************************************************/
-    /* READ CTE SCALING DATA FROM SECOND TABLE EXTENSION */
-    sprintf(filename_wext, "%s[%i]", filename, 2);
+    /* READ CTE SCALING DATA FROM THE SPECIFIED SCLBYCOL TABLE - EXTENSIONS 2 and 6 */
+    sprintf(filename_wext, "%s[%i]", filename, extn + 1);
 
+    sprintf(MsgText,"Opening %s to read SCLBYCOL table.",filename_wext);
+    ctemessage(MsgText);
     tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
@@ -517,7 +517,6 @@ No.    Name         Type      Cards   Dimensions   Format
         return status;
     }
 
-
     /* read data from table */
     /* loop over table rows */
     {unsigned j;
@@ -565,13 +564,18 @@ No.    Name         Type      Cards   Dimensions   Format
     }
     */
 
-    /* close CTE parameters file for extension 2*/
+    /* close CTE parameters file for SCLBYCOL extension */
     c_tbtClose((void*)&tbl_ptr);
     assert(!tbl_ptr);
 
     /****************************************************************************/
-    /*  extension 3: differential trail profile as image */
-    ctemessage("Reading in image from extension 3");
+    /*  extensions 3 and 7 - RPROF : differential trail profile as image */
+
+    /* Determine the extension version number for the RPROF/CPROF images */
+    int extver = extn == 1 ? 1 : 2;
+
+    sprintf(MsgText,"Reading in image from RPROF EXTVER %d.", extver);
+    ctemessage(MsgText);
 
     /* Get the coefficient images from the PCTETAB */
     pars->rprof = malloc(sizeof(*pars->rprof));
@@ -580,16 +584,19 @@ No.    Name         Type      Cards   Dimensions   Format
         trlerror (MsgText);
         return (status = 1);
     }
+   
     initFloatHdrData(pars->rprof);
     pars->rprof->data.storageOrder = COLUMNMAJOR;
-    if (getFloatHD (filename, "RPROF", 1, pars->rprof)){
+    if (getFloatHD (filename, "RPROF", extver, pars->rprof)){
         return (status=1);
     }
 
 
     /****************************************************************************/
-    /* ext number 4 : cummulative trail profile as image */
-    ctemessage("Reading in image from extension 4");
+    /* extensions 4 and 8 -  CPROF : cummulative trail profile as image */
+
+    sprintf(MsgText,"Reading in image from CPROF EXTVER %d.", extver);
+    ctemessage(MsgText);
 
     pars->cprof  = malloc(sizeof(*pars->cprof));
     if (pars->cprof == NULL){
@@ -601,7 +608,7 @@ No.    Name         Type      Cards   Dimensions   Format
     /* Get the coefficient images from the PCTETAB */
     initFloatHdrData (pars->cprof);
     pars->cprof->data.storageOrder = COLUMNMAJOR;
-    if (getFloatHD (filename, "CPROF", 1, pars->cprof)){
+    if (getFloatHD (filename, "CPROF", extver, pars->cprof)){
         return (status=1);
     }
 
@@ -716,6 +723,8 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     int fix_rocr = 0;
     int noise_mit = 0;
 
+    trlmessage("Begin attempt to read CTE keywords from input image header. Missing CTE keywords");
+    trlmessage("from input image header are not a fatal error as the values from PCTETAB will be used.");
     int tempStatus = HSTCAL_OK;
     /*check the PCTENSMD keyword in the header*/
     tempStatus = GetKeyInt(group->globalhdr, "PCTENSMD", NO_DEFAULT, -999, &noise_mit);
@@ -811,6 +820,8 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     }
     else if (tempStatus == KEYWORD_MISSING)
         status = HSTCAL_OK;
+
+    trlmessage("End attempt to read CTE keywords from input image header.");
 
     return HSTCAL_OK;
 }

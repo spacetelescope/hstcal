@@ -3,6 +3,7 @@
 
 #include "hstio.h"
 
+// MDD This needs to be extended to accommodate both serial and parallel CTE corrections
 typedef struct {
     unsigned maxThreads;
     Bool verbose;
@@ -104,7 +105,7 @@ void freeCTEParamsFast(CTEParamsFast * pars);
 
 int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars);
 int getCTEParsFromImageHeader(SingleGroup * input, CTEParamsFast * params);
-int loadPCTETAB(char *filename, CTEParamsFast * params);
+int loadPCTETAB(char *filename, CTEParamsFast * params, int extn);
 void ctewarn (char *message);
 void cteerror (char *message);
 void ctemessage (char *message);

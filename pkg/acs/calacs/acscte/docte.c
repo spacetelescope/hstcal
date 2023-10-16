@@ -47,7 +47,8 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     int i;        /* loop index */
     Bool subarray;
     int CCDHistory (ACSInfo *, Hdr *);
-    int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly);
+    int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, const char * corrType);
+    int doPCTESerial (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly);
     int pcteHistory (ACSInfo *, Hdr *);
     int GetACSGrp (ACSInfo *, Hdr *);
     int OmitStep (int);
@@ -175,9 +176,9 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
         // Generation 1 CTE algorithm is obsolete.
         // Generation 3 CTE algorithm is the Generation 2 algorithm applied to both
-        // parallel AND serial trails.  There is no longer any choice for the
+        // serial and parallel trails.  There is no longer any choice for the
         // generation of the CTE algorithm. It is "generation 3", but it is preferably
-        // referenced as the "Parallel and Serial CTE correction".
+        // referenced as the "Serial and Parallel CTE correction".
 
         //open PCTETAB and check for CTE algorithm version name: CTE_NAME
         char cteName[SZ_CBUF];
@@ -225,15 +226,40 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
             return status;
         }
 
-
         /* 
-           Loop to control the application of the CTE corrections - the serial(x) correction
-           will be done first, then the parallel(y) correction will be done.
+           Loop to control the application of the CTE corrections - the serial 
+           (Extensions 5-8) correction will be done first, then the parallel
+           (Extensions 1-4) correction will be done.  The "Extensions" refer to
+           the extensions in the input dataset (*raw.fits).
         */
+        int extension;
+        int icorrection;
+        char corrType[10];
+
+        addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
+        unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
+        // MDD TEST
+        //for (icorrection=0; icorrection < 2; icorrection++)
+        for (icorrection=0; icorrection < 1; icorrection++)
+        {
+            // This allows loading of the proper parameters from the calibration reference file
+            if (icorrection == 0) 
+            {
+                extension = 5;
+                strcpy(corrType, "serial");
+            } 
+            else 
+            {
+                extension = 1;
+                strcpy(corrType, "parallel");
+            }
+
+            sprintf(MsgText,"(pctecorr) Correction: %d  Extension: %d  CorrType: %s\n", icorrection, extension, corrType);
+            trlmessage(MsgText);
 
             //Get parameters from PCTETAB reference file
-            addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
-            unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
+            //addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
+            //unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
             initCTEParamsFast(&ctePars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
             ctePars.refAndIamgeBinsIdenticle = True;
             ctePars.verbose = acs->verbose = 0 ? False : True;
@@ -243,58 +269,59 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                 return (status);
             }
 
-            
-            if ((status = loadPCTETAB(cteTabFilename, &ctePars)))
+            if ((status = loadPCTETAB(cteTabFilename, &ctePars, extension)))
             {
                 freeOnExit(&ptrReg);
                 return (status);
             }
 
-        if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
-        {
-            freeOnExit(&ptrReg);
-            return (status);
-        }
-
-        ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
-
-        if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars)))
-        {
-            freeOnExit(&ptrReg);
-            return (status);
-        }
-
-        sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
-        trlwarn(MsgText);
-        sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
-                ctePars.n_forward);
-        trlmessage(MsgText);
-        sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
-                ctePars.n_par);
-        trlmessage(MsgText);
-        sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
-        trlmessage(MsgText);
-
-        trlmessage("(pctecorr) PCTETAB read");
-
-        for (i = 0; i < acs_info->nimsets; i++)
-        {
-            clock_t begin = (double)clock();
-            if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly)))
+            if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
             {
-                return status;
+                freeOnExit(&ptrReg);
+                return (status);
             }
-            double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
-            sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
+
+            ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
+
+            if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars)))
+            {
+                freeOnExit(&ptrReg);
+                return (status);
+            }
+
+            sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
+            trlwarn(MsgText);
+            sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
+                    ctePars.n_forward);
             trlmessage(MsgText);
-        }
+            sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
+                    ctePars.n_par);
+            trlmessage(MsgText);
+            sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
+            trlmessage(MsgText);
+
+            trlmessage("(pctecorr) PCTETAB read");
+
+            /* The doPCTEGen2 routine encompasses both the serial and parallel corrections */
+            for (i = 0; i < acs_info->nimsets; i++)
+            {
+                clock_t begin = (double)clock();
+                if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType)))
+                {
+                    return status;
+                }
+                double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
+                sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
+                trlmessage(MsgText);
+            }
+        }  // End loop to accommodate both the serial and parallel CTE corrections
+
         freeOnExit(&ptrReg);
-
-        PrSwitch("pctecorr", COMPLETE);
-
-        if (acs_info->printtime)
-            TimeStamp ("PCTECORR complete", acs->rootname);
     }
+    PrSwitch("pctecorr", COMPLETE);
+
+    if (acs_info->printtime)
+        TimeStamp ("PCTECORR complete", acs->rootname);
 
     if (!OmitStep(acs_info->pctecorr)) {
         if (pcteHistory(&acs[0], x[0].globalhdr))
