@@ -40,7 +40,9 @@
     in the code that are doing a case sensative check. I'm going to try and make
     those case insensitive as well
    M. Sosey, 2013 July 3
-   Added code to implement new FLUXCORR step, see #1011
+    Added code to implement new FLUXCORR step, see #1011
+   M. De La Pena October 2023
+    Added overscan as a parameter to the doDQI function signature.
 
 */
 
@@ -85,10 +87,13 @@ int extver       i: "imset" number, the current set of extensions
 	char buff[SZ_FITS_REC+1];
 	Bool subarray;
 
+    /* The value of this parameter should NOT be changed from zero. */ 
+    int overscan = 0;	/* New parameter necessary for API change to doDQi */
+
 	int CCDHistory (WF3Info *, Hdr *);
 	int doDark (WF3Info *, SingleGroup *, float *);
 	int darkHistory (WF3Info *, Hdr *);
-	int doDQI (WF3Info *, SingleGroup *);
+	int doDQI (WF3Info *, SingleGroup *, int overscan);
 	int dqiHistory (WF3Info *, Hdr *);
 	int doFlat (WF3Info *, int, SingleGroup *);
 	int flatHistory (WF3Info *, Hdr *);
@@ -230,7 +235,7 @@ int extver       i: "imset" number, the current set of extensions
 	dqiMsg (wf32d, extver);
 	if (wf32d->dqicorr == PERFORM ||
 	    (wf32d->dqicorr == DUMMY && wf32d->detector != IR_DETECTOR)) {
-	    if (doDQI (wf32d, &x))
+	    if (doDQI (wf32d, &x, overscan))
 		return (status);
 	    PrSwitch ("dqicorr", COMPLETE);
 	    if (wf32d->printtime)

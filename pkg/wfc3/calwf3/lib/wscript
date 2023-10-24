@@ -7,7 +7,7 @@ def build(bld):
     t = bld.stlib(
         source = """
             wf3hist.c  wf3info.c   wf3sect.c   addk2d.c  bin2d.c   bincoords.c
-            binupdate.c   comparenum.c   defswitch.c   detchip.c
+            binupdate.c   comparenum.c   computelimits.c defswitch.c   detchip.c
             detnsegn.c   div1d.c   dodqi.c   donoise.c   dostat.c
             err.c   fileexists.c   findbin.c   findroot.c   fromlt.c
             getccdtab.c   getcorner.c  getgrp.c  getkeys.c  getlt.c
