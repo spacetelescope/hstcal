@@ -55,8 +55,6 @@ ComputeLimits(WF3Info *wf3, int xdim, int ydim, int begx[2], int begy[2], int en
     sprintf(MsgText,"Amp: %s chip: %d ccdamp: %s ", wf3->ccdamp, wf3->chip, ccdamp);
     trlmessage(MsgText);
 
-    /* Set up the 2 AMPS used per line */
-
     /* How many amps are used for this chip */
     numamps = strlen(ccdamp);
     sprintf(MsgText,"Number of amps %d", numamps);
@@ -81,7 +79,7 @@ ComputeLimits(WF3Info *wf3, int xdim, int ydim, int begx[2], int begy[2], int en
                     ydim - trimy2;
 
         /* Make sure that endx and endy do not extend beyond the bounds of
-        ** the image... HAB 7 May 2001 (same as calacs change). */
+        ** the image */
         if (endx[amp] > xdim) endx[amp] = xdim;
         if (endy[amp] > ydim) endy[amp] = ydim;
     }
