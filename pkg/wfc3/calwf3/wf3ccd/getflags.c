@@ -43,6 +43,11 @@ int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
     the algorithm will indicate the original method of flagging saturated
     pixels by using a single value threshold should be used.
 
+   M. De La Pena, 2023 October
+    In addition to the current check of the BIASFILE not existing, added
+    handling for the situation when the BIASFILE has a bad pedigree. In this
+    instance BIASCORR cannot be performed.  As a consequence, full-well
+    saturation must fall back to be applied as a scalar threshold.
 */
 
 int GetFlags (WF3Info *wf3, Hdr *phdr) {
@@ -177,6 +182,21 @@ int *nsteps      io: incremented if this step can be performed
 
         if (GetImageRef (wf3->refnames, phdr, "BIASFILE", &wf3->bias, &wf3->biascorr))
             return (status);
+
+        /* 
+            If the BIASFILE has a DUMMY pedigree, the GetImageRef command does not error.
+            However, the wf3->biacorr will be set to DUMMY, and this will cause the bias
+            correction to be skipped.  Due to the new implementation which uses a
+            full-well saturation *image*, both BLEVCORR *and* BIASCORR must be performed.
+        */
+        if (wf3->biascorr != PERFORM) {
+            wf3->scalar_satflag = True;
+            sprintf (MsgText, "There is an issue with the BIASFILE, so BIASCORR will not be performed.\n");
+            trlwarn(MsgText);
+            sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
+            trlmessage(MsgText);
+            return (status);
+        }
 
         if (wf3->bias.exists != EXISTS_YES) {
             MissingFile ("BIASFILE", wf3->bias.name, missing);
