@@ -21,7 +21,7 @@ int flashHistory (WF3Info *, Hdr *);
 int doBlev (WF3Info *, SingleGroup *, int, float *, int *, int *);
 int blevHistory (WF3Info *, Hdr *, int, int);
 int CCDHistory (WF3Info *, Hdr *);
-int doDQI (WF3Info *, SingleGroup *);
+int doDQI (WF3Info *, SingleGroup *, int overscan);
 int dqiHistory (WF3Info *, Hdr *);
 int doNoise (WF3Info *, SingleGroup *, int *);
 int noiseHistory (Hdr *);

@@ -64,6 +64,9 @@
     the header.  If the keyword is missing or does not contain a filename,
     the algorithm will indicate the original method of flagging saturated
     pixels by using a single value threshold should be used.
+ 
+    M. De La Pena October 2023
+    Added overscan as a parameter to the doDQI function signature.
 
  */
 
@@ -235,7 +238,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     /* DATA QUALITY INITIALIZATION AND (FOR THE CCDS) CHECK SATURATION. */
     dqiMsg (wf3, extver);
     if (wf3->dqicorr == PERFORM || wf3->dqicorr == DUMMY) {
-        if (doDQI (wf3, &x))
+        if (doDQI (wf3, &x, overscan))
             return (status);
         PrSwitch ("dqicorr", COMPLETE);
         if (wf3->printtime)

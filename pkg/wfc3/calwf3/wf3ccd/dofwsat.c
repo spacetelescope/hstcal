@@ -28,6 +28,9 @@
 
   Michele De La Pena, 2023 April 17
   Replace hardcoded values with variables isolated to this module.
+
+  Michele De La Pena, 
+  The ComputeLimits function has been moved to its own file in /lib.
   
  */
 
@@ -64,7 +67,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
     int DetCCDChip (char *, int, int, int *);
-    void computeLimits(WF3Info *, int, int, int *, int *, int *, int *);
+    void ComputeLimits(WF3Info *, int, int, int *, int *, int *, int *);
 
     {unsigned int i;
     for (i = 0; i < 2; i++) {
@@ -208,7 +211,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     /* Determine the limits of real data to process - note the end point
        in the loops is "<" and NOT "<=".
     */
-    computeLimits(wf3, xdim, ydim, xbeg, ybeg, xend, yend);
+    ComputeLimits(wf3, xdim, ydim, xbeg, ybeg, xend, yend);
     if (wf3->verbose) {
         sprintf(MsgText,"xbeg[0]: %d xend[0]: %d  xbeg[1]: %d  xend[1]: %d", xbeg[0], xend[0], xbeg[1], xend[1]);
         trlmessage(MsgText);
@@ -297,137 +300,4 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     freeSingleGroup(&satimage);
 
     return (status);
-}
-
-
-/* Because the pixels representing the serial virtual overscan are present
-   in the saturation image, it is necessary to skip over these pixels when
-   determining the flagging for full-well saturation.
-
-   This routine is based upon code in doblev.c.
-*/
-void
-computeLimits(WF3Info *wf3, int xdim, int ydim, int begx[2], int begy[2], int endx[2], int endy[2]) {
-	int amp;			/* Counter for amps used */
-	int numamps;		/* Number of AMPS used to readout chip */
-	char *ccdamp;		/* Amps which are used for this chip */
-	char *amploc; 
-	int trimx1, trimx2;	/* width to trim off ends of each line */
-	int trimx3, trimx4;	/* width to trim off middle of each line */
-	int trimy1, trimy2;	/* amount to trim off ends of each column */
-	int bias_loc, amp_indx;
-	int bias_ampx, bias_ampy;
-	int biassect[4];	/* section(s) to use */
-	int bias_orderx[4] = {0,1,0,1};
-	int bias_ordery[4] = {0,0,1,1};
-
-	void parseWFCamps (char *, int, char *);
-
-	/* Copy out overscan size information for ease of reference in this function */
-	trimx1 = wf3->trimx[0];	/* Left serial physical */
-	trimx2 = wf3->trimx[1];	/* Right serial physical */
-	trimx3 = wf3->trimx[2]; /* Left serial virtual */
-	trimx4 = wf3->trimx[3]; /* Right serial virtual */
-	trimy1 = wf3->trimy[0]; /* Bottom (Chip 1) parallel virtual */
-	trimy2 = wf3->trimy[1]; /* Top (Chip 2) parallel virtual */
-
-	/* Establish which amps from ccdamp string are appropriate 
-	** for this chip */
-	ccdamp = (char *) calloc (NAMPS+1, sizeof(char));
-	ccdamp[0] = '\0';
-	
-	/* Set up the 2 AMPS used per line */ 
-	if (wf3->detector == CCD_DETECTOR) {
-	    parseWFCamps (wf3->ccdamp, wf3->chip, ccdamp);
-	}
-    sprintf(MsgText,"Amp: %s chip: %d ccdamp: %s ", wf3->ccdamp, wf3->chip, ccdamp);
-    trlmessage(MsgText);
-
-	/* Set up the 2 AMPS used per line */ 
-
-	/* How many amps are used for this chip */	
-	numamps = strlen(ccdamp);
-    sprintf(MsgText,"Number of amps %d", numamps);
-    trlmessage(MsgText);
-	
-	for (amp = 0; amp < numamps; amp++) {
-	     bias_loc = 0;
-
-	     /* determine which section goes with the amp */
-	     /* bias_amp = 0 for BIASSECTA, = 1 for BIASSECTB */
-	     amploc = strchr (AMPSORDER, ccdamp[amp]);
-	     bias_loc = *amploc - *ccdamp;
-	     amp_indx = *amploc - *AMPSORDER;
-	     bias_ampx = bias_orderx[bias_loc];
-	     bias_ampy = bias_ordery[bias_loc];
-
-	     /* Requirement: at least 1 section should be specified! */
-	     /* If both bias sections are specified,... */
-	     if (wf3->biassectc[1] > 0 && wf3->biassectd[1] > 0) {
-
-		 /* select section nearest the amp based on bias_amp */
-		 biassect[0] = (bias_ampx == 0) ? wf3->biassectc[0] :
-						  wf3->biassectd[0];
-		 biassect[1] = (bias_ampx == 0) ? wf3->biassectc[1] :
-						  wf3->biassectd[1];
-
-		 /* If only 1 AMP is used for each line, use both sections */
-		 if (numamps == 1) {
-		     biassect[2] = (bias_ampx == 0) ? wf3->biassectd[0] :
-						      wf3->biassectc[0];
-		     biassect[3] = (bias_ampx == 0) ? wf3->biassectd[1] :
-						      wf3->biassectc[1];
-		 } else {
-		     biassect[2] = 0;
-		     biassect[3] = 0;
-		 }
-
-	     /* if neither of the virtual overscan regions are specified
-	     ** use the physical overscan instead */
-	     } else if (wf3->biassectc[1] <= 0 && wf3->biassectd[1] <= 0) {
-
-		 biassect[0] = (wf3->biassecta[1] == 0) ? wf3->biassectb[0] :
-							  wf3->biassecta[0];
-		 biassect[1] = (wf3->biassecta[1] == 0) ? wf3->biassectb[1] :
-							  wf3->biassecta[1];
-		 /* then set trailing section to zero indicating it's not used*/
-		 biassect[2] = 0;
-		 biassect[3] = 0;
-		 
-	     } else {
-
-		 /* otherwise, select the non-zero bias section */
-		 biassect[0] = (wf3->biassectc[1] == 0) ? wf3->biassectd[0] :
-							  wf3->biassectc[0];
-		 biassect[1] = (wf3->biassectc[1] == 0) ? wf3->biassectd[1] :
-							  wf3->biassectc[1];
-		 /* then set trailing section to zero indicating it's not used*/
-		 biassect[2] = 0;
-		 biassect[3] = 0;
-	     }
-	     if (wf3->verbose) {
-		 sprintf (MsgText, "Using overscan columns %d to %d",
-			  biassect[0]+1, biassect[1]+1);
-		 trlmessage (MsgText);
-		 if (biassect[2] != 0) {
-		 sprintf (MsgText, "           and columns %d to %d",
-		 	  biassect[2]+1, biassect[3]+1);
-		 trlmessage (MsgText); }
-	     }
-
-	     /* Compute range of pixels affected by each amp */	
-	     begx[amp] = trimx1 + (wf3->ampx + trimx3 + trimx4) * bias_ampx;
-	     endx[amp] = (bias_ampx == 0 && wf3->ampx != 0) ? wf3->ampx + trimx1 :
-							xdim - trimx2;
-	     begy[amp] = trimy1 + wf3->ampy* bias_ampy;
-	     endy[amp] = (bias_ampy == 0 && wf3->ampy != 0) ? wf3->ampy +trimy1 :
-							ydim - trimy2;
-
-	     /* Make sure that endx and endy do not extend beyond the bounds of
-	     ** the image... HAB 7 May 2001 (same as calacs change). */
-	     if (endx[amp] > xdim) endx[amp] = xdim;
-	     if (endy[amp] > ydim) endy[amp] = ydim;
-    }
-
-    free(ccdamp);
 }
