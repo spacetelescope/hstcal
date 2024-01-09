@@ -2489,10 +2489,10 @@ int getHeader(IODescPtr iodesc_, Hdr *hd) {
         char *target;
         int status = 0;
 
-        if (iodesc->options == WriteOnly) {
-            ioerr(NOGET, iodesc, 0);
-            return -1;
-        }
+        //if (iodesc->options == WriteOnly) {
+        //    ioerr(NOGET, iodesc, 0);
+        //    return -1;
+        //}
 
         /* get the number of cards in the header */
         if (fits_get_hdrspace(iodesc->ff, &ncards, NULL, &status)) {

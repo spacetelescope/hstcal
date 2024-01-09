@@ -3,6 +3,8 @@
  switches in the header will be reset from "PERFORM" to "COMPLETE".
 
  12-Aug-2012 PLL: Separated PCTECORR from ACSCCD.
+ 14-Sep-2023 MDD: Updated to accommodate only the "Parallel/Serial PixelCTE 2023"
+     (aka Generation 3) correction.
 
 */
 # include <string.h>
@@ -27,6 +29,16 @@
 static void PCTEMsg (ACSInfo *, int);
 static int OscnTrimmed (Hdr*, Hdr *);
 
+/* 
+   Typical order of processing is Chip 2 (Amps C and D) and then 
+   Chip 1 (Amps A and B). See ctehelpers.c for full description of
+   PCTETAB which clarifies the order of the extensions for processing.
+*/
+/* CTE data as stored in the PCTETAB */ 
+int SET_TO_PROCESS[] = {13, 17, 5, 9, 1};  // Starting extension number of a set of qprof/sclbycol/rprof/cprof
+char AMP_OF_PROCESS[] = {'C', 'D', 'A', 'B', 'P'}; // Amp corresponding to the set of corrections in SET_TO_PROCESS
+# define AMPCALIBORDER "CDAB"
+
 #define SZ_CBUF 24
 int getCTE_NAME(char * filename, char * cteName, int cteNameBufferLength);
 
@@ -38,15 +50,22 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
     extern int status;
 
-    SingleGroup * x;    /* used for both input and output */
+    SingleGroup * x;  /* used for both input and output */
     ACSInfo * acs;    /* hold a copy of the acs_info struct for each extension */
     int option = 0;
+    int numCorrection = 0; /* number of corrections, parallel and serial */
+    int namp_imsets = 0;   /* number of loops to handle all amp for all chips */
+    int ampID;             /* index amp A:0, B:1, etc. */
+    int ampIDInCalib;      /* index amp C:0, D:1, etc. */
+    char * amploc;         /* pointer to amp character in AMPSORDER */
+    char * amplocInCalib;  /* pointer to amp character in calibration file */
+    int numamps;
 
     int i;        /* loop index */
     Bool subarray;
     int CCDHistory (ACSInfo *, Hdr *);
-    int doPCTEGen1 (ACSInfo *, SingleGroup *);
-    int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly);
+    int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, const char * corrType, char *ccdamp, char *amploc, int ampID);
+    int doPCTESerial (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly);
     int pcteHistory (ACSInfo *, Hdr *);
     int GetACSGrp (ACSInfo *, Hdr *);
     int OmitStep (int);
@@ -60,6 +79,8 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     void UFilename (char *, Hdr *);
     int GetCCDTab (ACSInfo *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
+    int GetKeyStr (Hdr *, char *, int, char *, char *, int);
+    void parseWFCamps (char *acsamps, int chip, char *ccdamp);
 
     /*========================Start Code here =======================*/
 
@@ -164,67 +185,125 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     {
         PtrRegister ptrReg;//move this up later
         initPtrRegister(&ptrReg);
+
+        /* This variable will hold the serial(x) and then the parallel(y) CTE
+           values. */
         CTEParamsFast ctePars;
 
         //NOTE: The char * below should be const but this would require a massive refactoring.
         char * cteTabFilename = acs->pcte.name;
 
-        //open PCTETAB and check for CTE algorithm version name: CTE_NAME
+        // Generation 1 CTE algorithm is obsolete.
+        // Generation 3 CTE algorithm is the Generation 2 algorithm applied to both
+        // serial and parallel trails.  There is no longer any choice for the
+        // generation of the CTE algorithm. It is "generation 3", but it is preferably
+        // referenced as the "Serial and Parallel CTE correction".
+
+        // open PCTETAB and check for CTE algorithm version name: CTE_NAME
         char cteName[SZ_CBUF];
         *cteName = '\0';
         int cteAlgorithmGen = 0;
         int tmpStatus = getCTE_NAME(cteTabFilename, cteName, SZ_CBUF);
         if (tmpStatus == KEYWORD_MISSING)
-            cteAlgorithmGen = 1;
+        {
+            trlerror("(pctecorr) No CTE_NAME keyword found in the primary header of PCTETAB file.");
+            trlerror("(pctecorr) This version of PCTETAB is obsolete - use the 'Parallel and Serial PixelCTE 2023' PCTETAB.");
+            freeOnExit(&ptrReg);
+            return (status = ERROR_RETURN);
+        }
         else if (tmpStatus)
         {
             freeOnExit(&ptrReg);
             return (status = tmpStatus);
         }
+        else if (strcmp(cteName, ACS_GEN3_CTE_NAME) == 0)
+        {
+            cteAlgorithmGen = 3;
+            trlmessage("(pctecorr) Parallel and Serial PCTETAB file auto-detected.");
+        }
         else if (strcmp(cteName, ACS_GEN2_CTE_NAME) == 0)
         {
-            cteAlgorithmGen = 2;
-            trlmessage("(pctecorr) Generation 2 PCTETAB file auto-detected.");
+            trlerror("(pctecorr) Generation 2 PCTETAB file auto-detected.");
+            trlerror("(pctecorr) This version of PCTETAB is obsolete - use the 'Parallel and Serial PixelCTE 2023' PCTETAB.");
+            freeOnExit(&ptrReg);
+            return (status = ERROR_RETURN);
         }
         else
         {
-            cteAlgorithmGen = 1;
-            trlmessage("(pctecorr) Generation 1 PCTETAB file auto-detected.");
-        }
-
-        if (acs_info->cteAlgorithmGen && (acs_info->cteAlgorithmGen != cteAlgorithmGen))
-        {
-            char msgBuffer[MSG_BUFF_LENGTH];
-            sprintf(msgBuffer, "(pctecorr) Cmd line option '--ctegen %d' specified yet gen%d algorithm detected in PCTETAB (CTE_NAME).",
-                    acs_info->cteAlgorithmGen, cteAlgorithmGen);
-            trlerror(msgBuffer);
+            trlerror("(pctecorr) Generation 1 PCTETAB file auto-detected.");
+            trlerror("(pctecorr) This version of PCTETAB is obsolete - use the 'Parallel and Serial PixelCTE 2023' PCTETAB.");
             freeOnExit(&ptrReg);
-            return (status = CAL_FILE_MISSING);
-        }
-        else if (!acs_info->cteAlgorithmGen && (cteAlgorithmGen != 2))
-        {
-            char msgBuffer[MSG_BUFF_LENGTH];
-            sprintf(msgBuffer, "(pctecorr) Gen%d algorithm detected in PCTETAB (CTE_NAME). Default is gen2, use '--ctegen %d' to override.",
-                    cteAlgorithmGen, cteAlgorithmGen);
-            trlerror(msgBuffer);
-            freeOnExit(&ptrReg);
-            return (status = CAL_FILE_MISSING);
+            return (status = ERROR_RETURN);
         }
         acs_info->cteAlgorithmGen = cteAlgorithmGen;
 
-        if (acs_info->cteAlgorithmGen == 2)
+        sprintf(MsgText, "(pctecorr) Reading CTE parameters from PCTETAB file: '%s'...", cteTabFilename);
+        trlmessage(MsgText);
+        if ((status = PutKeyStr(x[0].globalhdr, "PCTETAB", cteTabFilename, "CTE Correction Table")))
         {
-            sprintf(MsgText, "(pctecorr) Reading CTE parameters from PCTETAB file: '%s'...", cteTabFilename);
+            trlerror("(pctecorr) failed to update PCTETAB keyword in image header");
+            return status;
+        }
+    /*
+      Loop over the imsets as the CTE is applied per amp
+    */
+    char ccdamp[strlen(AMPSTR1)+1]; // string to hold amps on current chip
+    addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
+    unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
+    for (i = 0; i < acs_info->nimsets; i++) {
+
+        sprintf(MsgText, "(docte) Loop nimset: %i", i);
+        trlmessage(MsgText);
+
+	    // Determine which amps are on the current chip of the input image 
+        ccdamp[0] = '\0'; // "reset" the string for reuse
+
+        // Amps on this chip
+        parseWFCamps(acs[i].ccdamp, acs[i].chip, ccdamp);
+        numamps = strlen(ccdamp);
+
+        int startOfSetInCalib;
+        char corrType[10];
+        corrType[0] = '\0';
+        for (unsigned nthAmp = 0; nthAmp < numamps; ++nthAmp)
+        {
+            sprintf(MsgText, "(docte) Loop nthAmp: %i ccdamp: %s", nthAmp, ccdamp);
             trlmessage(MsgText);
-            if ((status = PutKeyStr(x[0].globalhdr, "PCTETAB", cteTabFilename, "CTE Correction Table")))
-            {
-                trlerror("(pctecorr) failed to update PCTETAB keyword in image header");
-                return status;
+
+            /* Get the amp letter and number where A:0, B:1, etc. as defined in acs.h */
+            amploc = strchr(AMPSORDER, ccdamp[nthAmp]);
+            ampID = amploc - AMPSORDER; 
+
+            /* 
+               Get the amp letter and number where C:0, D:1, etc. as defined in this file.
+               This order is based upon the arrangement of the chips in the input science
+               image (chip 2 with amps C and D in the first imset, and then chip 1 with
+               amps A and B in the second imset. 
+            */
+            amplocInCalib = strchr(AMPCALIBORDER, ccdamp[nthAmp]); // This is a full string.
+            ampIDInCalib = amplocInCalib - AMPCALIBORDER; // This is a number.
+
+            sprintf(MsgText, "(docte) amploc: %s  ampID: %i amplocInCalib: %s ampIDInCalib: %i", amploc, ampID, amplocInCalib, ampIDInCalib);
+            trlmessage(MsgText);
+
+            startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
+            strcpy(corrType, "serial");
+            if (startOfSetInCalib == 1) {
+                strcpy(corrType, "parallel");
             }
-            //Get parameters from PCTETAB reference file
-            addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
-            unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
+
+            /* 
+               Loop to control the application of the CTE corrections - the serial 
+               (Extensions 5-8 [A], 9-12 [B], 13-16 [C], 17-20 [D]) correction for each
+               Amp will be done first, then the parallel (Extensions 1-4) correction will
+               be done.  The "Extensions" refer to the set of extensions in the input 
+               dataset (*raw.fits) pertaining to a particular correction.
+
+               As noted at the top of this file, the typical order of processing is 
+               Chip 2 (Amps C and D) and then Chip 1 (Amps A and B). 
+            */
             initCTEParamsFast(&ctePars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
+
             ctePars.refAndIamgeBinsIdenticle = True;
             ctePars.verbose = acs->verbose = 0 ? False : True;
             if ((status = allocateCTEParamsFast(&ctePars)))
@@ -233,7 +312,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                 return (status);
             }
 
-            if ((status = loadPCTETAB(cteTabFilename, &ctePars)))
+            if ((status = loadPCTETAB(cteTabFilename, &ctePars, startOfSetInCalib)))
             {
                 freeOnExit(&ptrReg);
                 return (status);
@@ -244,6 +323,9 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                 freeOnExit(&ptrReg);
                 return (status);
             }
+
+            sprintf(MsgText,"(pctecorr) StartOfSet: %d  CorrType: %s \n", startOfSetInCalib, corrType);
+            trlmessage(MsgText);
 
             ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
 
@@ -265,49 +347,38 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
             trlmessage(MsgText);
 
             trlmessage("(pctecorr) PCTETAB read");
-        }
 
-        for (i = 0; i < acs_info->nimsets; i++)
-        {
+            /*
+               The number of acs_info->nimsets represents the number of chips to process for the
+               input file, and each chip can contain two amps. Since the CTE correction is done on 
+               an amp basis, and only the correction information for that amp is available, then
+               the looping is double the number of nimsets.
+            */
+
             clock_t begin = (double)clock();
-            if (acs_info->cteAlgorithmGen == 1)//make explicit as not using bool
+            if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, &ccdamp[nthAmp], amploc, ampID)))
             {
-                if (forwardModelOnly)
-                {
-                    trlerror("--forwardModelOnly NOT compatible with 1st generation CTE algorithm");
-                    freeOnExit(&ptrReg);
-                    return (INVALID_VALUE);
-                }
-                if ((status = doPCTEGen1(&acs[i], &x[i])))
-                    return status;
-            }
-            else
-            {
-                if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly)))
-                    return status;
+                return status;
             }
             double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
             sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
             trlmessage(MsgText);
-        }
+
+        }  // End loop to accommodate both the serial and parallel CTE corrections
+
         freeOnExit(&ptrReg);
-
-        PrSwitch("pctecorr", COMPLETE);
-
-        if (acs_info->printtime)
-            TimeStamp ("PCTECORR complete", acs->rootname);
     }
+    PrSwitch("pctecorr", COMPLETE);
+    }
+
+    if (acs_info->printtime)
+        TimeStamp ("PCTECORR complete", acs->rootname);
 
     if (!OmitStep(acs_info->pctecorr)) {
         if (pcteHistory(&acs[0], x[0].globalhdr))
             return (status);
 
-        if (acs_info->cteAlgorithmGen == 1)
-        	UCteVer(x[0].globalhdr, ACS_GEN1_CTE_NAME, ACS_GEN1_CTE_VER);
-        else if (acs_info->cteAlgorithmGen == 2)
-        	UCteVer(x[0].globalhdr, ACS_GEN2_CTE_NAME, ACS_GEN2_CTE_VER);
-        else
-        	assert(0);//unimplemented
+        UCteVer(x[0].globalhdr, ACS_GEN3_CTE_NAME, ACS_GEN3_CTE_VER);
 
     } else if (acs_info->pctecorr == OMIT) {
         /* this is just to make sure that the PCTECORR flag is set to OMIT in the
