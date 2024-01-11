@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME} SHARED
 	calwf3/wf3member.c
 	calwf3/wf3table.c
 	comparenum.c
+	computelimits.c
 	defswitch.c
 	detchip.c
 	detnsegn.c
