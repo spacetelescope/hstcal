@@ -511,7 +511,7 @@ static void FlatMsg (ACSInfo *acs2d, int extver) {
       PrRefInfo ("cfltfile", acs2d->cflt.name,
                  acs2d->cflt.pedigree, acs2d->cflt.descrip, "");
       /* spot position table */
-	    PrRefInfo ("spottab", acs2d->spot.name, acs2d->spot.pedigree,
+	  PrRefInfo ("spottab", acs2d->spot.name, acs2d->spot.pedigree,
                  acs2d->spot.descrip, acs2d->spot.descrip2);
     }
 	}

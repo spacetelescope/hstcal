@@ -15,6 +15,7 @@
    29-Apr-2020 MDD - Added overhead for atod_saturate value.
    11-May-2020 MDD - Added variable, satmap - the reference image for full-well saturation.
                      Use of this image renders acs->saturate variable OBSOLETE.
+   11-Jan-2024 MDD - Added "InitRefTab(&(acs->spot))" which has been missing for all this time.
 */
 #include <string.h>
 
@@ -148,6 +149,7 @@ void ACSInit (ACSInfo *acs) {
     InitRefImg (&(acs->shad));
     InitRefTab (&(acs->mlin));
     InitRefTab (&(acs->phot));
+    InitRefTab (&(acs->spot));
 }
 
 
