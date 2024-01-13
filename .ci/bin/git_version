@@ -19,7 +19,7 @@ if [ -f "$srcdir/DISTINFO" ]; then
     vcfile="$srcdir/DISTINFO"
 fi
 
-if [ -f "$vcfile" ]; then
+if [ -f "$vcfile" ] && ! git status &>/dev/null ; then
     read -r VERSION COMMIT BRANCH <<< $(<${vcfile})
 else
     if git --version &>/dev/null; then
@@ -64,7 +64,7 @@ if [ -f "$vcfile" ]; then
     tempfile=$(mktemp)
 
     write_distinfo "$tempfile"
-    if diff "$vcfile" "$tempfile" >&2; then
+    if ! diff "$vcfile" "$tempfile" >&2; then
         write_distinfo "$vcfile"
         write_header "$hfile"
     fi
