@@ -17,7 +17,7 @@ execute_process(
 	OUTPUT_VARIABLE version
 )
 
-add_custom_target(distinfo
+add_custom_target(distinfo ALL
         COMMAND ${CMAKE_COMMAND} -E time ${CMAKE_SOURCE_DIR}/.ci/bin/git_version "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}"
         BYPRODUCTS
                 "${CMAKE_CURRENT_BINARY_DIR}/version.h"
