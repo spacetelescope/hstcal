@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-
 vcfile="DISTINFO"
+hfile="version.h"
 srcdir="$1"
+blddir="$2"
+tempfile=
 
 if [ -z "$srcdir" ]; then
     echo "Source directory path required" >&2
@@ -21,7 +23,7 @@ if [ -f "$vcfile" ]; then
     read -r VERSION COMMIT BRANCH <<< $(<${vcfile})
 else
     if git --version &>/dev/null; then
-        VERSION=$(git describe --dirty --abbrev=7)
+        VERSION=$(git describe --first-parent --always --dirty --long --tags --abbrev=8)
         COMMIT=$(git rev-parse HEAD)
         BRANCH=$(git rev-parse --abbrev-ref HEAD)
     else
@@ -41,7 +43,14 @@ if [ -z "$BRANCH" ]; then
     BRANCH="unknown"
 fi
 
-cat << EOF > version.h
+write_distinfo() {
+    cat << EOF > "$1"
+$VERSION $COMMIT $BRANCH
+EOF
+}
+
+write_header() {
+    cat << EOF > "$1"
 #ifndef HSTCAL_VERSION_H
 #define HSTCAL_VERSION_H
 #define VERSION "$VERSION"
@@ -49,11 +58,20 @@ cat << EOF > version.h
 #define BRANCH "$BRANCH"
 #endif // HSTCAL_VERSION_H
 EOF
+}
 
-cat << EOF > "$vcfile"
-$VERSION
-$COMMIT
-$BRANCH
-EOF
+if [ -f "$vcfile" ]; then
+    tempfile=$(mktemp)
+
+    write_distinfo "$tempfile"
+    if diff "$vcfile" "$tempfile" >&2; then
+        write_distinfo "$vcfile"
+        write_header "$hfile"
+    fi
+    rm -f "$tempfile"
+else
+    write_distinfo "$vcfile"
+    write_header "$hfile"
+fi
 
 printf "$VERSION"

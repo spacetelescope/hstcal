@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-set -x
-
 if [ ! -f CMakeCache.txt ]; then
 	echo "Run cmake first" >&2
 	exit 1
 fi
 
 read -r VERSION COMMIT BRANCH <<< $(<DISTINFO)
+
 prefix=hstcal-$VERSION
 srcdir=$1
 blddir=$2
-
 install -m 644 "$blddir"/DISTINFO "$srcdir"
 install -m 644 "$blddir"/version.h "$srcdir"
+
 pushd "$srcdir"
 git archive \
 	-v \
