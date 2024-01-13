@@ -1,10 +1,12 @@
 DISTINFO
+version.h
 *.tar.*
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
 CPackConfig.cmake
 CPackSourceConfig.cmake
+_CPack_Packages/
 Testing
 Makefile
 cmake_install.cmake
@@ -20,3 +22,7 @@ build.*
 Makefile
 __pycache__
 .cache
+*.e
+*.a
+*.so
+hstcal-*.sh
