@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
+project(hstcal)
+enable_language(C)
+set(CMAKE_C_STANDARD 99)
 
 option(ENABLE_WARNINGS "Enable compiler warnings" ON)
 option(ENABLE_OPENMP "Enable OpenMP" ON)
@@ -14,6 +17,13 @@ execute_process(
 	OUTPUT_VARIABLE version
 )
 
+add_custom_target(distinfo
+        COMMAND ${CMAKE_COMMAND} -E time ${CMAKE_SOURCE_DIR}/.ci/bin/git_version "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}"
+        BYPRODUCTS
+                "${CMAKE_CURRENT_BINARY_DIR}/version.h"
+                "${CMAKE_CURRENT_BINARY_DIR}/DISTINFO"
+)
+
 # Hack to produce autotools-like distribution archives
 # Use: make dist
 # Caveat: unix-only
@@ -24,10 +34,7 @@ add_custom_target(dist
 		"${CMAKE_CURRENT_BINARY_DIR}/DISTINFO"
 )
 
-project(hstcal)
 set(PROJECT_VERSION "${version}")
-enable_language(C)
-set(CMAKE_C_STANDARD 99)
 
 include(CheckSymbolExists)
 check_symbol_exists(snprintf "stdio.h" HAVE_SNPRINTF)
