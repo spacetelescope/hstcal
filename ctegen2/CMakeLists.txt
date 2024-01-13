@@ -18,7 +18,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC tables
 )
 target_include_directories(${PROJECT_NAME}
-	PUBLIC ${PROJECT_NAME_SOURCE_DIR}
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 	PUBLIC ${HSTCAL_include}
 	PUBLIC ../pkg/acs/include
 	PUBLIC ../pkg/wfc3/include
