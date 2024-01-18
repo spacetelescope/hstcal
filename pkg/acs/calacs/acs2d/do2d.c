@@ -508,11 +508,11 @@ static void FlatMsg (ACSInfo *acs2d, int extver) {
                  acs2d->lflt.pedigree, acs2d->lflt.descrip, "");
     }
     if (GotFileName (acs2d->cflt.name)) {		/* coronagraphic flat */
-      PrRefInfo ("cfltfile", acs2d->cflt.name,
-                 acs2d->cflt.pedigree, acs2d->cflt.descrip, "");
-      /* spot position table */
-	    PrRefInfo ("spottab", acs2d->spot.name, acs2d->spot.pedigree,
-                 acs2d->spot.descrip, acs2d->spot.descrip2);
+        PrRefInfo ("cfltfile", acs2d->cflt.name,
+            acs2d->cflt.pedigree, acs2d->cflt.descrip, "");
+        /* spot position table */
+        PrRefInfo ("spottab", acs2d->spot.name, acs2d->spot.pedigree,
+            acs2d->spot.descrip, acs2d->spot.descrip2);
     }
 	}
 }

@@ -1,4 +1,5 @@
 # include <stdio.h>
+# include <stdlib.h>
 # include <string.h>
 #include "hstcal.h"
 # include "xtables.h"
@@ -25,6 +26,12 @@
 	Use GotFileName instead of explicitly checking ref->name[0];
 	initialize ref->goodPedigree to GOOD_PEDIGREE.
 
+   Michele De La Pena, 11 Jan 2024:
+    Open the primary HDU (instead of the table HDU), in order to get
+    keywords PEDIGREE and DESCRIP.  Based on changes made by RIJ for STIS.
+    These keywords are not in the bintable extension so the comment made
+    in the creation of this file is misleading.
+
    Warren Hack, 1998 May 26:
 	Revised for ACS
 */
@@ -35,6 +42,7 @@ int TabPedigree (RefTab *ref) {
 
 	IRAFPointer tp;		/* for the reference table */
 	int GotFileName (char *);
+    char *primary_hdu;	/* name including the trailing "[0]" designating the PHDU */
 
 	ref->goodPedigree = GOOD_PEDIGREE;	/* initial value */
 
@@ -43,8 +51,17 @@ int TabPedigree (RefTab *ref) {
 	    return (status);
 	}
 
+    /* Append "[0]" to the file name, for the primary HDU. */
+    primary_hdu = calloc(strlen(ref->name) + 11, sizeof(char));
+    if (primary_hdu == NULL) {
+        printf("ERROR: Out of memory.\n");
+        return(-1);
+    }
+    strcpy(primary_hdu, ref->name);
+    strcat(primary_hdu, "[0]");
+
 	/* Open the reference table. */
-	tp = c_tbtopn (ref->name, IRAF_READ_ONLY, 0);
+	tp = c_tbtopn (primary_hdu, IRAF_READ_ONLY, 0);
 	if ((status = c_iraferr())) {
 	    ref->exists = EXISTS_NO;
 	    clear_cvoserr();
@@ -63,10 +80,7 @@ int TabPedigree (RefTab *ref) {
 	}
 
 	c_tbhgtt (tp, "DESCRIP", ref->descrip, ACS_FITS_REC);
-    trlmessage("DESCRIP read in as: ");
-    sprintf(MsgText, "%s", ref->descrip);
-    trlmessage(MsgText);
-        if ((status = c_iraferr())) {
+    if ((status = c_iraferr())) {
 	    ref->descrip[0] = '\0';
 	    clear_cvoserr();
         status = 0;
@@ -80,6 +94,8 @@ int TabPedigree (RefTab *ref) {
 
 	/* Done with this table for the time being. */
 	c_tbtclo (tp);
+
+    free(primary_hdu);
 
 	return (status);
 }
