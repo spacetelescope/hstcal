@@ -1,5 +1,6 @@
 /* ACSCTE -- CTE loss correction */
 
+#include "config.h"
 # include <stdio.h>
 # include <stdlib.h>		/* calloc */
 # include <time.h>
