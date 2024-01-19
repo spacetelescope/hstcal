@@ -1,12 +1,15 @@
 project(ctegen2)
 
 find_package(OpenMP COMPONENTS C)
-if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
-	if(APPLE)
-		message("Apple Clang does not support OpenMP. Disabled.")
-		set(ENABLE_OPENMP OFF)
-	endif()
-endif()
+# This interferes with Conda, because it uses clang AND provides
+# its own libomp. I need to figure out a better way to handle
+# pure Apple Clang builds.
+#if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
+#	if(APPLE)
+#		message("Apple Clang does not support OpenMP. Disabled.")
+#		set(ENABLE_OPENMP OFF)
+#	endif()
+#endif()
 
 # Circular dependency on ACS, so this MUST be STATIC
 add_library(${PROJECT_NAME} STATIC
