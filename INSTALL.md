@@ -58,15 +58,15 @@ GCC may be supplemented by Clang under the following conditions:
 
 ### Debian / Ubuntu
 
-    ```
-    apt install cmake libcfitsio-dev gcc gfortran pkg-config
-    ```
+```
+apt install cmake libcfitsio-dev gcc gfortran pkg-config
+```
 
 ### Fedora
 
-    ```
-    dnf install cmake cfitsio-devel gcc gcc-gfortran pkgconf-pkg-config 
-    ```
+```
+dnf install cmake cfitsio-devel gcc gcc-gfortran pkgconf-pkg-config 
+```
 
 1. Configure
 
@@ -101,36 +101,36 @@ The LLVM/Clang suite provided by Apple XCode is not sufficient to compile HSTCAL
 
 ### MacPorts
 
-    ```
-    port install cmake cfitsio gcc13 pkgconfig +openmp
-    export PKG_CONFIG_PATH="/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH"
-    export LDFLAGS="-Wl,-rpath,/opt/local/lib"
-    ```
+```
+port install cmake cfitsio gcc13 pkgconfig +openmp
+export PKG_CONFIG_PATH="/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath,/opt/local/lib"
+```
 
 ### Homebrew
 
-    ```
-    brew install cmake cfitsio gcc pkgconfig
-    export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
-    export LDFLAGS="-Wl,-rpath,/opt/homebrew/lib"
-    ```
+```
+brew install cmake cfitsio gcc pkgconfig
+export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath,/opt/homebrew/lib"
+```
 
 ### Fink
 
-    ```
-    fink install cmake libcfitsio10-dev gcc12 pkgconfig
-    export PKG_CONFIG_PATH="/opt/sw/lib/pkgconfig:$PKG_CONFIG_PATH"
-    export LDFLAGS="-Wl,-rpath,/opt/sw/lib"
-    ```
+```
+fink install cmake libcfitsio10-dev gcc12 pkgconfig
+export PKG_CONFIG_PATH="/opt/sw/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath,/opt/sw/lib"
+```
 
 ### Conda / Mamba
 
-    ```
-    conda create -n hstcal -c conda-forge cmake compilers cfitsio pkgconfig python
-    conda activate hstcal
-    export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
-    export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
-    ```
+```
+conda create -n hstcal -c conda-forge cmake compilers cfitsio pkgconfig python
+conda activate hstcal
+export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
+```
 
 1. Configure
 
