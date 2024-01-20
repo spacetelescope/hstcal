@@ -68,6 +68,15 @@ apt install cmake libcfitsio-dev gcc gfortran pkg-config
 dnf install cmake cfitsio-devel gcc gcc-gfortran pkgconf-pkg-config 
 ```
 
+### Conda / Mamba
+
+```
+conda create -n hstcal -c conda-forge cmake compilers cfitsio pkgconfig python
+conda activate hstcal
+export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
+```
+
 1. Configure
 
     ```
