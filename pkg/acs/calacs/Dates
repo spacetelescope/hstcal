@@ -1,7 +1,8 @@
  14-Sep-2023   CALACS 10.4.0 Implementation of the "Parallel and Serial CTE correction". This
                              version of the CTE correction (Version 3) is based upon the 
                              algorithm of Version 2, but includes the additional correction
-                             for the serial direction.  
+                             for the serial direction which is amp-dependent.  Previous 
+                             generations of CTE correction are no longer supported.
  08-Feb-2022   CALACS 10.3.5 Update to the cosmic ray rejection algorithm as to the way
                              the output ERR extension is computed for the CRJ file. The 
                              output ERR is now propagated from the usable input ERR extensions

@@ -1,3 +1,12 @@
+Update for version 10.4.0 - 14-Sep-2023 (MDD)
+	pkg/acs/calacs/Dates
+	pkg/acs/calacs/History
+	pkg/acs/calacs/Updates
+    pkg/acs/calacs/acscte/docte.c
+    pkg/acs/calacs/acscte/dopcte-gen2.c
+    ctegen2/ctegen2.h
+	ctegen2/ctehelpers.c
+
 Update for version 10.3.5 - 08-Feb-2022 (MDD)
 	pkg/acs/calacs/Dates
 	pkg/acs/calacs/History

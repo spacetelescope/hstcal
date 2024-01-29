@@ -185,7 +185,7 @@ MDD Sept 2023: Implementation to support a PCTETAB which is an
     per amplifier.
 */
 
-int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn) {
+int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn, Bool skipLoadPrimary) {
 /* Read the cte parameters from the reference table PCTETAB
 
        These are taken from the PCTETAB global header:
@@ -240,20 +240,15 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
     char filename_wext[strlen(filename) + 4];
 
     /* The "extn" parameter indicates the starting extension for the QPROF table to be read
-       as this routine will be called multiple times - first for the multiple sets (one set
-       per amp) of serial CTE corrections and then for the parallel CTE correction. The serial
+       as this routine will be called multiple times - first for the parallel CTE correction
+       and then for the multiple sets (one set per amp) of serial CTE corrections. The serial
        CTE is performed first. 
        Serial Amp A: starting extension 5
        Serial Amp B: starting extension 9
        Serial Amp C: starting extension 13
        Serial Amp D: starting extension 17
        Parallel: starting extension 1
-
-       If the CTE_NAME has a value, then the primary header of the PCTETAB has already
-       been read - skip any re-reading.
-
     */
-    Bool skipLoadHdr = strlen(pars->cte_name) > 1 ? True : False;  
 
     /* NAMES OF DATA COLUMNS WE WANT FROM THE FILE, DATA WILL BE STORED IN THE PARS STRUCTURE */
     /* QPROF table - the last column is a description string */
@@ -269,8 +264,9 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
     const char sens2048[] = "SENS_2048";
 
     /* Read in the primary header keywords */
-    if (!skipLoadHdr)
+    if (!skipLoadPrimary)
     {
+        sprintf(MsgText, "(ctehelpers) Reading PRIMARY.  cte_name: %s skipLoadPrimary: %c\n", pars->cte_name, skipLoadPrimary);  
         /* HSTIO VARIABLES */
         Hdr hdr_ptr;
         initHdr(&hdr_ptr);
@@ -385,19 +381,6 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
         freeHdr(&hdr_ptr);
     }
 
-    /* Read in ccdamp keyword from the serial CTE FITS extension */
-/*
-	Hdr ehdr;
-	IODescPtr ip = NULL;
-    extver = (startOfSet / 4) + 1;
-	ip = openInputImage (filename, "QPROF", extn);
-	getHeader (ip, &ehdr);
-	closeImage (ip);
-	if (GetKeyStr (&ehdr, "CCDAMP", NO_DEFAULT, "", &pars->ampOfSet, SZ_CBUF))
-		return (status);
-	freeHdr(&ehdr);
-*/
-
     /*
      The variable extn contains the number of the FITS extension which is the starting
      extension for the "set" of qprof/sclbycol/rprof/cprof data.  The values for the
@@ -454,7 +437,6 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
         status = COLUMN_NOT_FOUND;
         return status;
     }
-
 
     // LOOP OVER TABLE ROWS UP TO SIZE TRAPS
     int ctraps = 0; // actual usable traps, i.e. see if more traps were added to reference file
