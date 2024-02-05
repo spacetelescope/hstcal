@@ -188,27 +188,32 @@ MDD Sept 2023: Implementation to support a PCTETAB which is an
 int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn, Bool skipLoadPrimary) {
 /* Read the cte parameters from the reference table PCTETAB
 
-       These are taken from the PCTETAB global header:
-       CTE_NAME - name of cte algorithm
-       CTE_VER  - version number of cte algorithm
-       CTEDATE0 - date of instrument installation in HST, in fractional years (MJD)
-       CTEDATE1 - reference date of CTE model pinning, in fractional years (MJD)
+   These are taken from the PCTETAB global header (aka primary header):
+   CTE_NAME - name of cte algorithm
+   CTE_VER  - version number of cte algorithm
+   PCTERNOI - readnoise amplitude and clipping level
+   PCTENSMD - readnoise mitigation algorithm
+   PCTETRSH - over-subtraction threshold
+   FIXROCR  - account for cosmic ray over-subtraction?
 
-       PCTETLEN - max length of CTE trail
-       PCTERNOI - readnoise amplitude and clipping level
-       PCTENFOR - number of iterations used in CTE forward modeling
-       PCTENPAR - number of iterations used in the parallel transfer
-       PCTENSMD - readnoise mitigation algorithm
-       PCTETRSH - over-subtraction threshold
+   These values are now amp-dependent for the *serial* CTE correction.  This
+   means that they are read from the QPROF extension header of the amp being 
+   processed.  In contrast, there is only one set for the *parallel* CTE 
+   correction which applies to all amps.  The parallel values are also read 
+   from the QPROF extension header where the parallel correction is defined
+   as discussed below.  
+   CTEDATE0 - date of instrument installation in HST, in fractional years (MJD)
+   CTEDATE1 - reference date of CTE model pinning, in fractional years (MJD)
+   PCTENFOR - number of iterations used in CTE forward modeling
+   PCTENPAR - number of iterations used in the parallel transfer
+   PCTETLEN - max length of CTE trail
 
-       FIXROCR  - account for cosmic ray over-subtraction?
+   The parallel/serial PCTETAB which supports the latest CTE algorithm
+      CTE_VER = '3.0     '
+      CTE_NAME= 'Par/Serial PixelCTE 2023'
 
-       The parallel/serial PCTETAB which supports the latest CTE algorithm
-          CTE_VER = '3.0     '
-          CTE_NAME= 'Par/Serial PixelCTE 2023'
-
-       The updated PCTETAB has a primary HDU and 20 extensions.  Extensions 1-4 
-       apply to the parallel CTE and the remaining extensions apply to the serial CTE.
+   The updated PCTETAB has a primary HDU and 20 extensions.  Extensions 1-4 
+   apply to the parallel CTE and the remaining extensions apply to the serial CTE.
 
 No.    Name      Ver    Type      Cards   Dimensions   Format
   0  PRIMARY       1 PrimaryHDU      75   ()
@@ -232,23 +237,22 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
  18  SCLBYCOL      5 BinTableHDU     26   8192R x 6C   [I, E, E, E, E, 20A]
  19  RPROF         5 ImageHDU        22   (9999, 100)   float32
  20  CPROF         5 ImageHDU        22   (9999, 100)   float32
+
+   The "extn" parameter indicates the starting extension for the QPROF table to be read
+   as this routine will be called multiple times - first for the parallel CTE correction
+   and then for the multiple sets (one set per amp) of serial CTE corrections. The serial
+   CTE is performed first.  A "set" here means QPROF, SCLBYCOL, RPROF, and CPROF extensions.
+      Parallel: starting extension 1 (extensions 1 - 4)
+      Serial Amp A: starting extension 5 (extensions 5 - 8)
+      Serial Amp B: starting extension 9 (extensions 9 - 12)
+      Serial Amp C: starting extension 13 (extensions 13 - 16)
+      Serial Amp D: starting extension 17 (extensions 17 - 20)
 */
 
     extern int status; /* variable for return status */
 
     /* VARIABLE FOR FILENAME + EXTENSION NUMBER. */
     char filename_wext[strlen(filename) + 4];
-
-    /* The "extn" parameter indicates the starting extension for the QPROF table to be read
-       as this routine will be called multiple times - first for the parallel CTE correction
-       and then for the multiple sets (one set per amp) of serial CTE corrections. The serial
-       CTE is performed first. 
-       Serial Amp A: starting extension 5
-       Serial Amp B: starting extension 9
-       Serial Amp C: starting extension 13
-       Serial Amp D: starting extension 17
-       Parallel: starting extension 1
-    */
 
     /* NAMES OF DATA COLUMNS WE WANT FROM THE FILE, DATA WILL BE STORED IN THE PARS STRUCTURE */
     /* QPROF table - the last column is a description string */
@@ -296,33 +300,6 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 		sprintf(MsgText,"CTE_VER: %s",pars->cte_ver);
 		trlmessage(MsgText);
 
-		/* GET DATE OF INSTRUMENT INSTALLATION IN HST */
-		if (GetKeyDbl(&hdr_ptr, "CTEDATE0", NO_DEFAULT, -999, &pars->cte_date0)) {
-			cteerror("(pctecorr) Error reading CTEDATE0 keyword from PCTETAB");
-			status = KEYWORD_MISSING;
-			return status;
-		}
-		sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
-		trlmessage(MsgText);
-
-		/* GET REFRENCE DATE OF CTE MODEL PINNING */
-		if (GetKeyDbl(&hdr_ptr, "CTEDATE1", NO_DEFAULT, -999, &pars->cte_date1)) {
-            cteerror("(pctecorr) Error reading CTEDATE1 keyword from PCTETAB");
-            status = KEYWORD_MISSING;
-            return status;
-		}
-		sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
-		trlmessage(MsgText);
-
-		/* READ MAX LENGTH OF CTE TRAIL */
-		if (GetKeyInt(&hdr_ptr, "PCTETLEN", NO_DEFAULT, -999, &pars->cte_len)) {
-			cteerror("(pctecorr) Error reading PCTETLEN keyword from PCTETAB");
-			status = KEYWORD_MISSING;
-			return status;
-		}
-		sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
-		trlmessage(MsgText);
-
 		/* GET READ NOISE CLIPPING LEVEL */
 		if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
 			cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
@@ -330,24 +307,6 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 			return status;
 		}
 		sprintf(MsgText,"PCTERNOI: %f",pars->rn_amp);
-		trlmessage(MsgText);
-
-		/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
-		if (GetKeyInt(&hdr_ptr, "PCTENFOR", NO_DEFAULT, -999, &pars->n_forward)) {
-			cteerror("(pctecorr) Error reading PCTENFOR keyword from PCTETAB");
-			status = KEYWORD_MISSING;
-			return status;
-		}
-		sprintf(MsgText,"PCTERNFOR: %d",pars->n_forward);
-		trlmessage(MsgText);
-
-		/* GET NUMBER OF ITERATIONS USED IN PARALLEL TRANSFER*/
-		if (GetKeyInt(&hdr_ptr, "PCTENPAR", NO_DEFAULT, -999, &pars->n_par)) {
-			cteerror("(pctecorr) Error reading PCTENPAR keyword from PCTETAB");
-			status = KEYWORD_MISSING;
-			return status;
-		}
-		sprintf(MsgText,"PCTERNPAR: %d",pars->n_par);
 		trlmessage(MsgText);
 
 		/* GET READ NOISE MITIGATION ALGORITHM*/
@@ -368,7 +327,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 		sprintf(MsgText,"PCTETRSH: %g",pars->thresh);
 		trlmessage(MsgText);
 
-		/*FIX THE READOUT CR'S? */
+		/* FIX THE READOUT CR'S? */
 		if (GetKeyInt(&hdr_ptr, "FIXROCR", NO_DEFAULT, -999, &pars->fix_rocr)){
 			cteerror("(pctecorr) Error reading FIXROCR keyword from PCTETAB");
 			status = KEYWORD_MISSING;
@@ -382,6 +341,9 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
     }
 
     /*
+     Read in the remaining keywords necessary for proper processing and are
+     amp-dependent from the associated "extn". 
+
      The variable extn contains the number of the FITS extension which is the starting
      extension for the "set" of qprof/sclbycol/rprof/cprof data.  The values for the
      starting extension of a new set are: 5, 9, 13, 17, and 1.  For example, the starting
@@ -410,7 +372,70 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
         return status;
     }
 
+    /* 
+       First get the keywords necessary for processing from the extension header
+       All the extension headers pertaining to an amp correction have the same 
+       values for these keywords, so they only have to be read from the QPROF 
+       extension.
+    */
+
+	/* GET DATE SERIAL CTE BECAME RELEVANT */
+    pars->cte_date0 = c_tbhgtd(tbl_ptr, "CTEDATE0");
+    if (status = c_iraferr()) {
+        sprintf(MsgText,"(pctecorr) Error reading CTEDATE0 from extension %d.", extn);
+        cteerror(MsgText);
+        c_tbtclo(tbl_ptr);
+        return status;
+    }
+	sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
+	trlmessage(MsgText);
+
+	/* GET REFRENCE DATE OF CTE MODEL PINNING */
+    pars->cte_date1 = c_tbhgtd(tbl_ptr, "CTEDATE1");
+    if (status = c_iraferr()) {
+        sprintf(MsgText,"(pctecorr) Error reading CTEDATE1 from extension %d.", extn);
+        cteerror(MsgText);
+        c_tbtclo(tbl_ptr);
+        return status;
+    }
+	sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
+	trlmessage(MsgText);
+
+	/* READ MAX LENGTH OF CTE TRAIL */
+    pars->cte_len = c_tbhgti(tbl_ptr, "PCTETLEN");
+    if (status = c_iraferr()) {
+        sprintf(MsgText,"(pctecorr) Error reading PCTETLEN from extension %d.", extn);
+        cteerror(MsgText);
+        c_tbtclo(tbl_ptr);
+        return status;
+    }
+	sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
+	trlmessage(MsgText);
+
+	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
+    pars->n_forward = c_tbhgti(tbl_ptr, "PCTENFOR");
+    if (status = c_iraferr()) {
+        sprintf(MsgText,"(pctecorr) Error reading PCTENFOR from extension %d.", extn);
+        cteerror(MsgText);
+        c_tbtclo(tbl_ptr);
+        return status;
+    }
+	sprintf(MsgText,"PCTENFOR: %d",pars->n_forward);
+	trlmessage(MsgText);
+
+	/* GET NUMBER OF ITERATIONS USED IN TRANSFER*/
+    pars->n_par = c_tbhgti(tbl_ptr, "PCTENPAR");
+    if (status = c_iraferr()) {
+        sprintf(MsgText,"(pctecorr) Error reading PCTENPAR from extension %d.", extn);
+        cteerror(MsgText);
+        c_tbtclo(tbl_ptr);
+        return status;
+    }
+	sprintf(MsgText,"PCTENPAR: %d",pars->n_par);
+	trlmessage(MsgText);
+
     /* READ DATA FROM TABLE */
+
     /* get column pointer for w */
     IRAFPointer w_ptr = c_tbcfnd1_retPtr(tbl_ptr, wcol);
     if (c_iraferr() || !w_ptr) {
@@ -490,6 +515,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
     /* CLOSE CTE PARAMETERS FILE FOR QPROF EXTENSION */
     c_tbtClose((void*)&tbl_ptr);
     assert(!tbl_ptr);
+
     /****************************************************************************/
     /****************************************************************************/
     /* READ CTE SCALING DATA FROM THE SPECIFIED SCLBYCOL TABLE - EXTENSIONS 6, 10, 14, 18, and 2 */

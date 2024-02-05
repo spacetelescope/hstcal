@@ -352,14 +352,14 @@ static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsig
 
 /*
    The rotation routines support the serial CTE correction such that the data
-   is configured to mimic the parallel CTE data.  Essentially, the CTE correction
-   routines can then be applied in the same manner for both the serial
-   and the parallel CTE correction cases. A clockwise 90 degree rotation is required
-   for amps A and D, and a counterclockwise 90 degree rotation is required for amps
-   B and C to apply the serial CTE correction.
+   is configured to mimic the parallel CTE data.  The idea is to 
+   rotate the amp to put the serial trails in the same orientation as 
+   those of the parallel trails when the parallel CTE correction is are applied.
+   Essentially, the CTE correction routines can then be applied in the identical
+   manner for both the serial and the parallel CTE correction cases. 
 
    Once the serial CTE correction has been performed, the amps then need to be
-   de-rotated so the parallel CTE correction can then be applied.
+   "de-rotated" so the parallel CTE correction can then be applied.
 */
 static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTEParamsFast * ctePars, char ccdamp)
 {
@@ -668,4 +668,63 @@ static void top2bottomFlip(FloatTwoDArray * amp)
         trlerror(MsgText);
         return (status = OUT_OF_MEMORY);
     }
+}
+
+/* Returns the x/y dimensions for an array that holds data readout through a
+   single amp. currently only works for ACS WFC data.
+
+   the standalone version has the array size hard wired since _flt files will
+   always have 2048 x 2048 amp regions starting at pixel 0. Here we want to be
+   a bit more careful because the overscan regions are still part of the data.
+
+   the logic for figuring out the amp regions has been copied from doblev.
+   - MRD 14 Mar 2011
+
+   M.D. De La Pena, 02 Feb 2024: Moved this routine here as the file which
+     contained this code became obsolete.
+*/
+int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
+                              const int amp, char *amploc, char *ccdamp,
+                              int *xsize, int *ysize, int *xbeg, int *xend,
+                              int *ybeg, int *yend) {
+    extern int status;
+
+    int bias_loc;
+    int bias_ampx, bias_ampy;
+    int bias_orderx[4] = {0,1,0,1};
+    int bias_ordery[4] = {0,0,1,1};
+
+    int trimx1, trimx2, trimy1, trimy2;
+
+    if (acs->detector == WFC_CCD_DETECTOR) {
+        /* Copy out overscan info for ease of reference in this function*/
+        trimx1 = acs->trimx[0];
+        trimx2 = acs->trimx[1];
+        trimy1 = acs->trimy[0];
+        trimy2 = acs->trimy[1];
+
+        bias_loc = *amploc - ccdamp[0];
+        bias_ampx = bias_orderx[bias_loc];
+        bias_ampy = bias_ordery[bias_loc];
+
+        /* Compute range of pixels affected by each amp */
+        *xbeg = (trimx1 + acs->ampx) * bias_ampx;
+        *xend = (bias_ampx == 0 && acs->ampx != 0) ? acs->ampx + trimx1 : x->sci.data.nx;
+        *ybeg = (trimy1 + acs->ampy) * bias_ampy;
+        *yend = (bias_ampy == 0 && acs->ampy != 0) ? acs->ampy + trimy1 : x->sci.data.ny;
+        /* Make sure that xend and yend do not extend beyond the bounds of the
+           image... WJH 8 Sept 2000
+        */
+        if (*xend > x->sci.data.nx) *xend = x->sci.data.nx;
+        if (*yend > x->sci.data.ny) *yend = x->sci.data.ny;
+        *xsize = *xend - *xbeg;
+        *ysize = *yend - *ybeg;
+    } else {
+        sprintf(MsgText,"(pctecorr) Detector not supported: %i",acs->detector);
+        trlerror(MsgText);
+        status = ERROR_RETURN;
+        return status;
+    }
+
+    return status;
 }
