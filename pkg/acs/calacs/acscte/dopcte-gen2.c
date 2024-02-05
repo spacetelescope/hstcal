@@ -125,7 +125,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     // which preceeds the standard parallel CTE correction.
     if (strcmp(corrType, "serial") == 0)
     {
-        sprintf(MsgText, "(pctecorr) Invoking rotation for CTE Correction Type: %s", corrType);
+        sprintf(MsgText, "\n(pctecorr) Invoking rotation for CTE Correction Type: %s", corrType);
         trlmessage(MsgText);
         if ((status = rotateAmp(&ampImage, ampID, False, ctePars, ccdamp[nthAmp])))
         {
