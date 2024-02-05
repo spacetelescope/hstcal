@@ -374,6 +374,8 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTE
         //sci data
         if (amp->sci.data.data)
         {
+            sprintf(MsgText, "(pctecorr) Rotation for Amp: %c\n", ccdamp);
+            trlmessage(MsgText);
             if ((status = rotateAmpData(&amp->sci.data, ampID, ccdamp)))
                 return status;
         }
@@ -391,6 +393,8 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTE
         //sci data
         if (amp->sci.data.data)
         {
+            sprintf(MsgText, "(pctecorr) Derotation for Amp: %c\n", ccdamp);
+            trlmessage(MsgText);
             if ((status = derotateAmpData(&amp->sci.data, ampID, ccdamp)))
                 return status;
         }
@@ -445,15 +449,9 @@ static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp
       left to right about the Y-axis (central column).
     */
 
-    sprintf(MsgText, "(pctecorr) Clockwise rotation for Amp: %c\n", ccdamp);
-    trlmessage(MsgText);
-
-    if (ampID == AMP_B || ampID == AMP_C)
-    {
+    if (ampID == AMP_B || ampID == AMP_C) {
         side2sideFlip(amp);
-    }
-    else
-    {
+    } else {
         top2bottomFlip(amp);
     }
 
@@ -466,9 +464,6 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccda
     if (!amp || !amp->data)
         return (status = ALLOCATION_PROBLEM);
 
-    sprintf(MsgText, "(pctecorr) Derotation for Amp: %c\n", ccdamp);
-    trlmessage(MsgText);
-
     const unsigned nRows = amp->ny;
     const unsigned nColumns = amp->nx;
 
@@ -479,12 +474,9 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccda
     */
 
     // To de-rotate amps A and D, flip and then transpose the data
-    if (ampID == AMP_B || ampID == AMP_C)
-    {
+    if (ampID == AMP_B || ampID == AMP_C) {
         side2sideFlip(amp);
-    }
-    else
-    {
+    } else {
         top2bottomFlip(amp);
     }
 
