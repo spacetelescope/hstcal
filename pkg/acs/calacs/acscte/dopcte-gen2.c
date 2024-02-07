@@ -354,7 +354,7 @@ static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsig
    The rotation routines support the serial CTE correction such that the data
    is configured to mimic the parallel CTE data.  The idea is to 
    rotate the amp to put the serial trails in the same orientation as 
-   those of the parallel trails when the parallel CTE correction is are applied.
+   those of the parallel trails and then the parallel CTE correction is applied.
    Essentially, the CTE correction routines can then be applied in the identical
    manner for both the serial and the parallel CTE correction cases. 
 
@@ -420,10 +420,9 @@ static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp
     const unsigned nColumns = amp->nx;
 
     /*
-       Determine the amp in use - When in the process of applying the serial CTE correction,
-       a Clockwise 90 degree rotation is needed for amps A and D, and a Counterclockwise
-       90 degree rotation is needed for amps B and C.
-       MDD - Fix comment.
+       Determine the amp in use - Rotate the amp to put the serial
+       trails in the same orientation as the parallel trails would
+       be.
     */
 
     // Always transpose the data first
@@ -441,12 +440,9 @@ static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp
     }
 
     /*
-      To accomplish the correct rotation, the flip either has to be
+      To complete the correct rotation, the flip either has to be
       from side-to-side about the central column or top-to-bottom
       about the central row.
-
-      For a clockwise rotation, flip the transposed matrix from 
-      left to right about the Y-axis (central column).
     */
 
     if (ampID == AMP_B || ampID == AMP_C) {
@@ -468,19 +464,13 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccda
     const unsigned nColumns = amp->nx;
 
     /*
-       To derotate the amp, always apply the side-to-side or top-to-bottom
-       flip first, and then transpose to put the amp back into its original
-       orientation so the parallel CTE correction can proceed.
+       To derotate the amp, you are reversing the direction of the initial
+       rotation.  Always transpose the data first, and then apply the 
+       side-to-side or top-to-bottom flip to put the amp back into its 
+       original orientation so the parallel CTE correction can proceed.
     */
 
-    // To de-rotate amps A and D, flip and then transpose the data
-    if (ampID == AMP_B || ampID == AMP_C) {
-        side2sideFlip(amp);
-    } else {
-        top2bottomFlip(amp);
-    }
-
-    // Transpose
+    // Always transpose the data first
     float temp;
     {   unsigned i;
         for (i = 0; i < nRows; i++) {
@@ -492,6 +482,17 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccda
                 }
             }
         }
+    }
+
+    /*
+      The rotation here is in the opposite direction from the initial
+      rotation for the amp in question, so if a side-to-side flip were
+      done initially, now do a top-to-bottom flip (for example).
+    */
+    if (ampID == AMP_B || ampID == AMP_C) {
+        top2bottomFlip(amp);
+    } else {
+        side2sideFlip(amp);
     }
 
     return status;
