@@ -4,7 +4,7 @@ Update for version 10.4.0 - 14-Sep-2023 (MDD)
 	pkg/acs/calacs/Updates
     pkg/acs/calacs/acscte/docte.c
     pkg/acs/calacs/acscte/dopcte-gen2.c
-    pkg/acs/calacs/acscte/dopcte.c (removed)
+    pkg/acs/calacs/acscte/dopcte.c
     ctegen2/ctegen2.h
 	ctegen2/ctehelpers.c
 

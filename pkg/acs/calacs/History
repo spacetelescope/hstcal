@@ -3,7 +3,7 @@
     version of the CTE correction (Version 3) is based upon the 
     algorithm of Version 2, but includes the additional correction
     for the serial direction which is amp-dependent.  Previous 
-    generations of CTE correction are no longer supported.  Obsolete
+    generations of CTE correction are no longer supported, and obsolete
     code has been removed. Note the PCTETAB has changed substantially 
     to accommodate the amp-dependent serial corrections.
 

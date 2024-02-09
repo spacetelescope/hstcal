@@ -591,7 +591,9 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     //WARNING - assumes row major storage
     assert(amp->storageOrder == ROWMAJOR);
 
-    side2sideFlip(amp);
+    //Flip about y axis, i.e. about central column
+    //if (ampID == AMP_B || ampID == AMP_D)
+        side2sideFlip(amp);
 
     const unsigned nColumns = amp->nx;
     const unsigned nRows = amp->ny;
