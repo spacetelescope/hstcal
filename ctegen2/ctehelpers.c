@@ -70,12 +70,12 @@ void initCTEParamsFast(CTEParamsFast * pars, const unsigned _nTraps,
     pars->qlevq_data = NULL;
     pars->dpdew_data = NULL;
 
-    pars->rprof = NULL; /*differential trail profile as image*/
-    pars->cprof = NULL; /*cummulative trail profile as image*/
+    pars->rprof = NULL; /* differential trail profile as image */
+    pars->cprof = NULL; /* cummulative trail profile as image */
 
     *pars->cte_name='\0';
     *pars->cte_ver='\0';
-    *pars->descrip2='\0';
+    //*pars->descrip2='\0'; UNUSED?
 }
 
 int allocateCTEParamsFast(CTEParamsFast * pars)
@@ -177,175 +177,197 @@ MLS 2015: read in the CTE parameters from the PCTETAB file
     Jan 19, 2016: MLS  Updated to check for existence of PCTENSMD in
                   raw science header
 
+MDD Sept 2023: Implementation to support a PCTETAB which is an
+    update to the Generation 2 CTE correction.  This file will
+    now contain both parallel(y) and serial(x) CTE information.
 */
 
-int loadPCTETAB (char *filename, CTEParamsFast *pars) {
-    /* Read the cte parameters from the reference table PCTETAB
+int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn) {
+/* Read the cte parameters from the reference table PCTETAB
 
        These are taken from the PCTETAB global header:
        CTE_NAME - name of cte algorithm
-       CTE_VER - version number of cte algorithm
-       CTEDATE0 - date of instrument installation in HST, in fractional years
-       CTEDATE1 - reference date of CTE model pinning, in fractional years
+       CTE_VER  - version number of cte algorithm
+       CTEDATE0 - date of instrument installation in HST, in fractional years (MJD)
+       CTEDATE1 - reference date of CTE model pinning, in fractional years (MJD)
 
        PCTETLEN - max length of CTE trail
        PCTERNOI - readnoise amplitude and clipping level
-       PCTESMIT - number of iterations used in CTE forward modeling
-       PCTESHFT - number of iterations used in the parallel transfer
+       PCTENFOR - number of iterations used in CTE forward modeling
+       PCTENPAR - number of iterations used in the parallel transfer
        PCTENSMD - readnoise mitigation algorithm
        PCTETRSH - over-subtraction threshold
 
-       The table has 4 extensions:
+       FIXROCR  - account for cosmic ray over-subtraction?
 
-Filename: wfc3_cte.fits
+       The parallel/serial PCTETAB which supports the latest CTE algorithm
+       has
+          CTE_VER = '3.0     '
+          CTE_NAME= 'Par/Serial PixelCTE 2023'
+
+       The table has a primary HDU and 8 extensions.  Extensions 1-4 apply
+       to the parallel CTE and extensions 5-8 apply to the serial CTE.
+
 No.    Name         Type      Cards   Dimensions   Format
-0    PRIMARY     PrimaryHDU      21   ()
-1    QPROF       BinTableHDU     16   <pars->nTraps>R x 3C    ['i', 'i', 'i']
-2    SCLBYCOL    BinTableHDU     20   <pars->nScaleTableColumns> x 5C   ['i', 'e', 'e', 'e', 'e']
-3    RPROF       ImageHDU        12   (<pars->nTraps>, 100)   float32
-4    CPROF       ImageHDU        12   (<pars->nTraps>, 100)   float32
-
-     */
+  0  PRIMARY       1 PrimaryHDU      77   ()
+  1  QPROF         1 BinTableHDU     20   9999R x 4C   [I, J, E, 20A]
+  2  SCLBYCOL      1 BinTableHDU     24   8192R x 6C   [I, E, E, E, E, 20A]
+  3  RPROF         1 ImageHDU        20   (9999, 100)   float32
+  4  CPROF         1 ImageHDU        20   (9999, 100)   float32
+  5  QPROF         1 BinTableHDU     20   9999R x 4C   [I, J, E, 20A]
+  6  SCLBYCOL      1 BinTableHDU     24   8192R x 6C   [I, E, E, E, E, 20A]
+  7  RPROF         1 ImageHDU        20   (9999, 100)   float32
+  8  CPROF         1 ImageHDU        20   (9999, 100)   float32
+*/
 
     extern int status; /* variable for return status */
 
     /* VARIABLE FOR FILENAME + EXTENSION NUMBER. */
     char filename_wext[strlen(filename) + 4];
 
+    /* The "extn" parameter indicates the starting extension for the QPROF table to be read
+       as this routine will be called twice - first for the serial(5) and then for the
+       parallel(1) CTE correction. */ 
+    Bool skipLoadHdr = extn == 1 ? True : False;  
 
     /* NAMES OF DATA COLUMNS WE WANT FROM THE FILE, DATA WILL BE STORED IN THE PARS STRUCTURE */
+    /* QPROF table - the last column is a description string */
     const char wcol[] = "W";
     const char qlevq[] = "QLEV_Q";
     const char dpdew[] = "DPDE_W";
+
+    /* SCLBYCOL table - the last column is a description string */
     const char iz[]    = "IZ";
     const char sens512[]= "SENS_0512";
     const char sens1024[] = "SENS_1024";
     const char sens1536[] = "SENS_1536";
     const char sens2048[] = "SENS_2048";
 
-    /* HSTIO VARIABLES */
-    Hdr hdr_ptr;
-    initHdr(&hdr_ptr);
-    /* LOAD PRIMARY HEADER */
-    if (LoadHdr(filename, &hdr_ptr)) {
-        sprintf(MsgText,"(pctecorr) Error loading header from %s",filename);
-        cteerror(MsgText);
-        status = OPEN_FAILED;
-        return status;
+    // MDD Test
+    skipLoadHdr = False;
+    if (!skipLoadHdr)
+    {
+        /* HSTIO VARIABLES */
+        Hdr hdr_ptr;
+        initHdr(&hdr_ptr);
+        /* LOAD PRIMARY HEADER */
+        if (LoadHdr(filename, &hdr_ptr)) {
+            sprintf(MsgText,"(pctecorr) Error loading header from %s",filename);
+            cteerror(MsgText);
+            status = OPEN_FAILED;
+            return status;
+        }
+
+		/* GET CTE_NAME KEYWORD */
+		if (GetKeyStr (&hdr_ptr, "CTE_NAME", NO_DEFAULT, "", pars->cte_name, SZ_CBUF)) {
+			cteerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"\nCTE_NAME: %s",pars->cte_name);
+		trlmessage(MsgText);
+
+		/* GET VERSION NUMBER  */
+		if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", pars->cte_ver, SZ_CBUF)) {
+			cteerror("(pctecorr) Error reading CTE_VER keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"CTE_VER: %s",pars->cte_ver);
+		trlmessage(MsgText);
+
+		/* GET DATE OF INSTRUMENT INSTALLATION IN HST */
+		if (GetKeyDbl(&hdr_ptr, "CTEDATE0", NO_DEFAULT, -999, &pars->cte_date0)) {
+			cteerror("(pctecorr) Error reading CTEDATE0 keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
+		trlmessage(MsgText);
+
+		/* GET REFRENCE DATE OF CTE MODEL PINNING */
+		if (GetKeyDbl(&hdr_ptr, "CTEDATE1", NO_DEFAULT, -999, &pars->cte_date1)) {
+            cteerror("(pctecorr) Error reading CTEDATE1 keyword from PCTETAB");
+            status = KEYWORD_MISSING;
+            return status;
+		}
+		sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
+		trlmessage(MsgText);
+
+		/* READ MAX LENGTH OF CTE TRAIL */
+		if (GetKeyInt(&hdr_ptr, "PCTETLEN", NO_DEFAULT, -999, &pars->cte_len)) {
+			cteerror("(pctecorr) Error reading PCTETLEN keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
+		trlmessage(MsgText);
+
+		/* GET READ NOISE CLIPPING LEVEL */
+		if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
+			cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"PCTERNOI: %f",pars->rn_amp);
+		trlmessage(MsgText);
+
+		/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
+		if (GetKeyInt(&hdr_ptr, "PCTENFOR", NO_DEFAULT, -999, &pars->n_forward)) {
+			cteerror("(pctecorr) Error reading PCTENFOR keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"PCTERNFOR: %d",pars->n_forward);
+		trlmessage(MsgText);
+
+		/* GET NUMBER OF ITERATIONS USED IN PARALLEL TRANSFER*/
+		if (GetKeyInt(&hdr_ptr, "PCTENPAR", NO_DEFAULT, -999, &pars->n_par)) {
+			cteerror("(pctecorr) Error reading PCTENPAR keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"PCTERNPAR: %d",pars->n_par);
+		trlmessage(MsgText);
+
+		/* GET READ NOISE MITIGATION ALGORITHM*/
+		if (GetKeyInt(&hdr_ptr, "PCTENSMD", NO_DEFAULT, -999, &pars->noise_mit)) {
+			cteerror("(pctecorr) Error reading PCTENSMD keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"PCTENSMD: %d",pars->noise_mit);
+		trlmessage(MsgText);
+
+		/* GET OVER SUBTRACTION THRESHOLD */
+		if (GetKeyDbl(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
+			cteerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"PCTETRSH: %g",pars->thresh);
+		trlmessage(MsgText);
+
+		/*FIX THE READOUT CR'S? */
+		if (GetKeyInt(&hdr_ptr, "FIXROCR", NO_DEFAULT, -999, &pars->fix_rocr)){
+			cteerror("(pctecorr) Error reading FIXROCR keyword from PCTETAB");
+			status = KEYWORD_MISSING;
+			return status;
+		}
+		sprintf(MsgText,"FIXROCR: %d",pars->fix_rocr);
+		trlmessage(MsgText);
+
+        /* DONE READING STUFF FROM THE PRIMARY HEADER */
+        freeHdr(&hdr_ptr);
     }
 
-    /* GET CTE_NAME KEYWORD */
-    if (GetKeyStr (&hdr_ptr, "CTE_NAME", NO_DEFAULT, "", pars->cte_name, SZ_CBUF)) {
-        cteerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-    sprintf(MsgText,"\nCTE_NAME: %s",pars->cte_name);
-    trlmessage(MsgText);
-
-    /* GET VERSION NUMBER  */
-    if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", pars->cte_ver, SZ_CBUF)) {
-        cteerror("(pctecorr) Error reading CTE_VER keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-    sprintf(MsgText,"CTE_VER: %s",pars->cte_ver);
-    trlmessage(MsgText);
-
-    /* GET DATE OF INSTRUMENT INSTALLATION IN HST */
-    if (GetKeyDbl(&hdr_ptr, "CTEDATE0", NO_DEFAULT, -999, &pars->cte_date0)) {
-        cteerror("(pctecorr) Error reading CTEDATE0 keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-
-    sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
-    trlmessage(MsgText);
-
-    /* GET REFRENCE DATE OF CTE MODEL PINNING */
-    if (GetKeyDbl(&hdr_ptr, "CTEDATE1", NO_DEFAULT, -999, &pars->cte_date1)) {
-        cteerror("(pctecorr) Error reading CTEDATE1 keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-
-    sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
-    trlmessage(MsgText);
-
-    /* READ MAX LENGTH OF CTE TRAIL */
-    if (GetKeyInt(&hdr_ptr, "PCTETLEN", NO_DEFAULT, -999, &pars->cte_len)) {
-        cteerror("(pctecorr) Error reading PCTETLEN keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-
-    sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
-    trlmessage(MsgText);
-
-    /* GET READ NOISE CLIPPING LEVEL */
-    if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
-        cteerror("(pctecorr) Error reading PCTERNOI keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-
-    sprintf(MsgText,"PCTERNOI: %f",pars->rn_amp);
-    trlmessage(MsgText);
-
-    /* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
-    if (GetKeyInt(&hdr_ptr, "PCTENFOR", NO_DEFAULT, -999, &pars->n_forward)) {
-        cteerror("(pctecorr) Error reading PCTENFOR keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-    sprintf(MsgText,"PCTERNFOR: %d",pars->n_forward);
-    trlmessage(MsgText);
-
-    /* GET NUMBER OF ITERATIONS USED IN PARALLEL TRANSFER*/
-    if (GetKeyInt(&hdr_ptr, "PCTENPAR", NO_DEFAULT, -999, &pars->n_par)) {
-        cteerror("(pctecorr) Error reading PCTENPAR keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-
-    sprintf(MsgText,"PCTERNPAR: %d",pars->n_par);
-    trlmessage(MsgText);
-
-    /* GET READ NOISE MITIGATION ALGORITHM*/
-    if (GetKeyInt(&hdr_ptr, "PCTENSMD", NO_DEFAULT, -999, &pars->noise_mit)) {
-        cteerror("(pctecorr) Error reading PCTENSMD keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-    sprintf(MsgText,"PCTENSMD: %d",pars->noise_mit);
-    trlmessage(MsgText);
-
-    /* GET OVER SUBTRACTION THRESHOLD */
-    if (GetKeyDbl(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
-        cteerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-    sprintf(MsgText,"PCTETRSH: %g",pars->thresh);
-    trlmessage(MsgText);
-
-    /*FIX THE READOUT CR'S? */
-    if (GetKeyInt(&hdr_ptr, "FIXROCR", NO_DEFAULT, -999, &pars->fix_rocr)){
-        cteerror("(pctecorr) Error reading FIXROCR keyword from PCTETAB");
-        status = KEYWORD_MISSING;
-        return status;
-    }
-    sprintf(MsgText,"FIXROCR: %d",pars->fix_rocr);
-    trlmessage(MsgText);
-
-
-    /* DONE READING STUFF FROM THE PRIMARY HEADER */
-    freeHdr(&hdr_ptr);
     /****************************************************************************/
-    /* READ  DATA FROM FIRST TABLE EXTENSIONS */
-    sprintf(filename_wext, "%s[%i]", filename, 1);
+    /* READ DATA FROM THE SPECIFIED QPROF TABLE - EXTENSIONS 1 and 5 */
+    sprintf(filename_wext, "%s[%i]", filename, extn);
 
-    /* OPEN  PARAMETERS FILE TO EXTENSION NUMBER 1 */
+    sprintf(MsgText,"Opening %s to read QPROF table.",filename_wext);
+    ctemessage(MsgText);
+    /* OPEN PARAMETERS FILE TO QPROF EXTENSION */
     IRAFPointer tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0); // xtables table pointer
     if (c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
@@ -433,14 +455,16 @@ No.    Name         Type      Cards   Dimensions   Format
     trlmessage(MsgText);
     */
 
-    /* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
+    /* CLOSE CTE PARAMETERS FILE FOR QPROF EXTENSION */
     c_tbtClose((void*)&tbl_ptr);
     assert(!tbl_ptr);
     /****************************************************************************/
     /****************************************************************************/
-    /* READ CTE SCALING DATA FROM SECOND TABLE EXTENSION */
-    sprintf(filename_wext, "%s[%i]", filename, 2);
+    /* READ CTE SCALING DATA FROM THE SPECIFIED SCLBYCOL TABLE - EXTENSIONS 2 and 6 */
+    sprintf(filename_wext, "%s[%i]", filename, extn + 1);
 
+    sprintf(MsgText,"Opening %s to read SCLBYCOL table.",filename_wext);
+    ctemessage(MsgText);
     tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
@@ -493,7 +517,6 @@ No.    Name         Type      Cards   Dimensions   Format
         return status;
     }
 
-
     /* read data from table */
     /* loop over table rows */
     {unsigned j;
@@ -541,13 +564,18 @@ No.    Name         Type      Cards   Dimensions   Format
     }
     */
 
-    /* close CTE parameters file for extension 2*/
+    /* close CTE parameters file for SCLBYCOL extension */
     c_tbtClose((void*)&tbl_ptr);
     assert(!tbl_ptr);
 
     /****************************************************************************/
-    /*  extension 3: differential trail profile as image */
-    ctemessage("Reading in image from extension 3");
+    /*  extensions 3 and 7 - RPROF : differential trail profile as image */
+
+    /* Determine the extension version number for the RPROF/CPROF images */
+    int extver = extn == 1 ? 1 : 2;
+
+    sprintf(MsgText,"Reading in image from RPROF EXTVER %d.", extver);
+    ctemessage(MsgText);
 
     /* Get the coefficient images from the PCTETAB */
     pars->rprof = malloc(sizeof(*pars->rprof));
@@ -556,16 +584,19 @@ No.    Name         Type      Cards   Dimensions   Format
         trlerror (MsgText);
         return (status = 1);
     }
+   
     initFloatHdrData(pars->rprof);
     pars->rprof->data.storageOrder = COLUMNMAJOR;
-    if (getFloatHD (filename, "RPROF", 1, pars->rprof)){
+    if (getFloatHD (filename, "RPROF", extver, pars->rprof)){
         return (status=1);
     }
 
 
     /****************************************************************************/
-    /* ext number 4 : cummulative trail profile as image */
-    ctemessage("Reading in image from extension 4");
+    /* extensions 4 and 8 -  CPROF : cummulative trail profile as image */
+
+    sprintf(MsgText,"Reading in image from CPROF EXTVER %d.", extver);
+    ctemessage(MsgText);
 
     pars->cprof  = malloc(sizeof(*pars->cprof));
     if (pars->cprof == NULL){
@@ -577,7 +608,7 @@ No.    Name         Type      Cards   Dimensions   Format
     /* Get the coefficient images from the PCTETAB */
     initFloatHdrData (pars->cprof);
     pars->cprof->data.storageOrder = COLUMNMAJOR;
-    if (getFloatHD (filename, "CPROF", 1, pars->cprof)){
+    if (getFloatHD (filename, "CPROF", extver, pars->cprof)){
         return (status=1);
     }
 
@@ -587,19 +618,19 @@ No.    Name         Type      Cards   Dimensions   Format
 /*
   Some CTE parameters  will likely end up in the image headers so users can tune them.
   This will first check whether these parameters are set in the image header. If they
-  are then the values found there will be used instead of the values read from
+  are, then the values found there will be used instead of the values read from
   the PCTETAB. If the values are not set they will be populated with the values
   from the PCTETAB, namely these:
 
-        'CTE_NAME':'pixelCTE 2012', #name of cte algorithm
-        'CTE_VER':'1.0' ,  #version number of algorithm
-        'CTEDATE0':54962.0, #date of instrument installation in HST in MJD
-        'CTEDATE1':56173.0, #reference date of cte model pinning in MJd
-        'PCTETLEN':60, #max length of CTE trail
-        'PCTERNOI':3.25, #read noise amplitude, clipping limit
-        'PCTENFOR':5 ,#number of iterations used in cte forward modeling
-        'PCTENPAR':7 ,#number of iterations used in parallel transfer
-        'PCTENSMD':0 ,#read noise mitigation algorithm
+        'CTE_NAME':'Par/Serial pixelCTE 2023', #name of cte algorithm
+        'CTE_VER':'3.0' ,  #version number of algorithm
+        'CTEDATE0':nnnnn.0, #date of instrument installation in HST in MJD
+        'CTEDATE1':nnnnn.0, #reference date of cte model pinning in MJd
+        'PCTETLEN':100, #max length of CTE trail
+        'PCTERNOI':n.nn, #read noise amplitude, clipping limit
+        'PCTENFOR':n ,#number of iterations used in cte forward modeling
+        'PCTENPAR':n ,#number of iterations used in parallel transfer
+        'PCTENSMD':n ,#read noise mitigation algorithm
         'PCTETRSH':-10.0 ,#over subtraction threshold, always use reference value
         'FIXROCR' : 1, #set to 1 for true, fix the readout cr's
 
@@ -692,6 +723,8 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     int fix_rocr = 0;
     int noise_mit = 0;
 
+    trlmessage("Begin attempt to read CTE keywords from input image header. Missing CTE keywords");
+    trlmessage("from input image header are not a fatal error as the values from PCTETAB will be used.");
     int tempStatus = HSTCAL_OK;
     /*check the PCTENSMD keyword in the header*/
     tempStatus = GetKeyInt(group->globalhdr, "PCTENSMD", NO_DEFAULT, -999, &noise_mit);
@@ -787,6 +820,8 @@ int getCTEParsFromImageHeader(SingleGroup *group, CTEParamsFast *pars) {
     }
     else if (tempStatus == KEYWORD_MISSING)
         status = HSTCAL_OK;
+
+    trlmessage("End attempt to read CTE keywords from input image header.");
 
     return HSTCAL_OK;
 }
