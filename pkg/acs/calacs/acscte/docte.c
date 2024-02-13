@@ -61,7 +61,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
     Bool subarray;
     int CCDHistory (ACSInfo *, Hdr *);
-    int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, const char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID);
+    int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID);
     int pcteHistory (ACSInfo *, Hdr *);
     int GetACSGrp (ACSInfo *, Hdr *);
     int OmitStep (int);
@@ -295,10 +295,15 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         cteParallelPars.scale_frac = (acs->expstart - cteParallelPars.cte_date0) / (cteParallelPars.cte_date1 - cteParallelPars.cte_date0);
 
         /*
-           These keywords are common to the parallel and serial corrections so they
-           are only written once here.
+           This routine writes information to the HISTORY portion of the output 
+           primary header which includes KEYWORD values read from the PCTETAB.
+           Some of the KEYWORDs have different values for their use in the application
+           of the parallel and serial CTE corrections. Further, the serial CTE is
+           amp-dependent so the KEYWORDs are documented for each amp. 
+
+           Write the parallel HISTORY informaton here.
         */
-        if ((status = populateImageFileWithCTEKeywordValues(&x[0], &cteParallelPars)))
+        if ((status = populateImageFileWithCTEKeywordValues(&x[0], &cteParallelPars, "parallel")))
         {
             freeOnExit(&ptrReg);
             freeOnExit(&ptrParallelReg);
@@ -334,7 +339,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                 parseWFCamps(acs[i].ccdamp, acs[i].chip, ccdamp);
                 numamps = strlen(ccdamp);
 
-                char corrType[10];
+                char corrType[20];
                 corrType[0] = '\0';
                 for (unsigned nthAmp = 0; nthAmp < numamps; ++nthAmp)
                 {
@@ -401,6 +406,22 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     }
 
                     ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
+
+                    /*
+                       Write the amp-dependent serial HISTORY information here.
+                    */
+                    char amp_corrType[20] = "serial - Amp ";
+                    char s_amp[5];
+                    strncpy(s_amp, ccdamp + nthAmp, 1);
+                    s_amp[1] = '\0';
+                    strcat(amp_corrType, s_amp);
+                    amp_corrType[19] = '\0';
+                    if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars, amp_corrType)))
+                    {
+                        freeOnExit(&ptrReg);
+                        freeOnExit(&ptrParallelReg);
+                        return (status);
+                    }
 
                     sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
                     trlwarn(MsgText);

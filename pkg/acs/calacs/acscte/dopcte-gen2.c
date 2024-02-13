@@ -38,7 +38,7 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccda
 static void side2sideFlip(FloatTwoDArray *amp);
 static void top2bottomFlip(FloatTwoDArray *amp);
 
-int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly, const char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID)
+int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID)
 
 {
 
@@ -592,11 +592,12 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     assert(amp->storageOrder == ROWMAJOR);
 
     //Flip about y axis, i.e. about central column
-    //if (ampID == AMP_B || ampID == AMP_D)
+    if (ampID == AMP_B || ampID == AMP_D)
+    {
+        sprintf(MsgText, "(pctecorr) Flipping side-to=side. Amp: %d\n", ampID);
+        trlmessage(MsgText);
         side2sideFlip(amp);
-
-    const unsigned nColumns = amp->nx;
-    const unsigned nRows = amp->ny;
+    }
 
     //Only thing left is to flip AB chip upside down
     //Flip about x axis, i.e. central row
@@ -661,6 +662,5 @@ static void top2bottomFlip(FloatTwoDArray * amp)
     {
         sprintf(MsgText, "Out of memory for 'tempRow' in 'alignAmpData'");
         trlerror(MsgText);
-        return (status = OUT_OF_MEMORY);
     }
 }

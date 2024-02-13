@@ -696,20 +696,58 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
  */
 
-int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars)
+int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars, char *corrType)
 {
     extern int status;
 
-    if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")))
-    {
-        trlerror("(pctecorr) failed to update (or add as history) CTE_NAME keyword in image header");
-        return status;
+    /* 
+       HISTORY information written only one time
+    */
+    if (strncmp(corrType, "parallel", 6) == 0) {
+   
+        if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")))
+        {
+            trlerror("(pctecorr) failed to update (or add as history) CTE_NAME keyword in image header");
+            return status;
+        }
+
+        if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CTE_VER", pars->cte_ver, "CTE algorithm version")))
+        {
+            trlerror("(pctecorr) failed to update (or add as history) CTE_VER keyword in image header");
+            return status;
+        }
+
+        if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CORRTYPE", corrType, "CTE correction type")))
+        {
+            trlerror("(pctecorr) failed to update (or add as history) CORRTYPE keyword in image header");
+            return status;
+        }
+
+        if ((status = updateKeyOrAddAsHistKeyInt(group->globalhdr,"FIXROCR",pars->fix_rocr,"fix readout cosmic rays")))
+        {
+            trlerror("(pctecorr) failed to update (or add as history) FIXROCR keyword in header");
+            return status;
+        }
+
+        if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "PCTETRSH", pars->thresh,"CTE over subtraction threshold")))
+        {
+            trlerror("(pctecorr) failed to update (or add as history) PCTETRSH keyword in header");
+            return status;
+        }
+
+        if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "PCTEFRAC", pars->scale_frac, "CTE scaling factor")))
+        {
+            trlerror("(pctecorr) failed to update (or add as history) PCTEFRAC to image header");
+            return status;
+        }
     }
 
-    if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CTE_VER", pars->cte_ver, "CTE algorithm version")))
-    {
-        trlerror("(pctecorr) failed to update (or add as history) CTE_VER keyword in image header");
-        return status;
+    if (strncmp(corrType, "serial", 6) == 0) {
+        if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CORRTYPE", corrType, "CTE correction type")))
+        {
+            trlerror("(pctecorr) failed to update (or add as history) CORRTYPE keyword in image header");
+            return status;
+        }
     }
 
     if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of instrument installation")))
@@ -718,22 +756,9 @@ int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *par
         return status;
     }
 
-    if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "PCTETRSH", pars->thresh,"CTE over subtraction threshold")))
-    {
-        trlerror("(pctecorr) failed to update (or add as history) PCTETRSH keyword in header");
-        return status;
-    }
-
-
     if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "CTEDATE1", pars->cte_date1, "Date of CTE model pinning")))
     {
         trlerror("(pctecorr) failed to update (or add as history) CTEDATE1 keyword in header");
-        return status;
-    }
-
-    if ((status = updateKeyOrAddAsHistKeyDouble(group->globalhdr, "PCTEFRAC", pars->scale_frac, "CTE scaling factor")))
-    {
-        trlerror("(pctecorr) failed to update (or add as history) PCTEFRAC to image header");
         return status;
     }
 
@@ -760,12 +785,6 @@ int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *par
     if ((status = updateKeyOrAddAsHistKeyInt(group->globalhdr, "PCTENPAR",pars->n_par,"Number of iter in parallel transfer")))
     {
         trlerror("(pctecorr) failed to update (or add as history) PCTENPAR in header");
-        return status;
-    }
-
-    if ((status = updateKeyOrAddAsHistKeyInt(group->globalhdr,"FIXROCR",pars->fix_rocr,"fix readout cosmic rays")))
-    {
-        trlerror("(pctecorr) failed to update (or add as history) FIXROCR keyword in header");
         return status;
     }
 

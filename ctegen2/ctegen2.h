@@ -105,7 +105,7 @@ void initCTEParamsFast(CTEParamsFast * pars, const unsigned _nTraps, const unsig
 int allocateCTEParamsFast(CTEParamsFast * pars);
 void freeCTEParamsFast(CTEParamsFast * pars);
 
-int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars);
+int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars, char * corrType);
 int getCTEParsFromImageHeader(SingleGroup * input, CTEParamsFast * params);
 int loadPCTETAB(char *filename, CTEParamsFast * params, int extn, Bool skipLoadPrimary);
 void ctewarn (char *message);
