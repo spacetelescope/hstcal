@@ -112,6 +112,9 @@ The LLVM/Clang suite provided by Apple XCode is not sufficient to compile HSTCAL
 
 ```
 port install cmake cfitsio gcc13 pkgconfig +openmp
+export CC=gcc-mp-13
+export CXX=g++-mp-13
+export FC=gfortran-mp-13
 export PKG_CONFIG_PATH="/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LDFLAGS="-Wl,-rpath,/opt/local/lib"
 ```
@@ -120,16 +123,11 @@ export LDFLAGS="-Wl,-rpath,/opt/local/lib"
 
 ```
 brew install cmake cfitsio gcc pkgconfig
+export CC=gcc-13
+export CXX=gcc-13
+export FC=gfortran-13
 export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LDFLAGS="-Wl,-rpath,/opt/homebrew/lib"
-```
-
-### Fink
-
-```
-fink install cmake libcfitsio10-dev gcc12 pkgconfig
-export PKG_CONFIG_PATH="/opt/sw/lib/pkgconfig:$PKG_CONFIG_PATH"
-export LDFLAGS="-Wl,-rpath,/opt/sw/lib"
 ```
 
 ### Conda / Mamba
