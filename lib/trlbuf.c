@@ -601,7 +601,7 @@ void CloseTrlBuf (struct TrlBuf * buf)
     FILE *ofp;
 
     /* Do we have any messages which need to be written out? */
-    if (buf->buffer[0] != '\0') {
+    if (buf->buffer && buf->buffer[0] != '\0') {
         /* We do, so open last known trailer file and
             append these messages to that file...
         */
