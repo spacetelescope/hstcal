@@ -23,7 +23,7 @@
 #include <assert.h>
 
 int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *amp,
-                               const int ampID, char *amploc, char *ccdamp,
+                               char *amploc, char *ccdamp,
                                int *xsize, int *ysize, int *xbeg,
                                int *xend, int *ybeg, int *yend);
 
@@ -32,8 +32,8 @@ static int insertAmp(SingleGroup * amp, const SingleGroup * image, const unsigne
 static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
 static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTEParamsFast * ctePars, char ccdamp);
-static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp);
-static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp);
+static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
+static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
 
 static void side2sideFlip(FloatTwoDArray *amp);
 static void top2bottomFlip(FloatTwoDArray *amp);
@@ -80,7 +80,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     trlmessage(MsgText);
 
     /* get amp array size */
-    if (get_amp_array_size_acs_cte(acs, chipImage, ampID, amploc, ccdamp,
+    if (get_amp_array_size_acs_cte(acs, chipImage, amploc, ccdamp,
                                    &amp_xsize, &amp_ysize, &amp_xbeg,
                                    &amp_xend, &amp_ybeg, &amp_yend))
     {
@@ -376,14 +376,14 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTE
         {
             sprintf(MsgText, "(pctecorr) Rotation for Amp: %c\n", ccdamp);
             trlmessage(MsgText);
-            if ((status = rotateAmpData(&amp->sci.data, ampID, ccdamp)))
+            if ((status = rotateAmpData(&amp->sci.data, ampID)))
                 return status;
         }
 
         //err data
         if (amp->err.data.data)
         {
-            if ((status = rotateAmpData(&amp->err.data, ampID, ccdamp)))
+            if ((status = rotateAmpData(&amp->err.data, ampID)))
                 return status;
         }
     }
@@ -395,14 +395,14 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTE
         {
             sprintf(MsgText, "(pctecorr) Derotation for Amp: %c\n", ccdamp);
             trlmessage(MsgText);
-            if ((status = derotateAmpData(&amp->sci.data, ampID, ccdamp)))
+            if ((status = derotateAmpData(&amp->sci.data, ampID)))
                 return status;
         }
 
         //err data
         if (amp->err.data.data)
         {
-            if ((status = derotateAmpData(&amp->err.data, ampID, ccdamp)))
+            if ((status = derotateAmpData(&amp->err.data, ampID)))
                 return status;
         }
     }
@@ -410,7 +410,7 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTE
     return status;
 }
 
-static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp)
+static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
 {
     extern int status;
     if (!amp || !amp->data)
@@ -454,7 +454,7 @@ static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp
     return status;
 }
 
-static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID, char ccdamp)
+static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
 {
     extern int status;
     if (!amp || !amp->data)
@@ -591,6 +591,7 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     //WARNING - assumes row major storage
     assert(amp->storageOrder == ROWMAJOR);
 
+/*
     //Flip about y axis, i.e. about central column
     if (ampID == AMP_B || ampID == AMP_D)
     {
@@ -604,6 +605,91 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     if (ampID == AMP_A || ampID == AMP_B)
     {
         top2bottomFlip(amp);
+    }
+*/
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
+
+    const unsigned nColumns = amp->nx;
+    const unsigned nRows = amp->ny;
+
+    //Flip about y axis, i.e. about central column
+    if (ampID == AMP_B || ampID == AMP_D)
+    {
+        //grab a row, flip it, put it back
+        const unsigned rowLength = nColumns;
+        {unsigned i;
+#ifdef _OPENMP
+        #pragma omp parallel for shared(amp) private(i) schedule(static)
+#endif
+        for (i = 0; i < nRows; ++i)
+        {
+            //find row
+            float * row = amp->data + i*nColumns;
+            //flip right to left
+            float tempPixel;
+            {unsigned j;
+            for (j = 0; j < rowLength/2; ++j)
+            {
+                tempPixel = row[j];
+                row[j] = row[rowLength-1-j];
+                row[rowLength-1-j] = tempPixel;
+            }}
+        }}
+    }
+
+    //Only thing left is to flip AB chip upside down
+    //Flip about x axis, i.e. central row
+    if (ampID == AMP_A || ampID == AMP_B)
+    {
+        //either physically align all or propagate throughout a mechanism to work on the array upside down (flip b quad though)
+        //we'll just flip all for now. See if there's info in the header specifying amp location rel to pix in file,
+        //i.e. a way to know whether the chip is 'upside down'. Could then reverse cte corr trail walk direction
+        Bool allocationFail = False;
+#ifdef _OPENMP
+    #pragma omp parallel shared(amp, allocationFail)
+#endif
+        {
+            float * tempRow = NULL;
+            size_t rowSize = nColumns*sizeof(*tempRow);
+            tempRow = malloc(rowSize);
+            if (!tempRow)
+            {
+#ifdef _OPENMP
+                #pragma omp critical(allocationCheck) // This really isn't needed
+#endif
+                {
+                    allocationFail = True;
+                }
+            }
+
+#ifdef _OPENMP
+            #pragma omp barrier
+#endif
+            if (!allocationFail)
+            {
+                {unsigned i;
+#ifdef _OPENMP
+                #pragma omp for schedule(static)
+#endif
+                for (i = 0; i < nRows/2; ++i)
+                {
+                    float * topRow = amp->data + i*nColumns;
+                    float * bottomRow = amp->data + (nRows-1-i)*nColumns;
+                    memcpy(tempRow, topRow, rowSize);
+                    memcpy(topRow, bottomRow, rowSize);
+                    memcpy(bottomRow, tempRow, rowSize);
+                }}
+            }
+            if (tempRow)
+                free(tempRow);
+        }//close parallel block
+        if (allocationFail)
+        {
+            sprintf(MsgText, "Out of memory for 'tempRow' in 'alignAmpData'");
+            trlerror(MsgText);
+            return (status = OUT_OF_MEMORY);
+        }
     }
 
     return status;

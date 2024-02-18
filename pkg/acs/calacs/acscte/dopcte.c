@@ -15,7 +15,7 @@
 
 
 int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
-                              const int amp, char *amploc, char *ccdamp,
+                              char *amploc, char *ccdamp,
                               int *xsize, int *ysize, int *xbeg,
                               int *xend, int *ybeg, int *yend);
 static int make_amp_array(const ACSInfo *acs, const SingleGroup *im,
@@ -43,7 +43,7 @@ static int unmake_amp_array(const ACSInfo *acs, const SingleGroup *im,
    - MRD 14 Mar 2011
 */
 int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
-                              const int amp, char *amploc, char *ccdamp,
+                              char *amploc, char *ccdamp,
                               int *xsize, int *ysize, int *xbeg, int *xend,
                               int *ybeg, int *yend) {
     extern int status;
