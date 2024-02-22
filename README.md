@@ -1,6 +1,5 @@
 # HSTCAL
 
-[![Jenkins CI](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/main/badge/icon)](https://ssbjenkins.stsci.edu/job/STScI/job/hstcal/job/main/)
 
 Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
 
