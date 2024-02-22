@@ -1,21 +1,22 @@
 # Installation
 
-HSTCAL uses the WAF build system. A precompiled copy of WAF has been included at the top-level of this project for your convenience.
-
-
 ## Supported Platforms
 
 - Linux >=RHEL6
 - OS X >=10.5
 
 
-## Requirements
+## Build requirements
 
+- cmake >=3.11 (https://cmake.org)
 - cfitsio >=3.430 (https://heasarc.gsfc.nasa.gov/fitsio/fitsio.html)
 - gcc >=4.4.7 (https://gcc.gnu.org)
 - openmp (http://www.openmp.org/)
 - pkg-config (https://www.freedesktop.org/wiki/Software/pkg-config)
-- python >=2.7 (https://www.python.org)
+
+## Testing requirements
+
+- python >=3.8 (https://www.python.org)
 
 GCC may be supplemented by Clang under the following conditions:
 
@@ -36,47 +37,129 @@ GCC may be supplemented by Clang under the following conditions:
     export PKG_CONFIG_PATH=$HOME/programs/cfitsio/lib/pkgconfig:$PKG_CONFIG_PATH
     ```
 
-- If `pkg-config` is not installed, define the path to CFITSIO manually via the `--with-cfitsio` argument:
+- If you prefer not to use `pkg-config` set `WITH_CFITSIO` to the top-level path where cfitsio is installed.
 
     ```
-    ./waf configure --with-cfitsio=$HOME/programs/cfitsio
+    mkdir _build
+    cd _build
+    cmake .. -DWITH_CFITSIO=$HOME/programs/cfitsio
+    ```
+
+### OpenMP
+
+- If you do not have OpenMP or want to disable OpenMP support, set the `ENABLE_OPENMP` option to `OFF`.
+
+    ```
+    cmake .. -DENABLE_OPENMP=OFF
     ```
 
 
-### MacOS / OS X
+## Build on Linux
 
-The LLVM/Clang suite provided by Apple XCode is not sufficient to compile HSTCAL. Please install GCC (C and Fortran compilers) either from source, or using a package management system such as Homebrew, MacPorts, Fink, or Conda.
+### Debian / Ubuntu
 
+```
+apt install cmake libcfitsio-dev gcc gfortran pkg-config
+```
 
-## Compiling HSTCAL
+### Fedora
 
-_For a complete listing of useful configuration and build options, run_ `./waf --help`
+```
+dnf install cmake cfitsio-devel gcc gcc-gfortran pkgconf-pkg-config 
+```
+
+### Conda / Mamba
+
+```
+conda create -n hstcal -c conda-forge cmake compilers cfitsio pkgconfig python
+conda activate hstcal
+export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
+```
 
 1. Configure
 
     ```
-    ./waf configure --prefix=$HOME/hstcal
+    mkdir _build
+    cd _build
+    cmake .. -DCMAKE_INSTAL_PREFIX=$HOME/hstcal
     ```
 
 2. Build
 
     ```
-    ./waf build
+    make
     ```
 
-3. Test [OPTIONAL]
+3. Install
 
     ```
-    ./waf test
+    make install
     ```
 
-4. Install [OPTIONAL]
+4. Add HSTCAL to `$PATH`
+
+    ```bash
+    export PATH=$HOME/hstcal/bin:$PATH
+    ```
+
+## Build on MacOS / OS X
+
+The LLVM/Clang suite provided by Apple XCode is not sufficient to compile HSTCAL. Please install GCC (C and Fortran compilers) either from source, or using a package management system such as Homebrew, MacPorts, Fink, or Conda.
+
+
+### MacPorts
+
+```
+port install cmake cfitsio gcc13 pkgconfig +openmp
+export CC=gcc-mp-13
+export CXX=g++-mp-13
+export FC=gfortran-mp-13
+export PKG_CONFIG_PATH="/opt/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath,/opt/local/lib"
+```
+
+### Homebrew
+
+```
+brew install cmake cfitsio gcc pkgconfig
+export CC=gcc-13
+export CXX=gcc-13
+export FC=gfortran-13
+export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath,/opt/homebrew/lib"
+```
+
+### Conda / Mamba
+
+```
+conda create -n hstcal -c conda-forge cmake compilers cfitsio pkgconfig python
+conda activate hstcal
+export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
+```
+
+1. Configure
 
     ```
-    ./waf install
+    mkdir _build
+    cd _build
+    cmake .. -DCMAKE_INSTAL_PREFIX=$HOME/hstcal
     ```
 
-5. Add HSTCAL to `$PATH`
+2. Build
+
+    ```
+    make
+    ```
+
+3. Install
+
+    ```
+    make install
+    ```
+
+4. Add HSTCAL to `$PATH`
 
     ```bash
     export PATH=$HOME/hstcal/bin:$PATH
@@ -85,16 +168,16 @@ _For a complete listing of useful configuration and build options, run_ `./waf -
 
 ## Build Targets
 
-To install individual parts of HSTCAL, use the `--targets` option. For example, to install the `acs` and `lib` targets, do the following:
+To install individual parts of HSTCAL...
 
 ```
-./waf install --targets=acs,lib
+make install acscte
 ```
 
 To list available build targets:
 
 ```
-./waf configure list
+make help
 ```
 
 Some common targets include:
@@ -104,24 +187,8 @@ Target | Description
 acs    | calacs
 wf3    | calwf3 and other WFC3-related tools
 stis   | calstis
-lib    | static libraries and header files for the included libraries
-test   | self-test executables
 
 
 ## Debugging
 
-To enable support for debugging symbols run, `./waf configure --debug`
-
-
-## build.cfg file
-
-Shell arguments normally passed to `./waf configure` may be issued via `build.cfg`.  This configuration file may contain any arguments accepted by `./waf configure`.  An example is given in the `build.cfg.example` file.
-
-
-# Notes for developers
-
-
-## Using headers
-
-
-C has two forms of `#include` syntax, `#include "foo.h"` (i.e. `include/foo.h`) for local include files, and `#include <foo.h>` (i.e. `/usr/include/foo.h`) for system include files.  WAF does not track changes to system include files, so the first syntax should be used whenever including files within the project.
+To enable support for debugging symbols use one of the following defines, `cmake .. -DCMAKE_BUILD_TYPE=[RelWithDebInfo|Debug]`

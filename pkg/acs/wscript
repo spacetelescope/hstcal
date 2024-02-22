@@ -1,9 +1,0 @@
-# vim: set syntax=python:
-
-LIBRARIES = [
-    'calacs'
-    ]
-
-def build(bld):
-    for library in LIBRARIES:
-        bld.recurse(library)

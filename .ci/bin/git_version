@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+vcfile="DISTINFO"
+hfile="version.h"
+srcdir="$1"
+blddir="$2"
+tempfile=
+
+if [ -z "$srcdir" ]; then
+    echo "Source directory path required" >&2
+    exit 1
+fi
+
+if [ ! -f "$srcdir/CMakeLists.txt" ]; then
+    echo "Not a cmake source directory: $srcdir" >&2
+    exit 1
+fi
+
+if [ -f "$srcdir/DISTINFO" ]; then
+    vcfile="$srcdir/DISTINFO"
+fi
+
+if [ -f "$vcfile" ] && ! git status &>/dev/null ; then
+    read -r VERSION COMMIT BRANCH <<< $(<${vcfile})
+else
+    if git --version &>/dev/null; then
+        VERSION=$(git describe --first-parent --always --dirty --long --tags --abbrev=8)
+        COMMIT=$(git rev-parse HEAD)
+        BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    else
+        echo "Git not found. Using default version values." >&2
+    fi
+fi
+
+if [ -z "$VERSION" ]; then
+    VERSION="unknown"
+fi
+
+if [ -z "$COMMIT" ]; then
+    COMMIT="unknown"
+fi
+
+if [ -z "$BRANCH" ]; then
+    BRANCH="unknown"
+fi
+
+write_distinfo() {
+    cat << EOF > "$1"
+$VERSION $COMMIT $BRANCH
+EOF
+}
+
+write_header() {
+    cat << EOF > "$1"
+#ifndef HSTCAL_VERSION_H
+#define HSTCAL_VERSION_H
+#define VERSION "$VERSION"
+#define COMMIT "$COMMIT"
+#define BRANCH "$BRANCH"
+#endif // HSTCAL_VERSION_H
+EOF
+}
+
+if [ -f "$vcfile" ]; then
+    tempfile=$(mktemp)
+
+    write_distinfo "$tempfile"
+    if ! diff "$vcfile" "$tempfile" >&2; then
+        write_distinfo "$vcfile"
+        write_header "$hfile"
+    fi
+    rm -f "$tempfile"
+else
+    write_distinfo "$vcfile"
+    write_header "$hfile"
+fi
+
+printf "$VERSION"

@@ -8,11 +8,7 @@ jobconfig = new JobConfig()
 jobconfig.post_test_summary = true
 
 // Config data to share between builds.
-CFLAGS = ''
-LDFLAGS = ''
-DEFAULT_FLAGS = "${CFLAGS} ${LDFLAGS}"
-// Some waf flags cause a prompt for input during configuration, hence the 'yes'.
-configure_cmd = "yes '' | ./waf configure --prefix=./_install ${DEFAULT_FLAGS}"
+configure_cmd = "cmake . -DCMAKE_INSTALL_PREFIX=./_install"
 
 // Configure artifactory ingest
 data_config = new DataConfig()
@@ -22,10 +18,10 @@ data_config.match_prefix = '(.*)_result' // .json is appended automatically
 
 // Run nightly tests, which include the slow ones.
 bc = new BuildConfig()
-bc.nodetype = "RHEL-7"
+bc.nodetype = "linux"
 bc.name = "release"
 // Note: The source tree is placed in the 'clone' subdir by the CI system.
-bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
+bc.env_vars = ['PATH=/usr/local/bin:$PATH',
                 'OMP_NUM_THREADS=4',
                 'TEST_BIGDATA=https://bytesalad.stsci.edu/artifactory',
                 'jref=/grp/hst/cdbs/jref/',
@@ -33,13 +29,16 @@ bc.env_vars = ['PATH=./clone/_install/bin:$PATH',
                 'oref=/grp/hst/cdbs/oref/']
 bc.conda_channels = ['http://conda.anaconda.org/conda-forge/']
 bc.conda_packages = ['python=3.9',
+                     'compilers',
+                     'bzip2',
                      'cfitsio',
                      'pkg-config',
-                     'astropy']
+                     'astropy',
+                     'cmake']
 
-bc.build_cmds = ["${configure_cmd} --release-with-symbols",
-                  "./waf build",
-                  "./waf install",
+bc.build_cmds = ["${configure_cmd} -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=\$CONDA_PREFIX",
+                  "make",
+                  "make install",
                   "calacs.e --version",
                   "calwf3.e --version",
                   "cs0.e --version",
@@ -51,11 +50,25 @@ bc.failedFailureThresh = 6
 // Upload artifacts
 bc.test_configs = [data_config]
 
+// MacOS is report-only: short tests, no artifact upload
 bc1 = utils.copy(bc)
-bc1.name = "linux"
-bc1.nodetype = "linux"
+bc1.name = "quick"
+bc1.nodetype = "macos"
+bc1.env_vars += ['LDFLAGS=-L/usr/local/opt/libomp/lib -Wl,-rpath,/usr/local/opt/libomp/lib -Wl,-rpath,\$CONDA_PREFIX/lib -Wl,-rpath,/usr/local/lib',
+                 'CFLAGS=-I/usr/local/opt/libomp/include',
+                 'CC=/usr/local/bin/gcc-13',
+                 'CXX=/usr/local/bin/g++-13',
+                 'FC=/usr/local/bin/gfortran-13']
+bc1.conda_packages = ['python=3.9',
+                     'bzip2',
+                     'cfitsio',
+                     'pkg-config',
+                     'astropy',
+                     'cmake']
+bc1.test_cmds[0] = "pytest tests --basetemp=tests_output --junitxml results.xml -v"
+bc1.test_configs = []
 
 // Iterate over configurations that define the (distributed) build matrix.
 // Spawn a host of the given nodetype for each combination and run in parallel.
 // Also apply the job configuration defined in `jobconfig` above.
-utils.run([bc, bc1, jobconfig])
+utils.run([jobconfig, bc, bc1])
