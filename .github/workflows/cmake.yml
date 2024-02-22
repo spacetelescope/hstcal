@@ -15,26 +15,26 @@ jobs:
   build_matrix:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-12, macos-14]
         gcc: [12]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
 
     - name: Linux dependencies
-      if: matrix.os == 'ubuntu-latest'
+      if: startsWith(matrix.os, 'ubuntu')
       run: |
         sudo apt update
         sudo apt install -y libcfitsio-dev gfortran pkg-config
 
     - name: MacOS dependencies
-      if: matrix.os == 'macos-latest'
+      if: startsWith(matrix.os, 'macos')
       run: |
         brew update
         brew install gcc@${{ matrix.gcc }} cfitsio
 
     - name: Linux build
-      if: matrix.os == 'ubuntu-latest'
+      if: startsWith(matrix.os, 'ubuntu')
       run: |
         mkdir -p build
         cd build
@@ -44,7 +44,7 @@ jobs:
         make
 
     - name: MacOS build
-      if: matrix.os == 'macos-latest'
+      if: startsWith(matrix.os, 'macos')
       env:
         CC: gcc-${{ matrix.gcc }}
         CXX: g++-${{ matrix.gcc }}
