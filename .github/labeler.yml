@@ -1,0 +1,65 @@
+ACS:
+- changed-files:
+  - any-glob-to-any-file:
+    - ctegen2/*
+    - pkg/acs/**/*
+    - tests/acs/*
+
+STIS:
+- changed-files:
+  - any-glob-to-any-file:
+    - pkg/stis/**/*
+    - tests/stis/*
+
+WFC3:
+- changed-files:
+  - any-glob-to-any-file:
+    - pkg/wfc3/**/*
+    - tests/wfc3/*
+
+IMPHTTAB:
+- changed-files:
+  - any-glob-to-any-file:
+    - pkg/imphttab/**/*
+
+build:
+- changed-files:
+  - any-glob-to-any-file:
+    - .ci/bin/*
+    - .github/workflows/cmake.yml
+    - release_tools/*
+    - CMakeLists.txt
+    - config.h.in
+
+doc:
+- changed-files:
+  - any-glob-to-any-file:
+    - docs/**/*
+    - .readthedocs.yml
+    - '*.md'
+    - '*.txt'
+
+hstio:
+- changed-files:
+  - any-glob-to-any-file:
+    - cvos/*
+    - hstio/*
+    - tables/*
+
+infrastructure:
+- changed-files:
+  - any-glob-to-any-file:
+    - .github/*
+    - .sloccount
+    - harbinger.cfg
+
+testing:
+- changed-files:
+  - any-glob-to-any-file:
+    - .ci/**/*
+    - .github/workflows/*
+    - hstio/test/*
+    - pkg/imphttab/test_getphttab.c
+    - tests/**/*
+    - JenkinsfileRT
+    - pytest.ini
