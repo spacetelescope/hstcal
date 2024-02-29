@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <time.h>
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
@@ -22,16 +23,23 @@
 #include <assert.h>
 
 int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *amp,
-                              const int ampID, char *amploc, char *ccdamp,
-                              int *xsize, int *ysize, int *xbeg,
-                              int *xend, int *ybeg, int *yend);
+                               char *amploc, char *ccdamp,
+                               int *xsize, int *ysize, int *xbeg,
+                               int *xend, int *ybeg, int *yend);
 
 static int extractAmp(SingleGroup * amp, const SingleGroup * image, const unsigned ampID, CTEParamsFast * ctePars);
 static int insertAmp(SingleGroup * amp, const SingleGroup * image, const unsigned ampID, CTEParamsFast * ctePars);
 static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
+static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTEParamsFast * ctePars, char ccdamp);
+static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
+static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
 
-int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly)
+static void side2sideFlip(FloatTwoDArray *amp);
+static void top2bottomFlip(FloatTwoDArray *amp);
+
+int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID)
+
 {
 
     /* arguments:
@@ -48,215 +56,203 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     initPtrRegister(&ptrReg);
 #ifdef _OPENMP
     if (acs->nThreads > 1)
-        trlmessage("(pctecorr) Using parallel processing provided by OpenMP inside CTE routine");
+        trlmessage("(pctecorr) Using multiprocessing provided by OpenMP inside CTE routine.");
 #endif
 
-    char ccdamp[strlen(AMPSTR1)+1]; /* string to hold amps on current chip */
-    int numamps;               /* number of amps on chip */
-    int ampID;                   /* index amp A:0, B:1, etc. */
-    char * amploc;             /* pointer to amp character in AMPSORDER */
     int nRows, nColumns;    /* int for C array dimension sizes */
     int amp_xsize, amp_ysize;  /* int for amp array size (x/y in CCD coords) */
     int amp_xbeg, amp_xend;    /* int for beg and end of amp arrays on chip */
     int amp_ybeg, amp_yend;
 
     /* functions from calacs/lib */
-    void parseWFCamps (char *acsamps, int chip, char *ccdamp);
     void TimeStamp (char *message, char *rootname);
     int PutKeyDbl (Hdr *hd, char *keyword, double value, char *comment);
-
-    /* test whether this we've been given ACS WFC data, since the CTE algorithm
-       is currently only valid for WFC data. */
-    if (acs->detector != WFC_CCD_DETECTOR) {
-        trlerror("(pctecorr) only valid for WFC CCD data, PCTECORR should be OMIT for all others.");
-        return (status = ERROR_RETURN);
-    }
 
     if (acs->printtime) {
         TimeStamp("Starting CTE correction...","");
     }
 
-    /* need to figure out which amps are on this chip */
-    ccdamp[0] = '\0'; /* "reset" the string for reuse */
-    parseWFCamps(acs->ccdamp, acs->chip, ccdamp);
+    sprintf(MsgText, "(pctecorr) Performing CTE correction type %s for amp %c.", corrType, ccdamp[nthAmp]);
+    trlmessage(MsgText);
 
-    /* loop over amps on this chip and do CTE correction */
-    numamps = strlen(ccdamp);
+    ctePars->rn_amp = acs->readnoise[ampID];
+    sprintf(MsgText, "(pctecorr) Read noise level from CCDTAB: %f.", ctePars->rn_amp);
+    trlmessage(MsgText);
 
-    //Now loop over each amp and compute cte correction
-    {unsigned nthAmp;
-    for (nthAmp = 0; nthAmp < numamps; ++nthAmp)
+    /* get amp array size */
+    if (get_amp_array_size_acs_cte(acs, chipImage, amploc, ccdamp,
+                                   &amp_xsize, &amp_ysize, &amp_xbeg,
+                                   &amp_xend, &amp_ybeg, &amp_yend))
     {
-        sprintf(MsgText, "(pctecorr) Performing CTE correction for amp %c", ccdamp[nthAmp]);
+        freeOnExit(&ptrReg);
+        return (status);
+    }
+
+    nRows = amp_ysize;
+    nColumns = amp_xsize;
+    ctePars->nRows = nRows;
+    ctePars->nColumns = nColumns;
+    ctePars->columnOffset = amp_xbeg;
+    ctePars->rowOffset = amp_ybeg;
+    // razColumnOffset is used to align the image with the column scaling (SCLBYCOL) in the PCTETAB.
+    // The SCLBYCOL array is 8192 cols wide which is 2048*4 and therefore does NOT include the physical
+    // overscan columns (24 for ACS WFC) like this array does for calwf3.
+    // The raz format is all 4 amps side by side in CDAB order.
+    ctePars->razColumnOffset = ctePars->columnOffset;
+    if (ampID == AMP_A || ampID == AMP_B)
+        ctePars->razColumnOffset += ACS_WFC_N_COLUMNS_PER_CHIP_EXCL_OVERSCAN;
+
+    //This is used for the final output
+    SingleGroup ampImage;
+    initSingleGroup(&ampImage);
+    addPtr(&ptrReg, &ampImage, &freeSingleGroup);
+    if (allocSingleGroupExts(&ampImage, nColumns, nRows, SCIEXT | ERREXT, False) != 0)
+    {
+        freeOnExit(&ptrReg);
+        return (status = OUT_OF_MEMORY);
+    }
+
+    // read data from the SingleGroup into an array containing data from
+    // just one amp
+    if ((status = extractAmp(&ampImage, chipImage, ampID, ctePars)))
+    {
+        freeOnExit(&ptrReg);
+        return (status);
+    }
+
+    // rotate amp in preparation for the serial CTE correction
+    // This step is done ONLY to accommodate the serial CTE correction
+    // which preceeds the standard parallel CTE correction.
+    if (strcmp(corrType, "serial") == 0)
+    {
+        sprintf(MsgText, "\n(pctecorr) Invoking rotation for CTE Correction Type: %s", corrType);
         trlmessage(MsgText);
-
-        /* get the amp letter and number where A:0, B:1, etc. */
-        amploc = strchr(AMPSORDER, ccdamp[nthAmp]);
-        ampID = *amploc - AMPSORDER[0];
-
-        ctePars->rn_amp = acs->readnoise[ampID];
-        sprintf(MsgText, "(pctecorr) Read noise level from CCDTAB: %f.", ctePars->rn_amp);
-        trlmessage(MsgText);
-
-        /* get amp array size */
-        if (get_amp_array_size_acs_cte(acs, chipImage, ampID, amploc, ccdamp,
-                               &amp_xsize, &amp_ysize, &amp_xbeg,
-                               &amp_xend, &amp_ybeg, &amp_yend))
+        if ((status = rotateAmp(&ampImage, ampID, False, ctePars, ccdamp[nthAmp])))
         {
             freeOnExit(&ptrReg);
             return (status);
         }
+    }
 
-        nRows = amp_ysize;
-        nColumns = amp_xsize;
-        ctePars->nRows = nRows;
-        ctePars->nColumns = nColumns;
-        ctePars->columnOffset = amp_xbeg;
-        ctePars->rowOffset = amp_ybeg;
-        // razColumnOffset is used to align the image with the column scaling (SCLBYCOL) in the PCTETAB.
-        // The SCLBYCOL array is 8192 cols wide which is 2048*4 and therefore does NOT include the physical
-        // overscan columns (24 for ACS WFC) like this array does for calwf3.
-        // The raz format is all 4 amps side by side in CDAB order.
-        ctePars->razColumnOffset = ctePars->columnOffset;
-        if (ampID == AMP_A || ampID == AMP_B)
-            ctePars->razColumnOffset += ACS_WFC_N_COLUMNS_PER_CHIP_EXCL_OVERSCAN;
+    if ((status = alignAmp(&ampImage, ampID)))
+    {
+        freeOnExit(&ptrReg);
+        return (status);
+    }
 
-        //This is used for the final output
-        SingleGroup ampImage;
-        initSingleGroup(&ampImage);
-        addPtr(&ptrReg, &ampImage, &freeSingleGroup);
-        if (allocSingleGroupExts(&ampImage, nColumns, nRows, SCIEXT | ERREXT, False) != 0)
-        {
-            freeOnExit(&ptrReg);
-            return (status = OUT_OF_MEMORY);
-        }
+    //copy to column major storage
+    SingleGroup columnMajorImage;
+    initSingleGroup(&columnMajorImage);
+    addPtr(&ptrReg, &columnMajorImage, &freeSingleGroup);
+    if (allocSingleGroupExts(&columnMajorImage, nColumns, nRows, SCIEXT, False) != 0)
+    {
+        freeOnExit(&ptrReg);
+        return (status = OUT_OF_MEMORY);
+    }
+    if ((status = copySingleGroup(&columnMajorImage, &ampImage, COLUMNMAJOR)))
+    {
+        freeOnExit(&ptrReg);
+        return (status = ALLOCATION_PROBLEM);
+    }
 
-        // read data from the SingleGroup into an array containing data from
-        // just one amp
-        if ((status = extractAmp(&ampImage, chipImage, ampID, ctePars)))
+    if (forwardModelOnly)
+    {
+        // Not needed as we won't be smoothing.
+    }
+    else
+    {
+        //CALCULATE THE SMOOTH READNOISE IMAGE
+        trlmessage("(pctecorr) Calculating smooth readnoise image...");
+        if (ctePars->noise_mit != 0)
         {
+            trlerror("(pctecorr) Only noise model 0 implemented!");
             freeOnExit(&ptrReg);
-            return (status);
+            return (status = ERROR_RETURN);
         }
-       if ((status = alignAmp(&ampImage, ampID)))
-        {
-            freeOnExit(&ptrReg);
-            return (status);
-        }
+    }
+    SingleGroup smoothedImage;
+    initSingleGroup(&smoothedImage);
+    addPtr(&ptrReg, &smoothedImage, &freeSingleGroup);
+    if (allocSingleGroupExts(&smoothedImage, nColumns, nRows, SCIEXT, False) != 0)
+    {
+        freeOnExit(&ptrReg);
+        return (status = OUT_OF_MEMORY);
+    }
+    setStorageOrder(&smoothedImage, COLUMNMAJOR);
 
-        //copy to column major storage
-        SingleGroup columnMajorImage;
-        initSingleGroup(&columnMajorImage);
-        addPtr(&ptrReg, &columnMajorImage, &freeSingleGroup);
-        if (allocSingleGroupExts(&columnMajorImage, nColumns, nRows, SCIEXT, False) != 0)
-        {
-            freeOnExit(&ptrReg);
-            return (status = OUT_OF_MEMORY);
-        }
-        if ((status = copySingleGroup(&columnMajorImage, &ampImage, COLUMNMAJOR)))
+    if (forwardModelOnly)
+    {
+        // Don't actually smooth but copy to smoothedImage
+        if ((status = copySingleGroup(&smoothedImage, &columnMajorImage, COLUMNMAJOR)))
         {
             freeOnExit(&ptrReg);
             return (status = ALLOCATION_PROBLEM);
         }
-
-        if (forwardModelOnly)
-        {
-            // Not needed as we won't be smoothing.
-        }
-        else
-        {
-            //CALCULATE THE SMOOTH READNOISE IMAGE
-            trlmessage("(pctecorr) Calculating smooth readnoise image...");
-            if (ctePars->noise_mit != 0)
-            {
-                trlerror("(pctecorr) Only noise model 0 implemented!");
-                freeOnExit(&ptrReg);
-                return (status = ERROR_RETURN);
-            }
-        }
-        SingleGroup smoothedImage;
-        initSingleGroup(&smoothedImage);
-        addPtr(&ptrReg, &smoothedImage, &freeSingleGroup);
-        if (allocSingleGroupExts(&smoothedImage, nColumns, nRows, SCIEXT, False) != 0)
+    }
+    else
+    {
+        // do some smoothing on the data so we don't amplify the read noise.
+        if ((status = cteSmoothImage(&columnMajorImage, &smoothedImage, ctePars, ctePars->rn_amp)))
         {
             freeOnExit(&ptrReg);
-            return (status = OUT_OF_MEMORY);
+            return (status);
         }
-        setStorageOrder(&smoothedImage, COLUMNMAJOR);
+    }
+    trlmessage("(pctecorr) ...complete.");
 
-        if (forwardModelOnly)
+    trlmessage("(pctecorr) Creating charge trap image...");
+    SingleGroup trapPixelMap;
+    initSingleGroup(&trapPixelMap);
+    addPtr(&ptrReg, &trapPixelMap, &freeSingleGroup);
+    if (allocSingleGroupExts(&trapPixelMap, nColumns, nRows, SCIEXT, False) != 0)
+    {
+        freeOnExit(&ptrReg);
+        return (status = OUT_OF_MEMORY);
+    }
+    setStorageOrder(&trapPixelMap, COLUMNMAJOR);
+    if ((status = populateTrapPixelMap(&trapPixelMap, ctePars)))
+    {
+        freeOnExit(&ptrReg);
+        return status;
+    }
+    trlmessage("(pctecorr) ...complete.");
+
+    SingleGroup * cteCorrectedImage = &columnMajorImage;
+    if (forwardModelOnly)
+    {
+        trlmessage("(pctecorr) Running forward model simulation...");
+        //perform CTE correction
+        if ((status = forwardModel(&smoothedImage, cteCorrectedImage, &trapPixelMap, ctePars)))
         {
-            // Don't actually smooth but copy to smoothedImage
-            if ((status = copySingleGroup(&smoothedImage, &columnMajorImage, COLUMNMAJOR)))
-            {
-                freeOnExit(&ptrReg);
-                return (status = ALLOCATION_PROBLEM);
-            }
+            freeOnExit(&ptrReg);
+            return status;
         }
-        else
+    }
+    else
+    {
+        trlmessage("(pctecorr) Running correction algorithm...");
+        //perform CTE correction
+        if ((status = inverseCTEBlur(&smoothedImage, cteCorrectedImage, &trapPixelMap, ctePars)))
         {
-            // do some smoothing on the data so we don't amplify the read noise.
-            if ((status = cteSmoothImage(&columnMajorImage, &smoothedImage, ctePars, ctePars->rn_amp)))
-            {
-                freeOnExit(&ptrReg);
-                return (status);
-            }
+            freeOnExit(&ptrReg);
+            return status;
         }
-       trlmessage("(pctecorr) ...complete.");
+    }
+    freePtr(&ptrReg, &trapPixelMap);
+    trlmessage("(pctecorr) ...complete.");
 
-       trlmessage("(pctecorr) Creating charge trap image...");
-       SingleGroup trapPixelMap;
-       initSingleGroup(&trapPixelMap);
-       addPtr(&ptrReg, &trapPixelMap, &freeSingleGroup);
-       if (allocSingleGroupExts(&trapPixelMap, nColumns, nRows, SCIEXT, False) != 0)
-       {
-           freeOnExit(&ptrReg);
-           return (status = OUT_OF_MEMORY);
-       }
-       setStorageOrder(&trapPixelMap, COLUMNMAJOR);
-       if ((status = populateTrapPixelMap(&trapPixelMap, ctePars)))
-       {
-           freeOnExit(&ptrReg);
-           return status;
-       }
-       trlmessage("(pctecorr) ...complete.");
-
-       SingleGroup * cteCorrectedImage = &columnMajorImage;
-       if (forwardModelOnly)
-       {
-           trlmessage("(pctecorr) Running forward model simulation...");
-           //perform CTE correction
-           if ((status = forwardModel(&smoothedImage, cteCorrectedImage, &trapPixelMap, ctePars)))
-           {
-               freeOnExit(&ptrReg);
-               return status;
-           }
-       }
-       else
-       {
-           trlmessage("(pctecorr) Running correction algorithm...");
-           //perform CTE correction
-           if ((status = inverseCTEBlur(&smoothedImage, cteCorrectedImage, &trapPixelMap, ctePars)))
-           {
-               freeOnExit(&ptrReg);
-               return status;
-           }
-       }
-       freePtr(&ptrReg, &trapPixelMap);
-       trlmessage("(pctecorr) ...complete.");
-
-        // add 10% correction to error in quadrature.
-        float totalCounts = 0;
-        float totalRawCounts = 0;
+    // add 10% correction to error in quadrature.
+    float totalCounts = 0;
+    float totalRawCounts = 0;
 #ifdef _OPENMP
-        #pragma omp parallel shared(nRows, nColumns, cteCorrectedImage, smoothedImage, ampImage)
+    #pragma omp parallel shared(nRows, nColumns, cteCorrectedImage, smoothedImage, ampImage)
 #endif
-        {
-            double temp_err;
-            float threadCounts = 0;
-            float threadRawCounts = 0;
-            float delta;
-            {unsigned k;
+    {
+        double temp_err;
+        float threadCounts = 0;
+        float threadRawCounts = 0;
+        float delta;
+        {   unsigned k;
 #ifdef _OPENMP
             #pragma omp for schedule(static)
 #endif
@@ -264,50 +260,63 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
             //MORE: look into worth splitting out ops, prob needs a order swap (copy) so perhaps not worth it.
             for (k = 0; k < nRows; ++k)
             {
-                {unsigned m;
-                for (m = 0; m < nColumns; ++m)
-                {
-                    delta = (PixColumnMajor(cteCorrectedImage->sci.data,k,m) - PixColumnMajor(smoothedImage.sci.data,k,m));
-                    threadCounts += delta;
-                    threadRawCounts += Pix(ampImage.sci.data, m, k);
-                    temp_err = 0.1 * fabs(delta);
-                    Pix(ampImage.sci.data, m, k) += delta;
+                {   unsigned m;
+                    for (m = 0; m < nColumns; ++m)
+                    {
+                        delta = (PixColumnMajor(cteCorrectedImage->sci.data,k,m) - PixColumnMajor(smoothedImage.sci.data,k,m));
+                        threadCounts += delta;
+                        threadRawCounts += Pix(ampImage.sci.data, m, k);
+                        temp_err = 0.1 * fabs(delta);
+                        Pix(ampImage.sci.data, m, k) += delta;
 
-                    float err2 = Pix(ampImage.err.data, m, k);
-                    err2 *= err2;
-                    Pix(ampImage.err.data, m, k) = sqrt(err2 + temp_err*temp_err);
-                }}
-            }}
+                        float err2 = Pix(ampImage.err.data, m, k);
+                        err2 *= err2;
+                        Pix(ampImage.err.data, m, k) = sqrt(err2 + temp_err*temp_err);
+                    }
+                }
+            }
+        }
 
 #ifdef _OPENMP
-            #pragma omp critical(deltaAggregate)
+        #pragma omp critical(deltaAggregate)
 #endif
-           {
-               totalCounts += threadCounts;
-               totalRawCounts += threadRawCounts;
-           }
-        }//close parallel block
-        sprintf(MsgText, "(pctecorr) Total count difference (corrected-raw) incurred from correction: %f (%f%%)", totalCounts, totalCounts/totalRawCounts*100);
+        {
+            totalCounts += threadCounts;
+            totalRawCounts += threadRawCounts;
+        }
+    }//close parallel block
+    sprintf(MsgText, "(pctecorr) Total count difference (corrected-raw) incurred from correction: %f (%f%%)", totalCounts, totalCounts/totalRawCounts*100);
+    trlmessage(MsgText);
+
+    // put the CTE corrected data back into the SingleGroup structure
+    if ((status = alignAmp(&ampImage, ampID)))
+    {
+        freeOnExit(&ptrReg);
+        return (status);
+    }
+
+    // Derotate amp so the parallel CTE correction can proceed
+    if (strcmp(corrType, "serial") == 0)
+    {
+        sprintf(MsgText, "\n(pctecorr) Invoking de-rotation for CTE Correction Type: %s", corrType);
         trlmessage(MsgText);
-
-        // put the CTE corrected data back into the SingleGroup structure
-        if ((status = alignAmp(&ampImage, ampID)))
+        if ((status = rotateAmp(&ampImage, ampID, True, ctePars, ccdamp[nthAmp])))
         {
             freeOnExit(&ptrReg);
             return (status);
         }
+    }
 
-        if ((status = insertAmp(chipImage, &ampImage, ampID, ctePars)))
-        {
-            freeOnExit(&ptrReg);
-            return (status);
-        }
+    if ((status = insertAmp(chipImage, &ampImage, ampID, ctePars)))
+    {
+        freeOnExit(&ptrReg);
+        return (status);
+    }
 
-        // free mem used by our amp arrays
-        freePtr(&ptrReg, &ampImage);
-        freePtr(&ptrReg, &columnMajorImage);
-        freePtr(&ptrReg, &smoothedImage);
-    }}
+    // free mem used by our amp arrays
+    freePtr(&ptrReg, &ampImage);
+    freePtr(&ptrReg, &columnMajorImage);
+    freePtr(&ptrReg, &smoothedImage);
     if (acs->printtime)
         TimeStamp("CTE corrections complete","");
 
@@ -339,6 +348,179 @@ static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsig
 
     copyOffsetSingleGroup(amp, image, nRows, nColumns, 0, offset, nColumns, rowSkipLength);
     return status;
+}
+
+/*
+   The rotation routines support the serial CTE correction such that the data
+   is configured to mimic the parallel CTE data.  The idea is to 
+   rotate the amp to put the serial trails in the same orientation as 
+   those of the parallel trails and then the parallel CTE correction is applied.
+   Essentially, the CTE correction routines can then be applied in the identical
+   manner for both the serial and the parallel CTE correction cases. 
+
+   Once the serial CTE correction has been performed, the amps then need to be
+   "de-rotated" so the parallel CTE correction can then be applied.
+*/
+static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTEParamsFast * ctePars, char ccdamp)
+{
+    extern int status;
+
+    if (!amp)
+        return (status = ALLOCATION_PROBLEM);
+
+    // The case of rotating the amp into position to mimic parallel processing
+    if (!derotate)
+    {
+        //sci data
+        if (amp->sci.data.data)
+        {
+            sprintf(MsgText, "(pctecorr) Rotation for Amp: %c\n", ccdamp);
+            trlmessage(MsgText);
+            if ((status = rotateAmpData(&amp->sci.data, ampID)))
+                return status;
+        }
+
+        //err data
+        if (amp->err.data.data)
+        {
+            if ((status = rotateAmpData(&amp->err.data, ampID)))
+                return status;
+        }
+    }
+    // The case of returning the amp to its original orientation
+    else
+    {
+        //sci data
+        if (amp->sci.data.data)
+        {
+            sprintf(MsgText, "(pctecorr) Derotation for Amp: %c\n", ccdamp);
+            trlmessage(MsgText);
+            if ((status = derotateAmpData(&amp->sci.data, ampID)))
+                return status;
+        }
+
+        //err data
+        if (amp->err.data.data)
+        {
+            if ((status = derotateAmpData(&amp->err.data, ampID)))
+                return status;
+        }
+    }
+
+    return status;
+}
+
+static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
+{
+    extern int status;
+    if (!amp || !amp->data)
+        return (status = ALLOCATION_PROBLEM);
+
+    const unsigned nRows = amp->ny;
+    const unsigned nColumns = amp->nx;
+
+    /*
+       Determine the amp in use - Rotate the amp to put the serial
+       trails in the same orientation as the parallel trails would
+       be.
+    */
+
+    // Always transpose the data first
+    float temp;
+    {   unsigned i;
+        for (i = 0; i < nRows; i++) {
+            {   unsigned j;
+                for (j = i; j < nColumns; j++) {
+                    temp = PPix(amp, j, i);
+                    PPix(amp, j, i) = PPix(amp, i, j);
+                    PPix(amp, i, j) = temp;
+                }
+            }
+        }
+    }
+
+    /*
+      To complete the correct rotation, the flip either has to be
+      from side-to-side about the central column or top-to-bottom
+      about the central row.
+    */
+
+    if (ampID == AMP_B || ampID == AMP_C) {
+        side2sideFlip(amp);
+    } else {
+        top2bottomFlip(amp);
+    }
+
+    return status;
+}
+
+static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
+{
+    extern int status;
+    if (!amp || !amp->data)
+        return (status = ALLOCATION_PROBLEM);
+
+    const unsigned nRows = amp->ny;
+    const unsigned nColumns = amp->nx;
+
+    /*
+       To derotate the amp, you are reversing the direction of the initial
+       rotation.  Always transpose the data first, and then apply the 
+       side-to-side or top-to-bottom flip to put the amp back into its 
+       original orientation so the parallel CTE correction can proceed.
+    */
+
+    // Always transpose the data first
+    float temp;
+    {   unsigned i;
+        for (i = 0; i < nRows; i++) {
+            {   unsigned j;
+                for (j = i; j < nColumns; j++) {
+                    temp = PPix(amp, j, i);
+                    PPix(amp, j, i) = PPix(amp, i, j);
+                    PPix(amp, i, j) = temp;
+                }
+            }
+        }
+    }
+
+    /*
+      The rotation here is in the opposite direction from the initial
+      rotation for the amp in question, so if a side-to-side flip were
+      done initially, now do a top-to-bottom flip (for example).
+    */
+    if (ampID == AMP_B || ampID == AMP_C) {
+        top2bottomFlip(amp);
+    } else {
+        side2sideFlip(amp);
+    }
+
+    return status;
+}
+
+/*
+   Flip the amp about the Y-axis central column (i.e., flip from left to right)
+*/
+static void side2sideFlip(FloatTwoDArray * amp)
+{
+    const unsigned nRows = amp->ny;
+    const unsigned nColumns = amp->nx;
+    float temp;
+
+    {   unsigned i;
+#ifdef _OPENMP
+        #pragma omp parallel for shared(amp) private(i) schedule(static)
+#endif
+        for (i = 0; i < nRows; i++) {
+            {   unsigned j;
+                for (j = 0; j < nColumns/2; j++) {
+                    temp = PPix(amp, j, i);
+                    PPix(amp, j, i) = PPix(amp, nColumns - j - 1, i);
+                    PPix(amp, nColumns - j - 1, i) = temp;
+                }
+            }
+        }
+    }
 }
 
 static int insertAmp(SingleGroup * image, const SingleGroup * amp, const unsigned ampID, CTEParamsFast * ctePars)
@@ -387,7 +569,7 @@ static int alignAmp(SingleGroup * amp, const unsigned ampID)
     }
     //dq data
     if (amp->dq.data.data)
-     assert(0);//unimplemented
+        assert(0);//unimplemented
 
     return status;
 }
@@ -406,11 +588,27 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     if (ampID == AMP_C)
         return status;
 
-    PtrRegister ptrReg;
-    initPtrRegister(&ptrReg);
-
     //WARNING - assumes row major storage
     assert(amp->storageOrder == ROWMAJOR);
+
+/*
+    //Flip about y axis, i.e. about central column
+    if (ampID == AMP_B || ampID == AMP_D)
+    {
+        sprintf(MsgText, "(pctecorr) Flipping side-to=side. Amp: %d\n", ampID);
+        trlmessage(MsgText);
+        side2sideFlip(amp);
+    }
+
+    //Only thing left is to flip AB chip upside down
+    //Flip about x axis, i.e. central row
+    if (ampID == AMP_A || ampID == AMP_B)
+    {
+        top2bottomFlip(amp);
+    }
+*/
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
 
     const unsigned nColumns = amp->nx;
     const unsigned nRows = amp->ny;
@@ -495,4 +693,60 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     }
 
     return status;
+}
+
+/*
+   Flip the amp about the X-axis central row (i.e., flip from top to bottom)
+*/
+static void top2bottomFlip(FloatTwoDArray * amp)
+{
+
+    const unsigned nColumns = amp->nx;
+    const unsigned nRows = amp->ny;
+
+    Bool allocationFail = False;
+#ifdef _OPENMP
+    #pragma omp parallel shared(amp, allocationFail)
+#endif
+    {
+        float * tempRow = NULL;
+        size_t rowSize = nColumns*sizeof(*tempRow);
+        tempRow = malloc(rowSize);
+        if (!tempRow)
+        {
+#ifdef _OPENMP
+            #pragma omp critical(allocationCheck) // This really isn't needed
+#endif
+            {
+                allocationFail = True;
+            }
+        }
+
+#ifdef _OPENMP
+        #pragma omp barrier
+#endif
+        if (!allocationFail)
+        {
+            {   unsigned i;
+#ifdef _OPENMP
+                #pragma omp for schedule(static)
+#endif
+                for (i = 0; i < nRows/2; ++i)
+                {
+                    float * topRow = amp->data + i*nColumns;
+                    float * bottomRow = amp->data + (nRows-1-i)*nColumns;
+                    memcpy(tempRow, topRow, rowSize);
+                    memcpy(topRow, bottomRow, rowSize);
+                    memcpy(bottomRow, tempRow, rowSize);
+                }
+            }
+        }
+        if (tempRow)
+            free(tempRow);
+    }//close parallel block
+    if (allocationFail)
+    {
+        sprintf(MsgText, "Out of memory for 'tempRow' in 'alignAmpData'");
+        trlerror(MsgText);
+    }
 }
