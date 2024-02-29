@@ -447,7 +447,6 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     clock_t begin = (double)clock();
 
                     /* Serial correction */
-/*
                     strcpy(corrType, "serial");
                     if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
                     {
@@ -455,9 +454,9 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                         freeOnExit(&ptrParallelReg);
                         return status;
                     }
-*/
 
                     /* Parallel correction */
+/*
                     strcpy(corrType, "parallel");
                     if ((status = doPCTEGen2(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
                     {
@@ -465,6 +464,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                         freeOnExit(&ptrParallelReg);
                         return status;
                     }
+*/
 
                     double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
                     sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);

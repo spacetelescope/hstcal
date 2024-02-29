@@ -686,7 +686,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
         'CTE_VER':'3.0' ,  #version number of algorithm
         'CTEDATE0':nnnnn.0, #date of instrument installation in HST in MJD
         'CTEDATE1':nnnnn.0, #reference date of cte model pinning in MJd
-        'PCTETLEN':100, #max length of CTE trail
+        'PCTETLEN':nnn, #max length of CTE trail
         'PCTERNOI':n.nn, #read noise amplitude, clipping limit
         'PCTENFOR':n ,#number of iterations used in cte forward modeling
         'PCTENPAR':n ,#number of iterations used in parallel transfer
