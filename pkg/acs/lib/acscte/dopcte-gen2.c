@@ -31,10 +31,11 @@ static int extractAmp(SingleGroup * amp, const SingleGroup * image, const unsign
 static int insertAmp(SingleGroup * amp, const SingleGroup * image, const unsigned ampID, CTEParamsFast * ctePars);
 static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
-static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTEParamsFast * ctePars, char ccdamp);
+static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, char ccdamp);
 static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
 
+static void transpose(FloatTwoDArray *amp);
 static void side2sideFlip(FloatTwoDArray *amp);
 static void top2bottomFlip(FloatTwoDArray *amp);
 
@@ -127,7 +128,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     {
         sprintf(MsgText, "\n(pctecorr) Invoking rotation for CTE Correction Type: %s", corrType);
         trlmessage(MsgText);
-        if ((status = rotateAmp(&ampImage, ampID, False, ctePars, ccdamp[nthAmp])))
+        if ((status = rotateAmp(&ampImage, ampID, False, ccdamp[nthAmp])))
         {
             freeOnExit(&ptrReg);
             return (status);
@@ -300,7 +301,7 @@ int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     {
         sprintf(MsgText, "\n(pctecorr) Invoking de-rotation for CTE Correction Type: %s", corrType);
         trlmessage(MsgText);
-        if ((status = rotateAmp(&ampImage, ampID, True, ctePars, ccdamp[nthAmp])))
+        if ((status = rotateAmp(&ampImage, ampID, True, ccdamp[nthAmp])))
         {
             freeOnExit(&ptrReg);
             return (status);
@@ -354,14 +355,14 @@ static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsig
    The rotation routines support the serial CTE correction such that the data
    is configured to mimic the parallel CTE data.  The idea is to 
    rotate the amp to put the serial trails in the same orientation as 
-   those of the parallel trails and then the parallel CTE correction is applied.
+   those of the parallel trails and then the existing CTE functions are applied.
    Essentially, the CTE correction routines can then be applied in the identical
-   manner for both the serial and the parallel CTE correction cases. 
+   manner for BOTH the serial and the parallel CTE correction cases. 
 
    Once the serial CTE correction has been performed, the amps then need to be
    "de-rotated" so the parallel CTE correction can then be applied.
 */
-static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, CTEParamsFast * ctePars, char ccdamp)
+static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, char ccdamp)
 {
     extern int status;
 
@@ -416,35 +417,19 @@ static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
     if (!amp || !amp->data)
         return (status = ALLOCATION_PROBLEM);
 
-    const unsigned nRows = amp->ny;
-    const unsigned nColumns = amp->nx;
-
     /*
-       Determine the amp in use - Rotate the amp to put the serial
-       trails in the same orientation as the parallel trails would
-       be.
+       Rotate the amp to put the serial trails in the same orientation
+       as the parallel trails would be. A rotation requires a transpose
+       and then a flip. Always transpose the data first.
+       
     */
-
-    // Always transpose the data first
-    float temp;
-    {   unsigned i;
-        for (i = 0; i < nRows; i++) {
-            {   unsigned j;
-                for (j = i; j < nColumns; j++) {
-                    temp = PPix(amp, j, i);
-                    PPix(amp, j, i) = PPix(amp, i, j);
-                    PPix(amp, i, j) = temp;
-                }
-            }
-        }
-    }
+    transpose(amp);
 
     /*
       To complete the correct rotation, the flip either has to be
       from side-to-side about the central column or top-to-bottom
       about the central row.
     */
-
     if (ampID == AMP_B || ampID == AMP_C) {
         side2sideFlip(amp);
     } else {
@@ -460,29 +445,13 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
     if (!amp || !amp->data)
         return (status = ALLOCATION_PROBLEM);
 
-    const unsigned nRows = amp->ny;
-    const unsigned nColumns = amp->nx;
-
     /*
        To derotate the amp, you are reversing the direction of the initial
        rotation.  Always transpose the data first, and then apply the 
        side-to-side or top-to-bottom flip to put the amp back into its 
        original orientation so the parallel CTE correction can proceed.
     */
-
-    // Always transpose the data first
-    float temp;
-    {   unsigned i;
-        for (i = 0; i < nRows; i++) {
-            {   unsigned j;
-                for (j = i; j < nColumns; j++) {
-                    temp = PPix(amp, j, i);
-                    PPix(amp, j, i) = PPix(amp, i, j);
-                    PPix(amp, i, j) = temp;
-                }
-            }
-        }
-    }
+    transpose(amp);
 
     /*
       The rotation here is in the opposite direction from the initial
@@ -499,6 +468,24 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
 }
 
 /*
+   Transpose the amp data
+*/
+static void transpose(FloatTwoDArray * amp)
+{
+    const unsigned nRows = amp->ny;
+    const unsigned nColumns = amp->nx;
+    float temp;
+
+    for (unsigned i = 0; i < nRows; i++) {
+        for (unsigned j = i; j < nColumns; j++) {
+            temp = PPix(amp, j, i);
+            PPix(amp, j, i) = PPix(amp, i, j);
+            PPix(amp, i, j) = temp;
+        }
+    }
+}
+
+/*
    Flip the amp about the Y-axis central column (i.e., flip from left to right)
 */
 static void side2sideFlip(FloatTwoDArray * amp)
@@ -507,18 +494,11 @@ static void side2sideFlip(FloatTwoDArray * amp)
     const unsigned nColumns = amp->nx;
     float temp;
 
-    {   unsigned i;
-#ifdef _OPENMP
-        #pragma omp parallel for shared(amp) private(i) schedule(static)
-#endif
-        for (i = 0; i < nRows; i++) {
-            {   unsigned j;
-                for (j = 0; j < nColumns/2; j++) {
-                    temp = PPix(amp, j, i);
-                    PPix(amp, j, i) = PPix(amp, nColumns - j - 1, i);
-                    PPix(amp, nColumns - j - 1, i) = temp;
-                }
-            }
+    for (unsigned i = 0; i < nRows; i++) {
+        for (unsigned j = 0; j < nColumns/2; j++) {
+            temp = PPix(amp, j, i);
+            PPix(amp, j, i) = PPix(amp, nColumns - j - 1, i);
+            PPix(amp, nColumns - j - 1, i) = temp;
         }
     }
 }
@@ -591,12 +571,9 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     //WARNING - assumes row major storage
     assert(amp->storageOrder == ROWMAJOR);
 
-/*
     //Flip about y axis, i.e. about central column
     if (ampID == AMP_B || ampID == AMP_D)
     {
-        sprintf(MsgText, "(pctecorr) Flipping side-to=side. Amp: %d\n", ampID);
-        trlmessage(MsgText);
         side2sideFlip(amp);
     }
 
@@ -606,97 +583,17 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
     {
         top2bottomFlip(amp);
     }
-*/
-    PtrRegister ptrReg;
-    initPtrRegister(&ptrReg);
-
-    const unsigned nColumns = amp->nx;
-    const unsigned nRows = amp->ny;
-
-    //Flip about y axis, i.e. about central column
-    if (ampID == AMP_B || ampID == AMP_D)
-    {
-        //grab a row, flip it, put it back
-        const unsigned rowLength = nColumns;
-        {unsigned i;
-#ifdef _OPENMP
-        #pragma omp parallel for shared(amp) private(i) schedule(static)
-#endif
-        for (i = 0; i < nRows; ++i)
-        {
-            //find row
-            float * row = amp->data + i*nColumns;
-            //flip right to left
-            float tempPixel;
-            {unsigned j;
-            for (j = 0; j < rowLength/2; ++j)
-            {
-                tempPixel = row[j];
-                row[j] = row[rowLength-1-j];
-                row[rowLength-1-j] = tempPixel;
-            }}
-        }}
-    }
-
-    //Only thing left is to flip AB chip upside down
-    //Flip about x axis, i.e. central row
-    if (ampID == AMP_A || ampID == AMP_B)
-    {
-        //either physically align all or propagate throughout a mechanism to work on the array upside down (flip b quad though)
-        //we'll just flip all for now. See if there's info in the header specifying amp location rel to pix in file,
-        //i.e. a way to know whether the chip is 'upside down'. Could then reverse cte corr trail walk direction
-        Bool allocationFail = False;
-#ifdef _OPENMP
-    #pragma omp parallel shared(amp, allocationFail)
-#endif
-        {
-            float * tempRow = NULL;
-            size_t rowSize = nColumns*sizeof(*tempRow);
-            tempRow = malloc(rowSize);
-            if (!tempRow)
-            {
-#ifdef _OPENMP
-                #pragma omp critical(allocationCheck) // This really isn't needed
-#endif
-                {
-                    allocationFail = True;
-                }
-            }
-
-#ifdef _OPENMP
-            #pragma omp barrier
-#endif
-            if (!allocationFail)
-            {
-                {unsigned i;
-#ifdef _OPENMP
-                #pragma omp for schedule(static)
-#endif
-                for (i = 0; i < nRows/2; ++i)
-                {
-                    float * topRow = amp->data + i*nColumns;
-                    float * bottomRow = amp->data + (nRows-1-i)*nColumns;
-                    memcpy(tempRow, topRow, rowSize);
-                    memcpy(topRow, bottomRow, rowSize);
-                    memcpy(bottomRow, tempRow, rowSize);
-                }}
-            }
-            if (tempRow)
-                free(tempRow);
-        }//close parallel block
-        if (allocationFail)
-        {
-            sprintf(MsgText, "Out of memory for 'tempRow' in 'alignAmpData'");
-            trlerror(MsgText);
-            return (status = OUT_OF_MEMORY);
-        }
-    }
 
     return status;
 }
 
 /*
    Flip the amp about the X-axis central row (i.e., flip from top to bottom)
+
+   Note: This routine was originally in alignAmpData flow of processing.  It 
+   is now encapulated here as it is used multiple times due to the rotations
+   needed to accommodate the serial CTE correction.  The original OPENMP 
+   specifications have been left intact.
 */
 static void top2bottomFlip(FloatTwoDArray * amp)
 {
