@@ -301,7 +301,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
            of the parallel and serial CTE corrections. Further, the serial CTE is
            amp-dependent so the KEYWORDs are documented for each amp. 
 
-           Write the parallel HISTORY informaton here.
+           Write the parallel HISTORY information here.
         */
         if ((status = populateImageFileWithCTEKeywordValues(&x[0], &cteParallelPars, "parallel")))
         {
@@ -456,7 +456,6 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     }
 
                     /* Parallel correction */
-/*
                     strcpy(corrType, "parallel");
                     if ((status = doPCTEGen2(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
                     {
@@ -464,7 +463,6 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                         freeOnExit(&ptrParallelReg);
                         return status;
                     }
-*/
 
                     double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
                     sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
