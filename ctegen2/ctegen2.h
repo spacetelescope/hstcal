@@ -75,6 +75,9 @@ typedef struct {
     char descrip2[256]; /*descrip from table row, not read in for cte purposes*/
     char cte_name[256]; /*name of cte algorithm */
     char cte_ver[256]; /*version of algorithm */
+
+    // Serial CTE FITS extension information only
+    char ccdamp[2];	/* ID of specific amp for the serial CTE correction */
 } CTEParamsFast;
 
 int inverseCTEBlurWithRowMajorIput(const SingleGroup * rsz, SingleGroup * rsc, const SingleGroup * trapPixelMap, CTEParamsFast * cte);
@@ -102,9 +105,9 @@ void initCTEParamsFast(CTEParamsFast * pars, const unsigned _nTraps, const unsig
 int allocateCTEParamsFast(CTEParamsFast * pars);
 void freeCTEParamsFast(CTEParamsFast * pars);
 
-int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars);
+int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars, char * corrType);
 int getCTEParsFromImageHeader(SingleGroup * input, CTEParamsFast * params);
-int loadPCTETAB(char *filename, CTEParamsFast * params);
+int loadPCTETAB(char *filename, CTEParamsFast * params, int extn, Bool skipLoadPrimary);
 void ctewarn (char *message);
 void cteerror (char *message);
 void ctemessage (char *message);
