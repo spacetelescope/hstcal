@@ -262,7 +262,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 		        foundit = 1;
 
 		        /* Get pedigree & descrip from the row. */
-		        if ((status = RowPedigree (&sts->phottab, row,
+		        if ((status = RowPedigree (&sts->blazetab, row,
                             blazetabinfo.tp, blazetabinfo.cp_pedigree,
 							blazetabinfo.cp_descrip))) {
 					printf("Error getting pedigree and descrip from selected row\n");

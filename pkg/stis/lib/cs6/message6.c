@@ -66,6 +66,15 @@ void Message6 (StisInfo6 *sts, int type) {
                                       sts->phottab.pedigree,
                                       sts->phottab.descrip,
                                       sts->phottab.descrip2);
+            if (strlen (sts->blazetab.name) > 0) {
+	            PrRefInfo ("blazetab", sts->blazetab.name,
+                                      sts->blazetab.pedigree,
+                                      sts->blazetab.descrip,
+                                      sts->blazetab.descrip2);
+            } else {
+                printf("BLAZETAB  None, using blaze coefficients from PHOTTAB\n");
+            }
+
 	        PrRefInfo ("apertab", sts->apertab.name,
                                       sts->apertab.pedigree,
                                       sts->apertab.descrip,
