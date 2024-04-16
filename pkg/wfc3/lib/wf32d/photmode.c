@@ -78,8 +78,8 @@ Hdr *hdr	io: image header to be modified
 	    strcat (photstr, wf32d->filter);
 	}
 
-    /* Update: Add 'MJD#' value to the PHOTMODE string for both the 
-       UVIS and IR detectors */
+	/* Update: Add 'MJD#' value to the PHOTMODE string for both the 
+		UVIS and IR detectors */
 	sprintf (scratch, " MJD#%0.4f", wf32d->expstart);
 	strcat (photstr, scratch);
 
