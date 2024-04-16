@@ -84,8 +84,8 @@ Hdr *hdr	io: image header to be modified
 
     /* Update: Add 'MJD#' value to the PHOTMODE string for both the 
        UVIS and IR detectors */
-    sprintf (scratch, " MJD#%0.4f", wf32d->expstart);
-    strcat (photstr, scratch);
+	sprintf (scratch, " MJD#%0.4f", wf32d->expstart);
+	strcat (photstr, scratch);
 
 	if (wf32d->verbose) {
 	    sprintf (MsgText, "Keyword PHOTMODE built as: %s", photstr);
