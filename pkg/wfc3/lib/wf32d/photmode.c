@@ -78,10 +78,10 @@ Hdr *hdr	io: image header to be modified
 	    strcat (photstr, wf32d->filter);
 	}
 
-    /* Add 'MJD#' keyword to PHOTMODE string for UVIS detector only */
-	if (wf32d->detector == CCD_DETECTOR)
-        sprintf (scratch, " MJD#%0.4f", wf32d->expstart);
-        strcat (photstr, scratch);
+    /* Update: Add 'MJD#' value to the PHOTMODE string for both the 
+       UVIS and IR detectors */
+	sprintf (scratch, " MJD#%0.4f", wf32d->expstart);
+	strcat (photstr, scratch);
 
 	if (wf32d->verbose) {
 	    sprintf (MsgText, "Keyword PHOTMODE built as: %s", photstr);
