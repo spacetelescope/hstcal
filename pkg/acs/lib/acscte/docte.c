@@ -295,11 +295,11 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         cteParallelPars.scale_frac = (acs->expstart - cteParallelPars.cte_date0) / (cteParallelPars.cte_date1 - cteParallelPars.cte_date0);
 
         /*
-           This routine writes information to the HISTORY portion of the output 
+           This routine writes information to the HISTORY portion of the output
            primary header which includes KEYWORD values read from the PCTETAB.
            Some of the KEYWORDs have different values for their use in the application
            of the parallel and serial CTE corrections. Further, the serial CTE is
-           amp-dependent so the KEYWORDs are documented for each amp. 
+           amp-dependent so the KEYWORDs are documented for each amp.
 
            Write the parallel HISTORY information here.
         */
@@ -360,82 +360,89 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     sprintf(MsgText, "(docte) amploc: %s  ampID: %i amplocInCalib: %s ampIDInCalib: %i", amploc, ampID, amplocInCalib, ampIDInCalib);
                     trlmessage(MsgText);
 
-                    startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
-                    strcpy(corrType, "serial");
-                    //sprintf(MsgText,"(pctecorr) Collecting data for Correction Type: %s \n", startOfSetInCalib, corrType);
-                    // MDD Remove msg on final
-                    sprintf(MsgText,"(pctecorr) StartOfSet: %d.  Collecting data for Correction Type: %s \n", startOfSetInCalib, corrType);
-                    trlmessage(MsgText);
-
                     /*
-                       Loop to control the application of the CTE corrections - the serial
-                       (Extensions 5-8 [A], 9-12 [B], 13-16 [C], 17-20 [D]) correction for each
-                       Amp will be done first, then the parallel (Extensions 1-4) correction will
-                       be done.  The "Extensions" refer to the set of extensions in the calibration
-                       reference file pertaining to a particular amp correction.
-
-                       As noted at the top of this file, the typical order of processing is
-                       Chip 2 (Amps C and D) and then Chip 1 (Amps A and B).
+                       Only perform the serial CTE correction for post-SM4 data
                     */
-                    if (!skipLoadPrimary) {
-                        initCTEParamsFast(&ctePars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
+                    if (acs_info->expstart >= SM4MJD) {
 
-                        ctePars.refAndIamgeBinsIdenticle = True;
-                        ctePars.verbose = acs->verbose = 0 ? False : True;
-                        if ((status = allocateCTEParamsFast(&ctePars)))
+                        startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
+                        strcpy(corrType, "serial");
+                        //sprintf(MsgText,"(pctecorr) Collecting data for Correction Type: %s \n", startOfSetInCalib, corrType);
+                        // MDD Remove msg on final
+                        sprintf(MsgText,"(pctecorr) StartOfSet: %d.  Collecting data for Correction Type: %s \n", startOfSetInCalib, corrType);
+                        trlmessage(MsgText);
+
+                        /*
+                           Loop to control the application of the CTE corrections - the serial
+                           (Extensions 5-8 [A], 9-12 [B], 13-16 [C], 17-20 [D]) correction for each
+                           Amp will be done first, then the parallel (Extensions 1-4) correction will
+                           be done.  The "Extensions" refer to the set of extensions in the calibration
+                           reference file pertaining to a particular amp correction.
+
+                           As noted at the top of this file, the typical order of processing is
+                           Chip 2 (Amps C and D) and then Chip 1 (Amps A and B).
+                        */
+
+                        if (!skipLoadPrimary) {
+                            initCTEParamsFast(&ctePars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
+
+                            ctePars.refAndIamgeBinsIdenticle = True;
+                            ctePars.verbose = acs->verbose = 0 ? False : True;
+                            if ((status = allocateCTEParamsFast(&ctePars)))
+                            {
+                                freeOnExit(&ptrReg);
+                                freeOnExit(&ptrParallelReg);
+                                return (status);
+                            }
+                        }
+
+                        if ((status = loadPCTETAB(cteTabFilename, &ctePars, startOfSetInCalib, skipLoadPrimary)))
                         {
                             freeOnExit(&ptrReg);
                             freeOnExit(&ptrParallelReg);
                             return (status);
                         }
-                    }
+                        skipLoadPrimary = True;
 
-                    if ((status = loadPCTETAB(cteTabFilename, &ctePars, startOfSetInCalib, skipLoadPrimary)))
-                    {
-                        freeOnExit(&ptrReg);
-                        freeOnExit(&ptrParallelReg);
-                        return (status);
-                    }
-                    skipLoadPrimary = True;
+                        if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
+                        {
+                            freeOnExit(&ptrReg);
+                            freeOnExit(&ptrParallelReg);
+                            return (status);
+                        }
 
-                    if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
-                    {
-                        freeOnExit(&ptrReg);
-                        freeOnExit(&ptrParallelReg);
-                        return (status);
-                    }
+                        ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
 
-                    ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
+                        /*
+                           Write the amp-dependent serial HISTORY information here.
+                        */
+                        char amp_corrType[20] = "serial - Amp ";
+                        char s_amp[5];
+                        strncpy(s_amp, ccdamp + nthAmp, 1);
+                        s_amp[1] = '\0';
+                        strcat(amp_corrType, s_amp);
+                        amp_corrType[19] = '\0';
+                        if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars, amp_corrType)))
+                        {
+                            freeOnExit(&ptrReg);
+                            freeOnExit(&ptrParallelReg);
+                            return (status);
+                        }
 
-                    /*
-                       Write the amp-dependent serial HISTORY information here.
-                    */
-                    char amp_corrType[20] = "serial - Amp ";
-                    char s_amp[5];
-                    strncpy(s_amp, ccdamp + nthAmp, 1);
-                    s_amp[1] = '\0';
-                    strcat(amp_corrType, s_amp);
-                    amp_corrType[19] = '\0';
-                    if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars, amp_corrType)))
-                    {
-                        freeOnExit(&ptrReg);
-                        freeOnExit(&ptrParallelReg);
-                        return (status);
-                    }
+                        sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
+                        trlwarn(MsgText);
+                        sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
+                                ctePars.n_forward);
+                        trlmessage(MsgText);
+                        sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
+                                ctePars.n_par);
+                        trlmessage(MsgText);
+                        sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
+                        trlmessage(MsgText);
 
-                    sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
-                    trlwarn(MsgText);
-                    sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
-                            ctePars.n_forward);
-                    trlmessage(MsgText);
-                    sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
-                            ctePars.n_par);
-                    trlmessage(MsgText);
-                    sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
-                    trlmessage(MsgText);
-
-                    sprintf(MsgText, "(pctecorr) The %s CTE processing parameters have been read.", corrType);
-                    trlmessage(MsgText);
+                        sprintf(MsgText, "(pctecorr) The %s CTE processing parameters have been read.", corrType);
+                        trlmessage(MsgText);
+                    } // End if block for collecting and reporting serial CTE correction
 
                     /*
                        The number of acs_info->nimsets represents the number of chips to process for the
@@ -446,14 +453,17 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
                     clock_t begin = (double)clock();
 
-                    /* Serial correction */
-                    strcpy(corrType, "serial");
-                    if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
-                    {
-                        freeOnExit(&ptrReg);
-                        freeOnExit(&ptrParallelReg);
-                        return status;
-                    }
+                    /* Perform the serial CTE correction for only post-SM4 data */
+                    if (acs_info->expstart >= SM4MJD) {
+                        /* Serial correction */
+                        strcpy(corrType, "serial");
+                        if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
+                        {
+                            freeOnExit(&ptrReg);
+                            freeOnExit(&ptrParallelReg);
+                            return status;
+                        }
+                    } // End short if block for applying serial CTE correction
 
                     /* Parallel correction */
                     strcpy(corrType, "parallel");
@@ -471,7 +481,8 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
             }
         }
 
-        freeOnExit(&ptrReg);
+        if (acs_info->expstart >= SM4MJD)
+            freeOnExit(&ptrReg);
         freeOnExit(&ptrParallelReg);
         PrSwitch("pctecorr", COMPLETE);
 
