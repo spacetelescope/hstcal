@@ -82,7 +82,7 @@ export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
     ```
     mkdir _build
     cd _build
-    cmake .. -DCMAKE_INSTAL_PREFIX=$HOME/hstcal
+    cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/hstcal
     ```
 
 2. Build
@@ -144,7 +144,7 @@ export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
     ```
     mkdir _build
     cd _build
-    cmake .. -DCMAKE_INSTAL_PREFIX=$HOME/hstcal
+    cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/hstcal
     ```
 
 2. Build
