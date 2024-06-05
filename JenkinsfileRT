@@ -28,7 +28,7 @@ bc.env_vars = ['PATH=/usr/local/bin:$PATH',
                 'iref=/grp/hst/cdbs/iref/',
                 'oref=/grp/hst/cdbs/oref/']
 bc.conda_channels = ['http://conda.anaconda.org/conda-forge/']
-bc.conda_packages = ['python=3.9',
+bc.conda_packages = ['python=3.11',
                      'compilers',
                      'bzip2',
                      'cfitsio',
@@ -59,13 +59,13 @@ bc1.env_vars += ['LDFLAGS=-L/usr/local/opt/libomp/lib -Wl,-rpath,/usr/local/opt/
                  'CC=/usr/local/bin/gcc-13',
                  'CXX=/usr/local/bin/g++-13',
                  'FC=/usr/local/bin/gfortran-13']
-bc1.conda_packages = ['python=3.9',
+bc1.conda_packages = ['python=3.11',
                      'bzip2',
                      'cfitsio',
                      'pkg-config',
                      'astropy',
                      'cmake']
-bc1.test_cmds[0] = "pytest tests --basetemp=tests_output --junitxml results.xml -v"
+bc1.test_cmds[0] = "pytest tests --basetemp=tests_output --junitxml results.xml --bigdata -v"
 bc1.test_configs = []
 
 // Iterate over configurations that define the (distributed) build matrix.
