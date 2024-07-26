@@ -77,7 +77,7 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
     if (GetKeyInt (phdr, "NEXTEND", USE_DEFAULT, EXT_PER_GROUP, &acs->nextend))
         return (status);
 
-	if (GetKeyBool (phdr, "SUBARRAY", NO_DEFAULT, 0, &acs->subarray))
+	if (GetKeyInt (phdr, "SUBARRAY", NO_DEFAULT, 0, &acs->subarray))
 	  return (status);
   
 	/* Get CCD-specific parameters. */
@@ -145,9 +145,9 @@ int checkACSKeys(ACSInfo *acs)
         return INVALID_EXPTIME;
     }
 
-    upperCase(&acs->aperture);
-    upperCase(&acs->jwrotype);
-    upperCase(&acs->flashstatus);
+    upperCase(acs->aperture);
+    upperCase(acs->jwrotype);
+    upperCase(acs->flashstatus);
 
     // Convert number of extensions to number of SingleGroups.
     // NOTE: this is technically incorrect and instead findTotalNumberOfImsets()
@@ -163,7 +163,7 @@ int checkACSKeys(ACSInfo *acs)
     /* Get CCD-specific parameters. */
     if (acs->detector != MAMA_DETECTOR)
     {
-        upperCase(&acs->ccdamp);
+        upperCase(acs->ccdamp);
         /* Verify that only the letters 'ABCD' are in the string. */
         const char * ampAlphabet = "ABCD";
         if (!isStrInLanguage(acs->ccdamp, ampAlphabet))
