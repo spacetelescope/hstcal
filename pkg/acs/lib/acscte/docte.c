@@ -338,6 +338,9 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         trlmessage(MsgText);
         sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", cteParallelPars.scale_frac);
         trlmessage(MsgText);
+
+        sprintf(MsgText,"\n(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n");
+        trlmessage(MsgText);
         /* End read of the parallel CTE parameters */
 
         /*
@@ -375,8 +378,6 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     /*
                        Only perform the serial CTE correction for full-frame, post-SM4 data
                     */
-                    sprintf(MsgText,"(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n");
-                    trlmessage(MsgText);
                     if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
 
                         startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
