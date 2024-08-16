@@ -6,6 +6,9 @@
                              obsolete code has been removed.  Note the PCTETAB has changed
                              substantially to accommodate the amp-dependent serial corrections.
                              The serial CTE correction only applies to full-frame, post-SM4 data.
+                             NOTE: This is NOT a backwards compatible change.  WFC RAW files
+                             will need to have the PCTETAB keyword updated with the Generation 3
+                             Parallel/Serial Pixel CTE 2023 file.
  08-Feb-2022   CALACS 10.3.5 Update to the cosmic ray rejection algorithm as to the way
                              the output ERR extension is computed for the CRJ file. The 
                              output ERR is now propagated from the usable input ERR extensions
