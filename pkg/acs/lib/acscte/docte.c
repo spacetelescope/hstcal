@@ -4,7 +4,8 @@
 
  12-Aug-2012 PLL: Separated PCTECORR from ACSCCD.
  14-Sep-2023 MDD: Updated to accommodate only the "Parallel/Serial PixelCTE 2023"
-     (aka Generation 3) correction.
+     (aka Generation 3) correction. Code now applies a serial CTE correction for 
+     full-frame data.
 
 */
 # include <string.h>
@@ -33,9 +34,24 @@ static int OscnTrimmed (Hdr*, Hdr *);
    Typical order of processing is Chip 2 (Amps C and D) and then
    Chip 1 (Amps A and B). See ctehelpers.c for full description of
    PCTETAB which clarifies the order of the extensions for processing.
+
+   Background information added here in August 2024 MDD:
+   Since February 2018 according to the ACS keyword rules which are
+   used to assign the default values of PERFORM or OMIT to the calibration
+   steps (e.g., DARKCORR, PCTECORR), no subarrays are to be processed with
+   the CTE correction during pipeline processing. However, the ACS team has
+   allowed for the possibility a user would want to apply the CTE correction
+   to subarray data by setting PCTECORR = PERFORM.  In this case, ONLY the
+   parallel CTE correction will be applied to the data.
+
+   At one point for post-SM4 data, the parallel CTE correction was allowed
+   to be applied to certain subarray modes. However, in February 2018, this
+   was changed to PCTECORR=OMIT for post-SM4 where SUBARRAY=T.  As 
+   PCTECORR=OMIT by default, except for specified modes, pre-SM4 subarrays 
+   are also not processed with parallel CTE correction.
 */
 
-/* CTE data as stored in the PCTETAB */
+/* CTE calibration data as stored in the PCTETAB */
 int SET_TO_PROCESS[] = {13, 17, 5, 9};  // Starting extension number of a set of qprof/sclbycol/rprof/cprof
 # define AMPCALIBORDER "CDAB"
 
@@ -61,7 +77,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
     Bool subarray;
     int CCDHistory (ACSInfo *, Hdr *);
-    int doPCTEGen2 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID);
+    int doPCTEGen3 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID);
     int pcteHistory (ACSInfo *, Hdr *);
     int GetACSGrp (ACSInfo *, Hdr *);
     int OmitStep (int);
@@ -191,8 +207,8 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         PtrRegister ptrParallelReg;
         initPtrRegister(&ptrParallelReg);
 
-        /* These variables will hold the serial(x) and the parallel(y) CTE
-           values. */
+        /* These variables will hold the serial(aka 'x') and the parallel(aka 'y')
+           CTE values. */
         CTEParamsFast ctePars;
         CTEParamsFast cteParallelPars;
 
@@ -201,7 +217,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
         // Generation 1 CTE algorithm is obsolete.
         // Generation 3 CTE algorithm is the Generation 2 algorithm with updates to apply
-        // not only a parallel correction, but also an amp-based serial CTE correction.
+        // not only a parallel correction, but also possibly an amp-based serial CTE correction.
         // There is no longer any choice for the generation of the CTE algorithm.  The correction
         // is only "Generation 3" which is also know by its FITS keyword CTE_NAME
         // "Par/Serial PixelCTE 2023" or the "Parallel and Serial CTE correction".
@@ -356,20 +372,16 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     amplocInCalib = strchr(AMPCALIBORDER, ccdamp[nthAmp]); // This is a full string.
                     ampIDInCalib = amplocInCalib - AMPCALIBORDER; // This is a number.
 
-                    // MDD Remove msg on final
-                    sprintf(MsgText, "(docte) amploc: %s  ampID: %i amplocInCalib: %s ampIDInCalib: %i", amploc, ampID, amplocInCalib, ampIDInCalib);
-                    trlmessage(MsgText);
-
                     /*
-                       Only perform the serial CTE correction for post-SM4 data
+                       Only perform the serial CTE correction for full-frame, post-SM4 data
                     */
-                    if (acs_info->expstart >= SM4MJD) {
+                    sprintf(MsgText,"(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n");
+                    trlmessage(MsgText);
+                    if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
 
                         startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
                         strcpy(corrType, "serial");
-                        //sprintf(MsgText,"(pctecorr) Collecting data for Correction Type: %s \n", startOfSetInCalib, corrType);
-                        // MDD Remove msg on final
-                        sprintf(MsgText,"(pctecorr) StartOfSet: %d.  Collecting data for Correction Type: %s \n", startOfSetInCalib, corrType);
+                        sprintf(MsgText,"(pctecorr) Collecting data for Correction Type: %s \n", corrType);
                         trlmessage(MsgText);
 
                         /*
@@ -417,11 +429,8 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                            Write the amp-dependent serial HISTORY information here.
                         */
                         char amp_corrType[20] = "serial - Amp ";
-                        char s_amp[5];
-                        strncpy(s_amp, ccdamp + nthAmp, 1);
-                        s_amp[1] = '\0';
-                        strcat(amp_corrType, s_amp);
-                        amp_corrType[19] = '\0';
+                        strcat(amp_corrType, &ccdamp[nthAmp]);
+                        amp_corrType[14] = '\0';
                         if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars, amp_corrType)))
                         {
                             freeOnExit(&ptrReg);
@@ -453,21 +462,21 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
                     clock_t begin = (double)clock();
 
-                    /* Perform the serial CTE correction for only post-SM4 data */
-                    if (acs_info->expstart >= SM4MJD) {
+                    /* Perform the serial CTE correction for only full-frame, post-SM4 data */
+                    if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
                         /* Serial correction */
                         strcpy(corrType, "serial");
-                        if ((status = doPCTEGen2(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
+                        if ((status = doPCTEGen3(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
                         {
                             freeOnExit(&ptrReg);
                             freeOnExit(&ptrParallelReg);
                             return status;
                         }
-                    } // End short if block for applying serial CTE correction
+                    } // End short block for applying serial CTE correction
 
                     /* Parallel correction */
                     strcpy(corrType, "parallel");
-                    if ((status = doPCTEGen2(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
+                    if ((status = doPCTEGen3(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
                     {
                         freeOnExit(&ptrReg);
                         freeOnExit(&ptrParallelReg);
@@ -481,11 +490,9 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
             }
         }
 
-        if (acs_info->expstart >= SM4MJD)
-            freeOnExit(&ptrReg);
-        freeOnExit(&ptrParallelReg);
+        //freeOnExit(&ptrReg);
+        //freeOnExit(&ptrParallelReg);
         PrSwitch("pctecorr", COMPLETE);
-
     }
 
     if (acs_info->printtime)

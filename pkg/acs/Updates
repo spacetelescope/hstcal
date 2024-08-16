@@ -1,10 +1,11 @@
 Update for version 10.4.0 - 07-May-2024 (MDD)
-	pkg/acs/calacs/Dates
-	pkg/acs/calacs/History
-	pkg/acs/calacs/Updates
-    pkg/acs/calacs/acscte/docte.c
-    pkg/acs/calacs/acscte/dopcte-gen2.c
-    pkg/acs/calacs/acscte/dopcte.c
+	pkg/acs/Dates
+	pkg/acs/History
+	pkg/acs/Updates
+    pkg/acs/include/acs.h
+    pkg/acs/lib/CMakeLists.txt
+    pkg/acs/lib/acscte/docte.c
+    pkg/acs/lib/acscte/dopcte-gen2.c -> pkg/acs/calace/acscte/dopcte-gen3.c
     ctegen2/ctegen2.h
 	ctegen2/ctehelpers.c
 

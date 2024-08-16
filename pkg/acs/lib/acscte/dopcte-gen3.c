@@ -39,7 +39,7 @@ static void transpose(FloatTwoDArray *amp);
 static void side2sideFlip(FloatTwoDArray *amp);
 static void top2bottomFlip(FloatTwoDArray *amp);
 
-int doPCTEGen2 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID)
+int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID)
 
 {
 
