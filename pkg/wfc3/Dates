@@ -1,3 +1,8 @@
+15-Apr-2024 - MDD = Version 3.7.2
+    - Allow MJD as a parameterized variable for the PHOTMODE keyword to
+      enable a time-dependent photometric correction for the IR detector.
+      This supplements the change done for the UVIS in 2020 (Version 3.5.2).
+
 18-Oct-2023 - MDD - Version 3.7.1
     - Updates to reconcile the old and new algorithms for flagging full-well saturated pixels.  
       The new algorithm uses a saturation image which is applied after BLECORR/BIASCORR, and

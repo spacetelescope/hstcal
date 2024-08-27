@@ -39,6 +39,10 @@
 	for IR exposures because they're now in units of electrons.
    M.De La Pena, 2020 Feb 28:
     Added MJD in order to enable a time-dependent photometric correction.
+   M.De La Pena, 2024 Apr 15:
+    Allow the 'MJD#' value to be added to the PHOTMODE keyword in order to 
+    enable a time-dependent photometric correction for the IR.  This supplements 
+    the change done previously for the UVIS in 2020.
 */
 
 int PhotMode (WF3Info *wf32d, Hdr *hdr) {
