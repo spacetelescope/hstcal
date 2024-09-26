@@ -9,6 +9,8 @@ set(WITH_CFITSIO "" CACHE STRING "Path to cfitsio (if empty pkg-config is used)"
 set(WITH_CFITSIO_CFLAGS "" CACHE STRING "CFITSIO compiler flags")
 set(WITH_CFITSIO_LDFLAGS "-lcfitsio" CACHE STRING "CFITSIO linker flags")
 
+# Add the -fpermissive flag
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpermissive")
 
 # Use git to set package version
 # Caveat: unix-only
