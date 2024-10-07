@@ -491,8 +491,6 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
             }
         }
 
-        //freeOnExit(&ptrReg);
-        //freeOnExit(&ptrParallelReg);
         PrSwitch("pctecorr", COMPLETE);
     }
 
