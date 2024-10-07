@@ -83,7 +83,7 @@ void errchk ();                 /* HSTIO error check */
 
 # define       DEFAULT_OFFSET   3
 
-# define        SM4MJD          54967
+# define        SM4MJD          54962 /* May 11, 2009 - beginning of SM4 */
 
 /* October 01, 2016: Date of first observation in Cycle 24. The new ACS subarray configurations validated for Cycle 24. */
 # define        CYCLE24         57662
