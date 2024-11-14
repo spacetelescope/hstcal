@@ -379,7 +379,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
        extension.
     */
 
-	/* GET DATE SERIAL CTE BECAME RELEVANT */
+    /* GET DATE SERIAL CTE BECAME RELEVANT */
     pars->cte_date0 = c_tbhgtd(tbl_ptr, "CTEDATE0");
     if (status = c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error reading CTEDATE0 from extension %d.", extn);
@@ -390,7 +390,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 	sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
 	trlmessage(MsgText);
 
-	/* GET REFRENCE DATE OF CTE MODEL PINNING */
+    /* GET REFERENCE DATE OF CTE MODEL PINNING */
     pars->cte_date1 = c_tbhgtd(tbl_ptr, "CTEDATE1");
     if (status = c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error reading CTEDATE1 from extension %d.", extn);
@@ -401,7 +401,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 	sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
 	trlmessage(MsgText);
 
-	/* READ MAX LENGTH OF CTE TRAIL */
+    /* READ MAX LENGTH OF CTE TRAIL */
     pars->cte_len = c_tbhgti(tbl_ptr, "PCTETLEN");
     if (status = c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error reading PCTETLEN from extension %d.", extn);
@@ -412,7 +412,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
 	trlmessage(MsgText);
 
-	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
+    /* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
     pars->n_forward = c_tbhgti(tbl_ptr, "PCTENFOR");
     if (status = c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error reading PCTENFOR from extension %d.", extn);
@@ -423,7 +423,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 	sprintf(MsgText,"PCTENFOR: %d",pars->n_forward);
 	trlmessage(MsgText);
 
-	/* GET NUMBER OF ITERATIONS USED IN TRANSFER*/
+    /* GET NUMBER OF ITERATIONS USED IN TRANSFER */
     pars->n_par = c_tbhgti(tbl_ptr, "PCTENPAR");
     if (status = c_iraferr()) {
         sprintf(MsgText,"(pctecorr) Error reading PCTENPAR from extension %d.", extn);
