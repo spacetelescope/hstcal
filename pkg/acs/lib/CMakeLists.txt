@@ -33,7 +33,7 @@ add_library(${PROJECT_NAME} SHARED
 	acscte/acscte.c
 	acscte/docte.c
 	acscte/domaincte.c
-	acscte/dopcte-gen2.c
+	acscte/dopcte-gen3.c
 	acscte/dopcte.c
 	acscte/getcteflag.c
 	acscte/getctesw.c
