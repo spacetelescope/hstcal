@@ -54,6 +54,7 @@ install(TARGETS ${PROJECT_NAME}
 # Handle acscteforwardmodel.e link creation
 add_custom_target(${PROJECT_NAME}forwardmodel ALL
 	COMMAND ${CMAKE_COMMAND} -E create_hardlink ${PROJECT_NAME}.e ${PROJECT_NAME}forwardmodel.e
+	DEPENDS ${PROJECT_NAME}
 )
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}forwardmodel.e
 	PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
