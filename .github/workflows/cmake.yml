@@ -32,7 +32,7 @@ jobs:
       if: startsWith(matrix.os, 'macos')
       run: |
         brew update
-        brew install gcc@${{ matrix.gcc }} cfitsio@4.3.1
+        brew install gcc@${{ matrix.gcc }} cfitsio@4.3
 
     - name: Linux build
       if: startsWith(matrix.os, 'ubuntu')
