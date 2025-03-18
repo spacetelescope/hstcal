@@ -45,7 +45,7 @@ to be able to find calibration reference files. For more information, see the
 
 ### ACS
 
-`jref` must point to a path containing ACS reference files. For example::
+`jref` must point to a path containing ACS reference files. For example:
 
 ```bash
 export jref="/grp/crds/cache/references/hst/"
@@ -55,7 +55,7 @@ For more information, please see the [ACS Data Handbook](https://hst-docs.stsci.
 
 ### WFC3
 
-`iref` must point to a path containing WFC3 reference files. For example::
+`iref` must point to a path containing WFC3 reference files. For example:
 
 ```bash
 export iref="/grp/crds/cache/references/hst/"
@@ -65,7 +65,7 @@ For more information, please see the [WFC3 Data Handbook](https://hst-docs.stsci
 
 ### STIS
 
-`oref` must point to a path containing STIS reference files. For example::
+`oref` must point to a path containing STIS reference files. For example:
 
 ```bash
 export oref="/grp/crds/cache/references/hst/"
@@ -76,6 +76,7 @@ For more information, please see the [STIS Data Handbook](https://hst-docs.stsci
 ## Dev notes
 
 [![CMake](https://github.com/spacetelescope/hstcal/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/spacetelescope/hstcal/actions/workflows/cmake.yml)
+[![HST Calibration Pipeline](https://github.com/spacetelescope/RegressionTests/actions/workflows/hstcal.yml/badge.svg?branch=main)](https://github.com/spacetelescope/RegressionTests/actions/workflows/hstcal.yml)
 
 Nightly regression test results are available from
 [RegressionTests hstcal workflow](https://github.com/spacetelescope/RegressionTests/actions/workflows/hstcal.yml).
