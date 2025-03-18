@@ -26,13 +26,13 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu')
       run: |
         sudo apt update
-        sudo apt install -y libcfitsio-dev gfortran pkg-config
+        sudo apt install -y libcfitsio=4.3.1 gfortran pkg-config
 
     - name: MacOS dependencies
       if: startsWith(matrix.os, 'macos')
       run: |
         brew update
-        brew install gcc@${{ matrix.gcc }} cfitsio
+        brew install gcc@${{ matrix.gcc }} cfitsio@4.3.1
 
     - name: Linux build
       if: startsWith(matrix.os, 'ubuntu')
