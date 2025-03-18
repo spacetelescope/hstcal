@@ -1,17 +1,15 @@
 # HSTCAL
 
-
 Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
-
-Nightly regression test results are available only from within the STScI network at this time.
-https://plwishmaster.stsci.edu:8081/job/RT/job/hstcal/test_results_analyzer/
 
 ## Install using Conda (Complete Calibration Environment)
 
+[![release](https://img.shields.io/github/v/release/spacetelescope/stenv)](https://github.com/spacetelescope/stenv/releases)
+
 HSTCAL can be obtained as part of the
-**Space Telescope Environment (stenv)** at <https://stenv.readthedocs.io/en/latest/>, 
-a conda environment.  The instructions found at this URL describe choosing Miniconda 
-or Anaconda (if not already installed), choosing the ``stenv`` release, building the ``stenv``
+[Space Telescope Environment (stenv)](https://stenv.readthedocs.io/en/latest/), 
+a conda environment.  The instructions found at this URL describe 
+choosing the ``stenv`` release, building the ``stenv``
 environment from the YAML file, and activating your new environment. Once your environment
 is activated, you can invoke any of the HSTCAL executables.
 
@@ -24,9 +22,11 @@ $ cs[...].e
 
 ## Install using Conda (HSTCAL only)
 
-The HSTCAL package is resident on conda-forge
-<https://anaconda.org/conda-forge/hstcal>, and you can use the following
-command to perform the installation.
+![Anaconda ver badge](https://anaconda.org/conda-forge/hstcal/badges/version.svg)
+![Anaconda platform badge](https://anaconda.org/conda-forge/hstcal/badges/platforms.svg)
+
+The [HSTCAL package is resident on conda-forge](https://anaconda.org/conda-forge/hstcal)
+and you can use the following command to perform the installation:
 
 ```bash
 $ conda install -c conda-forge hstcal==X.Y.Z
@@ -35,22 +35,56 @@ The `X.Y.Z` is the desired version number.
 
 ## Source Installation
 
-**Note:
-This involves compilation of C code which requires that a C compiler and all dependent libraries be
-installed on your system prior to installing this package; specifically,**
-  - cfitsio >=3.430 (https://heasarc.gsfc.nasa.gov/fitsio/fitsio.html)
-  - gcc >=4.4.7 (https://gcc.gnu.org)
-  - openmp (http://www.openmp.org/)
-  - pkg-config (https://www.freedesktop.org/wiki/Software/pkg-config)
-  - python >=2.7 (https://www.python.org)
-  - GCC may be supplemented by Clang under the following conditions:
-    * Clang must be compiled with OpenMP support
-    * A Fortran compiler must be available in $PATH
+See [detailed installation instructions](INSTALL.md).
 
-Instructions:
+## Environment Variables
 
-1. Clone the package from github onto your local system using:
+The following environment variables must be defined for the respective `cal[...].e` pipelines
+to be able to find calibration reference files. For more information, see the
+[CRDS user guide](https://hst-crds.stsci.edu/static/users_guide/index.html).
 
-  `git clone https://github.com/spacetelescope/hstcal.git`
+### ACS
 
-2. Compile the code using the instructions provided in `INSTALL.md`.
+`jref` must point to a path containing ACS reference files. For example:
+
+```bash
+export jref="/grp/crds/cache/references/hst/"
+```
+
+For more information, please see the [ACS Data Handbook](https://hst-docs.stsci.edu/acsdhb). 
+
+### WFC3
+
+`iref` must point to a path containing WFC3 reference files. For example:
+
+```bash
+export iref="/grp/crds/cache/references/hst/"
+```
+
+For more information, please see the [WFC3 Data Handbook](https://hst-docs.stsci.edu/wfc3dhb).
+
+### STIS
+
+`oref` must point to a path containing STIS reference files. For example:
+
+```bash
+export oref="/grp/crds/cache/references/hst/"
+```
+
+For more information, please see the [STIS Data Handbook](https://hst-docs.stsci.edu/stisdhb). 
+
+## Dev notes
+
+[![CMake](https://github.com/spacetelescope/hstcal/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/spacetelescope/hstcal/actions/workflows/cmake.yml)
+[![HST Calibration Pipeline](https://github.com/spacetelescope/RegressionTests/actions/workflows/hstcal.yml/badge.svg?branch=main)](https://github.com/spacetelescope/RegressionTests/actions/workflows/hstcal.yml)
+
+Nightly regression test results are available from
+[RegressionTests hstcal workflow](https://github.com/spacetelescope/RegressionTests/actions/workflows/hstcal.yml).
+
+HSTCAL conda-forge recipe is hosted at [hstcal-feedstock](https://github.com/conda-forge/hstcal-feedstock/).
+
+DMS deliveries are managed by [stasis](https://github.com/spacetelescope/stasis).
+
+## Help Desk
+
+If you need further assistance, please contact [HST Help Desk](https://hsthelp.stsci.edu).
