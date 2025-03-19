@@ -18,8 +18,9 @@ env:
 jobs:
   build_matrix:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-12, macos-14]
+        os: [ubuntu-latest, macos-13, macos-14]
         gcc: [12]
     runs-on: ${{ matrix.os }}
     steps:
