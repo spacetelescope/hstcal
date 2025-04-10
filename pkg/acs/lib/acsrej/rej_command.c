@@ -108,6 +108,7 @@ int newpar[];       o: array of parameters set by the user
         } else {
             /* These do not require additional arguments. */
             if (strcmp("h", argv[ctoken] + 1) == 0 || strcmp("help", argv[ctoken] + 1) == 0 || strcmp("-help", argv[ctoken] + 1) == 0) {
+                // forced acceptance: -help and --help
                 usage(argv[0]);
                 exit(0);
             }
