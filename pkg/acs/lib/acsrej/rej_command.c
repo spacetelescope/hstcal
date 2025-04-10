@@ -115,10 +115,8 @@ int newpar[];       o: array of parameters set by the user
 
             if (strcmp("t", argv[ctoken] + 1) == 0) {
                 par->printtime = 1;
-                ctoken++;
             } else if (strcmp("v", argv[ctoken] + 1) == 0) {
                 par->verbose = 1;
-                ctoken++;
             } else if (strcmp("version", argv[ctoken] + 1) == 0 || strcmp("-version", argv[ctoken] + 1) == 0) {
                 // forced acceptance: -version and --version
                 puts(ACS_CAL_VER);
@@ -129,7 +127,6 @@ int newpar[];       o: array of parameters set by the user
                 exit(0);
             } else if (strcmp("shadcorr", argv[ctoken] + 1) == 0) {
                 par->shadcorr = 1;
-                ctoken++;
 
                 // This option/variable was previously named "newbias", and it has been renamed
                 // to "readnoise_only" which is more informative.  The variable controls
@@ -147,17 +144,15 @@ int newpar[];       o: array of parameters set by the user
 
             } else if (strcmp("readnoise_only", argv[ctoken] + 1) == 0) {
                 par->readnoise_only = 1;
-                ctoken++;
 
             } else if (strcmp("crmask", argv[ctoken] + 1) == 0) {
                 par->mask = 1;
                 newpar[CRMASK] = 1;
                 newpar[TOTAL]++;
-                ctoken++;
 
-                /* These require one additional argument, which is
-                   handled by the getArg functions.
-                */
+            /* These require one additional argument, which is
+               handled by the getArg functions.
+            */
 
             } else if (strcmp("table", argv[ctoken] + 1) == 0) {
                 if (getArgT(argv, argc, &ctoken, par->tbname))
