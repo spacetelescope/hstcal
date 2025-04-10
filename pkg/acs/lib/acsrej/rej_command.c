@@ -82,7 +82,7 @@ int newpar[];       o: array of parameters set by the user
     */
     if (argc < 2) {
         fprintf(stderr, "Not enough arguments\n");
-	    usage(argv[0]);
+        usage(argv[0]);
         return(status = INVALID_VALUE);
     }
 
