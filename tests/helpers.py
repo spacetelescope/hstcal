@@ -1,7 +1,7 @@
 """HSTCAL regression test helpers."""
 
 import os
-from distutils.spawn import find_executable
+import shutil
 from functools import partial
 
 import pytest
@@ -39,7 +39,7 @@ def set_exe_marker(instrument):
     else:  # pragma: no cover
         raise ValueError('{} is not supported'.format(instrument))
 
-    cal = find_executable(calxxx)
+    cal = shutil.which(calxxx)
 
     # This is for installation check.
     if os.path.isfile(cal):
