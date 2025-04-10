@@ -219,7 +219,7 @@ int newpar[];       o: array of parameters set by the user
             return (status = INVALID_VALUE);
         }
     } else {
-        fprintf(stderr, "Too many positional arguments (expected %d, but received %d)\n", posargs_max, posargs_count + 1);
+        fprintf(stderr, "Too many positional arguments (expected %d, but received %d)\n", posargs_max, posargs_count);
         usage(argv[0]);
         return (status = INVALID_VALUE);
     }
