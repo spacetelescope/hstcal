@@ -13,6 +13,7 @@
 
 void rej_reset (clpar *, int []);
 static void usage(char *);
+static int is_valid_filename(char *);
 static int syntax_error (char *);
 static int getArgS (char **, int, int *, short *);
 static int getArgR (char **, int, int *, float *);
@@ -159,7 +160,10 @@ int newpar[];       o: array of parameters set by the user
             } else if (strcmp("table", argv[ctoken] + 1) == 0) {
                 if (getArgT(argv, argc, &ctoken, par->tbname))
                     return (status = INVALID_VALUE);
-
+                if (!is_valid_filename(par->tbname)) {
+                    fprintf(stderr, "-table requires a valid file name: '%s'\n", par->tbname);
+                    return (status = INVALID_FILENAME);
+                }
             } else if (strcmp("scale", argv[ctoken] + 1) == 0) {
                 newpar[TOTAL]++;
                 newpar[SCALENSE] = 1;
@@ -227,10 +231,46 @@ int newpar[];       o: array of parameters set by the user
     }
 
     *input = posargs[0];
+    if (!is_valid_filename(*input)) {
+        fprintf(stderr, "Invalid input file name: '%s'\n", *input);
+        return (status = INVALID_FILENAME);
+    }
+
     strcpy(output, posargs[1]);
+    if (!is_valid_filename(output)) {
+        fprintf(stderr, "Invalid output file name: '%s'\n", output);
+        return (status = INVALID_FILENAME);
+    }
 
 
     return (0);
+}
+
+static int is_valid_filename(char *token) {
+    char *token_p = token;
+    if (!strlen(token_p)) {
+        // empty string
+        return 0;
+    }
+
+    // Check for invalid name
+    int blanks = 0;
+    int alnums = 0;
+    while (*token_p != '\0') {
+        if (isblank(*token_p)) {
+            blanks++;
+        } else if (isalnum(*token_p)) {
+            alnums++;
+        }
+        token_p++;
+    }
+
+    if (blanks && !alnums) {
+        // string consists of blank characters
+        return 0;
+    }
+
+    return 1;
 }
 
 static int is_option(char *token) {
