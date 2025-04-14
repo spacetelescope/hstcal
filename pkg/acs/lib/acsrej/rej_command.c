@@ -366,6 +366,7 @@ int newpar[];     o: array of parameters set by the user
     par->printtime = 0;
     par->shadcorr = 0;
     par->readnoise_only = 0;
+    par->badinpdq = 0;
 
     newpar[TOTAL] = 0;
     newpar[SCALENSE] = 0;
