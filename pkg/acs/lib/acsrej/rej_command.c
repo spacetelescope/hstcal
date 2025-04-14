@@ -359,6 +359,9 @@ int newpar[];     o: array of parameters set by the user
     /* First, set parameters specifiable in the command line to be
         non-existent. */
     par->tbname[0] = '\0';
+    par->initgues[0] = '\0';
+    par->sigmas[0] = '\0';
+    par->sky[0] = '\0';
     par->verbose = 0;
     par->printtime = 0;
     par->shadcorr = 0;
