@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>        /* atoi, atof, strtod, strtol */
 # include <string.h>
+# include <ctype.h>
 
 # include "xtables.h"
 
@@ -231,6 +232,29 @@ int newpar[];       o: array of parameters set by the user
     return (0);
 }
 
+static int is_option(char *token) {
+    if (token && (!strncmp(token, "-", 1) || !strncmp(token, "--", 2))) {
+        char *token_p = strlen(token) ? token + 1 : token;
+        int digits = 0;
+        while (*token_p != '\0' && isdigit(*token_p)) {
+            digits++;
+            token_p++;
+        }
+        if (digits) {
+            // Negative numbers are not program options
+            return 1;
+        }
+        return 0;
+    }
+    return 1;
+}
+
+static char *next_argument(int argc, char **argv, int ctoken) {
+    if (argc - ctoken > 0 && argv[ctoken + 1] && is_option(argv[ctoken + 1])) {
+        return argv[ctoken + 1];
+    }
+    return NULL;
+}
 
 /* ------------------------------------------------------------------*/
 /*                          getArgS                                  */
