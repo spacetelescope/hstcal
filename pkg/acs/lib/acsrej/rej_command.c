@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>        /* atoi, atof, strtod, strtol */
 # include <string.h>
+# include <errno.h>
 # include <ctype.h>
 
 # include "xtables.h"
@@ -266,12 +267,22 @@ static char *next_argument(int argc, char **argv, int ctoken) {
 static int getArgS (char **argv, int argc, int *ctoken, short *value) {
     extern int status;
 
-    if (*ctoken <= (argc-2)) {
-        *value = (short) strtol(argv[++(*ctoken)], (char **)NULL, 10);
-        (*ctoken)++;
-        return (status = ACS_OK);
-    } else
-        return (syntax_error (argv[*ctoken]));
+    char *arg = NULL;
+    if ((arg = next_argument(argc, argv, *ctoken)) == NULL) {
+        return syntax_error(argv[(*ctoken)]);
+    }
+
+    char *end = NULL;
+    errno = 0;
+    *value = (short) strtol(arg, &end, 10);
+    if (((errno == EINVAL && *value == 0) || (end == arg && *value == 0)) || errno == ERANGE) {
+        char msg[255] = {0};
+        snprintf(msg, sizeof(msg) - 1, "%s requires a valid integer argument, got '%s'", argv[(*ctoken)], arg);
+        return syntax_error(msg);
+    }
+
+    (*ctoken)++;
+    return (status = ACS_OK);
 }
 
 /* ------------------------------------------------------------------*/
