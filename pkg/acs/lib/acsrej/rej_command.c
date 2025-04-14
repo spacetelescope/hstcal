@@ -295,12 +295,16 @@ static int getArgS (char **argv, int argc, int *ctoken, short *value) {
 static int getArgT (char **argv, int argc, int *ctoken, char *value) {
     extern int status;
 
-    if (*ctoken <= (argc-2)) {
-        strcpy (value, argv[++(*ctoken)]);
-        (*ctoken)++;
-        return (status = ACS_OK);
-    } else
-        return (syntax_error (argv[*ctoken]));
+    char *arg = NULL;
+    if ((arg = next_argument(argc, argv, *ctoken)) == NULL) {
+        char msg[255] = {0};
+        snprintf(msg, sizeof(msg) - 1, "%s requires a valid string argument, got '%s'", argv[(*ctoken)], arg);
+        return syntax_error(msg);
+    }
+
+    strcpy(value, arg);
+    (*ctoken)++;
+    return (status = ACS_OK);
 }
 
 /* ------------------------------------------------------------------*/
