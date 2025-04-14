@@ -317,12 +317,18 @@ static int getArgT (char **argv, int argc, int *ctoken, char *value) {
 static int getArgR (char **argv, int argc, int *ctoken, float *value) {
     extern int status;
 
-    if (*ctoken <= (argc-2)) {
-        *value = strtod (argv[++(*ctoken)], (char **)NULL);
-        (*ctoken)++;
-        return (status = ACS_OK);
-    } else
-        return (syntax_error (argv[*ctoken]));
+    char *arg = argv[(*ctoken) + 1];
+    char *end = NULL;
+    errno = 0;
+    *value = (float) strtod (arg, &end); // why not strtof()?
+    if ((end == arg && *value == 0.0f) || errno == ERANGE) {
+        char msg[255] = {0};
+        snprintf(msg, sizeof(msg) - 1, "%s requires a valid integer argument, got '%s'", argv[(*ctoken)], arg);
+        return syntax_error(msg);
+    }
+
+    (*ctoken)++;
+    return (status = ACS_OK);
 }
 
 /* ------------------------------------------------------------------*/
