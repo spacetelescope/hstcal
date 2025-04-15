@@ -22,10 +22,11 @@ struct TrlBuf trlbuf = { 0 };
 
 int main (int argc, char **argv) {
 
-    char    *input, output[CHAR_LINE_LENGTH];    /* file names */
-    clpar   par;                                    /* parameters used */
-    int     newpar[MAX_PAR+1];          /* user specifiable parameters */
-    char    mtype[SZ_STRKWVAL+1];      /* Role of exposure in association */
+    char    *input;                         /* Input file name */
+    char    output[CHAR_LINE_LENGTH] = {0}; /* Output file name */
+    clpar   par;                            /* parameters used */
+    int     newpar[MAX_PAR+1];              /* user specifiable parameters */
+    char    mtype[SZ_STRKWVAL+1];           /* Role of exposure in association */
 
     int rej_command (int, char **, char **, char *, clpar *, int []);
     int AcsRej (char *, char *, char *, clpar *, int []);
