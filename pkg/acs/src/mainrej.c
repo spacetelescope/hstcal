@@ -42,6 +42,13 @@ int main (int argc, char **argv) {
     /* Allocate later */
     input = NULL;
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
+
+    /* Initialize the structure for managing trailer file comments */
+    InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
+
     /* Get input and output file names and switches in the command line. */
     if (rej_command (argc, argv, &input, output, &par, newpar)) {
         if (input)
@@ -49,12 +56,7 @@ int main (int argc, char **argv) {
         exit (ERROR_RETURN);
     }
 
-    PtrRegister ptrReg;
-    initPtrRegister(&ptrReg);
     addPtr(&ptrReg, input, &free);
-    /* Initialize the structure for managing trailer file comments */
-    InitTrlBuf ();
-    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
 
     /* Reject cosmic rays. */
