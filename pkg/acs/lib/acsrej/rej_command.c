@@ -1,11 +1,13 @@
 # include <stdio.h>
-# include <stdlib.h>        /* atoi, atof, strtod, strtol */
+# include <stdlib.h>        /* strtof, strtol */
 # include <string.h>
-
-# include "xtables.h"
+# include <errno.h>
+# include <ctype.h>
+# include <argp.h>
 
 # include "acs.h"
 # include "acsrej.h"
+# include "acsversion.h"
 # include "hstcalerr.h"
 
 void rej_reset (clpar *, int []);
