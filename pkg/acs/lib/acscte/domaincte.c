@@ -173,7 +173,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             printf("%s\n", ACS_CAL_VER);
             exit(0);
         case OPT_GITINFO:
-            trlGitInfo();
+            printGitInfo();
             exit(0);
         case OPT_CTEGEN:
             *arguments->cteAlgorithmGen = strtol(arg, NULL, 10);
