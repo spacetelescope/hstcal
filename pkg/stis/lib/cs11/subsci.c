@@ -153,7 +153,7 @@ StisInfo11 *scidata  i: info for science data
 	    printf ("         %s[EXTVER=%d] was subtracted.\n",
 			scidata->input, extverSci);
 
-	    snprintf (history, sizeof(history) - 1 - strlen(scidata->input), "%s[EXTVER=%d] was subtracted\n",
+	    snprintf (history, sizeof(history), "%s[EXTVER=%d] was subtracted\n",
 			scidata->input, extverSci);
 	    addHistoryKw (&wav.sci.hdr, history);
 	    if (hstio_err())
