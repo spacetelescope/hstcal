@@ -9,6 +9,7 @@
 # include "acsrej.h"
 # include "acsversion.h"
 # include "hstcalerr.h"
+# include "hstcalversion.h"
 
 void rej_reset (clpar *, int []);
 static int is_valid_filename(char *token);
@@ -75,7 +76,8 @@ static struct argp_option options[] = {
     {
         .name = "verbose",
         .key = 'v',
-        .arg = 0, .flags = 0,
+        .arg = 0,
+        .flags = 0,
         .doc = "turn on verbose mode",
         .group = OPT_GROUP_TOGGLE
     },
@@ -204,7 +206,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             printf("%s\n", ACS_CAL_VER);
             exit(0);
         case OPT_GITINFO:
-            trlGitInfo();
+            printGitInfo();
             exit(0);
         case OPT_SHADCORR:
             arguments->par->shadcorr = 1;
@@ -226,39 +228,34 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
             return (status = INVALID_VALUE);
         case OPT_TABLE:
             if (!is_valid_filename(arg)) {
-                argp_failure(state, INVALID_FILENAME, errno, "'%s' is not a valid file name\n", arg);
+                status = INVALID_FILENAME;
+                argp_failure(state, status, errno, "'%s' is not a valid file name\n", arg);
             }
-            //strncpy(arguments->par->tbname, arg, sizeof(arguments->par->tbname) - 1);
             getArgT(state, arg, arguments->par->tbname);
             break;
         case OPT_SCALE:
             arguments->newpar[TOTAL]++;
             arguments->newpar[SCALENSE] = 1;
-            //arguments->par->scalense = (short) strtof(arg, NULL);
             getArgR(state, arg, &arguments->par->scalense);
             break;
         case OPT_INIT:
             arguments->newpar[TOTAL]++;
             arguments->newpar[INITGUES] = 1;
-            //strncpy(arguments->par->initgues, arg, sizeof(arguments->par->initgues) - 1);
             getArgT(state, arg, arguments->par->initgues);
             break;
         case OPT_SKY:
             arguments->newpar[TOTAL]++;
             arguments->newpar[INITGUES] = 1;
-            //strncpy(arguments->par->sky, arg, sizeof(arguments->par->sky) - 1);
             getArgT(state, arg, arguments->par->sky);
             break;
         case OPT_SIGMAS:
             arguments->newpar[TOTAL]++;
             arguments->newpar[CRSIGMAS] = 1;
-            //strncpy(arguments->par->sigmas, arg, sizeof(arguments->par->sigmas) - 1);
             getArgT(state, arg, arguments->par->sigmas);
             break;
         case OPT_RADIUS:
             arguments->newpar[TOTAL]++;
             arguments->newpar[CRRADIUS] = 1;
-            //arguments->par->radius = strtof(arg, NULL);
             getArgR(state, arg, &arguments->par->radius);
             break;
         case OPT_THRESH:
@@ -270,7 +267,6 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
         case OPT_PDQ:
             arguments->newpar[TOTAL]++;
             arguments->newpar[BADINPDQ] = 1;
-            //arguments->par->badinpdq = (short) strtol(arg, NULL, 10);
             getArgS(state, arg, &arguments->par->badinpdq);
             break;
         case ARGP_KEY_ARG:
@@ -278,7 +274,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
                 argp_usage(state);
             }
             if (!is_valid_filename(arg)) {
-                argp_failure(state, INVALID_FILENAME, errno, "'%s' is not a valid file name\n", arg);
+                status = INVALID_FILENAME;
+                argp_failure(state, status, errno, "'%s' is not a valid file name\n", arg);
             }
             arguments->args[state->arg_num] = arg;
             break;
@@ -308,13 +305,12 @@ int rej_command (int argc, char **argv, char **input, char *output, clpar *par, 
     /* reset the parameters */
     rej_reset (par, newpar);
 
-    struct argp argp = {options, parse_opt, args_doc, doc};
+    struct argp argp = {options, parse_opt, args_doc, doc, 0, 0, 0};
     struct arguments arguments = {
         .par = par,
         .newpar = newpar,
     };
 
-    //argp_parse(&argp, argc, argv, ARGP_IN_ORDER, 0, &arguments);
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
     *input = strdup(arguments.args[0]);
     if (!*input) {
@@ -371,7 +367,8 @@ static int getArgS (const struct argp_state *state, char *arg, short *value) {
 
     *value = (short) strtol(arg, &end, 10);
     if (((errno == EINVAL && *value == 0) || (end == arg && *value == 0)) || errno == ERANGE) {
-        argp_failure(state, INVALID_VALUE, errno, "a valid integer is required: '%s'", arg);
+        status = INVALID_VALUE;
+        argp_failure(state, status, errno, "a valid integer is required: '%s'", arg);
     }
     return (status = ACS_OK);
 }
@@ -385,7 +382,8 @@ static int getArgS (const struct argp_state *state, char *arg, short *value) {
 static int getArgT (const struct argp_state *state, char *arg, char *value) {
 
     if (!arg) {
-        argp_failure(state, INVALID_VALUE, errno, "missing string argument");
+        status = INVALID_VALUE;
+        argp_failure(state, status, errno, "missing string argument");
     }
     strcpy(value, arg);
     return (status = ACS_OK);
@@ -403,7 +401,8 @@ static int getArgR (const struct argp_state *state, char *arg, float *value) {
     errno = 0;
     *value = strtof(arg, &end);
     if ((end == arg && *value == 0.0f) || errno == ERANGE) {
-        argp_failure(state, INVALID_VALUE, errno, "requires a valid integer argument, got '%s'", arg);
+        status = INVALID_VALUE;
+        argp_failure(state, status, errno, "requires a valid integer argument, got '%s'", arg);
     }
     return (status = ACS_OK);
 }
