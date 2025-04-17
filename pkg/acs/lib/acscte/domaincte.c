@@ -28,6 +28,119 @@ extern int status;			/* zero is OK */
 #  include <omp.h>
 # endif
 
+#include <argp.h>
+
+#define OPT_GITINFO 1000
+#define OPT_VERSION 1001
+
+#define OPT_CTEGEN 2000
+#define OPT_SINGLE_THREAD 2001
+#define OPT_NTHREADS 2002
+#define OPT_FORWARD_MODEL_ONLY 2003
+#define OPT_PCETAB 2004
+
+#define OPT_GROUP_INFO 0
+#define OPT_GROUP_TOGGLE 0
+#define OPT_GROUP_INPUT 0
+
+static char doc[] = "ACS CTE";
+static char args_doc[] = "INPUT OUTPUT";
+static struct argp_option options[] = {
+    {
+        .name = "version",
+        .key = OPT_VERSION,
+        .arg = 0,
+        .flags = 0,
+        .doc = "Print version",
+        .group = OPT_GROUP_INFO
+    },
+    {
+        .name = "gitinfo",
+        .key = OPT_GITINFO,
+        .arg = 0,
+        .flags = 0,
+        .doc = "Print git version information",
+        .group = OPT_GROUP_INFO
+    },
+    {
+        .name = "verbose",
+        .key = 'v',
+        .arg = 0,
+        .flags = 0,
+        .doc = "Turn on verbose mode",
+        .group = OPT_GROUP_TOGGLE
+    },
+    {
+        .name = "quiet",
+        .key = 'q',
+        .arg = 0,
+        .flags = 0,
+        .doc = "Turn on quiet mode",
+        .group = OPT_GROUP_TOGGLE
+    },
+    {
+        .name = "print-timestamps",
+        .key = 't',
+        .arg = 0,
+        .flags = 0,
+        .doc = "Print timestamps",
+        .group = OPT_GROUP_TOGGLE
+    },
+    {
+        .name = "ctegen",
+        .key = OPT_CTEGEN,
+        .arg = "NUM",
+        .flags = 0,
+        .doc = "Use ctegen algorithm (default: 1)",
+        .group = OPT_GROUP_INPUT
+    },
+    {
+        .name = "single",
+        .key = '1',
+        .arg = 0,
+        .flags = 0,
+        .doc = "Use single-threaded mode (no OpenMP)",
+        .group = OPT_GROUP_TOGGLE
+    },
+    {
+        .name = "nthreads",
+        .key = OPT_NTHREADS,
+        .arg = "NUM",
+        .flags = 0,
+        .doc = "Use multi-threaded mode (OpenMP)",
+        .group = OPT_GROUP_INPUT
+    },
+    {
+        .name = "forwardModelOnly",
+        .key = OPT_FORWARD_MODEL_ONLY,
+        .arg = 0,
+        .flags = 0,
+        .doc = "Use CTE forward model",
+        .group = OPT_GROUP_TOGGLE
+    },
+    {
+        .name = "pcetab",
+        .key = OPT_PCETAB,
+        .arg = "FILE",
+        .flags = 0,
+        .doc = "Path to PCETAB file",
+        .group = OPT_GROUP_INPUT
+    },
+    {.name = 0, .key = 0, .arg = 0, .flags = 0, .doc = 0, .group = 0} // END OF ARGUMENTS
+};
+
+struct arguments {
+    char *args[2]; /* for input and output files */
+    int *printtime;	/* print time after each step? */
+    int *verbose;	/* print additional info? */
+    int *onecpu; /* Use OpenMP (multi vs single CPU mode), if available? */
+    int *quiet;	/* print additional info? */
+    unsigned *cteAlgorithmGen; // Use gen1cte algorithm rather than gen2 (default)
+    unsigned *nThreads; // number of threads to use
+    bool *forwardModelOnly;
+    char *pcteTabNameFromCmd;
+};
+
 static char *program;
 struct TrlBuf trlbuf = { 0 };
 
@@ -44,13 +157,67 @@ char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 int doMainCTE (int argc, char **argv);
 
-static void printSyntax()
-{
-    printf ("syntax:  %s [--help] [-t] [-v] [-q] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] [--forwardModelOnly] input [output]\n", program);
-}
-static void printHelp(void)
-{
-    printSyntax();
+static error_t parse_opt(int key, char *arg, struct argp_state *state) {
+    struct arguments *arguments = state->input;
+    switch (key) {
+        case 'v':
+            *arguments->verbose = YES;
+            break;
+        case 'q':
+            *arguments->quiet = YES;
+            break;
+        case 't':
+            *arguments->printtime = YES;
+            break;
+        case OPT_VERSION:
+            printf("%s\n", ACS_CAL_VER);
+            exit(0);
+        case OPT_GITINFO:
+            trlGitInfo();
+            exit(0);
+        case OPT_CTEGEN:
+            *arguments->cteAlgorithmGen = strtol(arg, NULL, 10);
+            if (*arguments->cteAlgorithmGen < 1 || *arguments->cteAlgorithmGen > 2) {
+                status = INVALID_VALUE;
+                argp_failure(state, status, errno, "--ctegen - value out of range. Please specify either generation 1 or 2.");
+            }
+            break;
+        case OPT_FORWARD_MODEL_ONLY:
+            fprintf(stderr, "WARNING: running CTE forward model only\n");
+            *arguments->forwardModelOnly = YES;
+            break;
+        case OPT_SINGLE_THREAD:
+            *arguments->onecpu = YES;
+            break;
+        case OPT_NTHREADS:
+            *arguments->nThreads = strtol(arg, NULL, 10);
+            if (*arguments->nThreads < 1) {
+                *arguments->nThreads = 1;
+            }
+#ifndef _OPENMP
+            fprintf(stderr, "WARNING: '--nthreads <N>' used but OPENMP not found!\n");
+            arguments->nThreads = 1;
+#endif
+            break;
+        case OPT_PCETAB:
+            strncpy(arguments->pcteTabNameFromCmd, arg, sizeof(arguments->pcteTabNameFromCmd) - 1);
+            break;
+        case ARGP_KEY_ARG:
+            if (state->arg_num >= 2) {
+                argp_failure(state, ERROR_RETURN, 0, "Too many arguments\n");
+            }
+            arguments->args[state->arg_num] = arg;
+            break;
+        case ARGP_KEY_END:
+            if (state->arg_num < 1) {
+                argp_failure(state, ERROR_RETURN, 0, "Not enough arguments\n");
+            }
+            break;
+        default:
+            return ARGP_ERR_UNKNOWN;
+    }
+
+    return 0;
 }
 
 int doMainCTE (int argc, char **argv) {
@@ -141,131 +308,35 @@ int doMainCTE (int argc, char **argv) {
     /* Initial values. */
     initSwitch (&ccd_sw);
 
+
+    struct argp argp = {options, parse_opt, args_doc, doc, 0, 0, 0};
+    struct arguments arguments = {
+        .verbose = &verbose,
+        .quiet = &quiet,
+        .printtime = &printtime,
+        .cteAlgorithmGen = &cteAlgorithmGen,
+        .onecpu = &onecpu,
+        .nThreads = &nThreads,
+        .pcteTabNameFromCmd = pcteTabNameFromCmd,
+    };
+
+
+    argp_parse(&argp, argc, argv, 0, 0, &arguments);
+    strcpy(inlist, arguments.args[0]);
+    if (arguments.args[1]) {
+        strcpy(outlist, arguments.args[1]);
+    }
+
     /* Obtain program basename */
     if ((program = strrchr(argv[0], '/')) != NULL) {
-
-        strcpy(program_buf, program + 1);
+        strcpy(program_buf, strlen(program) ? program + 1 : program);
         program = program_buf;
 
     } else {
-
         program = argv[0];
     }
 
-    if (!strcmp(program, "acscteforwardmodel.e")) {
-        forwardModelOnly = true;
-    }
-
-    for (i = 1;  i < argc;  i++) {
-
-        if (argv[i][0] == '-') {
-            if (!(strcmp(argv[i],"--version")))
-            {
-                printf("%s\n",ACS_CAL_VER);
-                freeOnExit(&ptrReg);
-                exit(0);
-            }
-            if (!(strcmp(argv[i],"--gitinfo")))
-            {
-                printGitInfo();
-                freeOnExit(&ptrReg);
-                exit(0);
-            }
-            if (!(strcmp(argv[i],"--help")))
-            {
-                printHelp();
-                freeOnExit(&ptrReg);
-                exit(0);
-            }
-            if (strncmp(argv[i], "--ctegen", 8) == 0)
-            {
-                if (i + 1 > argc - 1)
-                {
-                    printf("ERROR: --ctegen - CTE algorithm generation not specified.\n");
-                    freeOnExit(&ptrReg);
-                    exit(1);
-                }
-                ++i;
-                cteAlgorithmGen = (unsigned)atoi(argv[i]);
-                if (cteAlgorithmGen != 1 && cteAlgorithmGen != 2)
-                {
-                    printf("ERROR: --ctegen - value out of range. Please specify either generation 1 or 2.\n");
-                    freeOnExit(&ptrReg);
-                    exit(1);
-                }
-                continue;
-            }
-            else if (strncmp(argv[i], "--nthreads", 10) == 0)
-            {
-                if (i + 1 > argc - 1)
-                {
-                    printf("ERROR: --nthreads - number of threads not specified\n");
-                    freeOnExit(&ptrReg);
-                    exit(1);
-                }
-                ++i;
-                nThreads = (unsigned)atoi(argv[i]);
-                if (nThreads < 1)
-                    nThreads = 1;
-#ifndef _OPENMP
-                printf("WARNING: '--nthreads <N>' used but OPENMP not found!\n");
-                nThreads = 1;
-#endif
-                continue;
-            }
-            else if (strncmp(argv[i], "--pctetab", 9) == 0)
-            {
-                if (i + 1 > argc - 1)
-                {
-                    printf("ERROR: --pctetab - no file specified\n");
-                    freeOnExit(&ptrReg);
-                    exit(1);
-                }
-                ++i;
-                strcpy(pcteTabNameFromCmd, argv[i]);
-                continue;
-            }
-            else if (strncmp(argv[i], "--forwardModelOnly", 18) == 0)
-            {
-                printf("WARNING: running CTE forward model only\n");
-                forwardModelOnly = true;
-                continue;
-            }
-            else
-            {
-                if (argv[i][1] == '-')
-                {
-                    printf ("Unrecognized option %s\n", argv[i]);
-                    printSyntax();
-                    freeOnExit(&ptrReg);
-                    exit (ERROR_RETURN);
-                }
-                for (j = 1;  argv[i][j] != '\0';  j++) {
-                    if (argv[i][j] == 't') {
-                        printtime = YES;
-                    } else if (argv[i][j] == 'v') {
-                        verbose = YES;
-                    } else if (argv[i][j] == 'q') {
-                        quiet = YES;
-                    } else if (argv[i][j] == '1') {
-                        onecpu = YES;
-                    } else {
-                        printf ("Unrecognized option %s\n", argv[i]);
-                        printSyntax();
-                        break;
-                    }
-                }
-            }
-        } else if (inlist[0] == '\0') {
-            strcpy (inlist, argv[i]);
-        } else if (outlist[0] == '\0') {
-            strcpy (outlist, argv[i]);
-        } else {
-            too_many = 1;
-        }
-    }
-    if (inlist[0] == '\0' || too_many) {
-        printSyntax();
+    if (inlist[0] == '\0') {
         freeOnExit(&ptrReg);
         exit (ERROR_RETURN);
     }
@@ -301,7 +372,7 @@ int doMainCTE (int argc, char **argv) {
 #endif
     if (onecpu)
     {
-        if (nThreads )
+        if (nThreads)
             trlwarn("WARNING: option '-1' takes precedence when used in conjunction with '--nthreads <N>'");
         nThreads = 1;
     }
