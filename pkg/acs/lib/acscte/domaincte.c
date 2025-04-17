@@ -357,13 +357,13 @@ int doMainCTE (int argc, char **argv) {
 
     if (cteAlgorithmGen)
     {
-        sprintf(MsgText, "(pctecorr) Using generation %d CTE algorithm", cteAlgorithmGen);
+        snprintf(MsgText, sizeof(MsgText) - 1, "(pctecorr) Using generation %d CTE algorithm", cteAlgorithmGen);
         trlmessage(MsgText);
     }
 
     if (*pcteTabNameFromCmd != '\0')
     {
-        sprintf (MsgText, "(pctecorr) Using cmd line specified PCTETAB file: '%s'", pcteTabNameFromCmd);
+        snprintf (MsgText, sizeof(MsgText) - 1, "(pctecorr) Using cmd line specified PCTETAB file: '%s'", pcteTabNameFromCmd);
         trlmessage(MsgText);
     }
 
@@ -389,11 +389,11 @@ int doMainCTE (int argc, char **argv) {
     omp_set_dynamic(0);
     if (nThreads > ompMaxThreads)
     {
-        sprintf(MsgText, "System env limiting nThreads from %d to %d", nThreads, ompMaxThreads);
+        snprintf(MsgText, sizeof(MsgText) - 1, "System env limiting nThreads from %d to %d", nThreads, ompMaxThreads);
         nThreads = ompMaxThreads;
     }
     else
-        sprintf(MsgText,"Setting max threads to %d out of %d available", nThreads, ompMaxThreads);
+        snprintf(MsgText, sizeof(MsgText) - 1, "Setting max threads to %d out of %d available", nThreads, ompMaxThreads);
 
     omp_set_num_threads(nThreads);
     trlmessage(MsgText);
@@ -434,7 +434,7 @@ int doMainCTE (int argc, char **argv) {
         /* Open input image in order to read its primary header. */
         if (LoadHdr (input, &phdr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
+            snprintf(MsgText, sizeof(MsgText) - 1, "Skipping %s", input);
             trlmessage (MsgText);
             continue;
         }
@@ -442,7 +442,7 @@ int doMainCTE (int argc, char **argv) {
         /* Determine osuffix. */
         if (GetSwitch (&phdr, "PCTECORR", &pctecorr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
+            snprintf(MsgText, sizeof(MsgText) - 1, "Skipping %s", input);
             trlmessage (MsgText);
             continue;
         }
@@ -455,22 +455,23 @@ int doMainCTE (int argc, char **argv) {
         }
         else {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s because PCTECORR is not set to PERFORM", input);
+            snprintf(MsgText, sizeof(MsgText) - 1, "Skipping %s because PCTECORR is not set to PERFORM", input);
             trlmessage (MsgText);
             continue;
         }
 
         if (MkName (input, isuffix, osuffix, "", output, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
+            snprintf(MsgText, sizeof(MsgText) - 1, "Skipping %s", input);
             trlmessage (MsgText);
             continue;
         }
 
         /* Calibrate the current input file. */
         if ((status = ACScte (input, output, &ccd_sw, &refnames, printtime, verbose,
-                    nThreads, cteAlgorithmGen, pcteTabNameFromCmd, forwardModelOnly))) {
-            sprintf (MsgText, "Error processing %s.", input);
+                              (int) nThreads, cteAlgorithmGen, pcteTabNameFromCmd,
+                              forwardModelOnly))) {
+            snprintf(MsgText, sizeof(MsgText) - 1, "Error processing %s.", input);
             trlerror (MsgText);
             WhichError (status);
         }
