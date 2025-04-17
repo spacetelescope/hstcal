@@ -440,7 +440,7 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
     /* start the rejection iteration */
     for (iter = 0; iter < niter; iter++) {
         if (par->verbose) {
-            sprintf (MsgText, "iteration %d", iter + 1);
+            snprintf(MsgText, sizeof(MsgText), "iteration %d", iter + 1);
             trlmessage (MsgText);
         }
 
@@ -1196,7 +1196,7 @@ static void printBitLine (Byte ***crmask, int img, int line, int nx) {
         for (bit = 0x80,i=0; bit > 0; bit=(bit>>1),i++) {
             if ( (crmask[img][line][x] & bit) > 0) {
                 pix = x * SIZE_BYTE + i;
-                sprintf(MsgText, "Compressed hit at %d,%d", pix, line);
+                snprintf(MsgText, sizeof(MsgText),  "Compressed hit at %d,%d", pix, line);
                 trlmessage (MsgText);
                 /*printf("X");*/
             } /*

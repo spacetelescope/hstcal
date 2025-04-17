@@ -55,7 +55,7 @@ int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 	/* Convert PHOTMODE string into synphot OBSMODE syntax */
 	Phot2Obs (photmode, obsmode);
 	if (wf3->verbose) {
-	    sprintf (MsgText, "Created obsmode of: %s", obsmode);
+	    snprintf(MsgText, sizeof(MsgText), "Created obsmode of: %s", obsmode);
 	    trlmessage (MsgText);
 	}
 
@@ -68,7 +68,7 @@ int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 	}
 
 	if (wf3->verbose) {
-	    sprintf (MsgText, "Computed PHOTFLAM value of %g", obs.photflam);
+	    snprintf(MsgText, sizeof(MsgText), "Computed PHOTFLAM value of %g", obs.photflam);
 	}
 
 	/* Update the photometry keyword values in the header */

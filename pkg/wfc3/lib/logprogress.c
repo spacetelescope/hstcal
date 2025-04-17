@@ -14,9 +14,9 @@ void LogProgress (char *mess, int n) {
 	strftime (t, 82, "%a %H:%M:%S %Z %d-%b-%Y", localtime (&now));
 
 	if (n > 0)
-	    sprintf (MsgText,"%s %s %d.", t, mess, n);
+	    snprintf(MsgText, sizeof(MsgText), "%s %s %d.", t, mess, n);
 	else
-	    sprintf (MsgText, "%s %s", t, mess);
+	    snprintf(MsgText, sizeof(MsgText), "%s %s", t, mess);
 
 	trlmessage (MsgText);
 }

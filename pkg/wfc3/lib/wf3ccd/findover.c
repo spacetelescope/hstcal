@@ -341,7 +341,7 @@ int FindOverscan (WF3Info *wf3, int nx, int ny, int *overscan) {
 
     if (foundit == NO) {
         status = ROW_NOT_FOUND;
-        sprintf(MsgText, "Could not find appropriate row from OSCNTAB. ");
+        snprintf(MsgText, sizeof(MsgText),  "Could not find appropriate row from OSCNTAB. ");
         trlwarn(MsgText);
     }
 
@@ -349,7 +349,7 @@ int FindOverscan (WF3Info *wf3, int nx, int ny, int *overscan) {
         return(status);
 
     if (wf3->verbose == YES) {
-        sprintf (MsgText, "Found trim values of: x(%d,%d,%d,%d) y(%d,%d)",
+        snprintf(MsgText, sizeof(MsgText), "Found trim values of: x(%d,%d,%d,%d) y(%d,%d)",
                  wf3->trimx[0], wf3->trimx[1], wf3->trimx[2], wf3->trimx[3],
                  wf3->trimy[0], wf3->trimy[1]);
         trlmessage (MsgText);
@@ -382,7 +382,7 @@ static int OpenOverTab (char *tname, TblInfo *tabinfo) {
 
     tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
-        sprintf (MsgText, "OSCNTAB `%s' not found.", tname);
+        snprintf(MsgText, sizeof(MsgText), "OSCNTAB `%s' not found.", tname);
         trlerror (MsgText);
         return (status = OPEN_FAILED);
     }

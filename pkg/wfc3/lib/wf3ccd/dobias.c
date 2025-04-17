@@ -114,7 +114,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
        science image subarrays located in the amp B and D quadrants.
      */
     if (!same_size) {
-        sprintf(MsgText,"Bias ref and science image not the same size");
+        snprintf(MsgText, sizeof(MsgText), "Bias ref and science image not the same size");
         trlmessage(MsgText);
         /* Retrieve CCDAMP value from bias image header */
         if(GetKeyStr(y.globalhdr, "CCDAMP", NO_DEFAULT, "", biasamp, SZ_CBUF))
@@ -131,13 +131,13 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
     }
 
     if (wf3->verbose) {
-        sprintf (MsgText, "Ratio of (%d,%d) with offset =(%d,%d)",
+        snprintf(MsgText, sizeof(MsgText), "Ratio of (%d,%d) with offset =(%d,%d)",
                 rx,ry,x0,y0);
         trlmessage(MsgText);
         if (same_size) {
-            sprintf(MsgText,"BIAS image and input are the same size ");
+            snprintf(MsgText, sizeof(MsgText), "BIAS image and input are the same size ");
         } else {
-            sprintf(MsgText,"BIAS image and input are NOT the same size ");
+            snprintf(MsgText, sizeof(MsgText), "BIAS image and input are NOT the same size ");
         }
         trlmessage(MsgText);
     }
@@ -146,7 +146,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
     if (rx != 1 || ry != 1) {
         closeSingleGroupLine (&y);
         freeSingleGroupLine (&y);
-        sprintf (MsgText,
+        snprintf(MsgText, sizeof(MsgText),
                 "BIAS image and input are not binned to the same pixel size!");
         trlerror (MsgText);
         return (status = SIZE_MISMATCH);
@@ -164,7 +164,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
         for (i=0; i < scilines; i++) {
             status = getSingleGroupLine (wf3->bias.name, i, &y);
             if (status) {
-                sprintf(MsgText,"Could not read line %d from bias image.",
+                snprintf(MsgText, sizeof(MsgText), "Could not read line %d from bias image.",
                         i+1);
                 trlerror(MsgText);
             }
@@ -196,7 +196,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
              ** image.  */
             status = getSingleGroupLine (wf3->bias.name, j, &y);
             if (status) {
-                sprintf (MsgText,"Could not read line %d from bias image.",
+                snprintf(MsgText, sizeof(MsgText), "Could not read line %d from bias image.",
                         j+1);
                 trlerror(MsgText);
             }			

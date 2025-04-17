@@ -284,7 +284,7 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
     } else if (acs->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
         (*missing)++;
-        sprintf (MsgText, "CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
+        snprintf(MsgText, sizeof(MsgText), "CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
         trlerror (MsgText);
     }
 

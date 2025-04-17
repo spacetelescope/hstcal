@@ -264,7 +264,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         }
         acs_info->cteAlgorithmGen = cteAlgorithmGen;
 
-        sprintf(MsgText, "(pctecorr) Reading CTE parameters from PCTETAB file: '%s'...", cteTabFilename);
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Reading CTE parameters from PCTETAB file: '%s'...", cteTabFilename);
         trlmessage(MsgText);
         if ((status = PutKeyStr(x[0].globalhdr, "PCTETAB", cteTabFilename, "CTE Correction Table")))
         {
@@ -277,7 +277,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
 
         /* Read the parallel CTE parameters */
-        sprintf(MsgText,"(pctecorr) Collecting data for Correction Type: parallel.\n");
+        snprintf(MsgText, sizeof(MsgText), "(pctecorr) Collecting data for Correction Type: parallel.\n");
         trlmessage(MsgText);
 
         addPtr(&ptrParallelReg, &cteParallelPars, &freeCTEParamsFast);
@@ -326,20 +326,20 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
             return (status);
         }
 
-        sprintf(MsgText, "(pctecorr) The parallel CTE processing parameters have been read.");
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) The parallel CTE processing parameters have been read.");
         trlmessage(MsgText);
-        sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", cteParallelPars.rn_amp);
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", cteParallelPars.rn_amp);
         trlwarn(MsgText);
-        sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
                 cteParallelPars.n_forward);
         trlmessage(MsgText);
-        sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
                 cteParallelPars.n_par);
         trlmessage(MsgText);
-        sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", cteParallelPars.scale_frac);
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) CTE_FRAC: %f", cteParallelPars.scale_frac);
         trlmessage(MsgText);
 
-        sprintf(MsgText,"\n(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n");
+        snprintf(MsgText, sizeof(MsgText), "\n(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n");
         trlmessage(MsgText);
         /* End read of the parallel CTE parameters */
 
@@ -382,7 +382,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
                         startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
                         strcpy(corrType, "serial");
-                        sprintf(MsgText,"(pctecorr) Collecting data for Correction Type: %s \n", corrType);
+                        snprintf(MsgText, sizeof(MsgText), "(pctecorr) Collecting data for Correction Type: %s \n", corrType);
                         trlmessage(MsgText);
 
                         /*
@@ -439,18 +439,18 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                             return (status);
                         }
 
-                        sprintf(MsgText, "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
+                        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
                         trlwarn(MsgText);
-                        sprintf(MsgText, "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
+                        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
                                 ctePars.n_forward);
                         trlmessage(MsgText);
-                        sprintf(MsgText, "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
+                        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
                                 ctePars.n_par);
                         trlmessage(MsgText);
-                        sprintf(MsgText, "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
+                        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
                         trlmessage(MsgText);
 
-                        sprintf(MsgText, "(pctecorr) The %s CTE processing parameters have been read.", corrType);
+                        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) The %s CTE processing parameters have been read.", corrType);
                         trlmessage(MsgText);
                     } // End if block for collecting and reporting serial CTE correction
 
@@ -485,7 +485,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     }
 
                     double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
-                    sprintf(MsgText,"(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
+                    snprintf(MsgText, sizeof(MsgText), "(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
                     trlmessage(MsgText);
                 }  // End loop to accommodate both the serial and parallel CTE corrections
             }
@@ -523,14 +523,14 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     {   unsigned i;
         for (i = 0; i < acs_info->nimsets; i++) {
             if (acs_info->verbose) {
-                sprintf(MsgText, "Outputting chip %d", acs[i].chip);
+                snprintf(MsgText, sizeof(MsgText),  "Outputting chip %d", acs[i].chip);
                 trlmessage(MsgText);
             }
 
             putSingleGroup(acs_info->output, i+1, &x[i], option);
 
             if (hstio_err()) {
-                sprintf(MsgText, "Couldn't write imset %d.", i+1);
+                snprintf(MsgText, sizeof(MsgText),  "Couldn't write imset %d.", i+1);
                 trlerror(MsgText);
                 return (status = WRITE_FAILED);
             }

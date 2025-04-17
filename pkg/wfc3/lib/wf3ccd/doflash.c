@@ -138,7 +138,7 @@ float *meanflash    o: mean of post-flash image values subtracted
  
 	/* Check to see whether we need to do any processing at all...  */
 	if (wf3ccd->flashdur <= 0.) {
-	    sprintf(MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 		  "Post-flash exposure was 0 seconds. FLSHCORR not performed.");
 	    trlwarn(MsgText);
 	    addHistoryKw (x->globalhdr, MsgText);
@@ -151,7 +151,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	
 	/* Flag an aborted Post-Flash exposure in the trailer file comments. */
 	if (streq_ic(wf3ccd->flashstatus,"ABORTED")){
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 	       "Post-flash STATUS was ABORTED. Post-flash may be compromised.");
 	    trlwarn (MsgText);
 	    /* Add this message to the image header as well... */
@@ -164,7 +164,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 		   wf3ccd->atodgain, wf3ccd->readnoise, gain, rn2);
     
     if (wf3ccd->verbose){
-     sprintf(MsgText,"**gain,flashdur** = ([%f,%f,%f,%f],%f)",gain[0],gain[1],gain[2],gain[3],wf3ccd->flashdur);
+     snprintf(MsgText, sizeof(MsgText), "**gain,flashdur** = ([%f,%f,%f,%f],%f)",gain[0],gain[1],gain[2],gain[3],wf3ccd->flashdur);
      trlmessage(MsgText);
     }        
     
@@ -179,7 +179,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	    return (status);	
 	
 	if (wf3ccd->verbose) {
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 		     "Performing post-flash subtraction on chip %d in imset %d",
 		     wf3ccd->chip, extver);
 	    trlmessage(MsgText);
@@ -205,14 +205,14 @@ float *meanflash    o: mean of post-flash image values subtracted
 	if (rx != 1 || ry != 1) {
 	    closeSingleGroupLine (&y);
 	    freeSingleGroupLine (&y);
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 	        "FLASH image and input are not binned to the same pixel size!");
 	    trlerror (MsgText);
 	    return (status = SIZE_MISMATCH);
 	}
 
 	if (wf3ccd->verbose){
-	    sprintf(MsgText,"Image has starting location of %d,%d in the reference image",x0,y0);
+	    snprintf(MsgText, sizeof(MsgText), "Image has starting location of %d,%d in the reference image",x0,y0);
 	    trlmessage(MsgText);
 	}
 
@@ -236,7 +236,7 @@ float *meanflash    o: mean of post-flash image values subtracted
      if (!same_size){ 
         subarray=1;
         if (wf3ccd->verbose){
-	        sprintf(MsgText,"SUBARRAY FOUND, amp=%s",wf3ccd->ccdamp);
+	        snprintf(MsgText, sizeof(MsgText), "SUBARRAY FOUND, amp=%s",wf3ccd->ccdamp);
             trlmessage(MsgText);
         }
         
@@ -253,12 +253,12 @@ float *meanflash    o: mean of post-flash image values subtracted
              
         if (x0 > 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
             if (wf3ccd->verbose){
-	            sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
+	            snprintf(MsgText, sizeof(MsgText), "Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
                 trlmessage(MsgText);
 	        }            
                 x0 += 60;
             if (wf3ccd->verbose){
-	            sprintf(MsgText,"(%d,%d) to avoid virtual overscan in reference",x0,y0);
+	            snprintf(MsgText, sizeof(MsgText), "(%d,%d) to avoid virtual overscan in reference",x0,y0);
                 trlmessage(MsgText);
 	        }            
         } else { /*the subarray starts somewhere in A or C and might straddle the virtual overscan region */
@@ -272,7 +272,7 @@ float *meanflash    o: mean of post-flash image values subtracted
     }
 	
     if (wf3ccd->verbose){
-	    sprintf(MsgText,"ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3ccd->ccdamp,straddle,offsetx,offsety,wf3ccd->ampx,wf3ccd->ampy,x0,y0);
+	    snprintf(MsgText, sizeof(MsgText), "ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3ccd->ccdamp,straddle,offsetx,offsety,wf3ccd->ampx,wf3ccd->ampy,x0,y0);
         trlmessage(MsgText);
     }
     

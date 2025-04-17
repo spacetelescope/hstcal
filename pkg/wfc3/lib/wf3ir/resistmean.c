@@ -103,7 +103,7 @@ int resistmean (float *in, int npix, float sigrej, float *mean,
 	    /* an array to store a copy of the data*/
 	    tempdata = (float *) calloc(npix, sizeof(float));
 	    if (tempdata == NULL) {
-		sprintf (MsgText, "Memory allocation failure in resistmean");
+		snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in resistmean");
         	trlmessage (MsgText);
 		return (1);
 	    }
@@ -111,13 +111,13 @@ int resistmean (float *in, int npix, float sigrej, float *mean,
 	    /* and an array to store absolute deviation */
 	    absdev = (float *) calloc(npix, sizeof(float));
 	    if (absdev == NULL) {
-		sprintf (MsgText, "Memory allocation failure in resistmean");
+		snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in resistmean");
         	trlmessage (MsgText);
 		return (1);
 	    }
 
 	} else {
-	    sprintf (MsgText, "Zero size array passed to resistmean");
+	    snprintf(MsgText, sizeof(MsgText), "Zero size array passed to resistmean");
 	    trlerror (MsgText);
 	    return (1);
 	}
@@ -159,7 +159,7 @@ int resistmean (float *in, int npix, float sigrej, float *mean,
 	   npix1 should be the count of unrejected pixels here */
 	tempdata2 = (float *) calloc(npix1, sizeof(float));
 	if (tempdata2 == NULL) {
-	    sprintf (MsgText, "Memory allocation failure in resistmean");
+	    snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in resistmean");
 	    trlmessage (MsgText);
 	    return (1);
 	}
@@ -191,7 +191,7 @@ int resistmean (float *in, int npix, float sigrej, float *mean,
 	free(absdev); /* clear the old array */
 	absdev = (float *) calloc(npix1, sizeof(float));
 	if (absdev == NULL) {
-	    sprintf (MsgText, "Memory allocation failure in resistmean");
+	    snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in resistmean");
 	    return (1);
 	}
     
@@ -217,7 +217,7 @@ int resistmean (float *in, int npix, float sigrej, float *mean,
 	free (tempdata); /* free the previous copy */
 	tempdata = (float *) calloc(npix2, sizeof(float));
 	if (tempdata == NULL) {
-	    sprintf (MsgText, "Memory allocation failure in resistmean");
+	    snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in resistmean");
 	    return (1);
 	}
     
@@ -271,7 +271,7 @@ float findRMedian (float *arr, int npts) {
 	    /*create a temporary array to sort the values*/
 	    tarr = (float *) calloc(npts, sizeof(float));
 	    if (tarr == NULL) {
-		sprintf (MsgText, "Memory allocation failure in resistmean");
+		snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in resistmean");
 		trlmessage (MsgText);
 		return (0.0);
 	    }

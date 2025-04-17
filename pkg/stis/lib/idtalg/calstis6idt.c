@@ -1769,7 +1769,7 @@ static double Select (unsigned long k, unsigned long length, double *array) {
      * but it is the only method to return an error in the current context.
      */
     if ((length < 2) || (k <= 0) || (k > length)) {
-        //sprintf (MsgText, "Requested value %d is out of range (1 - %d}", k, length);
+        //snprintf(MsgText, sizeof(MsgText), "Requested value %d is out of range (1 - %d}", k, length);
         //trlerror (MsgText)
         return (0.0);
     }

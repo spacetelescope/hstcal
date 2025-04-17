@@ -133,14 +133,14 @@ int checkACSKeys(ACSInfo *acs)
         acs->detector = WFC_CCD_DETECTOR;
     else
     {
-        sprintf (MsgText, "DETECTOR = %s is invalid", acs->det);
+        snprintf(MsgText, sizeof(MsgText), "DETECTOR = %s is invalid", acs->det);
         trlerror (MsgText);
         return HEADER_PROBLEM;
     }
 
     if (acs->exptime < 0.)
     {
-        sprintf (MsgText,"Exposure time is invalid:  %14.6g.", acs->exptime);
+        snprintf(MsgText, sizeof(MsgText), "Exposure time is invalid:  %14.6g.", acs->exptime);
         trlerror (MsgText);
         return INVALID_EXPTIME;
     }
@@ -155,7 +155,7 @@ int checkACSKeys(ACSInfo *acs)
     acs->nimsets = acs->nextend / EXT_PER_GROUP;
     if (acs->nimsets < 1)
     {
-        sprintf (MsgText, "NEXTEND = %d; must be at least %d.", acs->nextend, EXT_PER_GROUP);
+        snprintf(MsgText, sizeof(MsgText), "NEXTEND = %d; must be at least %d.", acs->nextend, EXT_PER_GROUP);
         trlerror (MsgText);
         return INVALID_VALUE;
     }
@@ -168,7 +168,7 @@ int checkACSKeys(ACSInfo *acs)
         const char * ampAlphabet = "ABCD";
         if (!isStrInLanguage(acs->ccdamp, ampAlphabet))
         {
-            sprintf (MsgText, "CCDAMP = `%s' is invalid. Must be in 'ABCD'", acs->ccdamp);
+            snprintf(MsgText, sizeof(MsgText), "CCDAMP = `%s' is invalid. Must be in 'ABCD'", acs->ccdamp);
             trlerror (MsgText);
             return INVALID_VALUE;
         }

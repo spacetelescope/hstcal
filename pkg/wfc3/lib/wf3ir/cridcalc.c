@@ -266,24 +266,24 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
 
         /* Print info to processing log */
         if (wf3->samp_rej > 0) {
-            sprintf (MsgText, "CRIDCALC using %g sigma rejection threshold",
+            snprintf(MsgText, sizeof(MsgText), "CRIDCALC using %g sigma rejection threshold",
                     wf3->crthresh);
             trlmessage (MsgText);
-            sprintf (MsgText, "               %d bad DQ mask", DQIGNORE);
+            snprintf(MsgText, sizeof(MsgText), "               %d bad DQ mask", DQIGNORE);
             trlmessage (MsgText);
-            sprintf (MsgText, "               %d max CRs for UNSTABLE",max_CRs);
+            snprintf(MsgText, sizeof(MsgText), "               %d max CRs for UNSTABLE",max_CRs);
             trlmessage (MsgText);
-            sprintf (MsgText,
+            snprintf(MsgText, sizeof(MsgText),
                     "         and rejecting first %d samples for all pixels",
                     wf3->samp_rej);
             trlmessage (MsgText);
         } else {
-            sprintf (MsgText, "CRIDCALC using %g sigma rejection threshold",
+            snprintf(MsgText, sizeof(MsgText), "CRIDCALC using %g sigma rejection threshold",
                     wf3->crthresh);
             trlmessage (MsgText);
-            sprintf (MsgText, "               %d bad DQ mask", DQIGNORE);
+            snprintf(MsgText, sizeof(MsgText), "               %d bad DQ mask", DQIGNORE);
             trlmessage (MsgText);
-            sprintf (MsgText, "               %d max CRs for UNSTABLE",max_CRs);
+            snprintf(MsgText, sizeof(MsgText), "               %d max CRs for UNSTABLE",max_CRs);
             trlmessage (MsgText);
         }
         ncurved = 0;
@@ -451,7 +451,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
         } /* end of loop over ny */
 
         if (ncurved > 0) {
-            sprintf (MsgText, "%d pixels detected as unstable", ncurved);
+            snprintf(MsgText, sizeof(MsgText), "%d pixels detected as unstable", ncurved);
             trlmessage (MsgText);
         }
 

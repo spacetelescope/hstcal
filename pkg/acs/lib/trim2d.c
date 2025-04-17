@@ -49,10 +49,10 @@ SingleGroup *b    o: output data
     if ( (xstart < 0 || xstart + nx*binx > a->sci.data.tot_nx) ||
          (ystart < 0 || ystart + ny*biny > a->sci.data.tot_ny) ) {
          trlerror ("(trim2d)  subset is out of bounds:");
-         sprintf (MsgText,"         input is %d x %d pixels, output is %d x %d pixels",
+         snprintf(MsgText, sizeof(MsgText), "         input is %d x %d pixels, output is %d x %d pixels",
          a->sci.data.tot_nx, a->sci.data.tot_ny, b->sci.data.tot_nx, b->sci.data.tot_ny);
          trlmessage (MsgText);
-         sprintf (MsgText, "        startx = (%d), starty = (%d), binx = %d, biny = %d.", 
+         snprintf(MsgText, sizeof(MsgText), "        startx = (%d), starty = (%d), binx = %d, biny = %d.",
          xstart+1, ystart+1, binx, biny);
          trlmessage (MsgText);
          return (status = SIZE_MISMATCH);

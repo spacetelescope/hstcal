@@ -71,7 +71,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     same_size = 1;
 
     if (acs->detector == MAMA_DETECTOR) {
-        sprintf(MsgText, "Update - No full-well saturation image flagging is done for SBC (MAMA detector).\n");
+        snprintf(MsgText, sizeof(MsgText),  "Update - No full-well saturation image flagging is done for SBC (MAMA detector).\n");
         trlmessage(MsgText);
         return (status);
     }
@@ -129,7 +129,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     ydim = x->sci.data.ny - (acs->trimy[0] + acs->trimy[1]);
 
     if (same_size) {
-        sprintf(MsgText, "Full-frame full-well saturation image flagging step being performed.\n");
+        snprintf(MsgText, sizeof(MsgText),  "Full-frame full-well saturation image flagging step being performed.\n");
         trlmessage(MsgText);
 
         /* Define the beginning and ending pixels */
@@ -151,10 +151,10 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
                 }
             }}
         }}
-        sprintf(MsgText, "Full-frame full-well saturation image flagging step done.\n");
+        snprintf(MsgText, sizeof(MsgText),  "Full-frame full-well saturation image flagging step done.\n");
         trlmessage(MsgText);
     } else {  /* subarray */
-        sprintf(MsgText, "Subarray full-well saturation image flagging step being performed.\n");
+        snprintf(MsgText, sizeof(MsgText),  "Subarray full-well saturation image flagging step being performed.\n");
         trlmessage(MsgText);
 
         /* Compute the end point of the X and Y dimension loops */
@@ -185,7 +185,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 		        }
             }}
         }}
-        sprintf(MsgText, "Subarray full-well saturation image flagging step done.\n");
+        snprintf(MsgText, sizeof(MsgText),  "Subarray full-well saturation image flagging step done.\n");
         trlmessage(MsgText);
     }
 

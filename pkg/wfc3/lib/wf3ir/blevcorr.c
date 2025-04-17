@@ -113,7 +113,7 @@ int blevcorr (WF3Info *wf3, SingleNicmosGroup *input) {
 	arrsize= (input->sci.data.ny) * 8;
 	refpix = (float *) calloc(arrsize, sizeof(float));
 	if (refpix == NULL) {
-	    sprintf (MsgText, "Memory allocation failure in blevcorr");
+	    snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in blevcorr");
 	    trlerror (MsgText);
 	    return (status = 1);
 	}

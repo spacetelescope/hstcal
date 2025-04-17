@@ -68,7 +68,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
     initHdr (&phdr);
     if (LoadHdr (in_name, &phdr)) {
-        sprintf (MsgText, "Could not load header from %s", in_name);
+        snprintf(MsgText, sizeof(MsgText), "Could not load header from %s", in_name);
         trlerror (MsgText);
         return (status=ERROR_RETURN);
     }
@@ -85,7 +85,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     } else if (strcmp (det, "UVIS") == 0) {
         wf3.detector = CCD_DETECTOR;
     } else {
-        sprintf (MsgText, "DETECTOR = %s is unknown.", det);
+        snprintf(MsgText, sizeof(MsgText), "DETECTOR = %s is unknown.", det);
         trlwarn (MsgText);
         wf3.detector = UNKNOWN_DETECTOR;
     }
@@ -112,11 +112,11 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     flag = ckNewFile (output);
     if (flag > 0) {
         if (flag == 1) {
-            sprintf (MsgText, "Output file `%s' already exists.", output);
+            snprintf(MsgText, sizeof(MsgText), "Output file `%s' already exists.", output);
             trlerror (MsgText);
             return (status = ERROR_RETURN);
         } else {
-            sprintf (MsgText, "Can't clobber `%s'.", output);
+            snprintf(MsgText, sizeof(MsgText), "Can't clobber `%s'.", output);
             trlerror (MsgText);
             return (status = ERROR_RETURN);
         }
@@ -226,13 +226,13 @@ int InitRejTrl (char *input, char *output) {
         /* Start by stripping off suffix from input/output filenames */
         if (MkOutName (in_name, isuffix, trlsuffix, nsuffix , out_name, CHAR_FNAME_LENGTH)) {
 	        WhichError (status);
-	        sprintf (MsgText, "Couldn't determine trailer filename for %s",in_name);
+	        snprintf(MsgText, sizeof(MsgText), "Couldn't determine trailer filename for %s",in_name);
 	        trlmessage (MsgText);
         }
 
         if (MkNewExtn (out_name,TRL_EXTN)){   
  	        WhichError (status);
-	        sprintf (MsgText, "Couldn't create trailer filename for %s",out_name);
+	        snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s",out_name);
 	        trlmessage (MsgText);
 	    }
                 
@@ -245,11 +245,11 @@ int InitRejTrl (char *input, char *output) {
     
     if (MkOutName(output,isuffix,trlsuffix,nsuffix,trl_out,CHAR_FNAME_LENGTH)){
         WhichError(status);
-        sprintf(MsgText,"Couldn't create trailer filename for %s",output);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s",output);
     }
     if (MkNewExtn (trl_out,TRL_EXTN)){   
  	    WhichError (status);
-	    sprintf (MsgText, "Couldn't create trailer filename for %s",out_name);
+	    snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s",out_name);
 	    trlmessage (MsgText);
 	}
 

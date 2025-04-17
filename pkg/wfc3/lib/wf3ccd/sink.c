@@ -68,7 +68,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     float refdate=50000.;
     int keep_going=1;
     
-    sprintf(MsgText,"\nPerforming SINK pixel detection for imset %i",x->group_num);
+    snprintf(MsgText, sizeof(MsgText), "\nPerforming SINK pixel detection for imset %i",x->group_num);
     trlmessage(MsgText);
     
 

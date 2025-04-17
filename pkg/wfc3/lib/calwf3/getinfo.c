@@ -53,7 +53,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	initHdr (&phdr);
 	im = openInputImage (wf3->rawfile, "", 0);
 	if (hstio_err()) {
-	    sprintf (MsgText, "Member \"%s\" is not present", wf3->rawfile);
+	    snprintf(MsgText, sizeof(MsgText), "Member \"%s\" is not present", wf3->rawfile);
 	    trlerror (MsgText);
         freeHdr(&phdr);
 	    return (status = OPEN_FAILED);
@@ -62,7 +62,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	/* Read primary header into pdhr. */
 	getHeader (im, &phdr);
 	if (hstio_err()) {
-	    sprintf (MsgText, "Could not open PRIMARY header for \"%s\" ",
+	    snprintf(MsgText, sizeof(MsgText), "Could not open PRIMARY header for \"%s\" ",
 		     wf3->rawfile);
 	    trlmessage (MsgText);
         closeImage(im);
@@ -134,7 +134,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	initHdr (&phdr);
 	im = openInputImage (wf3->rawfile, "", 0);
 	if (hstio_err()) {
-	    sprintf (MsgText, "Member \"%s\" is not present", wf3->rawfile);
+	    snprintf(MsgText, sizeof(MsgText), "Member \"%s\" is not present", wf3->rawfile);
 	    trlerror (MsgText);
 	    return (status = OPEN_FAILED);
 	}

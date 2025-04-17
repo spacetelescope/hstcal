@@ -205,7 +205,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 
         /* use the minimum to construct the initial average */
         if (strncmp(par->initgues, "minimum", 3) != 0) {
-            sprintf (MsgText,"Invalid INITGUES value %s, reset it to 'minimum'",
+            snprintf(MsgText, sizeof(MsgText), "Invalid INITGUES value %s, reset it to 'minimum'",
 		     par->initgues);
             trlwarn (MsgText);
             strcpy (par->initgues, "minimum");

@@ -68,7 +68,7 @@ int doFlat (ACSInfo *acs2d, int extver, SingleGroup *x) {
 	/* apply pixel-to-pixel flat, if set to PERFORM */
 	if (acs2d->pfltcorr == PERFORM) {
     if (divFlat (x, acs2d->pflt.name, acs2d)){
-      sprintf (MsgText, "Problem applying PFLTFILE %s... ", acs2d->pflt.name);
+      snprintf(MsgText, sizeof(MsgText), "Problem applying PFLTFILE %s... ", acs2d->pflt.name);
       trlerror(MsgText);
       return(status);
     }
@@ -78,7 +78,7 @@ int doFlat (ACSInfo *acs2d, int extver, SingleGroup *x) {
 	/* apply delta flat, if set to PERFORM */
 	if (acs2d->dfltcorr == PERFORM) {
     if (divFlat (x, acs2d->dflt.name, acs2d) ){
-      sprintf (MsgText, "Problem applying DFLTFILE %s... ", acs2d->dflt.name);
+      snprintf(MsgText, sizeof(MsgText), "Problem applying DFLTFILE %s... ", acs2d->dflt.name);
       trlerror(MsgText);
       return (status);
     }
@@ -90,7 +90,7 @@ int doFlat (ACSInfo *acs2d, int extver, SingleGroup *x) {
 	/* low-order flat */
 	if (acs2d->lfltcorr == PERFORM) {
 		if (acs2d->verbose) {
-			sprintf(MsgText, "Reading in LFLAT file...");
+			snprintf(MsgText, sizeof(MsgText),  "Reading in LFLAT file...");
 			trlmessage (MsgText);
 		}
 		initSingleGroupLine (&w);
@@ -243,7 +243,7 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d) {
   if (FindLine (x, &y, &ysame_size, &y_rx, &y_ry, &y_x0, &y_y0))
     return (status);
   if (acs2d->verbose){
-    sprintf(MsgText,"ratio of flat/input = %d,%d offset by %d,%d",y_rx,y_ry,y_x0,y_y0);
+    snprintf(MsgText, sizeof(MsgText), "ratio of flat/input = %d,%d offset by %d,%d",y_rx,y_ry,y_x0,y_y0);
     trlmessage(MsgText);
   }
   
@@ -264,7 +264,7 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d) {
     parseObsDate(x->globalhdr, &date);
     status = GetSpotTab(acs2d->spot.name, date, &shiftx, &shifty);
     
-    sprintf(MsgText,"SPOTTAB:  Using spot shift of: %0.2g  %0.2g",shiftx,shifty);
+    snprintf(MsgText, sizeof(MsgText), "SPOTTAB:  Using spot shift of: %0.2g  %0.2g",shiftx,shifty);
     trlmessage(MsgText);
     
     /* Shift input spot flat

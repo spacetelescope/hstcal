@@ -89,9 +89,9 @@ int Wf3Dth ( char *in_list, char *output, int dthcorr, int printtime,
 	if (printtime)
 	    TimeStamp ("WF3DTH started", "");
 
-	sprintf (MsgText, "Astrodrizzle needs to be run in order to generate");
+	snprintf(MsgText, sizeof(MsgText), "Astrodrizzle needs to be run in order to generate");
 	trlmessage (MsgText);
-	sprintf (MsgText, "a geometrically corrected, drizzle-combined product.");
+	snprintf(MsgText, sizeof(MsgText), "a geometrically corrected, drizzle-combined product.");
 	trlmessage (MsgText);
 
 	/* Open the input file list */
@@ -162,13 +162,13 @@ void InitDthTrl (char *inlist, char *output) {
 			    CHAR_LINE_LENGTH)) {
          
 		    WhichError (status);
-		    sprintf (MsgText, "Couldn't determine trailer filename for %s",input);
+		    snprintf(MsgText, sizeof(MsgText), "Couldn't determine trailer filename for %s",input);
 		    trlmessage (MsgText);
 	     }
          
 	     /* Now convert trailer filename extension from '.fits' to '.trl' */
 	     if (MkNewExtn (out_name, TRL_EXTN)) {
-		    sprintf (MsgText, "Error creating input trailer filename %s",out_name);
+		    snprintf(MsgText, sizeof(MsgText), "Error creating input trailer filename %s",out_name);
 		    trlerror (MsgText);
 		    WhichError (status);
 	     }
@@ -191,12 +191,12 @@ void InitDthTrl (char *inlist, char *output) {
     
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
-	    sprintf (MsgText, "Couldn't create trailer filename for %s\n",output);
+	    snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s\n",output);
 	    trlmessage (MsgText);
 	}
 
 	if (MkNewExtn (trl_out, TRL_EXTN) ) {
-	    sprintf (MsgText, "Error creating output trailer filename %s\n",trl_out);
+	    snprintf(MsgText, sizeof(MsgText), "Error creating output trailer filename %s\n",trl_out);
 	    trlerror (MsgText);
 	    WhichError (status);
 	}

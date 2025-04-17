@@ -111,7 +111,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
 
   /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
   darktime = (float)acs2d->darktime;
-  sprintf(MsgText,"Darktime from header %f", darktime);
+  snprintf(MsgText, sizeof(MsgText), "Darktime from header %f", darktime);
   trlmessage(MsgText);
 
   /* Compute correct extension version number to extract from
@@ -128,7 +128,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   }
 	
   if (acs2d->verbose) {
-     sprintf(MsgText,"Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
+     snprintf(MsgText, sizeof(MsgText), "Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
      trlmessage(MsgText);
   }
   
@@ -163,11 +163,11 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   }
   
   if (rx != 1 || ry != 1) {
-     sprintf(MsgText,"Reference image and input are not binned to the same pixel size!");
+     snprintf(MsgText, sizeof(MsgText), "Reference image and input are not binned to the same pixel size!");
      trlmessage(MsgText);
   }
   if (acs2d->verbose){
-     sprintf(MsgText,"Image has an offset of %d,%d",x0,y0);
+     snprintf(MsgText, sizeof(MsgText), "Image has an offset of %d,%d",x0,y0);
      trlmessage(MsgText);
   }
   

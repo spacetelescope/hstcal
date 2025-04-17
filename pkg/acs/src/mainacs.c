@@ -189,13 +189,13 @@ int main(int argc, char **argv) {
 
     if (cteAlgorithmGen)
     {
-        sprintf(MsgText, "(pctecorr) Using generation %d CTE algorithm", cteAlgorithmGen);
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Using generation %d CTE algorithm", cteAlgorithmGen);
         trlmessage(MsgText);
     }
 
     if (*pcteTabNameFromCmd != '\0')
     {
-        sprintf(MsgText, "(pctecorr) Using cmd line specified PCTETAB file: '%s'", pcteTabNameFromCmd);
+        snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Using cmd line specified PCTETAB file: '%s'", pcteTabNameFromCmd);
         trlmessage(MsgText);
     }
 
@@ -221,11 +221,11 @@ int main(int argc, char **argv) {
     omp_set_dynamic(0);
     if (nThreads > ompMaxThreads)
     {
-        sprintf(MsgText, "System env limiting nThreads from %d to %d", nThreads, ompMaxThreads);
+        snprintf(MsgText, sizeof(MsgText),  "System env limiting nThreads from %d to %d", nThreads, ompMaxThreads);
         nThreads = ompMaxThreads;
     }
     else
-        sprintf(MsgText,"Setting max threads to %d out of %d available", nThreads, ompMaxThreads);
+        snprintf(MsgText, sizeof(MsgText), "Setting max threads to %d out of %d available", nThreads, ompMaxThreads);
 
     omp_set_num_threads(nThreads);
     trlmessage(MsgText);
@@ -238,12 +238,12 @@ int main(int argc, char **argv) {
             /* If there is just nothing to do,
                 as for ACQ images, just quit...     WJH 27Apr1999 */
             status = 0;
-	        sprintf (MsgText, "CALACS did NOT process %s", input);
+	        snprintf(MsgText, sizeof(MsgText), "CALACS did NOT process %s", input);
 	        trlmessage (MsgText);
             exit(0);
         } else {
 	        /* Error during processing */
-	        sprintf (MsgText, "CALACS processing NOT completed for %s", input);
+	        snprintf(MsgText, sizeof(MsgText), "CALACS processing NOT completed for %s", input);
 		    trlerror (MsgText);
             /* Added 19 Mar 1999 - provides interpretation of error for user */
             WhichError (status);
@@ -253,7 +253,7 @@ int main(int argc, char **argv) {
 	}
 
 	/* Successful completion */
-	sprintf (MsgText, "CALACS completion for %s", input);
+	snprintf(MsgText, sizeof(MsgText), "CALACS completion for %s", input);
 	trlmessage (MsgText);
 
     freeOnExit(&ptrReg);

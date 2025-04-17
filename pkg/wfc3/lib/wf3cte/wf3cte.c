@@ -197,11 +197,11 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     if (onecpu){
         omp_set_dynamic(0);
         max_threads=1;
-        sprintf(MsgText,"onecpu == TRUE, Using only %i threads/cpu", max_threads);
+        snprintf(MsgText, sizeof(MsgText), "onecpu == TRUE, Using only %i threads/cpu", max_threads);
     } else {
         omp_set_dynamic(0);
         max_threads = omp_get_num_procs(); /*be nice, use 1 less than avail?*/
-        sprintf(MsgText,"Setting max threads to %i of %i cpus",max_threads, omp_get_num_procs());
+        snprintf(MsgText, sizeof(MsgText), "Setting max threads to %i of %i cpus",max_threads, omp_get_num_procs());
     }
     omp_set_num_threads(max_threads);
     trlmessage(MsgText);
@@ -326,7 +326,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         /* OPEN INPUT IMAGE IN ORDER TO READ ITS SCIENCE HEADER. */
         ip = openInputImage (wf3.input, "SCI", 1);
         if (hstio_err()) {
-            sprintf (MsgText, "Image: \"%s\" is not present", wf3.input);
+            snprintf(MsgText, sizeof(MsgText), "Image: \"%s\" is not present", wf3.input);
             trlerror (MsgText);
             return (status = OPEN_FAILED);
         }
@@ -366,7 +366,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             start = sci_corner[0] - ref_corner[0];
             finish = start + subcd.sci.data.nx;
             if ( start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN){
-                sprintf(MsgText,"Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
+                snprintf(MsgText, sizeof(MsgText), "Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
                 trlmessage(MsgText);
                 return(ERROR_RETURN);
             }
@@ -428,7 +428,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             start = sci_corner[0] - ref_corner[0];
             finish = start + subab.sci.data.nx;
             if ( start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN){
-                sprintf(MsgText,"Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
+                snprintf(MsgText, sizeof(MsgText), "Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
                 trlmessage(MsgText);
                 return(ERROR_RETURN);
             }
@@ -540,16 +540,16 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     float FLOAT_RNOIVAL = 0.;
     float FLOAT_BKGDVAL = 0.;
     readNoise = wf3.pcternoi;
-    sprintf(MsgText, "PCTERNOI: %8.4f (source: primary header of science image)\n\n", readNoise);
+    snprintf(MsgText, sizeof(MsgText),  "PCTERNOI: %8.4f (source: primary header of science image)\n\n", readNoise);
     trlmessage(MsgText);
     /* Comparison should be OK - read from FITS header and no computation */
     if (readNoise == 0.0) {
         readNoise = find_raz2rnoival(raz.sci.data.data, &FLOAT_RNOIVAL, &FLOAT_BKGDVAL);
-        sprintf(MsgText, "RNOIVAL: %8.4f BKGDVAL: %8.4f\n", FLOAT_RNOIVAL, FLOAT_BKGDVAL);
+        snprintf(MsgText, sizeof(MsgText),  "RNOIVAL: %8.4f BKGDVAL: %8.4f\n", FLOAT_RNOIVAL, FLOAT_BKGDVAL);
         trlmessage(MsgText);
-        sprintf(MsgText, "PCTERNOI: %8.4f (source: computed on-the-fly from science image)", readNoise);
+        snprintf(MsgText, sizeof(MsgText),  "PCTERNOI: %8.4f (source: computed on-the-fly from science image)", readNoise);
         trlmessage(MsgText);
-        sprintf(MsgText, "This computed value supersedes any value obtained from the primary\nheader of the science image.\n\n");
+        snprintf(MsgText, sizeof(MsgText),  "This computed value supersedes any value obtained from the primary\nheader of the science image.\n\n");
         trlmessage(MsgText);
     }
 
@@ -654,7 +654,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
     if (verbose){
-        sprintf(MsgText,"CTE run time: %.2f(s) with %i procs/threads\n",time_spent/max_threads,max_threads);
+        snprintf(MsgText, sizeof(MsgText), "CTE run time: %.2f(s) with %i procs/threads\n",time_spent/max_threads,max_threads);
         trlmessage(MsgText);
     }
 
@@ -1055,13 +1055,13 @@ int initCTETrl (char *input, char *output) {
     /* Start by stripping off suffix from input/output filenames */
     if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't determine trailer filename for %s",
+        snprintf(MsgText, sizeof(MsgText), "Couldn't determine trailer filename for %s",
                 input);
         trlmessage (MsgText);
     }
     if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s",
+        snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s",
                 output);
         trlmessage (MsgText);
     }
@@ -1069,12 +1069,12 @@ int initCTETrl (char *input, char *output) {
     /* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
 
     if (MkNewExtn (trl_in, TRL_EXTN) ) {
-        sprintf (MsgText, "Error with input trailer filename %s", trl_in);
+        snprintf(MsgText, sizeof(MsgText), "Error with input trailer filename %s", trl_in);
         trlerror (MsgText);
         WhichError (status);
     }
     if (MkNewExtn (trl_out, TRL_EXTN) ) {
-        sprintf (MsgText, "Error with output trailer filename %s", trl_out);
+        snprintf(MsgText, sizeof(MsgText), "Error with output trailer filename %s", trl_out);
         trlerror (MsgText);
         WhichError (status);
     }

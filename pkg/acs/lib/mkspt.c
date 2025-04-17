@@ -71,7 +71,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
         Create output SPT filename from output data filename.
     */
     if(MkOutName (output, isuffix, osuffix, nsuffix, out_spt, CHAR_FNAME_LENGTH)){
-        sprintf (MsgText, "Couldn't create output SPT filename for %s", output);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't create output SPT filename for %s", output);
         trlerror (MsgText);
         WhichError (status);
         return (status);
@@ -101,14 +101,14 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
         in_spt[0] = '\0';
         /* Create input SPT filename to look for */
         if (MkOutName (in_name, isuffix, osuffix, nsuffix, in_spt, CHAR_FNAME_LENGTH)) {
-            sprintf (MsgText, "Couldn't create input SPT filename for %s", in_name);
+            snprintf(MsgText, sizeof(MsgText), "Couldn't create input SPT filename for %s", in_name);
             trlerror (MsgText);
             WhichError (status);
             return (status);
         }
 	    /* Check for existence of source/input SPT file */
 	    if ((fp = fopen (in_spt, "rb")) == NULL) {
-	        sprintf (MsgText, "Can't find input file \"%s\"", in_spt);
+	        snprintf(MsgText, sizeof(MsgText), "Can't find input file \"%s\"", in_spt);
 	        trlwarn  (MsgText);
             status = ACS_OK;        /* don't abort */
 	        continue;				/* try the rest of the images in list */
@@ -129,12 +129,12 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
             /* Create ROOTNAME for output SPT file */
             rootname[0] = '\0';
             if (MkName (out_spt, "_spt", "", " ", rootname, CHAR_FNAME_LENGTH)) {
-                sprintf (MsgText, "Couldn't create output SPT ROOTNAME for %s", out_spt);
+                snprintf(MsgText, sizeof(MsgText), "Couldn't create output SPT ROOTNAME for %s", out_spt);
                 trlerror (MsgText);
                 WhichError (status);
                 return (status);
             } else {
-		        sprintf(MsgText, "Created output SPT rootname %s...\n",out_spt);
+		        snprintf(MsgText, sizeof(MsgText),  "Created output SPT rootname %s...\n",out_spt);
                 trlmessage (MsgText);
 		    }
 
@@ -163,7 +163,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	        if (PutKeyInt (&header, "NEXTEND", nimgs, ""))
 	            return (status = 1);
 
-            sprintf(MsgText,"Updated output SPT file to reflect %d extensions...\n",nimgs);
+            snprintf(MsgText, sizeof(MsgText), "Updated output SPT file to reflect %d extensions...\n",nimgs);
             trlmessage(MsgText);
 
 	        /* Write the new SPT file */

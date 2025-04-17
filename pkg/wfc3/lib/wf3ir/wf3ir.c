@@ -163,7 +163,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	freeHdr (&phdr);
 
 	/* Load all input data groups */
-	sprintf (MsgText, "Reading data from %s ...", wf3.input);
+	snprintf(MsgText, sizeof(MsgText), "Reading data from %s ...", wf3.input);
 	trlmessage (MsgText);
 	if (getRawData (&wf3, &allinput))
 	    return (status);
@@ -174,7 +174,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	    TimeStamp ("Begin processing", wf3.rootname);
 
 	if (verbose) {
-	    sprintf (MsgText, "Processing %d imsets... ",wf3.ngroups);
+	    snprintf(MsgText, sizeof(MsgText), "Processing %d imsets... ",wf3.ngroups);
 	    trlmessage (MsgText);
 	}
 
@@ -185,7 +185,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	}
 
 	/* Write the intermediate calibrated data to the IMA file */
-	sprintf (MsgText, "Writing calibrated readouts to %s", ima_file);
+	snprintf(MsgText, sizeof(MsgText), "Writing calibrated readouts to %s", ima_file);
 	trlmessage (MsgText);
 	if (putMultiCalData (&allinput, ima_file)) {
 	    freeMultiNicmosGroup (&allinput);
@@ -198,9 +198,9 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	sizey = allinput.group[0].sci.data.ny - (wf3.trimy[0]+wf3.trimy[1]);
 
 	/* Write the final trimmed image data to FLT file */
-	sprintf (MsgText, "Writing final image to %s", flt_file);
+	snprintf(MsgText, sizeof(MsgText), "Writing final image to %s", flt_file);
 	trlmessage (MsgText);
-	sprintf (MsgText, " with trimx = %d,%d, trimy = %d,%d", wf3.trimx[0],
+	snprintf(MsgText, sizeof(MsgText), " with trimx = %d,%d, trimy = %d,%d", wf3.trimx[0],
 		 wf3.trimx[1], wf3.trimy[0], wf3.trimy[1]);
 	trlmessage (MsgText);
 
@@ -371,14 +371,14 @@ void InitIRTrl (char *input, char *output) {
         /* Start by stripping off suffix from input/output filenames */
         if (MkName (input, isuffix, "", TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Couldn't determine trailer filename for %s",
+            snprintf(MsgText, sizeof(MsgText), "Couldn't determine trailer filename for %s",
                      input);
             trlmessage (MsgText);
         }
 
         if (MkName (output, osuffix, "", TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Couldn't create trailer filename for %s",
+            snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s",
                      output);
             trlmessage (MsgText);
         }

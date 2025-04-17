@@ -51,10 +51,10 @@ void PrBegin (char *label) {
 	char *GetDateTime (void);
 
 	trlmessage ("\n");
-	sprintf (MsgText,"%s*** %s -- Version %s ***",TRL_PREFIX, label,
+	snprintf(MsgText, sizeof(MsgText), "%s*** %s -- Version %s ***",TRL_PREFIX, label,
 		 WF3_CAL_VER);
 	trlmessage (MsgText);
-	sprintf (MsgText,"Begin    %s", GetDateTime());
+	snprintf(MsgText, sizeof(MsgText), "Begin    %s", GetDateTime());
 	trlmessage (MsgText);
 }
 
@@ -64,10 +64,10 @@ void PrEnd (char *label) {
 
 	char *GetDateTime (void);
 
-	sprintf (MsgText, "End      %s", GetDateTime());
+	snprintf(MsgText, sizeof(MsgText), "End      %s", GetDateTime());
 	trlmessage (MsgText);
 	trlmessage ("");
-	sprintf (MsgText,"*** %s complete ***", label);
+	snprintf(MsgText, sizeof(MsgText), "*** %s complete ***", label);
 	trlmessage (MsgText);
 }
 
@@ -83,7 +83,7 @@ char *filename  i: name of input or output file
 	
 	Upper1 (label, buf, SCRATCH_SIZE);
 
-	sprintf (MsgText,"%s %s", buf, filename);
+	snprintf(MsgText, sizeof(MsgText), "%s %s", buf, filename);
 	trlmessage (MsgText);
 }
 
@@ -91,11 +91,11 @@ char *filename  i: name of input or output file
 
 void PrHdrInfo (char *aperture, char *filter, char *detector) {
 
-	sprintf (MsgText, "APERTURE %s", aperture);
+	snprintf(MsgText, sizeof(MsgText), "APERTURE %s", aperture);
 	trlmessage (MsgText);
-	sprintf (MsgText, "FILTER   %s", filter);
+	snprintf(MsgText, sizeof(MsgText), "FILTER   %s", filter);
 	trlmessage (MsgText);
-	sprintf (MsgText, "DETECTOR %s", detector);
+	snprintf(MsgText, sizeof(MsgText), "DETECTOR %s", detector);
 	trlmessage (MsgText);
 }
 
@@ -113,7 +113,7 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 	
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
-	sprintf (MsgText,"%s", buf);
+	snprintf(MsgText, sizeof(MsgText), "%s", buf);
 		
 	if (value == OMIT)
 	    strcat (MsgText," OMIT");
@@ -158,7 +158,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-	sprintf (MsgText, "%s Begin %s", buf, GetTime());
+	snprintf(MsgText, sizeof(MsgText), "%s Begin %s", buf, GetTime());
 	trlmessage (MsgText);
 }
 
@@ -187,7 +187,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-	sprintf (MsgText, "%s End %s", buf, GetTime());
+	snprintf(MsgText, sizeof(MsgText), "%s End %s", buf, GetTime());
 	trlmessage (MsgText);
 }
 
@@ -209,21 +209,21 @@ char *descrip2  i: second descrip, if any, from table row
 
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
-	sprintf (MsgText,"%s %s", buf, filename);
+	snprintf(MsgText, sizeof(MsgText), "%s %s", buf, filename);
 	trlmessage (MsgText);
 
 	if (pedigree[0] != '\0') {
-	    sprintf (MsgText, "%s PEDIGREE=%s", buf, pedigree);
+	    snprintf(MsgText, sizeof(MsgText), "%s PEDIGREE=%s", buf, pedigree);
 	    trlmessage (MsgText);
 	}
 	
 	if (descrip[0] != '\0') {
-	    sprintf (MsgText, "%s DESCRIP =%s", buf, descrip);
+	    snprintf(MsgText, sizeof(MsgText), "%s DESCRIP =%s", buf, descrip);
 	    trlmessage (MsgText);
 	}
 	
 	if (descrip2[0] != '\0') {
-	    sprintf (MsgText, "%s DESCRIP =%s", buf, descrip2);
+	    snprintf(MsgText, sizeof(MsgText), "%s DESCRIP =%s", buf, descrip2);
 	    trlmessage (MsgText);
 	}
 }

@@ -252,7 +252,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       /* Report to the user the contribution to the bias level correction 
          made by this processing step.
       */
-      sprintf(MsgText, "Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[ampInUse], magic_square_mean);
+      snprintf(MsgText, sizeof(MsgText),  "Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[ampInUse], magic_square_mean);
       trlmessage(MsgText);
     
       /* subtract "magic square mean" from data*/
@@ -403,7 +403,7 @@ int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
     }
 
     /* report bias level subtracted to user */
-    sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.",
+    snprintf(MsgText, sizeof(MsgText),  "     bias level of %.6g electrons was subtracted for AMP %c.",
             bias_mean, AMPSORDER[i]);
     trlmessage(MsgText);
 

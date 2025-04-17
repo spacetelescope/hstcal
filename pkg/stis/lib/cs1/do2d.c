@@ -202,17 +202,17 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    if (sts->exptime > 0.)
 		getMinMax (x, &minval, &maxval);
 	    if (sts->exptime <= 0. || maxval <= minval) {
-		char msg1[81], wavecal_str[81];
+		char msg1[81*2], wavecal_str[81];
 		if (sts->wavecal)
 		    strcpy (wavecal_str, "wavecal ");
 		else
 		    wavecal_str[0] = '\0';
 		if (sts->exptime <= 0.) {
-		    sprintf (msg1,
+		    snprintf (msg1, sizeof(msg1) - 1,
 	    "Warning  %simset %d flagged as bad because exptime = %.6g\n",
 				wavecal_str, extver, sts->exptime);
 		} else {
-		    sprintf (msg1,
+		    snprintf (msg1, sizeof(msg1) - 1,
 	    "Warning  %simset %d flagged as bad because all values = %.6g\n",
 				wavecal_str, extver, maxval);
 		}

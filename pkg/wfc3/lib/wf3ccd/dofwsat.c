@@ -107,7 +107,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     */
     if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
         return (status);
-    sprintf(MsgText,"Image has starting location of %d,%d in the reference image", x0, y0);
+    snprintf(MsgText, sizeof(MsgText), "Image has starting location of %d,%d in the reference image", x0, y0);
     trlmessage(MsgText);
 
     /* Clean up the SingleGroupLine object */
@@ -116,7 +116,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
     /* If reference data not binned same as input, return with an error */
     if (rx != 1 || ry != 1) {
-        sprintf (MsgText,
+        snprintf(MsgText, sizeof(MsgText),
                 "Saturation image and input are not binned to the same pixel size!");
         trlerror (MsgText);
         return (status = SIZE_MISMATCH);
@@ -144,12 +144,12 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
     /* Full-frame */
     if (same_size) {
-        sprintf (MsgText,"Saturation image and input are the same size.");
+        snprintf(MsgText, sizeof(MsgText), "Saturation image and input are the same size.");
         trlmessage (MsgText);
     /* Subarray */
     } else {
         is_subarray = 1;
-        sprintf (MsgText,"Saturation image and input are NOT the same size - SUBARRAY found, amp %s", wf3->ccdamp);
+        snprintf(MsgText, sizeof(MsgText), "Saturation image and input are NOT the same size - SUBARRAY found, amp %s", wf3->ccdamp);
         trlmessage (MsgText);
 
         /*
@@ -162,12 +162,12 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
         /* The image starts in the B or D regions so we can just shift the starting pixel */
         if (x0 > END_PIX_AC_AMP) {
             if (wf3->verbose) {
-                sprintf (MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ", x0, y0);
+                snprintf(MsgText, sizeof(MsgText), "Subarray starts in B or D region, moved from (%d,%d) to ", x0, y0);
                 trlmessage (MsgText);
             }
             x0 += SIZE_SV_OVERSCAN;
             if (wf3->verbose) {
-                sprintf (MsgText,"(%d,%d) to avoid virtual overscan in reference image", x0, y0);
+                snprintf(MsgText, sizeof(MsgText), "(%d,%d) to avoid virtual overscan in reference image", x0, y0);
                 trlmessage (MsgText);
             }
 
@@ -181,7 +181,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     }
 
     if (wf3->verbose) {
-        sprintf(MsgText,"ccdamp = %s, straddle = %d, (xdim,ydim) = (%d,%d), (ampx,ampy) = (%d,%d), (x0,y0) = (%d,%d)",
+        snprintf(MsgText, sizeof(MsgText), "ccdamp = %s, straddle = %d, (xdim,ydim) = (%d,%d), (ampx,ampy) = (%d,%d), (x0,y0) = (%d,%d)",
                 wf3->ccdamp, straddle, xdim, ydim, wf3->ampx, wf3->ampy, x0, y0);
         trlmessage(MsgText);
     }
@@ -213,9 +213,9 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     */
     ComputeLimits(wf3, xdim, ydim, xbeg, ybeg, xend, yend);
     if (wf3->verbose) {
-        sprintf(MsgText,"xbeg[0]: %d xend[0]: %d  xbeg[1]: %d  xend[1]: %d", xbeg[0], xend[0], xbeg[1], xend[1]);
+        snprintf(MsgText, sizeof(MsgText), "xbeg[0]: %d xend[0]: %d  xbeg[1]: %d  xend[1]: %d", xbeg[0], xend[0], xbeg[1], xend[1]);
         trlmessage(MsgText);
-        sprintf(MsgText,"ybeg[0]: %d yend[0]: %d  ybeg[1]: %d  yend[1]: %d", ybeg[0], yend[0], ybeg[1], yend[1]);
+        snprintf(MsgText, sizeof(MsgText), "ybeg[0]: %d yend[0]: %d  ybeg[1]: %d  yend[1]: %d", ybeg[0], yend[0], ybeg[1], yend[1]);
         trlmessage(MsgText);
     }
 
@@ -226,7 +226,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     */
 
     if (wf3->verbose) {
-        sprintf(MsgText, "Mean gain: %f", wf3->mean_gain);
+        snprintf(MsgText, sizeof(MsgText),  "Mean gain: %f", wf3->mean_gain);
         trlmessage(MsgText);
     }
     
@@ -257,7 +257,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
                 }
             }}
         }}
-        sprintf(MsgText, "Full-frame full-well saturation image flagging step done.\n");
+        snprintf(MsgText, sizeof(MsgText),  "Full-frame full-well saturation image flagging step done.\n");
         trlmessage(MsgText);
 
     /* Subarray */
@@ -293,7 +293,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 		        }
             }}
         }}
-        sprintf(MsgText, "Subarray full-well saturation image flagging step done.\n");
+        snprintf(MsgText, sizeof(MsgText),  "Subarray full-well saturation image flagging step done.\n");
         trlmessage(MsgText);
     }
 

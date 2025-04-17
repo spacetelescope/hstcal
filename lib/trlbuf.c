@@ -637,6 +637,28 @@ void CloseTrlBuf (struct TrlBuf * buf)
         status = fcloseWithStatus(&buf->fp);
 
 }
+
+static void trlsafeprefix(const char *message, const char *prefix, char *line, const size_t line_bufsize) {
+    const char *truncated = " [...] (message too long)";
+    const size_t truncated_len = strlen(truncated);
+    const size_t max_line_len_w_prefix = line_bufsize - strlen(WARN_PREFIX);
+    const size_t max_line_len_w_truncated = line_bufsize - strlen(truncated);
+    const size_t message_len = strlen(message) + strlen(WARN_PREFIX);
+
+    if (truncated_len > line_bufsize) {
+        fprintf(stderr, "trlsafeprefix: trl message buffer is too small. Original message follows...\n");
+        fprintf(stderr, "%s\n", message);
+        return;
+    }
+
+    snprintf(line, line_bufsize, "%s", prefix);
+    strncat (line, message, max_line_len_w_prefix);
+    if (message_len > max_line_len_w_prefix) {
+        // message exceeds size of line buffer
+        strcpy(&line[max_line_len_w_truncated], truncated);
+    }
+}
+
 void trlmessage (const char *message) {
 
     if (!message || !*message)
@@ -649,48 +671,43 @@ void trlmessage (const char *message) {
 
     /* Send output to (temp) trailer file */
     WriteTrlBuf (message);
-
 }
-void trlwarn (const char *message) {
 
-    char line[CHAR_LINE_LENGTH+1];
+void trlwarn (const char *message) {
+    char line[MSG_BUFF_LENGTH] = {0};
 
     /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of Warning message */
-    sprintf(line,"%s",WARN_PREFIX);
-    strcat (line,message);
+    trlsafeprefix(message, WARN_PREFIX, line, sizeof(line));
 
     /* Send output to (temp) trailer file */
     trlmessage (line);
 
 }
 void trlerror (const char *message) {
-
-    char line[CHAR_LINE_LENGTH+1];
+    char line[MSG_BUFF_LENGTH] = {0};
 
     /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of ERROR message */
-    sprintf(line,"%s",ERR_PREFIX);
-    strcat (line,message);
+    trlsafeprefix(message, ERR_PREFIX, line, sizeof(line));
 
     /* Send output to (temp) trailer file */
     trlmessage (line);
-
 }
 void trlopenerr (const char *filename) {
-    sprintf (MsgText, "Can't open file %s", filename);
+    snprintf(MsgText, sizeof(MsgText), "Can't open file %s", filename);
     trlerror (MsgText);
 }
 void trlreaderr (const char *filename) {
-    sprintf (MsgText, "Can't read file %s", filename);
+    snprintf(MsgText, sizeof(MsgText), "Can't read file %s", filename);
     trlerror (MsgText);
 }
 void trlkwerr (const char *keyword, const char *filename) {
-    sprintf (MsgText, "Keyword \"%s\" not found in %s", keyword, filename);
+    snprintf(MsgText, sizeof(MsgText), "Keyword \"%s\" not found in %s", keyword, filename);
     trlerror (MsgText);
 }
 void trlfilerr (const char *filename) {
-    sprintf (MsgText, "while trying to read file %s", filename);
+    snprintf(MsgText, sizeof(MsgText), "while trying to read file %s", filename);
     trlerror (MsgText);
 }
 void printfAndFlush (const char *message) {

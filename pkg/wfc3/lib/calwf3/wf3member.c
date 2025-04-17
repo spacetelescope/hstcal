@@ -35,7 +35,7 @@ WF3Info *wf3		o: exposure specific flags and info
     
 	/* FIND OUT IF THE MEMBER WE WANT EXISTS */	
 	if (asn->product[prodid].subprod[posid].exp[expid].name[0] == '\0') {
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 		 "Couldn't find exposure %d of sub-product %d for product %d. ",		 expid, posid, prodid);
 	    trlerror (MsgText);
 	    return (status = NO_GOOD_DATA);
@@ -63,7 +63,7 @@ WF3Info *wf3		o: exposure specific flags and info
 	strcpy (wf3->rootname, rootname);
 	
 	if (asn->debug) {
-	    sprintf (MsgText, "GetAsnMember: Rootname: %s, Output rootname: %s",
+	    snprintf(MsgText, sizeof(MsgText), "GetAsnMember: Rootname: %s, Output rootname: %s",
 		     rootname, outroot);
 	    trlmessage (MsgText);
 	}
@@ -110,7 +110,7 @@ WF3Info *wf3		o: exposure specific flags and info
 	strcpy (wf3->rootname, rootname);
 	
 	if (asn->debug) {
-	    sprintf (MsgText, "GetSingle: Rootname: %s, Output rootname: %s",
+	    snprintf(MsgText, sizeof(MsgText), "GetSingle: Rootname: %s, Output rootname: %s",
 		     rootname, outroot);
 	    trlmessage (MsgText);
 	}

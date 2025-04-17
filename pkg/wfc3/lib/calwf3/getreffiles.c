@@ -294,7 +294,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 static void IRSanity (int detector, char *calswitch) {
 
 	if (detector != IR_DETECTOR) {
-	    sprintf (MsgText, "%s = PERFORM, but detector is UVIS.", calswitch);
+	    snprintf(MsgText, sizeof(MsgText), "%s = PERFORM, but detector is UVIS.", calswitch);
 	    trlwarn (MsgText);
 	}
 }
@@ -302,7 +302,7 @@ static void IRSanity (int detector, char *calswitch) {
 static void CCDSanity (int detector, char *calswitch) {
 
 	if (detector == IR_DETECTOR) {
-	    sprintf (MsgText, "%s = PERFORM, but detector is IR.", calswitch);
+	    snprintf(MsgText, sizeof(MsgText), "%s = PERFORM, but detector is IR.", calswitch);
 	    trlwarn (MsgText);
 	}
 }

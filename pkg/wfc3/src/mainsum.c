@@ -148,7 +148,7 @@ int main (int argc, char **argv) {
 
 	/* Sum imsets. */
 	if (Wf3Sum (input, output, mtype, printtime, verbose)) {
-	    sprintf (MsgText, "Error processing %s.", input);
+	    snprintf(MsgText, sizeof(MsgText), "Error processing %s.", input);
 	    trlerror (MsgText);
 	    WhichError (status);
 	}

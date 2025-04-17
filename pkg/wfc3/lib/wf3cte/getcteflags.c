@@ -141,7 +141,7 @@ int *missing     io: incremented if the file is missing
 	    if (GetSwitch (phdr, "BIASCORR", &calswitch))
 		    return (status);
 	    if (calswitch == COMPLETE) {
-            sprintf(MsgText,"\n *** BIASCORR already performed, stopping, cannot run PCTECORR with BIASCORR == COMPLETE");
+            snprintf(MsgText, sizeof(MsgText), "\n *** BIASCORR already performed, stopping, cannot run PCTECORR with BIASCORR == COMPLETE");
             trlmessage(MsgText);
 		    return (status=ERROR_RETURN);
 	    }

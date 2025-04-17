@@ -85,7 +85,7 @@ int *extver				o: extension (IMSET) from file corresponding
 	freeHdr(&prihdr);
 
     if (foundit == NO){
-		sprintf (MsgText, "No Reference Data found for chip %d",chip);
+		snprintf(MsgText, sizeof(MsgText), "No Reference Data found for chip %d",chip);
 		trlerror (MsgText);
 		return (status = NO_CHIP_FOUND);
 	}

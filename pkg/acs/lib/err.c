@@ -22,22 +22,22 @@ void errchk() {
 }
 
 void asnkwerr (char *keyword, char *file) {
-	sprintf (MsgText, "Keyword \"%s\" not found in %s", keyword, file);
+	snprintf(MsgText, sizeof(MsgText), "Keyword \"%s\" not found in %s", keyword, file);
 	asnerror (MsgText);
 }
 
 void asnopenerr (char *name) {
-	sprintf (MsgText, "Can't open file %s", name);
+	snprintf(MsgText, sizeof(MsgText), "Can't open file %s", name);
 	asnerror (MsgText);
 }
 
 void asnreaderr (char *name) {
-	sprintf (MsgText, "Can't read file %s", name);
+	snprintf(MsgText, sizeof(MsgText), "Can't read file %s", name);
 	asnerror (MsgText);
 }
 
 void asnfilerr (char *name) {
-	sprintf (MsgText, "while trying to read file %s", name);
+	snprintf(MsgText, sizeof(MsgText), "while trying to read file %s", name);
 	asnerror (MsgText);
 }
 

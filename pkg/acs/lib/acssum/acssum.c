@@ -255,7 +255,7 @@ Hdr *phdr       i: primary header
     } else if (strcmp (acs->det, "WFC") == 0) {
         acs->detector = WFC_CCD_DETECTOR;
     } else {
-        sprintf (MsgText, "DETECTOR = %s is invalid", acs->det);
+        snprintf(MsgText, sizeof(MsgText), "DETECTOR = %s is invalid", acs->det);
         trlerror (MsgText);
         return (status = HEADER_PROBLEM);
     }
@@ -285,7 +285,7 @@ Hdr *phdr       i: primary header
         return (status);
 
     if (nrptexp != acs->nimages) {
-        sprintf (MsgText, "%d exposures will be summed, however, NRPTEXP was %d.",
+        snprintf(MsgText, sizeof(MsgText), "%d exposures will be summed, however, NRPTEXP was %d.",
             acs->nimages, nrptexp);
         trlwarn (MsgText);
     }
@@ -391,7 +391,7 @@ static int SumGrps (AcsSumInfo *acs, char *mtype) {
             for (line = 0; line < x.sci.data.ny; line++) {
                 status = getSingleGroupLine (acs->input[i], line, &y);
                 if (status) {
-                    sprintf(MsgText,"Could not read line %d from image %d.",line+1,i+1);
+                    snprintf(MsgText, sizeof(MsgText), "Could not read line %d from image %d.",line+1,i+1);
                     trlerror(MsgText);
                     return (status = OPEN_FAILED);
                 }
@@ -656,14 +656,14 @@ void InitSumTrl (char *input, char *output) {
         /* Start by stripping off suffix from input/output filenames */
         if (MkOutName (in_name, isuffix, trlsuffix, nsuffix, out_name, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Couldn't create trailer filename for %s", in_name);
+            snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s", in_name);
             trlerror (MsgText);
             continue;
         }
 
         /* Now, convert trailer filename extensions from '.fits' to '.trl' */
         if (MkNewExtn (out_name, TRL_EXTN) ) {
-            sprintf(MsgText, "Error with input trailer filename %s", out_name);
+            snprintf(MsgText, sizeof(MsgText),  "Error with input trailer filename %s", out_name);
             trlerror (MsgText);
             WhichError (status);
         }
@@ -687,13 +687,13 @@ void InitSumTrl (char *input, char *output) {
 
     if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s", output);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s", output);
         trlerror (MsgText);
     }
 
     /* Now, convert trailer filename extensions from '.fits' to '.trl' */
     if (MkNewExtn (trl_out, TRL_EXTN) ) {
-        sprintf(MsgText, "Error with input trailer filename %s", trl_out);
+        snprintf(MsgText, sizeof(MsgText),  "Error with input trailer filename %s", trl_out);
         trlerror (MsgText);
         WhichError (status);
     }

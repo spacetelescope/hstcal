@@ -95,11 +95,11 @@ int LoadAsn (AsnInfo *asn) {
         return (status);
 
     if (asn->process == FULL) {
-        sprintf (MsgText,"LoadAsn:  Processing FULL Association");
+        snprintf(MsgText, sizeof(MsgText), "LoadAsn:  Processing FULL Association");
     } else if (asn->process == PARTIAL) {
-        sprintf (MsgText,"LoadAsn:  Processing PART of Association");
+        snprintf(MsgText, sizeof(MsgText), "LoadAsn:  Processing PART of Association");
     } else {
-        sprintf (MsgText,"LoadAsn:  Processing SINGLE exposure");
+        snprintf(MsgText, sizeof(MsgText), "LoadAsn:  Processing SINGLE exposure");
     }
     trlmessage (MsgText);
 
@@ -121,7 +121,7 @@ int LoadAsn (AsnInfo *asn) {
     }
 
     if (asn->debug) { 
-        sprintf (MsgText,"LoadAsn:  Read in ASN table %s ", asn->asn_table);
+        snprintf(MsgText, sizeof(MsgText), "LoadAsn:  Read in ASN table %s ", asn->asn_table);
         trlmessage (MsgText);
     }
 
@@ -223,7 +223,7 @@ int SetInput (AsnInfo *asn) {
     }
 
     if (asn->debug) {
-        sprintf (MsgText, "GetAsnTable: incase = %d",incase);
+        snprintf(MsgText, sizeof(MsgText), "GetAsnTable: incase = %d",incase);
         trlmessage (MsgText);
     }
 
@@ -253,7 +253,7 @@ int SetInput (AsnInfo *asn) {
             } else {
 
                 /* Couldn't find specified ASN file... */
-                sprintf (MsgText, "File %s not found for processing",
+                snprintf(MsgText, sizeof(MsgText), "File %s not found for processing",
                         filename);
                 trlerror (MsgText);
                 return (status = OPEN_FAILED);			
@@ -270,7 +270,7 @@ int SetInput (AsnInfo *asn) {
                 strcat (asn->asn_table, "\0");
 
                 if (asn->verbose) {
-                    sprintf (MsgText, "Processing SINGLE image %s...",
+                    snprintf(MsgText, sizeof(MsgText), "Processing SINGLE image %s...",
                             asn->filename);
                     trlmessage (MsgText);
                 }
@@ -279,7 +279,7 @@ int SetInput (AsnInfo *asn) {
             } else {
 
                 /* Couldn't find specified RAW file... */
-                sprintf (MsgText,"File %s not found for processing",
+                snprintf(MsgText, sizeof(MsgText), "File %s not found for processing",
                         filename);
                 trlerror (MsgText);
                 return (status = OPEN_FAILED);			
@@ -318,7 +318,7 @@ int SetInput (AsnInfo *asn) {
             } else {
 
                 /* Couldn't find specified file... */
-                sprintf (MsgText,"File %s not found for re-processing",
+                snprintf(MsgText, sizeof(MsgText), "File %s not found for re-processing",
                         filename);
                 trlerror (MsgText);
                 return (status = OPEN_FAILED);			
@@ -364,7 +364,7 @@ int SetInput (AsnInfo *asn) {
                     strlen(strstr (filename, ".fit"));
 
                 if (asn->debug){
-                    sprintf (MsgText, "For file %s, in_dot = %d",
+                    snprintf(MsgText, sizeof(MsgText), "For file %s, in_dot = %d",
                             filename, in_dot);
                     trlmessage (MsgText);
                 }
@@ -434,7 +434,7 @@ int SetInput (AsnInfo *asn) {
                         } else {
                             /* We can't find a matching file or ASN
                              ** table to process */
-                            sprintf (MsgText,
+                            snprintf(MsgText, sizeof(MsgText),
                                     "File %s not found for processing",
                                     filename);
                             trlerror (MsgText);
@@ -506,7 +506,7 @@ int GetAsnTable (AsnInfo *asn) {
     int  streq_ic (char *, char *);  /* strings equal? (case insensitive) */
 
     if (asn->debug) {
-        sprintf (MsgText, "GetAsnTable: ASN_TABLE is %s",asn->asn_table);
+        snprintf(MsgText, sizeof(MsgText), "GetAsnTable: ASN_TABLE is %s",asn->asn_table);
         trlmessage (MsgText); 
     }
 
@@ -521,7 +521,7 @@ int GetAsnTable (AsnInfo *asn) {
     for (col=0; col < NCOLS; col++) {
         c_tbcfnd1 (tp, colname[col], &(colptr[col]));
         if (c_iraferr() || colptr[col] == 0) {
-            sprintf (MsgText, "Can't find column %s in %s", colname[col],
+            snprintf(MsgText, sizeof(MsgText), "Can't find column %s in %s", colname[col],
                     asn->asn_table);
             trlerror (MsgText);
             c_tbtclo (tp);
@@ -533,7 +533,7 @@ int GetAsnTable (AsnInfo *asn) {
     nrows = 0;
     nrows = c_tbpsta (tp, TBL_NROWS);
     if (nrows <= 0) {
-        sprintf (MsgText, "Invalid number of rows in %s", asn->asn_table);
+        snprintf(MsgText, sizeof(MsgText), "Invalid number of rows in %s", asn->asn_table);
         trlerror (MsgText);
         c_tbtclo (tp);
         return (status = TABLE_ERROR);
@@ -556,7 +556,7 @@ int GetAsnTable (AsnInfo *asn) {
         /* Get the MEMBER NAME in this row */
         c_tbegtt (tp, colptr[0], row+1, exp[row].memname, SZ_CBUF);
         if (c_iraferr()) {
-            sprintf (MsgText, "Can't read %s in row %d in %s", colname[0],
+            snprintf(MsgText, sizeof(MsgText), "Can't read %s in row %d in %s", colname[0],
                     row+1, asn->asn_table);
             trlerror (MsgText);
             c_tbtclo (tp);
@@ -571,7 +571,7 @@ int GetAsnTable (AsnInfo *asn) {
         /* Get the TYPE in this row */
         c_tbegtt (tp, colptr[1], row+1, exp[row].mtype, SZ_CBUF);
         if (c_iraferr()) {
-            sprintf (MsgText, "Can't read %s in row %d in %s", colname[1],
+            snprintf(MsgText, sizeof(MsgText), "Can't read %s in row %d in %s", colname[1],
                     row+1, asn->asn_table);
             trlerror (MsgText);
             c_tbtclo (tp);
@@ -587,7 +587,7 @@ int GetAsnTable (AsnInfo *asn) {
         for (i = 0; i < strlen(exp[row].type); i++) {
             if (exp[row].type[i] == UNDERLINE_CHAR) {       
                 exp[row].type[i] = DASH_CHAR;
-                sprintf(MsgText, "MEMTYPE %s in row %d was INVALID and needs to be corrected.",
+                snprintf(MsgText, sizeof(MsgText),  "MEMTYPE %s in row %d was INVALID and needs to be corrected.",
                         exp[row].mtype, row+1);
                 trlwarn(MsgText);
             }
@@ -596,7 +596,7 @@ int GetAsnTable (AsnInfo *asn) {
         /* Get the STATUS in this row */
         c_tbegtb (tp, colptr[2], row+1, &(exp[row].prsnt));
         if (c_iraferr()) {
-            sprintf (MsgText, "Can't read %s in row %d in %s", colname[2],
+            snprintf(MsgText, sizeof(MsgText), "Can't read %s in row %d in %s", colname[2],
                     row+1, asn->asn_table);
             trlerror (MsgText);
             c_tbtclo (tp);
@@ -604,7 +604,7 @@ int GetAsnTable (AsnInfo *asn) {
             return (status = ELEMENT_NOT_FOUND);
         }
         if (asn->debug) {
-            sprintf (MsgText, "GetAsnTable: Read in row %d from ASN table",
+            snprintf(MsgText, sizeof(MsgText), "GetAsnTable: Read in row %d from ASN table",
                     row);
             trlmessage (MsgText);
         }
@@ -643,7 +643,7 @@ int GetAsnTable (AsnInfo *asn) {
     asn->dthcorr = PERFORM;
 
     if (asn->debug) {
-        sprintf (MsgText, "GetAsnTable: CRCORR = %d, RPTCORR = %d",
+        snprintf(MsgText, sizeof(MsgText), "GetAsnTable: CRCORR = %d, RPTCORR = %d",
                 asn->crcorr,asn->rptcorr);
         trlmessage (MsgText);
     }
@@ -723,7 +723,7 @@ int GetAsnTable (AsnInfo *asn) {
         }
 
         if (asn->debug) {
-            sprintf (MsgText, "GetAsnTable: Posid = %d for row %d",posid,
+            snprintf(MsgText, sizeof(MsgText), "GetAsnTable: Posid = %d for row %d",posid,
                     row);
             trlmessage (MsgText);
         }	
@@ -732,7 +732,7 @@ int GetAsnTable (AsnInfo *asn) {
         /* This implies that MEMPRSNT must be set to YES for EXP_*
          ** This is not fatal for WF3.  Simply decrement tmembers. */
         if (!exp[row].prsnt && strncmp(exp[row].type, "prod-",5) != 0) {
-            sprintf (MsgText, "Member \"%s\" is not present",
+            snprintf(MsgText, sizeof(MsgText), "Member \"%s\" is not present",
                     exp[row].memname);
             trlwarn (MsgText);		 
             asn->numasn--;
@@ -743,7 +743,7 @@ int GetAsnTable (AsnInfo *asn) {
     }
 
     if (asn->debug) {
-        sprintf (MsgText, "GetAsnTable: NUMSP = %d, PRODID = %d",numsp,
+        snprintf(MsgText, sizeof(MsgText), "GetAsnTable: NUMSP = %d, PRODID = %d",numsp,
                 prodid);
         trlmessage (MsgText);
     }
@@ -829,12 +829,12 @@ int GetAsnTable (AsnInfo *asn) {
     /* If there aren't any sub-products with more than 1 member, then
      ** omit crcorr/rptcorr processing */
     if ((maxspmems < 2) && asn->crcorr == PERFORM) {
-        sprintf (MsgText,
+        snprintf(MsgText, sizeof(MsgText),
                 "No sub-product with more than 1 member; CRCORR will be skipped");
         trlwarn (MsgText);
         asn->crcorr = DUMMY;
     } else if ((maxspmems < 2) && asn->rptcorr == PERFORM) {
-        sprintf (MsgText,
+        snprintf(MsgText, sizeof(MsgText),
                 "No sub-product with more than 1 member; RPTCORR will be skipped");
         trlwarn (MsgText);
         asn->rptcorr = DUMMY;
@@ -1218,13 +1218,13 @@ int GetGlobalInfo (AsnInfo *asn) {
     } 
 
     if (asn->debug) {
-        sprintf(MsgText, "GetGlobalInfo: asn_table is %s",asn->asn_table);
+        snprintf(MsgText, sizeof(MsgText),  "GetGlobalInfo: asn_table is %s",asn->asn_table);
         trlmessage (MsgText);
     }
 
     /* Read primary header of ASN file into phdr. */
     if (LoadHdr (asn->asn_table, &phdr)) {
-        sprintf (MsgText, "Could not load header from table %s",
+        snprintf(MsgText, sizeof(MsgText), "Could not load header from table %s",
                 asn->asn_table);
         trlerror (MsgText);
         return (status);
@@ -1298,7 +1298,7 @@ int checkGlobalInfo (AsnInfo *asn) {
 
     /* Check instrument = WF3 */
     if (strncmp (asn->instr, "WFC3", 4) != 0 ) {
-        sprintf (MsgText, 
+        snprintf(MsgText, sizeof(MsgText),
                 "INSTRUME keyword value \"%s\" not valid in %s",
                 asn->instr, asn->filename);
         trlerror (MsgText);
@@ -1307,7 +1307,7 @@ int checkGlobalInfo (AsnInfo *asn) {
 
     /* Check for valid camera number */
     if (asn->detector < 1 || asn->detector > 2) {
-        sprintf (MsgText, 
+        snprintf(MsgText, sizeof(MsgText),
                 "CAMERA keyword value \"%d\" not valid in %s",
                 asn->detector, asn->filename);
         trlerror (MsgText);
@@ -1329,7 +1329,7 @@ void printInfo (AsnInfo *asn) {
     } else {
         numprod = asn->numprod;
     }
-    sprintf (MsgText,
+    snprintf(MsgText, sizeof(MsgText),
             "NUMBER of MEMBERS in TABLE: %d  PRODUCTS: %d  SUB-PRODUCTS: %d",
             asn->numasn, numprod, asn->numsp);
     trlmessage (MsgText);
@@ -1337,7 +1337,7 @@ void printInfo (AsnInfo *asn) {
     if (asn->process != SINGLE) {
         for (i=0; i < asn->numprod; i++) {
             if (asn->dthcorr != DUMMY || asn->dthcorr != OMIT) {
-                sprintf (MsgText,
+                snprintf(MsgText, sizeof(MsgText),
                         "Product-- Member %3d: %s  Product: %2d  Type: %s",
                         i+1, asn->product[i].name, asn->product[i].prodid,
                         asn->product[i].mtype);
@@ -1345,7 +1345,7 @@ void printInfo (AsnInfo *asn) {
             }
 
             for (j = 1; j <= asn->numsp; j++) {
-                sprintf (MsgText,
+                snprintf(MsgText, sizeof(MsgText),
                         "Sub-Product-- Member %3d: %s  Posn: %2d  Type: %s",
                         j, asn->product[i].subprod[j].name, 
                         asn->product[i].subprod[j].posid,
@@ -1353,7 +1353,7 @@ void printInfo (AsnInfo *asn) {
                 trlmessage (MsgText);
 
                 for (k = 1; k <= asn->spmems[j]; k++) {
-                    sprintf (MsgText,
+                    snprintf(MsgText, sizeof(MsgText),
                             "Exposure-- Member %3d: %s  Type: %s",
                             k, asn->product[i].subprod[j].exp[k].name, 
                             asn->product[i].subprod[j].exp[k].mtype);
@@ -1365,7 +1365,7 @@ void printInfo (AsnInfo *asn) {
     } else {
 
         /* Print out info for SINGLE exposure ... */
-        sprintf (MsgText, "Exposure-- Processing SINGLE Exposure %s ",
+        snprintf(MsgText, sizeof(MsgText), "Exposure-- Processing SINGLE Exposure %s ",
                 asn->filename);
         trlmessage (MsgText);
     }
@@ -1474,7 +1474,7 @@ int updateAsnTable (AsnInfo *asn, int prodid, int posid) {
         if (colptr[col] == 0) {
             c_tbcfnd1 (asn_tp, colname[col], &(colptr[col]));
             if (c_iraferr() || colptr[col] == 0) {
-                sprintf (MsgText, "Can't find column %s in %s",
+                snprintf(MsgText, sizeof(MsgText), "Can't find column %s in %s",
                         colname[col], asn->asn_table);
                 trlerror (MsgText);
                 c_tbtclo (asn_tp);
@@ -1523,7 +1523,7 @@ static int UpdateHdr (char *output) {
 
     int PutKeyBool (Hdr *, char *, Bool, char *);
 
-    sprintf(MsgText, "Trying to open %s...",output);
+    snprintf(MsgText, sizeof(MsgText),  "Trying to open %s...",output);
     trlmessage (MsgText);
 
     initHdr (&phdr);
@@ -1555,7 +1555,7 @@ static int UpdateHdr (char *output) {
     /* Close the ASN table's primary header. */
     freeHdr (&phdr);
 
-    sprintf(MsgText, "Updated Global Header for %s...",output);
+    snprintf(MsgText, sizeof(MsgText),  "Updated Global Header for %s...",output);
     trlmessage (MsgText);
 
     return (status);

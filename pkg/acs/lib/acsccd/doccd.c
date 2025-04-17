@@ -451,7 +451,7 @@ int DoCCD (ACSInfo *acs_info) {
                        return (status);
                     }
 
-                    sprintf(MsgText, "     mean of bias levels subtracted was %.6g electrons.", meanblev);
+                    snprintf(MsgText, sizeof(MsgText),  "     mean of bias levels subtracted was %.6g electrons.", meanblev);
                     trlmessage(MsgText);
 
                  } else {
@@ -465,7 +465,7 @@ int DoCCD (ACSInfo *acs_info) {
                  {unsigned int j;
                  for (j = 0; j < NAMPS; j++) {
                      if (acs[i].blev[j] != 0.) {
-                         sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
+                         snprintf(MsgText, sizeof(MsgText),  "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
                          trlmessage(MsgText);
 
                          acs_info->blev[j] = acs[i].blev[j];
@@ -609,7 +609,7 @@ int DoCCD (ACSInfo *acs_info) {
                              return (status);
                           }
 
-                          sprintf(MsgText, "     mean of bias levels subtracted was %.6g electrons.", meanblev);
+                          snprintf(MsgText, sizeof(MsgText),  "     mean of bias levels subtracted was %.6g electrons.", meanblev);
                           trlmessage(MsgText);
 
                        } else {
@@ -623,7 +623,7 @@ int DoCCD (ACSInfo *acs_info) {
                        {unsigned int j;
                        for (j = 0; j < NAMPS; j++) {
                            if (acs[i].blev[j] != 0.) {
-                               sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
+                               snprintf(MsgText, sizeof(MsgText),  "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
                                trlmessage(MsgText);
 
                                acs_info->blev[j] = acs[i].blev[j];
@@ -669,7 +669,7 @@ int DoCCD (ACSInfo *acs_info) {
                       return (status);
                    }
 
-                   sprintf(MsgText, "     mean of bias levels subtracted was %.6g electrons.", meanblev);
+                   snprintf(MsgText, sizeof(MsgText),  "     mean of bias levels subtracted was %.6g electrons.", meanblev);
                    trlmessage(MsgText);
 
                 } else {
@@ -683,7 +683,7 @@ int DoCCD (ACSInfo *acs_info) {
                 {unsigned int j;
                 for (j = 0; j < NAMPS; j++) {
                     if (acs[i].blev[j] != 0.) {
-                        sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
+                        snprintf(MsgText, sizeof(MsgText),  "     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
                         trlmessage(MsgText);
 
                         acs_info->blev[j] = acs[i].blev[j];
@@ -737,14 +737,14 @@ int DoCCD (ACSInfo *acs_info) {
     {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
-            sprintf(MsgText, "\nFull-well saturation flagging being performed for imset %d.\n", i+1);
+            snprintf(MsgText, sizeof(MsgText),  "\nFull-well saturation flagging being performed for imset %d.\n", i+1);
             trlmessage(MsgText);
             if (doFullWellSat(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return (status);
             }
         } else {
-            sprintf(MsgText, "\nNo Full-well saturation flagging being performed for imset %d.\n", i+1);
+            snprintf(MsgText, sizeof(MsgText),  "\nNo Full-well saturation flagging being performed for imset %d.\n", i+1);
             trlwarn(MsgText);
         }
     }}
@@ -770,48 +770,48 @@ int DoCCD (ACSInfo *acs_info) {
             trlmessage("\n    Uncertainty array initialized,");
             buff[0] = '\0';
 
-            sprintf(MsgText, "    readnoise =");
+            snprintf(MsgText, sizeof(MsgText),  "    readnoise =");
             {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].readnoise[i] > 0) {
-                    sprintf(buff, "%.5g,",acs[primaryIdx].readnoise[i]);
+                    snprintf(buff, sizeof(buff), "%.5g,",acs[primaryIdx].readnoise[i]);
                     strcat(MsgText, buff);
                 }
             }}
 
             if (acs[primaryIdx].readnoise[NAMPS-1] > 0) {
-                sprintf(buff, "%.5g",acs[primaryIdx].readnoise[NAMPS-1]);
+                snprintf(buff, sizeof(buff), "%.5g",acs[primaryIdx].readnoise[NAMPS-1]);
                 strcat(MsgText, buff);
             }
             trlmessage(MsgText);
 
-            sprintf(MsgText, "    gain =");
+            snprintf(MsgText, sizeof(MsgText),  "    gain =");
             {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].atodgain[i] > 0) {
-                    sprintf(buff, "%.5g,",acs[primaryIdx].atodgain[i]);
+                    snprintf(buff, sizeof(buff), "%.5g,",acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
             }}
 
             if (acs[primaryIdx].atodgain[NAMPS-1] > 0) {
-                sprintf(buff, "%.5g",acs[primaryIdx].atodgain[NAMPS-1]);
+                snprintf(buff, sizeof(buff), "%.5g",acs[primaryIdx].atodgain[NAMPS-1]);
                 strcat(MsgText, buff);
             }
             trlmessage(MsgText);
-            sprintf(MsgText, "   default bias levels =");
+            snprintf(MsgText, sizeof(MsgText),  "   default bias levels =");
 
             {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].ccdbias[i] > 0) {
-                    sprintf(buff, "%.5g,",
+                    snprintf(buff, sizeof(buff), "%.5g,",
                             acs[primaryIdx].ccdbias[i] * acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
             }}
 
             if (acs[primaryIdx].ccdbias[NAMPS-1] > 0) {
-                sprintf(buff, "%.5g",
+                snprintf(buff, sizeof(buff), "%.5g",
                         acs[primaryIdx].ccdbias[NAMPS-1] * acs[primaryIdx].atodgain[NAMPS-1]);
                 strcat(MsgText, buff);
             }
@@ -865,13 +865,13 @@ int DoCCD (ACSInfo *acs_info) {
         if (blevcorr[i] == COMPLETE || acs[i].blevcorr == COMPLETE) {
             /* BLEVCORR was completed, so overscan regions can be trimmed... */
             if (acs_info->verbose) {
-                sprintf(MsgText,
+                snprintf(MsgText, sizeof(MsgText),
                         "Writing out image with trimx = %d,%d, trimy = %d,%d",
                         acs[i].trimx[0], acs[i].trimx[1],
                         acs[i].trimy[0],acs[i].trimy[1]);
                 trlmessage(MsgText);
 
-                sprintf(MsgText,"Outputting chip %d",acs[i].chip);
+                snprintf(MsgText, sizeof(MsgText), "Outputting chip %d",acs[i].chip);
                 trlmessage(MsgText);
             }
 
@@ -899,10 +899,10 @@ int DoCCD (ACSInfo *acs_info) {
         } else {
             /* BLEVCORR was not completed, so keep overscan regions... */
             if (acs_info->verbose) {
-                sprintf(MsgText,"Writing out FULL image with overscan regions");
+                snprintf(MsgText, sizeof(MsgText), "Writing out FULL image with overscan regions");
                 trlmessage(MsgText);
 
-                sprintf(MsgText,"Outputting chip %d",acs[i].chip);
+                snprintf(MsgText, sizeof(MsgText), "Outputting chip %d",acs[i].chip);
                 trlmessage(MsgText);
             }
 
@@ -911,7 +911,7 @@ int DoCCD (ACSInfo *acs_info) {
 
         /* If putSingleGroup/putSingleGroupSect failed above, then error out. */
         if (hstio_err()) {
-            sprintf(MsgText, "Couldn't write imset %d.", i+1);
+            snprintf(MsgText, sizeof(MsgText),  "Couldn't write imset %d.", i+1);
             trlerror(MsgText);
             freeOnExit (&ptrReg);
             return (status = WRITE_FAILED);
@@ -972,7 +972,7 @@ void computeDarktime(ACSInfo *acs, float *darktime) {
       if (acs->expstart >= SM4MJD) {
         *darktime = darktimeFromHeader + darktimeOffset;
       }
-      sprintf(MsgText, "Full Frame adjusted Darktime: %f\n", *darktime);
+      snprintf(MsgText, sizeof(MsgText),  "Full Frame adjusted Darktime: %f\n", *darktime);
       trlmessage(MsgText);
 
     /* Subarray data */
@@ -981,14 +981,14 @@ void computeDarktime(ACSInfo *acs, float *darktime) {
         for (unsigned int i = 0; i < numSupportedDarkSubApertures; i++) {
             if (strcmp(acs->aperture, darkSubApertures[i]) == 0) {
                 *darktime = darktimeFromHeader + darktimeOffset;
-                sprintf(MsgText, "Supported Subarray adjusted Darktime: %f for aperture: %s\n", *darktime, darkSubApertures[i]);
+                snprintf(MsgText, sizeof(MsgText),  "Supported Subarray adjusted Darktime: %f for aperture: %s\n", *darktime, darkSubApertures[i]);
                 trlmessage(MsgText);
                 break;
             }
         }
       }
     }
-    sprintf(MsgText, "DARKTIME from SCI header: %f  Offset from CCDTAB: %f  Final DARKTIME: %f", darktimeFromHeader, darktimeOffset, *darktime);
+    snprintf(MsgText, sizeof(MsgText),  "DARKTIME from SCI header: %f  Offset from CCDTAB: %f  Final DARKTIME: %f", darktimeFromHeader, darktimeOffset, *darktime);
     trlmessage(MsgText);
 }
 

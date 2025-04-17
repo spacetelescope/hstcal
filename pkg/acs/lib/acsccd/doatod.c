@@ -167,7 +167,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	}
 
 	if (!foundit) {
-	    sprintf (MsgText, "CCD amp %s, gain %4.1f, not found in ATODTAB `%s'.",
+	    snprintf(MsgText, sizeof(MsgText), "CCD amp %s, gain %4.1f, not found in ATODTAB `%s'.",
 		acs->ccdamp, acs->ccdgain, acs->atod.name);
 	    trlerror (MsgText);
 		CloseAtoDTab (&tabinfo);
@@ -250,7 +250,7 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    sprintf (MsgText, "ATODTAB `%s' not found.", tname);
+	    snprintf(MsgText, sizeof(MsgText), "ATODTAB `%s' not found.", tname);
 	    trlerror (MsgText);
 		return (status = OPEN_FAILED);
 	}
@@ -356,7 +356,7 @@ static int ReadAtoDArray (TblInfo *tabinfo, int row, TblArray *tabarray) {
 	    return (status = TABLE_ERROR);
 
 	if (nret < tabarray->nelem) {
-	    sprintf (MsgText,"CORRECTION array in row %d of ATODTAB is too short.", row);
+	    snprintf(MsgText, sizeof(MsgText), "CORRECTION array in row %d of ATODTAB is too short.", row);
 	    trlerror (MsgText);
 		free (tabarray->atod);
 	    return (status = TABLE_ERROR);

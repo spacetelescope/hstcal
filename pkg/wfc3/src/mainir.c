@@ -229,7 +229,7 @@ int main (int argc, char **argv) {
 
 	        if (MkName (input, isuffix, osuffix, "", output, CHAR_LINE_LENGTH)) {
 		        WhichError (status);
-		        sprintf (MsgText, "Skipping %s", input);
+		        snprintf(MsgText, sizeof(MsgText), "Skipping %s", input);
 		        trlmessage (MsgText);
 		        continue;
 	        }
@@ -238,7 +238,7 @@ int main (int argc, char **argv) {
 	    /* Calibrate the current input file. */
 	    if (WF3ir (input, output, &ir_sw, &refnames, printtime, verbose,
 		       0.0, 0.0, 0)){
-		sprintf (MsgText, "Error processing %s.", input);
+		snprintf(MsgText, sizeof(MsgText), "Error processing %s.", input);
 		trlerror (MsgText);
 		WhichError (status);
 	    }

@@ -254,7 +254,7 @@ int checkTabRefPedigree (char *filename, RefTab *table, int *calswitch)
 }
 
 void MissingFile (char *keyword, char *filename, int *missing) {
-    sprintf (MsgText, "%s `%s' not found or can't open.", keyword, filename);
+    snprintf(MsgText, sizeof(MsgText), "%s `%s' not found or can't open.", keyword, filename);
     trlerror (MsgText);
     (*missing)++;
 }

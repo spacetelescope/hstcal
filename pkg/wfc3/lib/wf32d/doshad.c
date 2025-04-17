@@ -146,7 +146,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    allocSingleGroupLine (&z, x->sci.data.nx);
 
 	    if (wf32d->verbose) {
-		sprintf (MsgText, "Shad file will be expanded to %d pixels.",
+		snprintf(MsgText, sizeof(MsgText), "Shad file will be expanded to %d pixels.",
 			 y.sci.tot_nx*rx);
 		trlmessage(MsgText);
 	    }

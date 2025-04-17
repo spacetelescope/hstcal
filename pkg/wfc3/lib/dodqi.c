@@ -256,7 +256,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     */
     sat = wf3->saturate;
     if ((wf3->detector != IR_DETECTOR) && (wf3->scalar_satflag == True)) {
-        sprintf (MsgText, "Full-well saturation flagging being applied during doDQI using a single threshold value.");
+        snprintf(MsgText, sizeof(MsgText), "Full-well saturation flagging being applied during doDQI using a single threshold value.");
         trlmessage (MsgText);
         for (j = 0;  j < dimy;  j++) {
             for (i = 0;  i < dimx;  i++) {
@@ -473,7 +473,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
         return (status);
 
     if (nrows == 0) {
-        sprintf (MsgText, "No rows from BPIXTAB applied to DQ array.");
+        snprintf(MsgText, sizeof(MsgText), "No rows from BPIXTAB applied to DQ array.");
         trlwarn (MsgText);
 
     }
@@ -610,14 +610,14 @@ int ReadBpixTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
         return (status = TABLE_ERROR);
 
     if (tabrow->axis !=1 && tabrow->axis != 2) {
-        sprintf (MsgText, "Axis = %d in BPIXTAB, but it must be 1 or 2.",
+        snprintf(MsgText, sizeof(MsgText), "Axis = %d in BPIXTAB, but it must be 1 or 2.",
                  tabrow->axis);
         trlerror (MsgText);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }
     if (tabrow->length <= 0) {
-        sprintf (MsgText,"Length = %d in BPIXTAB, but it must be positive.",
+        snprintf(MsgText, sizeof(MsgText), "Length = %d in BPIXTAB, but it must be positive.",
                  tabrow->length);
         trlerror (MsgText);
         c_tbtclo (tabinfo->tp);

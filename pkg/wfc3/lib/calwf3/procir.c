@@ -83,7 +83,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
      ** PRODID/prod starts at 0, while numprod starts at 1... */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose) {
-            sprintf (MsgText, "CALWF3: processing IR product %d", prod);
+            snprintf(MsgText, sizeof(MsgText), "CALWF3: processing IR product %d", prod);
             trlmessage (MsgText);
         }
 
@@ -93,7 +93,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 
         for (posid=1; posid <= asn->numsp; posid++) {
             if (asn->verbose) {
-                sprintf (MsgText,
+                snprintf(MsgText, sizeof(MsgText),
                         "CALWF3: processing posid = %d", posid);
                 trlmessage (MsgText);
             }
@@ -206,7 +206,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                     trlwarn ("No processing performed on image.");
                     if (wf3hdr->sci_rptcorr != PERFORM)
                         status = NOTHING_TO_DO;
-                    sprintf (MsgText, "Copying input to %s ",
+                    snprintf(MsgText, sizeof(MsgText), "Copying input to %s ",
                             wf3hdr->fltfile);
                     trlwarn (MsgText);
 
@@ -231,14 +231,14 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
             if (wf3ir_sci_sw.rptcorr == PERFORM) {
 
                 if (asn->verbose) {
-                    sprintf (MsgText,
+                    snprintf(MsgText, sizeof(MsgText),
                             "CALWF3: Now process position %d from product %d",
                             posid, prod);
                     trlmessage (MsgText);
                 }
 
                 if (asn->verbose) {
-                    sprintf (MsgText,"Input to WF3REJ is:");
+                    snprintf(MsgText, sizeof(MsgText), "Input to WF3REJ is:");
                     trlmessage (MsgText);
 
                     /* Need to allocate memory for a separate string to
@@ -250,7 +250,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                     sprintf (wf3rej_msgtext, "%s", wf3rej_input);
                     trlmessage (wf3rej_msgtext);
                     free (wf3rej_msgtext);
-                    sprintf (MsgText,"Output to WF3REJ is: %s",
+                    snprintf(MsgText, sizeof(MsgText), "Output to WF3REJ is: %s",
                             wf3hdr->crjfile);
                     trlmessage (MsgText);
                 }

@@ -168,7 +168,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
     }
 
     if (asn.verbose) {
-        sprintf (MsgText,"CALACS: Detector %s, type %d ",asn.instr, asn.detector);
+        snprintf(MsgText, sizeof(MsgText), "CALACS: Detector %s, type %d ",asn.instr, asn.detector);
         trlmessage (MsgText);
     }
 
@@ -459,7 +459,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
     /* Loop over the products/positions for each CR-split/Repeat-Obs set. */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose){
-            sprintf (MsgText, "CALACS: processing CCD product %d", prod);
+            snprintf(MsgText, sizeof(MsgText), "CALACS: processing CCD product %d", prod);
             trlmessage (MsgText);
         }
 
@@ -467,7 +467,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
         for (posid = 1; posid <= asn->numsp; posid++) {
 
             if (asn->verbose) {
-                sprintf (MsgText,"CALACS: processing posid = %d", posid);
+                snprintf(MsgText, sizeof(MsgText), "CALACS: processing posid = %d", posid);
                 trlmessage (MsgText);
             }
             /*  Allocate space for ACSREJ input image list */
@@ -649,7 +649,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
             if ( (acshdr->sci_crcorr == PERFORM) ||
                  (acshdr->sci_rptcorr == PERFORM) ) {
                 if (asn->verbose) {
-                    sprintf (MsgText,"CALACS: Now process position %d from product %d", posid, prod);
+                    snprintf(MsgText, sizeof(MsgText), "CALACS: Now process position %d from product %d", posid, prod);
                     trlmessage (MsgText);
                 }
 
@@ -664,7 +664,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
                 /*acs2d_sci_sw.dqicorr = COMPLETE; */
 
                 if (asn->debug){
-                    sprintf(MsgText,"Non-CTE corrected Input to ACSREJ is:");
+                    snprintf(MsgText, sizeof(MsgText), "Non-CTE corrected Input to ACSREJ is:");
                     trlmessage(MsgText);
 
                     /* Need to allocate memory for a separate string to be
@@ -677,11 +677,11 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
                     trlmessage(acsrej_msgtext);
                     free(acsrej_msgtext);
 
-                    sprintf(MsgText,"Non-CTE corrected Output to ACSREJ is: %s", acshdr->crj_tmp);
+                    snprintf(MsgText, sizeof(MsgText), "Non-CTE corrected Output to ACSREJ is: %s", acshdr->crj_tmp);
                     trlmessage(MsgText);
 
                     if (acscte_sci_sw.pctecorr == PERFORM) {
-                        sprintf(MsgText,"CTE corrected Input to ACSREJ is:");
+                        snprintf(MsgText, sizeof(MsgText), "CTE corrected Input to ACSREJ is:");
                         trlmessage(MsgText);
 
                         /* Need to allocate memory for a separate string to be
@@ -693,7 +693,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
                         trlmessage(acsrejc_msgtext);
                         free(acsrejc_msgtext);
 
-                        sprintf(MsgText,"CTE corrected Output to ACSREJ is: %s", acshdr->crc_tmp);
+                        snprintf(MsgText, sizeof(MsgText), "CTE corrected Output to ACSREJ is: %s", acshdr->crc_tmp);
                         trlmessage(MsgText);
                     }
                 }
@@ -933,7 +933,7 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
         /* Process SINGLE/PARTIAL/FULL product */
         for (posid = 1; posid <= asn->numsp; posid++) {
             if (asn->verbose){
-                sprintf (MsgText,"CALACS: processing MAMA posid = %d", posid);
+                snprintf(MsgText, sizeof(MsgText), "CALACS: processing MAMA posid = %d", posid);
                 trlmessage (MsgText);
             }
 
@@ -1012,7 +1012,7 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
                     if (acshdr->sci_rptcorr != PERFORM)
                         status = NOTHING_TO_DO;
 
-                    sprintf (MsgText, "Copying input to %s ",acshdr->fltfile);
+                    snprintf(MsgText, sizeof(MsgText), "Copying input to %s ",acshdr->fltfile);
                     trlwarn(MsgText);
 
                     if (CopyFFile (acshdr->rawfile, acshdr->fltfile))
@@ -1058,7 +1058,7 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
                     trlmessage(acssum_msgtext);
                     free(acssum_msgtext);
 
-                    sprintf (MsgText, "Output for ASCSUM is: %s",acssum_output);
+                    snprintf(MsgText, sizeof(MsgText), "Output for ASCSUM is: %s",acssum_output);
                     trlmessage(MsgText);
                 }
 
@@ -1202,14 +1202,14 @@ static int CopyFFile (char *infile, char *outfile) {
         return (status = OUT_OF_MEMORY);
 
     if ((ofp = fopen (outfile, "wb")) == NULL) {
-        sprintf (MsgText,"Can't create temporary file %s.", outfile);
+        snprintf(MsgText, sizeof(MsgText), "Can't create temporary file %s.", outfile);
         trlerror(MsgText);
         free (buf);
         return (status = INVALID_TEMP_FILE);
     }
 
     if ((ifp = fopen (infile, "rb")) == NULL) {
-        sprintf (MsgText, "Can't open %s.", infile);
+        snprintf(MsgText, sizeof(MsgText), "Can't open %s.", infile);
         trlerror (MsgText);
         (void)fcloseWithStatus(&ofp);
         remove (outfile);
@@ -1221,7 +1221,7 @@ static int CopyFFile (char *infile, char *outfile) {
     while (!done) {
         nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
         if (ferror (ifp)) {
-            sprintf (MsgText, "Can't read from %s (copying to %s).",
+            snprintf(MsgText, sizeof(MsgText), "Can't read from %s (copying to %s).",
             infile, outfile);
             trlerror (MsgText);
             (void)fcloseWithStatus(&ofp);
@@ -1234,7 +1234,7 @@ static int CopyFFile (char *infile, char *outfile) {
 
         nout = fwrite (buf, sizeof(char), nin, ofp);
         if (nout < nin) {
-            sprintf (MsgText, "Can't copy %s to %s.", infile, outfile);
+            snprintf(MsgText, sizeof(MsgText), "Can't copy %s to %s.", infile, outfile);
             trlerror (MsgText);
             (void)fcloseWithStatus(&ofp);
             (void)fcloseWithStatus(&ifp);

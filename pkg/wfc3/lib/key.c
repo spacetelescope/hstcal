@@ -380,6 +380,6 @@ char *comment     i: comment to add, if keyword doesn't exist
 
 static void KeyMissing (char *keyword) {
 
-    sprintf (MsgText, "Keyword = `%s'.", keyword);
+    snprintf(MsgText, sizeof(MsgText), "Keyword = `%s'.", keyword);
     trlerror (MsgText);
 }

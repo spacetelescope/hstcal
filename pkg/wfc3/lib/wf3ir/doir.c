@@ -161,7 +161,7 @@ int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 
 	/* Report readnoise and gain values */
 	buff[0] = '\0';
-	sprintf (MsgText, "    readnoise =");
+	snprintf(MsgText, sizeof(MsgText), "    readnoise =");
 	for (i=0; i < NAMPS-1; i++) {
 	     if (wf3->readnoise[i] > 0) {
 		 sprintf (buff, "%.5g,",wf3->readnoise[i]);
@@ -174,7 +174,7 @@ int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 	}
 	trlmessage (MsgText);
 
-	sprintf (MsgText, "    gain =");
+	snprintf(MsgText, sizeof(MsgText), "    gain =");
 	for (i=0; i < NAMPS-1; i++) {
 	     if (wf3->atodgain[i] > 0) {
 		 sprintf (buff, "%.5g,",wf3->atodgain[i]);

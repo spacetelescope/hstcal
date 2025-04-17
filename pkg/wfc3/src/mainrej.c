@@ -61,7 +61,7 @@ int main (int argc, char **argv) {
 
     /* Reject cosmic rays. */
     if (Wf3Rej (input, output, mtype, &par, newpar)) {
-        sprintf (MsgText,"Error processing %s.", input);
+        snprintf(MsgText, sizeof(MsgText), "Error processing %s.", input);
         asnerror (MsgText);
     }
 

@@ -275,7 +275,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		}
 		if (par->verbose) {
 			for (n = 0; n < nimgs; n++) {
-				sprintf (MsgText, "sky of '%s[sci,%d]' is %0.3f electrons",
+				snprintf(MsgText, sizeof(MsgText), "sky of '%s[sci,%d]' is %0.3f electrons",
 						 imgname[n], ext[n], skyval[n]);
 				trlmessage (MsgText);
 			}
