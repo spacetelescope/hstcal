@@ -37,7 +37,7 @@ jobs:
       if: startsWith(matrix.os, 'macos')
       run: |
         brew update
-        brew install gcc@${{ matrix.gcc }} cfitsio
+        brew install gcc@${{ matrix.gcc }} cfitsio argp-standalone
 
     - name: Linux build
       if: startsWith(matrix.os, 'ubuntu')

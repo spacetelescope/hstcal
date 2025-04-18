@@ -22,10 +22,11 @@ struct TrlBuf trlbuf = { 0 };
 
 int main (int argc, char **argv) {
 
-    char    *input, output[CHAR_LINE_LENGTH];    /* file names */
-    clpar   par;                                    /* parameters used */
-    int     newpar[MAX_PAR+1];          /* user specifiable parameters */
-    char    mtype[SZ_STRKWVAL+1];      /* Role of exposure in association */
+    char    *input;                         /* Input file name */
+    char    output[CHAR_LINE_LENGTH] = {0}; /* Output file name */
+    clpar   par;                            /* parameters used */
+    int     newpar[MAX_PAR+1];              /* user specifiable parameters */
+    char    mtype[SZ_STRKWVAL+1];           /* Role of exposure in association */
 
     int rej_command (int, char **, char **, char *, clpar *, int []);
     int AcsRej (char *, char *, char *, clpar *, int []);
@@ -41,6 +42,13 @@ int main (int argc, char **argv) {
     /* Allocate later */
     input = NULL;
 
+    PtrRegister ptrReg;
+    initPtrRegister(&ptrReg);
+
+    /* Initialize the structure for managing trailer file comments */
+    InitTrlBuf ();
+    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
+
     /* Get input and output file names and switches in the command line. */
     if (rej_command (argc, argv, &input, output, &par, newpar)) {
         if (input)
@@ -48,12 +56,7 @@ int main (int argc, char **argv) {
         exit (ERROR_RETURN);
     }
 
-    PtrRegister ptrReg;
-    initPtrRegister(&ptrReg);
     addPtr(&ptrReg, input, &free);
-    /* Initialize the structure for managing trailer file comments */
-    InitTrlBuf ();
-    addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
     trlGitInfo();
 
     /* Reject cosmic rays. */

@@ -3,6 +3,8 @@ project(hstcal)
 enable_language(C)
 set(CMAKE_C_STANDARD 99)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 option(ENABLE_WARNINGS "Enable compiler warnings" ON)
 option(ENABLE_OPENMP "Enable OpenMP" ON)
 set(WITH_CFITSIO "" CACHE STRING "Path to cfitsio (if empty pkg-config is used)")
@@ -53,6 +55,10 @@ endif()
 if(ENABLE_WARNINGS)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
 	set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wall -Wextra")
+endif()
+
+if(NOT LINUX)
+	find_package(argp)
 endif()
 
 # Initialize pkg-config whether it is used or not

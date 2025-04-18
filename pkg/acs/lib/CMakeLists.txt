@@ -1,4 +1,10 @@
 project(acs)
+
+if(ARGP_FOUND)
+	include_directories(${ARGP_INCLUDE_DIR})
+	link_libraries(${ARGP_LIBRARY})
+endif()
+
 add_library(${PROJECT_NAME} SHARED
 	acs2d/acs2d.c
 	acs2d/do2d.c
@@ -133,10 +139,12 @@ target_include_directories(${PROJECT_NAME}
 	PUBLIC ${PROJECT_NAME_INCLUDE_DIR}
 	PUBLIC ${PROJECT_SOURCE_DIR}/../include
 )
+
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC ctegen2
 	PUBLIC hstcalib
 )
+
 set_target_properties(${PROJECT_NAME}
 	PROPERTIES
 	OUTPUT_NAME hst${PROJECT_NAME}
