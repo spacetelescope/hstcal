@@ -954,7 +954,7 @@ int allocAsnInfo (AsnInfo *asn, int numsp, int *spmems) {
 
     /* Allocate the member structures */
     asn->spmems = (int *)calloc(numsp+1,sizeof(int));
-    asn->product = (ProdInfo *)calloc(1,sizeof(ProdInfo ));
+    asn->product = (ProdInfo *)calloc(asn->numprod+1,sizeof(ProdInfo));
 
     /* Initialize each member structure */
     for (i=0; i < asn->numprod; i++) {
