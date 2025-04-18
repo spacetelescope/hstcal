@@ -991,9 +991,9 @@ int allocSingleGroupHeader(Hdr ** hdr, Bool zeroInitialize)
         return 0; //Already allocated
 
     if (zeroInitialize)
-        *hdr = calloc(1,sizeof(*hdr));
+        *hdr = calloc(1,sizeof(**hdr));
     else
-        *hdr = malloc(sizeof(*hdr));
+        *hdr = malloc(sizeof(**hdr));
 
     if (!*hdr)
         return ALLOCATION_PROBLEM;
