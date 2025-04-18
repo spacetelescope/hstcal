@@ -138,7 +138,7 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
     hmin = (float) min;
 
     /*
-    sprintf(MsgText,
+    snprintf(MsgText, sizeof(MsgText),
     "sky computed using min %d, max %d, mean %g, bins %d, and width %g",
     min, max, mean, nbins, hwidth);
     trlmessage(MsgText);

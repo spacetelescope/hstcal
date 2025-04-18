@@ -249,11 +249,11 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
         return (status);
 
     if (nrows == 0) {
-        sprintf(MsgText,"No rows from BPIXTAB applied to DQ array.");
+        snprintf(MsgText, sizeof(MsgText), "No rows from BPIXTAB applied to DQ array.");
         trlwarn(MsgText);
         /* This code will mark the first pixel with a value of 64
          to prevent CALACS from crashing when no pixels are marked bad. */
-        sprintf(MsgText,"Inserting single-pixel DQ place-holder at (1,1).");
+        snprintf(MsgText, sizeof(MsgText), "Inserting single-pixel DQ place-holder at (1,1).");
         trlwarn(MsgText);
         xpos = (int)ri_m[0];
         ypos = (int)ri_m[1];
@@ -385,13 +385,13 @@ static int ReadBpixTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
         return (status = TABLE_ERROR);
 
     if (tabrow->axis !=1 && tabrow->axis != 2) {
-        sprintf (MsgText, "Axis = %d in BPIXTAB, but it must be 1 or 2.", tabrow->axis);
+        snprintf(MsgText, sizeof(MsgText), "Axis = %d in BPIXTAB, but it must be 1 or 2.", tabrow->axis);
         trlerror (MsgText);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }
     if (tabrow->length <= 0) {
-        sprintf (MsgText,"Length = %d in BPIXTAB, but it must be positive.", tabrow->length);
+        snprintf(MsgText, sizeof(MsgText), "Length = %d in BPIXTAB, but it must be positive.", tabrow->length);
         trlerror (MsgText);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);

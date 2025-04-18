@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
+#include <string.h>
 
 # include "c_iraf.h"
 # include "hstio.h"
@@ -142,18 +143,14 @@ StisInfo11 *scidata  i: info for science data
 	    freeSingleGroup (&sci);
 
 	    if (extverWav == 1) {
-		sprintf (history, "Science file %s was subtracted.\n",
-			scidata->input);
+		snprintf (history, sizeof(history), "Science file %s was subtracted.\n", scidata->input);
 		addHistoryKw (wav.globalhdr, history);
 		if (hstio_err())
 		    return (HEADER_PROBLEM);
 	    }
 
-	    printf ("         %s[EXTVER=%d] was subtracted.\n",
-			scidata->input, extverSci);
-
-	    sprintf (history, "%s[EXTVER=%d] was subtracted\n",
-			scidata->input, extverSci);
+	    printf ("         %s[EXTVER=%d] was subtracted.\n", scidata->input, extverSci);
+	    snprintf (history, sizeof(history), "%s[EXTVER=%d] was subtracted\n", scidata->input, extverSci);
 	    addHistoryKw (&wav.sci.hdr, history);
 	    if (hstio_err())
 		return (HEADER_PROBLEM);

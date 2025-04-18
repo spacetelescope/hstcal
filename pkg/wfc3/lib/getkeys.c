@@ -85,7 +85,7 @@ Hdr *phdr        i: primary header
 	} else if (strcmp (wf3->det, "UVIS") == 0) {
 	    wf3->detector = CCD_DETECTOR;
 	} else {
-	    sprintf (MsgText, "DETECTOR = %s is invalid", wf3->det);
+	    snprintf(MsgText, sizeof(MsgText), "DETECTOR = %s is invalid", wf3->det);
 	    trlerror (MsgText);
 	    return (status = HEADER_PROBLEM);
 	}
@@ -98,7 +98,7 @@ Hdr *phdr        i: primary header
 	if (GetKeyDbl (phdr, "EXPTIME", NO_DEFAULT, 0., &(wf3->exptime[0])))
 	    return (status);
 	if (wf3->exptime[0] < 0.) {
-	    sprintf(MsgText,"Exposure time is invalid:  %14.6g.",
+	    snprintf(MsgText, sizeof(MsgText), "Exposure time is invalid:  %14.6g.",
 		    wf3->exptime[0]);
 	    trlerror (MsgText);
 	    return (status = INVALID_EXPTIME);
@@ -115,7 +115,7 @@ Hdr *phdr        i: primary header
 	/* Convert number of extensions to number of SingleGroups. */
 	wf3->nimsets = nextend / EXT_PER_GROUP;
 	if (wf3->nimsets < 1) {
-	    sprintf (MsgText, "NEXTEND = %d; must be at least %d.", nextend,
+	    snprintf(MsgText, sizeof(MsgText), "NEXTEND = %d; must be at least %d.", nextend,
 		     EXT_PER_GROUP);
 	    trlerror (MsgText);
 	    return (status = INVALID_VALUE);
@@ -135,7 +135,7 @@ Hdr *phdr        i: primary header
 
 			 /* Verify that only the letters 'ABCD' are in the string. */
 			 if (strchr ("ABCD", wf3->ccdamp[i]) == NULL) {
-			     sprintf (MsgText, "CCDAMP = `%s' is invalid.",wf3->ccdamp);
+			     snprintf(MsgText, sizeof(MsgText), "CCDAMP = `%s' is invalid.",wf3->ccdamp);
 			     trlerror (MsgText);
 			     return (status = INVALID_VALUE);
 			 }

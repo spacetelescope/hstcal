@@ -299,6 +299,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     int buildTabName (char *, char *, char *);
 
     /* allocate space for column names to be read from this table */
+    // TODO: leaked on early return
     colnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
     ecolnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
     pncolnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
@@ -312,10 +313,10 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     /* Copy in the column names now */
     strcpy(colnames[0],photvar);
     for (parnum=1;parnum <= tabinfo->parnum; parnum++){
-        sprintf(colnames[parnum],"%s%i",photvar,parnum);
-        sprintf(ecolnames[parnum],"NELEM%i",parnum);
-        sprintf(pncolnames[parnum],"PAR%iNAMES",parnum);
-        sprintf(pvcolnames[parnum],"PAR%iVALUES",parnum);
+        snprintf(colnames[parnum], SZ_COLNAME, "%s%i", photvar, parnum);
+        snprintf(ecolnames[parnum], SZ_COLNAME, "NELEM%i", parnum);
+        snprintf(pncolnames[parnum], SZ_COLNAME, "PAR%iNAMES", parnum);
+        snprintf(pvcolnames[parnum], SZ_COLNAME, "PAR%iVALUES", parnum);
     }
 
     /* Create name of table with extension to be opened */

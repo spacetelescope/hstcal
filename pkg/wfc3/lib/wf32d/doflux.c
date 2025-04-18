@@ -75,7 +75,7 @@ int doFlux (WF3Info *wf32d){
 		return (status=CAL_STEP_NOT_DONE);
 
 	if (wf32d->verbose){
-		sprintf (MsgText, "Starting FLUXCORR");
+		snprintf(MsgText, sizeof(MsgText), "Starting FLUXCORR");
 		trlmessage(MsgText);
 	}
 
@@ -99,7 +99,7 @@ int doFlux (WF3Info *wf32d){
 		    return (status = OPEN_FAILED);
 
         memcpy(&phtflam1,&wf32d->chip1_flam,sizeof(double));
-        sprintf(MsgText,"Copied wf332d->chip1_flam: %g to phtflam1: %g",wf32d->chip1_flam,phtflam1);
+        snprintf(MsgText, sizeof(MsgText), "Copied wf332d->chip1_flam: %g to phtflam1: %g",wf32d->chip1_flam,phtflam1);
         trlmessage(MsgText);
 
     } else {
@@ -118,9 +118,9 @@ int doFlux (WF3Info *wf32d){
 	ratio = phtflam2/phtflam1;
 
 	if (wf32d->verbose){
-		sprintf (MsgText, "flam1 %g, flam2 %g, ratio %g", phtflam1, phtflam2, ratio);
+		snprintf(MsgText, sizeof(MsgText), "flam1 %g, flam2 %g, ratio %g", phtflam1, phtflam2, ratio);
 		trlmessage(MsgText);
-    	sprintf(MsgText,"Using PHTRATIO: %g ",ratio);
+    	snprintf(MsgText, sizeof(MsgText), "Using PHTRATIO: %g ",ratio);
 	    trlmessage(MsgText);
     }
 
@@ -177,7 +177,7 @@ int doFlux (WF3Info *wf32d){
 
 
 	if (hstio_err()) {
-		sprintf (MsgText, "Couldn't write imset %d.", 1);
+		snprintf(MsgText, sizeof(MsgText), "Couldn't write imset %d.", 1);
 		trlerror (MsgText);
 		return (status = 1001);
 	}

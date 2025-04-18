@@ -80,7 +80,7 @@ int getNlinData (WF3Info *wf3, NlinData *nlin) {
 	/* Allocate memory for the file's primary header */
 	nlin->globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
 	if (nlin->globalhdr == NULL) {
-	    sprintf (MsgText, "Can't allocate memory for NLIN ref file header");
+	    snprintf(MsgText, sizeof(MsgText), "Can't allocate memory for NLIN ref file header");
 	    trlerror (MsgText);
 	    return (status = 1);
 	}
@@ -118,7 +118,7 @@ int getNlinData (WF3Info *wf3, NlinData *nlin) {
 	nlin->zerr  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (nlin->coeff==NULL || nlin->error==NULL || nlin->dqual==NULL ||
 	    nlin->nodes==NULL || nlin->zsci ==NULL || nlin->zerr ==NULL) {
-	    sprintf (MsgText, "Can't allocate memory for NLIN ref data");
+	    snprintf(MsgText, sizeof(MsgText), "Can't allocate memory for NLIN ref data");
 	    trlerror (MsgText);
 	    return (status = 1);
 	}
@@ -209,7 +209,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		/* Are the pflt and dflt the same size? */
 		if (flat->sci.data.nx != dflt.sci.data.nx ||
 		    flat->sci.data.ny != dflt.sci.data.ny) {
-		    sprintf (MsgText,
+		    snprintf(MsgText, sizeof(MsgText),
 		    "Pixel-to-pixel flat and delta flat are no the same size.");
 		    trlerror (MsgText);
 		    return (status = SIZE_MISMATCH);
@@ -246,7 +246,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		allocSingleNicmosGroup (&dflt, flat->sci.data.nx,
 					flat->sci.data.ny);
 		if (hstio_err()) {
-		    sprintf (MsgText, "Can't allocate memory for FLAT image");
+		    snprintf(MsgText, sizeof(MsgText), "Can't allocate memory for FLAT image");
 		    trlerror (MsgText);
 		    return (status = 1);
 		}
@@ -281,7 +281,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		allocSingleNicmosGroup (flat, rx*lflt.sci.data.nx,
 					      ry*lflt.sci.data.ny);
 		if (hstio_err()) {
-		    sprintf (MsgText, "Can't allocate memory for FLAT image");
+		    snprintf(MsgText, sizeof(MsgText), "Can't allocate memory for FLAT image");
 		    trlerror (MsgText);
 		    return (status = 1);
 		}
@@ -425,7 +425,7 @@ int getDarkImage (WF3Info *wf3, SingleNicmosGroup *dark1, int ngroup) {
 
 	    /* Make sure we found a match */
 	    if (wf3->darkframe1 == 0) {
-		sprintf (MsgText,
+		snprintf(MsgText, sizeof(MsgText),
 			 "Can't find matching dark time in %s for group %d\n",
 			 wf3->dark.name, ngroup);
 		trlerror (MsgText);
@@ -628,7 +628,7 @@ void checkKeyI (char *filename, Hdr *header, char *keyword, int scival,
 
 	/* Does it match the science image value? */
 	if (keyval != scival) {
-	    sprintf (MsgText, "%s %s=%d does not match science data",
+	    snprintf(MsgText, sizeof(MsgText), "%s %s=%d does not match science data",
 		     filename, keyword, keyval);
 	    if (severity == FATAL) {
 		trlerror (MsgText);
@@ -654,7 +654,7 @@ void checkKeyS (char *filename, Hdr *header, char *keyword, char *scival,
 
 	/* Does it match the science image value? */
 	if (strncmp (keyval, scival, strlen(keyval)) != 0) {
-	    sprintf (MsgText, "%s %s=\"%s\" does not match science data",
+	    snprintf(MsgText, sizeof(MsgText), "%s %s=\"%s\" does not match science data",
 		     filename, keyword, keyval);
 	    if (severity == FATAL) {
 		trlerror (MsgText);
@@ -777,7 +777,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
         tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
         if (c_iraferr() != 0) {
-            sprintf (MsgText,"CRREJTAB table '%s' does not exist", par->tbname);
+            snprintf(MsgText, sizeof(MsgText), "CRREJTAB table '%s' does not exist", par->tbname);
             trlerror (MsgText);
             return (status = TABLE_ERROR);
         }
@@ -921,7 +921,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         return (status);
     }
     if (*niter > MAX_ITER) {
-        sprintf (MsgText,"No more than %d iterations permitted.", MAX_ITER);
+        snprintf(MsgText, sizeof(MsgText), "No more than %d iterations permitted.", MAX_ITER);
         trlerror (MsgText);
         return (status = ERROR_RETURN);
     }
@@ -936,29 +936,29 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
     /* print out which parameter are used */
     if (par->verbose) {
-        sprintf (MsgText,"\n number of samples = %d", nimgs);
+        snprintf(MsgText, sizeof(MsgText), "\n number of samples = %d", nimgs);
         trlmessage (MsgText);
-        sprintf (MsgText," CRREJ ref table used: %s", par->tbname);
-        trlmessage (MsgText);
-/*
-        sprintf (MsgText," initial guess method: %s", par->initgues);
-        trlmessage (MsgText);
-*/
-        sprintf (MsgText," total exposure time = %0.1f", exptot);
-        trlmessage (MsgText);
-        sprintf (MsgText," sigmas used: %s", par->sigmas);
+        snprintf(MsgText, sizeof(MsgText), " CRREJ ref table used: %s", par->tbname);
         trlmessage (MsgText);
 /*
-        sprintf (MsgText," sky subtraction used: %s", par->sky);
-        trlmessage (MsgText);
-        sprintf (MsgText," rejection radius = %0.1f", par->radius);
-        trlmessage (MsgText);
-        sprintf (MsgText," propagation threshold = %0.1f", par->thresh);
-        trlmessage (MsgText);
-        sprintf (MsgText," scale noise = %0.1f%%", par->scalense);
+        snprintf(MsgText, sizeof(MsgText), " initial guess method: %s", par->initgues);
         trlmessage (MsgText);
 */
-        sprintf (MsgText," input bad bits value = %d", par->badinpdq);
+        snprintf(MsgText, sizeof(MsgText), " total exposure time = %0.1f", exptot);
+        trlmessage (MsgText);
+        snprintf(MsgText, sizeof(MsgText), " sigmas used: %s", par->sigmas);
+        trlmessage (MsgText);
+/*
+        snprintf(MsgText, sizeof(MsgText), " sky subtraction used: %s", par->sky);
+        trlmessage (MsgText);
+        snprintf(MsgText, sizeof(MsgText), " rejection radius = %0.1f", par->radius);
+        trlmessage (MsgText);
+        snprintf(MsgText, sizeof(MsgText), " propagation threshold = %0.1f", par->thresh);
+        trlmessage (MsgText);
+        snprintf(MsgText, sizeof(MsgText), " scale noise = %0.1f%%", par->scalense);
+        trlmessage (MsgText);
+*/
+        snprintf(MsgText, sizeof(MsgText), " input bad bits value = %d", par->badinpdq);
         trlmessage (MsgText);
     }
     return (status);
@@ -1007,7 +1007,7 @@ static int strtor (char *str, float arr[]) {
             rval = strtod(tmp, (char **)NULL);
             
             if (!rval && (ip-ipx) != 0) {
-                sprintf (MsgText, "illegal input string '%s'", str);
+                snprintf(MsgText, sizeof(MsgText), "illegal input string '%s'", str);
                 trlerror (MsgText);
                 status = INVALID_VALUE;
                 return (0);

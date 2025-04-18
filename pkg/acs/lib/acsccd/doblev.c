@@ -133,7 +133,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
     /* If no overscan region, subtract default BIAS level
      obtained from CCDTAB. */
     trlwarn ("Overscan region is too small to do BLEVCORR; ");
-    sprintf (MsgText,"     bias from CCDTAB of %g will be subtracted.",ccdbias);
+    snprintf(MsgText, sizeof(MsgText), "     bias from CCDTAB of %g will be subtracted.",ccdbias);
     trlmessage(MsgText);
 
     for (j = 0;  j < x->sci.data.ny;  j++) {
@@ -371,7 +371,7 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
       biasvals[j] = biaslevel;
       biasmask[j] = 1;
       if (j == 0) {
-          sprintf (MsgText,
+          snprintf(MsgText, sizeof(MsgText),
               "(FitToOverscan) biassecta=(%d,%d) biassectb=(%d,%d) npix=%d",
               biassect[0], biassect[1], biassect[2], biassect[3], npix);
           trlmessage(MsgText);
@@ -397,7 +397,7 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
   }
 
 	if (too_few > 0) {
-    sprintf (MsgText, "(blevcorr) %d image line", too_few);
+    snprintf(MsgText, sizeof(MsgText), "(blevcorr) %d image line", too_few);
     if (too_few == 1)
 			strcat (MsgText, " has");
     else
@@ -484,7 +484,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
     }
   }
 
-  sprintf(MsgText,"(blevcorr) Rejected %d bias values from fit.",nrej);
+  snprintf(MsgText, sizeof(MsgText), "(blevcorr) Rejected %d bias values from fit.",nrej);
   trlmessage(MsgText);
 }
 

@@ -237,7 +237,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
       buff[0] = '\0';
 
 	    if (acs2d->detector != MAMA_DETECTOR) {
-        sprintf(MsgText, "    readnoise =");
+        snprintf(MsgText, sizeof(MsgText),  "    readnoise =");
 
         for (i=0; i < NAMPS-1; i++) {
           if (acs2d->readnoise[i] > 0) {
@@ -253,7 +253,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
         trlmessage(MsgText);
 
-        sprintf(MsgText, "    gain =");
+        snprintf(MsgText, sizeof(MsgText),  "    gain =");
         for (i=0; i < NAMPS-1; i++) {
           if (acs2d->atodgain[i] > 0) {
             sprintf(buff, "%.5g,",acs2d->atodgain[i]);
@@ -281,7 +281,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
     if (doDark (acs2d, &x, &meandark))
 			return (status);
 
-		sprintf(MsgText,"Mean of dark image (MEANDARK) = %g",meandark);
+		snprintf(MsgText, sizeof(MsgText), "Mean of dark image (MEANDARK) = %g",meandark);
 		trlmessage(MsgText);
 
 		if (PutKeyFlt (&x.sci.hdr, "MEANDARK", meandark,
@@ -305,7 +305,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
         if (doFlash(acs2d, &x, &meanflash))
             return (status);
 
-        sprintf(MsgText, "Mean of post-flash image (MEANFLSH) = %g", meanflash);
+        snprintf(MsgText, sizeof(MsgText),  "Mean of post-flash image (MEANFLSH) = %g", meanflash);
         trlmessage(MsgText);
 
         if (PutKeyFlt(&x.sci.hdr, "MEANFLSH", meanflash,
@@ -412,7 +412,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
 	putSingleGroup (acs2d->output, extver, &x, option);
 	if (hstio_err()) {
-    sprintf (MsgText, "Couldn't write imset %d.", extver);
+    snprintf(MsgText, sizeof(MsgText), "Couldn't write imset %d.", extver);
     trlerror (MsgText);
 		return (status = 1001);
 	}

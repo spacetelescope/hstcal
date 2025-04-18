@@ -191,7 +191,7 @@ int DoCCD (WF3Info *wf3, int extver) {
             trlmessage ("    Uncertainty array initialized,");
             buff[0] = '\0';
 
-            sprintf(MsgText, "    readnoise =");
+            snprintf(MsgText, sizeof(MsgText),  "    readnoise =");
             for (i=0; i < NAMPS-1; i++) {
                 if (wf3->readnoise[i] > 0) {
                     sprintf (buff, "%.5g,",wf3->readnoise[i]);
@@ -204,7 +204,7 @@ int DoCCD (WF3Info *wf3, int extver) {
             }
             trlmessage (MsgText);
 
-            sprintf(MsgText, "    gain =");
+            snprintf(MsgText, sizeof(MsgText),  "    gain =");
             for (i=0; i < NAMPS-1; i++) {
                 if (wf3->atodgain[i] > 0) {
                     sprintf(buff, "%.5g,",wf3->atodgain[i]);
@@ -217,7 +217,7 @@ int DoCCD (WF3Info *wf3, int extver) {
             }
             trlmessage (MsgText);
 
-            sprintf (MsgText, "    default bias levels = ");
+            snprintf(MsgText, sizeof(MsgText), "    default bias levels = ");
             for (i=0; i < NAMPS-1; i++) {
                 if (wf3->ccdbias[i] > 0) {
                     sprintf (buff, "%.5g,", wf3->ccdbias[i]);
@@ -279,7 +279,7 @@ int DoCCD (WF3Info *wf3, int extver) {
                         "mean of bias levels subtracted")) {
                 return (status);
             }
-            sprintf (MsgText,
+            snprintf(MsgText, sizeof(MsgText),
                     "     mean of bias levels subtracted was %.6g.",
                     meanblev);
             trlmessage (MsgText);
@@ -292,7 +292,7 @@ int DoCCD (WF3Info *wf3, int extver) {
          ** processed. */
         for (i=0; i < 4; i++) {
             if (wf3->blev[i] != 0.) {
-                sprintf (MsgText,
+                snprintf(MsgText, sizeof(MsgText),
                         "     bias level of %.6g was subtracted for AMP %c.",
                         wf3->blev[i], AMPSORDER[i]);
                 trlmessage (MsgText);
@@ -336,7 +336,7 @@ int DoCCD (WF3Info *wf3, int extver) {
 
     if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM && wf3->scalar_satflag == False) {
         SatMsg (wf3, extver);
-        sprintf(MsgText, "\nFull-well saturation flagging being performed.");
+        snprintf(MsgText, sizeof(MsgText),  "\nFull-well saturation flagging being performed.");
         trlmessage(MsgText);
         if (doFullWellSat(wf3, &x)) {
             return (status);
@@ -354,7 +354,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     */
     if (wf3->dqicorr == PERFORM) {
         if (checkBinned(&x)){
-            sprintf(MsgText,"Binned data not supported for Sink Pixel detection");
+            snprintf(MsgText, sizeof(MsgText), "Binned data not supported for Sink Pixel detection");
             trlmessage(MsgText);
         } else {
             if (wf3->subarray){
@@ -417,7 +417,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         /* Report mean of post-flash image subtracted from science image,
          ** if it was performed...*/
         if (meanflash > 0.) {
-            sprintf (MsgText, "Mean of post-flash image (MEANFLSH) = %g",
+            snprintf(MsgText, sizeof(MsgText), "Mean of post-flash image (MEANFLSH) = %g",
                     meanflash);
             trlmessage(MsgText);
 
@@ -456,13 +456,13 @@ int DoCCD (WF3Info *wf3, int extver) {
 
         /* BLEVCORR WAS COMPLETED, SO OVERSCAN REGIONS CAN BE TRIMMED... */
         if (wf3->verbose) {
-            sprintf (MsgText,
+            snprintf(MsgText, sizeof(MsgText),
                     "Writing out image with trimx = %d,%d,%d,%d, trimy = %d,%d",
                     wf3->trimx[0],wf3->trimx[1],wf3->trimx[2],
                     wf3->trimx[3],wf3->trimy[0],wf3->trimy[1]);
             trlmessage(MsgText);
 
-            sprintf(MsgText,"Outputting chip %d",wf3->chip);
+            snprintf(MsgText, sizeof(MsgText), "Outputting chip %d",wf3->chip);
             trlmessage(MsgText);
         }
 
@@ -502,10 +502,10 @@ int DoCCD (WF3Info *wf3, int extver) {
 
         /* BLEVCORR WAS NOT COMPLETED, SO KEEP OVERSCAN REGIONS... */
         if (wf3->verbose) {
-            sprintf(MsgText,"Writing out FULL image with overscan regions");
+            snprintf(MsgText, sizeof(MsgText), "Writing out FULL image with overscan regions");
             trlmessage(MsgText);
 
-            sprintf(MsgText,"Outputting chip %d",wf3->chip);
+            snprintf(MsgText, sizeof(MsgText), "Outputting chip %d",wf3->chip);
             trlmessage(MsgText);
         }
 
@@ -514,7 +514,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     }
 
     if (hstio_err()) {
-        sprintf (MsgText, "Couldn't write imset %d.", extver);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't write imset %d.", extver);
         trlerror (MsgText);
         return (status = WRITE_FAILED);
     }

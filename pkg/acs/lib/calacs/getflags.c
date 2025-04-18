@@ -60,7 +60,7 @@ Hdr *phdr       i: primary header
     sprintf(flashkey,"FLSHCORR");
 	key = findKw (phdr, flashkey);
 	if (key == NotFound) {
-        sprintf(MsgText,"FLSHCORR keyword not found...");
+        snprintf(MsgText, sizeof(MsgText), "FLSHCORR keyword not found...");
         trlwarn(MsgText);
 
 	    key = findKw (phdr, "POSTFLSH");
@@ -68,9 +68,9 @@ Hdr *phdr       i: primary header
             sprintf(flashkey,"POSTFLSH");
 
             /* Now warn the user to change keyword name to FLSHCORR. */
-            sprintf(MsgText,"Using old keyword POSTFLSH!");
+            snprintf(MsgText, sizeof(MsgText), "Using old keyword POSTFLSH!");
             trlwarn(MsgText);
-            sprintf(MsgText,"Please rename keyword to FLSHCORR in header.");
+            snprintf(MsgText, sizeof(MsgText), "Please rename keyword to FLSHCORR in header.");
             trlwarn(MsgText);
         }
 	}

@@ -55,7 +55,7 @@ int stats (SingleNicmosGroup *in, int x1, int x2, int y1, int y2,
 	/* Allocate memory for the temporary array */
 	arr = (float *) calloc(in->sci.data.nx*in->sci.data.ny, sizeof(float));
 	if (arr == NULL) {
-	    sprintf (MsgText, "Memory allocation failure in stats");
+	    snprintf(MsgText, sizeof(MsgText), "Memory allocation failure in stats");
 	    trlerror (MsgText);
 	    return (1);
 	}

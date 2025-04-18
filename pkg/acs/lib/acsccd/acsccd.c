@@ -211,12 +211,12 @@ void InitCCDTrl (char *input, char *output) {
     /* Start by stripping off suffix from input/output filenames */
     if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't determine trailer filename for %s", input);
         trlmessage (MsgText);
     }
     if (MkName (output, osuffix, trlsuffix, TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s", output);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s", output);
         trlmessage (MsgText);
     }
 

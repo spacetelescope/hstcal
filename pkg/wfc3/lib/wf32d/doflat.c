@@ -96,7 +96,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* Apply pixel-to-pixel flat, if set to PERFORM */
 	if (wf32d->pfltcorr == PERFORM) {
 	    if (divFlat (x, wf32d->pflt.name, wf32d, applygain)) {
-		sprintf (MsgText, "Problem applying PFLTFILE %s... ",
+		snprintf(MsgText, sizeof(MsgText), "Problem applying PFLTFILE %s... ",
 			 wf32d->pflt.name);
 		trlerror(MsgText);
 		return(status);
@@ -108,7 +108,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* Apply delta flat, if set to PERFORM */
 	if (wf32d->dfltcorr == PERFORM) {
 	    if (divFlat (x, wf32d->dflt.name, wf32d, applygain)) {
-		sprintf (MsgText, "Problem applying DFLTFILE %s... ",
+		snprintf(MsgText, sizeof(MsgText), "Problem applying DFLTFILE %s... ",
 			 wf32d->dflt.name);
 		trlerror(MsgText);
 		return (status);
@@ -122,7 +122,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* low-order flat */
 	if (wf32d->lfltcorr == PERFORM) {
 	    if (wf32d->verbose) {
-		sprintf(MsgText, "Reading in LFLAT file...");
+		snprintf(MsgText, sizeof(MsgText),  "Reading in LFLAT file...");
 		trlmessage (MsgText);
 	    }
 
@@ -149,7 +149,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    ** a straight division of the two images. */
 	    if (same_size) {
 		if (divFlat (x, wf32d->lflt.name, wf32d, applygain)) {
-		    sprintf (MsgText, "Problem applying LFLTFILE %s... ",
+		    snprintf(MsgText, sizeof(MsgText), "Problem applying LFLTFILE %s... ",
 			     wf32d->lflt.name);
 		    trlerror(MsgText);
 		    return (status);
@@ -167,13 +167,13 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    ** non-optimal and we're not going to allow them to be used until
 	    ** they're improved. So put in a temporary stub here that forces
 	    ** a return with a warning if the L-flat is binned. */
-	    sprintf (MsgText, "LFLTFILE %s size does not match science data.",
+	    snprintf(MsgText, sizeof(MsgText), "LFLTFILE %s size does not match science data.",
 		     wf32d->lflt.name);
 	    trlerror (MsgText);
-	    sprintf (MsgText, 
+	    snprintf(MsgText, sizeof(MsgText),
 	     "LFLTFILE interpolation methods are not available at this time.");
 	    trlerror (MsgText);
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 	     "Please use an LFLTFILE that matches size of science image.");
 	    trlerror (MsgText);
 	    closeSingleGroupLine (&w);
@@ -301,7 +301,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	if (FindLine (x, &y, &ysame_size, &y_rx, &y_ry, &y_x0, &y_y0))
 	    return (status);
 	if (wf32d->verbose) {
-	    sprintf (MsgText,"ratio of flat/input = %d,%d offset by %d,%d",
+	    snprintf(MsgText, sizeof(MsgText), "ratio of flat/input = %d,%d offset by %d,%d",
 		     y_rx,y_ry,y_x0,y_y0);
 	    trlmessage(MsgText);
 	}
@@ -310,7 +310,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	if (y_rx != 1 || y_ry != 1) {
 	    closeSingleGroupLine (&y);
 	    freeSingleGroupLine (&y);
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 		"FLAT image and input are not binned to the same pixel size!");
 	    trlerror (MsgText);
 	    return (status = SIZE_MISMATCH);

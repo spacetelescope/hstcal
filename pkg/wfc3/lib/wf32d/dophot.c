@@ -100,7 +100,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 	 ** lower case for use in synphot. */
 	Phot2Obs (photmode, obsmode);
 	if (wf32d->verbose) {
-		sprintf (MsgText, "Created PYSYNPHOT obsmode of: %s", obsmode);
+		snprintf(MsgText, sizeof(MsgText), "Created PYSYNPHOT obsmode of: %s", obsmode);
 		trlmessage (MsgText);
 	}
 
@@ -115,7 +115,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
 	/* Add this information as a HISTORY comment */
 	if (wf32d->verbose) {
-		sprintf (MsgText, "Retrieved PHOTFLAM value of %g", obs.photflam);
+		snprintf(MsgText, sizeof(MsgText), "Retrieved PHOTFLAM value of %g", obs.photflam);
 		trlmessage (MsgText);
 	}
 

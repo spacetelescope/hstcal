@@ -52,12 +52,12 @@ ComputeLimits(WF3Info *wf3, int xdim, int ydim, int begx[2], int begy[2], int en
     if (wf3->detector == CCD_DETECTOR) {
         parseWFCamps (wf3->ccdamp, wf3->chip, ccdamp);
     }
-    sprintf(MsgText,"Amp: %s chip: %d ccdamp: %s ", wf3->ccdamp, wf3->chip, ccdamp);
+    snprintf(MsgText, sizeof(MsgText), "Amp: %s chip: %d ccdamp: %s ", wf3->ccdamp, wf3->chip, ccdamp);
     trlmessage(MsgText);
 
     /* How many amps are used for this chip */
     numamps = strlen(ccdamp);
-    sprintf(MsgText,"Number of amps %d", numamps);
+    snprintf(MsgText, sizeof(MsgText), "Number of amps %d", numamps);
     trlmessage(MsgText);
 
     for (amp = 0; amp < numamps; amp++) {

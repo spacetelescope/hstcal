@@ -73,11 +73,11 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
         TimeStamp("Starting CTE correction...","");
     }
 
-    sprintf(MsgText, "(pctecorr) Performing CTE correction type %s for amp %c.", corrType, ccdamp[nthAmp]);
+    snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Performing CTE correction type %s for amp %c.", corrType, ccdamp[nthAmp]);
     trlmessage(MsgText);
 
     ctePars->rn_amp = acs->readnoise[ampID];
-    sprintf(MsgText, "(pctecorr) Read noise level from CCDTAB: %f.", ctePars->rn_amp);
+    snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Read noise level from CCDTAB: %f.", ctePars->rn_amp);
     trlmessage(MsgText);
 
     /* get amp array size */
@@ -126,7 +126,7 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     // which preceeds the standard parallel CTE correction.
     if (strcmp(corrType, "serial") == 0)
     {
-        sprintf(MsgText, "\n(pctecorr) Invoking rotation for CTE Correction Type: %s", corrType);
+        snprintf(MsgText, sizeof(MsgText),  "\n(pctecorr) Invoking rotation for CTE Correction Type: %s", corrType);
         trlmessage(MsgText);
         if ((status = rotateAmp(&ampImage, ampID, False, ccdamp[nthAmp])))
         {
@@ -286,7 +286,7 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
             totalRawCounts += threadRawCounts;
         }
     }//close parallel block
-    sprintf(MsgText, "(pctecorr) Total count difference (corrected-raw) incurred from correction: %f (%f%%)", totalCounts, totalCounts/totalRawCounts*100);
+    snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Total count difference (corrected-raw) incurred from correction: %f (%f%%)", totalCounts, totalCounts/totalRawCounts*100);
     trlmessage(MsgText);
 
     // put the CTE corrected data back into the SingleGroup structure
@@ -299,7 +299,7 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     // Derotate amp so the parallel CTE correction can proceed
     if (strcmp(corrType, "serial") == 0)
     {
-        sprintf(MsgText, "\n(pctecorr) Invoking de-rotation for CTE Correction Type: %s", corrType);
+        snprintf(MsgText, sizeof(MsgText),  "\n(pctecorr) Invoking de-rotation for CTE Correction Type: %s", corrType);
         trlmessage(MsgText);
         if ((status = rotateAmp(&ampImage, ampID, True, ccdamp[nthAmp])))
         {
@@ -375,7 +375,7 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, cha
         //sci data
         if (amp->sci.data.data)
         {
-            sprintf(MsgText, "(pctecorr) Rotation for Amp: %c\n", ccdamp);
+            snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Rotation for Amp: %c\n", ccdamp);
             trlmessage(MsgText);
             if ((status = rotateAmpData(&amp->sci.data, ampID)))
                 return status;
@@ -394,7 +394,7 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, cha
         //sci data
         if (amp->sci.data.data)
         {
-            sprintf(MsgText, "(pctecorr) Derotation for Amp: %c\n", ccdamp);
+            snprintf(MsgText, sizeof(MsgText),  "(pctecorr) Derotation for Amp: %c\n", ccdamp);
             trlmessage(MsgText);
             if ((status = derotateAmpData(&amp->sci.data, ampID)))
                 return status;
@@ -643,7 +643,7 @@ static void top2bottomFlip(FloatTwoDArray * amp)
     }//close parallel block
     if (allocationFail)
     {
-        sprintf(MsgText, "Out of memory for 'tempRow' in 'alignAmpData'");
+        snprintf(MsgText, sizeof(MsgText),  "Out of memory for 'tempRow' in 'alignAmpData'");
         trlerror(MsgText);
     }
 }

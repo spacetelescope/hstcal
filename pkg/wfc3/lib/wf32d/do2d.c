@@ -200,7 +200,7 @@ int extver       i: "imset" number, the current set of extensions
 		buff[0] = '\0';
 
 		if (wf32d->detector != IR_DETECTOR) {
-		    sprintf (MsgText, "    readnoise =");
+		    snprintf(MsgText, sizeof(MsgText), "    readnoise =");
 		    for (i=0; i < NAMPS-1; i++) {
 			 if (wf32d->readnoise[i] > 0) {
 			     sprintf (buff, "%.5g,",wf32d->readnoise[i]);
@@ -213,7 +213,7 @@ int extver       i: "imset" number, the current set of extensions
 		    }
 		    trlmessage (MsgText);
 
-		    sprintf(MsgText, "    gain =");
+		    snprintf(MsgText, sizeof(MsgText),  "    gain =");
 		    for (i=0; i < NAMPS-1; i++) {
 			 if (wf32d->atodgain[i] > 0) {
 			     sprintf (buff, "%.5g,",wf32d->atodgain[i]);
@@ -252,7 +252,7 @@ int extver       i: "imset" number, the current set of extensions
 	    if (doDark (wf32d, &x, &meandark))
 		return (status);
 
-	    sprintf(MsgText,"Mean of dark image (MEANDARK) = %g",meandark);
+	    snprintf(MsgText, sizeof(MsgText), "Mean of dark image (MEANDARK) = %g",meandark);
 	    trlmessage(MsgText);
 
 	    if (PutKeyFlt (&x.sci.hdr, "MEANDARK", meandark,
@@ -357,7 +357,7 @@ int extver       i: "imset" number, the current set of extensions
 
 	putSingleGroup (wf32d->output, extver, &x, option);
 	if (hstio_err()) {
-	    sprintf (MsgText, "Couldn't write imset %d.", extver);
+	    snprintf(MsgText, sizeof(MsgText), "Couldn't write imset %d.", extver);
 	    trlerror (MsgText);
 	    return (status = 1001);
 	}

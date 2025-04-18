@@ -137,13 +137,13 @@ int main (int argc, char **argv) {
 			/* If there is just nothing to do, 
 			 ** as for ACQ images, just quit. */
 			status = 0;
-			sprintf (MsgText, "CALWF3 did NOT process %s", input);
+			snprintf(MsgText, sizeof(MsgText), "CALWF3 did NOT process %s", input);
 			trlmessage (MsgText);
 			freeOnExit(&ptrReg);
 			exit(0); 
 		} else {
 			/* Error during processing */
-			sprintf (MsgText, "CALWF3 processing NOT completed for %s",
+			snprintf(MsgText, sizeof(MsgText), "CALWF3 processing NOT completed for %s",
 					input);
 			trlerror (MsgText);
 			/* Provide interpretation of error for user */
@@ -154,7 +154,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* Successful completion */
-	sprintf (MsgText, "CALWF3 completion for %s", input);
+	snprintf(MsgText, sizeof(MsgText), "CALWF3 completion for %s", input);
 	trlmessage (MsgText);
 
 

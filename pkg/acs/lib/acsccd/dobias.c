@@ -90,12 +90,12 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
     return (status);
   
 	if (acs->verbose) {
-		sprintf(MsgText,"Ratio of (%d,%d) with offset =(%d,%d)",rx,ry,x0,y0);
+		snprintf(MsgText, sizeof(MsgText), "Ratio of (%d,%d) with offset =(%d,%d)",rx,ry,x0,y0);
 		trlmessage(MsgText);
 		if (same_size) {
-			sprintf(MsgText,"BIAS image and input are the same size ");
+			snprintf(MsgText, sizeof(MsgText), "BIAS image and input are the same size ");
 		} else {
-			sprintf(MsgText,"BIAS image and input are NOT the same size ");
+			snprintf(MsgText, sizeof(MsgText), "BIAS image and input are NOT the same size ");
 		}
     trlmessage(MsgText);
 	}
@@ -113,7 +113,7 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
 		for (i=0; i < scilines; i++) {
 			status = getSingleGroupLine (acs->bias.name, i, &y);
 			if (status) {
-				sprintf(MsgText,"Could not read line %d from bias image.",i+1);
+				snprintf(MsgText, sizeof(MsgText), "Could not read line %d from bias image.",i+1);
 				trlerror(MsgText);
 			}
 			
@@ -140,7 +140,7 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
             */
             status = getSingleGroupLine (acs->bias.name, j, &y);
             if (status) {
-                sprintf(MsgText,"Could not read line %d from bias image.",j+1);
+                snprintf(MsgText, sizeof(MsgText), "Could not read line %d from bias image.",j+1);
                 trlerror(MsgText);
             }			
 

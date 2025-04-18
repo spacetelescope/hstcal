@@ -127,7 +127,7 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
 
         if (acs.nimsets < 1)
         {
-            sprintf (MsgText, "N IMSETS found = %d; must be at least %d.", acs.nimsets, 1);
+            snprintf(MsgText, sizeof(MsgText), "N IMSETS found = %d; must be at least %d.", acs.nimsets, 1);
             trlerror (MsgText);
             return INVALID_VALUE;
         }
@@ -205,12 +205,12 @@ void InitCTETrl (char *input, char *output, const char * isuffix, const char * o
     /* Start by stripping off suffix from input/output filenames */
     if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't determine trailer filename for %s", input);
         trlmessage (MsgText);
     }
     if (MkName (output, osuffix, trlsuffix, TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s", output);
+        snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s", output);
         trlmessage (MsgText);
     }
 

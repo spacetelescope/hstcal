@@ -102,34 +102,34 @@ static int darkcorr (WF3Info *wf3, SingleNicmosGroup *input,
 
 	/* Report which ref file frames are being used */
 	if (wf3->DarkType == MATCH) {
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 	   "DARKCORR using dark imset %2d for imset %2d with exptime=%8.6g",
 		     wf3->darkframe1, wf3->group, wf3->exptime[wf3->group-1]);
 	    trlmessage (MsgText);
 
 	} else if (wf3->DarkType == INTERP) {
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 		     "DARKCORR using dark imsets %d and %d for imset %d",
 		     wf3->darkframe1, wf3->darkframe2, wf3->group);
 	    trlwarn (MsgText);
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 		     "         interpolated to exptime=%g",
 		     wf3->exptime[wf3->group-1]);
 	    trlwarn (MsgText);
 
 	} else if (wf3->DarkType == EXTRAP && wf3->darkframe1 != 0) {
-	    sprintf (MsgText, "DARKCORR using dark imset %d for imset %d",
+	    snprintf(MsgText, sizeof(MsgText), "DARKCORR using dark imset %d for imset %d",
 		     wf3->darkframe1, wf3->group);
 	    trlwarn (MsgText);
-	    sprintf (MsgText, "         extrapolated to exptime=%g",
+	    snprintf(MsgText, sizeof(MsgText), "         extrapolated to exptime=%g",
 		     wf3->exptime[wf3->group-1]);
 	    trlwarn (MsgText);
 
 	} else if (wf3->DarkType == EXTRAP && wf3->darkframe2 != 0) {
-	    sprintf (MsgText, "DARKCORR using dark imset %d for imset %d",
+	    snprintf(MsgText, sizeof(MsgText), "DARKCORR using dark imset %d for imset %d",
 		     wf3->darkframe2, wf3->group);
 	    trlwarn (MsgText);
-	    sprintf (MsgText, "         extrapolated to exptime=%g",
+	    snprintf(MsgText, sizeof(MsgText), "         extrapolated to exptime=%g",
 		     wf3->exptime[wf3->group-1]);
 	    trlwarn (MsgText);
 	}

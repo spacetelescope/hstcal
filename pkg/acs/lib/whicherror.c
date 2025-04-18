@@ -23,9 +23,9 @@ void WhichError (int status) {
 	    return;
 
 	if (hstio_err())
-	    sprintf (MsgText,"         HSTIO error %d:  %s", status, hstio_errmsg());
+	    snprintf (MsgText, sizeof(MsgText) - 1, "HSTIO error %d:  %s", status, hstio_errmsg());
 	else if (c_iraferr())
-	    sprintf (MsgText, "         IRAF error %d:  %s", c_iraferr(), c_iraferrmsg());
+	    snprintf (MsgText, sizeof(MsgText) - 1, "IRAF error %d:  %s", c_iraferr(), c_iraferrmsg());
 	trlerror (MsgText);
 	
 	/* Now, check value of STATUS */
@@ -72,11 +72,11 @@ void WhichError (int status) {
 	    trlerror("Internal error.");
 
 	} else if (status < 0) {
-	    sprintf (MsgText,"         Internal error; status = %d.", status);
+	    snprintf(MsgText, sizeof(MsgText), "         Internal error; status = %d.", status);
 		trlerror (MsgText);
 
 	} else {
-	    sprintf (MsgText,"         status = %d", status);
+	    snprintf(MsgText, sizeof(MsgText), "         status = %d", status);
 		trlerror (MsgText);
 	}
 

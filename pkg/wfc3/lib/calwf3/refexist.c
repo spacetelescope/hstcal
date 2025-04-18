@@ -104,7 +104,7 @@ int *missing       o: a count of missing (or blank) reference files
 
 static void MissingFile (char *keyword, char *filename, int *missing) {
 
-	sprintf (MsgText, "%s `%s' not found or can't open.", keyword,filename);
+	snprintf(MsgText, sizeof(MsgText), "%s `%s' not found or can't open.", keyword,filename);
 	trlwarn (MsgText);
 	(*missing)++;
 }

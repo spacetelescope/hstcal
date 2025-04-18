@@ -191,9 +191,9 @@ int *nsteps      io: incremented if this step can be performed
         */
         if (wf3->biascorr != PERFORM) {
             wf3->scalar_satflag = True;
-            sprintf (MsgText, "There is an issue with the BIASFILE, so BIASCORR will not be performed.\n");
+            snprintf(MsgText, sizeof(MsgText), "There is an issue with the BIASFILE, so BIASCORR will not be performed.\n");
             trlwarn(MsgText);
-            sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
+            snprintf(MsgText, sizeof(MsgText), "A single threshold value will be used for full-well saturation flagging.");
             trlmessage(MsgText);
             return (status);
         }
@@ -229,9 +229,9 @@ int *nsteps      io: incremented if this step can be performed
                          "SATUFILE", &wf3->satmap, &wf3->biascorr))
         {
             wf3->scalar_satflag = True;
-	        sprintf (MsgText, "SATUFILE not found or cannot be opened.");
+	        snprintf(MsgText, sizeof(MsgText), "SATUFILE not found or cannot be opened.");
 	        trlerror (MsgText);
-	        sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
+	        snprintf(MsgText, sizeof(MsgText), "A single threshold value will be used for full-well saturation flagging.");
 	        trlmessage(MsgText);
             return (status);
         }
@@ -244,7 +244,7 @@ int *nsteps      io: incremented if this step can be performed
             wf3->scalar_satflag = True;
             MissingFile ("SATUFILE", wf3->satmap.name, missing);
             *missing = 0;
-	        sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.");
+	        snprintf(MsgText, sizeof(MsgText), "A single threshold value will be used for full-well saturation flagging.");
 	        trlmessage(MsgText);
         }
     /* 
@@ -253,9 +253,9 @@ int *nsteps      io: incremented if this step can be performed
     */
 	} else {
         wf3->scalar_satflag = True;
-	    sprintf (MsgText, "BIASCORR is *NOT* set to PERFORM.");
+	    snprintf(MsgText, sizeof(MsgText), "BIASCORR is *NOT* set to PERFORM.");
 	    trlmessage(MsgText);
-	    sprintf (MsgText, "A single threshold value will be used for full-well saturation flagging.\n");
+	    snprintf(MsgText, sizeof(MsgText), "A single threshold value will be used for full-well saturation flagging.\n");
 	    trlmessage(MsgText);
     }
 
@@ -378,7 +378,7 @@ int *missing     io: incremented if the table is missing
 	} else if (wf3->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
 	    (*missing)++;
-	    sprintf (MsgText, "CCDTAB `%s' is a dummy table.",wf3->ccdpar.name);
+	    snprintf(MsgText, sizeof(MsgText), "CCDTAB `%s' is a dummy table.",wf3->ccdpar.name);
 	    trlerror (MsgText);
 
 	} else {

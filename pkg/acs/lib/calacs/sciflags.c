@@ -199,7 +199,7 @@ int SciFlags (ACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
 
 static void MAMASanity (int detector, char *calswitch) {
     if (detector != MAMA_DETECTOR) {
-        sprintf (MsgText, "%s = PERFORM, but detector is CCD.", calswitch);
+        snprintf(MsgText, sizeof(MsgText), "%s = PERFORM, but detector is CCD.", calswitch);
         trlwarn (MsgText);
     }
 }
@@ -207,7 +207,7 @@ static void MAMASanity (int detector, char *calswitch) {
 
 static void CCDSanity (int detector, char *calswitch) {
     if (detector == MAMA_DETECTOR) {
-        sprintf (MsgText, "%s = PERFORM, but detector is MAMA.", calswitch);
+        snprintf(MsgText, sizeof(MsgText), "%s = PERFORM, but detector is MAMA.", calswitch);
         trlwarn (MsgText);
     }
 }

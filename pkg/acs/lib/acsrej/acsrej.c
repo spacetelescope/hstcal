@@ -57,11 +57,11 @@ int AcsRej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
   flag = ckNewFile (output);
   if (flag > 0) {
     if (flag == 1) {
-      sprintf (MsgText, "Output file `%s' already exists.", output);
+      snprintf(MsgText, sizeof(MsgText), "Output file `%s' already exists.", output);
       trlerror (MsgText);
       return (status = ERROR_RETURN);
     } else {
-      sprintf (MsgText, "Can't clobber `%s'.", output);
+      snprintf(MsgText, sizeof(MsgText), "Can't clobber `%s'.", output);
       trlerror (MsgText);
       return (status = ERROR_RETURN);
     }

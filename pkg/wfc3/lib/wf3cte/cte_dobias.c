@@ -48,7 +48,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	dimx = x->sci.data.nx;
 	dimy = x->sci.data.ny;
 
-	sprintf(MsgText,"CTE: Subtracting BIACFILE: %s for imset %d",wf3->biac.name, x->group_num);
+	snprintf(MsgText, sizeof(MsgText), "CTE: Subtracting BIACFILE: %s for imset %d",wf3->biac.name, x->group_num);
 	trlmessage(MsgText);
 
 	initSingleGroupLine (&y);
@@ -81,7 +81,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	if (rx != 1 || ry != 1) {
 		closeSingleGroupLine (&y);
 		freeSingleGroupLine (&y);
-		sprintf (MsgText,
+		snprintf(MsgText, sizeof(MsgText),
 				"BIAC image and input are not binned to the same pixel size!");
 		trlerror (MsgText);
 		return (status = SIZE_MISMATCH);
@@ -95,7 +95,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	 */
 
 	 if (wf3->verbose){
- 		sprintf(MsgText,"Image has starting location of %d,%d in the reference image",x0,y0);
+ 		snprintf(MsgText, sizeof(MsgText), "Image has starting location of %d,%d in the reference image",x0,y0);
  		trlmessage(MsgText);
  	}
 
@@ -111,7 +111,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	 	for (i=0; i < scilines; i++) {
 	 		status = getSingleGroupLine (wf3->biac.name, i, &y);
 	 		if (status) {
-	 			sprintf(MsgText,"Could not read line %d from bias image.",
+	 			snprintf(MsgText, sizeof(MsgText), "Could not read line %d from bias image.",
 	 					i+1);
 	 			trlerror(MsgText);
 	 		}
@@ -128,12 +128,12 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 
 		 if (x0 >= 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
 		 	if (wf3->verbose){
-		 		sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
+		 		snprintf(MsgText, sizeof(MsgText), "Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
 		 		trlmessage(MsgText);
 		 	}
 		 		x0 += 60;
 		 	if (wf3->verbose){
-		 		sprintf(MsgText,"(%d,%d) to avoid virtual overscan in reference",x0,y0);
+		 		snprintf(MsgText, sizeof(MsgText), "(%d,%d) to avoid virtual overscan in reference",x0,y0);
 		 		trlmessage(MsgText);
 		 	}
 		 } else { /*the subarray starts somewhere in A or C and might straddle the virtual overscan region */
@@ -146,7 +146,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 		 }
 
 		 if (wf3->verbose){
-	 	    sprintf(MsgText,"ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3->ccdamp,straddle,offsetx,offsety,wf3->ampx,wf3->ampy,x0,y0);
+	 	    snprintf(MsgText, sizeof(MsgText), "ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3->ccdamp,straddle,offsetx,offsety,wf3->ampx,wf3->ampy,x0,y0);
 	         trlmessage(MsgText);
 	     }
 
@@ -172,7 +172,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	 		 ** image.  */
 	 		status = getSingleGroupLine (wf3->biac.name, j, &y);
 	 		if (status) {
-	 			sprintf (MsgText,"Could not read line %d from biac image.",
+	 			snprintf(MsgText, sizeof(MsgText), "Could not read line %d from biac image.",
 	 					j+1);
 	 			trlerror(MsgText);
 	 		}

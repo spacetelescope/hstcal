@@ -200,7 +200,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	}
 
 	if (asn.verbose) {
-		sprintf (MsgText,"CALWF3: Detector %s, type %d ",
+		snprintf(MsgText, sizeof(MsgText), "CALWF3: Detector %s, type %d ",
 				asn.instr, asn.detector);
 		trlmessage (MsgText);
 	}
@@ -599,14 +599,14 @@ int CopyFFile (char *infile, char *outfile) {
 		return (status = OUT_OF_MEMORY);
 
 	if ((ofp = fopen (outfile, "wb")) == NULL) {
-		sprintf (MsgText,"Can't create temporary file %s.", outfile);
+		snprintf(MsgText, sizeof(MsgText), "Can't create temporary file %s.", outfile);
 		trlerror(MsgText);
 		free (buf);
 		return (status = INVALID_TEMP_FILE);
 	}
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-		sprintf (MsgText,"Can't open %s", infile);
+		snprintf(MsgText, sizeof(MsgText), "Can't open %s", infile);
 		trlerror (MsgText);
 		(void)fcloseWithStatus(&ofp);
 		remove (outfile);
@@ -618,7 +618,7 @@ int CopyFFile (char *infile, char *outfile) {
 	while (!done) {
 		nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
 		if (ferror (ifp)) {
-			sprintf (MsgText, "Can't read from %s (copying to %s).",
+			snprintf(MsgText, sizeof(MsgText), "Can't read from %s (copying to %s).",
 					infile, outfile);
 			trlerror (MsgText);
 			(void)fcloseWithStatus(&ofp);
@@ -631,7 +631,7 @@ int CopyFFile (char *infile, char *outfile) {
 
 		nout = fwrite (buf, sizeof(char), nin, ofp);
 		if (nout < nin) {
-			sprintf (MsgText, "Can't copy %s to %s.", infile, outfile);
+			snprintf(MsgText, sizeof(MsgText), "Can't copy %s to %s.", infile, outfile);
 			trlerror (MsgText);
 			(void)fcloseWithStatus(&ofp);
 			(void)fcloseWithStatus(&ifp);

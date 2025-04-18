@@ -74,7 +74,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
         tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
         if (c_iraferr() != 0) {
-            sprintf (MsgText,"CRREJTAB table '%s' does not exist", par->tbname);
+            snprintf(MsgText, sizeof(MsgText), "CRREJTAB table '%s' does not exist", par->tbname);
             trlerror (MsgText);
             return (status = TABLE_ERROR);
         }
@@ -209,7 +209,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         return (status);
     }
     if (*niter > MAX_ITER) {
-        sprintf (MsgText,"No more than %d iterations permitted.", MAX_ITER);
+        snprintf(MsgText, sizeof(MsgText), "No more than %d iterations permitted.", MAX_ITER);
         trlerror (MsgText);
         return (status = ERROR_RETURN);
     }
@@ -224,25 +224,25 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
     /* print out which parameter are used */
     if (par->verbose) {
-        sprintf (MsgText,"\n number of images = %d", nimgs);
+        snprintf(MsgText, sizeof(MsgText), "\n number of images = %d", nimgs);
         trlmessage (MsgText);
-        sprintf (MsgText," CRREJ ref table used: %s", par->tbname);
+        snprintf(MsgText, sizeof(MsgText), " CRREJ ref table used: %s", par->tbname);
         trlmessage (MsgText);
-        sprintf (MsgText," initial guess method: %s", par->initgues);
+        snprintf(MsgText, sizeof(MsgText), " initial guess method: %s", par->initgues);
         trlmessage (MsgText);
-        sprintf (MsgText," total exposure time = %0.1f", exptot);
+        snprintf(MsgText, sizeof(MsgText), " total exposure time = %0.1f", exptot);
         trlmessage (MsgText);
-        sprintf (MsgText," sigmas used: %s", par->sigmas);
+        snprintf(MsgText, sizeof(MsgText), " sigmas used: %s", par->sigmas);
         trlmessage (MsgText);
-        sprintf (MsgText," sky subtraction used: %s", par->sky);
+        snprintf(MsgText, sizeof(MsgText), " sky subtraction used: %s", par->sky);
         trlmessage (MsgText);
-        sprintf (MsgText," rejection radius = %0.1f", par->radius);
+        snprintf(MsgText, sizeof(MsgText), " rejection radius = %0.1f", par->radius);
         trlmessage (MsgText);
-        sprintf (MsgText," propagation threshold = %0.1f", par->thresh);
+        snprintf(MsgText, sizeof(MsgText), " propagation threshold = %0.1f", par->thresh);
         trlmessage (MsgText);
-        sprintf (MsgText," scale noise = %0.1f%%", par->scalense);
+        snprintf(MsgText, sizeof(MsgText), " scale noise = %0.1f%%", par->scalense);
         trlmessage (MsgText);
-        sprintf (MsgText," input bad bits value = %d", par->badinpdq);
+        snprintf(MsgText, sizeof(MsgText), " input bad bits value = %d", par->badinpdq);
         trlmessage (MsgText);
         
         if (par->mask == 1) {
@@ -250,7 +250,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         } else {
             strcpy (maskstr, "NO");
         }
-        sprintf (MsgText," reset crmask = %s\n", maskstr);
+        snprintf(MsgText, sizeof(MsgText), " reset crmask = %s\n", maskstr);
         trlmessage (MsgText);
     }
     return (status);
@@ -313,7 +313,7 @@ static int strtor (char *str, float arr[]) {
             
             tmp[ip-ip0] = '\0';
             if (!(isdigit (tmp[0]) || tmp[0] == '-' || tmp[0] == '.')) {
-                sprintf (MsgText, "illegal input string '%s'", str);
+                snprintf(MsgText, sizeof(MsgText), "illegal input string '%s'", str);
                 trlerror (MsgText);
                 status = INVALID_VALUE;
                 return (0);

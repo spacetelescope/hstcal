@@ -60,10 +60,10 @@ SingleGroupLine *b    o: output data
 	/* Check the subset of the input corresponding to the output. */
 	if (xstart < 0 || xstart + nx*binx > a->sci.tot_nx) {
 	    trlerror ("(trim1d)  subset is out of bounds:");
-	    sprintf (MsgText,"         input is %d pixels, output is %d pixels",
+	    snprintf(MsgText, sizeof(MsgText), "         input is %d pixels, output is %d pixels",
 		a->sci.tot_nx, b->sci.tot_nx);
 	    trlmessage (MsgText);
-		sprintf (MsgText, "         start = (%d), binx = %d.", xstart+1, binx);
+		snprintf(MsgText, sizeof(MsgText), "         start = (%d), binx = %d.", xstart+1, binx);
 	    trlmessage (MsgText);
 		return (status = SIZE_MISMATCH);
 	}

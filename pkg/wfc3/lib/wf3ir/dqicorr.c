@@ -167,7 +167,7 @@ int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
 		return (status);
 
 	    if (nrows == 0) {
-	        sprintf (MsgText, "No rows from BPIXTAB applied to DQ array.");
+	        snprintf(MsgText, sizeof(MsgText), "No rows from BPIXTAB applied to DQ array.");
 	        trlwarn (MsgText);
 	    }
 

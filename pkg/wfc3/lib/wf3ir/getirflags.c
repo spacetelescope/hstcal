@@ -174,7 +174,7 @@ int *missing     io: incremented if the table is missing
 	} else if (wf3->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
 	    (*missing)++;
-	    sprintf (MsgText, "CCDTAB `%s' is a dummy table.",wf3->ccdpar.name);
+	    snprintf(MsgText, sizeof(MsgText), "CCDTAB `%s' is a dummy table.",wf3->ccdpar.name);
 	    trlerror (MsgText);
 
 	} else {
@@ -620,7 +620,7 @@ int *nsteps      io: incremented if this step can be performed
 	    } else if (wf3->crrej.goodPedigree != GOOD_PEDIGREE) {
 
 		(*missing)++;
-		sprintf (MsgText,"CRREJTAB '%s' is a dummy table.",
+		snprintf(MsgText, sizeof(MsgText), "CRREJTAB '%s' is a dummy table.",
 			 wf3->crrej.name);
 		trlerror (MsgText);
 

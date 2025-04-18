@@ -115,14 +115,14 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     /* LOOP OVER THE PRODUCTS/POSITIONS FOR EACH CR-SPLIT/REPEAT-OBS SET. */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose){
-            sprintf (MsgText, "CALWF3: processing UVIS product %d, spmems is %i, total products is %i", prod,asn->spmems[posid], asn->numprod);
+            snprintf(MsgText, sizeof(MsgText), "CALWF3: processing UVIS product %d, spmems is %i, total products is %i", prod,asn->spmems[posid], asn->numprod);
             trlmessage (MsgText);
         }
 
         /* PROCESS THIS PARTIAL/SINGLE/FULL PRODUCT... */
         for (posid = 1; posid <= asn->numsp; posid++) {
             if (asn->verbose) {
-                sprintf (MsgText,"CALWF3: processing posid = %d, num sub-products=%i", posid, asn->numsp);
+                snprintf(MsgText, sizeof(MsgText), "CALWF3: processing posid = %d, num sub-products=%i", posid, asn->numsp);
                 trlmessage (MsgText);
             }
 
@@ -415,7 +415,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                 /* COSMIC RAY REJECTION, FOLLOWED BY BASIC 2-D PROCESSING. */
                 if (asn->verbose) {
-                    sprintf (MsgText,
+                    snprintf(MsgText, sizeof(MsgText),
                             "CALWF3: Now processing position %d from product %d",
                             posid, prod);
                     trlmessage (MsgText);
@@ -428,7 +428,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 wf32d_sci_sw.dqicorr = COMPLETE;
 
                 if (asn->debug || asn->verbose) {
-                    sprintf (MsgText,"Non-cte input to WF3REJ is:");
+                    snprintf(MsgText, sizeof(MsgText), "Non-cte input to WF3REJ is:");
                     trlmessage (MsgText);
 
 
@@ -440,7 +440,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     sprintf (wf3rej_msgtext, "%s", wf3rej_input);
                     trlmessage (wf3rej_msgtext);
                     free (wf3rej_msgtext);
-                    sprintf (MsgText,"Output from WF3REJ is: %s",
+                    snprintf(MsgText, sizeof(MsgText), "Output from WF3REJ is: %s",
                             wf3hdr->crj_tmp);
                     trlmessage (MsgText);
                 }

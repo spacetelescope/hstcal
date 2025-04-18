@@ -63,12 +63,12 @@ SingleGroup *b        o: output data
   
 	    trlerror ("(bin2d)  subset is out of bounds:");
    
-	    sprintf (MsgText, "         input is %d x %d, output is %d x %d",
+	    snprintf(MsgText, sizeof(MsgText), "         input is %d x %d, output is %d x %d",
 		     a->sci.data.nx, a->sci.data.ny, 
 		     b->sci.data.nx, b->sci.data.ny);
 	    trlmessage (MsgText);
     
-	    sprintf (MsgText, "         start = (%d,%d), binx = %d, biny = %d.",
+	    snprintf(MsgText, sizeof(MsgText), "         start = (%d,%d), binx = %d, biny = %d.",
 		     xcorner+1, ycorner+1, binx, biny);
 	    trlmessage (MsgText);
 	
@@ -221,12 +221,12 @@ SingleGroup *b        o: output data
   
 	    trlerror ("(bin2d)  subset is out of bounds:");
    
-	    sprintf (MsgText, "         input is %d x %d, output is %d x %d",
+	    snprintf(MsgText, sizeof(MsgText), "         input is %d x %d, output is %d x %d",
 		     a->sci.data.nx, a->sci.data.ny, 
 		     b->sci.data.nx, b->sci.data.ny);
 	    trlmessage (MsgText);
     
-	    sprintf (MsgText, "         start = (%d,%d), binx = %d, biny = %d.",
+	    snprintf(MsgText, sizeof(MsgText), "         start = (%d,%d), binx = %d, biny = %d.",
 		     xcorner+1, ycorner+1, binx, biny);
 	    trlmessage (MsgText);
 	

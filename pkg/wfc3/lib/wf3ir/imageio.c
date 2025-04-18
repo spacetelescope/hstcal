@@ -144,7 +144,7 @@ int putCalData (SingleNicmosGroup *out, char *fname) {
 	if (putSingleNicmosGroup (fname, out->group_num, out, 0))
 	    status = 1;
 	if (hstio_err() || status) {
-	    sprintf (MsgText, "Can't write to output image %s", fname);
+	    snprintf(MsgText, sizeof(MsgText), "Can't write to output image %s", fname);
 	    trlerror (MsgText);
 	    return (status = 1);
 	}
@@ -181,7 +181,7 @@ int putCalDataSect (SingleNicmosGroup *out, char *fname, int x1, int y1,
 				      xsize, ysize, 0))
 	    status = 1;
 	if (hstio_err() || status) {
-	    sprintf (MsgText, "Can't write to output image %s", fname);
+	    snprintf(MsgText, sizeof(MsgText), "Can't write to output image %s", fname);
 	    trlerror (MsgText);
 	    return (status = 1);
 	}
@@ -221,7 +221,7 @@ int putMultiCalData (MultiNicmosGroup *out, char *fname) {
 	     if (putSingleNicmosGroup (fname, i+1, &(out->group[i]), 0))
 		 status = 1;
 	     if (hstio_err() || status) {
-		 sprintf (MsgText, "Can't write to output image %s", fname);
+		 snprintf(MsgText, sizeof(MsgText), "Can't write to output image %s", fname);
 		 trlerror (MsgText);
 		 return (status = 1);
 	     }
@@ -248,7 +248,7 @@ int copyGroup (SingleNicmosGroup *to, SingleNicmosGroup *from) {
         initSingleNicmosGroup (to);
         if (allocSingleNicmosGroup 
 		(to, from->sci.data.nx, from->sci.data.ny) == -1) {
-            sprintf (MsgText, "in copyGroup; can't allocate new group");
+            snprintf(MsgText, sizeof(MsgText), "in copyGroup; can't allocate new group");
             trlerror (MsgText);
             return (status = 1);
         }

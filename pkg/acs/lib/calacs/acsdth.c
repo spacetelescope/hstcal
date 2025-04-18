@@ -100,11 +100,11 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 	if (printtime)
     TimeStamp ("ACSDTH started", "");
 
-  sprintf(MsgText,"The task PyDrizzle needs to be run in order to generate");
+  snprintf(MsgText, sizeof(MsgText), "The task PyDrizzle needs to be run in order to generate");
   trlmessage(MsgText);
-  sprintf(MsgText,"a geometrically corrected, drizzle-combined product.");
+  snprintf(MsgText, sizeof(MsgText), "a geometrically corrected, drizzle-combined product.");
   trlmessage(MsgText);
-  sprintf(MsgText,"PyDrizzle requires PyRAF. See pyraf.stsci.edu for more details.");
+  snprintf(MsgText, sizeof(MsgText), "PyDrizzle requires PyRAF. See pyraf.stsci.edu for more details.");
   trlmessage(MsgText);
 
   /* create new SPT file for output product */
@@ -214,13 +214,13 @@ void InitDthTrl (char *inlist, char *output) {
 		/* Start by stripping off suffix from input/output filenames */
 		if (MkOutName (input, isuffix, trlsuffix, nsuffix, out_name, CHAR_LINE_LENGTH)) {
 			WhichError (status);
-			sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
+			snprintf(MsgText, sizeof(MsgText), "Couldn't determine trailer filename for %s", input);
 			trlmessage (MsgText);
 		}
 
 		/* Now, convert trailer filename extensions from '.fits' to '.trl' */
 		if (MkNewExtn (out_name, TRL_EXTN) ) {
-			sprintf(MsgText, "Error creating input trailer filename %s", out_name);
+			snprintf(MsgText, sizeof(MsgText),  "Error creating input trailer filename %s", out_name);
 			trlerror (MsgText);
 			WhichError (status);
 		}
@@ -240,12 +240,12 @@ void InitDthTrl (char *inlist, char *output) {
 
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 		WhichError (status);
-		sprintf (MsgText, "Couldn't create trailer filename for %s", output);
+		snprintf(MsgText, sizeof(MsgText), "Couldn't create trailer filename for %s", output);
 		trlmessage (MsgText);
 	}
 
 	if (MkNewExtn (trl_out, TRL_EXTN) ) {
-		sprintf(MsgText, "Error creating output trailer filename %s", trl_in);
+		snprintf(MsgText, sizeof(MsgText),  "Error creating output trailer filename %s", trl_in);
 		trlerror (MsgText);
 		WhichError (status);
 	}

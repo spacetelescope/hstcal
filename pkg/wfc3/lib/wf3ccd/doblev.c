@@ -175,7 +175,7 @@ int *driftcorr   o: true means correction for drift along lines was applied
 
 	    /* If no overscan region, subtract BIAS level obtained from CCDTAB*/
 	    trlwarn ("Overscan region is too small to do BLEVCORR; ");
-	    sprintf (MsgText,"     bias from CCDTAB of %g will be subtracted.",
+	    snprintf(MsgText, sizeof(MsgText), "     bias from CCDTAB of %g will be subtracted.",
 		     ccdbias);
 	    trlmessage (MsgText);
 
@@ -277,11 +277,11 @@ int *driftcorr   o: true means correction for drift along lines was applied
 		 biassect[3] = 0;
 	     }
 	     if (wf3->verbose) {
-		 sprintf (MsgText, "Using overscan columns %d to %d",
+		 snprintf(MsgText, sizeof(MsgText), "Using overscan columns %d to %d",
 			  biassect[0]+1, biassect[1]+1);
 		 trlmessage (MsgText);
 		 if (biassect[2] != 0) {
-		 sprintf (MsgText, "           and columns %d to %d",
+		 snprintf(MsgText, sizeof(MsgText), "           and columns %d to %d",
 		 	  biassect[2]+1, biassect[3]+1);
 		 trlmessage (MsgText); }
 	     }
@@ -468,7 +468,7 @@ floar rn          i: calibrated readnoise level for this amp
 	}
 
 	if (too_few > 0) {
-	    sprintf (MsgText, "(blevcorr) %d image line", too_few);
+	    snprintf(MsgText, sizeof(MsgText), "(blevcorr) %d image line", too_few);
 	    if (too_few == 1)
 		strcat (MsgText, " has");
 	    else
@@ -566,7 +566,7 @@ void cleanBiasFit (double *barray, int *bmask, int ny, float rn) {
 	     }
 	}
 
-	sprintf (MsgText,
+	snprintf(MsgText, sizeof(MsgText),
 		"(blevcorr) Rejected %d bias values from serial fit.",nrej);
 	trlmessage (MsgText);
 }

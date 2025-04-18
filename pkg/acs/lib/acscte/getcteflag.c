@@ -95,9 +95,9 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
         if (acs->pcteTabNameFromCmd && *acs->pcteTabNameFromCmd != '\0')
         {
-            char msgBuffer[CHAR_LINE_LENGTH];
+            char msgBuffer[CHAR_LINE_LENGTH*2];
             *msgBuffer = '\0';
-            sprintf(msgBuffer, "(pctecorr) USING PCTETAB SPECIFIED BY '--pctetab %s' AND NOT THAT FROM IMAGE HEADER!!!", acs->pcteTabNameFromCmd);
+            snprintf(msgBuffer, sizeof(msgBuffer), "(pctecorr) USING PCTETAB SPECIFIED BY '--pctetab %s' AND NOT THAT FROM IMAGE HEADER!!!", acs->pcteTabNameFromCmd);
             trlwarn(msgBuffer);
             if ((status = checkTabRefPedigree(acs->pcteTabNameFromCmd, &acs->pcte, &acs->pctecorr)))
                 return (status);
@@ -156,7 +156,7 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
     } else if (acs->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
         (*missing)++;
-        sprintf (MsgText, "CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
+        snprintf(MsgText, sizeof(MsgText), "CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
         trlerror (MsgText);
     }
 

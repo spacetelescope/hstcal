@@ -119,7 +119,7 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs2d, int *missing) {
     } else if (acs2d->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
         (*missing)++;
-        sprintf (MsgText, "CCDTAB `%s' is a dummy table.", acs2d->ccdpar.name);
+        snprintf(MsgText, sizeof(MsgText), "CCDTAB `%s' is a dummy table.", acs2d->ccdpar.name);
         trlerror (MsgText);
     }
 
@@ -266,7 +266,7 @@ static int checkFlash (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
             return (status);
 	}
         if ((ltv[0] != 0) || (ltv[1] != 0)) {
-            sprintf(MsgText, "FLSHFILE `%s' has untrimmed overscans.",
+            snprintf(MsgText, sizeof(MsgText),  "FLSHFILE `%s' has untrimmed overscans.",
                     acs2d->flash.name);
             trlerror (MsgText);
             freeSingleGroup(&y);
@@ -338,7 +338,7 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
             return (status);
 	}
         if ((ltv[0] != 0) || (ltv[1] != 0)) {
-            sprintf(MsgText, "FLSHFILE `%s' has untrimmed overscans.",
+            snprintf(MsgText, sizeof(MsgText),  "FLSHFILE `%s' has untrimmed overscans.",
                     acs2d->flashcte.name);
             trlerror (MsgText);
             freeSingleGroup(&y);

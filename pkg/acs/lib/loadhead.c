@@ -22,7 +22,7 @@ int LoadHdr (char *input, Hdr *phdr) {
 	
 	IODescPtr im;		/* descriptor for input image */
    	
-	sprintf(MsgText, "Trying to open %s...",input);
+	snprintf(MsgText, sizeof(MsgText), "Trying to open %s...",input);
 	trlmessage (MsgText);
 
 	/* Open input image in order to read its primary header. */
@@ -47,7 +47,7 @@ int LoadHdr (char *input, Hdr *phdr) {
 	
 	closeImage (im);
     
-	sprintf(MsgText, "Read in Primary header from %s...",input);
+	snprintf(MsgText, sizeof(MsgText), "Read in Primary header from %s...",input);
 	trlmessage (MsgText);
 
 	return (status);

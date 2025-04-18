@@ -84,13 +84,13 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
         return (status);
 
     if (acs->verbose) {
-        sprintf(MsgText, "Ratio of (%d,%d) with offset =(%d,%d)",
+        snprintf(MsgText, sizeof(MsgText),  "Ratio of (%d,%d) with offset =(%d,%d)",
                 rx, ry, x0, y0);
         trlmessage(MsgText);
         if (same_size) {
-            sprintf(MsgText, "SINK image and input are the same size ");
+            snprintf(MsgText, sizeof(MsgText),  "SINK image and input are the same size ");
         } else {
-            sprintf(MsgText, "SINK image and input are NOT the same size ");
+            snprintf(MsgText, sizeof(MsgText),  "SINK image and input are NOT the same size ");
         }
         trlmessage(MsgText);
     }
@@ -177,7 +177,7 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
     } /* end j loop */
 
     if (acs->verbose) {
-        sprintf(MsgText, "Sink pixels flagged = %d", n);
+        snprintf(MsgText, sizeof(MsgText),  "Sink pixels flagged = %d", n);
         trlmessage(MsgText);
     }
 
@@ -251,7 +251,7 @@ static int DetSinkChip (char *fname, int chip, int *extver) {
     freeHdr(&prihdr);
 
     if (foundit == NO) {
-        sprintf (MsgText, "No Reference Data found for chip %d", chip);
+        snprintf(MsgText, sizeof(MsgText), "No Reference Data found for chip %d", chip);
         trlerror (MsgText);
         return (status = NO_CHIP_FOUND);
     }

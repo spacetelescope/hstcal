@@ -110,13 +110,13 @@ int forwardModel(const SingleGroup * input, SingleGroup * output, SingleGroup * 
    }// close scope for #pragma omp parallel
    if (allocationFail)
    {
-       sprintf(MsgText, "Out of memory in inverseCTEBlur()");
+       snprintf(MsgText, sizeof(MsgText),  "Out of memory in inverseCTEBlur()");
        trlerror(MsgText);
        return (status = OUT_OF_MEMORY);
    }
    if (runtimeFail)
    {
-       sprintf(MsgText, "Runtime fail in inverseCTEBlur()");
+       snprintf(MsgText, sizeof(MsgText),  "Runtime fail in inverseCTEBlur()");
        trlerror(MsgText);
        return status;
    }
@@ -266,13 +266,13 @@ int inverseCTEBlur(const SingleGroup * input, SingleGroup * output, SingleGroup 
     }// close scope for #pragma omp parallel
     if (allocationFail)
     {
-        sprintf(MsgText, "Out of memory in inverseCTEBlur()");
+        snprintf(MsgText, sizeof(MsgText),  "Out of memory in inverseCTEBlur()");
         trlerror(MsgText);
         return (status = OUT_OF_MEMORY);
     }
     if (runtimeFail)
     {
-        sprintf(MsgText, "Runtime fail in inverseCTEBlur()");
+        snprintf(MsgText, sizeof(MsgText),  "Runtime fail in inverseCTEBlur()");
         trlerror(MsgText);
         return status;
     }
@@ -615,7 +615,7 @@ int populateTrapPixelMap(SingleGroup * trapPixelMap, CTEParamsFast * ctePars)
     if (ctePars->verbose)
     {
         double timeSpent = ((double)(clock() - begin))/CLOCKS_PER_SEC;
-        sprintf(MsgText,"(pctecorr) Time taken to populate pixel trap map image: %.2f(s) with %i threads",timeSpent/ctePars->maxThreads, ctePars->maxThreads);
+        snprintf(MsgText, sizeof(MsgText), "(pctecorr) Time taken to populate pixel trap map image: %.2f(s) with %i threads",timeSpent/ctePars->maxThreads, ctePars->maxThreads);
         trlmessage(MsgText);
     }
 
@@ -803,7 +803,7 @@ int cteSmoothImage(const SingleGroup * input, SingleGroup * output, CTEParamsFas
     if (ctePars->verbose)
     {
         double timeSpent = ((double)(clock() - begin))/CLOCKS_PER_SEC;
-        sprintf(MsgText,"(pctecorr) Time taken to smooth image: %.2f(s) with %i threads", timeSpent/ctePars->maxThreads, ctePars->maxThreads);
+        snprintf(MsgText, sizeof(MsgText), "(pctecorr) Time taken to smooth image: %.2f(s) with %i threads", timeSpent/ctePars->maxThreads, ctePars->maxThreads);
         trlmessage(MsgText);
     }
 

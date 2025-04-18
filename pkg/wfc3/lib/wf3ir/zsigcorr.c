@@ -224,10 +224,10 @@ static int zsigcorr (WF3Info *wf3, MultiNicmosGroup *input, NlinData *nlin,
 	}}
 
 	/* Report the number of saturated pixels detected */
-	sprintf (MsgText,
+	snprintf(MsgText, sizeof(MsgText),
 		 "ZSIGCORR detected %d saturated pixels in 0th read", nsat0);
 	trlmessage (MsgText);
-	sprintf (MsgText,
+	snprintf(MsgText, sizeof(MsgText),
 		 "ZSIGCORR detected %d saturated pixels in 1st read", nsat1);
 	trlmessage (MsgText);
 

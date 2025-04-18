@@ -79,7 +79,7 @@ int unitcorr (WF3Info *wf3, SingleNicmosGroup *input) {
 
 	/* Skip conversion if units are already countrate */
 	if (wf3->bunit[wf3->group-1] == COUNTRATE) {
-	    sprintf (MsgText,
+	    snprintf(MsgText, sizeof(MsgText),
 	       "Data already in units of countrates; UNITCORR will be skipped");
 	    trlwarn (MsgText);
 	    wf3->unitcorr = SKIP;

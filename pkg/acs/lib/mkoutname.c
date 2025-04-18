@@ -201,7 +201,7 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 
 	if (strlen (instr) + strlen (outstr) > maxch) {
 	    trlerror ("(MkOutName) strings are too long:");
-	    sprintf (MsgText, "`%s' + `%s'", outstr, instr);
+	    snprintf(MsgText, sizeof(MsgText), "`%s' + `%s'", outstr, instr);
 	    trlerror (MsgText);
 		status = INVALID_FILENAME;
 	} else {

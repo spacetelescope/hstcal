@@ -282,7 +282,7 @@ void cleanDriftFit (double *barray, int *bmask, int *vx, float rn) {
              }
         }
 
-        sprintf (MsgText,
+        snprintf(MsgText, sizeof(MsgText),
 		"(blevcorr) Rejected %d bias values from parallel fit.",nrej);
         trlmessage (MsgText);
 }
@@ -358,7 +358,7 @@ static int DriftFit (void) {
 
 	slope = (sums[3] - xmean * ymean * sums[0]) / d;
 
-        sprintf (MsgText, "Computed a parallel fit with slope of %g", slope);
+        snprintf(MsgText, sizeof(MsgText), "Computed a parallel fit with slope of %g", slope);
         trlmessage (MsgText);
 
 	return (0);

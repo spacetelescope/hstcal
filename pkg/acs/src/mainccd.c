@@ -250,7 +250,7 @@ int main (int argc, char **argv) {
         /* Open input image in order to read its primary header. */
         if (LoadHdr (input, &phdr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
+            snprintf(MsgText, sizeof(MsgText), "Skipping %s", input);
             trlmessage (MsgText);
             continue;
         }
@@ -260,14 +260,14 @@ int main (int argc, char **argv) {
 
         if (MkName (input, isuffix, osuffix, "", output, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
+            snprintf(MsgText, sizeof(MsgText), "Skipping %s", input);
             trlmessage (MsgText);
             continue;
         }
 
         /* Calibrate the current input file. */
         if (ACSccd (input, output, &ccd_sw, &refnames, printtime, verbose)) {
-            sprintf (MsgText, "Error processing %s.", input);
+            snprintf(MsgText, sizeof(MsgText), "Error processing %s.", input);
             trlerror (MsgText);
             WhichError (status);
         }
