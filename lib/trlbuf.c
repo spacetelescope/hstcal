@@ -640,12 +640,13 @@ void CloseTrlBuf (struct TrlBuf * buf)
 
 static void trlsafeprefix(const char *message, const char *prefix, char *line, const size_t line_bufsize) {
     const char *truncated = " [...] (message too long)";
+    const size_t max_line_len = line_bufsize - 1;
     const size_t truncated_len = strlen(truncated);
-    const size_t max_line_len_w_prefix = line_bufsize - strlen(WARN_PREFIX);
-    const size_t max_line_len_w_truncated = line_bufsize - strlen(truncated);
+    const size_t max_line_len_w_prefix = max_line_len - strlen(WARN_PREFIX);
+    const size_t max_line_len_w_truncated = max_line_len - strlen(truncated);
     const size_t message_len = strlen(message) + strlen(WARN_PREFIX);
 
-    if (truncated_len > line_bufsize) {
+    if (truncated_len > max_line_len) {
         fprintf(stderr, "trlsafeprefix: trl message buffer is too small. Original message follows...\n");
         fprintf(stderr, "%s\n", message);
         return;
@@ -655,7 +656,7 @@ static void trlsafeprefix(const char *message, const char *prefix, char *line, c
     strncat (line, message, max_line_len_w_prefix);
     if (message_len > max_line_len_w_prefix) {
         // message exceeds size of line buffer
-        strcpy(&line[max_line_len_w_truncated], truncated);
+        strncpy(&line[max_line_len_w_truncated], truncated, truncated_len);
     }
 }
 
