@@ -1,0 +1,96 @@
+name: Red Hat
+on:
+  pull_request:
+    paths:
+      - '**.c'
+      - '**.h'
+      - '**/CMakeLists.txt'
+      - '**/cmake'
+  push:
+    branches: [ main ]
+jobs:
+  centos_stream:
+    name:  ${{ matrix.dist }}-${{ matrix.compiler}}-${{ matrix.build_type }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dist:
+          - stream9
+          - stream10
+        build_type:
+          - Debug
+          - Release
+        compiler:
+          - gcc
+          - clang
+    container: quay.io/centos/centos:${{ matrix.dist }}
+    steps:
+      - name: Install development tools
+        run: |
+          dnf install -y epel-release
+          /usr/bin/crb enable
+          dnf install -y \
+              clang \
+              gcc \
+              g++ \
+              gfortran \
+              cmake \
+              make \
+              cfitsio-devel \
+              file \
+              git
+
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      - name: Fetch tags from upstream repository
+        run: |
+          git fetch --tags https://github.com/spacetelescope/hstcal
+
+      - name: build
+        run: |
+          mkdir build
+          cd build
+          cmake .. \
+              -DCMAKE_INSTALL_PREFIX=/tmp/hstcal \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+              -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
+              -DCMAKE_C_FLAGS="-Wno-incompatible-pointer-types"
+          make -j$(nproc)
+          make install
+
+      - name: File Types
+        run: |
+          find /tmp/hstcal -type f | sort | xargs file
+
+      - name: Check common CLI
+        run: |
+          option=(
+            --help
+            --version
+            --gitinfo
+          )
+          for x in $(find /tmp/hstcal -name '*.e'); do
+            echo "TEST $x:"
+            for opt in "${option[@]}"; do
+              .ci/bin/check_exec "$opt" -- "$x" || true
+            done
+            echo
+          done
+
+      - name: Dump internal version
+        run: |
+          cd build
+          cat << EOF > check_version.c
+          #include <stdio.h>
+          #include "hstcalversion.h"
+          int main(int argc, char *argv[]) {
+              printGitInfo();
+              return 0;
+          }
+          EOF
+          
+          gcc -o check_version -I../include -I. ../lib/hstcalversion.c check_version.c
+          ./check_version
