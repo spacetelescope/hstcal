@@ -56,36 +56,38 @@ jobs:
         run: |
           find /tmp/hstcal -type f | sort | xargs file
 
-      - name: Dump internal version
+      - name: Dump DISTINFO
         run: |
           cd build
-          cat << EOF > check_version.c
-          #include <stdio.h>
-          #include "hstcalversion.h"
-          int main(int argc, char *argv[]) {
-              printGitInfo();
-              return 0;
-          }
-          EOF
-          
-          echo "Compiling:"
-          cat -n check_version.c
-          gcc -o check_version -I../include -I. ../lib/hstcalversion.c check_version.c
-          echo
-          echo "Executing:"
-          ./check_version
+          cat DISTINFO
 
-      - name: Check common CLI
+      - name: Dump --gitinfo header
         run: |
+          cd build
+          cat -n version.h
+
+      - name: Dump --gitinfo from executable
+        run: |
+          export PATH=/tmp/hstcal/bin:$PATH
+          calacs.e --gitinfo
+
+      - name: Check common CLI arguments
+        run: |
+          export PATH=/tmp/hstcal/bin:$PATH
+          program=(
+            calacs.e
+            calwf3.e
+            cs0.e
+          )
           option=(
             --help
             --version
             --gitinfo
           )
-          for x in $(find /tmp/hstcal -name '*.e'); do
+          for x in "${program[@]}"; do
             echo "TEST $x:"
             for opt in "${option[@]}"; do
-              .ci/bin/check_exec "$opt" -- "$x" || true
+              .ci/bin/check_exec "$opt" -- "$x"
             done
             echo
           done
