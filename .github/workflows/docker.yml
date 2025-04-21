@@ -41,6 +41,10 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
 
+      - name: Git safe.directory override for nested checkout
+        run: |
+          git config --global --add safe.directory $(pwd)
+
       - name: build
         run: |
           mkdir build
