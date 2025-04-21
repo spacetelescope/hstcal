@@ -1,11 +1,6 @@
 name: Red Hat
 on:
   pull_request:
-    paths:
-      - '**.c'
-      - '**.h'
-      - '**/CMakeLists.txt'
-      - '**/cmake'
   push:
     branches: [ main ]
 jobs:
