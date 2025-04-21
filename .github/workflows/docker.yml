@@ -40,9 +40,10 @@ jobs:
         with:
           fetch-tags: true
 
-      - name: Fetch tags from upstream repository
-        run: |
-          git fetch --tags https://github.com/spacetelescope/hstcal
+      #- name: Fetch tags from upstream repository
+      #  run: |
+      #    git config --global --add safe.directory /__w/hstcal/hstcal
+      #    git fetch --tags https://github.com/spacetelescope/hstcal
 
       - name: build
         run: |
