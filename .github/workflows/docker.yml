@@ -57,9 +57,28 @@ jobs:
           make -j$(nproc)
           make install
 
-      - name: File Types
+      - name: Dump file types
         run: |
           find /tmp/hstcal -type f | sort | xargs file
+
+      - name: Dump internal version
+        run: |
+          cd build
+          cat << EOF > check_version.c
+          #include <stdio.h>
+          #include "hstcalversion.h"
+          int main(int argc, char *argv[]) {
+              printGitInfo();
+              return 0;
+          }
+          EOF
+          
+          echo "Compiling:"
+          cat -n check_version.c
+          gcc -o check_version -I../include -I. ../lib/hstcalversion.c check_version.c
+          echo
+          echo "Executing:"
+          ./check_version
 
       - name: Check common CLI
         run: |
@@ -75,18 +94,3 @@ jobs:
             done
             echo
           done
-
-      - name: Dump internal version
-        run: |
-          cd build
-          cat << EOF > check_version.c
-          #include <stdio.h>
-          #include "hstcalversion.h"
-          int main(int argc, char *argv[]) {
-              printGitInfo();
-              return 0;
-          }
-          EOF
-          
-          gcc -o check_version -I../include -I. ../lib/hstcalversion.c check_version.c
-          ./check_version
