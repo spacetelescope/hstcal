@@ -10,31 +10,37 @@ defaults:
 
 jobs:
   docker:
-    name:  ${{ matrix.os }}-${{ matrix.version }}
+    name:  ${{ matrix.os }}-${{ matrix.version }}-${{ matrix.compiler }}-${{ matrix.build_type }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        build_type:
-          #- Debug
-          - Release
-        compiler:
-          - gcc
-          #- clang
         include:
           - os: ubuntu
             version: 24.04
+            build_type: Release
+            compiler: gcc
           - os: ubuntu
             version: 22.04
+            build_type: Release
+            compiler: gcc
           - os: debian
             version: testing
+            build_type: Release
+            compiler: gcc
           - os: debian
             version: stable
+            build_type: Release
+            compiler: gcc
           - os: centos
             repo: quay.io/centos/
             version: stream10
+            build_type: Release
+            compiler: gcc
           - os: centos
             repo: quay.io/centos/
             version: stream9
+            build_type: Release
+            compiler: gcc
 
     container: ${{ matrix.repo }}${{ matrix.os }}:${{ matrix.version }}
 
@@ -45,7 +51,6 @@ jobs:
           dnf install -y epel-release
           /usr/bin/crb enable
           dnf install -y \
-              clang \
               gcc \
               g++ \
               gfortran \
@@ -64,7 +69,6 @@ jobs:
           apt update
           apt install -y \
               bash \
-              clang \
               gcc \
               g++ \
               gfortran \
