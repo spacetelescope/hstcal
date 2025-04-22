@@ -1,26 +1,50 @@
-name: Red Hat
+name: Docker Test
 on:
   pull_request:
   push:
     branches: [ main ]
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  centos_stream:
-    name:  ${{ matrix.dist }}-${{ matrix.compiler}}-${{ matrix.build_type }}
+  docker:
+    name:  ${{ matrix.os }}-${{ matrix.version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dist:
-          - stream9
-          - stream10
+        os:
+          - ubuntu
+          - debian
+          - centos
         build_type:
-          - Debug
+          #- Debug
           - Release
         compiler:
           - gcc
-          - clang
-    container: quay.io/centos/centos:${{ matrix.dist }}
+          #- clang
+        include:
+          - os: ubuntu
+            version: "24.04"
+          - os: ubuntu
+            version: "22.04"
+          - os: debian
+            version: "testing"
+          - os: debian
+            version: "stable"
+          - os: centos
+            repo: quay.io/centos/
+            version: "stream10"
+          - os: centos
+            repo: quay.io/centos/
+            version: "stream9"
+
+    container: ${{ matrix.repo }}${{ matrix.os }}:${{ matrix.version }}
+
     steps:
-      - name: Install development tools
+      - name: Install development tools (CentOS Stream)
+        if: contains(matrix.os, 'centos')
         run: |
           dnf install -y epel-release
           /usr/bin/crb enable
@@ -32,6 +56,26 @@ jobs:
               cmake \
               make \
               cfitsio-devel \
+              pkg-config \
+              file \
+              git
+
+      - name: Install development tools (Ubuntu)
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'debian')
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt update
+          apt install -y \
+              bash \
+              clang \
+              gcc \
+              g++ \
+              gfortran \
+              cmake \
+              make \
+              libcfitsio-dev \
+              pkg-config \
               file \
               git
 
