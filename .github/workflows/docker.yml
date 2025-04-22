@@ -14,10 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os:
-          - ubuntu
-          - debian
-          - centos
         build_type:
           #- Debug
           - Release
@@ -26,19 +22,19 @@ jobs:
           #- clang
         include:
           - os: ubuntu
-            version: "24.04"
+            version: 24.04
           - os: ubuntu
-            version: "22.04"
+            version: 22.04
           - os: debian
-            version: "testing"
+            version: testing
           - os: debian
-            version: "stable"
+            version: stable
           - os: centos
             repo: quay.io/centos/
-            version: "stream10"
+            version: stream10
           - os: centos
             repo: quay.io/centos/
-            version: "stream9"
+            version: stream9
 
     container: ${{ matrix.repo }}${{ matrix.os }}:${{ matrix.version }}
 
