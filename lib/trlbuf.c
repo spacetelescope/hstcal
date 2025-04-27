@@ -89,6 +89,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <assert.h>
 
 #include "hstcal_memory.h"
@@ -637,61 +638,104 @@ void CloseTrlBuf (struct TrlBuf * buf)
         status = fcloseWithStatus(&buf->fp);
 
 }
-void trlmessage (const char *message) {
+void trlmessage(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
 
-    if (!message || !*message)
-        return;
+    char *fmt_ = calloc(strlen(fmt) + 2, sizeof(*fmt_));
+    if (!fmt_) {
+        perror("trlwarn: calloc failed");
+        exit(1);
+    }
+    strncpy(fmt_, fmt, strlen(fmt));
+    strncat(fmt_, "\n", 1);
+
+    char *data = NULL;
+    if (vasprintf(&data, fmt_, args) < 0) {
+        perror("trlmessage: vasprintf failed");
+        fprintf(stderr, "format was: %s\n", fmt);
+        exit(1);
+    }
+    va_end(args);
 
     /* Send output to STDOUT and explicitly flush STDOUT, if desired */
     if (trlbuf.quiet == NO) {
-        printfAndFlush (message);
+        printfAndFlush (data);
     }
 
     /* Send output to (temp) trailer file */
-    WriteTrlBuf (message);
-
+    WriteTrlBuf (data);
+    free(data);
+    free(fmt_);
+    data = NULL;
 }
-void trlwarn (const char *message) {
 
-    char line[CHAR_LINE_LENGTH+1];
+void trlwarn(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
 
+    const char *prefix = WARN_PREFIX;
+    char *fmt_ = calloc(strlen(prefix) + strlen(fmt) + 1, sizeof(*fmt_));
+    if (!fmt_) {
+        perror("trlwarn: calloc failed");
+        exit(1);
+    }
     /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of Warning message */
-    sprintf(line,"%s",WARN_PREFIX);
-    strcat (line,message);
-
+    char *data = NULL;
+    strncpy(fmt_, prefix, strlen(prefix));
+    strncat(fmt_, fmt, strlen(fmt));
+    if (vasprintf(&data, fmt_, args) < 0) {
+        perror("trlwarn: vasprintf failed");
+        exit(1);
+    }
     /* Send output to (temp) trailer file */
-    trlmessage (line);
-
+    va_end(args);
+    free(fmt_);
+    fmt_ = NULL;
+    trlmessage(data, args);
+    free(data);
+    data = NULL;
 }
-void trlerror (const char *message) {
 
-    char line[CHAR_LINE_LENGTH+1];
+void trlerror(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
 
-    /* Create full warning message, like that output in ASNWARN */
-    /* Use macro to add prefix to beginning of ERROR message */
-    sprintf(line,"%s",ERR_PREFIX);
-    strcat (line,message);
-
+    const char *prefix = ERR_PREFIX;
+    char *fmt_ = calloc(strlen(prefix) + strlen(fmt) + 1, sizeof(*fmt_));
+    if (!fmt_) {
+        perror("trlerror: malloc failed");
+        exit(1);
+    }
+    /* Create full error message, like that output in ASNWARN */
+    /* Use macro to add prefix to beginning of Warning message */
+    char *data = NULL;
+    strncpy(fmt_, prefix, strlen(prefix));
+    strncat(fmt_, fmt, strlen(fmt));
+    if (vasprintf(&data, fmt_, args) < 0) {
+        perror("trlerror: vasprintf failed");
+        exit(1);
+    }
     /* Send output to (temp) trailer file */
-    trlmessage (line);
-
+    va_end(args);
+    free(fmt_);
+    fmt_ = NULL;
+    trlmessage(data, args);
+    free(data);
+    data = NULL;
 }
 void trlopenerr (const char *filename) {
-    sprintf (MsgText, "Can't open file %s", filename);
-    trlerror (MsgText);
+    trlerror("Can't open file %s", filename);
 }
 void trlreaderr (const char *filename) {
-    sprintf (MsgText, "Can't read file %s", filename);
-    trlerror (MsgText);
+    trlerror("Can't read file %s", filename);
 }
 void trlkwerr (const char *keyword, const char *filename) {
-    sprintf (MsgText, "Keyword \"%s\" not found in %s", keyword, filename);
-    trlerror (MsgText);
+    trlerror("Keyword \"%s\" not found in %s", keyword, filename);
 }
 void trlfilerr (const char *filename) {
-    sprintf (MsgText, "while trying to read file %s", filename);
-    trlerror (MsgText);
+    trlerror("while trying to read file %s", filename);
 }
 void printfAndFlush (const char *message) {
     printf ("%s\n", message);
@@ -702,7 +746,7 @@ void trlGitInfo(void)
 {
     char * gitInfo = NULL;
     sprintfGitInfo(&gitInfo);
-    trlmessage(gitInfo);
+    trlmessage("%s", gitInfo);
     if (gitInfo)
     {
         free(gitInfo);
