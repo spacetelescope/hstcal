@@ -497,9 +497,9 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
         /*
            Initialize intermediate variable
          */
-        obsnames = (char **)calloc(obselems,sizeof(char *));
+        obsnames = calloc(obselems + 1,sizeof(*obsnames));
         for (i=0;i<obselems;i++)
-            obsnames[i] = (char *) calloc(SZ_COLNAME,sizeof(char));
+            obsnames[i] = (char *) calloc(SZ_COLNAME + 1,sizeof(char));
         /* Start adding elements to the intermediate variable */
         strcpy(tempmode,photmode);
         chtok=strtok(tempmode,",");
