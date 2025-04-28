@@ -266,7 +266,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
           strcat (MsgText, buff);
         }
 
-        trlmessage(MsgText);
+        trlmessage("%s", MsgText);
 
       }
 
@@ -281,8 +281,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
     if (doDark (acs2d, &x, &meandark))
 			return (status);
 
-		sprintf(MsgText,"Mean of dark image (MEANDARK) = %g",meandark);
-		trlmessage(MsgText);
+		trlmessage("Mean of dark image (MEANDARK) = %g",meandark);
 
 		if (PutKeyFlt (&x.sci.hdr, "MEANDARK", meandark,
                    "mean of dark values subtracted"))
@@ -305,8 +304,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
         if (doFlash(acs2d, &x, &meanflash))
             return (status);
 
-        sprintf(MsgText, "Mean of post-flash image (MEANFLSH) = %g", meanflash);
-        trlmessage(MsgText);
+        trlmessage("Mean of post-flash image (MEANFLSH) = %g", meanflash);;
 
         if (PutKeyFlt(&x.sci.hdr, "MEANFLSH", meanflash,
                       "mean of post-flash values subtracted"))
@@ -412,8 +410,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
 	putSingleGroup (acs2d->output, extver, &x, option);
 	if (hstio_err()) {
-    sprintf (MsgText, "Couldn't write imset %d.", extver);
-    trlerror (MsgText);
+		trlerror("Couldn't write imset %d.", extver);
 		return (status = 1001);
 	}
 
@@ -599,7 +596,7 @@ static int OscnTrimmed (Hdr *phdr, Hdr *hdr) {
    image header, then we can not process this image yet...
    */
 	if ( blevcorr != COMPLETE || (ltv1 > 0. || ltv2 > 0.)) {
-		trlerror ("Overscan region not trimmed.  Please perform BLEVCORR.");
+		trlerror("Overscan region not trimmed.  Please perform BLEVCORR.");
 		status = CAL_STEP_NOT_DONE;
 	}
 

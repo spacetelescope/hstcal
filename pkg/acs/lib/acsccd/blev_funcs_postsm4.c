@@ -252,9 +252,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       /* Report to the user the contribution to the bias level correction 
          made by this processing step.
       */
-      sprintf(MsgText, "Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[ampInUse], magic_square_mean);
-      trlmessage(MsgText);
-    
+      trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[ampInUse], magic_square_mean);
+
       /* subtract "magic square mean" from data*/
       {unsigned int j, k;
       for (j = 0; j < arr_rows; j++) {
@@ -403,9 +402,7 @@ int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
     }
 
     /* report bias level subtracted to user */
-    sprintf(MsgText, "     bias level of %.6g electrons was subtracted for AMP %c.",
-            bias_mean, AMPSORDER[i]);
-    trlmessage(MsgText);
+    trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", bias_mean, AMPSORDER[i]);
 
     acs->blev[i] += bias_mean;
     bias_mean_arr[i] = bias_mean;
@@ -427,13 +424,13 @@ int doDestripe(ACSInfo *acs, SingleGroup *chip2, SingleGroup *chip1) {
   }
   
   /* add history keywords about rows fixed and rows skipped */
-  sprintf(history, "DESTRIPE: number of rows fixed per amp: %i", rows_fixed);
+  snprintf(history, sizeof(history), "DESTRIPE: number of rows fixed per amp: %i", rows_fixed);
   addHistoryKw(chip2->globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
   }
   
-  sprintf(history, "DESTRIPE: number of rows skipped per amp: %i", rows_skipped);
+  snprintf(history, sizeof(history), "DESTRIPE: number of rows skipped per amp: %i", rows_skipped);
   addHistoryKw(chip2->globalhdr, history);
   if (hstio_err()) {
     return (status = HEADER_PROBLEM);
@@ -989,7 +986,6 @@ static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *i
       array[i*arr_cols + j] = Pix(im->sci.data, c, r);
     }
   }
-trlmessage (MsgText);
 
   return status;
 }

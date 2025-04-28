@@ -251,8 +251,7 @@ int main (int argc, char **argv) {
         /* Open input image in order to read its primary header. */
         if (LoadHdr (input, &phdr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
+            trlerror("Skipping %s", input);
             continue;
         }
 
@@ -260,8 +259,7 @@ int main (int argc, char **argv) {
            header for processing. */
         if (Get2dSw (&acs2d_sw, &phdr) ) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
+            trlerror("Skipping %s", input);
             continue;
         }
 
@@ -271,8 +269,7 @@ int main (int argc, char **argv) {
         */
         if (GetSwitch (&phdr, "PCTECORR", &pctecorr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
+            trlerror("Skipping %s", input);
             continue;
         }
         if (pctecorr == COMPLETE)
@@ -282,15 +279,13 @@ int main (int argc, char **argv) {
 
         if (MkOutName (input, isuffix, osuffix, nsuffix, output, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
+            trlerror("Skipping %s", input);
             continue;
         }
 
         /* Calibrate the current input file. */
         if (ACS2d (input, output, &acs2d_sw, &refnames, printtime, verbose)) {
-            sprintf (MsgText, "Error processing %s.", input);
-            trlerror (MsgText);
+            trlerror("Error processing %s.", input);
             WhichError (status);
         }
     }

@@ -138,10 +138,8 @@ void acsrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
     hmin = (float) min;
 
     /*
-    sprintf(MsgText,
-    "sky computed using min %d, max %d, mean %g, bins %d, and width %g",
+    trlmessage("sky computed using min %d, max %d, mean %g, bins %d, and width %g",
     min, max, mean, nbins, hwidth);
-    trlmessage(MsgText);
     */
 
     /* Now loop over the input images, computing the sky value for each image */

@@ -51,8 +51,8 @@ int GetCTEFlags (ACSInfo *acs, Hdr *phdr) {
     if (missing) {
         return (status = CAL_FILE_MISSING);
     } else if (nsteps < 1) {
-        trlwarn ("No calibration switch was set to PERFORM, ");
-        trlwarn ("            or all reference files had PEDIGREE = DUMMY.");
+        trlwarn("No calibration switch was set to PERFORM, ");
+        trlwarn("            or all reference files had PEDIGREE = DUMMY.");
         return (status = NOTHING_TO_DO);
     } else {
         return (status);
@@ -95,10 +95,7 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 
         if (acs->pcteTabNameFromCmd && *acs->pcteTabNameFromCmd != '\0')
         {
-            char msgBuffer[CHAR_LINE_LENGTH];
-            *msgBuffer = '\0';
-            sprintf(msgBuffer, "(pctecorr) USING PCTETAB SPECIFIED BY '--pctetab %s' AND NOT THAT FROM IMAGE HEADER!!!", acs->pcteTabNameFromCmd);
-            trlwarn(msgBuffer);
+            trlwarn("(pctecorr) USING PCTETAB SPECIFIED BY '--pctetab %s' AND NOT THAT FROM IMAGE HEADER!!!", acs->pcteTabNameFromCmd);
             if ((status = checkTabRefPedigree(acs->pcteTabNameFromCmd, &acs->pcte, &acs->pctecorr)))
                 return (status);
         }
@@ -156,8 +153,7 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
     } else if (acs->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
         (*missing)++;
-        sprintf (MsgText, "CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
-        trlerror (MsgText);
+        trlerror("CCDTAB `%s' is a dummy table.", acs->ccdpar.name);
     }
 
     /* Get OSCNTAB here as it applies to all CCD processing as well.

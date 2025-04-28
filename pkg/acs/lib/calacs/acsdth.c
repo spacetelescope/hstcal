@@ -100,12 +100,9 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 	if (printtime)
     TimeStamp ("ACSDTH started", "");
 
-  sprintf(MsgText,"The task PyDrizzle needs to be run in order to generate");
-  trlmessage(MsgText);
-  sprintf(MsgText,"a geometrically corrected, drizzle-combined product.");
-  trlmessage(MsgText);
-  sprintf(MsgText,"PyDrizzle requires PyRAF. See pyraf.stsci.edu for more details.");
-  trlmessage(MsgText);
+  trlmessage("The task PyDrizzle needs to be run in order to generate\n"
+  	"a geometrically corrected, drizzle-combined product.\n"
+  	"PyDrizzle requires PyRAF. See pyraf.stsci.edu for more details.");
 
   /* create new SPT file for output product */
   if (mkNewSpt (in_list, mtype, output)) {
@@ -214,14 +211,12 @@ void InitDthTrl (char *inlist, char *output) {
 		/* Start by stripping off suffix from input/output filenames */
 		if (MkOutName (input, isuffix, trlsuffix, nsuffix, out_name, CHAR_LINE_LENGTH)) {
 			WhichError (status);
-			sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
-			trlmessage (MsgText);
+			trlerror("Couldn't determine trailer filename for %s", input);
 		}
 
 		/* Now, convert trailer filename extensions from '.fits' to '.trl' */
 		if (MkNewExtn (out_name, TRL_EXTN) ) {
-			sprintf(MsgText, "Error creating input trailer filename %s", out_name);
-			trlerror (MsgText);
+			trlerror("Error creating input trailer filename %s", out_name);
 			WhichError (status);
 		}
 
@@ -240,13 +235,11 @@ void InitDthTrl (char *inlist, char *output) {
 
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 		WhichError (status);
-		sprintf (MsgText, "Couldn't create trailer filename for %s", output);
-		trlmessage (MsgText);
+		trlerror("Couldn't create trailer filename for %s", output);
 	}
 
 	if (MkNewExtn (trl_out, TRL_EXTN) ) {
-		sprintf(MsgText, "Error creating output trailer filename %s", trl_in);
-		trlerror (MsgText);
+		trlerror("Error creating output trailer filename %s", trl_in);
 		WhichError (status);
 	}
 

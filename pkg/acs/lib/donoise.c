@@ -250,8 +250,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       for (i = 0; i < dimx; i++) {
         val = Pix(x->sci.data, i, j);
         if (val < 0.0){
-          sprintf(MsgText,"Negative value found at (%d,%d) in input MAMA data!",(i+1),(j+1));
-          trlwarn (MsgText);
+          trlwarn("Negative value found at (%d,%d) in input MAMA data!",(i+1),(j+1));
           val = abs(val);
         }
         value = sqrt(val);

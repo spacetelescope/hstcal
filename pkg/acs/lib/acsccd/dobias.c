@@ -90,12 +90,11 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
     return (status);
   
 	if (acs->verbose) {
-		sprintf(MsgText,"Ratio of (%d,%d) with offset =(%d,%d)",rx,ry,x0,y0);
-		trlmessage(MsgText);
+		trlmessage("Ratio of (%d,%d) with offset =(%d,%d)",rx,ry,x0,y0);
 		if (same_size) {
-			sprintf(MsgText,"BIAS image and input are the same size ");
+			trlmessage("BIAS image and input are the same size");
 		} else {
-			sprintf(MsgText,"BIAS image and input are NOT the same size ");
+			trlmessage("BIAS image and input are NOT the same size");
 		}
     trlmessage(MsgText);
 	}
@@ -113,14 +112,13 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
 		for (i=0; i < scilines; i++) {
 			status = getSingleGroupLine (acs->bias.name, i, &y);
 			if (status) {
-				sprintf(MsgText,"Could not read line %d from bias image.",i+1);
-				trlerror(MsgText);
+				trlerror("Could not read line %d from bias image.",i+1);
 			}
 			
       /* No binning required. */
 			status = sub1d(x, i, &y);
       if (status) {
-				trlerror ("(biascorr) size mismatch.");
+				trlerror("(biascorr) size mismatch.\n");
 				return (status);
       }
 		}
@@ -140,15 +138,14 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
             */
             status = getSingleGroupLine (acs->bias.name, j, &y);
             if (status) {
-                sprintf(MsgText,"Could not read line %d from bias image.",j+1);
-                trlerror(MsgText);
-            }			
+                trlerror("Could not read line %d from bias image.",j+1);
+            }
 
             update = NO;
      
             /* rx = 1; */
             if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
-                trlerror ("(biascorr) size mismatch.");
+                trlerror("(biascorr) size mismatch.");
                 return (status);
             }
 

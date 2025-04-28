@@ -16,18 +16,18 @@ int CompareNumbers (int n_in, int n_out, char *str_out) {
 	buff[0] = '\0';
 
 	if (n_out > 0 && n_out != n_in) {
-	    sprintf (MsgText, "You specified %d input file", n_in);
+	    snprintf (MsgText, sizeof(MsgText), "You specified %d input file", n_in);
 	    if (n_in > 1) {
 			strcat (MsgText, "s");
 		}
-	    sprintf (buff, " but %d %s file", n_out, str_out);
+	    snprintf (buff, sizeof(MsgText), " but %d %s file", n_out, str_out);
 		strcat (MsgText, buff);
 	    if (n_out > 1) {
 	    	strcat (MsgText, "s");
 		}
 	    strcat (MsgText, ".\n");
 
-            printf ("%s", MsgText);
+        trlmessage("%s", MsgText);
 		return (1);
 	}
 

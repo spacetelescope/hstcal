@@ -143,19 +143,18 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	    TimeStamp ("Begin processing", acs2d.rootname);
 	
 	if (verbose) {
-		sprintf(MsgText,"Processing %d IMSETs... ",acs2d.nimsets);
-		trlmessage(MsgText);
+		trlmessage("Processing %d IMSETs...",acs2d.nimsets);
 	}
 	
 	for (extver = 1;  extver <= acs2d.nimsets;  extver++) {
-	    trlmessage ("\n");
+	    trlmessage("\n");
 	    PrGrpBegin ("imset", extver);
 	    if (Do2D (&acs2d, extver))
 		return (status);
 	    PrGrpEnd ("imset", extver);
 	}
 
-	trlmessage ("\n");
+	trlmessage("\n");
 	PrEnd ("ACS2D");
 
 	if (acs2d.printtime)
@@ -197,24 +196,20 @@ void Init2DTrl (char *input, char *output) {
 	/* Start by stripping off suffix from input/output filenames */
 	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
 		WhichError (status);
-		sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
-		trlmessage (MsgText);
+		trlerror("Couldn't determine trailer filename for %s", input);
 	}
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 		WhichError (status);
-		sprintf (MsgText, "Couldn't create trailer filename for %s", output);
-		trlmessage (MsgText);
+		trlerror("Couldn't create trailer filename for %s", output);
 	}
     
 	/* Now, convert trailer filename extensions from '.fits' to '.trl' */
 	if (MkNewExtn (trl_in, TRL_EXTN) ) {
-		sprintf(MsgText, "Error with input trailer filename %s", trl_in);
-		trlerror (MsgText);
+		trlerror("Error with input trailer filename %s", trl_in);
 		WhichError (status);
 	}
 	if (MkNewExtn (trl_out, TRL_EXTN) ) {
-		sprintf(MsgText, "Error with output trailer filename %s", trl_out);
-		trlerror (MsgText);
+		trlerror("Error with output trailer filename %s", trl_out);
 		WhichError (status);
 	}
 

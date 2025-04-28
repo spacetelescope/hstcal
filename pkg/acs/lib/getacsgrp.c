@@ -59,8 +59,7 @@ Hdr *hdr         i: header of current extension
 	if (GetKeyInt (hdr, "NCOMBINE", USE_DEFAULT, 1, &acs->ncombine))
 	    return (status);
 	if (acs->ncombine < 1) {
-	    sprintf (MsgText, "NCOMBINE = %d, reset to one.", acs->ncombine);
-	    trlwarn (MsgText);
+	    trlwarn("NCOMBINE = %d, reset to one.", acs->ncombine);
 		acs->ncombine = 1;
 	}
 	/* Get MAMA-specific parameters. */

@@ -127,8 +127,7 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
 
         if (acs.nimsets < 1)
         {
-            sprintf (MsgText, "N IMSETS found = %d; must be at least %d.", acs.nimsets, 1);
-            trlerror (MsgText);
+            trlerror("N IMSETS found = %d; must be at least %d.", acs.nimsets, 1);
             return INVALID_VALUE;
         }
     }
@@ -137,7 +136,7 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
     if (acs.detector == MAMA_DETECTOR) {
         /* Return ACS_OK, since processing can proceed, just with a
            different function */
-        trlwarn ("Can NOT process MAMA data with ACSCTE...");
+        trlwarn("Can NOT process MAMA data with ACSCTE...");
         freeHdr (&phdr);
         return (status);
     }
@@ -205,13 +204,11 @@ void InitCTETrl (char *input, char *output, const char * isuffix, const char * o
     /* Start by stripping off suffix from input/output filenames */
     if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
-        trlmessage (MsgText);
+        trlerror("Couldn't determine trailer filename for %s", input);
     }
     if (MkName (output, osuffix, trlsuffix, TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s", output);
-        trlmessage (MsgText);
+        trlerror("Couldn't create trailer filename for %s", output);
     }
 
     /* Sets up temp trailer file for output and copies input

@@ -227,13 +227,11 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan, int *virtOverscan
         acs->biassectb[0] = 0;
         acs->biassectb[1] = 0;
 
-        sprintf(MsgText, "Could not find appropriate row from OSCNTAB. ");
-        trlwarn(MsgText);
+        trlwarn("Could not find appropriate row from OSCNTAB.");
     }
     else if (acs->verbose == YES) {
-        sprintf(MsgText, "Found trim values of: x(%d,%d) y(%d,%d)",
+        trlmessage("Found trim values of: x(%d,%d) y(%d,%d)",
                 acs->trimx[0], acs->trimx[1], acs->trimy[0], acs->trimy[1]);
-        trlmessage(MsgText);
     }
 
     return (status);
@@ -260,8 +258,7 @@ static int OpenOverTab (char *tname, TblInfo *tabinfo) {
 
     tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
-        sprintf (MsgText, "OSCNTAB `%s' not found.", tname);
-        trlerror (MsgText);
+        trlerror("OSCNTAB `%s' not found.", tname);
         return (status = OPEN_FAILED);
     }
 

@@ -130,7 +130,7 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     if (acs.detector == MAMA_DETECTOR) {
         /* Return ACS_OK, since processing can proceed, just with a
            different function */
-        trlwarn ("Can NOT process MAMA data with ACSCCD...");
+        trlwarn("Can NOT process MAMA data with ACSCCD...");
         freeHdr (&phdr);
         return (status);
     }
@@ -211,13 +211,11 @@ void InitCCDTrl (char *input, char *output) {
     /* Start by stripping off suffix from input/output filenames */
     if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't determine trailer filename for %s", input);
-        trlmessage (MsgText);
+        trlerror("Couldn't determine trailer filename for %s", input);
     }
     if (MkName (output, osuffix, trlsuffix, TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
         WhichError (status);
-        sprintf (MsgText, "Couldn't create trailer filename for %s", output);
-        trlmessage (MsgText);
+        trlerror("Couldn't create trailer filename for %s", output);
     }
 
     /* Sets up temp trailer file for output and copies input
@@ -287,8 +285,8 @@ static int BiasKeywords (ACSInfo *acs) {
             }
         }
     } else {
-        trlmessage ("  NO bias level keywords found to be updated.");
-        trlmessage ("  Reporting values in trailer file only!");
+        trlmessage("  NO bias level keywords found to be updated.");
+        trlmessage("  Reporting values in trailer file only!");
     }
 
     /* write out primary header */

@@ -74,8 +74,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
 
     /* Check to see whether we need to do any processing at all */
     if (acs2d->flashdur <= 0.) {
-        sprintf(MsgText,
-            "Post-flash exposure was 0 seconds. FLSHCORR not performed.");
+        snprintf(MsgText, sizeof(MsgText), "Post-flash exposure was 0 seconds. FLSHCORR not performed.");
         trlwarn(MsgText);
         addHistoryKw (x->globalhdr, MsgText);
         acs2d->flashcorr = IGNORED;
@@ -88,8 +87,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     /* Flag an aborted Post-Flash exposure in the trailer file comments. */
     /* Add this message to the image header as well. */
     if (streq_ic(acs2d->flashstatus, "ABORTED")) {
-        sprintf (MsgText,
-            "Post-flash STATUS was ABORTED. Post-flash may be compromised.");
+        snprintf (MsgText, sizeof(MsgText), "Post-flash STATUS was ABORTED. Post-flash may be compromised.");
         trlwarn (MsgText);
         addHistoryKw (x->globalhdr, MsgText);
     }
@@ -114,10 +112,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     }
 
     if (acs2d->verbose) {
-        sprintf(MsgText,
-                "Performing post-flash subtraction on chip %d in imset %d",
-                acs2d->chip, extver);
-        trlmessage(MsgText);
+        trlmessage("Performing post-flash subtraction on chip %d in imset %d", acs2d->chip, extver);;
     }
 
     /* Get the post-flash image data. */
@@ -137,14 +132,11 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
         return (status);
 
     if (rx != 1 || ry != 1) {
-        sprintf(MsgText,
-            "Reference image and input are not binned to the same pixel size!");
-        trlmessage(MsgText);
+        trlmessage("Reference image and input are not binned to the same pixel size!");
     }
 
     if (acs2d->verbose) {
-        sprintf(MsgText, "Image has an offset of %d,%d", x0, y0);
-        trlmessage(MsgText);
+        trlmessage("Image has an offset of %d,%d", x0, y0);;
     }
 
     mean = 0.0;

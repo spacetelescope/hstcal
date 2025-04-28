@@ -54,8 +54,7 @@ int main (int argc, char **argv) {
 
     /* Reject cosmic rays. */
     if (AcsRej (input, output, mtype, &par, newpar)) {
-        sprintf (MsgText,"Error processing %s.", input);
-        asnerror (MsgText);
+        trlerror("Error processing %s.", input);
     }
 
     if (status) {

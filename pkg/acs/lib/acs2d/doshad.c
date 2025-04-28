@@ -104,7 +104,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 			getSingleGroupLine (acs2d->shad.name, j, &y);
 				
 	    	if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
-				trlerror ("(doShad) size mismatch.");
+				trlerror("(doShad) size mismatch.");
 				return (status);
 	    	}
 
@@ -137,7 +137,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
         zsecty = SECTLINES * ry;
         zsectx = y.sci.tot_nx * rx;
 		if (allocACSsect (&zsect, zsectx, zsecty) ){
-			trlerror ("(doShad) Out of memory. ");
+			trlerror ("(doShad) Out of memory.");
 			return (status = OUT_OF_MEMORY);
 		}
 		
@@ -148,8 +148,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    allocSingleGroupLine (&z, x->sci.data.nx);
 				
 		if (acs2d->verbose) {
-		    sprintf(MsgText, "Shad file will be expanded to %d pixels.", y.sci.tot_nx*rx);
-		    trlmessage(MsgText);
+		    trlmessage("Shad file will be expanded to %d pixels.", y.sci.tot_nx*rx);;
 		}
 
 		/* Initialize row counter for input image 	*/

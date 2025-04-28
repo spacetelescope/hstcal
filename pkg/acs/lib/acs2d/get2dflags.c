@@ -119,8 +119,7 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs2d, int *missing) {
     } else if (acs2d->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
         (*missing)++;
-        sprintf (MsgText, "CCDTAB `%s' is a dummy table.", acs2d->ccdpar.name);
-        trlerror (MsgText);
+        trlerror("CCDTAB `%s' is a dummy table.", acs2d->ccdpar.name);
     }
 
     return (status);
@@ -266,9 +265,7 @@ static int checkFlash (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
             return (status);
 	}
         if ((ltv[0] != 0) || (ltv[1] != 0)) {
-            sprintf(MsgText, "FLSHFILE `%s' has untrimmed overscans.",
-                    acs2d->flash.name);
-            trlerror (MsgText);
+            trlerror("FLSHFILE `%s' has untrimmed overscans.", acs2d->flash.name);;
             freeSingleGroup(&y);
             return (status = SIZE_MISMATCH);
 	}
@@ -338,9 +335,7 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
             return (status);
 	}
         if ((ltv[0] != 0) || (ltv[1] != 0)) {
-            sprintf(MsgText, "FLSHFILE `%s' has untrimmed overscans.",
-                    acs2d->flashcte.name);
-            trlerror (MsgText);
+            trlerror("FLSHFILE `%s' has untrimmed overscans.", acs2d->flashcte.name);;
             freeSingleGroup(&y);
             return (status = SIZE_MISMATCH);
 	}
@@ -514,7 +509,7 @@ static int checkFlat (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
         } else if (acs2d->pfltcorr == OMIT && acs2d->dfltcorr == OMIT &&
                    acs2d->lfltcorr == OMIT) {
             (*missing)++;
-            trlerror ("PFLTFILE, DFLTFILE, and LFLTFILE are all blank.");
+            trlerror("PFLTFILE, DFLTFILE, and LFLTFILE are all blank.");
         } else if (acs2d->pfltcorr == DUMMY || acs2d->dfltcorr == DUMMY ||
                    acs2d->lfltcorr == DUMMY) {
             acs2d->flatcorr = DUMMY;

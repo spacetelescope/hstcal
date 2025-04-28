@@ -108,9 +108,7 @@ ACS2dInfo *acs2d     io: calibration switches, etc
 	}
 
 	if (!foundit) {
-	    sprintf (MsgText, "Detector `%s' not found in MLINTAB `%s'.",
-		acs2d->det, acs2d->mlin.name);
-	    trlerror (MsgText);
+	    trlerror("Detector `%s' not found in MLINTAB `%s'.", acs2d->det, acs2d->mlin.name);;
 		CloseLinTab (&tabinfo);
 	    return (status = TABLE_ERROR);
 	}
@@ -132,8 +130,7 @@ static int OpenLinTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    sprintf (MsgText, "MLINTAB `%s' not found.", tname);
-	    trlerror (MsgText);
+	    trlerror("MLINTAB `%s' not found.", tname);
 		return (status = OPEN_FAILED);
 	}
 

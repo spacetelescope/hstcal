@@ -168,8 +168,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
     }
 
     if (asn.verbose) {
-        sprintf (MsgText,"CALACS: Detector %s, type %d ",asn.instr, asn.detector);
-        trlmessage (MsgText);
+        trlmessage("CALACS: Detector %s, type %d",asn.instr, asn.detector);
     }
 
     /* Determine what detector we are working with... */
@@ -459,16 +458,14 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
     /* Loop over the products/positions for each CR-split/Repeat-Obs set. */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose){
-            sprintf (MsgText, "CALACS: processing CCD product %d", prod);
-            trlmessage (MsgText);
+            trlmessage("CALACS: processing CCD product %d", prod);
         }
 
         /* Process this PARTIAL/SINGLE/FULL product... */
         for (posid = 1; posid <= asn->numsp; posid++) {
 
             if (asn->verbose) {
-                sprintf (MsgText,"CALACS: processing posid = %d", posid);
-                trlmessage (MsgText);
+                trlmessage("CALACS: processing posid = %d", posid);
             }
             /*  Allocate space for ACSREJ input image list */
             if ( (asn->crcorr == PERFORM) || (asn->rptcorr == PERFORM) ) {
@@ -649,8 +646,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
             if ( (acshdr->sci_crcorr == PERFORM) ||
                  (acshdr->sci_rptcorr == PERFORM) ) {
                 if (asn->verbose) {
-                    sprintf (MsgText,"CALACS: Now process position %d from product %d", posid, prod);
-                    trlmessage (MsgText);
+                    trlmessage("CALACS: Now process position %d from product %d", posid, prod);
                 }
 
                 /* Commented out, not sure why these need to be reset.
@@ -664,37 +660,34 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
                 /*acs2d_sci_sw.dqicorr = COMPLETE; */
 
                 if (asn->debug){
-                    sprintf(MsgText,"Non-CTE corrected Input to ACSREJ is:");
-                    trlmessage(MsgText);
+                    trlmessage("Non-CTE corrected Input to ACSREJ is:");
 
                     /* Need to allocate memory for a separate string to be
                        long enough to hold all the input names when printing
                        it out. Caused pipeline problems otherwise.
                        WJH 19-Mar-04 */
-                    acsrej_msgtext = calloc(strlen(acsrej_input)+25,
-                                            sizeof(char));
-                    sprintf (acsrej_msgtext, "%s", acsrej_input);
+                    const size_t acsrej_msgtext_size = strlen(acsrej_input) + 25;
+                    acsrej_msgtext = calloc(acsrej_msgtext_size, sizeof(char));
+                    snprintf (acsrej_msgtext, acsrej_msgtext_size, "%s", acsrej_input);
                     trlmessage(acsrej_msgtext);
                     free(acsrej_msgtext);
 
-                    sprintf(MsgText,"Non-CTE corrected Output to ACSREJ is: %s", acshdr->crj_tmp);
-                    trlmessage(MsgText);
+                    trlmessage("Non-CTE corrected Output to ACSREJ is: %s", acshdr->crj_tmp);
 
                     if (acscte_sci_sw.pctecorr == PERFORM) {
-                        sprintf(MsgText,"CTE corrected Input to ACSREJ is:");
-                        trlmessage(MsgText);
+                        trlmessage("CTE corrected Input to ACSREJ is:");
 
                         /* Need to allocate memory for a separate string to be
                            long enough to hold all the input names when printing
                            it out. Caused pipeline problems otherwise.
                            WJH 19-Mar-04 */
-                        acsrejc_msgtext = calloc(strlen(acsrejc_input)+25, sizeof(char));
-                        sprintf (acsrejc_msgtext, "%s",acsrejc_input);
+                        const size_t acsrejc_msgtext_size = strlen(acsrejc_input) + 25;
+                        acsrejc_msgtext = calloc(acsrejc_msgtext_size, sizeof(char));
+                        snprintf (acsrejc_msgtext, acsrejc_msgtext_size, "%s", acsrejc_input);
                         trlmessage(acsrejc_msgtext);
                         free(acsrejc_msgtext);
 
-                        sprintf(MsgText,"CTE corrected Output to ACSREJ is: %s", acshdr->crc_tmp);
-                        trlmessage(MsgText);
+                        trlmessage("CTE corrected Output to ACSREJ is: %s", acshdr->crc_tmp);
                     }
                 }
 
@@ -933,8 +926,7 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
         /* Process SINGLE/PARTIAL/FULL product */
         for (posid = 1; posid <= asn->numsp; posid++) {
             if (asn->verbose){
-                sprintf (MsgText,"CALACS: processing MAMA posid = %d", posid);
-                trlmessage (MsgText);
+                trlmessage("CALACS: processing MAMA posid = %d", posid);
             }
 
             for (expid = 1; expid <= asn->spmems[posid]; expid++) {
@@ -1012,8 +1004,7 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
                     if (acshdr->sci_rptcorr != PERFORM)
                         status = NOTHING_TO_DO;
 
-                    sprintf (MsgText, "Copying input to %s ",acshdr->fltfile);
-                    trlwarn(MsgText);
+                    trlwarn("Copying input to %s",acshdr->fltfile);
 
                     if (CopyFFile (acshdr->rawfile, acshdr->fltfile))
                         return (status);
@@ -1053,13 +1044,13 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
                        enough to hold all the input names when printing it
                        out.  Caused pipeline problems otherwise. WJH 19-Mar-04
                     */
-                    acssum_msgtext = calloc(strlen(acssum_input)+25, sizeof(char));
-                    sprintf (acssum_msgtext, "Input to ASCSUM is: %s",acssum_input);
+                    const size_t acssum_msgtext_size = strlen(acssum_input)+25;
+                    acssum_msgtext = calloc(acssum_msgtext_size, sizeof(char));
+                    snprintf (acssum_msgtext, acssum_msgtext_size, "Input to ASCSUM is: %s",acssum_input);
                     trlmessage(acssum_msgtext);
                     free(acssum_msgtext);
 
-                    sprintf (MsgText, "Output for ASCSUM is: %s",acssum_output);
-                    trlmessage(MsgText);
+                    trlmessage("Output for ASCSUM is: %s",acssum_output);
                 }
 
                 strcpy(acssum_mtype, asn->product[prod].subprod[posid].mtype);
@@ -1202,15 +1193,13 @@ static int CopyFFile (char *infile, char *outfile) {
         return (status = OUT_OF_MEMORY);
 
     if ((ofp = fopen (outfile, "wb")) == NULL) {
-        sprintf (MsgText,"Can't create temporary file %s.", outfile);
-        trlerror(MsgText);
+        trlerror("Can't create temporary file %s.", outfile);
         free (buf);
         return (status = INVALID_TEMP_FILE);
     }
 
     if ((ifp = fopen (infile, "rb")) == NULL) {
-        sprintf (MsgText, "Can't open %s.", infile);
-        trlerror (MsgText);
+        trlerror("Can't open %s.", infile);
         (void)fcloseWithStatus(&ofp);
         remove (outfile);
         free (buf);
@@ -1221,9 +1210,7 @@ static int CopyFFile (char *infile, char *outfile) {
     while (!done) {
         nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
         if (ferror (ifp)) {
-            sprintf (MsgText, "Can't read from %s (copying to %s).",
-            infile, outfile);
-            trlerror (MsgText);
+            trlerror("Can't read from %s (copying to %s).", infile, outfile);
             (void)fcloseWithStatus(&ofp);
             (void)fcloseWithStatus(&ifp);
             free (buf);
@@ -1234,8 +1221,7 @@ static int CopyFFile (char *infile, char *outfile) {
 
         nout = fwrite (buf, sizeof(char), nin, ofp);
         if (nout < nin) {
-            sprintf (MsgText, "Can't copy %s to %s.", infile, outfile);
-            trlerror (MsgText);
+            trlerror("Can't copy %s to %s.", infile, outfile);
             (void)fcloseWithStatus(&ofp);
             (void)fcloseWithStatus(&ifp);
             free (buf);

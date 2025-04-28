@@ -65,8 +65,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
         tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
         if (c_iraferr() != 0) {
-            sprintf (MsgText,"CRREJTAB table '%s' does not exist", par->tbname);
-            trlerror (MsgText);
+            trlerror("CRREJTAB table '%s' does not exist", par->tbname);
             return (status = TABLE_ERROR);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -200,8 +199,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
     }
 
     if (*niter > MAX_ITER) {
-        sprintf (MsgText,"No more than %d iterations permitted.", MAX_ITER);
-        trlerror (MsgText);
+        trlerror("No more than %d iterations permitted.", MAX_ITER);
         return (status = ERROR_RETURN);
     }
     if (*niter <= 0) {
@@ -215,34 +213,23 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
     /* print out which parameter are used */
     if (par->verbose) {
-        sprintf (MsgText,"\n number of images = %d", nimgs);
-        trlmessage (MsgText);
-        sprintf (MsgText," CRREJ ref table used: %s", par->tbname);
-        trlmessage (MsgText);
-        sprintf (MsgText," initial guess method: %s", par->initgues);
-        trlmessage (MsgText);
-        sprintf (MsgText," total exposure time = %0.1f", exptot);
-        trlmessage (MsgText);
-        sprintf (MsgText," sigmas used: %s", par->sigmas);
-        trlmessage (MsgText);
-        sprintf (MsgText," sky subtraction used: %s", par->sky);
-        trlmessage (MsgText);
-        sprintf (MsgText," rejection radius = %0.1f", par->radius);
-        trlmessage (MsgText);
-        sprintf (MsgText," propagation threshold = %0.1f", par->thresh);
-        trlmessage (MsgText);
-        sprintf (MsgText," scale noise = %0.1f%%", par->scalense);
-        trlmessage (MsgText);
-        sprintf (MsgText," input bad bits value = %d", par->badinpdq);
-        trlmessage (MsgText);
+        trlmessage("\n number of images = %d\n", nimgs);
+        trlmessage(" CRREJ ref table used: %s", par->tbname);
+        trlmessage(" initial guess method: %s", par->initgues);
+        trlmessage(" total exposure time = %0.1f", exptot);
+        trlmessage(" sigmas used: %s", par->sigmas);
+        trlmessage(" sky subtraction used: %s", par->sky);
+        trlmessage(" rejection radius = %0.1f", par->radius);
+        trlmessage(" propagation threshold = %0.1f", par->thresh);
+        trlmessage(" scale noise = %0.1f%%", par->scalense);
+        trlmessage(" input bad bits value = %d", par->badinpdq);
 
         if (par->mask == 1) {
             strcpy (maskstr,"YES");
         } else {
             strcpy (maskstr, "NO");
         }
-        sprintf (MsgText," reset crmask = %s\n", maskstr);
-        trlmessage (MsgText);
+        trlmessage(" reset crmask = %s\n", maskstr);
     }
     return (status);
 }

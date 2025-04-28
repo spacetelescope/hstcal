@@ -106,8 +106,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
     strcat (photstr,scratch);
 
     if (acs2d->verbose){
-        sprintf(MsgText,"Keyword PHOTMODE built as: %s",photstr);
-        trlmessage(MsgText);
+        trlmessage("Keyword PHOTMODE built as: %s",photstr);
     }
 	/* Update PHOTMODE in the extension header. */
 	if (PutKeyStr (&x->sci.hdr, "PHOTMODE", photstr, "list of components"))

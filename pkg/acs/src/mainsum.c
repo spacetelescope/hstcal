@@ -130,6 +130,7 @@ int main (int argc, char **argv) {
 	if (output[0] == '\0') {
 	    if (MkName (input, "_asn", "_sfl", "", output, CHAR_LINE_LENGTH))
         {
+	    	// TODO: add trlerror message
             WhichError (status);
             freeOnExit(&ptrReg);
             exit (ERROR_RETURN);
@@ -138,8 +139,7 @@ int main (int argc, char **argv) {
 
 	/* Sum imsets. */
 	if (AcsSum (input, output, mtype, printtime, verbose)) {
-	    sprintf (MsgText, "Error processing %s.", input);
-		trlerror (MsgText);
+	    trlerror("Error processing %s.", input);
 	    WhichError (status);
 	}
 

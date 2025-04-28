@@ -68,14 +68,14 @@ int *driftcorr       i: true if correction can be applied
 	*driftcorr = 0;		/* initial value */
 
 	if (vx[1] <= vx[0] || vy[1] <= vy[0]) {
-	    trlmessage ("(blevcorr) No virtual overscan region;");
-		trlmessage (nodriftcorr);
+	    trlmessage("(blevcorr) No virtual overscan region;");
+		trlmessage(nodriftcorr);
 	    DriftSet (0.);
 	    return (status);
 	}
 
 	if ((scratch = malloc ((vy[1]-vy[0]+1) * sizeof (double))) == NULL) {
-	    trlwarn ("Out of memory in BlevDrift.");
+	    trlwarn("Out of memory in BlevDrift.");
 	    return (status = OUT_OF_MEMORY);
 	}
 
@@ -99,8 +99,7 @@ int *driftcorr       i: true if correction can be applied
 
 	/* Fit a curve to the values found. */
 	if (DriftFit()) {
-	    trlwarn ("(blevcorr) Singular fit to virtual overscan; ");
-	    trlwarn (nodriftcorr);
+	    trlwarn("(blevcorr) Singular fit to virtual overscan;");
 	    DriftSet (0.);
 	} else {
 	    *driftcorr = 1;
