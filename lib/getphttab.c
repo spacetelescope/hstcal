@@ -312,14 +312,14 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     /* Copy in the column names now */
     strcpy(colnames[0],photvar);
     for (parnum=1;parnum <= tabinfo->parnum; parnum++){
-        sprintf(colnames[parnum],"%s%i",photvar,parnum);
-        sprintf(ecolnames[parnum],"NELEM%i",parnum);
-        sprintf(pncolnames[parnum],"PAR%iNAMES",parnum);
-        sprintf(pvcolnames[parnum],"PAR%iVALUES",parnum);
+        snprintf(colnames[parnum], SZ_COLNAME, "%s%i", photvar, parnum);
+        snprintf(ecolnames[parnum], SZ_COLNAME, "NELEM%i", parnum);
+        snprintf(pncolnames[parnum], SZ_COLNAME, "PAR%iNAMES", parnum);
+        snprintf(pvcolnames[parnum], SZ_COLNAME, "PAR%iVALUES", parnum);
     }
 
     /* Create name of table with extension to be opened */
-    sprintf(tname,"%s[%s]",tabname,photvar);
+    snprintf(tname, sizeof(tname), "%s[%s]", tabname, photvar);
 
     /* keep track of what extension we are processing here */
     strcpy(tabinfo->photvar, photvar);
@@ -695,8 +695,8 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
         for (n=1,col=0; n<=tabrow->parnum; n++,col++){
             /* Build up names of columns for parameterized values
                which need to be read in */
-            sprintf(col_nelem,"NELEM%d",n);    /* col name: NELEMn */
-            sprintf(col_parval,"PAR%dVALUES",n); /* col name: PARnVALUES */
+            snprintf(col_nelem, sizeof(col_nelem), "NELEM%d",n);    /* col name: NELEMn */
+            snprintf(col_parval, sizeof(col_parval), "PAR%dVALUES",n); /* col name: PARnVALUES */
 
             /* Read in number of elements for this parameterized variable */
             c_tbegti (tabinfo->tp, tabinfo->cp_nelem[n], row, &tabrow->nelem[n]);
