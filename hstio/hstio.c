@@ -2051,8 +2051,7 @@ static char *make_iodesc(IODesc **x, char *fname, char *ename, int ever) {
         iodesc->type = 0;
         if (fname == 0) fname = "";
         if (ename == 0) ename = "";
-        iodesc->filename = (char *)calloc(((flen = strlen(fname)) + 1),
-                sizeof(char));
+        iodesc->filename = (char *)calloc(((flen = strlen(fname)) + 1), sizeof(char));
         if (iodesc->filename == NULL) {
             free(iodesc);
             error(NOMEM,"Allocating I/O descriptor");
