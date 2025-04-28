@@ -21,8 +21,6 @@ extern int status;			/* zero is OK */
 # include "acsversion.h"
 #include "trlbuf.h"
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 struct TrlBuf trlbuf = { 0 };
 
 static void printSyntax(void)

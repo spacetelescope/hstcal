@@ -28,9 +28,6 @@ struct TrlBuf trlbuf = { 0 };
         WJH 19 April 2001
 */
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-
 static void printSyntax(void)
 {
     printf ("syntax:  acssum [--help] [-t] [-v] [-q] [--version] [--gitinfo] input [output]\n");

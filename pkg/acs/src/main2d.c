@@ -30,8 +30,6 @@ static void printHelp(void)
     printSyntax();
 }
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 struct TrlBuf trlbuf = { 0 };
 
 /* This is the main module for acs2d.  It gets the input and output

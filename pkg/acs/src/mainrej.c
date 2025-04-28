@@ -14,10 +14,6 @@
 # include "hstcalversion.h"
 #include "trlbuf.h"
 
-extern int status;             /* zero is OK */
-
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 struct TrlBuf trlbuf = { 0 };
 
 int main (int argc, char **argv) {
