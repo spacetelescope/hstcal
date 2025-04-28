@@ -427,11 +427,12 @@ static void ioerr(HSTIOError e, IODescPtr x_, int status) {
         IODesc *x;
         char cfitsio_errmsg[81];
         x = (IODesc *)x_;
-        sprintf(&error_msg[strlen(error_msg)],
+        snprintf(&error_msg[strlen(error_msg)],
+                sizeof(error_msg) - strlen(error_msg),
                 "Filename %s EXTNAME %s EXTVER %d CFITSIO status %d\n",
                 x->filename, x->extname, x->extver, status);
         while (fits_read_errmsg(cfitsio_errmsg)) {
-            strncat(error_msg, cfitsio_errmsg, 80);
+            strncat(error_msg, cfitsio_errmsg, sizeof(error_msg) - strlen(error_msg) - 1);
         }
         error(e,0);
 }
