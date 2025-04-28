@@ -763,13 +763,13 @@ int DoCCD (ACSInfo *acs_info) {
             {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].readnoise[i] > 0) {
-                    snprintf(buff, sizeof(MsgText), "%.5g,", acs[primaryIdx].readnoise[i]);
+                    snprintf(buff, sizeof(buff), "%.5g,", acs[primaryIdx].readnoise[i]);
                     strcat(MsgText, buff);
                 }
             }}
 
             if (acs[primaryIdx].readnoise[NAMPS-1] > 0) {
-                snprintf(buff, sizeof(MsgText), "%.5g", acs[primaryIdx].readnoise[NAMPS-1]);
+                snprintf(buff, sizeof(buff), "%.5g", acs[primaryIdx].readnoise[NAMPS-1]);
                 strcat(MsgText, buff);
             }
             trlmessage(MsgText);
@@ -778,18 +778,18 @@ int DoCCD (ACSInfo *acs_info) {
             {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].atodgain[i] > 0) {
-                    snprintf(buff, sizeof(MsgText), "%.5g,", acs[primaryIdx].atodgain[i]);
+                    snprintf(buff, sizeof(buff), "%.5g,", acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
             }}
 
             if (acs[primaryIdx].atodgain[NAMPS-1] > 0) {
-                snprintf(buff, sizeof(MsgText), "%.5g", acs[primaryIdx].atodgain[NAMPS-1]);
+                snprintf(buff, sizeof(buff), "%.5g", acs[primaryIdx].atodgain[NAMPS-1]);
                 strcat(MsgText, buff);
             }
             trlmessage(MsgText);
-            snprintf(MsgText, sizeof(MsgText), "   default bias levels =");
 
+            snprintf(MsgText, sizeof(MsgText), "   default bias levels =");
             {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].ccdbias[i] > 0) {
@@ -800,7 +800,7 @@ int DoCCD (ACSInfo *acs_info) {
             }}
 
             if (acs[primaryIdx].ccdbias[NAMPS-1] > 0) {
-                snprintf(buff, sizeof(MsgText), "%.5g",
+                snprintf(buff, sizeof(buff), "%.5g",
                         acs[primaryIdx].ccdbias[NAMPS-1] * acs[primaryIdx].atodgain[NAMPS-1]);
                 strcat(MsgText, buff);
             }
