@@ -2077,13 +2077,14 @@ static char *make_iodesc(IODesc **x, char *fname, char *ename, int ever) {
 
         /* make up the proper filename */
         /* check for a request for the primary HDU */
-        tmp = (char *)calloc((flen + 80),sizeof(char));
+        const size_t flen_new = flen + 80;
+        tmp = (char *)calloc(flen_new,sizeof(char));
         if (tmp == NULL) { error(NOMEM,"Allocating I/O descriptor"); return NULL; }
         strcpy(tmp,fname);
         if (ever == 0 || ename == 0 || ename[0] == '\0' || ename[0] == ' ')
             strcat(tmp,"[0]");
         else
-            sprintf(&tmp[flen],"[%s,%d]",xname,ever);
+            snprintf(&tmp[flen], flen_new, "[%s,%d]",xname,ever);
 
         *x = iodesc;
         return tmp;
