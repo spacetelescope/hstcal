@@ -693,7 +693,7 @@ void trlerror(const char *fmt, ...) {
     const char *prefix = ERR_PREFIX;
     char *fmt_ = calloc(strlen(prefix) + strlen(fmt) + 1, sizeof(*fmt_));
     if (!fmt_) {
-        perror("trlerror: malloc failed");
+        perror("trlerror: calloc failed");
         exit(1);
     }
     /* Create full error message, like that output in ASNWARN */
