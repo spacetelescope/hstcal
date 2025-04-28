@@ -793,7 +793,7 @@ int DoCCD (ACSInfo *acs_info) {
             {unsigned int i;
             for (i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].ccdbias[i] > 0) {
-                    snprintf(buff, sizeof(MsgText), "%.5g,",
+                    snprintf(buff, sizeof(buff), "%.5g,",
                             acs[primaryIdx].ccdbias[i] * acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }

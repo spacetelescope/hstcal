@@ -223,7 +223,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
   }
 
   /* Fill in the error array, if it initially contains all zeros. */
-	if (acs2d->noisecorr == PERFORM && check_zero_noise(&x) == YES) {
+  if (acs2d->noisecorr == PERFORM && check_zero_noise(&x) == YES) {
     if (doNoise (acs2d, &x, &done))
       return (status);
 
@@ -237,32 +237,32 @@ int Do2D (ACSInfo *acs2d, int extver) {
       buff[0] = '\0';
 
 	    if (acs2d->detector != MAMA_DETECTOR) {
-        sprintf(MsgText, "    readnoise =");
+        snprintf(MsgText, sizeof(MsgText), "    readnoise =");
 
         for (i=0; i < NAMPS-1; i++) {
           if (acs2d->readnoise[i] > 0) {
-            sprintf (buff, "%.5g,",acs2d->readnoise[i]);
+            snprintf (buff, sizeof(buff), "%.5g,",acs2d->readnoise[i]);
             strcat (MsgText, buff);
           }
         }
 
         if (acs2d->readnoise[NAMPS-1] > 0) {
-          sprintf(buff, "%.5g",acs2d->readnoise[NAMPS-1]);
+          snprintf(buff, sizeof(buff), "%.5g",acs2d->readnoise[NAMPS-1]);
           strcat (MsgText, buff);
         }
 
         trlmessage(MsgText);
 
-        sprintf(MsgText, "    gain =");
+        snprintf(MsgText, sizeof(MsgText), "    gain =");
         for (i=0; i < NAMPS-1; i++) {
           if (acs2d->atodgain[i] > 0) {
-            sprintf(buff, "%.5g,",acs2d->atodgain[i]);
+            snprintf(buff, sizeof(buff), "%.5g,",acs2d->atodgain[i]);
             strcat (MsgText, buff);
           }
         }
 
         if (acs2d->atodgain[NAMPS-1] > 0) {
-          sprintf(buff, "%.5g",acs2d->atodgain[NAMPS-1]);
+          snprintf(buff, sizeof(buff), "%.5g",acs2d->atodgain[NAMPS-1]);
           strcat (MsgText, buff);
         }
 
@@ -272,7 +272,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
       if (acs2d->printtime)
 		    TimeStamp ("Uncertainty array initialized", acs2d->rootname);
-    }
+	  }
 	}
 
 	/* Subtract dark image. */

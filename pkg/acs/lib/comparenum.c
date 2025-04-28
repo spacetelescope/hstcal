@@ -20,7 +20,7 @@ int CompareNumbers (int n_in, int n_out, char *str_out) {
 	    if (n_in > 1) {
 			strcat (MsgText, "s");
 		}
-	    snprintf (buff, sizeof(MsgText), " but %d %s file", n_out, str_out);
+	    snprintf (buff, sizeof(buff), " but %d %s file", n_out, str_out);
 		strcat (MsgText, buff);
 	    if (n_out > 1) {
 	    	strcat (MsgText, "s");
