@@ -118,7 +118,7 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
       /* No binning required. */
 			status = sub1d(x, i, &y);
       if (status) {
-				trlerror("(biascorr) size mismatch.\n");
+				trlerror("(biascorr) size mismatch.");
 				return (status);
       }
 		}

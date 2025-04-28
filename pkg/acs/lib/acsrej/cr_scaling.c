@@ -124,8 +124,8 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs, doubl
     }
     
     if (nzero > 0 && nzero < *nimgs) {
-        trlwarn("Some (but not all) input imsets have zero exposure time.\n");
-        trlwarn("Final product will be compromised!\n");
+        trlwarn("Some (but not all) input imsets have zero exposure time.");
+        trlwarn("Final product will be compromised!");
         
         /* This type of error will need to be handled differently in order
             to allow pipeline processing of this type of dataset. 

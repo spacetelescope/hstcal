@@ -961,7 +961,7 @@ void computeDarktime(ACSInfo *acs, float *darktime) {
         for (unsigned int i = 0; i < numSupportedDarkSubApertures; i++) {
             if (strcmp(acs->aperture, darkSubApertures[i]) == 0) {
                 *darktime = darktimeFromHeader + darktimeOffset;
-                trlmessage("Supported Subarray adjusted Darktime: %f for aperture: %s\n", *darktime, darkSubApertures[i]);
+                trlmessage("Supported Subarray adjusted Darktime: %f for aperture: %s", *darktime, darkSubApertures[i]);
                 break;
             }
         }

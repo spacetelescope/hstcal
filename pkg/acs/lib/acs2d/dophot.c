@@ -79,7 +79,7 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
   }
 
   if (acs2d->verbose){
-    trlmessage("Computed PHOTFLAM value of %g\n",obs.photflam);
+    trlmessage("Computed PHOTFLAM value of %g",obs.photflam);
   }
 
   /* Update the photometry keyword values in the SCI header.

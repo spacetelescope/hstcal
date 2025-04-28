@@ -55,7 +55,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
   /* Only use OpenMP, if specified by user and OpenMP was available for compilation */
   if (onecpu == 1) {
 
-    trlmessage("Using single-CPU processing for YCTE correction.\n");
+    trlmessage("Using single-CPU processing for YCTE correction.");
 
     /* loop over columns. columns are independent of each other. */
     for (j = 0; j < arry; j++) {
@@ -165,10 +165,10 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
   } else {
     /* Use OpenMP for parallel processing, if specified by user */
 #   ifdef _OPENMP
-      trlmessage("Using parallel processing provided by OpenMP for YCTE correction.\n");
+      trlmessage("Using parallel processing provided by OpenMP for YCTE correction.");
 #   endif
 #   ifndef _OPENMP
-      trlmessage("Parallel processing for YCTE correction not used... OpenMP missing.\n");
+      trlmessage("Parallel processing for YCTE correction not used... OpenMP missing.");
 #   endif
 #   pragma omp parallel for schedule(dynamic) \
       private(i,j,n,status,cte_frac_col,new_cte_frac,ncf_top,ncf_bot,\
