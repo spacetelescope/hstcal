@@ -76,7 +76,7 @@ double buffer           i: value to write to table
                 c_tbeptt (tp, cp, row, "INDEF");
             } else {
                 char cbuf[SZ_FITS_STR+1];
-                sprintf (cbuf, "%-25.16g", buffer);
+                snprintf(cbuf, sizeof(cbuf), "%-25.16g", buffer);
                 c_tbeptt (tp, cp, row, cbuf);
             }
 
@@ -120,7 +120,7 @@ float buffer            i: value to write to table
                 c_tbeptt (tp, cp, row, "INDEF");
             } else {
                 char cbuf[SZ_FITS_STR+1];
-                sprintf (cbuf, "%-15.7g", buffer);
+                snprintf(cbuf, sizeof(cbuf), "%-15.7g", buffer);
                 c_tbeptt (tp, cp, row, cbuf);
             }
 
@@ -163,7 +163,7 @@ int buffer              i: value to write to table
                 c_tbeptt (tp, cp, row, "INDEF");
             } else {
                 char cbuf[SZ_FITS_STR+1];
-                sprintf (cbuf, "%d", buffer);
+                snprintf(cbuf, sizeof(cbuf), "%d", buffer);
                 c_tbeptt (tp, cp, row, cbuf);
             }
 
@@ -216,7 +216,7 @@ short buffer            i: value to write to table
                 c_tbeptt (tp, cp, row, "INDEF");
             } else {
                 char cbuf[SZ_FITS_STR+1];
-                sprintf (cbuf, "%hd", buffer);
+                snprintf(cbuf, sizeof(cbuf), "%hd", buffer);
                 c_tbeptt (tp, cp, row, cbuf);
             }
 
