@@ -81,7 +81,7 @@ int pcteHistory (ACSInfo *acs, Hdr *phdr) {
         {unsigned i;
         for (i = 0; i < strlen(AMPSORDER); ++i)
         {
-            sprintf(strBuffer, "PCTERNOI " floatFormat " Amp '%c' read noise clip limit (from CCDTAB).", acs->readnoise[i], AMPSORDER[i]);
+            snprintf(strBuffer, sizeof(strBuffer), "PCTERNOI " floatFormat " Amp '%c' read noise clip limit (from CCDTAB).", acs->readnoise[i], AMPSORDER[i]);
             if ((status = addHistoryKw(phdr, strBuffer)))
                 return status;
         }}
