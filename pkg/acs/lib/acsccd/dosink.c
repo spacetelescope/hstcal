@@ -84,11 +84,11 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
         return (status);
 
     if (acs->verbose) {
-        trlmessage("Ratio of (%d,%d) with offset =(%d,%d)\n", rx, ry, x0, y0);
+        trlmessage("Ratio of (%d,%d) with offset =(%d,%d)", rx, ry, x0, y0);
         if (same_size) {
-            trlmessage("SINK image and input are the same size\n");
+            trlmessage("SINK image and input are the same size");
         } else {
-            trlmessage("SINK image and input are NOT the same size\n");
+            trlmessage("SINK image and input are NOT the same size");
         }
     }
 
