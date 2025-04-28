@@ -252,7 +252,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
     extern int status; /* variable for return status */
 
     /* VARIABLE FOR FILENAME + EXTENSION NUMBER. */
-    char filename_wext[strlen(filename) + 4];
+    char filename_wext[CHAR_FNAME_LENGTH] = {0};
 
     /* NAMES OF DATA COLUMNS WE WANT FROM THE FILE, DATA WILL BE STORED IN THE PARS STRUCTURE */
     /* QPROF table - the last column is a description string */
