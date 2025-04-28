@@ -636,12 +636,11 @@ void trlmessage(const char *fmt, ...) {
         exit(1);
     }
     strncpy(fmt_, fmt, strlen(fmt));
-    strncat(fmt_, "\n", 1);
 
     char *data = NULL;
     if (vasprintf(&data, fmt_, args) < 0) {
         perror("trlmessage: vasprintf failed");
-        fprintf(stderr, "format was: %s\n", fmt);
+        fprintf(stderr, "format was: '%s'\n", fmt_);
         exit(1);
     }
     va_end(args);
@@ -675,6 +674,7 @@ void trlwarn(const char *fmt, ...) {
     strncat(fmt_, fmt, strlen(fmt));
     if (vasprintf(&data, fmt_, args) < 0) {
         perror("trlwarn: vasprintf failed");
+        fprintf(stderr, "format was: '%s'\n", fmt_);
         exit(1);
     }
     /* Send output to (temp) trailer file */
@@ -703,6 +703,7 @@ void trlerror(const char *fmt, ...) {
     strncat(fmt_, fmt, strlen(fmt));
     if (vasprintf(&data, fmt_, args) < 0) {
         perror("trlerror: vasprintf failed");
+        fprintf(stderr, "format was: '%s'\n", fmt_);
         exit(1);
     }
     /* Send output to (temp) trailer file */
