@@ -64,7 +64,7 @@ if(ENABLE_ASAN)
 		#
 		# ASAN will continue past the first detected issue
 		add_compile_options(-fsanitize-recover=address)
-		add_link_options(-fsanitize=address)
+		add_link_options(-fsanitize-recover=address)
 	endif()
 endif()
 
