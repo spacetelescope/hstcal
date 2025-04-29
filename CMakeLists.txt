@@ -3,6 +3,8 @@ project(hstcal)
 enable_language(C)
 set(CMAKE_C_STANDARD 99)
 
+option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
+option(ENABLE_ASAN_RECOVER "When ASAN reports a problem, don't halt execution" OFF)
 option(ENABLE_WARNINGS "Enable compiler warnings" ON)
 option(ENABLE_OPENMP "Enable OpenMP" ON)
 set(WITH_CFITSIO "" CACHE STRING "Path to cfitsio (if empty pkg-config is used)")
@@ -48,6 +50,22 @@ configure_file(config.h.in config.h @ONLY)
 
 if(NOT HAVE_SNPRINTF OR NOT HAVE_STRDUP OR NOT HAVE_INT_MAX)
 	message(FATAL_ERROR "Required symbol is missing!")
+endif()
+
+if(ENABLE_ASAN)
+	# Report memory leaks, buffer overflows, etc.
+	# See: https://github.com/google/sanitizers/wiki/AddressSanitizer
+	add_compile_options(-fno-omit-frame-pointer)
+	add_compile_options(-fsanitize=address)
+	add_link_options(-fsanitize=address)
+	if(ENABLE_ASAN_RECOVER)
+		# To use this option set the following in your local environment:
+		# ASAN_OPTIONS="halt_on_error=0"
+		#
+		# ASAN will continue past the first detected issue
+		add_compile_options(-fsanitize-recover=address)
+		add_link_options(-fsanitize=address)
+	endif()
 endif()
 
 if(ENABLE_WARNINGS)
