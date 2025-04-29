@@ -633,7 +633,7 @@ void trlmessage(const char *fmt, ...) {
     char *fmt_ = calloc(strlen(fmt) + 2, sizeof(*fmt_));
     if (!fmt_) {
         perror("trlwarn: calloc failed");
-        exit(1);
+        exit(OUT_OF_MEMORY);
     }
     strncpy(fmt_, fmt, strlen(fmt));
 
@@ -641,7 +641,7 @@ void trlmessage(const char *fmt, ...) {
     if (vasprintf(&data, fmt_, args) < 0) {
         perror("trlmessage: vasprintf failed");
         fprintf(stderr, "format was: '%s'\n", fmt_);
-        exit(1);
+        exit(ERROR_RETURN);
     }
     va_end(args);
 
@@ -665,7 +665,7 @@ void trlwarn(const char *fmt, ...) {
     char *fmt_ = calloc(strlen(prefix) + strlen(fmt) + 1, sizeof(*fmt_));
     if (!fmt_) {
         perror("trlwarn: calloc failed");
-        exit(1);
+        exit(OUT_OF_MEMORY);
     }
     /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of Warning message */
@@ -675,7 +675,7 @@ void trlwarn(const char *fmt, ...) {
     if (vasprintf(&data, fmt_, args) < 0) {
         perror("trlwarn: vasprintf failed");
         fprintf(stderr, "format was: '%s'\n", fmt_);
-        exit(1);
+        exit(ERROR_RETURN);
     }
     /* Send output to (temp) trailer file */
     va_end(args);
@@ -694,7 +694,7 @@ void trlerror(const char *fmt, ...) {
     char *fmt_ = calloc(strlen(prefix) + strlen(fmt) + 1, sizeof(*fmt_));
     if (!fmt_) {
         perror("trlerror: calloc failed");
-        exit(1);
+        exit(OUT_OF_MEMORY);
     }
     /* Create full error message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of Warning message */
@@ -704,7 +704,7 @@ void trlerror(const char *fmt, ...) {
     if (vasprintf(&data, fmt_, args) < 0) {
         perror("trlerror: vasprintf failed");
         fprintf(stderr, "format was: '%s'\n", fmt_);
-        exit(1);
+        exit(ERROR_RETURN);
     }
     /* Send output to (temp) trailer file */
     va_end(args);
