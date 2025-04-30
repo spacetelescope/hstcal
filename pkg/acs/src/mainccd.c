@@ -169,7 +169,7 @@ int main (int argc, char **argv) {
                 } else if (argv[i][j] == 'q') {
                     quiet = YES;
                 } else {
-                    printf (MsgText, "Unrecognized option %s\n", argv[i]);
+                    printf ("Unrecognized option %s\n", argv[i]);
                     printSyntax();
                     freeOnExit(&ptrReg);
                     exit (1);
