@@ -74,7 +74,8 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
 
     /* Check to see whether we need to do any processing at all */
     if (acs2d->flashdur <= 0.) {
-        trlwarn("Post-flash exposure was 0 seconds. FLSHCORR not performed.");
+        snprintf(MsgText, sizeof(MsgText), "Post-flash exposure was 0 seconds. FLSHCORR not performed.");
+        trlwarn(MsgText);
         addHistoryKw (x->globalhdr, MsgText);
         acs2d->flashcorr = IGNORED;
 
