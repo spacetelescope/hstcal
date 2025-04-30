@@ -14,7 +14,7 @@ char * sprintfGitInfo(char ** buffer)
 
     const char * format = "git tag: %s\ngit branch: %s\nHEAD @: %s";
     size_t length = strlen(format) + strlen(VERSION) + strlen(BRANCH) + strlen(COMMIT); // NOTE: this doesn't require an explicit +1 for '\0' as it is larger than needed due to '%s' & '\n'.
-    *buffer = malloc(length + 1 * sizeof(char));
+    *buffer = malloc((length + 1) * sizeof(char));
     if (!*buffer)
         return NULL;
     snprintf(*buffer, length, format, VERSION, BRANCH, COMMIT);
