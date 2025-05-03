@@ -28,7 +28,7 @@ struct hstcal_error_state hstcal_error_state_populate(const char *filename, cons
 void hstcal_error_state_show(const char *filename, const int line_number, const char *function_name);
 
 // Report the error associated with the last status
-#define REPORT_ERROR_STATE() hstcal_error_state_populate(__FILE__, __LINE__, __FUNCTION__)
+#define REPORT_ERROR_STATE() hstcal_error_state_show(__FILE__, __LINE__, __FUNCTION__)
 
 // Handle WhichError deprecation.
 // WhichError took the global status variable as an argument.
