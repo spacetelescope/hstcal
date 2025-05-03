@@ -330,7 +330,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                 cteParallelPars.n_forward);
         trlmessage("(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
                 cteParallelPars.n_par);
-        trlmessage("(pctecorr) CTE_FRAC: %f\n", cteParallelPars.scale_frac);
+        trlmessage("(pctecorr) CTE_FRAC: %f", cteParallelPars.scale_frac);
         trlmessage("\n(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n");
         /* End read of the parallel CTE parameters */
 
