@@ -29,6 +29,7 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
+#include "calstis6.h"
 # include "hstcalerr.h"
 
 static void DarkMsg (ACSInfo *, int, int);
@@ -410,7 +411,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	putSingleGroup (acs2d->output, extver, &x, option);
 	if (hstio_err()) {
 		trlerror("Couldn't write imset %d.", extver);
-		return (status = 1001);
+		return (status = INVALID_EXPTIME);
 	}
 
 	if (acs2d->printtime)

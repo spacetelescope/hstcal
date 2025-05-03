@@ -1,5 +1,7 @@
 # include <stdlib.h>
 
+#include "hstcalerr.h"
+
 /* This file contains splint_nr and spline_nr.
    These routines were copied from Numerical Recipes (in Fortran,
    first edition, pp 88, 89) and were translated to C.
@@ -29,7 +31,7 @@ int splint_nr (double *xa, double *ya, int n,
 	ua = calloc (n, sizeof (double));
 	y2a = calloc (n, sizeof (double));
 	if (ua == NULL || y2a == NULL)
-	    return (111);
+	    return (OUT_OF_MEMORY);
 
 	/* Compute the spline fit for xa vs ya. */
 	spline_nr (xa, ya, y2a, ua, n);
