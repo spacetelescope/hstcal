@@ -213,7 +213,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
     /* print out which parameter are used */
     if (par->verbose) {
-        trlmessage("\n number of images = %d\n", nimgs);
+        trlmessage("\n number of images = %d", nimgs);
         trlmessage(" CRREJ ref table used: %s", par->tbname);
         trlmessage(" initial guess method: %s", par->initgues);
         trlmessage(" total exposure time = %0.1f", exptot);
