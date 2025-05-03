@@ -265,7 +265,7 @@ static int checkFlash (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
             return (status);
 	}
         if ((ltv[0] != 0) || (ltv[1] != 0)) {
-            trlerror("FLSHFILE `%s' has untrimmed overscans.", acs2d->flash.name);;
+            trlerror("FLSHFILE `%s' has untrimmed overscans.", acs2d->flash.name);
             freeSingleGroup(&y);
             return (status = SIZE_MISMATCH);
 	}
@@ -335,7 +335,7 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
             return (status);
 	}
         if ((ltv[0] != 0) || (ltv[1] != 0)) {
-            trlerror("FLSHFILE `%s' has untrimmed overscans.", acs2d->flashcte.name);;
+            trlerror("FLSHFILE `%s' has untrimmed overscans.", acs2d->flashcte.name);
             freeSingleGroup(&y);
             return (status = SIZE_MISMATCH);
 	}

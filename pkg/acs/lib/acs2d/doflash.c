@@ -112,7 +112,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     }
 
     if (acs2d->verbose) {
-        trlmessage("Performing post-flash subtraction on chip %d in imset %d", acs2d->chip, extver);;
+        trlmessage("Performing post-flash subtraction on chip %d in imset %d", acs2d->chip, extver);
     }
 
     /* Get the post-flash image data. */
@@ -136,7 +136,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     }
 
     if (acs2d->verbose) {
-        trlmessage("Image has an offset of %d,%d", x0, y0);;
+        trlmessage("Image has an offset of %d,%d", x0, y0);
     }
 
     mean = 0.0;

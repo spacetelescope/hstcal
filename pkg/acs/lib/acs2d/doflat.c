@@ -68,7 +68,7 @@ int doFlat (ACSInfo *acs2d, int extver, SingleGroup *x) {
 	/* apply pixel-to-pixel flat, if set to PERFORM */
 	if (acs2d->pfltcorr == PERFORM) {
 		if (divFlat (x, acs2d->pflt.name, acs2d)){
-		  trlerror("Problem applying PFLTFILE %s... ", acs2d->pflt.name);;
+		  trlerror("Problem applying PFLTFILE %s... ", acs2d->pflt.name);
 		  return(status);
 		}
 	}
@@ -77,7 +77,7 @@ int doFlat (ACSInfo *acs2d, int extver, SingleGroup *x) {
 	/* apply delta flat, if set to PERFORM */
 	if (acs2d->dfltcorr == PERFORM) {
 		if (divFlat (x, acs2d->dflt.name, acs2d) ){
-		  trlerror("Problem applying DFLTFILE %s... ", acs2d->dflt.name);;
+		  trlerror("Problem applying DFLTFILE %s... ", acs2d->dflt.name);
 		  return (status);
 		}
 	}

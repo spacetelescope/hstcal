@@ -371,7 +371,7 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
       biasmask[j] = 1;
       if (j == 0) {
           trlmessage("(FitToOverscan) biassecta=(%d,%d) biassectb=(%d,%d) npix=%d",
-              biassect[0], biassect[1], biassect[2], biassect[3], npix);;
+              biassect[0], biassect[1], biassect[2], biassect[3], npix);
       }
     }
 	}

@@ -111,7 +111,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
 
   /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
   darktime = (float)acs2d->darktime;
-  trlmessage("Darktime from header %f", darktime);;
+  trlmessage("Darktime from header %f", darktime);
 
   /* Compute correct extension version number to extract from
      reference image to correspond to CHIP in science data.

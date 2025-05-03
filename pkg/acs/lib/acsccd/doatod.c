@@ -168,7 +168,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	if (!foundit) {
 	    trlerror("CCD amp %s, gain %4.1f, not found in ATODTAB `%s'.",
-			acs->ccdamp, acs->ccdgain, acs->atod.name);;
+			acs->ccdamp, acs->ccdgain, acs->atod.name);
 		CloseAtoDTab (&tabinfo);
 	    return (status = TABLE_ERROR);
 	}
@@ -249,7 +249,7 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("ATODTAB `%s' not found.", tname);;
+	    trlerror("ATODTAB `%s' not found.", tname);
 		return (status = OPEN_FAILED);
 	}
 

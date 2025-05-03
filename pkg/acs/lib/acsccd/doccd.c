@@ -451,7 +451,7 @@ int DoCCD (ACSInfo *acs_info) {
                        return (status);
                     }
 
-                    trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);;
+                    trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);
 
                  } else {
                        trlmessage("Default bias level from CCDTAB was subtracted.");
@@ -464,7 +464,7 @@ int DoCCD (ACSInfo *acs_info) {
                  {unsigned int j;
                  for (j = 0; j < NAMPS; j++) {
                      if (acs[i].blev[j] != 0.) {
-                         trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);;
+                         trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
 
                          acs_info->blev[j] = acs[i].blev[j];
                      }
@@ -607,7 +607,7 @@ int DoCCD (ACSInfo *acs_info) {
                              return (status);
                           }
 
-                          trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);;
+                          trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);
                        } else {
                           trlmessage("Default bias level from CCDTAB was subtracted.");
                        }
@@ -619,7 +619,7 @@ int DoCCD (ACSInfo *acs_info) {
                        {unsigned int j;
                        for (j = 0; j < NAMPS; j++) {
                            if (acs[i].blev[j] != 0.) {
-                               trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);;
+                               trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
 
                                acs_info->blev[j] = acs[i].blev[j];
                            }
@@ -664,7 +664,7 @@ int DoCCD (ACSInfo *acs_info) {
                       return (status);
                    }
 
-                   trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);;
+                   trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);
                 } else {
                    trlmessage("Default bias level from CCDTAB was subtracted.");
                 }
@@ -676,7 +676,7 @@ int DoCCD (ACSInfo *acs_info) {
                 {unsigned int j;
                 for (j = 0; j < NAMPS; j++) {
                     if (acs[i].blev[j] != 0.) {
-                        trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);;
+                        trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
                         acs_info->blev[j] = acs[i].blev[j];
                     }
                 }}
@@ -728,7 +728,7 @@ int DoCCD (ACSInfo *acs_info) {
     {unsigned int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
-            trlmessage("\nFull-well saturation flagging being performed for imset %d.\n", i+1);;
+            trlmessage("\nFull-well saturation flagging being performed for imset %d.\n", i+1);
             if (doFullWellSat(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return (status);

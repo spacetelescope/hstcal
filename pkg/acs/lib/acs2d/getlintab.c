@@ -108,7 +108,7 @@ ACS2dInfo *acs2d     io: calibration switches, etc
 	}
 
 	if (!foundit) {
-	    trlerror("Detector `%s' not found in MLINTAB `%s'.", acs2d->det, acs2d->mlin.name);;
+	    trlerror("Detector `%s' not found in MLINTAB `%s'.", acs2d->det, acs2d->mlin.name);
 		CloseLinTab (&tabinfo);
 	    return (status = TABLE_ERROR);
 	}

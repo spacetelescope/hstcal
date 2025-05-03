@@ -304,7 +304,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
         if (doFlash(acs2d, &x, &meanflash))
             return (status);
 
-        trlmessage("Mean of post-flash image (MEANFLSH) = %g", meanflash);;
+        trlmessage("Mean of post-flash image (MEANFLSH) = %g", meanflash);
 
         if (PutKeyFlt(&x.sci.hdr, "MEANFLSH", meanflash,
                       "mean of post-flash values subtracted"))

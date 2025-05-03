@@ -105,7 +105,7 @@ int    LoadAsn (AsnInfo *asn) {
     }
 
     if (asn->debug) {
-        trlmessage("LoadAsn:  Read in ASN table %s", asn->asn_table);;
+        trlmessage("LoadAsn:  Read in ASN table %s", asn->asn_table);
     }
 
     /* Print a summary of information about the association */

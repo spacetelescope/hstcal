@@ -148,7 +148,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    allocSingleGroupLine (&z, x->sci.data.nx);
 				
 		if (acs2d->verbose) {
-		    trlmessage("Shad file will be expanded to %d pixels.", y.sci.tot_nx*rx);;
+		    trlmessage("Shad file will be expanded to %d pixels.", y.sci.tot_nx*rx);
 		}
 
 		/* Initialize row counter for input image 	*/

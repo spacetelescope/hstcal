@@ -174,7 +174,7 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
     } /* end j loop */
 
     if (acs->verbose) {
-        trlmessage("Sink pixels flagged = %d", n);;
+        trlmessage("Sink pixels flagged = %d", n);
     }
 
     free(keep_going);
