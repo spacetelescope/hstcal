@@ -9,7 +9,7 @@
 // Note: IRAF_SZ_LINE = 1023 relates to the maximum filename size accepted by cfitsio.
 #define CHAR_FNAME_LENGTH 255
 #define CHAR_LINE_LENGTH 1023
-#define MSG_BUFF_LENGTH (CHAR_LINE_LENGTH * 2 + 1)
+#define MSG_BUFF_LENGTH ((CHAR_LINE_LENGTH * 2) + 1)
 
 /* Standard string buffer for use in messages */
 extern char MsgText[MSG_BUFF_LENGTH];
