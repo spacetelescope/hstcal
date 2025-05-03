@@ -29,7 +29,6 @@
 # include "hstio.h"
 # include "acs.h"
 # include "acsinfo.h"
-#include "calstis6.h"
 # include "hstcalerr.h"
 
 static void DarkMsg (ACSInfo *, int, int);
@@ -272,7 +271,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
       if (acs2d->printtime)
 		    TimeStamp ("Uncertainty array initialized", acs2d->rootname);
-	  }
+      }
 	}
 
 	/* Subtract dark image. */
