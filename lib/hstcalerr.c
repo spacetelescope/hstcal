@@ -166,5 +166,4 @@ void hstcal_error_state_show(const char *filename, const int line_number, const 
 		snprintf(MsgText, sizeof(MsgText), "%s (status = %d)", e.runtime.message, e.runtime.code);
 		trlerror(MsgText);
 	}
-
 }
