@@ -17,7 +17,7 @@ extern int status;
  * @return an empty `hstcal_error_state` structure when global `status` is zero
  */
 struct hstcal_error_state hstcal_error_state_populate(const char *filename, const int line_number, const char *function_name) {
-	if (!status) {
+	if (status == 0) {
 		return (struct hstcal_error_state) {0};
 	}
 
