@@ -156,11 +156,15 @@ struct hstcal_error_state hstcal_error_state_populate(const char *filename, cons
 void hstcal_error_state_show(const char *filename, const int line_number, const char *function_name) {
 	const struct hstcal_error_state e = hstcal_error_state_populate(filename, line_number, function_name);
 	if (e.hstio.code) {
-		trlerror("HSTIO error %d: %s\n", e.hstio.code, e.hstio.message);
+		snprintf(MsgText, sizeof(MsgText), "HSTIO error %d: %s\n", e.hstio.code, e.hstio.message);
+		trlerror(MsgText);
 	} else if (e.iraf.code) {
-		trlerror("IRAF error %d: %s\n", e.iraf.code, e.iraf.message);
+		snprintf(MsgText, sizeof(MsgText), "IRAF error %d: %s\n", e.iraf.code, e.iraf.message);
+		trlerror(MsgText);
 	}
 	if (e.runtime.message) {
-		trlerror("%s (status = %d)", e.runtime.message, e.runtime.code);
+		snprintf(MsgText, sizeof(MsgText), "%s (status = %d)", e.runtime.message, e.runtime.code);
+		trlerror(MsgText);
 	}
+
 }
