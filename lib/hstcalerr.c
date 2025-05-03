@@ -24,8 +24,10 @@ struct hstcal_error_state hstcal_error_state_populate(const char *filename, cons
 #ifndef NDEBUG
 	fprintf(stderr, "DEBUG: %s called in %s() at %s:%d\n", __FUNCTION__, function_name, filename, line_number);
 #endif
-
+	// Create a new context for reporting the error
 	struct hstcal_error_state e;
+
+	// Initialize all error state information
 	e.origin.file_name = filename;
 	e.origin.line_number = line_number;
 	e.origin.function_name = function_name;
