@@ -125,6 +125,9 @@ struct hstcal_error_state hstcal_error_state_populate(const char *filename, cons
 		case UNSUPPORTED_APERTURE:
 			e.runtime.message = "Unsupported aperture.";
 			break;
+		case UNKNOWN_MAGIC_CODE_1010:
+			e.runtime.message = "PLACEHOLDER for unknown magic code 1010.";
+			break;
 		case UNKNOWN_MAGIC_CODE_1991:
 			e.runtime.message = "PLACEHOLDER for unknown magic code 1991.";
 			break;
