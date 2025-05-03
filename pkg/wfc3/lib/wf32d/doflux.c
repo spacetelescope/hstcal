@@ -179,7 +179,7 @@ int doFlux (WF3Info *wf32d){
 	if (hstio_err()) {
 		sprintf (MsgText, "Couldn't write imset %d.", 1);
 		trlerror (MsgText);
-		return (status = 1001);
+		return (status = INVALID_EXPTIME);
 	}
 
 	if (wf32d->printtime)
