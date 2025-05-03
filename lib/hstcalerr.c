@@ -8,6 +8,14 @@
 
 extern int status;
 
+/**
+ *
+ * @param filename Path to file containing the call to REPORT_ERROR
+ * @param line_number The line number the call to REPORT_ERROR appears in `filename`
+ * @param function_name The name of the function that called REPORT_ERROR
+ * @return a populated `hstcal_error_state` structure when global `status` is non-zero
+ * @return an empty `hstcal_error_state` structure when global `status` is zero
+ */
 struct hstcal_error_state hstcal_error_state_populate(const char *filename, const int line_number, const char *function_name) {
 	if (!status) {
 		return (struct hstcal_error_state) {0};
@@ -137,6 +145,10 @@ struct hstcal_error_state hstcal_error_state_populate(const char *filename, cons
 
    Warren Hack, 1998 May 26:
 	Revised to use ACS header files
+
+   Joseph Hunkeler, 2025 May 3:
+    Rename from WhichError to hstcal_error_state_show, and hook into hstcal_error_state_populate.
+    See: REPORT_ERROR and WhichError macros in hstcalerr.h
 */
 void hstcal_error_state_show(const char *filename, const int line_number, const char *function_name) {
 	const struct hstcal_error_state e = hstcal_error_state_populate(filename, line_number, function_name);
