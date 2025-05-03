@@ -83,7 +83,9 @@ void hstcal_error_state_show(const char *filename, const int line_number, const 
 
 #define UNSUPPORTED_APERTURE   1030
 
-#define UNKNOWN_MAGIC_CODE_1010   1010  // ./pkg/wfc3/lib/wf3ccd/doatod.c
+#define UNKNOWN_MAGIC_CODE_1010   1010  // ./pkg/acs/lib/acsccd/doatod.c:124
+                                        // ./pkg/wfc3/lib/wf3ccd/doatod.c:122
+
 #define UNKNOWN_MAGIC_CODE_1991   1991  // ./pkg/acs/lib/binupdate.c:43
                                         // ./pkg/wfc3/lib/binupdate.c:43
 

@@ -438,7 +438,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 
 	     putSingleGroup (wf3->output, extver, &x, 0);
 	     if (hstio_err())
-		 return (status = 1001);
+		 return (status = INVALID_EXPTIME);
 	     freeSingleGroup (&x);
 
 	     PrGrpEnd ("imset", extver);

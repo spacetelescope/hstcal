@@ -447,7 +447,7 @@ static int SumGrps (AcsSumInfo *acs, char *mtype) {
 
         putSingleGroup (acs->output, extver, &x, 0);
         if (hstio_err())
-                return (status = 1001);
+                return (status = INVALID_EXPTIME);
         freeSingleGroup (&x);
 
         PrGrpEnd ("imset", extver);
