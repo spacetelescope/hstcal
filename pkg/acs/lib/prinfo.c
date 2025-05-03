@@ -54,7 +54,7 @@ void PrBegin (char *label) {
 
 	trlmessage("");
 	trlmessage("%s*** %s -- Version %s ***",TRL_PREFIX, label, ACS_CAL_VER);
-	trlmessage("Begin    %s\n", GetDateTime());
+	trlmessage("Begin    %s", GetDateTime());
 }
 
 /* Print a message at the end of calacs task. */
