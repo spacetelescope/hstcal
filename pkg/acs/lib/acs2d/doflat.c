@@ -122,13 +122,13 @@ int doFlat (ACSInfo *acs2d, int extver, SingleGroup *x) {
 		/* Input file section */
 		initACSsect (&lfsect);
 		if (allocACSsect (&lfsect, w.sci.tot_nx, SECTLINES) ) {
-			trlerror("(doFlat) Out of memory.\n");
+			trlerror("(doFlat) Out of memory.");
 			return (status = OUT_OF_MEMORY);
 		}
 		/* Output (expanded) file section.  */
 		initACSsect (&elfsect);
 		if (allocACSsect (&elfsect, w.sci.tot_nx * rx, SECTLINES * ry) ){
-			trlerror("(doFlat) Out of memory.\n");
+			trlerror("(doFlat) Out of memory.");
 			return (status = OUT_OF_MEMORY);
 		}
     
