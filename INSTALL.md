@@ -80,7 +80,7 @@ export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
 ```
 
-### All distros: Run these
+### Install
 
 1. Configure
 
@@ -144,7 +144,7 @@ export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
 ```
 
-### All distros: Run these
+### Install
 
 1. Configure
 
