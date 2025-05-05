@@ -16,7 +16,10 @@
 
 ## Testing requirements
 
-- python >=3.8 (https://www.python.org)
+- python >=3.11 (https://www.python.org)
+- pytest
+- crds
+- ci-watson
 
 GCC may be supplemented by Clang under the following conditions:
 
@@ -65,7 +68,7 @@ apt install cmake libcfitsio-dev gcc gfortran pkg-config
 ### Fedora
 
 ```
-dnf install cmake cfitsio-devel gcc gcc-gfortran pkgconf-pkg-config 
+dnf install cmake cfitsio-devel gcc gcc-gfortran pkgconf-pkg-config
 ```
 
 ### Conda / Mamba
@@ -76,6 +79,8 @@ conda activate hstcal
 export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
 ```
+
+### All distros: Run these
 
 1. Configure
 
@@ -139,6 +144,8 @@ export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
 ```
 
+### All distros: Run these
+
 1. Configure
 
     ```
@@ -168,7 +175,7 @@ export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
 
 ## Build Targets
 
-To install individual parts of HSTCAL...
+To install individual parts of HSTCAL (not recommended for most users):
 
 ```
 make install acscte
@@ -191,4 +198,8 @@ stis   | calstis
 
 ## Debugging
 
-To enable support for debugging symbols use one of the following defines, `cmake .. -DCMAKE_BUILD_TYPE=[RelWithDebInfo|Debug]`
+To enable support for debugging symbols use one of the following defines:
+
+```
+cmake .. -DCMAKE_BUILD_TYPE=[RelWithDebInfo|Debug]
+```
