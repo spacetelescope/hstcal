@@ -383,12 +383,12 @@ static int ReadBpixTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
         return (status = TABLE_ERROR);
 
     if (tabrow->axis !=1 && tabrow->axis != 2) {
-        trlmessage("Axis = %d in BPIXTAB, but it must be 1 or 2.", tabrow->axis);
+        trlerror("Axis = %d in BPIXTAB, but it must be 1 or 2.", tabrow->axis);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }
     if (tabrow->length <= 0) {
-        trlmessage("Length = %d in BPIXTAB, but it must be positive.", tabrow->length);
+        trlerror("Length = %d in BPIXTAB, but it must be positive.", tabrow->length);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }
