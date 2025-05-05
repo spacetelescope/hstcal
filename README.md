@@ -2,13 +2,26 @@
 
 Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
 
+HSTCAL is a C-based package which is comprised of the science calibration
+software in support of the Advanced Camera for Surveys (ACS), Space Telescope
+Imaging Spectrograph (STIS), and Wide Field Camera 3 pipelines. Initially, the
+pipelines were written using C, but were encapsulated within the IRAF/STSDAS
+environment, relying on IRAF to perform I/O and other basic interface
+functions. HSTCAL replaces all the IRAF-based functionality with routines
+based on the third-party package CFITSIO. This allows all the pipeline
+software to be compiled and run without any dependence on IRAF. Not only
+can HST data be processed using the C code directly via the C executables,
+but the pipelines can also be run by using a high-level Python interface
+(via [subprocess](https://docs.python.org/3/library/subprocess.html))
+that serves as thin wrappers for the C executables.
+
 ## Install using Conda (Complete Calibration Environment)
 
 [![release](https://img.shields.io/github/v/release/spacetelescope/stenv)](https://github.com/spacetelescope/stenv/releases)
 
 HSTCAL can be obtained as part of the
-[Space Telescope Environment (stenv)](https://stenv.readthedocs.io/en/latest/), 
-a conda environment.  The instructions found at this URL describe 
+[Space Telescope Environment (stenv)](https://stenv.readthedocs.io/en/latest/),
+a conda environment.  The instructions found at this URL describe
 choosing the ``stenv`` release, building the ``stenv``
 environment from the YAML file, and activating your new environment. Once your environment
 is activated, you can invoke any of the HSTCAL executables.
@@ -37,7 +50,7 @@ The `X.Y.Z` is the desired version number.
 
 See [detailed installation instructions](INSTALL.md).
 
-## Environment Variables
+## Instrument-specific Instructions
 
 The following environment variables must be defined for the respective `cal[...].e` pipelines
 to be able to find calibration reference files. For more information, see the
@@ -51,7 +64,8 @@ to be able to find calibration reference files. For more information, see the
 export jref="/grp/crds/cache/references/hst/"
 ```
 
-For more information, please see the [ACS Data Handbook](https://hst-docs.stsci.edu/acsdhb). 
+For more information, please see the [ACS Data Handbook](https://hst-docs.stsci.edu/acsdhb)
+and the [acstools documentation](https://acstools.readthedocs.io/).
 
 ### WFC3
 
@@ -61,7 +75,8 @@ For more information, please see the [ACS Data Handbook](https://hst-docs.stsci.
 export iref="/grp/crds/cache/references/hst/"
 ```
 
-For more information, please see the [WFC3 Data Handbook](https://hst-docs.stsci.edu/wfc3dhb).
+For more information, please see the [WFC3 Data Handbook](https://hst-docs.stsci.edu/wfc3dhb)
+and the [wfc3tools documentation](https://wfc3tools.readthedocs.io/).
 
 ### STIS
 
@@ -71,7 +86,15 @@ For more information, please see the [WFC3 Data Handbook](https://hst-docs.stsci
 export oref="/grp/crds/cache/references/hst/"
 ```
 
-For more information, please see the [STIS Data Handbook](https://hst-docs.stsci.edu/stisdhb). 
+For more information, please see the [STIS Data Handbook](https://hst-docs.stsci.edu/stisdhb)
+and the [stistools documentation](https://stistools.readthedocs.io/).
+
+## Other Software
+
+The following are also part of HST pipeline but not in this package:
+
+* COS pipeline: See [COS Data Handbook](https://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html) and [costools documentation](https://costools.readthedocs.io/)
+* [Drizzlepac](https://www.stsci.edu/scientific-community/software/drizzlepac.html)
 
 ## Dev notes
 
