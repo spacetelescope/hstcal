@@ -61,5 +61,4 @@ testing:
     - hstio/test/*
     - pkg/imphttab/test_getphttab.c
     - tests/**/*
-    - JenkinsfileRT
     - pytest.ini
