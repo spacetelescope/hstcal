@@ -172,30 +172,6 @@ export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
     export PATH=$HOME/hstcal/bin:$PATH
     ```
 
-
-## Build Targets
-
-To install individual parts of HSTCAL (not recommended for most users):
-
-```
-make install acscte
-```
-
-To list available build targets:
-
-```
-make help
-```
-
-Some common targets include:
-
-Target | Description
--------|------------
-acs    | calacs
-wf3    | calwf3 and other WFC3-related tools
-stis   | calstis
-
-
 ## Debugging
 
 To enable support for debugging symbols use one of the following defines:
