@@ -100,6 +100,7 @@ int *driftcorr       i: true if correction can be applied
 	/* Fit a curve to the values found. */
 	if (DriftFit()) {
 	    trlwarn("(blevcorr) Singular fit to virtual overscan;");
+		trlwarn("%s", nodriftcorr);
 	    DriftSet (0.);
 	} else {
 	    *driftcorr = 1;
