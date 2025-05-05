@@ -13,7 +13,8 @@ software to be compiled and run without any dependence on IRAF. Not only
 can HST data be processed using the C code directly via the C executables,
 but the pipelines can also be run by using a high-level Python interface
 (via [subprocess](https://docs.python.org/3/library/subprocess.html))
-that serves as thin wrappers for the C executables.
+that serves as thin wrappers for the C executables, which are availble
+as part of the `xxxtools` Python packages mentioned below.
 
 ## Install using Conda (Complete Calibration Environment)
 
