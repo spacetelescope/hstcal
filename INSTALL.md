@@ -112,7 +112,7 @@ export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
     make install
     ```
 
-4. Add HSTCAL to `$PATH`
+4. Add HSTCAL to `$PATH` (skip for Conda/Mamba)
 
     ```bash
     export PATH=$HOME/hstcal/bin:$PATH
@@ -187,7 +187,7 @@ export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
     make install
     ```
 
-4. Add HSTCAL to `$PATH`
+4. Add HSTCAL to `$PATH` (skip for Conda/Mamba)
 
     ```bash
     export PATH=$HOME/hstcal/bin:$PATH
