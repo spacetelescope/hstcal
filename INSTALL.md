@@ -100,19 +100,19 @@ export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
     cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/hstcal
     ```
 
-3. Build
+2. Build
 
     ```
     make
     ```
 
-4. Install
+3. Install
 
     ```
     make install
     ```
 
-5. Add HSTCAL to `$PATH`
+4. Add HSTCAL to `$PATH`
 
     ```bash
     export PATH=$HOME/hstcal/bin:$PATH
