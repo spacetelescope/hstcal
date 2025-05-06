@@ -76,7 +76,6 @@ dnf install cmake cfitsio-devel gcc gcc-gfortran pkgconf-pkg-config
 ```
 conda create -n hstcal -c conda-forge cmake compilers cfitsio pkgconfig python
 conda activate hstcal
-export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
 ```
 
@@ -87,22 +86,33 @@ export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
     ```
     mkdir _build
     cd _build
+    ```
+
+   If you use Conda/Mamba, you can install it to the env directly:
+
+    ```
+    cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+    ```
+
+   Otherwise, you can install it to a path you have write access to, e.g.:
+
+    ```
     cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/hstcal
     ```
 
-2. Build
+3. Build
 
     ```
     make
     ```
 
-3. Install
+4. Install
 
     ```
     make install
     ```
 
-4. Add HSTCAL to `$PATH`
+5. Add HSTCAL to `$PATH`
 
     ```bash
     export PATH=$HOME/hstcal/bin:$PATH
@@ -151,6 +161,17 @@ export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
     ```
     mkdir _build
     cd _build
+    ```
+
+   If you use Conda/Mamba, you can install it to the env directly:
+
+    ```
+    cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
+    ```
+
+   Otherwise, you can install it to a path you have write access to, e.g.:
+
+    ```
     cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/hstcal
     ```
 
