@@ -1,6 +1,8 @@
 #ifndef HSTCAL_INCL
 #define HSTCAL_INCL
 
+#include "timestamp.h"
+
 // Note: Use of CHAR_FNAME_LENGTH & CHAR_LINE_LENGTH are interchanged throughout and should therefore be identical (#164).
 // However, for now, keep them separated such that they can be altered back (replace all) to their original IRAF equivalents set in include/c_iraf.h:
 // # define IRAF_SZ_LINE    1023
