@@ -5,6 +5,7 @@ add_library(${PROJECT_NAME} SHARED
 	hstcal_memory.c
 	hstcalversion.c
 	str_util.c
+	timestamp.c
 	trlbuf.c
 )
 target_link_libraries(${PROJECT_NAME}
