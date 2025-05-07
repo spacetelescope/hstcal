@@ -88,7 +88,7 @@ export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
     cd _build
     ```
 
-   If you use Conda/Mamba, you can install it to the env directly:
+   If you use Conda/Mamba, you can install it to the env directly; however, note that this would overwrite any previous `hstcal` installation from `conda-forge` channel:
 
     ```
     cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
@@ -163,7 +163,7 @@ export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
     cd _build
     ```
 
-   If you use Conda/Mamba, you can install it to the env directly:
+   If you use Conda/Mamba, you can install it to the env directly; however, note that this would overwrite any previous `hstcal` installation from `conda-forge` channel:
 
     ```
     cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
