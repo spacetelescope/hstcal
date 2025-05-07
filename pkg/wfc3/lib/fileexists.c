@@ -24,13 +24,11 @@ int FileExists (char *fname) {
 
 	if (flag > 0) {
 	    if (flag == 1) {
-		sprintf (MsgText, "Output file `%s' already exists.", fname);
-		trlwarn (MsgText);
+		    trlwarn("Output file `%s' already exists.", fname);
             status = 1021;
             exists = EXISTS_YES;
 	    } else {
-		sprintf (MsgText, "Can't clobber `%s'.", fname);
-		trlerror (MsgText);
+		    trlerror("Can't clobber `%s'.", fname);
             status = 1023;
             exists = EXISTS_YES;
 	    }
@@ -66,9 +64,7 @@ int TrlExists (char *trlname) {
 
 	    if ( (fp = fopen (trlname, "a+") ) == NULL ) {
 		/* Can't create new file! */
-		sprintf (MsgText,"Can't update/overwrite trailer file '%s'.",
-			 trlname);
-		trlerror (MsgText);
+		trlerror("Can't update/overwrite trailer file '%s'.", trlname);
 
 		/* Return error condition, can't create TRL file... */
 		status = 1023;	
@@ -77,8 +73,7 @@ int TrlExists (char *trlname) {
 	    } else {
 
 		/* New Trailer File */
-		sprintf (MsgText, "Creating new trailer file `%s'.", trlname);
-		trlmessage (MsgText);
+		trlmessage("Creating new trailer file `%s'.", trlname);
 		(void)fcloseWithStatus(&fp);
 		return (exists);
 	    }
@@ -86,8 +81,7 @@ int TrlExists (char *trlname) {
 	} else {
 
 	    /* File exists already */
-	    sprintf (MsgText, "Revising existing trailer file `%s'.", trlname);
-	    trlmessage (MsgText);
+	    trlmessage("Revising existing trailer file `%s'.", trlname);
 
 	    /* This flag is used to set OverwriteMode in TRL files */
 	    exists = EXISTS_YES;

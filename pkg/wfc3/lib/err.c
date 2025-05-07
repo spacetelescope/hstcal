@@ -14,7 +14,6 @@ void errchk() {
 	
 	if (hstio_err()) {
 	    status = 1;
-	    sprintf (MsgText, " in HST I/O functions:\n%s\n", hstio_errmsg());
-	    trlerror (MsgText);
+	    trlerror(" in HST I/O functions:\n%s\n", hstio_errmsg());
 	}
 }
