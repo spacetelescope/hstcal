@@ -85,8 +85,7 @@ Hdr *phdr        i: primary header
 	} else if (strcmp (wf3->det, "UVIS") == 0) {
 	    wf3->detector = CCD_DETECTOR;
 	} else {
-	    sprintf (MsgText, "DETECTOR = %s is invalid", wf3->det);
-	    trlerror (MsgText);
+	    trlerror("DETECTOR = %s is invalid", wf3->det);
 	    return (status = HEADER_PROBLEM);
 	}
 
@@ -98,9 +97,7 @@ Hdr *phdr        i: primary header
 	if (GetKeyDbl (phdr, "EXPTIME", NO_DEFAULT, 0., &(wf3->exptime[0])))
 	    return (status);
 	if (wf3->exptime[0] < 0.) {
-	    sprintf(MsgText,"Exposure time is invalid:  %14.6g.",
-		    wf3->exptime[0]);
-	    trlerror (MsgText);
+	    trlerror("Exposure time is invalid:  %14.6g.", wf3->exptime[0]);
 	    return (status = INVALID_EXPTIME);
 	}
 	if (GetKeyDbl (phdr, "EXPSTART", NO_DEFAULT, 0., &wf3->expstart))
@@ -115,9 +112,7 @@ Hdr *phdr        i: primary header
 	/* Convert number of extensions to number of SingleGroups. */
 	wf3->nimsets = nextend / EXT_PER_GROUP;
 	if (wf3->nimsets < 1) {
-	    sprintf (MsgText, "NEXTEND = %d; must be at least %d.", nextend,
-		     EXT_PER_GROUP);
-	    trlerror (MsgText);
+	    trlerror("NEXTEND = %d; must be at least %d.", nextend, EXT_PER_GROUP);
 	    return (status = INVALID_VALUE);
 	}
 
@@ -135,8 +130,7 @@ Hdr *phdr        i: primary header
 
 			 /* Verify that only the letters 'ABCD' are in the string. */
 			 if (strchr ("ABCD", wf3->ccdamp[i]) == NULL) {
-			     sprintf (MsgText, "CCDAMP = `%s' is invalid.",wf3->ccdamp);
-			     trlerror (MsgText);
+			     trlerror("CCDAMP = `%s' is invalid.",wf3->ccdamp);
 			     return (status = INVALID_VALUE);
 			 }
 	    }

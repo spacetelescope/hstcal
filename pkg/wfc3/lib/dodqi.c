@@ -256,8 +256,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     */
     sat = wf3->saturate;
     if ((wf3->detector != IR_DETECTOR) && (wf3->scalar_satflag == True)) {
-        sprintf (MsgText, "Full-well saturation flagging being applied during doDQI using a single threshold value.");
-        trlmessage (MsgText);
+        trlmessage("Full-well saturation flagging being applied during doDQI using a single threshold value.");
         for (j = 0;  j < dimy;  j++) {
             for (i = 0;  i < dimx;  i++) {
                 // Flag full-well or a-to-d saturated pixels with 256 bit
@@ -473,9 +472,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
         return (status);
 
     if (nrows == 0) {
-        sprintf (MsgText, "No rows from BPIXTAB applied to DQ array.");
-        trlwarn (MsgText);
-
+        trlwarn("No rows from BPIXTAB applied to DQ array.");
     }
 
     /* Copy scratch contents into input DQ array */
@@ -610,16 +607,12 @@ int ReadBpixTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
         return (status = TABLE_ERROR);
 
     if (tabrow->axis !=1 && tabrow->axis != 2) {
-        sprintf (MsgText, "Axis = %d in BPIXTAB, but it must be 1 or 2.",
-                 tabrow->axis);
-        trlerror (MsgText);
+        trlerror("Axis = %d in BPIXTAB, but it must be 1 or 2.", tabrow->axis);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }
     if (tabrow->length <= 0) {
-        sprintf (MsgText,"Length = %d in BPIXTAB, but it must be positive.",
-                 tabrow->length);
-        trlerror (MsgText);
+        trlerror("Length = %d in BPIXTAB, but it must be positive.", tabrow->length);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }
