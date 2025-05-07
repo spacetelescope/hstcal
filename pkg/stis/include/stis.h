@@ -283,7 +283,7 @@ int strcmptail (char *s1, char *s2);
 
 int streq_ic (char *s1, char *s2);
 
-void TimeStamp (char *message, char *rootname);
+void TimeStamp6 (int prittime, char* msg, char *rootname);
 
 void WhichError (int status);
 

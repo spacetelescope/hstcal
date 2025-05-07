@@ -127,7 +127,6 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	void PrBegin (char *);
 	void PrEnd (char *);
 	void PrFileName (char *, char *);
-	void TimeStamp (char *, char *);
 
 	/* Association table routines			*/
 	void initAsnInfo (AsnInfo *);

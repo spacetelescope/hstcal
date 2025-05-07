@@ -65,7 +65,6 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	int  FileExists (char *);
 	int  GetIRFlags (WF3Info *, Hdr *);
 	int  GetKeys (WF3Info *, Hdr *);
-	void TimeStamp (char *, char *);
 	void PrBegin (char *);
 	void PrEnd   (char *);
 	void PrFileName (char *, char *);
