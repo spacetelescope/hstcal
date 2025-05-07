@@ -15,7 +15,7 @@
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */
 	IRAFPointer cp_amp;		/* column descriptors */
-	IRAFPointer cp_ccdchip;	
+	IRAFPointer cp_ccdchip;
 	IRAFPointer cp_ccdgain;
 	IRAFPointer cp_bin1;
 	IRAFPointer cp_bin2;
@@ -65,7 +65,7 @@ static int CloseCCDTab (TblInfo *);
 		none needed
 	columns:
 		CCDAMP:  identifies which amp was used (string A-D)
-        CCDCHIP: identifies which chip corresponds to the extension      
+        CCDCHIP: identifies which chip corresponds to the extension
 		CCDGAIN:  commanded gain of the CCD (int or float)
 		BINAXIS1, BINAXIS2:  commanded bin sizes (int)
 		CCDOFST[A,B,C,D]:  commanded bias for amp 1,2,3,4 of CCD (int)
@@ -88,21 +88,21 @@ static int CloseCCDTab (TblInfo *);
    value, from A to D, for whichever AMPs are used.  The matching row is
    then read to get the actual gain, bias, readnoise, saturation level,
    and observational overheads.
-   
+
 ** This was only modified to read ACS specific columns from CCDTAB.  May
 **	still need to be modified to support multiple AMP readout from a single
 **	chip by adding AMPX (and AMPY) column(s), which specify the column (and row)
-**	boundaries for each AMP configuration for that chip. 
+**	boundaries for each AMP configuration for that chip.
 **	AMPX will be set to 0 (zero) for 1 AMP readout of the chip.
 **  In addition, AMPY gets set to 0 (zero) for 1 AMP readout.
-    
+
     19-Feb-1999 WJH:
         Revised to handle more columns correctly, increased NUMCOLS to 23
         and added CCDOFST[C,D] to the list of columns in used for printing
         missing columns.
     29-Oct-2001 WJH: Revised to replace CCDBIAS column with CCDBIAS[A,B,C,D]
-        to table.  Also use CCDOFST[A,B,C,D] to select appropriate row as 
-        well. 
+        to table.  Also use CCDOFST[A,B,C,D] to select appropriate row as
+        well.
     26-Nov-2019 MDD: Updated to read the OVRHFLS and OVRHUFLS columns containing
         the commanding overheads for post-flashed and unflashed observations.
     29-Apr-2020 MDD: Updated to read the new ATODSAT column.
@@ -125,7 +125,7 @@ int     dimy      i: number of lines in exposure
 	int i;
 	char amp[5] = "ABCD";
     int samegain;
-	
+
 	int foundit;		/* has the correct row been found? */
 	int RowPedigree (RefTab *, int, IRAFPointer, IRAFPointer, IRAFPointer);
 	int SameInt (int, int);
@@ -147,7 +147,7 @@ int     dimy      i: number of lines in exposure
 	    if (ReadCCDTab (&tabinfo, row, &tabrow))
 		return (status);
 
-        /* Commanded gain values were int valued pre-SM4 and 
+        /* Commanded gain values were int valued pre-SM4 and
            float valued post-SM4, so we need to check what type
            of ref table we have as input.
         */
@@ -174,7 +174,7 @@ int     dimy      i: number of lines in exposure
 		if (acs->ccdpar.goodPedigree == DUMMY_PEDIGREE) {
 		    trlwarn("Row %d of CCDTAB is DUMMY.", row);
 		}
-      
+
         /* Read the overhead time (s) for post-flashed and unflashed observations */
         acs->overhead_postflashed = tabrow.overhead_postflashed;
         acs->overhead_unflashed = tabrow.overhead_unflashed;
@@ -187,17 +187,17 @@ int     dimy      i: number of lines in exposure
 				acs->ccdbias[i] = tabrow.bias[i];
 			} else {
 				acs->atodgain[i] = 0.;
-				acs->readnoise[i] = 0.;			
-				acs->ccdbias[i] = 0.;			
+				acs->readnoise[i] = 0.;
+				acs->ccdbias[i] = 0.;
 			}
 		}
 
-        /* 
+        /*
             Correct ampx/ampy to match the actual size of the exposure
             This will allow more seamless processing of subarrays.
         */
 		acs->ampx = (tabrow.ampx > dimx) ? dimx : tabrow.ampx;
-		acs->ampy = tabrow.ampy;		
+		acs->ampy = tabrow.ampy;
         acs->atod_saturate = tabrow.atod_saturate;
 		acs->saturate = tabrow.saturate;
 		break;
@@ -205,10 +205,12 @@ int     dimy      i: number of lines in exposure
 	}
 
 	if (!foundit) {
-	    trlerror("Matching row not found in CCDTAB `%s'.", acs->ccdpar.name);
-		trlerror("CCDAMP %s, CCDGAIN %4.1f, CCDOFFST %d,%d,%d,%d.",
-			acs->ccdamp, acs->ccdgain, acs->ccdoffset[0], acs->ccdoffset[1],
-			acs->ccdoffset[2], acs->ccdoffset[3]);
+            trlerror("Matching row not found in CCDTAB `%s'.\n"
+                     "CCDAMP %s, CCDGAIN %4.1f, CCDOFFST %d,%d,%d,%d.",
+                     acs->ccdpar.name,
+                     acs->ccdamp, acs->ccdgain,
+                     acs->ccdoffset[0], acs->ccdoffset[1],
+                     acs->ccdoffset[2], acs->ccdoffset[3]);
 
 	    CloseCCDTab (&tabinfo);
 	    return (status = TABLE_ERROR);
@@ -235,10 +237,10 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 
 	int nocol[NUMCOLS];
 	int i, j, missing;
-	
+
 	char *colnames[NUMCOLS] ={"CCDAMP", "CCDCHIP", "CCDGAIN", "BINAXIS1",
-    "BINAXIS2", "CCDOFSTA", "CCDOFSTB", "CCDOFSTC", "CCDOFSTD","CCDBIASA", 
-    "CCDBIASB","CCDBIASC","CCDBIASD","ATODGNA", "ATODGNB", "ATODGNC", "ATODGND", "READNSEA", "READNSEB", 
+    "BINAXIS2", "CCDOFSTA", "CCDOFSTB", "CCDOFSTC", "CCDOFSTD","CCDBIASA",
+    "CCDBIASB","CCDBIASC","CCDBIASD","ATODGNA", "ATODGNB", "ATODGNC", "ATODGND", "READNSEA", "READNSEB",
     "READNSEC", "READNSED", "AMPX", "AMPY", "ATODSAT", "SATURATE", "OVRHFLS", "OVRHUFLS"};
 
 	int PrintMissingCols (int, int, int *, char **, char *, IRAFPointer);
@@ -296,11 +298,11 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "SATURATE", &tabinfo->cp_saturate);
 	c_tbcfnd1 (tabinfo->tp, "OVRHFLS", &tabinfo->cp_overhead_postflashed);
 	c_tbcfnd1 (tabinfo->tp, "OVRHUFLS", &tabinfo->cp_overhead_unflashed);
-	
+
 	/* Initialize counters here... */
 	missing = 0;
 	i=0;
-		
+
     /* Increment i for every column, mark only missing columns in
         nocol as YES.  WJH 27 July 1999
     */
@@ -331,17 +333,17 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_saturate == 0) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_overhead_postflashed == 0) { missing++; nocol[i] = YES;} i++;
 	if (tabinfo->cp_overhead_unflashed == 0) { missing++; nocol[i] = YES;} i++;
-	
+
 	if (PrintMissingCols (missing, NUMCOLS, nocol, colnames, "CCDTAB", tabinfo->tp) )
 		return(status);
-		
+
 	/* Pedigree and descrip are optional columns. */
 	c_tbcfnd1 (tabinfo->tp, "PEDIGREE", &tabinfo->cp_pedigree);
 	c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
 
-    /* get info on ccdgain column to determine whether we 
+    /* get info on ccdgain column to determine whether we
        have int or float values to read in.
-    */    
+    */
     c_tbcinf(tabinfo->cp_ccdgain, &colnum, colname, colunits, colfmt, &datatype, &lendata, &lenfmt);
     if (datatype == IRAF_INT){
         tabinfo->intgain = 1;
@@ -397,12 +399,12 @@ static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	c_tbegti (tabinfo->tp, tabinfo->cp_ccdchip, row, &tabrow->ccdchip);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
-        
+
     if (tabinfo->intgain == 1){
 	    c_tbegti (tabinfo->tp, tabinfo->cp_ccdgain, row, &tabrow->ccdgaini);
     } else {
 	    c_tbegtr (tabinfo->tp, tabinfo->cp_ccdgain, row, &tabrow->ccdgainf);
-	}        
+	}
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
 
@@ -415,13 +417,13 @@ static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
 	c_tbegti (tabinfo->tp, tabinfo->cp_ccdoffset[0], row, &tabrow->ccdoffset[0]);
 	if (c_iraferr())
-	    return (status = TABLE_ERROR);		
+	    return (status = TABLE_ERROR);
 	c_tbegti (tabinfo->tp, tabinfo->cp_ccdoffset[1], row, &tabrow->ccdoffset[1]);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
 	c_tbegti (tabinfo->tp, tabinfo->cp_ccdoffset[2], row, &tabrow->ccdoffset[2]);
 	if (c_iraferr())
-	    return (status = TABLE_ERROR);		
+	    return (status = TABLE_ERROR);
 	c_tbegti (tabinfo->tp, tabinfo->cp_ccdoffset[3], row, &tabrow->ccdoffset[3]);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
@@ -438,7 +440,7 @@ static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	c_tbegtr (tabinfo->tp, tabinfo->cp_bias[3], row, &tabrow->bias[3]);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
-		
+
 	c_tbegtr (tabinfo->tp, tabinfo->cp_atodgain[0], row, &tabrow->atodgain[0]);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
@@ -471,7 +473,7 @@ static int ReadCCDTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	c_tbegti (tabinfo->tp, tabinfo->cp_ampy, row, &tabrow->ampy);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);
-		
+
 	c_tbegti (tabinfo->tp, tabinfo->cp_atod_saturate, row, &tabrow->atod_saturate);
 	if (c_iraferr())
 	    return (status = TABLE_ERROR);

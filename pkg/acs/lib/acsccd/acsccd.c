@@ -285,8 +285,8 @@ static int BiasKeywords (ACSInfo *acs) {
             }
         }
     } else {
-        trlmessage("  NO bias level keywords found to be updated.");
-        trlmessage("  Reporting values in trailer file only!");
+        trlmessage("  NO bias level keywords found to be updated.\n"
+                   "  Reporting values in trailer file only!");
     }
 
     /* write out primary header */

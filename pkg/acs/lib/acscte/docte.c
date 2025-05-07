@@ -4,7 +4,7 @@
 
  12-Aug-2012 PLL: Separated PCTECORR from ACSCCD.
  14-Sep-2023 MDD: Updated to accommodate only the "Parallel/Serial PixelCTE 2023"
-     (aka Generation 3) correction. Code now applies a serial CTE correction for 
+     (aka Generation 3) correction. Code now applies a serial CTE correction for
      full-frame data.
 
 */
@@ -46,8 +46,8 @@ static int OscnTrimmed (Hdr*, Hdr *);
 
    At one point for post-SM4 data, the parallel CTE correction was allowed
    to be applied to certain subarray modes. However, in February 2018, this
-   was changed to PCTECORR=OMIT for post-SM4 where SUBARRAY=T.  As 
-   PCTECORR=OMIT by default, except for specified modes, pre-SM4 subarrays 
+   was changed to PCTECORR=OMIT for post-SM4 where SUBARRAY=T.  As
+   PCTECORR=OMIT by default, except for specified modes, pre-SM4 subarrays
    are also not processed with parallel CTE correction.
 */
 
@@ -276,7 +276,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
 
         /* Read the parallel CTE parameters */
-        trlmessage("(pctecorr) Collecting data for Correction Type: parallel.\n");
+        trlmessage("(pctecorr) Collecting data for Correction Type: parallel.");
 
         addPtr(&ptrParallelReg, &cteParallelPars, &freeCTEParamsFast);
         initCTEParamsFast(&cteParallelPars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
@@ -326,12 +326,11 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
         trlmessage("(pctecorr) The parallel CTE processing parameters have been read.");
         trlwarn("(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", cteParallelPars.rn_amp);
-        trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
-                cteParallelPars.n_forward);
-        trlmessage("(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
-                cteParallelPars.n_par);
-        trlmessage("(pctecorr) CTE_FRAC: %f", cteParallelPars.scale_frac);
-        trlmessage("\n(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n");
+        trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i\n"
+                   "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i\n"
+                   "(pctecorr) CTE_FRAC: %f\n\n"
+                   "(pctecorr) NOTE: No serial CTE correction is done for any subarray data.",
+                   cteParallelPars.n_forward, cteParallelPars.n_par, cteParallelPars.scale_frac);
         /* End read of the parallel CTE parameters */
 
         /*
@@ -430,12 +429,11 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                         }
 
                         trlwarn("(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
-                        trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i",
-                                ctePars.n_forward);
-                        trlmessage("(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i",
-                                ctePars.n_par);
-                        trlmessage("(pctecorr) CTE_FRAC: %f", ctePars.scale_frac);
-                        trlmessage("(pctecorr) The %s CTE processing parameters have been read.", corrType);
+                        trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i\n"
+                                   "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i\n"
+                                   "(pctecorr) CTE_FRAC: %f\n"
+                                   "(pctecorr) The %s CTE processing parameters have been read.",
+                                   ctePars.n_forward, ctePars.n_par, ctePars.scale_frac, corrType);
                     } // End if block for collecting and reporting serial CTE correction
 
                     /*

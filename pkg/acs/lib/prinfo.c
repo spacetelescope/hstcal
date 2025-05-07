@@ -52,9 +52,10 @@ void PrBegin (char *label) {
 
 	char *GetDateTime (void);
 
-	trlmessage("");
-	trlmessage("%s*** %s -- Version %s ***",TRL_PREFIX, label, ACS_CAL_VER);
-	trlmessage("Begin    %s", GetDateTime());
+	trlmessage("\n"
+                   "%s*** %s -- Version %s ***\n"
+                   "Begin    %s",
+                   TRL_PREFIX, label, ACS_CAL_VER, GetDateTime());
 }
 
 /* Print a message at the end of calacs task. */
@@ -63,9 +64,8 @@ void PrEnd (char *label) {
 
 	char *GetDateTime (void);
 
-	trlmessage("End      %s", GetDateTime());
-	trlmessage("");
-	trlmessage("*** %s complete ***", label);
+	trlmessage("End      %s\n\n"
+                   "*** %s complete ***", GetDateTime(), label);
 }
 
 /* Print input or output file name. */
@@ -77,7 +77,7 @@ char *label     i: e.g. "Input" or "Output"
 char *filename  i: name of input or output file
 */
 	void Upper1 (char *, char *, int);
-	
+
 	Upper1 (label, buf, SCRATCH_SIZE);
 
 	trlmessage("%s %s", buf, filename);
@@ -87,10 +87,11 @@ char *filename  i: name of input or output file
 
 void PrHdrInfo (char *aperture, char *filter1, char *filter2, char *detector) {
 
-	trlmessage("APERTURE %s", aperture);
-	trlmessage("FILTER1 %s", filter1);
-	trlmessage("FILTER2 %s", filter2);
-	trlmessage("DETECTOR %s", detector);
+	trlmessage("APERTURE %s\n"
+                   "FILTER1 %s\n"
+                   "FILTER2 %s\n"
+                   "DETECTOR %s",
+                   aperture, filter1, filter2, detector);
 }
 
 /* Print a calibration switch keyword and value. */
@@ -104,11 +105,11 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 
 	void UpperAll (char *, char *, int);
 
-	
+
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
 	snprintf (MsgText,sizeof(MsgText), "%s", buf);
-		
+
 	if (value == OMIT)
 	    strcat (MsgText," OMIT");
 	else if (value == PERFORM)
@@ -121,7 +122,7 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 	    strcat (MsgText, " COMPLETE");
 	else
 	    strcat (MsgText, " unknown");
-		
+
 	trlmessage ("%s", MsgText);
 }
 
@@ -135,7 +136,7 @@ int n        i: number to be printed following label, if n > 0
 */
 	char *GetTime (void);
 	void Upper1 (char *, char *, int);
-		
+
 	if (strlen (label) > PAD_SIZE){
 		/* The label was longer than the buffer! */
 	    strcpy (buf, "*****");
@@ -165,7 +166,7 @@ int n        i: number to be printed following label, if n > 0
 */
 	char *GetTime (void);
 	void Upper1 (char *, char *, int);
-	
+
 	if (strlen (label) > PAD_SIZE)
 	    strcpy (buf, "*****");
 	else if (n > 0)
@@ -206,11 +207,11 @@ char *descrip2  i: second descrip, if any, from table row
 	if (pedigree[0] != '\0') {
 	    trlmessage("%s PEDIGREE=%s", buf, pedigree);
 	}
-	
+
 	if (descrip[0] != '\0') {
 	    trlmessage("%s DESCRIP =%s", buf, descrip);
 	}
-	
+
 	if (descrip2[0] != '\0') {
 	    trlmessage("%s DESCRIP =%s", buf, descrip2);
 	}
@@ -299,7 +300,7 @@ int maxch     i: allocated length of outstr (including EOS)
 			outstr[0] = toupper (instr[0]);
 	    else
 			outstr[0] = instr[0];
-	    
+
 		for (i = 1;  i < maxch-1;  i++) {
 			if (instr[i] == '\0')
 		    	break;

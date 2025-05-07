@@ -50,11 +50,11 @@ static int strcatN (char *, char *, int);
 
    Phil Hodge, 1998 Feb 5:
 	File created.
-	
+
    Warren Hack, 1998 Nov 17:
    	Added MkNewExtn to support trailer file name conventions
    Warren Hack, 2004 Mar 19:
-    Added calls to free() to clean up memory upon exiting for errors.	
+    Added calls to free() to clean up memory upon exiting for errors.
 */
 
 int MkOutName (char *input, char **isuffix, char **osuffix, int nsuffix,
@@ -77,7 +77,7 @@ int maxch          i: maximum size of output
 	int tr_len;		/* length of truncated input name */
 	int i;			/* loop index */
 	int dotlocn;		/* location of '.' in input name */
-    
+
 	if (output[0] == '\0') {
 
 	    extn = calloc (1 + strlen(input) + strlen(FITS_EXTN),
@@ -200,8 +200,8 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 	extern int status;
 
 	if (strlen (instr) + strlen (outstr) > maxch) {
-	    trlerror("(MkOutName) strings are too long:");
-	    trlerror("`%s' + `%s'", outstr, instr);
+	    trlerror("(MkOutName) strings are too long:\n"
+                     "`%s' + `%s'", outstr, instr);
 		status = INVALID_FILENAME;
 	} else {
 	    strcat (outstr, instr);
@@ -214,23 +214,23 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 	the extension specified by 'newext'.
 */
 int MkNewExtn (char *input, char *newext) {
-	
+
 	extern int status;
-	
+
 	int dotlocn;
 	char *output;
-	
+
 	/* Set up internal buffer for working with filename */
 	output = (char *) calloc(strlen(input)+strlen(newext)+1, sizeof(char) );
 	if (output == NULL) return (status = OUT_OF_MEMORY);
-	
+
 	output[0] = '\0';
-	
+
 	/* Find the extension (if any) on the input name. */
 	dotlocn = FindExtn (input);
-        
+
 	strcpy (output, input);		/* copy input to output */
-        
+
 	if (dotlocn >= 0) {
 		output[dotlocn] = '\0';		/* truncate at '.' */
 		strcat (&output[dotlocn], newext);	/* append new extension */
@@ -240,10 +240,10 @@ int MkNewExtn (char *input, char *newext) {
 		*/
 		strcat (output, newext);
 	}
-    
+
 	/* Copy new filename back into 'input' */
 	strcpy (input, output);
-    
+
 	free (output);
 	return (status);
 }
