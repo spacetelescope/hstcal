@@ -29,7 +29,7 @@ int CompareNumbers (int n_in, int n_out, char *str_out) {
 	    }
 	    strcat (MsgText, ".\n");
 		
-	    trlmessage(MsgText);
+	    trlmessage("%s", MsgText);
 	    return (1);
 	}
 

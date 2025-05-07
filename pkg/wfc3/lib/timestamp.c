@@ -71,7 +71,7 @@ char *rootname  i: root name to include in printed string
 	    MsgText[i] = '-';
 	MsgText[SZ_EIGHTY] = '\0';
 
-	trlmessage (MsgText);
+	trlmessage ("%s", MsgText);
 	
 	if (lenrootname > 0)
 	    free (uc_rootname);

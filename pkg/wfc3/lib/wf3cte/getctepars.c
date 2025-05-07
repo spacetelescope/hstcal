@@ -141,8 +141,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	sprintf(MsgText,"\nCTE_NAME: %s",pars->cte_name);
-	trlmessage(MsgText);
+	trlmessage("\nCTE_NAME: %s",pars->cte_name);
 
 	/* GET VERSION NUMBER  */
 	if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", pars->cte_ver, SZ_CBUF)) {
@@ -150,8 +149,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		status = KEYWORD_MISSING;
 		return status;
 	}
-	sprintf(MsgText,"CTE_VER: %s",pars->cte_ver);
-	trlmessage(MsgText);
+	trlmessage("CTE_VER: %s",pars->cte_ver);
 
 	/* GET DATE OF UVIS INSTALLATION IN HST */
 	if (GetKeyDbl(&hdr_ptr, "CTEDATE0", NO_DEFAULT, -999, &pars->cte_date0)) {
@@ -160,8 +158,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
-	trlmessage(MsgText);
+	trlmessage("CTEDATE0: %g",pars->cte_date0);
 
 	/* GET REFRENCE DATE OF CTE MODEL PINNING */
 	if (GetKeyDbl(&hdr_ptr, "CTEDATE1", NO_DEFAULT, -999, &pars->cte_date1)) {
@@ -170,8 +167,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
-	trlmessage(MsgText);
+	trlmessage("CTEDATE1: %g",pars->cte_date1);
 
 	/* READ MAX LENGTH OF CTE TRAIL */
 	if (GetKeyInt(&hdr_ptr, "PCTETLEN", NO_DEFAULT, -999, &pars->cte_len)) {
@@ -180,8 +176,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
-	trlmessage(MsgText);
+	trlmessage("PCTETLEN: %d",pars->cte_len);
 
 	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
 	if (GetKeyInt(&hdr_ptr, "PCTENFOR", NO_DEFAULT, -999, &pars->n_forward)) {
@@ -189,8 +184,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		status = KEYWORD_MISSING;
 		return status;
 	}
-	sprintf(MsgText,"PCTERNFOR: %d",pars->n_forward);
-	trlmessage(MsgText);
+	trlmessage("PCTERNFOR: %d",pars->n_forward);
 
 	/* GET NUMBER OF ITERATIONS USED IN PARALLEL TRANSFER*/
 	if (GetKeyInt(&hdr_ptr, "PCTENPAR", NO_DEFAULT, -999, &pars->n_par)) {
@@ -199,8 +193,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	sprintf(MsgText,"PCTERNPAR: %d",pars->n_par);
-	trlmessage(MsgText);
+	trlmessage("PCTERNPAR: %d",pars->n_par);
 
 	/* GET READ NOISE MITIGATION ALGORITHM*/
 	if (GetKeyInt(&hdr_ptr, "PCTENSMD", NO_DEFAULT, -999, &pars->noise_mit)) {
@@ -208,8 +201,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		status = KEYWORD_MISSING;
 		return status;
 	}
-	sprintf(MsgText,"PCTENSMD: %d",pars->noise_mit);
-	trlmessage(MsgText);
+	trlmessage("PCTENSMD: %d",pars->noise_mit);
 
 	/* GET OVER SUBTRACTION THRESHOLD */
 	if (GetKeyDbl(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
@@ -218,9 +210,8 @@ No.    Name         Type      Cards   Dimensions   Format
 		return status;
 	}
 
-	sprintf(MsgText,"PCTETRSH: %g",pars->thresh);
-	trlmessage(MsgText);
- 
+	trlmessage("PCTETRSH: %g",pars->thresh);
+
     /*FIX THE READOUT CR'S? */
     if (GetKeyInt(&hdr_ptr, "FIXROCR", NO_DEFAULT, -999, &pars->fix_rocr)){
         trlerror("(pctecorr) Error reading FIXROCR keyword from PCTETAB");
@@ -229,8 +220,7 @@ No.    Name         Type      Cards   Dimensions   Format
     }
     
     /*
-	sprintf(MsgText,"FIXROCR: %d",pars->fix_rocr);
-	trlmessage(MsgText);
+	trlmessage("FIXROCR: %d",pars->fix_rocr);
     */
     
     
@@ -309,8 +299,7 @@ No.    Name         Type      Cards   Dimensions   Format
 			return status;
 		}
         if (ctraps > TRAPS){
-            sprintf(MsgText,"More TRAPS in reference file than available, update TRAPS: %i -> %i",TRAPS,(int)ctraps);
-            trlmessage(MsgText);
+            trlmessage("More TRAPS in reference file than available, update TRAPS: %i -> %i",TRAPS,(int)ctraps);
         }
 	}
     
@@ -318,9 +307,8 @@ No.    Name         Type      Cards   Dimensions   Format
     pars->cte_traps=(int)ctraps;
 
     /*
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
+	trlmessage("(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
             pars->wcol_data[19],pars->qlevq_data[19], pars->dpdew_data[19], pars->cte_traps);
-	trlmessage(MsgText);
     */
     
 	/* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
@@ -414,9 +402,8 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	}
     /* for testing
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d %g\t%g\t%g\t%g\ntotal traps = %i",
+	trlmessage("(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d %g\t%g\t%g\t%g\ntotal traps = %i",
             j,pars->iz_data[j-1],pars->scale512[j-1],pars->scale1024[j-1],pars->scale1536[j-1],pars->scale2048[j-1],pars->cte_traps);
-	trlmessage(MsgText);
     */
    
 	/* close CTE parameters file for extension 2*/
@@ -429,8 +416,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* Get the coefficient images from the PCTETAB */
 	pars->rprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->rprof == NULL){
-		sprintf (MsgText, "Can't allocate memory for RPROF ref data");
-		trlerror (MsgText);
+		trlerror("Can't allocate memory for RPROF ref data");
 		return (status = 1);
 	}
 	initFloatHdrData(pars->rprof);
@@ -445,8 +431,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	pars->cprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->cprof == NULL){
-		sprintf (MsgText, "Can't allocate memory for CPROF ref data");
-		trlerror (MsgText);
+		trlerror("Can't allocate memory for CPROF ref data");
 		return (status = 1);
 	}
 

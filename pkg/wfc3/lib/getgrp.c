@@ -61,8 +61,7 @@ Hdr *hdr         i: header of current extension
 	if (GetKeyInt (hdr, "NCOMBINE", USE_DEFAULT, 1, &wf3->ncombine))
 	    return (status);
 	if (wf3->ncombine < 1) {
-	    sprintf (MsgText, "NCOMBINE = %d, reset to one.", wf3->ncombine);
-	    trlwarn (MsgText);
+	    trlwarn("NCOMBINE = %d, reset to one.", wf3->ncombine);
 	    wf3->ncombine = 1;
 	}
 

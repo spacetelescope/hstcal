@@ -139,8 +139,7 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
                 yzero * ref_bin[1] != cshift[1]) {
             trlwarn ("Subimage offset not divisible by bin size.");
         }
-        sprintf(MsgText,"Subimage locations rx=%d, ry=%d, x0=%d, y0=%d",ratiox,ratioy,xzero,yzero);
-        trlmessage(MsgText);
+        trlmessage("Subimage locations rx=%d, ry=%d, x0=%d, y0=%d",ratiox,ratioy,xzero,yzero);
         *rx = ratiox;
         *ry = ratioy;
         *x0 = xzero;
