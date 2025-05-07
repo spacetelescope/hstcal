@@ -5,6 +5,7 @@
 
 # include "xtables.h"
 # include "ximio.h"
+# include "hstcal.h"
 # include "hstio.h"
 
 # include "stis.h"

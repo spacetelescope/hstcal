@@ -2,6 +2,7 @@
 # include <string.h>
 
 # include "xtables.h"
+# include "hstcal.h"
 # include "hstio.h"
 
 # include "stis.h"

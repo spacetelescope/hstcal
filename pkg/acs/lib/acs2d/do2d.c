@@ -92,7 +92,6 @@ int Do2D (ACSInfo *acs2d, int extver) {
   int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
-	void TimeStamp (char *, char *);
 	void UCalVer (Hdr *);
 	void UFilename (char *, Hdr *);
 	int GetCCDTab (ACSInfo *, int, int);

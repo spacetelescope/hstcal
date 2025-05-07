@@ -48,7 +48,6 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     int DoCCD (ACSInfo *);
     int FileExists (char *);
     int GetACSFlags (ACSInfo *, Hdr *);
-    void TimeStamp (char *, char *);
     void PrBegin (char *);
     void PrEnd (char *);
     void PrFileName (char *, char *);

@@ -67,7 +67,6 @@ add_library(${PROJECT_NAME} SHARED
 	subtools.c
 	tabhistory.c
 	tabpedigree.c
-	timestamp.c
 	trim.c
 	ucalver.c
 	ufilename.c

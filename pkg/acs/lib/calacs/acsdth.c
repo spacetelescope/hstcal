@@ -67,7 +67,6 @@ int AcsDth (char *in_list, char *output, int dthcorr, int printtime, int verbose
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int UpdateSwitch (char *, int, Hdr *, int *);
-  void TimeStamp (char *, char *);
 	int LoadHdr (char *, Hdr *);
 	void UCalVer (Hdr *);
 	void UFilename (char *, Hdr *);
