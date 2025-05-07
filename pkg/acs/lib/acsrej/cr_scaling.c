@@ -56,7 +56,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs, doubl
 
     /* Check to make sure there are not too many images to work with... */
     if (*nimgs > MAX_FILES) {
-        trlerror("There are too many input images to combine. ");
+        trlerror("There are too many input images to combine.");
         return(status = NOTHING_TO_DO);
     }
 

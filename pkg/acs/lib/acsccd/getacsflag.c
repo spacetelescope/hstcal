@@ -91,8 +91,8 @@ int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
     if (missing) {
         return (status = CAL_FILE_MISSING);
     } else if (nsteps < 1) {
-        trlwarn ("No calibration switch was set to PERFORM, ");
-        trlwarn ("            or all reference files had PEDIGREE = DUMMY.");
+        trlwarn ("No calibration switch was set to PERFORM,\n"
+                 "            or all reference files had PEDIGREE = DUMMY.");
         return (status = NOTHING_TO_DO);
     } else {
         return (status);
@@ -189,17 +189,17 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
         /* Save the value for recovery */
         saveBiasCorr = acs->biascorr;
 
-        /* 
+        /*
           Also check for the new full-well saturation image which is
           applied after BIASCORR, conversion to elections, and BLEVCORR
           are done. Since the reference file is not associated with its
-          own "calibration step keyword" (e.g., SATUCORR), just using the 
-          BIASCORR key as a standin here - make sure the BIASCORR retains 
+          own "calibration step keyword" (e.g., SATUCORR), just using the
+          BIASCORR key as a standin here - make sure the BIASCORR retains
           its value as set in the above code.
 
           This is a kludge.
        */
-        if (GetImageRef (acs->refnames, phdr, 
+        if (GetImageRef (acs->refnames, phdr,
                          "SATUFILE", &acs->satmap, &acs->biascorr))
             return (status);
 

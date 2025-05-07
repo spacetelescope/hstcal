@@ -130,7 +130,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
     initAsnInfo(&asn);
 
     if (debug) {
-        trlmessage ("Initialized Association data ... ");
+        trlmessage ("Initialized Association data ...");
     }
 
     /* Copy Input filename to ASN structure    */
@@ -253,7 +253,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
         free (acsdth_input);
     }
     if (asn.verbose) {
-        trlmessage ("CALACS: Finished processing product ");
+        trlmessage ("CALACS: Finished processing product");
     }
 
     freeAsnInfo(&asn);
@@ -555,7 +555,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
                 SetACSSw(&sci_sw, &acsccd_sci_sw, &acscte_sci_sw, &acs2d_sci_sw);
 
                 if (asn->verbose) {
-                    trlmessage ("CALACS: Processing switches set... ");
+                    trlmessage ("CALACS: Processing switches set...");
                 }
 
                 /* Ready to process input image now... */

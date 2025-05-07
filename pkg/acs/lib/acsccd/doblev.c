@@ -405,7 +405,7 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
 
 	/* Fit a curve to the bias levels found. */
 	if (BlevFit()) {
-    trlwarn("No bias level data, or singular fit; ");
+    trlwarn("No bias level data, or singular fit;");
     trlmessage("            bias from CCDTAB will be subtracted.");
     BlevSet (ccdbias);		/* assign the default value */
 	}
