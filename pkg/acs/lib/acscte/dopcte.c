@@ -79,8 +79,7 @@ int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
         *xsize = *xend - *xbeg;
         *ysize = *yend - *ybeg;
     } else {
-        sprintf(MsgText,"(pctecorr) Detector not supported: %i",acs->detector);
-        trlerror(MsgText);
+        trlerror("(pctecorr) Detector not supported: %i",acs->detector);
         status = ERROR_RETURN;
         return status;
     }
@@ -133,8 +132,7 @@ static int make_amp_array(const ACSInfo *acs, const SingleGroup *im,
             }
         }
     } else {
-        sprintf(MsgText,"(pctecorr) Detector not supported: %i",acs->detector);
-        trlerror(MsgText);
+        trlerror("(pctecorr) Detector not supported: %i",acs->detector);
         status = ERROR_RETURN;
         return status;
     }
@@ -187,8 +185,7 @@ static int unmake_amp_array(const ACSInfo *acs, const SingleGroup *im,
             }
         }
     } else {
-        sprintf(MsgText,"(pctecorr) Detector not supported: %i",acs->detector);
-        trlerror(MsgText);
+        trlerror("(pctecorr) Detector not supported: %i",acs->detector);
         status = ERROR_RETURN;
         return status;
     }

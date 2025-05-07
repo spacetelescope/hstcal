@@ -33,8 +33,7 @@ ACSInfo *acs		o: exposure specific flags and info
     
 	/* find out if the member we want exists... */	
 	if (asn->product[prodid].subprod[posid].exp[expid].name[0] == '\0') {
-		sprintf(MsgText,"Couldn't find exposure %d of sub-product %d for product %d. ", expid, posid, prodid);
-		trlerror (MsgText);
+		trlerror("Couldn't find exposure %d of sub-product %d for product %d.", expid, posid, prodid);
 		return (status = NO_GOOD_DATA);
 	}
 
@@ -56,8 +55,7 @@ ACSInfo *acs		o: exposure specific flags and info
 	strcpy (acs->rootname, rootname);
 	
 	if (asn->debug){
-		sprintf (MsgText, "GetAsnMember: Rootname: %s, Output rootname: %s",rootname, outroot);
-		trlmessage (MsgText);
+		trlmessage("GetAsnMember: Rootname: %s, Output rootname: %s",rootname, outroot);
 	}
 	/* Check to see that this value of rootname is what we really need... */
 	strcpy (acs->asn_table, asn->asn_table);	
@@ -100,8 +98,7 @@ ACSInfo *acs		o: exposure specific flags and info
 	strcpy (acs->rootname, rootname);
 	
 	if (asn->debug) {
-		sprintf (MsgText, "GetSingle: Rootname: %s, Output rootname: %s",rootname, outroot);
-		trlmessage (MsgText);
+		trlmessage("GetSingle: Rootname: %s, Output rootname: %s",rootname, outroot);
 	}
 
 	/* Check to see that this value of rootname is what we really need... */

@@ -124,11 +124,4 @@ typedef struct {
     int detector;   /* Which detector was used */
 } multiamp;
 
-/* The following function definitions handle the messages created
-	by CALACS during operations.  These will have counterparts which
-	send output both the STDOUT and a TRL file.
-*/
-void asnwarn (char *message);
-void asnerror (char *message);
-
 #endif

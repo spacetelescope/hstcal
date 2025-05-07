@@ -1407,9 +1407,9 @@ char *comment     i: comment to add, if keyword doesn't exist
         char strBuffer[MSG_BUFF_LENGTH];
         *strBuffer = '\0';
         if (value == True)
-            sprintf(strBuffer, "%s T %s", keyword, comment);
+            snprintf(strBuffer, sizeof(strBuffer), "%s T %s", keyword, comment);
         else if(value == False)
-            sprintf(strBuffer, "%s F %s", keyword, comment);
+            snprintf(strBuffer, sizeof(strBuffer), "%s F %s", keyword, comment);
         else
             assert(0); // Unimplemented
         tempStatus = addHistoryKw(hd, strBuffer);
@@ -1487,7 +1487,7 @@ char *comment     i: comment to add, if keyword doesn't exist
         // add as history if keyword missing
         char strBuffer[MSG_BUFF_LENGTH];
         *strBuffer = '\0';
-        sprintf(strBuffer, "%s %s %s", keyword, value, comment);
+        snprintf(strBuffer, sizeof(strBuffer), "%s %s %s", keyword, value, comment);
         tempStatus = addHistoryKw(hd, strBuffer);
     }
     return tempStatus;

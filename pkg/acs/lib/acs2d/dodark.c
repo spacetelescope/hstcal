@@ -111,8 +111,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
 
   /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
   darktime = (float)acs2d->darktime;
-  sprintf(MsgText,"Darktime from header %f", darktime);
-  trlmessage(MsgText);
+  trlmessage("Darktime from header %f", darktime);
 
   /* Compute correct extension version number to extract from
      reference image to correspond to CHIP in science data.
@@ -128,8 +127,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   }
 	
   if (acs2d->verbose) {
-     sprintf(MsgText,"Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
-     trlmessage(MsgText);
+     trlmessage("Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
   }
   
   /* Create a pointer register for bookkeeping purposes and to ease cleanup */
@@ -163,12 +161,10 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   }
   
   if (rx != 1 || ry != 1) {
-     sprintf(MsgText,"Reference image and input are not binned to the same pixel size!");
-     trlmessage(MsgText);
+     trlwarn("Reference image and input are not binned to the same pixel size!");
   }
   if (acs2d->verbose){
-     sprintf(MsgText,"Image has an offset of %d,%d",x0,y0);
-     trlmessage(MsgText);
+     trlmessage("Image has an offset of %d,%d",x0,y0);
   }
   
   /* Trim the dark image (y->z) down to the actual size of the science image (x). */
@@ -189,7 +185,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   */
   update = NO;
   if (trim2d (&y, x0, y0, rx, ry, update, &z)) {
-     trlerror ("(darkcorr) size mismatch.");
+     trlerror("(darkcorr) size mismatch.");
      freeOnExit(&ptrReg);
      return (status);
   }

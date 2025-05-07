@@ -47,8 +47,7 @@ int ACSRefInit (ACSInfo *acs, CalSwitch *sci_sw, RefFileInfo *sciref) {
         if (missing == 1) {
             trlerror ("One reference file was missing.");
         } else {
-            sprintf (MsgText, "%d reference files were missing.", missing);
-            trlerror (MsgText);
+            trlerror("%d reference files were missing.", missing);
         }
         return (status = CAL_FILE_MISSING);
     }
@@ -134,8 +133,7 @@ int InsertACSSuffix (ACSInfo *acs) {
     if (MkName (acs->rootname, "_raw", "_blc_tmp", "", acs->blc_tmp, CHAR_LINE_LENGTH))
         return (status);
 
-    /*sprintf (MsgText,"AcsInit: blv_tmp = %s ",acs->blv_tmp);
-    trlmessage (MsgText);
+    /*trlmessage("AcsInit: blv_tmp = %s ",acs->blv_tmp);
     */
     return (status);
 }

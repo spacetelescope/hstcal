@@ -25,9 +25,9 @@ int maxch               i: maximum length of 'tablename' string (not
 
         /* append the extension number (or as specified by the user) */
         if (tbl_descr->brackets[0] == '\0')
-            sprintf (hdu_string, "[%d]", tbl_descr->hdunum - 1);
+            snprintf (hdu_string, sizeof(hdu_string), "[%d]", tbl_descr->hdunum - 1);
         else
-            strcpy (hdu_string, tbl_descr->brackets);
+            strncpy (hdu_string, tbl_descr->brackets, sizeof(hdu_string) - 1);
 
         if (len + strlen (hdu_string) <= maxch) {
             strcat (tablename, hdu_string);

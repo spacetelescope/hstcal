@@ -84,19 +84,16 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
         return (status);
 
     if (acs->verbose) {
-        sprintf(MsgText, "Ratio of (%d,%d) with offset =(%d,%d)",
-                rx, ry, x0, y0);
-        trlmessage(MsgText);
+        trlmessage("Ratio of (%d,%d) with offset =(%d,%d)", rx, ry, x0, y0);
         if (same_size) {
-            sprintf(MsgText, "SINK image and input are the same size ");
+            trlmessage("SINK image and input are the same size");
         } else {
-            sprintf(MsgText, "SINK image and input are NOT the same size ");
+            trlmessage("SINK image and input are NOT the same size");
         }
-        trlmessage(MsgText);
     }
 
     if ((rx != 1) || (ry != 1)) {
-        trlerror ("(sinkcorr) binned data is not supported.");
+        trlerror("(sinkcorr) binned data is not supported.");
         return (status = INVALID_VALUE);
     }
 
@@ -114,12 +111,12 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
     /* Allocate data array */
     keep_going = (short *) calloc (dimx, sizeof(short));
     if (keep_going == NULL) {
-        trlerror ("Couldn't allocate memory for scratch array in SINKCORR.");
+        trlerror("Couldn't allocate memory for scratch array in SINKCORR.");
         return (status = OUT_OF_MEMORY);
     }
     cur_sci = (float *) calloc (dimx, sizeof(float));
     if (cur_sci == NULL) {
-        trlerror ("Couldn't allocate memory for scratch array in SINKCORR.");
+        trlerror("Couldn't allocate memory for scratch array in SINKCORR.");
         return (status = OUT_OF_MEMORY);
     }
 
@@ -177,8 +174,7 @@ int SinkDetect(ACSInfo *acs, SingleGroup *x) {
     } /* end j loop */
 
     if (acs->verbose) {
-        sprintf(MsgText, "Sink pixels flagged = %d", n);
-        trlmessage(MsgText);
+        trlmessage("Sink pixels flagged = %d", n);
     }
 
     free(keep_going);
@@ -251,8 +247,7 @@ static int DetSinkChip (char *fname, int chip, int *extver) {
     freeHdr(&prihdr);
 
     if (foundit == NO) {
-        sprintf (MsgText, "No Reference Data found for chip %d", chip);
-        trlerror (MsgText);
+        trlerror("No Reference Data found for chip %d", chip);
         return (status = NO_CHIP_FOUND);
     }
     return (status);

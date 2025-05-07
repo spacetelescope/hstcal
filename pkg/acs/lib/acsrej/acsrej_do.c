@@ -275,9 +275,8 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		}
 		if (par->verbose) {
 			for (n = 0; n < nimgs; n++) {
-				sprintf (MsgText, "sky of '%s[sci,%d]' is %0.3f electrons",
+				trlmessage("sky of '%s[sci,%d]' is %0.3f electrons",
 						 imgname[n], ext[n], skyval[n]);
-				trlmessage (MsgText);
 			}
 		}
 
@@ -327,10 +326,10 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 				return (status);
 			}
 		} else {
-			trlwarn ("Cosmic-ray rejection NOT performed!");
+			trlwarn("Cosmic-ray rejection NOT performed!");
 			if (non_zero > 0) {
-				trlwarn ("Some input exposures had EXPTIME = 0.");
-				trlwarn ("Output product will not be cosmic-ray cleaned!");
+				trlwarn("Some input exposures had EXPTIME = 0.");
+				trlwarn("Output product will not be cosmic-ray cleaned!");
 			}
         } /* End if(non_zero) block */
 

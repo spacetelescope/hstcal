@@ -28,9 +28,6 @@ struct TrlBuf trlbuf = { 0 };
         WJH 19 April 2001
 */
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-
 static void printSyntax(void)
 {
     printf ("syntax:  acssum [--help] [-t] [-v] [-q] [--version] [--gitinfo] input [output]\n");
@@ -102,7 +99,7 @@ int main (int argc, char **argv) {
 				} else if (argv[i][j] == 'q') {
 				quiet = YES;
 				} else {
-					printf (MsgText, "Unrecognized option %s\n", argv[i]);
+					printf("Unrecognized option %s\n", argv[i]);
 					printSyntax();
 					freeOnExit(&ptrReg);
 					exit (1);
@@ -133,6 +130,7 @@ int main (int argc, char **argv) {
 	if (output[0] == '\0') {
 	    if (MkName (input, "_asn", "_sfl", "", output, CHAR_LINE_LENGTH))
         {
+	    	// TODO: add trlerror message
             WhichError (status);
             freeOnExit(&ptrReg);
             exit (ERROR_RETURN);
@@ -141,8 +139,7 @@ int main (int argc, char **argv) {
 
 	/* Sum imsets. */
 	if (AcsSum (input, output, mtype, printtime, verbose)) {
-	    sprintf (MsgText, "Error processing %s.", input);
-		trlerror (MsgText);
+	    trlerror("Error processing %s.", input);
 	    WhichError (status);
 	}
 

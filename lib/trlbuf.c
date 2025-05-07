@@ -55,11 +55,11 @@
             and deletes the temp file (if all went OK).
 
     These create the messages to be written out:
-    void trlmessage (char *message);
+    void trlmessage(char *fmt, ...);
         - calls WrtTrlBuf and printfAndFlush
-    void trlwarn (char *message);
+    void trlwarn(char *fmt, ...);
         - calls trlmessage after building appropriate message
-    void trlerror (char *message);
+    void trlerror(char *fmt, ...);
         - calls trlmessage after building appropriate message
     void trlopenerr (char *filename);
         - calls trlerror after starting to build appropriate message
@@ -89,6 +89,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <assert.h>
 
 #include "hstcal_memory.h"
@@ -100,8 +101,8 @@
 #include "hstio.h"
 
 char MsgText[MSG_BUFF_LENGTH];
-int status;
 const unsigned initLength = 2; // Should always be > 0 to prevent issues with use of realloc().
+extern int status;
 
 /* Internal trailer file buffer routines */
 static void ResetTrlBuf (void);
@@ -128,7 +129,6 @@ int InitTrlFile (char *inlist, char *output)
 char *inlist        i: list of input trailer filenames
 char *output        i: full filename of output (final) trailer file
 */
-    extern int status;
 
     IRAFPointer tpin = NULL;
     FILE * ip = NULL;
@@ -323,8 +323,6 @@ static int AppendTrlFile(void)
         'tmpptr' buffer used during reallocation of oprefix buffer size.
     */
 
-    extern int status;
-
     char * oprefix = malloc(initLength*sizeof(*oprefix));
     if (!oprefix){
         trlerror ("Out of memory for trailer file preface.");
@@ -394,8 +392,6 @@ int WriteTrlFile (void)
         This function closes the trailer file.
     */
 
-    extern int status;
-
     /* Now that we have copied the information to the final
         trailer file, we can close it and the temp file...
     */
@@ -408,7 +404,6 @@ int InitTrlBuf (void)
     /* This initialization routine must be called before any others in this
         file.
     */
-    extern int status;
 
     trlbuf.trlfile[0] = '\0';
     trlbuf.fp = NULL;
@@ -477,7 +472,6 @@ static void AddTrlBuf (const char *message)
     /* arguments:
     char *message         i: new trailer file line to add to buffer
     */
-    extern int status;
 
     if ( ! trlbuf.init )
         assert(0); //TRLBUF NOT INIT, YOU MAY HAVE PROBLEMS
@@ -502,8 +496,6 @@ void InitTrlPreface (void)
     /*
         This function will copy contents of the buffer into the preface
     */
-    extern int status;
-
     size_t newSize = (strlen(trlbuf.buffer) +2)*sizeof(*trlbuf.preface);
     assert(newSize);
     void * ptr = realloc (trlbuf.preface, newSize);
@@ -520,7 +512,6 @@ void InitTrlPreface (void)
 }
 void ResetTrlPreface (void)
 {
-    extern int status;
     size_t newSize = initLength*sizeof(*trlbuf.preface);
     assert(newSize);
     void * ptr = realloc(trlbuf.preface, newSize);
@@ -537,7 +528,6 @@ void ResetTrlPreface (void)
 }
 static void ResetTrlBuf (void)
 {
-    extern int status;
     size_t newSize = initLength*sizeof(*trlbuf.buffer);
     assert(newSize);
     void * ptr = realloc(trlbuf.buffer, newSize);
@@ -599,7 +589,6 @@ void CloseTrlBuf (struct TrlBuf * buf)
     if (!buf)
         return;
 
-    extern int status;
     FILE *ofp;
 
     /* Do we have any messages which need to be written out? */
@@ -637,61 +626,105 @@ void CloseTrlBuf (struct TrlBuf * buf)
         status = fcloseWithStatus(&buf->fp);
 
 }
-void trlmessage (const char *message) {
+void trlmessage(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
 
-    if (!message || !*message)
-        return;
+    char *fmt_ = calloc(strlen(fmt) + 2, sizeof(*fmt_));
+    if (!fmt_) {
+        perror("trlwarn: calloc failed");
+        exit(OUT_OF_MEMORY);
+    }
+    strncpy(fmt_, fmt, strlen(fmt));
+
+    char *data = NULL;
+    if (vasprintf(&data, fmt_, args) < 0) {
+        perror("trlmessage: vasprintf failed");
+        fprintf(stderr, "format was: '%s'\n", fmt_);
+        exit(ERROR_RETURN);
+    }
+    va_end(args);
 
     /* Send output to STDOUT and explicitly flush STDOUT, if desired */
     if (trlbuf.quiet == NO) {
-        printfAndFlush (message);
+        printfAndFlush (data);
     }
 
     /* Send output to (temp) trailer file */
-    WriteTrlBuf (message);
-
+    WriteTrlBuf (data);
+    free(data);
+    free(fmt_);
+    data = NULL;
 }
-void trlwarn (const char *message) {
 
-    char line[CHAR_LINE_LENGTH+1];
+void trlwarn(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
 
+    const char *prefix = WARN_PREFIX;
+    char *fmt_ = calloc(strlen(prefix) + strlen(fmt) + 1, sizeof(*fmt_));
+    if (!fmt_) {
+        perror("trlwarn: calloc failed");
+        exit(OUT_OF_MEMORY);
+    }
     /* Create full warning message, like that output in ASNWARN */
     /* Use macro to add prefix to beginning of Warning message */
-    sprintf(line,"%s",WARN_PREFIX);
-    strcat (line,message);
-
+    char *data = NULL;
+    strncpy(fmt_, prefix, strlen(prefix));
+    strncat(fmt_, fmt, strlen(fmt));
+    if (vasprintf(&data, fmt_, args) < 0) {
+        perror("trlwarn: vasprintf failed");
+        fprintf(stderr, "format was: '%s'\n", fmt_);
+        exit(ERROR_RETURN);
+    }
     /* Send output to (temp) trailer file */
-    trlmessage (line);
-
+    va_end(args);
+    free(fmt_);
+    fmt_ = NULL;
+    trlmessage(data, args);
+    free(data);
+    data = NULL;
 }
-void trlerror (const char *message) {
 
-    char line[CHAR_LINE_LENGTH+1];
+void trlerror(const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
 
-    /* Create full warning message, like that output in ASNWARN */
-    /* Use macro to add prefix to beginning of ERROR message */
-    sprintf(line,"%s",ERR_PREFIX);
-    strcat (line,message);
-
+    const char *prefix = ERR_PREFIX;
+    char *fmt_ = calloc(strlen(prefix) + strlen(fmt) + 1, sizeof(*fmt_));
+    if (!fmt_) {
+        perror("trlerror: calloc failed");
+        exit(OUT_OF_MEMORY);
+    }
+    /* Create full error message, like that output in ASNWARN */
+    /* Use macro to add prefix to beginning of Warning message */
+    char *data = NULL;
+    strncpy(fmt_, prefix, strlen(prefix));
+    strncat(fmt_, fmt, strlen(fmt));
+    if (vasprintf(&data, fmt_, args) < 0) {
+        perror("trlerror: vasprintf failed");
+        fprintf(stderr, "format was: '%s'\n", fmt_);
+        exit(ERROR_RETURN);
+    }
     /* Send output to (temp) trailer file */
-    trlmessage (line);
-
+    va_end(args);
+    free(fmt_);
+    fmt_ = NULL;
+    trlmessage(data, args);
+    free(data);
+    data = NULL;
 }
 void trlopenerr (const char *filename) {
-    sprintf (MsgText, "Can't open file %s", filename);
-    trlerror (MsgText);
+    trlerror("Can't open file %s", filename);
 }
 void trlreaderr (const char *filename) {
-    sprintf (MsgText, "Can't read file %s", filename);
-    trlerror (MsgText);
+    trlerror("Can't read file %s", filename);
 }
 void trlkwerr (const char *keyword, const char *filename) {
-    sprintf (MsgText, "Keyword \"%s\" not found in %s", keyword, filename);
-    trlerror (MsgText);
+    trlerror("Keyword \"%s\" not found in %s", keyword, filename);
 }
 void trlfilerr (const char *filename) {
-    sprintf (MsgText, "while trying to read file %s", filename);
-    trlerror (MsgText);
+    trlerror("while trying to read file %s", filename);
 }
 void printfAndFlush (const char *message) {
     printf ("%s\n", message);
@@ -702,7 +735,7 @@ void trlGitInfo(void)
 {
     char * gitInfo = NULL;
     sprintfGitInfo(&gitInfo);
-    trlmessage(gitInfo);
+    trlmessage("%s", gitInfo);
     if (gitInfo)
     {
         free(gitInfo);

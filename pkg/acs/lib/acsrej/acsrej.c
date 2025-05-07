@@ -57,12 +57,10 @@ int AcsRej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
   flag = ckNewFile (output);
   if (flag > 0) {
     if (flag == 1) {
-      sprintf (MsgText, "Output file `%s' already exists.", output);
-      trlerror (MsgText);
+      trlerror("Output file `%s' already exists.", output);
       return (status = ERROR_RETURN);
     } else {
-      sprintf (MsgText, "Can't clobber `%s'.", output);
-      trlerror (MsgText);
+      trlerror("Can't clobber `%s'.", output);
       return (status = ERROR_RETURN);
     }
   }
@@ -70,7 +68,7 @@ int AcsRej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
   /* open the input file template */
   tpin = c_imtopen (in_list);
   
-  trlmessage ("\n");
+  trlmessage("\n");
   PrSwitch ("crcorr", PERFORM);
   
   /* perform the calculation */
@@ -100,7 +98,7 @@ int AcsRej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
   /* close file template */
   c_imtclose (tpin);
   
-  trlmessage ("\n");
+  trlmessage("\n");
   PrEnd ("ACSREJ");
   
   if (par->printtime)

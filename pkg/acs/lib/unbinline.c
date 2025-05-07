@@ -71,7 +71,7 @@ ACSsect *b        o: output expanded data
 	binx = onx / inx;
 	biny = ony / iny;
 	if (binx * inx != onx || biny * iny != ony) {
-	    trlerror ("ERROR    (unbinsect) bin ratio is not an integer.");
+	    trlerror("(unbinsect) bin ratio is not an integer.");
 	    return (status = INVALID_VALUE);
 	}
 

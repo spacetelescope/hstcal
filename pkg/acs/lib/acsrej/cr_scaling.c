@@ -81,8 +81,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs, doubl
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
         if (hstio_err()) {
-            sprintf (MsgText, "Cannot open data file '%s'", fdata);
-            trlerror (MsgText);
+            trlerror("Cannot open data file '%s'", fdata);
             return (status = OPEN_FAILED);
         }
 
@@ -92,15 +91,13 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs, doubl
         getHeader (ip, &prihdr);
 
         if (GetKeyFlt (&prihdr, expname, USE_DEFAULT, 0., &efac[k]) != 0) {
-            sprintf (MsgText, "cannot read '%s' from the primary header of '%s'", expname, fdata);
-            trlerror (MsgText);
+            trlerror("cannot read '%s' from the primary header of '%s'", expname, fdata);
             freeHdr (&prihdr);
             return(status = KEYWORD_MISSING);
         }
         
         if (efac[k] < 0.) {
-            sprintf (MsgText, "exposure time of file '%s' is negative", fdata);
-            trlerror (MsgText);
+            trlerror("exposure time of file '%s' is negative", fdata);
             freeHdr (&prihdr);
             return(status = INVALID_VALUE);
         }
@@ -110,14 +107,12 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs, doubl
         
         numimgs++;
         if (GetKeyDbl (&prihdr, "EXPEND", USE_DEFAULT, 0., &keyend) != 0) {
-            sprintf (MsgText, "cannot read 'EXPEND' from the primary header of '%s'", fdata);
-            trlerror (MsgText);
+            trlerror("cannot read 'EXPEND' from the primary header of '%s'", fdata);
             freeHdr (&prihdr);
             return(status = KEYWORD_MISSING);
         }
         if (GetKeyDbl (&prihdr, "EXPSTART", USE_DEFAULT, 0., &keystart) != 0) {
-            sprintf (MsgText, "cannot read 'EXPSTART' from the primary header of '%s'", fdata);
-            trlerror (MsgText);
+            trlerror("cannot read 'EXPSTART' from the primary header of '%s'", fdata);
             freeHdr (&prihdr);
             return(status = KEYWORD_MISSING);
         }
@@ -129,8 +124,8 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs, doubl
     }
     
     if (nzero > 0 && nzero < *nimgs) {
-        trlwarn ("Some (but not all) input imsets have zero exposure time.");
-        trlwarn ("Final product will be compromised!");
+        trlwarn("Some (but not all) input imsets have zero exposure time.");
+        trlwarn("Final product will be compromised!");
         
         /* This type of error will need to be handled differently in order
             to allow pipeline processing of this type of dataset. 

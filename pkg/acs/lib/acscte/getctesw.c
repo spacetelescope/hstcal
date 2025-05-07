@@ -25,8 +25,7 @@ int GetcteSw (ACSInfo *acs, Hdr *phdr) {
 
     key = findKw (phdr, "PCTECORR");
     if (key == NotFound) {
-        sprintf(MsgText, "PCTECORR keyword not found...");
-        trlwarn(MsgText);
+        trlwarn("PCTECORR keyword not found...");
     }
     if (GetSw (phdr, "PCTECORR", &acs->pctecorr))
         return (status);

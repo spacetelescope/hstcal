@@ -121,8 +121,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
         if (hstio_err()) {
-            sprintf (MsgText, "Cannot open data file '%s'", fdata);
-            trlerror (MsgText);
+            trlerror("Cannot open data file '%s'", fdata);
             return (status = OPEN_FAILED);
         }
         strcpy (imgname[k], fdata);
@@ -190,8 +189,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
             } else if (strcmp (det, "WFC") == 0) {
                 detector = WFC_CCD_DETECTOR;
             } else {
-                sprintf (MsgText, "DETECTOR = %s is unknown.", det);
-                trlwarn (MsgText);
+                trlwarn("DETECTOR = %s is unknown.", det);
                 detector = UNKNOWN_DETECTOR;
             }
 
@@ -219,10 +217,8 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
         } else {
             /* Make sure each image has the same value of CCDAMP */
             if (!streq_ic(ccdamp, ccdamp0)) {
-                sprintf (MsgText,
-                         "%s uses different CCDAMP, expected %s but got %s",
+                trlerror("%s uses different CCDAMP, expected %s but got %s",
                          fdata, ccdamp0, ccdamp);
-                trlerror (MsgText);
                 return (status = INVALID_VALUE);
             }
 
@@ -249,25 +245,19 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                no worry about the FLASHDUR. The needed information will live on
                in the ERR arrays. */
             if (flshcorr != flshcorr0) {
-                sprintf (MsgText,
-                         "%s uses different FLSHCORR, expected %d but got %d",
+                trlerror("%s uses different FLSHCORR, expected %d but got %d",
                          fdata, flshcorr0, flshcorr);
-                trlerror (MsgText);
                 return (status = INVALID_VALUE);
             }
             if (flshcorr == PERFORM) {
                 if (!streq_ic(flashcur, flashcur0)) {
-                    sprintf (MsgText,
-                         "%s uses different FLASHCUR, expected %s but got %s",
+                    trlerror("%s uses different FLASHCUR, expected %s but got %s",
                              fdata, flashcur0, flashcur);
-                    trlerror (MsgText);
                     return (status = INVALID_VALUE);
                 }
                 if (flashlevel != flashlevel0) {
-                    sprintf (MsgText,
-   "%s uses different flash levels (FLASHDUR/EXPTIME), expected %f but got %f",
+                    trlerror("%s uses different flash levels (FLASHDUR/EXPTIME), expected %f but got %f",
                              fdata, flashlevel0, flashlevel);
-                    trlerror (MsgText);
                     return (status = INVALID_VALUE);
                 }
             }
@@ -311,10 +301,8 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
         /* verify the image size to be the same as the first image */
         if (getNaxis1(ipsci[k]) != *dim_x || getNaxis2(ipsci[k]) != *dim_y){
-            sprintf (MsgText,
-        "file '%s[sci,%d]' does not have the same size as the first image\n",
+            trlerror("file '%s[sci,%d]' does not have the same size as the first image",
                      imgname[k], grp[k]);
-            trlerror (MsgText);
             return (status = SIZE_MISMATCH);
         }
 
@@ -388,8 +376,7 @@ static int checkgn (multiamp gn, char *fdata) {
     }
 
     if (ampset == 0) {
-        sprintf (MsgText, "All ATODGN values in file %s are 0.\n", fdata);
-        trlerror (MsgText);
+        trlerror("All ATODGN values in file %s are 0.", fdata);
         return (status = INVALID_VALUE);
     }
 

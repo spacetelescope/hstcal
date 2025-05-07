@@ -16,12 +16,7 @@
 
 /* CALACS driver: retrieves input table name and calls pipeline
 */
-
-extern int	status;
 struct TrlBuf trlbuf = { 0 };
-
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 static void printSyntax(void)
 {
@@ -189,14 +184,12 @@ int main(int argc, char **argv) {
 
     if (cteAlgorithmGen)
     {
-        sprintf(MsgText, "(pctecorr) Using generation %d CTE algorithm", cteAlgorithmGen);
-        trlmessage(MsgText);
+        trlmessage("(pctecorr) Using generation %d CTE algorithm", cteAlgorithmGen);
     }
 
     if (*pcteTabNameFromCmd != '\0')
     {
-        sprintf(MsgText, "(pctecorr) Using cmd line specified PCTETAB file: '%s'", pcteTabNameFromCmd);
-        trlmessage(MsgText);
+        trlmessage("(pctecorr) Using cmd line specified PCTETAB file: '%s'", pcteTabNameFromCmd);
     }
 
 #ifdef _OPENMP
@@ -221,14 +214,13 @@ int main(int argc, char **argv) {
     omp_set_dynamic(0);
     if (nThreads > ompMaxThreads)
     {
-        sprintf(MsgText, "System env limiting nThreads from %d to %d", nThreads, ompMaxThreads);
+        trlmessage("System env limiting nThreads from %d to %d", nThreads, ompMaxThreads);
         nThreads = ompMaxThreads;
     }
     else
-        sprintf(MsgText,"Setting max threads to %d out of %d available", nThreads, ompMaxThreads);
+        trlmessage("Setting max threads to %d out of %d available", nThreads, ompMaxThreads);
 
     omp_set_num_threads(nThreads);
-    trlmessage(MsgText);
 #endif
 
 	/* Call the CALACS main program */
@@ -238,13 +230,11 @@ int main(int argc, char **argv) {
             /* If there is just nothing to do,
                 as for ACQ images, just quit...     WJH 27Apr1999 */
             status = 0;
-	        sprintf (MsgText, "CALACS did NOT process %s", input);
-	        trlmessage (MsgText);
+	        trlmessage("CALACS did NOT process %s", input);
             exit(0);
         } else {
 	        /* Error during processing */
-	        sprintf (MsgText, "CALACS processing NOT completed for %s", input);
-		    trlerror (MsgText);
+	        trlerror("CALACS processing NOT completed for %s", input);
             /* Added 19 Mar 1999 - provides interpretation of error for user */
             WhichError (status);
             freeOnExit(&ptrReg);
@@ -253,9 +243,7 @@ int main(int argc, char **argv) {
 	}
 
 	/* Successful completion */
-	sprintf (MsgText, "CALACS completion for %s", input);
-	trlmessage (MsgText);
-
+	trlmessage("CALACS completion for %s", input);
     freeOnExit(&ptrReg);
 
 	/* Exit the program */

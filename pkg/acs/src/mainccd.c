@@ -21,8 +21,6 @@ extern int status;			/* zero is OK */
 # include "acsversion.h"
 #include "trlbuf.h"
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 struct TrlBuf trlbuf = { 0 };
 
 static void printSyntax(void)
@@ -171,7 +169,7 @@ int main (int argc, char **argv) {
                 } else if (argv[i][j] == 'q') {
                     quiet = YES;
                 } else {
-                    printf (MsgText, "Unrecognized option %s\n", argv[i]);
+                    printf ("Unrecognized option %s\n", argv[i]);
                     printSyntax();
                     freeOnExit(&ptrReg);
                     exit (1);
@@ -250,8 +248,7 @@ int main (int argc, char **argv) {
         /* Open input image in order to read its primary header. */
         if (LoadHdr (input, &phdr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
+            trlmessage("Skipping %s", input);
             continue;
         }
 
@@ -260,19 +257,16 @@ int main (int argc, char **argv) {
 
         if (MkName (input, isuffix, osuffix, "", output, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
+            trlerror("Skipping %s", input);
             continue;
         }
 
         /* Calibrate the current input file. */
         if (ACSccd (input, output, &ccd_sw, &refnames, printtime, verbose)) {
-            sprintf (MsgText, "Error processing %s.", input);
-            trlerror (MsgText);
+            trlerror("Error processing %s.", input);
             WhichError (status);
         }
     }
-
 
     freeOnExit(&ptrReg);
 

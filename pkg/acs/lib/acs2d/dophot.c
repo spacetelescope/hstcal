@@ -66,8 +66,7 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
    lower case for use in synphot. */
   Phot2Obs(photmode,obsmode);
   if (acs2d->verbose){
-    sprintf(MsgText,"Created SYNPHOT obsmode of: %s",obsmode);
-    trlmessage(MsgText);
+    trlmessage("Created SYNPHOT obsmode of: %s",obsmode);
   }
 
   /* Initialize PhotPar struct */
@@ -80,8 +79,7 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
   }
 
   if (acs2d->verbose){
-    sprintf(MsgText,"Computed PHOTFLAM value of %g",obs.photflam);
-    trlmessage(MsgText);
+    trlmessage("Computed PHOTFLAM value of %g",obs.photflam);
   }
 
   /* Update the photometry keyword values in the SCI header.

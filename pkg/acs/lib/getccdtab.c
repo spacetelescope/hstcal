@@ -172,8 +172,7 @@ int     dimy      i: number of lines in exposure
 			tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip))
 		    return (status);
 		if (acs->ccdpar.goodPedigree == DUMMY_PEDIGREE) {
-		    sprintf (MsgText, "Row %d of CCDTAB is DUMMY.", row);
-			trlwarn (MsgText);
+		    trlwarn("Row %d of CCDTAB is DUMMY.", row);
 		}
       
         /* Read the overhead time (s) for post-flashed and unflashed observations */
@@ -206,13 +205,11 @@ int     dimy      i: number of lines in exposure
 	}
 
 	if (!foundit) {
-	    sprintf (MsgText, "Matching row not found in CCDTAB `%s'.", acs->ccdpar.name);
-	    trlerror (MsgText);
-		sprintf (MsgText, "CCDAMP %s, CCDGAIN %4.1f, CCDOFFST %d,%d,%d,%d.",
-		acs->ccdamp, acs->ccdgain, acs->ccdoffset[0], acs->ccdoffset[1],
-		acs->ccdoffset[2], acs->ccdoffset[3]);
-		trlerror (MsgText);
-		
+	    trlerror("Matching row not found in CCDTAB `%s'.", acs->ccdpar.name);
+		trlerror("CCDAMP %s, CCDGAIN %4.1f, CCDOFFST %d,%d,%d,%d.",
+			acs->ccdamp, acs->ccdgain, acs->ccdoffset[0], acs->ccdoffset[1],
+			acs->ccdoffset[2], acs->ccdoffset[3]);
+
 	    CloseCCDTab (&tabinfo);
 	    return (status = TABLE_ERROR);
 	}
@@ -265,8 +262,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    sprintf (MsgText, "CCDTAB `%s' not found.", tname);
-	    trlerror (MsgText);
+	    trlerror("CCDTAB `%s' not found.", tname);
 		return (status = OPEN_FAILED);
 	}
 
@@ -374,15 +370,12 @@ IRAFPointer tp		i: pointer to table, close it if necessary
 	int j;
 	/* If any columns are missing... */
 	if (missing) {
- 	    sprintf (MsgText,"%d columns not found in %s.", missing, tabname);
-		trlerror (MsgText);
-       
+ 	    trlerror("%d columns not found in %s.", missing, tabname);
 		for (j=0; j< numcols; j++) {
 			/* Recall which ones were marked missing... */
 			if (nocol[j]) {
 				/*... and print out that column's name */
-	    		sprintf (MsgText,"Column %s not found in %s.", colnames[j], tabname);
-				trlerror (MsgText);
+	    		trlerror("Column %s not found in %s.", colnames[j], tabname);
 			}
 		}
 	    c_tbtclo (tp);

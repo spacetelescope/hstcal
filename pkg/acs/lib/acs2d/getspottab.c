@@ -106,8 +106,7 @@ static int OpenSpotTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    sprintf (MsgText, "SPOTTAB `%s' not found.", tname);
-	    trlerror (MsgText);
+	    trlerror("SPOTTAB `%s' not found.", tname);
 		return (status = OPEN_FAILED);
 	}
 

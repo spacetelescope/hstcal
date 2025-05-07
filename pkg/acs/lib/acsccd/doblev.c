@@ -104,7 +104,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
 
   if ((binx != 1 && binx != 2 && binx != 4) ||
 	    (biny != 1 && biny != 2 && biny != 4)) {
-    trlerror ("(doBlev) bin size must be 1, 2, or 4.");
+    trlerror("(doBlev) bin size must be 1, 2, or 4.");
     free (ccdamp);
     return (status = 1001);
   }
@@ -132,9 +132,8 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   if (*overscan != YES) {
     /* If no overscan region, subtract default BIAS level
      obtained from CCDTAB. */
-    trlwarn ("Overscan region is too small to do BLEVCORR; ");
-    sprintf (MsgText,"     bias from CCDTAB of %g will be subtracted.",ccdbias);
-    trlmessage(MsgText);
+    trlwarn("Overscan region is too small to do BLEVCORR;");
+    trlmessage("     bias from CCDTAB of %g will be subtracted.",ccdbias);
 
     for (j = 0;  j < x->sci.data.ny;  j++) {
       for (i = 0;  i < x->sci.data.nx;  i++)
@@ -176,8 +175,8 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   /* If the end points of vx and vy are zero, no section was specified */
   if (acs->vy[0] <= 0 && acs->vy[1] <= 0 ){
     dodrift = NO;
-    trlmessage ("(blevcorr) No virtual overscan region specified.");
-    trlmessage ("(blevcorr) Bias drift correction will not be applied.");
+    trlmessage("(blevcorr) No virtual overscan region specified.");
+    trlmessage("(blevcorr) Bias drift correction will not be applied.");
   }
 
   sumblev = 0.;
@@ -371,10 +370,8 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
       biasvals[j] = biaslevel;
       biasmask[j] = 1;
       if (j == 0) {
-          sprintf (MsgText,
-              "(FitToOverscan) biassecta=(%d,%d) biassectb=(%d,%d) npix=%d",
+          trlmessage("(FitToOverscan) biassecta=(%d,%d) biassectb=(%d,%d) npix=%d",
               biassect[0], biassect[1], biassect[2], biassect[3], npix);
-          trlmessage(MsgText);
       }
     }
 	}
@@ -397,19 +394,19 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
   }
 
 	if (too_few > 0) {
-    sprintf (MsgText, "(blevcorr) %d image line", too_few);
+    trlmessage("(blevcorr) %d image line", too_few);
     if (too_few == 1)
 			strcat (MsgText, " has");
     else
 			strcat (MsgText, "s have");
     strcat (MsgText, " too few usable overscan pixels.");
-		trlwarn (MsgText);
+		trlwarn(MsgText);
 	}
 
 	/* Fit a curve to the bias levels found. */
 	if (BlevFit()) {
-    trlwarn ("No bias level data, or singular fit; ");
-    trlmessage ("            bias from CCDTAB will be subtracted.");
+    trlwarn("No bias level data, or singular fit; ");
+    trlmessage("            bias from CCDTAB will be subtracted.");
     BlevSet (ccdbias);		/* assign the default value */
 	}
 
@@ -484,8 +481,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
     }
   }
 
-  sprintf(MsgText,"(blevcorr) Rejected %d bias values from fit.",nrej);
-  trlmessage(MsgText);
+  trlmessage("(blevcorr) Rejected %d bias values from fit.",nrej);
 }
 
 

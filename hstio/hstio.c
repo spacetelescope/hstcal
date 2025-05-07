@@ -427,11 +427,12 @@ static void ioerr(HSTIOError e, IODescPtr x_, int status) {
         IODesc *x;
         char cfitsio_errmsg[81];
         x = (IODesc *)x_;
-        sprintf(&error_msg[strlen(error_msg)],
+        snprintf(&error_msg[strlen(error_msg)],
+                sizeof(error_msg) - strlen(error_msg),
                 "Filename %s EXTNAME %s EXTVER %d CFITSIO status %d\n",
                 x->filename, x->extname, x->extver, status);
         while (fits_read_errmsg(cfitsio_errmsg)) {
-            strncat(error_msg, cfitsio_errmsg, 80);
+            strncat(error_msg, cfitsio_errmsg, sizeof(error_msg) - strlen(error_msg) - 1);
         }
         error(e,0);
 }
@@ -2050,8 +2051,7 @@ static char *make_iodesc(IODesc **x, char *fname, char *ename, int ever) {
         iodesc->type = 0;
         if (fname == 0) fname = "";
         if (ename == 0) ename = "";
-        iodesc->filename = (char *)calloc(((flen = strlen(fname)) + 1),
-                sizeof(char));
+        iodesc->filename = (char *)calloc(((flen = strlen(fname)) + 1), sizeof(char));
         if (iodesc->filename == NULL) {
             free(iodesc);
             error(NOMEM,"Allocating I/O descriptor");
@@ -2077,13 +2077,14 @@ static char *make_iodesc(IODesc **x, char *fname, char *ename, int ever) {
 
         /* make up the proper filename */
         /* check for a request for the primary HDU */
-        tmp = (char *)calloc((flen + 80),sizeof(char));
+        const size_t flen_new = flen + 80;
+        tmp = (char *)calloc(flen_new,sizeof(char));
         if (tmp == NULL) { error(NOMEM,"Allocating I/O descriptor"); return NULL; }
         strcpy(tmp,fname);
         if (ever == 0 || ename == 0 || ename[0] == '\0' || ename[0] == ' ')
             strcat(tmp,"[0]");
         else
-            sprintf(&tmp[flen],"[%s,%d]",xname,ever);
+            snprintf(&tmp[flen], flen_new, "[%s,%d]",xname,ever);
 
         *x = iodesc;
         return tmp;

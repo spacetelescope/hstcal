@@ -29,15 +29,14 @@ int getCTE_NAME(char * filename, char * cteName, int cteNameBufferLength)
 
     if (LoadHdr(filename, &hdr))
     {
-        sprintf(MsgText,"(pctecorr) Error loading header from %s",filename);
-        trlerror(MsgText);
+        trlerror("(pctecorr) Error loading header from %s",filename);
         return (status = OPEN_FAILED);
     }
 
     /* GET CTE_NAME KEYWORD */
     if (GetKeyStr(&hdr, "CTE_NAME", USE_DEFAULT, "", cteName, cteNameBufferLength))
     {
-        cteerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
+        trlerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
         return KEYWORD_MISSING;//NOTE: DO NOT update status, this is the callers responsibility
     }
 
@@ -74,7 +73,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   const char *amp_keys[NAMPS] = {"AMPA","AMPB","AMPC","AMPD"};
 
   /* variable for filename + extension number. */
-  char filename_wext[strlen(filename) + 4];
+  char filename_wext[CHAR_FNAME_LENGTH] = {0};
 
   /* iteration variable */
   int j, k, l;
@@ -96,8 +95,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
 
   /* load primary header */
   if (LoadHdr(filename, &hdr_ptr)) {
-    sprintf(MsgText,"(pctecorr) Error loading header from %s",filename);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error loading header from %s",filename);
     status = OPEN_FAILED;
     return status;
   }
@@ -151,13 +149,12 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /****************************************************************************/
   /* read DTDE/Q data from first table extensions */
   /* make filename + ext number 1 */
-  sprintf(filename_wext, "%s[%i]", filename, 1);
+  snprintf(filename_wext, sizeof(filename_wext), "%s[%i]", filename, 1);
 
   /* open CTE parameters file to extension number 1 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
   if (c_iraferr()) {
-    sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error opening %s with xtables",filename_wext);
     status = OPEN_FAILED;
     return status;
   }
@@ -166,8 +163,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /* get column pointer for dtde */
   c_tbcfnd1(tbl_ptr, dtde, &col_ptr_dtde);
   if (c_iraferr() || col_ptr_dtde == 0) {
-    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",dtde);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error getting column %s of PCTETAB",dtde);
     status = COLUMN_NOT_FOUND;
     return status;
   }
@@ -175,8 +171,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /* get column pointer for q_dtde */
   c_tbcfnd1(tbl_ptr, qdtde, &col_ptr_qdtde);
   if (c_iraferr() || col_ptr_qdtde == 0) {
-    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",qdtde);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error getting column %s of PCTETAB",qdtde);
     status = COLUMN_NOT_FOUND;
     return status;
   }
@@ -186,8 +181,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
     /* get dtde from this row */
     c_tbegtd(tbl_ptr, col_ptr_dtde, j+1, &pars->dtde_l[j]);
     if (c_iraferr()) {
-      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dtde);
-      trlerror(MsgText);
+      trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dtde);
       status = TABLE_ERROR;
       return status;
     }
@@ -195,8 +189,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
     /* get q_dtde from this row */
     c_tbegti(tbl_ptr, col_ptr_qdtde, j+1, &pars->q_dtde[j]);
     if (c_iraferr()) {
-      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qdtde);
-      trlerror(MsgText);
+      trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qdtde);
       status = TABLE_ERROR;
       return status;
     }
@@ -210,13 +203,12 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /****************************************************************************/
   /* read LEVEL data from second table extension */
   /* make filename + ext number 2 */
-  sprintf(filename_wext, "%s[%i]", filename, 2);
+  snprintf(filename_wext, sizeof(filename_wext), "%s[%i]", filename, 2);
 
   /* open CTE parameters file to extension number 3 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
   if (c_iraferr()) {
-    sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error opening %s with xtables",filename_wext);
     status = OPEN_FAILED;
     return status;
   }
@@ -225,8 +217,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /* get column pointer for level */
   c_tbcfnd1(tbl_ptr, level, &col_ptr_levs);
   if (c_iraferr() || col_ptr_levs == 0) {
-    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",level);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error getting column %s of PCTETAB",level);
     status = COLUMN_NOT_FOUND;
     return status;
   }
@@ -236,8 +227,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
     /* get level from this row */
     c_tbegti(tbl_ptr, col_ptr_levs, j+1, &pars->levels[j]);
     if (c_iraferr()) {
-      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, level);
-      trlerror(MsgText);
+      trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, level);
       status = TABLE_ERROR;
       return status;
     }
@@ -251,13 +241,12 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /****************************************************************************/
   /* read MJD/SCALE data from third table extension */
   /* make filename + ext number 3 */
-  sprintf(filename_wext, "%s[%i]", filename, 3);
+  snprintf(filename_wext, sizeof(filename_wext), "%s[%i]", filename, 3);
 
   /* open CTE parameters file to extension number 3 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
   if (c_iraferr()) {
-    sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error opening %s with xtables",filename_wext);
     status = OPEN_FAILED;
     return status;
   }
@@ -266,8 +255,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /* get column pointer for the MJD points */
   c_tbcfnd1(tbl_ptr, mjdstr, &col_ptr_psin);
   if (c_iraferr() || col_ptr_psin == 0) {
-    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",mjdstr);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error getting column %s of PCTETAB",mjdstr);
     status = COLUMN_NOT_FOUND;
     return status;
   }
@@ -275,8 +263,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /* get column pointer for CTE scale */
   c_tbcfnd1(tbl_ptr, scalestr, &col_ptr_logq);
   if (c_iraferr() || col_ptr_logq == 0) {
-    sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",scalestr);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error getting column %s of PCTETAB",scalestr);
     status = COLUMN_NOT_FOUND;
     return status;
   }
@@ -286,8 +273,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
     /* get the MJD value */
     c_tbegtd(tbl_ptr, col_ptr_psin, j+1, &scalemjd[j]);
     if (c_iraferr()) {
-      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, mjdstr);
-      trlerror(MsgText);
+      trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, mjdstr);
       status = TABLE_ERROR;
       return status;
     }
@@ -295,9 +281,8 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
     /* read this scale value */
     c_tbegtd(tbl_ptr, col_ptr_logq, j+1, &scaleval[j]);
     if (c_iraferr()) {
-      sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",
+      trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",
               j+1, scalestr);
-      trlerror(MsgText);
       status = TABLE_ERROR;
       return status;
     }
@@ -315,13 +300,12 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   /****************************************************************************/
   /* read column by column scaling from 4th table extension */
   /* make filename + ext number 4 */
-  sprintf(filename_wext, "%s[%i]", filename, 4);
+  snprintf(filename_wext, sizeof(filename_wext), "%s[%i]", filename, 4);
 
   /* open CTE parameters file to extension number 4 */
   tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
   if (c_iraferr()) {
-    sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-    trlerror(MsgText);
+    trlerror("(pctecorr) Error opening %s with xtables",filename_wext);
     status = OPEN_FAILED;
     return status;
   }
@@ -333,8 +317,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
       /* get column pointer for this log q */
       c_tbcfnd1(tbl_ptr, amp_keys[k], &col_ptr_amp);
       if (c_iraferr() || col_ptr_amp == 0) {
-        sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",amp_keys[k]);
-        trlerror(MsgText);
+        trlerror("(pctecorr) Error getting column %s of PCTETAB",amp_keys[k]);
         status = COLUMN_NOT_FOUND;
         return status;
       }
@@ -342,9 +325,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
       /* read this scale value */
       c_tbegtd(tbl_ptr, col_ptr_amp, j+1, &pars->col_scale[j*NAMPS + k]);
       if (c_iraferr()) {
-        sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",
-                j+1, amp_keys[k]);
-        trlerror(MsgText);
+        trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB", j+1, amp_keys[k]);
         status = TABLE_ERROR;
         return status;
       }
@@ -365,13 +346,12 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
 
   for (l = 0; l < nchg_leak; l++) {
     /* make filename + ext number 4 */
-    sprintf(filename_wext, "%s[%i]", filename, l+5);
+    snprintf(filename_wext, sizeof(filename_wext), "%s[%i]", filename, l+5);
 
     /* open CTE parameters file to extension number l+5 */
     tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
-      sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-      trlerror(MsgText);
+      trlerror("(pctecorr) Error opening %s with xtables",filename_wext);
       status = OPEN_FAILED;
       return status;
     }
@@ -385,8 +365,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
       /* get column pointer for the psi nodes */
       c_tbcfnd1(tbl_ptr, node, &col_ptr_psin);
       if (c_iraferr() || col_ptr_psin == 0) {
-        sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",node);
-        trlerror(MsgText);
+        trlerror("(pctecorr) Error getting column %s of PCTETAB",node);
         status = COLUMN_NOT_FOUND;
         return status;
       }
@@ -396,8 +375,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
         /* get the psi node number */
         c_tbegti(tbl_ptr, col_ptr_psin, j+1, &pars->psi_node[j]);
         if (c_iraferr()) {
-          sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, node);
-          trlerror(MsgText);
+          trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, node);
           status = TABLE_ERROR;
           return status;
         }
@@ -407,8 +385,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
           /* get column pointer for this log q */
           c_tbcfnd1(tbl_ptr, logq_keys[k], &col_ptr_logq);
           if (c_iraferr() || col_ptr_logq == 0) {
-            sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",logq_keys[k]);
-            trlerror(MsgText);
+            trlerror("(pctecorr) Error getting column %s of PCTETAB",logq_keys[k]);
             status = COLUMN_NOT_FOUND;
             return status;
           }
@@ -416,9 +393,7 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
           /* read this log q value */
           c_tbegtd(tbl_ptr, col_ptr_logq, j+1, &pars->chg_leak[j*NUM_LOGQ + k]);
           if (c_iraferr()) {
-            sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",
-                    j+1, logq_keys[k]);
-            trlerror(MsgText);
+            trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB", j+1, logq_keys[k]);
             status = TABLE_ERROR;
             return status;
           }

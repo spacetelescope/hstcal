@@ -240,7 +240,9 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         trlmessage (MsgText);
         sprintf (MsgText," propagation threshold = %0.1f", par->thresh);
         trlmessage (MsgText);
-        sprintf (MsgText," scale noise = %0.1f%%", par->scalense);
+        // Double-escape for trlmessage. Direct trlmessage calls don't require double-escaping.
+        // This will be a direct trlmessage call in the future.
+        sprintf (MsgText," scale noise = %0.1f%%%%", par->scalense);
         trlmessage (MsgText);
         sprintf (MsgText," input bad bits value = %d", par->badinpdq);
         trlmessage (MsgText);

@@ -126,10 +126,7 @@ int acsrej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
     /* use the minimum to construct the initial average */
     } else {
         if (strncmp(par->initgues, "minimum", 3) != 0) {
-            sprintf (MsgText,
-                     "Invalid INITGUES value %s, reset it to 'minimum'",
-                     par->initgues);
-            trlwarn (MsgText);
+            trlwarn("Invalid INITGUES value %s, reset it to 'minimum'", par->initgues);
             strcpy (par->initgues, "minimum");
         }
 

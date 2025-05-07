@@ -42,14 +42,12 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	initHdr (&phdr);
 	im = openInputImage (acs->rawfile, "", 0);
 	if (hstio_err()) {
-		sprintf (MsgText, "Member \"%s\" is not present", acs->rawfile);
-		trlerror (MsgText);
+		trlerror("Member \"%s\" is not present", acs->rawfile);
 	    return (status = OPEN_FAILED);
 	}
 	getHeader (im, &phdr);		/* get primary header */
 	if (hstio_err()) {
-		sprintf (MsgText, "Could not open PRIMARY header for \"%s\" ", acs->rawfile);
-		trlerror (MsgText);
+		trlerror("Could not open PRIMARY header for \"%s\"", acs->rawfile);
         return (status = OPEN_FAILED);
     }
 	closeImage (im);
