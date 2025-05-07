@@ -276,7 +276,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         unsigned nScaleTableColumns = N_COLUMNS_FOR_RAZ_CDAB_ALIGNED_IMAGE;
 
         /* Read the parallel CTE parameters */
-        trlmessage("(pctecorr) Collecting data for Correction Type: parallel.");
+        trlmessage("(pctecorr) Collecting data for Correction Type: parallel.\n");
 
         addPtr(&ptrParallelReg, &cteParallelPars, &freeCTEParamsFast);
         initCTEParamsFast(&cteParallelPars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
@@ -329,7 +329,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i\n"
                    "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i\n"
                    "(pctecorr) CTE_FRAC: %f\n\n"
-                   "(pctecorr) NOTE: No serial CTE correction is done for any subarray data.",
+                   "(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n",
                    cteParallelPars.n_forward, cteParallelPars.n_par, cteParallelPars.scale_frac);
         /* End read of the parallel CTE parameters */
 
