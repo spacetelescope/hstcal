@@ -155,15 +155,15 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
        T0      =                60126
        AVGFLASH=          11.76780605
     */
-    if (GetKeyDbl(&hdr_ptr, "SLOPE", USE_DEFAULT, 0.0, &slope)) {
+    if (GetKeyDbl(&hdr_ptr, "SLOPE", NO_DEFAULT, 0.0, &slope)) {
         WhichError (status);
         is_lastflash = false;
     }
-    if (GetKeyDbl(&hdr_ptr, "T0", USE_DEFAULT, 0.0, &t0)) {
+    if (GetKeyDbl(&hdr_ptr, "T0", NO_DEFAULT, 0.0, &t0)) {
         WhichError (status);
         is_lastflash = false;
     }
-    if (GetKeyDbl(&hdr_ptr, "AVGFLASH", USE_DEFAULT, -1.0, &avglastflash)) {
+    if (GetKeyDbl(&hdr_ptr, "AVGFLASH", NO_DEFAULT, -1.0, &avglastflash)) {
         WhichError (status);
         is_lastflash = false;
     }
