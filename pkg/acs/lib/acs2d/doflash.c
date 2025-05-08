@@ -155,19 +155,12 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
        T0      =                60126
        AVGFLASH=          11.76780605
     */
-    if (GetKeyDbl(&hdr_ptr, "SLOPE", NO_DEFAULT, 0.0, &slope)) {
-        WhichError (status);
+    if (GetKeyDbl(&hdr_ptr, "SLOPE", NO_DEFAULT, 0.0, &slope) ||
+            GetKeyDbl(&hdr_ptr, "T0", NO_DEFAULT, 0.0, &t0) ||
+            GetKeyDbl(&hdr_ptr, "AVGFLASH", NO_DEFAULT, -1.0, &avglastflash)) {
+        status = 0;  /* Keep going */
         is_lastflash = false;
-    }
-    if (GetKeyDbl(&hdr_ptr, "T0", NO_DEFAULT, 0.0, &t0)) {
-        WhichError (status);
-        is_lastflash = false;
-    }
-    if (GetKeyDbl(&hdr_ptr, "AVGFLASH", NO_DEFAULT, -1.0, &avglastflash)) {
-        WhichError (status);
-        is_lastflash = false;
-    }
-    if (is_lastflash) {
+    } else {
         s_lastflash = (float)((slope * (acs2d->expstart - t0)) / avglastflash + 1.0);
     }
 
@@ -175,6 +168,8 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
         trlmessage("Performing post-flash subtraction on chip %d in imset %d", acs2d->chip, extver);
         if (is_lastflash) {
             trlmessage("Linear decrease over time scaling for post-flash: %e", s_lastflash);
+        } else {
+            trlmessage("Linear decrease over time scaling for post-flash: SKIPPED");
         }
     }
 
