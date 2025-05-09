@@ -24,8 +24,7 @@ int GetCTESwitch (WF3Info *wf3, Hdr *phdr){
      
     key = findKw (phdr, "PCTECORR");
     if (key == NotFound) {
-        sprintf(MsgText, "PCTECORR keyword not found...");
-        trlwarn(MsgText);
+        trlwarn("PCTECORR keyword not found...");
     }
     if (GetSw(phdr, "PCTECORR", &wf3->pctecorr))
         return (status);
@@ -33,8 +32,7 @@ int GetCTESwitch (WF3Info *wf3, Hdr *phdr){
     
     key = findKw (phdr, "BIASCORR");
     if (key == NotFound) {
-        sprintf(MsgText, "BIASCORR keyword not found...");
-        trlwarn(MsgText);
+        trlwarn("BIASCORR keyword not found...");
     }
     if (GetSw (phdr, "BIASCORR", &wf3->biascorr))
         return (status);

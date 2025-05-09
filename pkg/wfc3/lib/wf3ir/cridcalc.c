@@ -266,25 +266,14 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
 
         /* Print info to processing log */
         if (wf3->samp_rej > 0) {
-            sprintf (MsgText, "CRIDCALC using %g sigma rejection threshold",
-                    wf3->crthresh);
-            trlmessage (MsgText);
-            sprintf (MsgText, "               %d bad DQ mask", DQIGNORE);
-            trlmessage (MsgText);
-            sprintf (MsgText, "               %d max CRs for UNSTABLE",max_CRs);
-            trlmessage (MsgText);
-            sprintf (MsgText,
-                    "         and rejecting first %d samples for all pixels",
-                    wf3->samp_rej);
-            trlmessage (MsgText);
+            trlmessage("CRIDCALC using %g sigma rejection threshold", wf3->crthresh);
+            trlmessage("               %d bad DQ mask", DQIGNORE);
+            trlmessage("               %d max CRs for UNSTABLE",max_CRs);
+            trlmessage("         and rejecting first %d samples for all pixels", wf3->samp_rej);
         } else {
-            sprintf (MsgText, "CRIDCALC using %g sigma rejection threshold",
-                    wf3->crthresh);
-            trlmessage (MsgText);
-            sprintf (MsgText, "               %d bad DQ mask", DQIGNORE);
-            trlmessage (MsgText);
-            sprintf (MsgText, "               %d max CRs for UNSTABLE",max_CRs);
-            trlmessage (MsgText);
+            trlmessage("CRIDCALC using %g sigma rejection threshold", wf3->crthresh);
+            trlmessage("               %d bad DQ mask", DQIGNORE);
+            trlmessage("               %d max CRs for UNSTABLE",max_CRs);
         }
         ncurved = 0;
 
@@ -451,8 +440,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
         } /* end of loop over ny */
 
         if (ncurved > 0) {
-            sprintf (MsgText, "%d pixels detected as unstable", ncurved);
-            trlmessage (MsgText);
+            trlmessage("%d pixels detected as unstable", ncurved);
         }
 
         /* Free memory allocated locally */

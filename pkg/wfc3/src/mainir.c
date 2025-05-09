@@ -229,18 +229,15 @@ int main (int argc, char **argv) {
 
 	        if (MkName (input, isuffix, osuffix, "", output, CHAR_LINE_LENGTH)) {
 		        WhichError (status);
-		        sprintf (MsgText, "Skipping %s", input);
-		        trlmessage (MsgText);
+		        trlmessage("Skipping %s", input);
 		        continue;
 	        }
         }
 
 	    /* Calibrate the current input file. */
-	    if (WF3ir (input, output, &ir_sw, &refnames, printtime, verbose,
-		       0.0, 0.0, 0)){
-		sprintf (MsgText, "Error processing %s.", input);
-		trlerror (MsgText);
-		WhichError (status);
+	    if (WF3ir (input, output, &ir_sw, &refnames, printtime, verbose, 0.0, 0.0, 0)){
+			trlerror("Error processing %s.", input);
+			WhichError (status);
 	    }
 	}
 

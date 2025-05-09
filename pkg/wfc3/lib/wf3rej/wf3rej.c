@@ -68,8 +68,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
     initHdr (&phdr);
     if (LoadHdr (in_name, &phdr)) {
-        sprintf (MsgText, "Could not load header from %s", in_name);
-        trlerror (MsgText);
+        trlerror("Could not load header from %s", in_name);
         return (status=ERROR_RETURN);
     }
     if (GetKeyStr (&phdr, "DETECTOR", NO_DEFAULT, "", det, SZ_CBUF)) {
@@ -85,8 +84,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     } else if (strcmp (det, "UVIS") == 0) {
         wf3.detector = CCD_DETECTOR;
     } else {
-        sprintf (MsgText, "DETECTOR = %s is unknown.", det);
-        trlwarn (MsgText);
+        trlwarn("DETECTOR = %s is unknown.", det);
         wf3.detector = UNKNOWN_DETECTOR;
     }
     
@@ -112,12 +110,10 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     flag = ckNewFile (output);
     if (flag > 0) {
         if (flag == 1) {
-            sprintf (MsgText, "Output file `%s' already exists.", output);
-            trlerror (MsgText);
+            trlerror("Output file `%s' already exists.", output);
             return (status = ERROR_RETURN);
         } else {
-            sprintf (MsgText, "Can't clobber `%s'.", output);
-            trlerror (MsgText);
+            trlerror("Can't clobber `%s'.", output);
             return (status = ERROR_RETURN);
         }
     }
@@ -125,7 +121,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     /* Open the input file template */
     tpin = c_imtopen (in_list);
 
-    trlmessage ("\n");
+    trlmessage("\n");
     if (wf3.detector == IR_DETECTOR)
         PrSwitch ("rptcorr", PERFORM);
     else
@@ -133,7 +129,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
 
     /* Perform the calculation */
     if (rej_do (tpin, output, mtype, par, newpar, wf3.detector)) {
-        trlmessage ("Did NOT create WF3REJ product. Trying to build SPT...");
+        trlmessage("Did NOT create WF3REJ product. Trying to build SPT...");
         /* We always want to try to create a new SPT file */
         old_status = status;
         status = WF3_OK;
@@ -166,7 +162,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     /* Close file template */
     c_imtclose (tpin);
 
-    trlmessage ("\n");
+    trlmessage("\n");
     PrEnd ("WF3REJ");
 
     if (par->printtime)
@@ -226,14 +222,12 @@ int InitRejTrl (char *input, char *output) {
         /* Start by stripping off suffix from input/output filenames */
         if (MkOutName (in_name, isuffix, trlsuffix, nsuffix , out_name, CHAR_FNAME_LENGTH)) {
 	        WhichError (status);
-	        sprintf (MsgText, "Couldn't determine trailer filename for %s",in_name);
-	        trlmessage (MsgText);
+	        trlmessage("Couldn't determine trailer filename for %s",in_name);
         }
 
         if (MkNewExtn (out_name,TRL_EXTN)){   
  	        WhichError (status);
-	        sprintf (MsgText, "Couldn't create trailer filename for %s",out_name);
-	        trlmessage (MsgText);
+	        trlmessage("Couldn't create trailer filename for %s",out_name);
 	    }
                 
         /* Append each filename to create list of input trailer files */
@@ -245,12 +239,11 @@ int InitRejTrl (char *input, char *output) {
     
     if (MkOutName(output,isuffix,trlsuffix,nsuffix,trl_out,CHAR_FNAME_LENGTH)){
         WhichError(status);
-        sprintf(MsgText,"Couldn't create trailer filename for %s",output);
+        trlerror("Couldn't create trailer filename for %s",output);
     }
     if (MkNewExtn (trl_out,TRL_EXTN)){   
  	    WhichError (status);
-	    sprintf (MsgText, "Couldn't create trailer filename for %s",out_name);
-	    trlmessage (MsgText);
+	    trlerror("Couldn't create trailer filename for %s",out_name);
 	}
 
     /* Sets up temp trailer file for output and copies input

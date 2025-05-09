@@ -64,7 +64,7 @@ int ImgPedigree (RefImage *ref) {
 	} else {
 	    getStringKw (key, ref->pedigree, SZ_FITS_REC);
 	    if (hstio_err()) {
-		trlerror ("Trying to get PEDIGREE.");
+		trlerror("Trying to get PEDIGREE.");
 		return (status = HEADER_PROBLEM);
 	    }
 	}
@@ -75,7 +75,7 @@ int ImgPedigree (RefImage *ref) {
 	} else {
 	    getStringKw (key, ref->descrip, SZ_FITS_REC);
 	    if (hstio_err()) {
-		trlerror ("Trying to get DESCRIP.");
+		trlerror("Trying to get DESCRIP.");
 		return (status = HEADER_PROBLEM);
 	    }
 	}
@@ -93,7 +93,7 @@ int ImgPedigree (RefImage *ref) {
 	} else {
 	    getStringKw (key, ref->type, SZ_FITS_REC);
 	    if (hstio_err()) {
-		trlerror ("Trying to get FILETYPE.");
+		trlerror("Trying to get FILETYPE.");
 		return (status = HEADER_PROBLEM);
 	    }
 	}

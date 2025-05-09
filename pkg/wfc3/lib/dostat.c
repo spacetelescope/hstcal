@@ -114,16 +114,16 @@ short sdqflags     i: "serious" data quality flags
 	} else {
 	    area = dimy * dimx;
 	    if (area == 0) {
-		trlwarn ("Output image size is zero.");
+		trlwarn("Output image size is zero.");
 	    } else if (num_bad_stddev > 0) {
 		if (num_bad_stddev == area) {
-		    trlwarn ("No ERR values > 0.");
+		    trlwarn("No ERR values > 0.");
 		} else {
 		    trlwarn 
 		       ("All output pixels either flagged as bad or ERR <= 0.");
 		}
 	    } else {
-		trlwarn ("All output pixels flagged as bad.");
+		trlwarn("All output pixels flagged as bad.");
 	    }
 	    PutKeyInt (&out->sci.hdr, "NGOODPIX", numgood, "");
 	    PutKeyInt (&out->err.hdr, "NGOODPIX", numgood, "");
