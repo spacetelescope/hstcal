@@ -78,7 +78,6 @@ int AcsSum (char *input, char *output, char *mtype, int printtime, int verbose)
     void         PrFileName (char *, char *);
     void         PrHdrInfo (char *, char *, char *, char *);
     int          MkName (char *, char *, char *, char *, char *, int);
-    void         WhichError (int);
     void         InitSumTrl (char *input, char *output);
     void         FindAsnRoot (char *, char *);
     int          mkNewSpt (char *, char *, char *);
