@@ -411,7 +411,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/****************************************************************************/
 	/*  extension 3: differential trail profile as image */
-	ctemessage("Reading in image from extension 3");
+	trlmessage("Reading in image from extension 3");
 
 	/* Get the coefficient images from the PCTETAB */
 	pars->rprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
@@ -427,7 +427,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/****************************************************************************/
 	/* ext number 4 : cummulative trail profile as image */
-	ctemessage("Reading in image from extension 4");
+	trlerror("Reading in image from extension 4");
 
 	pars->cprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->cprof == NULL){
