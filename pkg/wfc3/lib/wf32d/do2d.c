@@ -359,7 +359,7 @@ int extver       i: "imset" number, the current set of extensions
 	if (hstio_err()) {
 	    sprintf (MsgText, "Couldn't write imset %d.", extver);
 	    trlerror (MsgText);
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	}
 	if (wf32d->printtime)
 	    TimeStamp ("Output written to disk", wf32d->rootname);
