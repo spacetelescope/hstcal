@@ -66,7 +66,6 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
     int amp_ybeg, amp_yend;
 
     /* functions from calacs/lib */
-    void TimeStamp (char *message, char *rootname);
     int PutKeyDbl (Hdr *hd, char *keyword, double value, char *comment);
 
     if (acs->printtime) {

@@ -125,7 +125,6 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     void    UExpname (char *, Hdr *);
     int     LoadHdr (char *, Hdr *);
     void    UpperAll (char *, char *, int);
-    void    TimeStamp (char *, char *);
     void    WhichError (int);
     void    PrSwitch (char *, int);
     void    FindAsnRoot (char *, char *);
