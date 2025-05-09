@@ -301,8 +301,7 @@ int GetTabRef (RefFileInfo *refnames, Hdr *phdr,
 
 void MissingFile (char *keyword, char *filename, int *missing) {
 
-	sprintf (MsgText, "%s '%s' not found or cannot be opened.", keyword, filename);
-	trlerror (MsgText);
+	trlerror("%s '%s' not found or cannot be opened.", keyword, filename);
 	(*missing)++;
 }
 
@@ -310,9 +309,7 @@ void MissingFile (char *keyword, char *filename, int *missing) {
 void CheckImgType (RefImage *image, char *filetype, char *keyword, int *badtype) {
 
 	if (strncmp (image->type, filetype, strlen(filetype)) != 0) {
-	    sprintf (MsgText, "%s FILETYPE='%s' is invalid for %s", 
-		     image->name, image->type, keyword);
-	    trlerror (MsgText);
+	    trlerror("%s FILETYPE='%s' is invalid for %s", image->name, image->type, keyword);
 	    (*badtype)++;
 	}
 }
@@ -321,9 +318,7 @@ void CheckImgType (RefImage *image, char *filetype, char *keyword, int *badtype)
 void CheckTabType (RefTab *table, char *filetype, char *keyword, int *badtype) {
 
 	if (strncmp (table->type, filetype, strlen(filetype)) != 0) {
-	    sprintf (MsgText, "%s FILETYPE='%s' is invalid for %s", 
-		     table->name, table->type, keyword);
-	    trlerror (MsgText);
+	    trlerror("%s FILETYPE='%s' is invalid for %s", table->name, table->type, keyword);
 	    (*badtype)++;
 	}
 }
@@ -366,9 +361,7 @@ int CheckFilter (char *image, char *filter, char *keyword, int *badtype) {
 	*/
 	if ((strncmp (keyval, "ANY", strlen(keyval)) != 0) &&
 	    (strncmp (keyval, filter, strlen(keyval)) != 0)) {
-	    sprintf (MsgText, "%s %s='%s' does not match science data",
-		     image, keyword, keyval);
-	    trlerror (MsgText);
+	    trlerror("%s %s='%s' does not match science data", image, keyword, keyval);
 	    (*badtype)++;
 	}
 
@@ -415,16 +408,12 @@ int CheckDetector (char *image, int detector, char *keyword, int *badtype) {
 	/* Does the ref file DETECTOR value match the science image? */
 	if (detector == IR_DETECTOR) {
 	    if (strncmp (keyval, "IR", strlen(keyval)) != 0) {
-		sprintf (MsgText, "%s %s='%s' does not match science data",
-			 image, keyword, keyval);
-		trlerror (MsgText);
+		trlerror("%s %s='%s' does not match science data", image, keyword, keyval);
 		(*badtype)++;
 	    }
 	} else {
 	    if (strncmp (keyval, "UVIS", strlen(keyval)) != 0) {
-		sprintf (MsgText, "%s %s='%s' does not match science data",
-			 image, keyword, keyval);
-		trlerror (MsgText);
+		trlerror("%s %s='%s' does not match science data", image, keyword, keyval);
 		(*badtype)++;
 	    }
 	}
@@ -471,9 +460,7 @@ int CheckGain (char *image, float gain, char *keyword, int *badtype) {
 	/* Does the ref file CCDGAIN value match the science image? */
 	/* A value of -1 is considered to be OK */
 	if ((keyval != -1) && (gain != keyval)) {
-	    sprintf (MsgText, "%s %s=%g does not match science data",
-		     image, keyword, keyval);
-	    trlerror (MsgText);
+	    trlerror("%s %s=%g does not match science data", image, keyword, keyval);
 	    (*badtype)++;
 	}
 

@@ -89,10 +89,7 @@ float *meandark	   o: mean of dark image values subtracted
 	    return (status);	
 	
 	if (wf32d->verbose) {
-	    sprintf (MsgText,
-		     "Performing dark subtraction on chip %d in imset %d",
-		     wf32d->chip, extver);
-	    trlmessage(MsgText);
+	    trlmessage("Performing dark subtraction on chip %d in imset %d", wf32d->chip, extver);
 	}
 
 	/* Get the dark image data. */
@@ -111,14 +108,11 @@ float *meandark	   o: mean of dark image values subtracted
 	if (rx != 1 || ry != 1) {
 	    closeSingleGroupLine (&y);
 	    freeSingleGroupLine (&y);
-	    sprintf (MsgText,
-	    "DARK image and input are not binned to the same pixel size!");
-	    trlerror(MsgText);
+	    trlerror("DARK image and input are not binned to the same pixel size!");
 	    return (status = SIZE_MISMATCH);
 	}
 	if (wf32d->verbose){
-	    sprintf(MsgText,"Image has an offset of %d,%d",x0,y0);
-	    trlmessage(MsgText);
+	    trlmessage("Image has an offset of %d,%d",x0,y0);
 	}
 
 	mean = 0.0;
@@ -148,7 +142,7 @@ float *meandark	   o: mean of dark image values subtracted
              update = NO;
 
 	     if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
-		 trlerror ("(darkcorr) size mismatch.");
+		 trlerror("(darkcorr) size mismatch.");
 		 return (status);
 	     }
 

@@ -240,15 +240,13 @@ int main (int argc, char **argv) {
         
 	    if (MkOutName (input, isuffix, osuffix, nsuffix, output, CHAR_LINE_LENGTH)) {
 	        WhichError (status);
-	        sprintf (MsgText, "Skipping %s", input);
-	        trlmessage (MsgText);
-	        continue;	    
+	        trlmessage("Skipping %s", input);
+	        continue;
         }
 
 	    /* Calibrate the current input file. */
 	    if (WF3ccd (input, output, &ccd_sw, &refnames, printtime, verbose)){
-		    sprintf (MsgText, "Error processing %s.", input);
-		    trlerror (MsgText);
+		    trlerror("Error processing %s.", input);
 		    WhichError (status);
 	    }
 	}

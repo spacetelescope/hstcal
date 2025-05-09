@@ -80,8 +80,7 @@ int getNlinData (WF3Info *wf3, NlinData *nlin) {
 	/* Allocate memory for the file's primary header */
 	nlin->globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
 	if (nlin->globalhdr == NULL) {
-	    sprintf (MsgText, "Can't allocate memory for NLIN ref file header");
-	    trlerror (MsgText);
+	    trlerror("Can't allocate memory for NLIN ref file header");
 	    return (status = 1);
 	}
 
@@ -118,8 +117,7 @@ int getNlinData (WF3Info *wf3, NlinData *nlin) {
 	nlin->zerr  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (nlin->coeff==NULL || nlin->error==NULL || nlin->dqual==NULL ||
 	    nlin->nodes==NULL || nlin->zsci ==NULL || nlin->zerr ==NULL) {
-	    sprintf (MsgText, "Can't allocate memory for NLIN ref data");
-	    trlerror (MsgText);
+	    trlerror("Can't allocate memory for NLIN ref data");
 	    return (status = 1);
 	}
 
@@ -209,9 +207,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		/* Are the pflt and dflt the same size? */
 		if (flat->sci.data.nx != dflt.sci.data.nx ||
 		    flat->sci.data.ny != dflt.sci.data.ny) {
-		    sprintf (MsgText,
-		    "Pixel-to-pixel flat and delta flat are no the same size.");
-		    trlerror (MsgText);
+		    trlerror("Pixel-to-pixel flat and delta flat are no the same size.");
 		    return (status = SIZE_MISMATCH);
 		}
 
@@ -246,8 +242,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		allocSingleNicmosGroup (&dflt, flat->sci.data.nx,
 					flat->sci.data.ny);
 		if (hstio_err()) {
-		    sprintf (MsgText, "Can't allocate memory for FLAT image");
-		    trlerror (MsgText);
+		    trlerror("Can't allocate memory for FLAT image");
 		    return (status = 1);
 		}
 		
@@ -281,8 +276,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		allocSingleNicmosGroup (flat, rx*lflt.sci.data.nx,
 					      ry*lflt.sci.data.ny);
 		if (hstio_err()) {
-		    sprintf (MsgText, "Can't allocate memory for FLAT image");
-		    trlerror (MsgText);
+		    trlerror("Can't allocate memory for FLAT image");
 		    return (status = 1);
 		}
 
@@ -425,10 +419,7 @@ int getDarkImage (WF3Info *wf3, SingleNicmosGroup *dark1, int ngroup) {
 
 	    /* Make sure we found a match */
 	    if (wf3->darkframe1 == 0) {
-		sprintf (MsgText,
-			 "Can't find matching dark time in %s for group %d\n",
-			 wf3->dark.name, ngroup);
-		trlerror (MsgText);
+			trlerror("Can't find matching dark time in %s for group %d\n", wf3->dark.name, ngroup);
 		return (status = 1);
 	    }
 
@@ -613,7 +604,6 @@ void freeNlinData (NlinData *nlin) {
 
 void checkKeyI (char *filename, Hdr *header, char *keyword, int scival,
 	       int severity) {
-
 	/* Local variables */
 	int keyval;
 
@@ -621,19 +611,19 @@ void checkKeyI (char *filename, Hdr *header, char *keyword, int scival,
 
 	/* Read the keyword from the ref file */
 	if (getKeyI (header, keyword, &keyval)) {
-	    trlkwerr (keyword, filename);
-	    status = 1;
-	    return;
+		trlkwerr (keyword, filename);
+		status = 1;
+		return;
 	}
 
 	/* Does it match the science image value? */
 	if (keyval != scival) {
-	    sprintf (MsgText, "%s %s=%d does not match science data",
-		     filename, keyword, keyval);
-	    if (severity == FATAL) {
-		trlerror (MsgText);
-	    } else
-		trlwarn  (MsgText);
+		const char *fmt = "%s %s=%d does not match science data";
+		if (severity == FATAL) {
+			trlerror(fmt, filename, keyword, keyval);
+		} else {
+			trlwarn(fmt, filename, keyword, keyval);
+		}
 	}
 }
 
@@ -654,13 +644,13 @@ void checkKeyS (char *filename, Hdr *header, char *keyword, char *scival,
 
 	/* Does it match the science image value? */
 	if (strncmp (keyval, scival, strlen(keyval)) != 0) {
-	    sprintf (MsgText, "%s %s=\"%s\" does not match science data",
-		     filename, keyword, keyval);
+		const char *fmt = "%s %s=\"%s\" does not match science data";
 	    if (severity == FATAL) {
-		trlerror (MsgText);
-		status = 1;
-	    } else
-		trlwarn  (MsgText);
+			trlerror(fmt, filename, keyword, keyval);
+			status = 1;
+	    } else {
+		    trlwarn(fmt, filename, keyword, keyval);
+	    }
 	}
 }
 
@@ -690,7 +680,7 @@ int RebinRef (SingleNicmosGroup *in, SingleNicmosGroup *ref, int avg) {
 	    initSingleNicmosGroup (&z);
 	    allocSingleNicmosGroup (&z, in->sci.data.nx, in->sci.data.ny);
 	    if ( (status = bin2d_ir (ref, x0, y0, rx, ry, avg, &z))) {
-		trlerror ("Reference image size mismatch.");
+		trlerror("Reference image size mismatch.");
 		return (status);
 	    }
 	    freeSingleNicmosGroup (ref);
@@ -777,8 +767,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
         tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
         if (c_iraferr() != 0) {
-            sprintf (MsgText,"CRREJTAB table '%s' does not exist", par->tbname);
-            trlerror (MsgText);
+            trlerror("CRREJTAB table '%s' does not exist", par->tbname);
             return (status = TABLE_ERROR);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -786,17 +775,17 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         /* read the columns IRRAMP, CRSPLIT and MEANEXP */
         c_tbcfnd1 (tp, "crsplit", &colptr);
         if (colptr == 0) {
-            trlerror ("column CRSPLIT does not exist in CRREJTAB");
+            trlerror("column CRSPLIT does not exist in CRREJTAB");
             return (status = COLUMN_NOT_FOUND);
         }
         c_tbcfnd1 (tp, "meanexp", &colptr1);
         if (colptr1 == 0) {
-            trlerror ("column MEANEXP does not exist in CRREJTAB\n");
+            trlerror("column MEANEXP does not exist in CRREJTAB\n");
             return (status = COLUMN_NOT_FOUND);
         }
         c_tbcfnd1 (tp, "irramp", &colptr2);
         if (colptr2 == 0) {
-            trlerror ("column IRRAMP does not exist in CRREJTAB");
+            trlerror("column IRRAMP does not exist in CRREJTAB");
             return (status = COLUMN_NOT_FOUND);
         }
         nmatch = 0;
@@ -829,7 +818,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
             }
         }
         if (nmatch == 0) {
-            trlerror (" No matching CRSPLIT and MEANEXP in CRREJTAB");
+            trlerror(" No matching CRSPLIT and MEANEXP in CRREJTAB");
             return (status = ROW_NOT_FOUND);
         }
 
@@ -837,7 +826,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRSIGMAS] == 0) {
             c_tbcfnd1 (tp, "crsigmas", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRSIGMAS does not exist in CRREJTAB");
+                trlerror("column CRSIGMAS does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtt (tp, colptr, row, par->sigmas, CHAR_LINE_LENGTH);
@@ -847,7 +836,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[SKYSUB] == 0) {
             c_tbcfnd1 (tp, "skysub", &colptr);
             if (colptr == 0) {
-                trlerror ("column SKYSUB does not exist in CRREJTAB");
+                trlerror("column SKYSUB does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtt (tp, colptr, row, par->sky, SZ_FITS_REC);
@@ -857,7 +846,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRRADIUS] == 0) {
             c_tbcfnd1 (tp, "crradius", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRRADIUS does not exist in CRREJTAB");
+                trlerror("column CRRADIUS does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtr (tp, colptr, row, &par->radius);
@@ -865,7 +854,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRTHRESH] == 0) {
             c_tbcfnd1 (tp, "crthresh", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRTHRESH does not exist in CRREJTAB");
+                trlerror("column CRTHRESH does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtr (tp, colptr, row, &par->thresh);
@@ -875,7 +864,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[INITGUES] == 0) {
             c_tbcfnd1 (tp, "initgues", &colptr);
             if (colptr == 0) {
-                trlerror ("column INITGUES does not exist in CRREJTAB");
+                trlerror("column INITGUES does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtt (tp, colptr, row, par->initgues, SZ_FITS_REC);
@@ -885,7 +874,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[SCALENSE] == 0) {
             c_tbcfnd1 (tp, "scalense", &colptr);
             if (colptr == 0) {
-                trlerror ("column SCALENSE does not exist in CRREJTAB");
+                trlerror("column SCALENSE does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtr (tp, colptr, row, &par->scalense);
@@ -894,7 +883,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[BADINPDQ] == 0) {
             c_tbcfnd1 (tp, "badinpdq", &colptr);
             if (colptr == 0) {
-                trlerror ("column BADINPDQ does not exist in CRREJTAB");
+                trlerror("column BADINPDQ does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegts (tp, colptr, row, &par->badinpdq);
@@ -903,7 +892,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRMASK] == 0) {
             c_tbcfnd1 (tp, "crmask", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRMASK does not exist in CRREJTAB");
+                trlerror("column CRMASK does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegti (tp, colptr, row, &par->mask);
@@ -921,12 +910,11 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         return (status);
     }
     if (*niter > MAX_ITER) {
-        sprintf (MsgText,"No more than %d iterations permitted.", MAX_ITER);
-        trlerror (MsgText);
+        trlerror("No more than %d iterations permitted.", MAX_ITER);
         return (status = ERROR_RETURN);
     }
     if (*niter <= 0) {
-        trlerror ("Number of iterations is ZERO.");
+        trlerror("Number of iterations is ZERO.");
         return (status = ERROR_RETURN);
     }
 
@@ -936,30 +924,20 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
     /* print out which parameter are used */
     if (par->verbose) {
-        sprintf (MsgText,"\n number of samples = %d", nimgs);
-        trlmessage (MsgText);
-        sprintf (MsgText," CRREJ ref table used: %s", par->tbname);
-        trlmessage (MsgText);
+        trlmessage("\n number of samples = %d", nimgs);
+        trlmessage(" CRREJ ref table used: %s", par->tbname);
 /*
-        sprintf (MsgText," initial guess method: %s", par->initgues);
-        trlmessage (MsgText);
+        trlmessage(" initial guess method: %s", par->initgues);
 */
-        sprintf (MsgText," total exposure time = %0.1f", exptot);
-        trlmessage (MsgText);
-        sprintf (MsgText," sigmas used: %s", par->sigmas);
-        trlmessage (MsgText);
+        trlmessage(" total exposure time = %0.1f", exptot);
+        trlmessage(" sigmas used: %s", par->sigmas);
 /*
-        sprintf (MsgText," sky subtraction used: %s", par->sky);
-        trlmessage (MsgText);
-        sprintf (MsgText," rejection radius = %0.1f", par->radius);
-        trlmessage (MsgText);
-        sprintf (MsgText," propagation threshold = %0.1f", par->thresh);
-        trlmessage (MsgText);
-        sprintf (MsgText," scale noise = %0.1f%%", par->scalense);
-        trlmessage (MsgText);
+        trlmessage(" sky subtraction used: %s", par->sky);
+        trlmessage(" rejection radius = %0.1f", par->radius);
+        trlmessage(" propagation threshold = %0.1f", par->thresh);
+        trlmessage(" scale noise = %0.1f%%", par->scalense);
 */
-        sprintf (MsgText," input bad bits value = %d", par->badinpdq);
-        trlmessage (MsgText);
+        trlmessage(" input bad bits value = %d", par->badinpdq);
     }
     return (status);
 }
@@ -1007,8 +985,7 @@ static int strtor (char *str, float arr[]) {
             rval = strtod(tmp, (char **)NULL);
             
             if (!rval && (ip-ipx) != 0) {
-                sprintf (MsgText, "illegal input string '%s'", str);
-                trlerror (MsgText);
+                trlerror("illegal input string '%s'", str);
                 status = INVALID_VALUE;
                 return (0);
             }

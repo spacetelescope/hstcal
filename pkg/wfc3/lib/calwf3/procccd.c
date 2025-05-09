@@ -2,7 +2,7 @@
 # include <stdlib.h>	/* calloc */
 # include <string.h>
 
-#include "hstcal.h"
+# include "hstcal.h"
 # include "hstio.h"
 
 # include "wf3.h"
@@ -115,15 +115,13 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     /* LOOP OVER THE PRODUCTS/POSITIONS FOR EACH CR-SPLIT/REPEAT-OBS SET. */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose){
-            sprintf (MsgText, "CALWF3: processing UVIS product %d, spmems is %i, total products is %i", prod,asn->spmems[posid], asn->numprod);
-            trlmessage (MsgText);
+            trlmessage("CALWF3: processing UVIS product %d, spmems is %i, total products is %i", prod,asn->spmems[posid], asn->numprod);
         }
 
         /* PROCESS THIS PARTIAL/SINGLE/FULL PRODUCT... */
         for (posid = 1; posid <= asn->numsp; posid++) {
             if (asn->verbose) {
-                sprintf (MsgText,"CALWF3: processing posid = %d, num sub-products=%i", posid, asn->numsp);
-                trlmessage (MsgText);
+                trlmessage("CALWF3: processing posid = %d, num sub-products=%i", posid, asn->numsp);
             }
 
             /*  Allocate space for WF3REJ NON-CTE input image list */
@@ -222,7 +220,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 SetCCDSw (&sci_sw, &wf3ccd_sci_sw, &wf3cte_sci_sw, &wf32d_sci_sw);
 
                 if (asn->verbose) {
-                    trlmessage ("CALWF3: Processing switches set... ");
+                    trlmessage("CALWF3: Processing switches set... ");
                 }
 
                 /* READY TO PROCESS INPUT IMAGE NOW... */
@@ -357,7 +355,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                 if (wf3hdr->sci_crcorr != PERFORM && wf3hdr->sci_rptcorr != PERFORM) {
                     if (asn->debug) {
-                        trlmessage ("UVIS crcorr/rptcorr not set to Perform...");
+                        trlmessage("UVIS crcorr/rptcorr not set to Perform...");
                     }
 
                     /*DO THIS WITHOUT CTE PERFORM*/
@@ -415,10 +413,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                 /* COSMIC RAY REJECTION, FOLLOWED BY BASIC 2-D PROCESSING. */
                 if (asn->verbose) {
-                    sprintf (MsgText,
-                            "CALWF3: Now processing position %d from product %d",
-                            posid, prod);
-                    trlmessage (MsgText);
+                    trlmessage("CALWF3: Now processing position %d from product %d", posid, prod);
                 }
 
                 /* COPY SWITCH VALUES FOR WF3CCD AND WF32D ARGUMENT LISTS. */
@@ -428,21 +423,9 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                 wf32d_sci_sw.dqicorr = COMPLETE;
 
                 if (asn->debug || asn->verbose) {
-                    sprintf (MsgText,"Non-cte input to WF3REJ is:");
-                    trlmessage (MsgText);
-
-
-                    /* NEED TO ALLOCATE MEMORY FOR A SEPARATE STRING TO
-                     ** BE LONG ENOUGH TO HOLD ALL INPUT NAMES WHEN
-                     ** PRINTING IT OUT. CAUSES PIPELINE PROBLEMS
-                     ** OTHERWISE. HAB 20-JUN-2004 */
-                    wf3rej_msgtext = (char *) calloc(strlen(wf3rej_input)+25,sizeof(char));
-                    sprintf (wf3rej_msgtext, "%s", wf3rej_input);
-                    trlmessage (wf3rej_msgtext);
-                    free (wf3rej_msgtext);
-                    sprintf (MsgText,"Output from WF3REJ is: %s",
-                            wf3hdr->crj_tmp);
-                    trlmessage (MsgText);
+                    trlmessage("Non-cte input to WF3REJ is:");
+                    trlmessage("%s", wf3rej_input);
+                    trlmessage("Output from WF3REJ is: %s", wf3hdr->crj_tmp);
                 }
 
                 /* SET UP THE CORRECT VALUE OF ASN_MTYP FOR WF3REJ
@@ -493,7 +476,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
 
                         wf3rej_msgtext = (char *) calloc(strlen(wf3rej_cte_input)+25,sizeof(char));
                         sprintf (wf3rej_msgtext, "%s", wf3rej_cte_input);
-                        trlmessage (wf3rej_msgtext);
+                        trlmessage(wf3rej_msgtext);
                         free(wf3rej_msgtext);
                     }
 

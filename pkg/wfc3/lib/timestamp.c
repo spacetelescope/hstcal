@@ -45,7 +45,7 @@ char *rootname  i: root name to include in printed string
 	if (lenrootname > 0) {
 	    uc_rootname = (char *) calloc ((lenrootname+1),sizeof (char));
 	    if (uc_rootname == NULL) {
-		trlerror ("(TimeStamp) Out of memory.");
+		trlerror("(TimeStamp) Out of memory.");
 		return;
 	    }
 	    strcpy (uc_rootname, rootname);
@@ -71,7 +71,7 @@ char *rootname  i: root name to include in printed string
 	    MsgText[i] = '-';
 	MsgText[SZ_EIGHTY] = '\0';
 
-	trlmessage ("%s", MsgText);
+	trlmessage("%s", MsgText);
 	
 	if (lenrootname > 0)
 	    free (uc_rootname);

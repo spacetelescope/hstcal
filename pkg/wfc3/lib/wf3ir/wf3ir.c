@@ -145,7 +145,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 
 	/* If we have UVIS data, do not even proceed here... */
 	if (wf3.detector == CCD_DETECTOR) {
-	    trlerror ("Can NOT process UVIS data with WF3IR...");
+	    trlerror("Can NOT process UVIS data with WF3IR...");
 	    freeHdr (&phdr);
 	    return (status = ERROR_RETURN);
 	}
@@ -163,8 +163,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	freeHdr (&phdr);
 
 	/* Load all input data groups */
-	sprintf (MsgText, "Reading data from %s ...", wf3.input);
-	trlmessage (MsgText);
+	trlmessage("Reading data from %s ...", wf3.input);
 	if (getRawData (&wf3, &allinput))
 	    return (status);
 
@@ -174,8 +173,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	    TimeStamp ("Begin processing", wf3.rootname);
 
 	if (verbose) {
-	    sprintf (MsgText, "Processing %d imsets... ",wf3.ngroups);
-	    trlmessage (MsgText);
+	    trlmessage("Processing %d imsets... ",wf3.ngroups);
 	}
 
 	/* Apply the calibration steps */
@@ -185,8 +183,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	}
 
 	/* Write the intermediate calibrated data to the IMA file */
-	sprintf (MsgText, "Writing calibrated readouts to %s", ima_file);
-	trlmessage (MsgText);
+	trlmessage("Writing calibrated readouts to %s", ima_file);
 	if (putMultiCalData (&allinput, ima_file)) {
 	    freeMultiNicmosGroup (&allinput);
 	    freeSingleNicmosGroup (&crimage);
@@ -198,11 +195,8 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	sizey = allinput.group[0].sci.data.ny - (wf3.trimy[0]+wf3.trimy[1]);
 
 	/* Write the final trimmed image data to FLT file */
-	sprintf (MsgText, "Writing final image to %s", flt_file);
-	trlmessage (MsgText);
-	sprintf (MsgText, " with trimx = %d,%d, trimy = %d,%d", wf3.trimx[0],
-		 wf3.trimx[1], wf3.trimy[0], wf3.trimy[1]);
-	trlmessage (MsgText);
+	trlmessage("Writing final image to %s", flt_file);
+	trlmessage(" with trimx = %d,%d, trimy = %d,%d", wf3.trimx[0], wf3.trimx[1], wf3.trimy[0], wf3.trimy[1]);
 
 	if (wf3.crcorr == PERFORM) {
 	    if (putCalDataSect (&crimage, flt_file, wf3.trimx[0],
@@ -224,7 +218,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	/* Free memory for the input data groups */
 	freeMultiNicmosGroup (&allinput);
 
-	trlmessage ("\n");
+	trlmessage("\n");
 	PrEnd ("WF3IR");
 
 	if (wf3.printtime)
@@ -371,16 +365,12 @@ void InitIRTrl (char *input, char *output) {
         /* Start by stripping off suffix from input/output filenames */
         if (MkName (input, isuffix, "", TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Couldn't determine trailer filename for %s",
-                     input);
-            trlmessage (MsgText);
+            trlerror("Couldn't determine trailer filename for %s", input);
         }
 
         if (MkName (output, osuffix, "", TRL_EXTN, trl_out, CHAR_LINE_LENGTH)) {
             WhichError (status);
-            sprintf (MsgText, "Couldn't create trailer filename for %s",
-                     output);
-            trlmessage (MsgText);
+            trlerror("Couldn't create trailer filename for %s", output);
         }
 
         /* Test whether the output file already exists */

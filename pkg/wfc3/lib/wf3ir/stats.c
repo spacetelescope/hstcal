@@ -55,8 +55,7 @@ int stats (SingleNicmosGroup *in, int x1, int x2, int y1, int y2,
 	/* Allocate memory for the temporary array */
 	arr = (float *) calloc(in->sci.data.nx*in->sci.data.ny, sizeof(float));
 	if (arr == NULL) {
-	    sprintf (MsgText, "Memory allocation failure in stats");
-	    trlerror (MsgText);
+	    trlerror("Memory allocation failure in stats");
 	    return (1);
 	}
 
@@ -228,16 +227,16 @@ int qstats (SingleNicmosGroup *in, int x1, int x2, int y1, int y2,
 	} else {
 	    area = dimy * dimx;
 	    if (area == 0) {
-		trlwarn ("Output image size is zero.");
+		trlwarn("Output image size is zero.");
 	    } else if (num_bad_err > 0) {
 		if (num_bad_err == area) {
-		    trlwarn ("No ERR values > 0.");
+		    trlwarn("No ERR values > 0.");
 		} else {
-		    trlwarn (
+		    trlwarn(
 			"All output pixels either flagged as bad or ERR <= 0.");
 		}
 	    } else {
-		trlwarn ("All output pixels flagged as bad.");
+		trlwarn("All output pixels flagged as bad.");
 	    }
 	}
 

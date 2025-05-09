@@ -173,12 +173,11 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 	    TimeStamp ("Begin processing", wf32d.rootname);
 
 	if (verbose) {
-		sprintf(MsgText,"Processing %d IMSETs... ",wf32d.nimsets);
-		trlmessage(MsgText);
+		trlmessage("Processing %d IMSETs... ",wf32d.nimsets);
 	}
 
 	for (extver = 1;  extver <= wf32d.nimsets;  extver++) {
-	    trlmessage ("\n");
+	    trlmessage("\n");
 	    PrGrpBegin ("imset", extver);
 	    if (Do2D (&wf32d, extver))
 		return (status);
@@ -210,7 +209,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
     }
 
 
-	trlmessage ("\n");
+	trlmessage("\n");
 	PrEnd ("WF32D");
 
 	if (wf32d.printtime)
@@ -251,27 +250,21 @@ void Init2DTrl (char *input, char *output) {
 	/* Start by stripping off suffix from input/output filenames */
 	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
-	    sprintf (MsgText, "Couldn't determine trailer filename for %s",
-		     input);
-	    trlmessage (MsgText);
+	    trlmessage("Couldn't determine trailer filename for %s", input);
 	}
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
-	    sprintf (MsgText, "Couldn't create trailer filename for %s",
-		     output);
-	    trlmessage (MsgText);
+	    trlmessage("Couldn't create trailer filename for %s", output);
 	}
 
 	/* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
 
 	if (MkNewExtn (trl_in, TRL_EXTN) ) {
-	    sprintf (MsgText, "Error with input trailer filename %s", trl_in);
-	    trlerror (MsgText);
+	    trlerror("Error with input trailer filename %s", trl_in);
 	    WhichError (status);
 	}
 	if (MkNewExtn (trl_out, TRL_EXTN) ) {
-	    sprintf (MsgText, "Error with output trailer filename %s", trl_out);
-	    trlerror (MsgText);
+	    trlerror("Error with output trailer filename %s", trl_out);
 	    WhichError (status);
 	}
 

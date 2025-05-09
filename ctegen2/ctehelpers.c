@@ -288,8 +288,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 			status = KEYWORD_MISSING;
 			return status;
 		}
-		sprintf(MsgText,"\nCTE_NAME: %s",pars->cte_name);
-		trlmessage(MsgText);
+		trlmessage("\nCTE_NAME: %s",pars->cte_name);
 
 		/* GET VERSION NUMBER  */
 		if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", pars->cte_ver, SZ_CBUF)) {

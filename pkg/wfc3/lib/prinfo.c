@@ -50,7 +50,7 @@ void PrBegin (char *label) {
 
 	char *GetDateTime (void);
 
-	trlmessage ("\n");
+	trlmessage("\n");
 	trlmessage("%s*** %s -- Version %s ***",TRL_PREFIX, label, WF3_CAL_VER);
 	trlmessage("Begin    %s", GetDateTime());
 }
@@ -62,7 +62,7 @@ void PrEnd (char *label) {
 	char *GetDateTime (void);
 
 	trlmessage("End      %s", GetDateTime());
-	trlmessage ("");
+	trlmessage("");
 	trlmessage("*** %s complete ***", label);
 }
 
@@ -119,7 +119,7 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 	else
 	    strcat (MsgText, " unknown");
 		
-	trlmessage ("%s", MsgText);
+	trlmessage("%s", MsgText);
 }
 
 /* Print a message at the beginning of an imset or spectral order. */
@@ -201,18 +201,15 @@ char *descrip2  i: second descrip, if any, from table row
 	trlmessage("%s %s", buf, filename);
 
 	if (pedigree[0] != '\0') {
-	    sprintf (MsgText, "%s PEDIGREE=%s", buf, pedigree);
-	    trlmessage (MsgText);
+	    trlmessage("%s PEDIGREE=%s", buf, pedigree);
 	}
 	
 	if (descrip[0] != '\0') {
-	    sprintf (MsgText, "%s DESCRIP =%s", buf, descrip);
-	    trlmessage (MsgText);
+	    trlmessage("%s DESCRIP =%s", buf, descrip);
 	}
 	
 	if (descrip2[0] != '\0') {
-	    sprintf (MsgText, "%s DESCRIP =%s", buf, descrip2);
-	    trlmessage (MsgText);
+	    trlmessage("%s DESCRIP =%s", buf, descrip2);
 	}
 }
 

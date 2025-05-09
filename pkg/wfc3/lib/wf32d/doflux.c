@@ -46,7 +46,7 @@ void FluxMsg (WF3Info *wf32d) {
 	int OmitStep (int);
 	void PrSwitch (char *, int);
 
-	trlmessage ("");
+	trlmessage("");
 
 	if (!OmitStep (wf32d->fluxcorr)) {
 		PrSwitch ("fluxcorr", wf32d->fluxcorr);
@@ -75,8 +75,7 @@ int doFlux (WF3Info *wf32d){
 		return (status=CAL_STEP_NOT_DONE);
 
 	if (wf32d->verbose){
-		sprintf (MsgText, "Starting FLUXCORR");
-		trlmessage(MsgText);
+		trlmessage("Starting FLUXCORR");
 	}
 
 	initSingleGroup (&chip2);
@@ -99,8 +98,7 @@ int doFlux (WF3Info *wf32d){
 		    return (status = OPEN_FAILED);
 
         memcpy(&phtflam1,&wf32d->chip1_flam,sizeof(double));
-        sprintf(MsgText,"Copied wf332d->chip1_flam: %g to phtflam1: %g",wf32d->chip1_flam,phtflam1);
-        trlmessage(MsgText);
+        trlmessage("Copied wf332d->chip1_flam: %g to phtflam1: %g",wf32d->chip1_flam,phtflam1);
 
     } else {
     	getSingleGroup (wf32d->output, 1, &chip2); /*chip2 is in sci,1*/
@@ -118,10 +116,8 @@ int doFlux (WF3Info *wf32d){
 	ratio = phtflam2/phtflam1;
 
 	if (wf32d->verbose){
-		sprintf (MsgText, "flam1 %g, flam2 %g, ratio %g", phtflam1, phtflam2, ratio);
-		trlmessage(MsgText);
-    	sprintf(MsgText,"Using PHTRATIO: %g ",ratio);
-	    trlmessage(MsgText);
+		trlmessage("flam1 %g, flam2 %g, ratio %g", phtflam1, phtflam2, ratio);
+    	trlmessage("Using PHTRATIO: %g ",ratio);
     }
 
 	for (i=0; i < chip2.sci.data.nx ; i++) {
@@ -174,11 +170,8 @@ int doFlux (WF3Info *wf32d){
     putFloatData(chip2.err.iodesc,&chip2.err.data);
     closeImage(chip2.err.iodesc);
 
-
-
 	if (hstio_err()) {
-		sprintf (MsgText, "Couldn't write imset %d.", 1);
-		trlerror (MsgText);
+		trlerror("Couldn't write imset %d.", 1); // really?
 		return (status = 1001);
 	}
 

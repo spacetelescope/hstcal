@@ -86,7 +86,7 @@ SingleGroup *b        o: output data
 	binx = onx / inx;
 	biny = ony / iny;
 	if (binx * inx != onx || biny * iny != ony) {
-	    trlerror ("(unbin2d) bin ratio is not an integer.");
+	    trlerror("(unbin2d) bin ratio is not an integer.");
 	    return (status = ERROR_RETURN);
 	}
 
@@ -369,7 +369,7 @@ SingleNicmosGroup *b        o: output data
 	binx = onx / inx;
 	biny = ony / iny;
 	if (binx * inx != onx || biny * iny != ony) {
-	    trlerror ("(unbin2d) bin ratio is not an integer.");
+	    trlerror("(unbin2d) bin ratio is not an integer.");
 	    return (status = ERROR_RETURN);
 	}
 

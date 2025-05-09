@@ -107,8 +107,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     */
     if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
         return (status);
-    sprintf(MsgText,"Image has starting location of %d,%d in the reference image", x0, y0);
-    trlmessage(MsgText);
+    trlmessage("Image has starting location of %d,%d in the reference image", x0, y0);
 
     /* Clean up the SingleGroupLine object */
     closeSingleGroupLine (&y);
@@ -116,9 +115,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
     /* If reference data not binned same as input, return with an error */
     if (rx != 1 || ry != 1) {
-        sprintf (MsgText,
-                "Saturation image and input are not binned to the same pixel size!");
-        trlerror (MsgText);
+        trlerror("Saturation image and input are not binned to the same pixel size!");
         return (status = SIZE_MISMATCH);
     }
 
@@ -144,13 +141,11 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
     /* Full-frame */
     if (same_size) {
-        sprintf (MsgText,"Saturation image and input are the same size.");
-        trlmessage (MsgText);
+        trlmessage("Saturation image and input are the same size.");
     /* Subarray */
     } else {
         is_subarray = 1;
-        sprintf (MsgText,"Saturation image and input are NOT the same size - SUBARRAY found, amp %s", wf3->ccdamp);
-        trlmessage (MsgText);
+        trlmessage("Saturation image and input are NOT the same size - SUBARRAY found, amp %s", wf3->ccdamp);
 
         /*
            ONLY 1 AMP is used to read subarrays, so ampx and ampy should be 
@@ -162,13 +157,11 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
         /* The image starts in the B or D regions so we can just shift the starting pixel */
         if (x0 > END_PIX_AC_AMP) {
             if (wf3->verbose) {
-                sprintf (MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ", x0, y0);
-                trlmessage (MsgText);
+                trlmessage("Subarray starts in B or D region, moved from (%d,%d) to ", x0, y0);
             }
             x0 += SIZE_SV_OVERSCAN;
             if (wf3->verbose) {
-                sprintf (MsgText,"(%d,%d) to avoid virtual overscan in reference image", x0, y0);
-                trlmessage (MsgText);
+                trlmessage("(%d,%d) to avoid virtual overscan in reference image", x0, y0);
             }
 
         /* The subarray starts somewhere in A or C and might straddle the virtual overscan region */
@@ -181,9 +174,8 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     }
 
     if (wf3->verbose) {
-        sprintf(MsgText,"ccdamp = %s, straddle = %d, (xdim,ydim) = (%d,%d), (ampx,ampy) = (%d,%d), (x0,y0) = (%d,%d)",
+        trlmessage("ccdamp = %s, straddle = %d, (xdim,ydim) = (%d,%d), (ampx,ampy) = (%d,%d), (x0,y0) = (%d,%d)",
                 wf3->ccdamp, straddle, xdim, ydim, wf3->ampx, wf3->ampy, x0, y0);
-        trlmessage(MsgText);
     }
 
     /* Get the full saturation image */
@@ -213,10 +205,8 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     */
     ComputeLimits(wf3, xdim, ydim, xbeg, ybeg, xend, yend);
     if (wf3->verbose) {
-        sprintf(MsgText,"xbeg[0]: %d xend[0]: %d  xbeg[1]: %d  xend[1]: %d", xbeg[0], xend[0], xbeg[1], xend[1]);
-        trlmessage(MsgText);
-        sprintf(MsgText,"ybeg[0]: %d yend[0]: %d  ybeg[1]: %d  yend[1]: %d", ybeg[0], yend[0], ybeg[1], yend[1]);
-        trlmessage(MsgText);
+        trlmessage("xbeg[0]: %d xend[0]: %d  xbeg[1]: %d  xend[1]: %d", xbeg[0], xend[0], xbeg[1], xend[1]);
+        trlmessage("ybeg[0]: %d yend[0]: %d  ybeg[1]: %d  yend[1]: %d", ybeg[0], yend[0], ybeg[1], yend[1]);
     }
 
     /* The saturation image already has the gain applied, but the science data
@@ -226,8 +216,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     */
 
     if (wf3->verbose) {
-        sprintf(MsgText, "Mean gain: %f", wf3->mean_gain);
-        trlmessage(MsgText);
+        trlmessage("Mean gain: %f", wf3->mean_gain);
     }
     
     /* Full-frame */
@@ -257,8 +246,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
                 }
             }}
         }}
-        sprintf(MsgText, "Full-frame full-well saturation image flagging step done.\n");
-        trlmessage(MsgText);
+        trlmessage("Full-frame full-well saturation image flagging step done.\n");
 
     /* Subarray */
     } else {
@@ -293,8 +281,7 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 		        }
             }}
         }}
-        sprintf(MsgText, "Subarray full-well saturation image flagging step done.\n");
-        trlmessage(MsgText);
+        trlmessage("Subarray full-well saturation image flagging step done.\n");
     }
 
     freeSingleGroup(&satimage);

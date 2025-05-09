@@ -411,7 +411,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     if (!in_place) {
         allocShortHdrData (&ydq, snpix[0], snpix[1], True);
         if (hstio_err()) {
-            trlerror ("doDQI couldn't allocate data quality array.");
+            trlerror("doDQI couldn't allocate data quality array.");
             return (status = OUT_OF_MEMORY);
         }
         for (j=0; j < snpix[1]; j++)
@@ -424,7 +424,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     for (row = 1;  row <= tabinfo.nrows;  row++) {
 
         if (ReadBpixTab (&tabinfo, row, &tabrow)) {
-            trlerror ("Error reading BPIXTAB.");
+            trlerror("Error reading BPIXTAB.");
             return (status);
         }
 
@@ -537,7 +537,7 @@ int OpenBpixTab (char *tname, TblInfo *tabinfo) {
             tabinfo->cp_ccdchip == 0 ||
             tabinfo->cp_flag == 0) {
         c_tbtclo (tabinfo->tp);
-        trlerror ("Column not found in BPIXTAB.");
+        trlerror("Column not found in BPIXTAB.");
         return (status = COLUMN_NOT_FOUND);
     }
 
@@ -545,13 +545,13 @@ int OpenBpixTab (char *tname, TblInfo *tabinfo) {
     tabinfo->axlen1 = c_tbhgti (tabinfo->tp, "SIZAXIS1");
     if (c_iraferr ()) {
         c_tbtclo (tabinfo->tp);
-        trlerror ("Couldn't get SIZAXIS1 from BPIXTAB header.");
+        trlerror("Couldn't get SIZAXIS1 from BPIXTAB header.");
         return (status = TABLE_ERROR);
     }
     tabinfo->axlen2 = c_tbhgti (tabinfo->tp, "SIZAXIS2");
     if (c_iraferr ()) {
         c_tbtclo (tabinfo->tp);
-        trlerror ("Couldn't get SIZAXIS2 from BPIXTAB header.");
+        trlerror("Couldn't get SIZAXIS2 from BPIXTAB header.");
         return (status = TABLE_ERROR);
     }
 

@@ -31,7 +31,7 @@ int inplace    i: sort the input array in-place?
 	int i;
 
 	if (n < 1) {
-	    trlwarn ("(MedianDouble) No data.");
+	    trlwarn("(MedianDouble) No data.");
 	    return (0.);
 	} else if (n == 1) {
 	    return (v[0]);
@@ -43,7 +43,7 @@ int inplace    i: sort the input array in-place?
 	    vt = v;
 	} else {
 	    if ((vt = malloc (n * sizeof (double))) == NULL) {
-		trlwarn ("(MedianDouble) Out of memory.");
+		trlwarn("(MedianDouble) Out of memory.");
 		return (v[0]);
 	    }
 	    memcpy (vt, v, n * sizeof (double));
@@ -76,7 +76,7 @@ int inplace    i: sort the input array in-place?
 	int i;
 
 	if (n < 1) {
-	    trlwarn ("(MedianFloat) No data.");
+	    trlwarn("(MedianFloat) No data.");
 	    return (0.F);
 	} else if (n == 1) {
 	    return (v[0]);
@@ -88,7 +88,7 @@ int inplace    i: sort the input array in-place?
 	    vt = v;
 	} else {
 	    if ((vt = malloc (n * sizeof (float))) == NULL) {
-		trlwarn ("(MedianFloat) Out of memory.");
+		trlwarn("(MedianFloat) Out of memory.");
 		return (v[0]);
 	    }
 	    memcpy (vt, v, n * sizeof (float));

@@ -118,7 +118,7 @@ int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
 	    /* Create scratch image */
 	    initSingleNicmosGroup (&mask);
 	    if (allocSingleNicmosGroup (&mask, npix[0], npix[1]) == -1) {
-		trlerror ("doDQI couldn't allocate data quality array.");
+		trlerror("doDQI couldn't allocate data quality array.");
 		return (status = OUT_OF_MEMORY);
 	    }
 
@@ -126,7 +126,7 @@ int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
 	    nrows = 0;
 	    for (row = 1; row <= tabinfo.nrows; row++) {
 		 if (ReadBpixTab (&tabinfo, row, &tabrow)) {
-		     trlerror ("Error reading BPIXTAB.");
+		     trlerror("Error reading BPIXTAB.");
 		     return (status);
 		 }
 
@@ -167,8 +167,7 @@ int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
 		return (status);
 
 	    if (nrows == 0) {
-	        sprintf (MsgText, "No rows from BPIXTAB applied to DQ array.");
-	        trlwarn (MsgText);
+	        trlwarn("No rows from BPIXTAB applied to DQ array.");
 	    }
 
 	    /* Loop over all MultiAccum groups, applying mask to each one */
