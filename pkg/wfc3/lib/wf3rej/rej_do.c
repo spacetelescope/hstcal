@@ -135,7 +135,6 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     LoadHdr (char *, Hdr *);
     void    UpperAll (char *, char *, int);
     void    TimeStamp (char *, char *);
-    void    WhichError (int);
     void    PrSwitch (char *, int);
     void    FindAsnRoot (char *, char *);
     void    initmulti (multiamp *);
