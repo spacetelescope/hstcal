@@ -221,9 +221,7 @@ static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
 	}}
 
 	/* Report the number of saturated pixels */
-	sprintf (MsgText, "NLINCORR detected %d saturated pixels in imset %d",
-		 nsatpix, wf3->group);
-	trlmessage (MsgText);
+	trlmessage("NLINCORR detected %d saturated pixels in imset %d", nsatpix, wf3->group);
 
 	/* Successful return */
 	return (status = 0);

@@ -109,7 +109,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->crcorr == PERFORM) {
 	    wf3->sci_crcorr = PERFORM;
 	    if (wf3->nimages < 2) {
-		trlwarn ("CRCORR will be omitted because there's only one image.");
+		trlwarn("CRCORR will be omitted because there's only one image.");
 		wf3->sci_crcorr = OMIT;
 	    }
 	    /* reference table is checked below, after getting rptcorr */
@@ -186,7 +186,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	    trlwarn 
 		("For science file, should do BLEVCORR to remove overscan ");
 	    /* Use trlmessage for second line of warning/error messages */
-	    trlmessage ("before doing other steps that use reference images.");
+	    trlmessage("before doing other steps that use reference images.");
 	}
 
 	if (sci_sw->photcorr == PERFORM) {
@@ -294,16 +294,14 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 static void IRSanity (int detector, char *calswitch) {
 
 	if (detector != IR_DETECTOR) {
-	    sprintf (MsgText, "%s = PERFORM, but detector is UVIS.", calswitch);
-	    trlwarn (MsgText);
+	    trlwarn("%s = PERFORM, but detector is UVIS.", calswitch);
 	}
 }
 
 static void CCDSanity (int detector, char *calswitch) {
 
 	if (detector == IR_DETECTOR) {
-	    sprintf (MsgText, "%s = PERFORM, but detector is IR.", calswitch);
-	    trlwarn (MsgText);
+	    trlwarn("%s = PERFORM, but detector is IR.", calswitch);
 	}
 }
 
