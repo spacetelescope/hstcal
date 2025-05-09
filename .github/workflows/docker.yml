@@ -1,0 +1,142 @@
+name: Docker Test
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  docker:
+    name:  ${{ matrix.os }}-${{ matrix.version }}-${{ matrix.compiler }}-${{ matrix.build_type }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu
+            version: 24.04
+            build_type: Release
+            compiler: gcc
+          - os: ubuntu
+            version: 22.04
+            build_type: Release
+            compiler: gcc
+          - os: debian
+            version: testing
+            build_type: Release
+            compiler: gcc
+          - os: debian
+            version: stable
+            build_type: Release
+            compiler: gcc
+          - os: centos
+            repo: quay.io/centos/
+            version: stream10
+            build_type: Release
+            compiler: gcc
+          - os: centos
+            repo: quay.io/centos/
+            version: stream9
+            build_type: Release
+            compiler: gcc
+
+    container: ${{ matrix.repo }}${{ matrix.os }}:${{ matrix.version }}
+
+    steps:
+      - name: Install development tools (CentOS Stream)
+        if: contains(matrix.os, 'centos')
+        run: |
+          dnf install -y epel-release
+          /usr/bin/crb enable
+          dnf install -y \
+              gcc \
+              g++ \
+              gfortran \
+              cmake \
+              make \
+              cfitsio-devel \
+              pkg-config \
+              file \
+              git
+
+      - name: Install development tools (Ubuntu)
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'debian')
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt update
+          apt install -y \
+              bash \
+              gcc \
+              g++ \
+              gfortran \
+              cmake \
+              make \
+              libcfitsio-dev \
+              pkg-config \
+              file \
+              git
+
+      - name: checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Git safe.directory override for nested checkout
+        run: |
+          git config --global --add safe.directory $(pwd)
+
+      - name: build
+        run: |
+          mkdir build
+          cd build
+          cmake .. \
+              -DCMAKE_INSTALL_PREFIX=/tmp/hstcal \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+              -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
+              -DCMAKE_C_FLAGS="-Wno-incompatible-pointer-types"
+          make -j$(nproc)
+          make install
+
+      - name: Dump file types
+        run: |
+          find /tmp/hstcal -type f | sort | xargs file
+
+      - name: Dump DISTINFO
+        run: |
+          cd build
+          cat DISTINFO
+
+      - name: Dump --gitinfo header
+        run: |
+          cd build
+          cat -n version.h
+
+      - name: Dump --gitinfo from executable
+        run: |
+          export PATH=/tmp/hstcal/bin:$PATH
+          calacs.e --gitinfo
+
+      - name: Check common CLI arguments
+        run: |
+          export PATH=/tmp/hstcal/bin:$PATH
+          program=(
+            calacs.e
+            calwf3.e
+            cs0.e
+          )
+          option=(
+            --help
+            --version
+            --gitinfo
+          )
+          for x in "${program[@]}"; do
+            echo "TEST $x:"
+            for opt in "${option[@]}"; do
+              .ci/bin/check_exec "$opt" -- "$x"
+            done
+            echo
+          done
