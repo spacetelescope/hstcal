@@ -56,15 +56,14 @@ SingleGroup *b        o: output data
 	if (xcorner < 0 || ycorner < 0 ||
 		xcorner + nx*binx > a->sci.data.nx ||
 		ycorner + ny*biny > a->sci.data.ny) {
-	    
-		trlerror ("(bin2d)  subset is out of bounds:");
-	    
-		trlmessage("         input is %d x %d, output is %d x %d",
-		a->sci.data.nx, a->sci.data.ny, 
-		b->sci.data.nx, b->sci.data.ny);
 
-		trlmessage("         start = (%d,%d), binx = %d, biny = %d.",
-		xcorner+1, ycorner+1, binx, biny);
+		trlerror ("(bin2d)  subset is out of bounds:");
+
+                trlmessage("         input is %d x %d, output is %d x %d\n"
+                           "         start = (%d,%d), binx = %d, biny = %d.",
+                           a->sci.data.nx, a->sci.data.ny,
+                           b->sci.data.nx, b->sci.data.ny,
+                           xcorner+1, ycorner+1, binx, biny);
 
 		return (status = SIZE_MISMATCH);
 	}
@@ -118,7 +117,7 @@ SingleGroup *b        o: output data
 		    sum_err = 0.;
 		    for (j = j0;  j < j0+biny;  j++)
 			for (i = i0;  i < i0+binx;  i++)
-			    sum_err += Pix (a->err.data, i, j) * 
+			    sum_err += Pix (a->err.data, i, j) *
 				       Pix (a->err.data, i, j);
 		    if (avg)
 			Pix (b->err.data, m, n) = sqrt (sum_err) / weight;

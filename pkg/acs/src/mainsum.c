@@ -19,11 +19,11 @@ extern int status;			/* zero is OK */
 
 struct TrlBuf trlbuf = { 0 };
 
-/* 
+/*
     This function will only return either 0 (ACS_OK) if everything
         processed normally or ERROR_RETURN (2) if there was some error.
         WJH 21 April 1999
-    Removed 'save_tmp' as a parameter to ACSSUM.  This parameter will 
+    Removed 'save_tmp' as a parameter to ACSSUM.  This parameter will
         only be controlled by CALACS, not by individual tasks.
         WJH 19 April 2001
 */
@@ -67,9 +67,9 @@ int main (int argc, char **argv) {
 	    freeOnExit(&ptrReg);
 		exit (ERROR_RETURN);
 	}
-		
+
     mtype[0] = '\0';
-    
+
 	/* Get names of input and output files. */
 	for (i = 1;  i < argc;  i++) {
 	    if (argv[i][0] == '-') {
@@ -130,7 +130,7 @@ int main (int argc, char **argv) {
 	if (output[0] == '\0') {
 	    if (MkName (input, "_asn", "_sfl", "", output, CHAR_LINE_LENGTH))
         {
-	    	// TODO: add trlerror message
+	    // trlerror is in MkName already.
             WhichError (status);
             freeOnExit(&ptrReg);
             exit (ERROR_RETURN);

@@ -175,8 +175,8 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   /* If the end points of vx and vy are zero, no section was specified */
   if (acs->vy[0] <= 0 && acs->vy[1] <= 0 ){
     dodrift = NO;
-    trlmessage("(blevcorr) No virtual overscan region specified.");
-    trlmessage("(blevcorr) Bias drift correction will not be applied.");
+    trlmessage("(blevcorr) No virtual overscan region specified.\n"
+               "(blevcorr) Bias drift correction will not be applied.");
   }
 
   sumblev = 0.;
@@ -394,7 +394,7 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
   }
 
 	if (too_few > 0) {
-    trlmessage("(blevcorr) %d image line", too_few);
+            snprintf(MsgText, sizeof(MsgText), "(blevcorr) %d image line", too_few);
     if (too_few == 1)
 			strcat (MsgText, " has");
     else
@@ -405,7 +405,7 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
 
 	/* Fit a curve to the bias levels found. */
 	if (BlevFit()) {
-    trlwarn("No bias level data, or singular fit; ");
+    trlwarn("No bias level data, or singular fit;");
     trlmessage("            bias from CCDTAB will be subtracted.");
     BlevSet (ccdbias);		/* assign the default value */
 	}

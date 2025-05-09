@@ -213,16 +213,18 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
     /* print out which parameter are used */
     if (par->verbose) {
-        trlmessage("\n number of images = %d", nimgs);
-        trlmessage(" CRREJ ref table used: %s", par->tbname);
-        trlmessage(" initial guess method: %s", par->initgues);
-        trlmessage(" total exposure time = %0.1f", exptot);
-        trlmessage(" sigmas used: %s", par->sigmas);
-        trlmessage(" sky subtraction used: %s", par->sky);
-        trlmessage(" rejection radius = %0.1f", par->radius);
-        trlmessage(" propagation threshold = %0.1f", par->thresh);
-        trlmessage(" scale noise = %0.1f%%", par->scalense);
-        trlmessage(" input bad bits value = %d", par->badinpdq);
+        trlmessage("\n number of images = %d\n"
+                   " CRREJ ref table used: %s\n"
+                   " initial guess method: %s\n"
+                   " total exposure time = %0.1f\n"
+                   " sigmas used: %s\n"
+                   " sky subtraction used: %s\n"
+                   " rejection radius = %0.1f\n"
+                   " propagation threshold = %0.1f\n"
+                   " scale noise = %0.1f%%\n"
+                   " input bad bits value = %d",
+                   nimgs, par->tbname, par->initgues, exptot, par->sigmas,
+                   par->sky, par->radius, par->thresh, par->scalense, par->badinpdq);
 
         if (par->mask == 1) {
             strcpy (maskstr,"YES");

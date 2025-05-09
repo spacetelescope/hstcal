@@ -83,7 +83,7 @@ int *driftcorr       i: true if correction can be applied
 	   the section used for determining the bias level, but shifted
 	   to pixel number in the output, trimmed, image.
 	*/
-	
+
 	zerocol = (double) (biassect[0] + biassect[1]) / 2.;
 	midcol = (vx[0] + vx[1]) / 2;
 	DriftInit (zerocol, midcol);
@@ -99,8 +99,7 @@ int *driftcorr       i: true if correction can be applied
 
 	/* Fit a curve to the values found. */
 	if (DriftFit()) {
-	    trlwarn("(blevcorr) Singular fit to virtual overscan;");
-		trlwarn("%s", nodriftcorr);
+	    trlwarn("(blevcorr) Singular fit to virtual overscan;\n%s", nodriftcorr);
 	    DriftSet (0.);
 	} else {
 	    *driftcorr = 1;
@@ -121,7 +120,7 @@ int *driftcorr       i: true if correction can be applied
    is no data, the function value will be NO_GOOD_DATA.
 */
 
-static int VMedianY (SingleGroup *in, int i, int *vy, short sdqflags, 
+static int VMedianY (SingleGroup *in, int i, int *vy, short sdqflags,
 		double *median, double *scratch) {
 
 /* arguments:
