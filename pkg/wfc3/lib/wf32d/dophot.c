@@ -100,8 +100,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 	 ** lower case for use in synphot. */
 	Phot2Obs (photmode, obsmode);
 	if (wf32d->verbose) {
-		sprintf (MsgText, "Created PYSYNPHOT obsmode of: %s", obsmode);
-		trlmessage (MsgText);
+		trlmessage("Created PYSYNPHOT obsmode of: %s", obsmode);
 	}
 
 	/* Initialize PhotPar structure */
@@ -109,14 +108,13 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
 	/* Get phot values from IMPHTTAB */
 	if (GetPhotTab (&obs, obsmode)) {
-		trlerror ("Error return from GetPhotTab.");
+		trlerror("Error return from GetPhotTab.");
 		return (status);
 	}
 
 	/* Add this information as a HISTORY comment */
 	if (wf32d->verbose) {
-		sprintf (MsgText, "Retrieved PHOTFLAM value of %g", obs.photflam);
-		trlmessage (MsgText);
+		trlmessage("Retrieved PHOTFLAM value of %g", obs.photflam);
 	}
 
 	/* Update the photometry keyword values in the SCI and GLOBAL header. */
@@ -179,7 +177,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
 	    /* GET PHOT VALUES FROM IMPHTTAB */
 	    if (GetPhotTab (&obs, obsmode)) {
-		    trlerror ("Error return from GetPhotTab.");
+		    trlerror("Error return from GetPhotTab.");
 		    return (status);
 	    }
 
@@ -225,7 +223,7 @@ int doPhot (WF3Info *wf32d, SingleGroup *x) {
 
 	    /* GET PHOT VALUES FROM IMPHTTAB */
 	    if (GetPhotTab (&obs, obsmode)) {
-		    trlerror ("Error return from GetPhotTab.");
+		    trlerror("Error return from GetPhotTab.");
 		    return (status);
 	    }
 

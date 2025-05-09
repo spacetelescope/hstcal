@@ -165,7 +165,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         return (status);
     if (PutKeyFlt (x.globalhdr, "READNSED", wf3->readnoise[3], ""))
         return (status);
-    trlmessage ("");
+    trlmessage("");
 
     PrRefInfo ("ccdtab", wf3->ccdpar.name, wf3->ccdpar.pedigree,
             wf3->ccdpar.descrip, wf3->ccdpar.descrip2);
@@ -188,47 +188,47 @@ int DoCCD (WF3Info *wf3, int extver) {
                 if (noiseHistory (x.globalhdr))
                     return (status);
             }
-            trlmessage ("    Uncertainty array initialized,");
+            trlmessage("    Uncertainty array initialized,");
             buff[0] = '\0';
 
             sprintf(MsgText, "    readnoise =");
             for (i=0; i < NAMPS-1; i++) {
                 if (wf3->readnoise[i] > 0) {
-                    sprintf (buff, "%.5g,",wf3->readnoise[i]);
+                    snprintf(buff, sizeof(buff), "%.5g,",wf3->readnoise[i]);
                     strcat (MsgText, buff);
                 }
             }
             if (wf3->readnoise[NAMPS-1] > 0) {
-                sprintf(buff, "%.5g",wf3->readnoise[NAMPS-1]);
+                snprintf(buff, sizeof(buff), "%.5g",wf3->readnoise[NAMPS-1]);
                 strcat (MsgText, buff);
             }
-            trlmessage (MsgText);
+            trlmessage("%s", MsgText);
 
-            sprintf(MsgText, "    gain =");
+            snprintf(MsgText, sizeof(MsgText), "    gain =");
             for (i=0; i < NAMPS-1; i++) {
                 if (wf3->atodgain[i] > 0) {
-                    sprintf(buff, "%.5g,",wf3->atodgain[i]);
+                    snprintf(buff, sizeof(buff), "%.5g,",wf3->atodgain[i]);
                     strcat (MsgText, buff);
                 }
             }
             if (wf3->atodgain[NAMPS-1] > 0) {
-                sprintf(buff, "%.5g",wf3->atodgain[NAMPS-1]);
+                snprintf(buff, sizeof(buff), "%.5g",wf3->atodgain[NAMPS-1]);
                 strcat (MsgText, buff);
             }
-            trlmessage (MsgText);
+            trlmessage("%s", MsgText);
 
-            sprintf (MsgText, "    default bias levels = ");
+            snprintf (MsgText, sizeof(MsgText), "    default bias levels = ");
             for (i=0; i < NAMPS-1; i++) {
                 if (wf3->ccdbias[i] > 0) {
-                    sprintf (buff, "%.5g,", wf3->ccdbias[i]);
+                    snprintf (buff, sizeof(buff), "%.5g,", wf3->ccdbias[i]);
                     strcat (MsgText, buff);
                 }
             }
             if (wf3->ccdbias[NAMPS-1] > 0) {
-                sprintf (buff, "%.5g", wf3->ccdbias[NAMPS-1]);
+                snprintf (buff, sizeof(buff), "%.5g", wf3->ccdbias[NAMPS-1]);
                 strcat (MsgText, buff);
             }
-            trlmessage (MsgText);
+            trlmessage("%s", MsgText);
 
             if (wf3->printtime)
                 TimeStamp ("Uncertainty array initialized", wf3->rootname);
@@ -274,17 +274,14 @@ int DoCCD (WF3Info *wf3, int extver) {
             return (status);
 
         if (done) {
-            trlmessage ("Bias level from overscan has been subtracted;");
+            trlmessage("Bias level from overscan has been subtracted;");
             if (PutKeyFlt (&x.sci.hdr, "MEANBLEV", meanblev,
                         "mean of bias levels subtracted")) {
                 return (status);
             }
-            sprintf (MsgText,
-                    "     mean of bias levels subtracted was %.6g.",
-                    meanblev);
-            trlmessage (MsgText);
+            trlmessage("     mean of bias levels subtracted was %.6g.", meanblev);
         } else {
-            trlmessage ("Default bias level from CCDTAB was subtracted.");
+            trlmessage("Default bias level from CCDTAB was subtracted.");
         }
 
         /* Provide immediate feedback to the user on the values computed
@@ -292,10 +289,7 @@ int DoCCD (WF3Info *wf3, int extver) {
          ** processed. */
         for (i=0; i < 4; i++) {
             if (wf3->blev[i] != 0.) {
-                sprintf (MsgText,
-                        "     bias level of %.6g was subtracted for AMP %c.",
-                        wf3->blev[i], AMPSORDER[i]);
-                trlmessage (MsgText);
+                trlmessage("     bias level of %.6g was subtracted for AMP %c.", wf3->blev[i], AMPSORDER[i]);
             }
         }
 
@@ -336,8 +330,7 @@ int DoCCD (WF3Info *wf3, int extver) {
 
     if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM && wf3->scalar_satflag == False) {
         SatMsg (wf3, extver);
-        sprintf(MsgText, "\nFull-well saturation flagging being performed.");
-        trlmessage(MsgText);
+        trlmessage("\nFull-well saturation flagging being performed.");
         if (doFullWellSat(wf3, &x)) {
             return (status);
         }
@@ -354,8 +347,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     */
     if (wf3->dqicorr == PERFORM) {
         if (checkBinned(&x)){
-            sprintf(MsgText,"Binned data not supported for Sink Pixel detection");
-            trlmessage(MsgText);
+            trlmessage("Binned data not supported for Sink Pixel detection");
         } else {
             if (wf3->subarray){
 
@@ -417,9 +409,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         /* Report mean of post-flash image subtracted from science image,
          ** if it was performed...*/
         if (meanflash > 0.) {
-            sprintf (MsgText, "Mean of post-flash image (MEANFLSH) = %g",
-                    meanflash);
-            trlmessage(MsgText);
+            trlmessage("Mean of post-flash image (MEANFLSH) = %g", meanflash);
 
             /* Store mean flash value as keyword */
             if (PutKeyFlt (&x.sci.hdr, "MEANFLSH", meanflash,
@@ -456,14 +446,11 @@ int DoCCD (WF3Info *wf3, int extver) {
 
         /* BLEVCORR WAS COMPLETED, SO OVERSCAN REGIONS CAN BE TRIMMED... */
         if (wf3->verbose) {
-            sprintf (MsgText,
-                    "Writing out image with trimx = %d,%d,%d,%d, trimy = %d,%d",
+            trlmessage("Writing out image with trimx = %d,%d,%d,%d, trimy = %d,%d",
                     wf3->trimx[0],wf3->trimx[1],wf3->trimx[2],
                     wf3->trimx[3],wf3->trimy[0],wf3->trimy[1]);
-            trlmessage(MsgText);
 
-            sprintf(MsgText,"Outputting chip %d",wf3->chip);
-            trlmessage(MsgText);
+            trlmessage("Outputting chip %d",wf3->chip);
         }
 
         /* OUTPUT OVERSCAN-TRIMMED, BIAS-SUBTRACTED IMAGE
@@ -502,11 +489,8 @@ int DoCCD (WF3Info *wf3, int extver) {
 
         /* BLEVCORR WAS NOT COMPLETED, SO KEEP OVERSCAN REGIONS... */
         if (wf3->verbose) {
-            sprintf(MsgText,"Writing out FULL image with overscan regions");
-            trlmessage(MsgText);
-
-            sprintf(MsgText,"Outputting chip %d",wf3->chip);
-            trlmessage(MsgText);
+            trlmessage("Writing out FULL image with overscan regions");
+            trlmessage("Outputting chip %d",wf3->chip);
         }
 
         putSingleGroup (wf3->output, extver, &x, option);
@@ -514,8 +498,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     }
 
     if (hstio_err()) {
-        sprintf (MsgText, "Couldn't write imset %d.", extver);
-        trlerror (MsgText);
+        trlerror("Couldn't write imset %d.", extver);
         return (status = WRITE_FAILED);
     }
     if (wf3->printtime)
@@ -555,7 +538,7 @@ static void AtoDMsg (WF3Info *wf3, int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
 
-    trlmessage ("");
+    trlmessage("");
     PrSwitch ("atodcorr", wf3->atodcorr);
 
     if (extver == 1 && !OmitStep (wf3->atodcorr)) {
@@ -571,7 +554,7 @@ static void BiasMsg (WF3Info *wf3, int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
 
-    trlmessage ("");
+    trlmessage("");
     PrSwitch ("biascorr", wf3->biascorr);
 
     if (extver == 1 && !OmitStep (wf3->biascorr)) {
@@ -587,7 +570,7 @@ static void SatMsg (WF3Info *wf3, int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
 
-    trlmessage ("");
+    trlmessage("");
     if (extver == 1 && !OmitStep (wf3->biascorr)) {
 
         PrRefInfo ("satufile", wf3->satmap.name, wf3->satmap.pedigree,
@@ -601,7 +584,7 @@ static void FlashMsg (WF3Info *wf3, int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
 
-    trlmessage ("");
+    trlmessage("");
     PrSwitch ("flshcorr", wf3->flashcorr);
 
     if (extver == 1 && !OmitStep (wf3->flashcorr)) {
@@ -617,7 +600,7 @@ static void BlevMsg (WF3Info *wf3, int extver) {
     void PrRefInfo (char *, char *, char *, char *, char *);
     int OmitStep (int);
 
-    trlmessage ("");
+    trlmessage("");
     PrSwitch ("blevcorr", wf3->blevcorr);
 
     if (extver == 1 && !OmitStep (wf3->blevcorr)) {
@@ -634,7 +617,7 @@ static void dqiMsg (WF3Info *wf3, int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
 
-    trlmessage ("");
+    trlmessage("");
     PrSwitch ("dqicorr", wf3->dqicorr);
 
     if (extver == 1 && !OmitStep (wf3->dqicorr)) {

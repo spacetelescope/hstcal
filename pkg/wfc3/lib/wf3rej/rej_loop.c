@@ -238,27 +238,27 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     /* allocate data arrays */
     pic = (float ***) calloc(nimgs, sizeof(float **));
     if (pic == NULL) {
-        trlerror ("Couldn't allocate memory for scratch array in REJ_LOOP.");
+        trlerror("Couldn't allocate memory for scratch array in REJ_LOOP.");
         return (status = OUT_OF_MEMORY);
     }
     thresh = (float ***) calloc (nimgs, sizeof(float **));
     if (thresh == NULL) {
-        trlerror ("Couldn't allocate memory for scratch array in REJ_LOOP.");
+        trlerror("Couldn't allocate memory for scratch array in REJ_LOOP.");
         return (status = OUT_OF_MEMORY);
     }
     spthresh = (float ***) calloc (nimgs, sizeof(float **));
     if (spthresh == NULL) {
-        trlerror ("Couldn't allocate memory for scratch array in REJ_LOOP.");
+        trlerror("Couldn't allocate memory for scratch array in REJ_LOOP.");
         return (status = OUT_OF_MEMORY);
     }
     mask = (short ***) calloc (nimgs, sizeof(short **));
     if (mask == NULL) {
-        trlerror ("Couldn't allocate memory for scratch array in REJ_LOOP.");
+        trlerror("Couldn't allocate memory for scratch array in REJ_LOOP.");
         return (status = OUT_OF_MEMORY);
     }
     exp2 = (float *) calloc (nimgs, sizeof(float));
     if (exp2 == NULL) {
-        trlerror ("Couldn't allocate memory for scratch array in REJ_LOOP.");
+        trlerror("Couldn't allocate memory for scratch array in REJ_LOOP.");
         return (status = OUT_OF_MEMORY);
     }
 
@@ -375,8 +375,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     /* start the rejection iteration */
     for (iter = 0; iter < niter; iter++) {
         if (par->verbose) { 
-            sprintf (MsgText, "iteration %d", iter+1);
-            trlmessage (MsgText);
+            trlmessage("iteration %d", iter+1);
         }
         
         sig2 = SQ(sigma[iter]);
@@ -969,8 +968,7 @@ static void printBitLine (Byte ***crmask, int img, int line, int nx){
         for (bit = 0x80,i=0; bit > 0; bit=(bit>>1),i++) {
             if ( (crmask[img][line][x] & bit) > 0) { 
                 pix = x * SIZE_BYTE + i;
-                sprintf(MsgText, "Compressed hit at %d,%d", pix, line);
-                trlmessage (MsgText); 
+                trlmessage("Compressed hit at %d,%d", pix, line);
             } /*	printf("X");
             else
                 printf("."); 
