@@ -4,16 +4,16 @@ Calibration software for HST/WFC3, HST/ACS, and HST/STIS.
 
 HSTCAL is a C-based package which is comprised of the science calibration
 software in support of the Advanced Camera for Surveys (ACS), Space Telescope
-Imaging Spectrograph (STIS), and Wide Field Camera 3 pipelines. Initially, the
+Imaging Spectrograph (STIS), and Wide Field Camera 3 (WFC3) pipelines. Initially, the
 pipelines were written using C, but were encapsulated within the IRAF/STSDAS
 environment, relying on IRAF to perform I/O and other basic interface
-functions. HSTCAL replaces all the IRAF-based functionality with routines
+functions. HSTCAL replaces all the low-level IRAF-based functionality with routines
 based on the third-party package CFITSIO. This allows all the pipeline
 software to be compiled and run without any dependence on IRAF. Not only
 can HST data be processed using the C code directly via the C executables,
 but the pipelines can also be run by using a high-level Python interface
 (via [subprocess](https://docs.python.org/3/library/subprocess.html))
-that serves as thin wrappers for the C executables, which are availble
+comprised of thin wrappers for the C executables. The wrappers are available
 as part of the `xxxtools` Python packages mentioned below.
 
 ## Install using Conda (Complete Calibration Environment)
@@ -92,9 +92,10 @@ and the [stistools documentation](https://stistools.readthedocs.io/).
 
 ## Other Software
 
-The following are also part of HST pipeline but not in this package:
+The following are also part of the standard HST pipeline, but are independent software
+packages written in Python or Python layered on C:
 
-* COS pipeline: See [COS Data Handbook](https://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html) and [costools documentation](https://costools.readthedocs.io/)
+* COS pipeline (`calcos` and `costools`): See [COS Data Handbook](https://www.stsci.edu/hst/cos/documents/handbooks/datahandbook/COS_cover.html) and [costools documentation](https://costools.readthedocs.io/)
 * [Drizzlepac](https://www.stsci.edu/scientific-community/software/drizzlepac.html)
 
 ## Dev notes
