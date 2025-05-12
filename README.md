@@ -65,6 +65,9 @@ to be able to find calibration reference files. For more information, see the
 export jref="/grp/crds/cache/references/hst/"
 ```
 
+If your machine is not connected to the Central Storage mentioned above, please set
+the location to where the calibration reference files exist on your own machine.
+
 For more information, please see the [ACS Data Handbook](https://hst-docs.stsci.edu/acsdhb)
 and the [acstools documentation](https://acstools.readthedocs.io/).
 
@@ -76,6 +79,9 @@ and the [acstools documentation](https://acstools.readthedocs.io/).
 export iref="/grp/crds/cache/references/hst/"
 ```
 
+If your machine is not connected to the Central Storage mentioned above, please set
+the location to where the calibration reference files exist on your own machine.
+
 For more information, please see the [WFC3 Data Handbook](https://hst-docs.stsci.edu/wfc3dhb)
 and the [wfc3tools documentation](https://wfc3tools.readthedocs.io/).
 
@@ -86,6 +92,9 @@ and the [wfc3tools documentation](https://wfc3tools.readthedocs.io/).
 ```bash
 export oref="/grp/crds/cache/references/hst/"
 ```
+
+If your machine is not connected to the Central Storage mentioned above, please set
+the location to where the calibration reference files exist on your own machine.
 
 For more information, please see the [STIS Data Handbook](https://hst-docs.stsci.edu/stisdhb)
 and the [stistools documentation](https://stistools.readthedocs.io/).
