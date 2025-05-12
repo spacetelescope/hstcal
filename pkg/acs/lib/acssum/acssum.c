@@ -72,7 +72,6 @@ int AcsSum (char *input, char *output, char *mtype, int printtime, int verbose)
     char acs_input[CHAR_FNAME_LENGTH];
 
     int          FileExists (char *);
-    void         TimeStamp (char *, char *);
     void         PrBegin (char *);
     void         PrEnd (char *);
     void         PrFileName (char *, char *);
@@ -311,7 +310,6 @@ static int SumGrps (AcsSumInfo *acs, char *mtype) {
     char        uroot[CHAR_FNAME_LENGTH];   /* Upper case version of rootname */
 
     int doStat (SingleGroup *, short);
-    void TimeStamp (char *, char *);
     void PrGrpBegin (char *, int);
     void PrGrpEnd (char *, int);
     void PrSwitch (char *, int);

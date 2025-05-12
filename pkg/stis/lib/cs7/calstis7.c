@@ -8,6 +8,7 @@
 # include <stdio.h>
 # include <string.h>
 
+# include "hstcal.h"
 # include "hstio.h"
 
 # include "stis.h"

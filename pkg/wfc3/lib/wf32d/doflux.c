@@ -36,7 +36,6 @@
 void FluxMsg(WF3Info *);
 int doFlux(WF3Info *);
 int doStat(SingleGroup *, short);
-int TimeStamp(char *, char *);
 int PutKeyDbl(Hdr *, char *, double, char *);
 int UpdateSwitch(char *, int, Hdr*, int*);
 int GetKeyDbl (Hdr *, char *, int, double, double *);
