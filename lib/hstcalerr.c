@@ -1,8 +1,11 @@
 # include <stdio.h>
 # include <string.h>
+# include <errno.h>
+# include <unistd.h>
+# include "config.h"
 # include "hstcal.h"
 # include "hstio.h"
-# include <c_iraf.h>
+# include "c_iraf.h"
 # include "trlbuf.h"
 # include "hstcalerr.h"
 
@@ -23,8 +26,30 @@ struct hstcal_error_state hstcal_error_state_populate(const char *filename, cons
     }
 
 #ifndef NDEBUG
-    fprintf(stderr, "DEBUG: %s called in %s() at %s:%d\n", __FUNCTION__, function_name, filename, line_number);
-#endif
+#if defined(ENABLE_BACKTRACE) && defined(HAVE_BACKTRACE)
+    fprintf(stderr, "DEBUG:    Location: %s:%d\n", filename, line_number);
+    void *btarray[MAX_BACKTRACE];
+    const int btsize = backtrace(btarray, MAX_BACKTRACE);
+    do {
+        if (!btsize) {
+            fprintf(stderr, "DEBUG:    Backtrace collection failed: %s\n", strerror(errno));
+            break;
+        }
+
+        if (btsize >= MAX_BACKTRACE) {
+            fprintf(stderr, "DEBUG:    Backtrace records exceeds MAX_BACKTRACE. Output will be truncated!\n");
+        }
+
+        fprintf(stderr, "DEBUG:    Backtrace:\n");
+        // Write backtrace directly to STDERR.
+        // The _fd variant does not use malloc().
+        backtrace_symbols_fd(btarray, btsize, STDERR_FILENO);
+    } while (0);
+#else
+    // Use the compiler builtins to report the error location
+    fprintf(stderr, "DEBUG:    %s called in %s() at %s:%d\n", __FUNCTION__, function_name, filename, line_number);
+#endif  // ENABLE_BACKTRACE && HAVE_BACKTRACE
+#endif  // NDEBUG
     // Create a new context for reporting the error
     struct hstcal_error_state e;
 

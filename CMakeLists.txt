@@ -10,7 +10,7 @@ option(ENABLE_ASAN_RECOVER "When ASAN reports a problem, don't halt execution" O
 option(ENABLE_WARNINGS "Enable compiler warnings" ON)
 option(ENABLE_OPENMP "Enable OpenMP" ON)
 
-set(MAX_BACKTRACE 1000 CACHE STRING "Maximum backtrace depth")
+set(MAX_BACKTRACE 100 CACHE STRING "Maximum backtrace depth")
 option(ENABLE_BACKTRACE "Enable backtrace hook" OFF)
 if(ENABLE_BACKTRACE)
 	add_link_options(-rdynamic)
