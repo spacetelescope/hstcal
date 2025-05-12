@@ -9,6 +9,13 @@ option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_ASAN_RECOVER "When ASAN reports a problem, don't halt execution" OFF)
 option(ENABLE_WARNINGS "Enable compiler warnings" ON)
 option(ENABLE_OPENMP "Enable OpenMP" ON)
+
+set(MAX_BACKTRACE 1000 CACHE STRING "Maximum backtrace depth")
+option(ENABLE_BACKTRACE "Enable backtrace hook" OFF)
+if(ENABLE_BACKTRACE)
+	add_link_options(-rdynamic)
+endif()
+
 set(WITH_CFITSIO "" CACHE STRING "Path to cfitsio (if empty pkg-config is used)")
 set(WITH_CFITSIO_CFLAGS "" CACHE STRING "CFITSIO compiler flags")
 set(WITH_CFITSIO_LDFLAGS "-lcfitsio" CACHE STRING "CFITSIO linker flags")
@@ -42,6 +49,7 @@ check_symbol_exists(INT_MAX "limits.h" HAVE_INT_MAX)
 check_symbol_exists(PATH_MAX "limits.h" HAVE_LIMITS__PATH_MAX)
 check_symbol_exists(PATH_MAX "sys/limits.h" HAVE_SYS_LIMITS__PATH_MAX)
 check_symbol_exists(PATH_MAX "sys/syslimits.h" HAVE_SYS_SYSLIMITS__PATH_MAX)
+check_symbol_exists(backtrace "execinfo.h" HAVE_BACKTRACE)
 
 configure_file(config.h.in config.h @ONLY)
 
