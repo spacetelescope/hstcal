@@ -26,12 +26,12 @@ int FileExists (char *fname) {
 	    if (flag == 1) {
 		sprintf (MsgText, "Output file `%s' already exists.", fname);
 		trlwarn (MsgText);
-            status = 1021;
+            status = INVALID_TEMP_FILE;
             exists = EXISTS_YES;
 	    } else {
 		sprintf (MsgText, "Can't clobber `%s'.", fname);
 		trlerror (MsgText);
-            status = 1023;
+            status = FILE_NOT_READABLE;
             exists = EXISTS_YES;
 	    }
 	}
@@ -71,7 +71,7 @@ int TrlExists (char *trlname) {
 		trlerror (MsgText);
 
 		/* Return error condition, can't create TRL file... */
-		status = 1023;	
+		status = FILE_NOT_READABLE;
 		return (exists = EXISTS_YES);			
 
 	    } else {

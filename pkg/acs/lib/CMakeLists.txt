@@ -126,7 +126,6 @@ add_library(${PROJECT_NAME} SHARED
 	ucalver.c
 	ufilename.c
 	unbinline.c
-	whicherror.c
 )
 target_include_directories(${PROJECT_NAME}
 	PUBLIC ${HSTCAL_include}
