@@ -1083,7 +1083,7 @@ int GetGlobalInfo (AsnInfo *asn) {
     int GetSwitch (Hdr *, char *, int *);
 
     if (asn->debug) {
-        trlmessage ("GetGlobalInfo: Ready to open primary header... ");
+        trlmessage ("GetGlobalInfo: Ready to open primary header...");
     }
 
     if (asn->debug) {

@@ -67,8 +67,8 @@ Hdr *phdr       i: primary header
             sprintf(flashkey,"POSTFLSH");
 
             /* Now warn the user to change keyword name to FLSHCORR. */
-            trlwarn("Using old keyword POSTFLSH!");
-            trlwarn("Please rename keyword to FLSHCORR in header.");
+            trlwarn("Using old keyword POSTFLSH!\n"
+                    "Please rename keyword to FLSHCORR in header.");
         }
 	}
 

@@ -162,9 +162,9 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     else
         numext = 1;
 
-    /* While the primary header is available, get the image type which is now 
-       needed in acsrej_loop.c.  The interest here are the specific cases of 
-       combining BIAS or DARK images to generate calibration images, so only 
+    /* While the primary header is available, get the image type which is now
+       needed in acsrej_loop.c.  The interest here are the specific cases of
+       combining BIAS or DARK images to generate calibration images, so only
        need to read the IMAGETYP keyword from the first image. */
     if (GetKeyStr (&phdr, "IMAGETYP", NO_DEFAULT, "", imagetyp, ACS_CBUF)) {
         trlkwerr ("IMAGETYP", fimage);
@@ -328,8 +328,8 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		} else {
 			trlwarn("Cosmic-ray rejection NOT performed!");
 			if (non_zero > 0) {
-				trlwarn("Some input exposures had EXPTIME = 0.");
-				trlwarn("Output product will not be cosmic-ray cleaned!");
+				trlwarn("Some input exposures had EXPTIME = 0.\n"
+				        "Output product will not be cosmic-ray cleaned!");
 			}
         } /* End if(non_zero) block */
 

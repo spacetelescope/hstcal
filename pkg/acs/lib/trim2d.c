@@ -6,9 +6,9 @@
 # include "hstcalerr.h"	/* SIZE_MISMATCH */
 # include "acs.h"
 
-/* This routine is a mild modification of the trim1d routine from trim.c. This trim2d routine 
-   takes an input data image, extracts a specified subset, and assigns the values to 
-   an output data array.  The calling routine must allocate the output SingleGroup (setting 
+/* This routine is a mild modification of the trim1d routine from trim.c. This trim2d routine
+   takes an input data image, extracts a specified subset, and assigns the values to
+   an output data array.  The calling routine must allocate the output SingleGroup (setting
    its size) and free it when done.
    M.D. De La Pena: 05 June 2018
 
@@ -49,10 +49,10 @@ SingleGroup *b    o: output data
     if ( (xstart < 0 || xstart + nx*binx > a->sci.data.tot_nx) ||
          (ystart < 0 || ystart + ny*biny > a->sci.data.tot_ny) ) {
          trlerror("(trim2d)  subset is out of bounds:");
-         trlmessage("         input is %d x %d pixels, output is %d x %d pixels",
-         a->sci.data.tot_nx, a->sci.data.tot_ny, b->sci.data.tot_nx, b->sci.data.tot_ny);
-         trlmessage("        startx = (%d), starty = (%d), binx = %d, biny = %d.",
-         xstart+1, ystart+1, binx, biny);
+         trlmessage("         input is %d x %d pixels, output is %d x %d pixels\n"
+                    "        startx = (%d), starty = (%d), binx = %d, biny = %d.",
+                    a->sci.data.tot_nx, a->sci.data.tot_ny, b->sci.data.tot_nx, b->sci.data.tot_ny,
+                    xstart+1, ystart+1, binx, biny);
          return (status = SIZE_MISMATCH);
     }
 

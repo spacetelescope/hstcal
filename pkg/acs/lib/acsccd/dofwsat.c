@@ -75,7 +75,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         return (status);
     }
 
-    /* 
+    /*
        Compute correct extension version number to extract from
        reference image to correspond to CHIP in science data.
        Note: acs->nimsets is no longer used in DetCCDChip() routine.
@@ -93,7 +93,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
       It is necessary to determine if the science array is full-frame
       or a subarray.
 
-      x0,y0 is the location of the start of the subimage in the 
+      x0,y0 is the location of the start of the subimage in the
       reference image.
 
     **
@@ -104,7 +104,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         return (status);
 
 
-    /* Get the bin factor and "corner" (xpixel and ypixel) where science data actually 
+    /* Get the bin factor and "corner" (xpixel and ypixel) where science data actually
        begins (versus overscan) in the science and the saturation image data */
 	if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
 	    return (status);
@@ -128,10 +128,10 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     ydim = x->sci.data.ny - (acs->trimy[0] + acs->trimy[1]);
 
     if (same_size) {
-        trlmessage("Full-frame full-well saturation image flagging step being performed.\n");
+        trlmessage("Full-frame full-well saturation image flagging step being performed.");
 
         /* Define the beginning and ending pixels */
-        xbeg = abs(sci_corner[0]);	
+        xbeg = abs(sci_corner[0]);
         ybeg = abs(sci_corner[1]);
         xend = xbeg + xdim;
         yend = ybeg + ydim;
@@ -142,16 +142,16 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
             {unsigned int  i;
             for (i = xbeg;  i < xend;  i++) {
 
-                /* Flag full-well saturated pixels with 256 dq bit*/             
+                /* Flag full-well saturated pixels with 256 dq bit*/
 		        if (Pix (x->sci.data, i, j) > Pix(satimage.sci.data, i, j)) {
 			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix (x->dq.data, i, j, sum_dq);
                 }
             }}
         }}
-        trlmessage("Full-frame full-well saturation image flagging step done.\n");
+        trlmessage("Full-frame full-well saturation image flagging step done.");
     } else {  /* subarray */
-        trlmessage("Subarray full-well saturation image flagging step being performed.\n");
+        trlmessage("Subarray full-well saturation image flagging step being performed.");
 
         /* Compute the end point of the X and Y dimension loops */
         xend = x0 + xdim;
@@ -167,21 +167,21 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         {unsigned int j, k;
         for (j = 0, k = y0; j < ydim; j++, k++) {
 
-            /* 
-               Working with a sub-array so need to apply the proper 
+            /*
+               Working with a sub-array so need to apply the proper
                section from the reference image to the science image.
             */
 
             {unsigned int i, l;
             for (i = 0, l = x0; i < xdim; i++, l++) {
-                /* Flag full-well saturated pixels with 256 dq bit*/             
+                /* Flag full-well saturated pixels with 256 dq bit*/
 		        if (Pix (x->sci.data, i, j) > Pix(satimage.sci.data, l, k)) {
 			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix (x->dq.data, i, j, sum_dq);
 		        }
             }}
         }}
-        trlmessage("Subarray full-well saturation image flagging step done.\n");
+        trlmessage("Subarray full-well saturation image flagging step done.");
     }
 
     freeSingleGroup (&satimage);

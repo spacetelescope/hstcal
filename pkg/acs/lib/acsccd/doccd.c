@@ -13,7 +13,7 @@
  12-Aug-2012 PLL: Separated PCTECORR from ACSCCD.
  21-Feb-2017 PLL: Added SINKCORR.
  16-May-2018 MDD: Specific supported subarrays can now be bias shift
-     corrected. Clarified the logic that determines if data is processed 
+     corrected. Clarified the logic that determines if data is processed
      with doBlev or bias_shift/cross_talk/destripe correction.
  14-May-2020: MDD: Modified to apply the full-well saturation flags stored
      as an image to the data instead of in the doDQI step.
@@ -25,7 +25,7 @@
      circumstances. The offset values is applicable for WFC and HRC only.
      The code was moved from acs2d/dodark.c which contained the original
      implementation.
- 11-Jan-2022 MDD: Only call computeDarktime() once to compute the updated 
+ 11-Jan-2022 MDD: Only call computeDarktime() once to compute the updated
      DARKTIME primary keyword. Update the keyword in main to avoid passing
      of the reference of the output data unnecessarily. Return type of the
      computeDarktime() is void.  Mods triggered by routine failing under the
@@ -51,14 +51,14 @@ static void BlevMsg (ACSInfo *, const int);
 static void SinkMsg (ACSInfo *, const int);
 
 /* This variable contains the subarray aperture names for the officially supported
-   subarrays since ~Cycle 24.  The polarizer and ramp subarray apertures did NOT 
-   change aperture names, even though the dimensions of the data changed to accommodate 
-   overscan.  In addition to checking the aperture name, the dimensions will also need 
-   to be checked for pol/ramp data to determine if the bias shift correction 
+   subarrays since ~Cycle 24.  The polarizer and ramp subarray apertures did NOT
+   change aperture names, even though the dimensions of the data changed to accommodate
+   overscan.  In addition to checking the aperture name, the dimensions will also need
+   to be checked for pol/ramp data to determine if the bias shift correction
    can be applied.
 
    The non-pol and non-ramp data adopted new aperture names for easy identification.
-   These apertures contain physical overscan.  The new "-2K" subarrays also have virtual 
+   These apertures contain physical overscan.  The new "-2K" subarrays also have virtual
    overscan so the bias shift correction can be applied to this data. At this time,
    bias shift correction can only be applied to data with both physical and virtual
    overscan so the "fat zero" value can be computed.
@@ -74,9 +74,9 @@ static const char *darkSubApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WF
                                      "WFC1A-1K", "WFC1B-1K", "WFC2C-1K", "WFC2D-1K",
                                      "WFC1A-512", "WFC1B-512", "WFC2C-512", "WFC2D-512",
                                      "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-ORAMPQ",
-                                     "WFC1-POL0UV", "WFC1-POL0V", 
-                                     "WFC1-POL60UV", "WFC1-POL60V", 
-                                     "WFC1-POL120UV", "WFC1-POL120V", 
+                                     "WFC1-POL0UV", "WFC1-POL0V",
+                                     "WFC1-POL60UV", "WFC1-POL60V",
+                                     "WFC1-POL120UV", "WFC1-POL120V",
                                      "WFC1-SMFL"};
 
 static const int numSupportedDarkSubApertures = sizeof(darkSubApertures) / sizeof(darkSubApertures[0]);
@@ -366,8 +366,8 @@ int DoCCD (ACSInfo *acs_info) {
     }}
 
     /* The logic here has been re-written (1) to accommodate the new subarrays
-       (Ref: ISR ACS 2017-03) which can be bias shift corrected ("*-2K" data only at 
-       this time), and (2) the head of the ACS team requested the logic be clarified.  
+       (Ref: ISR ACS 2017-03) which can be bias shift corrected ("*-2K" data only at
+       this time), and (2) the head of the ACS team requested the logic be clarified.
        This code is verbose and potentially harder to maintain, but the logic is clearer
        for the scientist reading the code.
 
@@ -378,7 +378,7 @@ int DoCCD (ACSInfo *acs_info) {
        from CCDTAB.
     */
 
-    int done = NO;       
+    int done = NO;
     int driftcorr = NO;     /* true means bias level was corrected for drift */
     Bool isSupportedSubAperture = NO;
     float meanblev = 0.0;   /* mean value of overscan bias (for history) */
@@ -387,20 +387,20 @@ int DoCCD (ACSInfo *acs_info) {
        /* This block handles only the WFC detector */
        if (acs_info->detector == WFC_CCD_DETECTOR) {
 
-          /* If this is subarray data, determine if it is supported for the bias shift 
+          /* If this is subarray data, determine if it is supported for the bias shift
              correction.  Compare the aperture name against the array of supported
-             apertures.  Use the aperture name and not the date as the discriminant 
-             as the date is fuzzy - some supported subarrays were acquired before the 
-             official name change, and some old style subarrays were acquired after the 
+             apertures.  Use the aperture name and not the date as the discriminant
+             as the date is fuzzy - some supported subarrays were acquired before the
+             official name change, and some old style subarrays were acquired after the
              change.  This scheme works fine for non-polarization and non-ramp data as the
              "*-2K" apertures have both physical and virtual overscan.  These are needed
              to compute the "fat zero" (aka magic square) value needed for the bias
-             shift correction.  The "*-1K and *-512" subarrays do not have virtual 
+             shift correction.  The "*-1K and *-512" subarrays do not have virtual
              overscan which is needed at this time for fat zero.
 
-             For polarization and ramp subarrays, the aperture names did not change.  For 
-             this data, the dimensions of the image also have to be checked to determine 
-             if there are both physical and virtual overscan sections so the bias shift 
+             For polarization and ramp subarrays, the aperture names did not change.  For
+             this data, the dimensions of the image also have to be checked to determine
+             if there are both physical and virtual overscan sections so the bias shift
              correction can be applied.
           */
           if (acs_info->subarray == YES) {
@@ -411,8 +411,8 @@ int DoCCD (ACSInfo *acs_info) {
                     /* If this is polarization or ramp data, then the size of the science
                        array must also be checked to make sure there is physical and
                        virtual overscan data.  This does not need to be checked explicitly
-                       for non-polarization or non-ramp data, but the comparison works for 
-                       this data too.  Only need to check one virtOverscan value in the array. 
+                       for non-polarization or non-ramp data, but the comparison works for
+                       this data too.  Only need to check one virtOverscan value in the array.
 
                        NOTE:Just because the aperture is supported does not mean the bias
                        shift correction will be applied.  The DS_int and gain criteria also
@@ -474,16 +474,16 @@ int DoCCD (ACSInfo *acs_info) {
                  blevcorr[i] = COMPLETE;
 
              }} /* End loop over imsets */
-  
+
              PrSwitch("blevcorr", COMPLETE);
-  
+
              if (acs_info->printtime)
                 TimeStamp("BLEVCORR complete", acs_info->rootname);
 
           /* End Pre-SM4 WFC data */
           } else {
 
-             /* Post-SM4 WFC data - Fullframe data with DS_int and gain of 2 will 
+             /* Post-SM4 WFC data - Fullframe data with DS_int and gain of 2 will
                 have bias shift, cross talk, and destripe corrections applied.  Supported
                 subarray data with DS_int and gain of 2 will have the bias shift applied as
                 cross talk and destripe do not apply to subarray data.
@@ -491,9 +491,9 @@ int DoCCD (ACSInfo *acs_info) {
 
              /* The variable done is set based on results of FindOver */
              done = NO;
-             if ((overscan[0] == YES) && (overscan[1] == YES)) 
+             if ((overscan[0] == YES) && (overscan[1] == YES))
                 done = YES;
-           
+
              /* Process full frame data */
              if (acs_info->subarray == NO) {
 
@@ -512,7 +512,7 @@ int DoCCD (ACSInfo *acs_info) {
                          freeOnExit (&ptrReg);
                          return status;
                       }
-        
+
                       {unsigned int i;
                       for (i = 0; i < acs_info->nimsets; i++) {
                           cross_talk_corr(&acs[i], &x[i]);
@@ -534,7 +534,7 @@ int DoCCD (ACSInfo *acs_info) {
                    }}
 
                    PrSwitch("blevcorr", COMPLETE);
-   
+
                    if (acs_info->printtime) {
                        TimeStamp("BLEVCORR complete", acs->rootname);
                    }
@@ -552,7 +552,7 @@ int DoCCD (ACSInfo *acs_info) {
                    also be DS_int with a gain of 2.
 
                    No need to check "done" here as the isSupportedSubAperture has been set based upon
-                   tha array names of supported subarrays AND the determination they have virtual overscan 
+                   tha array names of supported subarrays AND the determination they have virtual overscan
                    according to the image size (e.g., WFC1A-2K with size 2072x2068).
                 */
                 if ((isSupportedSubAperture == YES) && (strcmp(acs_info->jwrotype, "DS_INT") == 0) &&
@@ -560,19 +560,19 @@ int DoCCD (ACSInfo *acs_info) {
                    PrSwitch("blevcorr", PERFORM);
 
                    trlmessage("Performing bias-shift correction for subarray data.");
-                      
+
                    /* Only bias shift correction is done for subarray data. For a supported
-                      subarray, there is only one amp on a single chip in use. 
+                      subarray, there is only one amp on a single chip in use.
                    */
                    if (bias_shift_corr(acs_info, 1, &x[0])) {
                       freeOnExit (&ptrReg);
                       return status;
                    }
-                     
+
                    /* There is only one imset for supported subarrays */
                    blevcorr[primaryIdx] = COMPLETE;
                    PrSwitch("blevcorr", COMPLETE);
-   
+
                    if (acs_info->printtime) {
                       TimeStamp("BLEVCORR complete", acs->rootname);
                    }
@@ -581,7 +581,7 @@ int DoCCD (ACSInfo *acs_info) {
 
                    /* Unsupported subarray apertures and other oddities.  These
                       are processed using the original/old bias correction algorithm.
-                   */ 
+                   */
                 } else {
                    trlmessage("WFC readout is not a supported subarray or type/gain not set as needed for new bias level algorithm for subarray data.");
                    trlmessage("Data to be processed with original bias level algorithm.");
@@ -600,7 +600,7 @@ int DoCCD (ACSInfo *acs_info) {
                        /* Variable done is overwritten in doBlev if bias is determined from overscan region */
                        if (done) {
                           trlmessage("Bias level from overscan has been subtracted;");
- 
+
                           if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
                                          "mean of bias levels subtracted in electrons")) {
                              freeOnExit (&ptrReg);
@@ -628,12 +628,12 @@ int DoCCD (ACSInfo *acs_info) {
                        /* Set this to complete so overscan-trimmed image will be written out. */
                        blevcorr[i] = COMPLETE;
                    }}
-  
+
                    PrSwitch("blevcorr", COMPLETE);
 
                    if (acs_info->printtime)
                       TimeStamp("BLEVCORR complete", acs_info->rootname);
- 
+
                 } /* End subarray processing */
 
              } /* End of full frame/subarray data */
@@ -653,7 +653,7 @@ int DoCCD (ACSInfo *acs_info) {
                    freeOnExit (&ptrReg);
                    return (status);
                 }
-  
+
                 /* Variable done is overwritten in doBlev if bias is determined from overscan region */
                 if (done) {
                    trlmessage("Bias level from overscan has been subtracted;");
@@ -686,12 +686,12 @@ int DoCCD (ACSInfo *acs_info) {
             }}
 
             PrSwitch("blevcorr", COMPLETE);
- 
+
             if (acs_info->printtime)
                TimeStamp("BLEVCORR complete", acs_info->rootname);
 
        } /* End for HRC data */
- 
+
     } /* End of BLEVCORR = PERFORM */
 
     if (!OmitStep(acs[primaryIdx].blevcorr)) {
@@ -854,10 +854,10 @@ int DoCCD (ACSInfo *acs_info) {
         if (blevcorr[i] == COMPLETE || acs[i].blevcorr == COMPLETE) {
             /* BLEVCORR was completed, so overscan regions can be trimmed... */
             if (acs_info->verbose) {
-                trlmessage("Writing out image with trimx = %d,%d, trimy = %d,%d",
+                trlmessage("Writing out image with trimx = %d,%d, trimy = %d,%d\nOutputting chip %d",
                         acs[i].trimx[0], acs[i].trimx[1],
-                        acs[i].trimy[0],acs[i].trimy[1]);
-                trlmessage("Outputting chip %d",acs[i].chip);
+                        acs[i].trimy[0], acs[i].trimy[1],
+                        acs[i].chip);
             }
 
             /* Output overscan-trimmed, bias-subtracted image
@@ -884,8 +884,8 @@ int DoCCD (ACSInfo *acs_info) {
         } else {
             /* BLEVCORR was not completed, so keep overscan regions... */
             if (acs_info->verbose) {
-                trlmessage("Writing out FULL image with overscan regions");
-                trlmessage("Outputting chip %d",acs[i].chip);
+                trlmessage("Writing out FULL image with overscan regions\n"
+                           "Outputting chip %d", acs[i].chip);
             }
 
             putSingleGroup(acs_info->output, i+1, &x[i], option);
@@ -922,27 +922,27 @@ void computeDarktime(ACSInfo *acs, float *darktime) {
     darktimeFromHeader = (float)acs->darktime;
 
     /*
-       The overhead offset time is a function of full-frame vs subarray and post-flash vs unflashed 
+       The overhead offset time is a function of full-frame vs subarray and post-flash vs unflashed
        and has been determined empirically for CCD data.  Both the unflashed and post-flash
-       overhead values for full-frame or subarray were extracted from the calibration file 
+       overhead values for full-frame or subarray were extracted from the calibration file
        during the table read.  Now it is just necessary to determine which offset actually
        applies.
     */
 
     /* Unflashed observation */
     darktimeOffset = acs->overhead_unflashed;
- 
+
     /* Post-flashed observation */
     if ((acs->flashdur > 0.0) && (strcmp(acs->flashstatus, "SUCCESSFUL") == 0)) {
           darktimeOffset = acs->overhead_postflashed;
     }
 
-    /* 
+    /*
        Compute the final darktime based upon the date of full-frame or subarray data.
-       The full-frame overhead offset is applicable to all data post-SM4.  The subarray 
+       The full-frame overhead offset is applicable to all data post-SM4.  The subarray
        overhead offset is applicable to all data post-CYCLE24 and ONLY for supported
-       subarrays. 
-  
+       subarrays.
+
        Effectively the additive factor only applies to ACS/WFC as the HRC was no longer
        operational by SM4MJD or CYCLE24, and SBC is a MAMA detector.
     */
