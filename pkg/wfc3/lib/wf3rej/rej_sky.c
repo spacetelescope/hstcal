@@ -167,7 +167,7 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 	sprintf (MsgText, 
 	"sky computed using min %d, max %d, mean %g, bins %d, and width %g",
 	min, max, mean, nbins, hwidth);
-	trlmessage (MsgText);
+	trlmessage(MsgText);
 	*/
     }
 
