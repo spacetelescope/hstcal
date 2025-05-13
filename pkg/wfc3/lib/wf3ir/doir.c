@@ -146,7 +146,7 @@ int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 	    return (status);
 	if (PutKeyFlt(input->group[0].globalhdr,"READNSED",wf3->readnoise[3],""))
 	    return (status);
-	trlmessage ("");
+	trlmessage("");
 
 	PrRefInfo ("ccdtab", wf3->ccdpar.name, wf3->ccdpar.pedigree,
 		   wf3->ccdpar.descrip, wf3->ccdpar.descrip2);
@@ -161,31 +161,31 @@ int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 
 	/* Report readnoise and gain values */
 	buff[0] = '\0';
-	sprintf (MsgText, "    readnoise =");
+	snprintf (MsgText, sizeof(MsgText), "    readnoise =");
 	for (i=0; i < NAMPS-1; i++) {
 	     if (wf3->readnoise[i] > 0) {
-		 sprintf (buff, "%.5g,",wf3->readnoise[i]);
+		 snprintf (buff, sizeof(buff), "%.5g,",wf3->readnoise[i]);
 		 strcat (MsgText, buff);
 	     }
 	}
 	if (wf3->readnoise[NAMPS-1] > 0) {
-	    sprintf (buff, "%.5g",wf3->readnoise[NAMPS-1]);
+	    snprintf (buff, sizeof(buff), "%.5g",wf3->readnoise[NAMPS-1]);
 	    strcat (MsgText, buff);
 	}
-	trlmessage (MsgText);
+	trlmessage("%s", MsgText);
 
 	sprintf (MsgText, "    gain =");
 	for (i=0; i < NAMPS-1; i++) {
 	     if (wf3->atodgain[i] > 0) {
-		 sprintf (buff, "%.5g,",wf3->atodgain[i]);
+		 snprintf (buff, sizeof(buff), "%.5g,",wf3->atodgain[i]);
 		 strcat (MsgText, buff);
 	     }
 	}
 	if (wf3->atodgain[NAMPS-1] > 0) {
-	    sprintf (buff, "%.5g",wf3->atodgain[NAMPS-1]);
+	    snprintf (buff, sizeof(buff), "%.5g",wf3->atodgain[NAMPS-1]);
 	    strcat (MsgText, buff);
 	}
-	trlmessage (MsgText);
+	trlmessage("%s", MsgText);
 
 	/* Load the DARK ref image information */
 	if (wf3->darkcorr == PERFORM) {
@@ -340,7 +340,7 @@ static void zsigMsg (WF3Info *wf3) {
 
 	void PrSwitch (char *, int);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("zsigcorr", wf3->zsigcorr);
 
 }
@@ -349,7 +349,7 @@ static void zoffMsg (WF3Info *wf3) {
 
 	void PrSwitch (char *, int);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("zoffcorr", wf3->zoffcorr);
 
 }
@@ -360,7 +360,7 @@ static void dqiMsg (WF3Info *wf3) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("dqicorr", wf3->dqicorr);
 
 	if (!OmitStep (wf3->dqicorr)) {
@@ -375,7 +375,7 @@ static void darkMsg (WF3Info *wf3) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("darkcorr", wf3->darkcorr);
 
 	if (!OmitStep (wf3->darkcorr)) {
@@ -390,7 +390,7 @@ static void blevMsg (WF3Info *wf3) {
 	void PrRefInfo (char *, char *, char *, char *, char *);
 	int OmitStep (int);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("blevcorr", wf3->blevcorr);
 
 	if (!OmitStep (wf3->blevcorr)) {
@@ -403,7 +403,7 @@ static void noisMsg (WF3Info *wf3) {
 
 	void PrSwitch (char *, int);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("noiscorr", wf3->noiscorr);
 }
 
@@ -413,7 +413,7 @@ static void nlinMsg (WF3Info *wf3) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("nlincorr", wf3->nlincorr);
 
 	if (!OmitStep (wf3->nlincorr)) {
@@ -426,7 +426,7 @@ static void crejMsg (WF3Info *wf3) {
 
 	void PrSwitch (char *, int);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("crcorr", wf3->crcorr);
 
 }
@@ -438,7 +438,7 @@ static void flatMsg (WF3Info *wf3) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("flatcorr", wf3->flatcorr);
 
 	if (!OmitStep (wf3->flatcorr)) {
@@ -466,7 +466,7 @@ static void photMsg (WF3Info *wf3) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("photcorr", wf3->photcorr);
 
 	if (!OmitStep (wf3->photcorr)) {
@@ -480,7 +480,7 @@ static void unitMsg (WF3Info *wf3) {
 
 	void PrSwitch (char *, int);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("unitcorr", wf3->unitcorr);
 
 }

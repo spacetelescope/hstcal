@@ -108,9 +108,7 @@ int BlevFit (void) {
 	slope = (sums[3] - xmean * ymean * sums[0]) / d;
 	intercept = ymean - slope * xmean;
 
-	sprintf (MsgText, "Computed a serial fit with slope of %g and intercept of %g",
-		 slope, intercept);
-	trlmessage (MsgText);
+	trlmessage("Computed a serial fit with slope of %g and intercept of %g", slope, intercept);
 
 	return (0);
 }

@@ -52,8 +52,7 @@ RefFileInfo *sciref o: reference file name and info
 	RefExist (sciref, wf3->detector, &missing);	/* for science file */
     
 	if (missing) {
-        sprintf (MsgText, "%d reference file(s) missing.", missing);
-        trlerror (MsgText);
+        trlerror("%d reference file(s) missing.", missing);
     	return (status = CAL_FILE_MISSING);
     }
 
@@ -90,10 +89,9 @@ RefFileInfo *sciref o: reference file name and info
 
 	if (missing > 0) {
 	    if (missing == 1) {
-		    trlerror ("One reference file was missing.");
+		    trlerror("One reference file was missing.");
 	    } else {
- 		    sprintf (MsgText, "%d reference files were missing.", missing);
-		    trlerror (MsgText);
+ 		    trlerror("%d reference files were missing.", missing);
 	    }
 	    return (status = CAL_FILE_MISSING);
 	}

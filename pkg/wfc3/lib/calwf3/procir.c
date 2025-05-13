@@ -83,8 +83,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
      ** PRODID/prod starts at 0, while numprod starts at 1... */
     for (prod = 0; prod < asn->numprod; prod++) {
         if (asn->verbose) {
-            sprintf (MsgText, "CALWF3: processing IR product %d", prod);
-            trlmessage (MsgText);
+            trlmessage("CALWF3: processing IR product %d", prod);
         }
 
         /* Loop over members of a position/product;
@@ -93,9 +92,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 
         for (posid=1; posid <= asn->numsp; posid++) {
             if (asn->verbose) {
-                sprintf (MsgText,
-                        "CALWF3: processing posid = %d", posid);
-                trlmessage (MsgText);
+                trlmessage("CALWF3: processing posid = %d", posid);
             }
 
             /*  Allocate space for WF3REJ input image list */
@@ -172,7 +169,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                 SetIRSw (&sci_sw, &wf3ir_sci_sw);
 
                 if (asn->verbose) {
-                    trlmessage ("CALWF3: Processing switches set... ");
+                    trlmessage("CALWF3: Processing switches set... ");
                 }
 
                 /* Ready to process input image now...	*/
@@ -203,12 +200,10 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
 
                     /* Copy the input file to fltfile. We need to do
                      ** this because WF3SUM needs it for input. */
-                    trlwarn ("No processing performed on image.");
+                    trlwarn("No processing performed on image.");
                     if (wf3hdr->sci_rptcorr != PERFORM)
                         status = NOTHING_TO_DO;
-                    sprintf (MsgText, "Copying input to %s ",
-                            wf3hdr->fltfile);
-                    trlwarn (MsgText);
+                    trlwarn("Copying input to %s ", wf3hdr->fltfile);
 
                     if (CopyFFile (wf3hdr->rawfile, wf3hdr->fltfile))
                         return (status);
@@ -231,15 +226,11 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
             if (wf3ir_sci_sw.rptcorr == PERFORM) {
 
                 if (asn->verbose) {
-                    sprintf (MsgText,
-                            "CALWF3: Now process position %d from product %d",
-                            posid, prod);
-                    trlmessage (MsgText);
+                    trlmessage(MsgText, "CALWF3: Now process position %d from product %d", posid, prod);
                 }
 
                 if (asn->verbose) {
-                    sprintf (MsgText,"Input to WF3REJ is:");
-                    trlmessage (MsgText);
+                    trlmessage("Input to WF3REJ is:");
 
                     /* Need to allocate memory for a separate string to
                      ** be long enough to hold all input names when
@@ -248,11 +239,9 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                     wf3rej_msgtext = calloc(strlen(wf3rej_input)+25,
                             sizeof(char));
                     sprintf (wf3rej_msgtext, "%s", wf3rej_input);
-                    trlmessage (wf3rej_msgtext);
+                    trlmessage(wf3rej_msgtext);
                     free (wf3rej_msgtext);
-                    sprintf (MsgText,"Output to WF3REJ is: %s",
-                            wf3hdr->crjfile);
-                    trlmessage (MsgText);
+                    trlmessage("Output to WF3REJ is: %s", wf3hdr->crjfile);
                 }
 
                 /* Set up the correct value of ASN_MTYP for WF3REJ
@@ -290,7 +279,7 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
             } else {
                 if (asn->process == FULL) {
                     asn->product[prod].subprod[posid].prsnt = False;
-                    trlmessage ("");
+                    trlmessage("");
                     PrSwitch ("rptcorr", wf3ir_sci_sw.rptcorr);
                 }
 
