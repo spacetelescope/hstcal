@@ -183,8 +183,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 		    return (status);
 	} else if (sci_sw->blevcorr == OMIT && refimage_used) {
 	    /* Dark, flat, etc., assume the overscan has been subtracted. */
-	    trlwarn 
-		("For science file, should do BLEVCORR to remove overscan ");
+	    trlwarn("For science file, should do BLEVCORR to remove overscan ");
 	    /* Use trlmessage for second line of warning/error messages */
 	    trlmessage("before doing other steps that use reference images.");
 	}

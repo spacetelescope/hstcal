@@ -103,14 +103,14 @@ int resistmean (float *in, int npix, float sigrej, float *mean,
 	    /* an array to store a copy of the data*/
 	    tempdata = (float *) calloc(npix, sizeof(float));
 	    if (tempdata == NULL) {
-			trlmessage("Memory allocation failure in resistmean");
+			trlerror("Memory allocation failure in resistmean");
 		return (1);
 	    }
 
 	    /* and an array to store absolute deviation */
 	    absdev = (float *) calloc(npix, sizeof(float));
 	    if (absdev == NULL) {
-			trlmessage("Memory allocation failure in resistmean");
+			trlerror("Memory allocation failure in resistmean");
 		return (1);
 	    }
 

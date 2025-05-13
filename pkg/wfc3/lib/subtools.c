@@ -27,29 +27,29 @@ int CreateEmptyChip(WF3Info *wf3, SingleGroup *full){
 
   if (full->group_num == 1){
       if (PutKeyDbl(&full->sci.hdr, "LTV2", 0.0, "offset in X to light start")) {
-        trlmessage("Error putting LTV1 keyword in header");
+        trlerror("Error putting LTV1 keyword in header");
         return (status=HEADER_PROBLEM);
       }
  } else {
      if (PutKeyDbl(&full->sci.hdr, "LTV2", 19.0, "offset in X to light start")) {
-       trlmessage("Error putting LTV1 keyword in header");
+       trlerror("Error putting LTV1 keyword in header");
        return (status=HEADER_PROBLEM);
      }
  }
   if (PutKeyDbl(&full->sci.hdr, "LTV1", 25.0, "offset in X to light start")) {
-    trlmessage("Error putting LTV1 keyword in header");
+    trlerror("Error putting LTV1 keyword in header");
     return (status=HEADER_PROBLEM);
   }
   if (PutKeyDbl(&full->sci.hdr, "LTM1_1", 1.0, "reciprocal of sampling rate in X")) {
-    trlmessage("Error putting LTV2 keyword in header");
+    trlerror("Error putting LTV2 keyword in header");
     return (status=HEADER_PROBLEM);
   }
   if (PutKeyDbl(&full->sci.hdr, "LTM2_2", 1.0, "reciprocal of sampling rate in Y")) {
-    trlmessage("Error putting LTV2 keyword in header");
+    trlerror("Error putting LTV2 keyword in header");
     return (status=HEADER_PROBLEM);
   }
   if (PutKeyStr(&full->sci.hdr, "CCDAMP", wf3->ccdamp, "CCD amplifier")){
-    trlmessage("Error updating CCDAMP keyword in image header");
+    trlerror("Error updating CCDAMP keyword in image header");
     return (status=HEADER_PROBLEM);
   }
 
@@ -87,12 +87,12 @@ int Sub2Full(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int real_dq, int f
   */
 
   if (!wf3->subarray){
-    trlmessage("Image is not a subarray, check image...");
+    trlerror("Image is not a subarray, check image...");
     return(status = HEADER_PROBLEM);
   }
 
   if (wf3->detector != CCD_DETECTOR){
-    trlmessage("Sub2Full only valid for UVIS subarrays");
+    trlwarn("Sub2Full only valid for UVIS subarrays");
   }
 
   /* Find the subarray location*/

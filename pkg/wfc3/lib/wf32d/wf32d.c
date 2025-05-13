@@ -250,11 +250,11 @@ void Init2DTrl (char *input, char *output) {
 	/* Start by stripping off suffix from input/output filenames */
 	if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
-	    trlmessage("Couldn't determine trailer filename for %s", input);
+	    trlerror("Couldn't determine trailer filename for %s", input);
 	}
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
-	    trlmessage("Couldn't create trailer filename for %s", output);
+	    trlerror("Couldn't create trailer filename for %s", output);
 	}
 
 	/* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
