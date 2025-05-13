@@ -158,7 +158,7 @@ int Full2Sub(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int dq, int sci, i
     sci boolean says to copy the science pixels*/
 
   if (!wf3->subarray){
-    trlmessage("Original image is not a subarray, check image...");
+    trlerror("Original image is not a subarray, check image...");
     return(status = HEADER_PROBLEM);
   }
 
