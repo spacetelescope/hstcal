@@ -97,7 +97,7 @@ int TabPedigree (RefTab *ref) {
 	    clear_cvoserr();
 	    status = 0;
 	    /*sprintf (MsgText, "FILETYPE keyword not found in %s.", ref->name);
-	    trlwarn (MsgText);*/
+	    trlwarn(MsgText);*/
 	}
 
 	/* Done with this table for the time being. */

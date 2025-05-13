@@ -333,8 +333,8 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		trlwarn("Some input exposures had EXPTIME = 0.");
 		trlwarn("Output product will not be cosmic-ray cleaned!");
 	    } /*else {
-		trlwarn ("ALL input exposures had EXPTIME = 0.");
-		trlwarn ("Output product will be BLANK!");
+		trlwarn("ALL input exposures had EXPTIME = 0.");
+		trlwarn("Output product will be BLANK!");
 	    } */
 	} /* End if(non_zero) block */
         
