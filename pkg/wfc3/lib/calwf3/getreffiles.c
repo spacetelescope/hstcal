@@ -117,8 +117,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 
 	if (sci_sw->rptcorr == PERFORM) {
 	    if (wf3->nimages < 2) {
-		trlwarn 
-		   ("RPTCORR will be omitted because there's only one image.");
+		trlwarn("RPTCORR will be omitted because there's only one image.");
 		wf3->sci_rptcorr = OMIT;
 	    } else {
 		wf3->sci_rptcorr = PERFORM;
@@ -274,8 +273,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 
 	if (sci_sw->rptcorr == PERFORM) {
 	    if (wf3->nimages < 2) {
-		trlwarn 
-		   ("RPTCORR will be omitted because there's only one image.");
+		trlwarn("RPTCORR will be omitted because there's only one image.");
 		wf3->sci_rptcorr = OMIT;
 	    } else {
 		wf3->sci_basic_ir = PERFORM;

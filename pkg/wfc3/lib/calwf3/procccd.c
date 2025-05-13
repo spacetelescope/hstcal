@@ -182,8 +182,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                     }
 
                     if (asn->verbose) {
-                        trlmessage
-                            ("CALWF3: Got reference file information");
+                        trlmessage("CALWF3: Got reference file information");
                     }
                     /* Store the trailer file comments into preface */
                     newpreface = YES;
