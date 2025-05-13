@@ -91,7 +91,7 @@ float rn             i: readnoise (units of DN)
 
 	if (vx[1] <= vx[0] || vy[1] <= vy[0]) {
 	    trlmessage("(blevcorr) No virtual overscan region;");
-	    trlmessage(nodriftcorr);
+	    trlmessage("%s", nodriftcorr);
 	    DriftSet (0.);
 	    return (status);
 	}
@@ -143,7 +143,7 @@ float rn             i: readnoise (units of DN)
 	/* Fit a curve to the values found. */
 	if (DriftFit()) {
 	    trlwarn("(blevcorr) Singular fit to virtual overscan; ");
-	    trlwarn(nodriftcorr);
+	    trlwarn("%s", nodriftcorr);
 	    DriftSet (0.);
 	} else {
 	    *driftcorr = 1;

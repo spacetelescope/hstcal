@@ -277,8 +277,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 			        } else {
 
-				        trlwarn
-					        ("No DTH product name specified. No product created.");
+				        trlwarn("No DTH product name specified. No product created.");
 				        /* status = WF3_OK; */
 			        }
 		        }
@@ -325,8 +324,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 			        } else {
 
-				        trlwarn
-					        ("No DTH product name specified. No product created.");
+				        trlwarn("No DTH product name specified. No product created.");
 				        /* status = WF3_OK; */
 			        }
 		        }

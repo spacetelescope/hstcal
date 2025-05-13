@@ -119,8 +119,7 @@ short sdqflags     i: "serious" data quality flags
 		if (num_bad_stddev == area) {
 		    trlwarn("No ERR values > 0.");
 		} else {
-		    trlwarn 
-		       ("All output pixels either flagged as bad or ERR <= 0.");
+		    trlwarn("All output pixels either flagged as bad or ERR <= 0.");
 		}
 	    } else {
 		trlwarn("All output pixels flagged as bad.");

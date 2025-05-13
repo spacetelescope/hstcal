@@ -154,8 +154,7 @@ int *done        o: true if we actually did assign error array values
 	    **	and readnoise... */
 
 	    if (ampx > 0 && (gain[AMP_C] == 0. || rn2[AMP_C] == 0.)) { 
-                trlerror 
-		  ("No valid GAIN or READNOISE values to initialize ERR data."); 
+                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
 		return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[2];
@@ -175,8 +174,7 @@ int *done        o: true if we actually did assign error array values
 	    /* Let's make sure we actually found a value for the gain
 	    **	and readnoise...  */
 	    if (ampx == 0 && (gain[AMP_D] == 0. || rn2[AMP_D] == 0.) ) {
-                trlerror 
-		  ("No valid GAIN or READNOISE values to initialize ERR data.");
+                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
 		return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[3];
@@ -199,8 +197,7 @@ int *done        o: true if we actually did assign error array values
 	    /* Let's make sure we actually found a value for the gain
 	    **	and readnoise...  */
 	    if (ampx > 0 && (gain[AMP_A] == 0. || rn2[AMP_A] == 0.)) {
-                trlerror 
-		  ("No valid GAIN or READNOISE values to initialize ERR data.");
+                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
 		return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[0];
@@ -222,8 +219,7 @@ int *done        o: true if we actually did assign error array values
             /* Let's make sure we actually found a value for the gain
             **	and readnoise...  */
             if (ampx == 0 && (gain[AMP_B] == 0. || rn2[AMP_B] == 0.)) {
-                trlerror 
-		  ("No valid GAIN or READNOISE values to initialize ERR data.");
+                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
 	        return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[1];
