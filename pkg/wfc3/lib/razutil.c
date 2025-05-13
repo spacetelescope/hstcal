@@ -109,7 +109,7 @@ int makedqRAZ(SingleGroup *x, SingleGroup *raz){
             }
 
         } else {
-            trlmessage("Invalid group number passed to makedqRAZ");
+            trlerror("Invalid group number passed to makedqRAZ");
             return(status=INVALID_VALUE);
         }
     }
@@ -142,7 +142,7 @@ int undodqRAZ(SingleGroup *x, SingleGroup *raz){
                 }
             }
         } else {
-            trlmessage("Invalid group number passed to makedqRAZ");
+            trlerror("Invalid group number passed to makedqRAZ");
             return(status=INVALID_VALUE);
         }
     }
@@ -177,7 +177,7 @@ int makeSciSingleRAZ(SingleGroup *x, SingleGroup *raz){
             }
 
         } else {
-            trlmessage("Invalid group number passed to makeSciSingleRAZ");
+            trlerror("Invalid group number passed to makeSciSingleRAZ");
             return(status=INVALID_VALUE);
         }
     }
@@ -209,7 +209,7 @@ int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
                 }
             }
         } else {
-            trlmessage("Invalid group number passed to makedqRAZ");
+            trlerror("Invalid group number passed to makedqRAZ");
             return(status=INVALID_VALUE);
         }
     }
