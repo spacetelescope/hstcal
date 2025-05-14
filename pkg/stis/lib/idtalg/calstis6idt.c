@@ -352,7 +352,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    else if (status > 0)
                 return status;
 	    if (!imset_ok) {
-		trlwarn("Warning  imset %d skipped (IMSET_OK = F)\n",
+		trlwarn("imset %d skipped (IMSET_OK = F)\n",
 			extver);
 		continue;
 	    }
@@ -2021,7 +2021,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 		}
 	    }
 	    if (jrow == -1) {
-		trlerror("ERROR    sporder %d not found in gx1d array.\n",
+		trlerror("sporder %d not found in gx1d array.\n",
 			sporder);
 		return (INTERNAL_ERROR);
 	    }

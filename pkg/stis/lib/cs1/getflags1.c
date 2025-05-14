@@ -111,8 +111,8 @@ int GetFlags1 (StisInfo1 *sts, Hdr *phdr) {
 	if (missing) {
 	    return (CAL_FILE_MISSING);
 	} else if (nsteps < 1) {
-	    trlwarn("Warning  No calibration switch was set to PERFORM, \\\n");
-	    trlwarn("Warning  or all reference files had PEDIGREE = DUMMY.\n");
+	    trlwarn("No calibration switch was set to PERFORM, \\\n");
+	    trlwarn("or all reference files had PEDIGREE = DUMMY.\n");
 	    return (NOTHING_TO_DO);
 	} else {
 	    return (0);
@@ -316,7 +316,7 @@ int *nsteps      io: incremented if this step can be performed
 		} else if (sts->tdctab.goodPedigree != GOOD_PEDIGREE) {
 
                     (*missing)++;
-                    trlerror("ERROR    TDCTAB `%s' is a dummy table.\n",
+                    trlerror("TDCTAB `%s' is a dummy table.\n",
                          sts->tdctab.name);
 		}
 	    }
@@ -674,7 +674,7 @@ static int GetTabRef (RefFileInfo *refnames, Hdr *phdr,
 
 static void MissingFile (char *keyword, char *filename, int *missing) {
 
-trlerror("ERROR    %s `%s' not found or can't open.\n",
+trlerror("%s `%s' not found or can't open.\n",
 				keyword, filename);
 	(*missing)++;
 }

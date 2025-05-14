@@ -361,7 +361,7 @@ StisInfo6 *sts    i: calibration switches and info
 	if ((status = GetXtract (sts, &extract, &minorder, &maxorder)))
 	    return (status);
         if (sts->x1d_o == DUMMY) {
-	    trlerror("ERROR    DUMMY pedigree entry in extraction table.\n");
+	    trlerror("DUMMY pedigree entry in extraction table.\n");
 	    return (status);
 	}
 
@@ -431,7 +431,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    else if (status > 0)
                 return status;
 	    if (!imset_ok) {
-		trlwarn("Warning  imset %d skipped (IMSET_OK = F)\n",
+		trlwarn("imset %d skipped (IMSET_OK = F)\n",
 			extver);
 		continue;
 	    }
@@ -477,7 +477,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    otable.array_size = in.sci.data.nx;
 	    row_contents.npts = in.sci.data.nx;
 	    if ((status = AllocOutArrays (&row_contents))) {
-		trlerror("ERROR    Cannot allocate output arrays.\n");
+		trlerror("Cannot allocate output arrays.\n");
 	        return (status);
 	    }
 	    if (sts->do_profile) {
@@ -633,7 +633,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    if (minorder != maxorder) {
 	        if ((status = GCrossCorr (sts, &in, minorder, maxorder,
                                           &(sts->gcrscroff), mref, &ypos))) {
-	            trlerror("ERROR    Cannot compute global offset.\n");
+	            trlerror("Cannot compute global offset.\n");
 	            return (status);
 	        }
 	    } else
@@ -782,7 +782,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        if ((status = SelectAlg (sts, extract_a))) {
 	            if ((status == CAL_FILE_MISSING)) {
 	                status = 0;
-	                trlwarn("Warning  Skipping order.\n");
+	                trlwarn("Skipping order.\n");
 	                FreeXtract (&extract_a);
 	                FreeXtract (&extract_o);
 	                continue;
@@ -1007,7 +1007,7 @@ StisInfo6 *sts    i: calibration switches and info
 				/* This was put in place on 12 Apr 01 to
                                    comply with OPR 43663 (IB).
                                 */
-	                        trlerror("ERROR    Cannot extract.\n");
+	                        trlerror("Cannot extract.\n");
 				skipping = 1;
 				FreeTrace6 (&trace);
 				FreeTrace6 (&trace_y);
@@ -1436,7 +1436,7 @@ StisInfo6 *sts    i: calibration switches and info
 	                        FreeTrace6 (&trace);
 	                        FreeProfile (sts, in.sci.data.nx);
 	                        FreeXtract (&extract_o);
-	                        trlerror("ERROR    Skipping order %d\n",
+	                        trlerror("Skipping order %d\n",
                                          row_contents.sporder);
 	                        continue;
 	                    } else
@@ -1666,7 +1666,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        FreeDisp6 (&disp);
 
 	    if (o_row == 0)
-	        trlwarn("Warning  No rows were written; no table created.\n");
+	        trlwarn("No rows were written; no table created.\n");
 
 	    if (sts->verbose && sts->trace_rotation != 0.)
 	        trlmessage("         trace was rotated by = %.6g degree.\n",
@@ -1882,7 +1882,7 @@ static void PrSwitch6 (StisInfo6 *sts, char *text, int cal_switch) {
 
 static void warnDummy (char *text, int sporder, int skipmsg) {
 
-trlerror("ERROR    DUMMY pedigree in order %d in %s.", sporder, text);
+trlerror("DUMMY pedigree in order %d in %s.", sporder, text);
 	if (skipmsg)
 	    trlmessage("Skipping order.");
 trlmessage("\n\n");

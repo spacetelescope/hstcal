@@ -95,7 +95,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    if (sts->detector != CCD_DETECTOR)
 		mismatch = 1;
 	} else {
-	    trlerror("ERROR    (in wavecal) DETECTOR = %s is invalid\n", buf);
+	    trlerror("(in wavecal) DETECTOR = %s is invalid\n", buf);
 	    return (HEADER_PROBLEM);
 	}
 	if (mismatch) {
@@ -116,7 +116,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    if (sts->obstype != IMAGING_TYPE)
 		mismatch = 1;
 	} else {
-	    trlwarn("Warning  Unknown OBSTYPE = '%s'\n", buf);
+	    trlwarn("Unknown OBSTYPE = '%s'\n", buf);
 	}
 	if (mismatch)
 	    printf (

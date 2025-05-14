@@ -98,7 +98,7 @@ double angle         i: incidence angle
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->inangtab.goodPedigree == DUMMY_PEDIGREE) {
-		    trlwarn("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.\n",
 			row, sts->inangtab.name);
 		}
 

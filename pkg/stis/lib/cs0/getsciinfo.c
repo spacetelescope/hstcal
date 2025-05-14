@@ -90,7 +90,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	} else if (strcmp (buf, "CCD") == 0) {
 	    sts->detector = CCD_DETECTOR;
 	} else {
-	    trlerror("ERROR    DETECTOR = %s is invalid\n", buf);
+	    trlerror("DETECTOR = %s is invalid\n", buf);
 	    return (HEADER_PROBLEM);
 	}
 
@@ -108,7 +108,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 		}
 	    }
 	    if (strcmp (buf, "BIAS") != 0) {
-		trlwarn("Warning  Total exposure time = %.6g\n", texptime);
+		trlwarn("Total exposure time = %.6g\n", texptime);
 		free (buf);
 		freeHdr (&phdr);
 		return (NOTHING_TO_DO);
@@ -124,7 +124,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	else if (strcmp (buf, "IMAGING") == 0)
 	    sts->obstype = IMAGING_TYPE;
 	else
-	    trlwarn("Warning  Unknown OBSTYPE = '%s'\n", buf);
+	    trlwarn("Unknown OBSTYPE = '%s'\n", buf);
 
 	/* Get opt_elem in order to check for echelle or prism. */
 	if ((status = Get_KeyS (&phdr, "OPT_ELEM",

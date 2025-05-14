@@ -222,7 +222,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	    PrGrpEnd ("imset", extver);
 	}
 	if (ngood_extver <= 0) {
-	    trlwarn("Warning  No good data were written to output.\n");
+	    trlwarn("No good data were written to output.\n");
 	    return (NOTHING_TO_DO);
 	}
 

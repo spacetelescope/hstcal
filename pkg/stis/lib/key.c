@@ -357,10 +357,10 @@ char *comment     i: comment to add, if keyword doesn't exist
 
 static void KeyMissing (char *keyword) {
 
-trlerror("ERROR    Keyword = `%s'.\n", keyword);
+trlerror("Keyword = `%s'.\n", keyword);
 }
 
 static void AddKeywordMessage (char *keyword) {
 
-trlwarn("Warning  Keyword `%s' is being added to header.\n", keyword);
+trlwarn("Keyword `%s' is being added to header.\n", keyword);
 }

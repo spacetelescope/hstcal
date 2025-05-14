@@ -104,7 +104,7 @@ double *shift       o: the shift, in pixels
 	length = (double) slit->width[1];
 
 	if (nv <= 0) {
-	    trlwarn("Warning  No data for spatial shift.\n");
+	    trlwarn("No data for spatial shift.\n");
 	    *shift = UNDEFINED_SHIFT;
 	    return (0);
 	}
@@ -195,7 +195,7 @@ double *shift       o: the shift, in pixels
 		status = 0;		/* not a fatal error */
 	    }
 	} else {
-	    trlwarn("Warning  Aperture `%s' is not supported for a wavecal.\n",
+	    trlwarn("Aperture `%s' is not supported for a wavecal.\n",
 		sts->aperture);
 	    status = NO_GOOD_DATA;
 	}

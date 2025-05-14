@@ -151,7 +151,7 @@ static int CheckRange (int nedges, double min_shift, double max_shift) {
 	    return (0);
 
 	if (max_shift - min_shift > MAX_DIFF_WARNING)
-	    trlwarn("Warning  Shifts of lower and upper edges differ by %.2f\n",
+	    trlwarn("Shifts of lower and upper edges differ by %.2f\n",
 		max_shift - min_shift);
 
 	if (max_shift - min_shift > MAX_DIFF_ERROR)

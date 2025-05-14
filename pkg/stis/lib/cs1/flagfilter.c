@@ -86,7 +86,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	*/
 	ywidth = strtod (sts->aper_fov, &wx);	/* arcseconds */
 	if (ywidth == 0.) {
-	    trlwarn("Warning  Can't interpret APER_FOV = `%s'; \\\n",
+	    trlwarn("Can't interpret APER_FOV = `%s'; \\\n",
 		sts->aper_fov);
 	    trlmessage("%s", noflag);
 	    return;
@@ -94,7 +94,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	wx++;				/* skip over the "X" */
 	xwidth = strtod (wx, &dummy);
 	if (xwidth == 0.) {
-	    trlwarn("Warning  Can't interpret APER_FOV = `%s'; \\\n",
+	    trlwarn("Can't interpret APER_FOV = `%s'; \\\n",
 		sts->aper_fov);
 	    trlmessage("%s", noflag);
 	    return;

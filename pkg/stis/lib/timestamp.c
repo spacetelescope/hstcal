@@ -30,7 +30,7 @@ char *rootname  i: root name to include in printed string
 	time_t *tp, now;
 
 	if ((timestring = malloc (SZ_TIMESTRING * sizeof (char))) == NULL) {
-	    trlwarn("Warning  (TimeStamp) Out of memory.\n");
+	    trlwarn("(TimeStamp) Out of memory.\n");
 	    return;
 	}
 
@@ -38,7 +38,7 @@ char *rootname  i: root name to include in printed string
 	if (lenrootname > 0) {
 	    uc_rootname = malloc ((lenrootname+1) * sizeof (char));
 	    if (uc_rootname == NULL) {
-		trlwarn("Warning  (TimeStamp) Out of memory.\n");
+		trlwarn("(TimeStamp) Out of memory.\n");
 		return;
 	    }
 	    strcpy (uc_rootname, rootname);

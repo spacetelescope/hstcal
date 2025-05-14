@@ -223,7 +223,7 @@ int *row_number         io: row where to write in output table
             return (1);
         }
 */
-            trlwarn("Warning  Empty spectrum.\n");
+            trlwarn("Empty spectrum.\n");
         }
 
         /* Increment row number. */

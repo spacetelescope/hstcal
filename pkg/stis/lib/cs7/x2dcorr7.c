@@ -255,7 +255,7 @@ SingleGroup *out           o: output data
 /* add small-scale geo */
 		if (sts->sgeocorr == PERFORM) {
 		    SgeoMsg (sts, o_extver);
-		    trlwarn("Warning  SGEOCORR not implemented yet.\n");
+		    trlwarn("SGEOCORR not implemented yet.\n");
 		    PrSwitch ("sgeocorr", SKIPPED);
 		}
 

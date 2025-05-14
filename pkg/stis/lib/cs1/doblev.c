@@ -108,7 +108,7 @@ int *driftcorr    o: true means correction for drift along lines was applied
 
 	if ((binx != 1 && binx != 2 && binx != 4) ||
 	    (biny != 1 && biny != 2 && biny != 4)) {
-	    trlerror("ERROR    (doBlev) bin size must be 1, 2, or 4.\n");
+	    trlerror("(doBlev) bin size must be 1, 2, or 4.\n");
 	    return (GENERIC_ERROR_CODE);
 	}
 
@@ -122,8 +122,8 @@ int *driftcorr    o: true means correction for drift along lines was applied
 		in->sci.data.nx, in->sci.data.ny, sts->bin,
 		&trimx1, &trimx2, &trimy1, &trimy2, biassect, vx, vy)) {
 
-	    trlwarn("Warning  Image size is too small to do BLEVCORR; \\\n");
-	    trlwarn("Warning  bias from CCDTAB will be subtracted.\n");
+	    trlwarn("Image size is too small to do BLEVCORR; \\\n");
+	    trlwarn("bias from CCDTAB will be subtracted.\n");
 	    biaslevel = sts->ccdbias;
 	    for (j = 0;  j < in->sci.data.ny;  j++) {
 		for (i = 0;  i < in->sci.data.nx;  i++)
@@ -218,21 +218,21 @@ static FILE *BlevOpen (char *fname, int extver, int *status) {
 	    if (fp == NULL) {
 
 		if ((fp = fopen (fname, "w")) == NULL) {
-		    trlerror("ERROR    Could not open %s for writing.\n", fname);
+		    trlerror("Could not open %s for writing.\n", fname);
 		    *status = OPEN_FAILED;
 		}
 
 	    } else {
 
 	        (void)fcloseWithStatus(&fp);
-		trlerror("ERROR    File %s already exists.\n", fname);
+		trlerror("File %s already exists.\n", fname);
 		*status = OPEN_FAILED;
 	    }
 
 	} else {
 
 	    if ((fp = fopen (fname, "a")) == NULL) {
-		trlerror("ERROR    Could not append to %s.\n", fname);
+		trlerror("Could not append to %s.\n", fname);
 		*status = OPEN_FAILED;
 	    }
 	}
@@ -284,7 +284,7 @@ double ccdbias    i: bias level to subtract if we can't get it from overscan
 	    }
 	}
 	if (too_few > 0) {
-	    trlwarn("Warning  (blevcorr) %d image line", too_few);
+	    trlwarn("(blevcorr) %d image line", too_few);
 	    if (too_few == 1)
 		trlmessage(" has");
 	    else
@@ -294,8 +294,8 @@ double ccdbias    i: bias level to subtract if we can't get it from overscan
 
 	/* Fit a curve to the bias levels found. */
 	if (BlevFit()) {
-	    trlwarn("Warning  No bias level data, or singular fit; \\\n");
-	    trlwarn("Warning  bias from CCDTAB will be subtracted.\n");
+	    trlwarn("No bias level data, or singular fit; \\\n");
+	    trlwarn("bias from CCDTAB will be subtracted.\n");
 	    BlevSet (ccdbias);		/* assign the default value */
 	}
 }

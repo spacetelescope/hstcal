@@ -135,7 +135,7 @@ CTICorrInfo *cti   io: CTI correction constants
                                       tabinfo.cp_pedigree, tabinfo.cp_descrip)))
                 return (status);
             if (sts->ccdtab.goodPedigree == DUMMY_PEDIGREE)
-                trlwarn("Warning  Row %d of CCDTAB is DUMMY.\n", row);
+                trlwarn("Row %d of CCDTAB is DUMMY.\n", row);
             sts->atodgain    = tabrow.atodgain;
             cti->ctinorm     = tabrow.ctinorm;
             cti->ctigpower   = tabrow.ctigpower;
@@ -151,9 +151,9 @@ CTICorrInfo *cti   io: CTI correction constants
     }
 
     if (!foundit) {
-        trlerror("ERROR    Matching row not found in CCDTAB `%s'.\n",
+        trlerror("Matching row not found in CCDTAB `%s'.\n",
                sts->ccdtab.name);
-        trlerror("ERROR    CCDAMP %s, CCDGAIN %d, CCDOFFST %d, BINAXIS %d,%d.\n",
+        trlerror("CCDAMP %s, CCDGAIN %d, CCDOFFST %d, BINAXIS %d,%d.\n",
                sts->ccdamp, sts->ccdgain, sts->ccdoffset,
                sts->binaxis[0], sts->binaxis[1]);
         CloseCCDTab6(&tabinfo);
@@ -177,7 +177,7 @@ static int OpenCCDTab6(char *tname, TblInfo *tabinfo)
 {
     tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
-        trlerror("ERROR    CCDTAB `%s' not found.\n", tname);
+        trlerror("CCDTAB `%s' not found.\n", tname);
         return (OPEN_FAILED);
     }
 

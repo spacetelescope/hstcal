@@ -134,7 +134,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 
 		sts.dbg = fopen (sts.dbgfile, "a");
 		if (sts.dbg == NULL) {
-		    trlwarn("Warning  Can't open debug file %s\n", sts.dbgfile);
+		    trlwarn("Can't open debug file %s\n", sts.dbgfile);
 		    sts.dbgfile[0] = '\0';
 		}
 	    }

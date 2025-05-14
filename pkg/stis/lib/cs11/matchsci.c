@@ -33,7 +33,7 @@ int *extver          o: imset number of best science image to use (one indexed)
 	int min_i;	/* value of i that gives minimum dt */
 
 	if (option != STIS_NEAREST)
-	    trlwarn("Warning  option = %d will be ignored\n", option);
+	    trlwarn("option = %d will be ignored\n", option);
 
 	if (scidata->nimages == 1) {
 

@@ -155,7 +155,7 @@ static int A4corrAdjustDisp (StisInfo4 *sts, SpTrace *trace,
 	if (!foundit) {
 	    printf (
 "Warning  Order %d not found in list of spectral traces; \\\n", disp->mref);
-	    trlwarn("Warning  no A4CORR correction will be applied.\n");
+	    trlwarn("no A4CORR correction will be applied.\n");
 	    return (0);
 	}
 
