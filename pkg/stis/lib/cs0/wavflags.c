@@ -139,17 +139,14 @@ RefFileInfo wavref  io: list of keyword,filename pairs
 	    CCDSanity (sts->detector, "BLEVCORR");
 	} else if (wav_sw->blevcorr == OMIT && refimage_used &&
 			sts->detector == CCD_DETECTOR) {
-	    printf (
-	"Warning  For wavecal, should do BLEVCORR to remove overscan \\\n");
-	    printf (
-	"         before doing other steps that use reference images.\n");
+	    trlwarn("For wavecal, should do BLEVCORR to remove overscan ");
+	    trlwarn("         before doing other steps that use reference images.");
 	}
 
 	if (wav_sw->photcorr == PERFORM) {
 	    sts->wav_basic_2d = PERFORM;
 	    if (sts->obstype != IMAGING_TYPE)
-		printf (
-"Warning  PHOTCORR = PERFORM in wavecal, but OBSTYPE is not IMAGING.\n");
+		trlwarn("PHOTCORR = PERFORM in wavecal, but OBSTYPE is not IMAGING.");
 	    if ((status = GetNewRef (phdr, "IMPHTTAB", wavref)))
 		return (status);
 	    if ((status = GetNewRef (phdr, "APERTAB", wavref)))
@@ -203,15 +200,13 @@ RefFileInfo wavref  io: list of keyword,filename pairs
 static void MAMASanity (int detector, char *calswitch) {
 
 	if (detector == CCD_DETECTOR)
-	    printf (
-	"Warning  %s = PERFORM in wavecal, but detector is CCD.\n",
+	    trlwarn("%s = PERFORM in wavecal, but detector is CCD.",
 			calswitch);
 }
 
 static void CCDSanity (int detector, char *calswitch) {
 
 	if (detector != CCD_DETECTOR)
-	    printf (
-	"Warning  %s = PERFORM in wavecal, but detector is MAMA.\n",
+	    trlwarn("%s = PERFORM in wavecal, but detector is MAMA.",
 			calswitch);
 }

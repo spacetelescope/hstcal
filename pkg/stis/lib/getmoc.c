@@ -112,9 +112,9 @@ double *a4corr     o: correction factor read from table
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (disptab->goodPedigree == DUMMY_PEDIGREE) {
-		    trlwarn("DUMMY pedigree in row %d of %s. \\\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 			row, disptab->name);
-		    trlwarn("MAMA offset coefficient set to zero.\n");
+		    trlwarn("MAMA offset coefficient set to zero.");
 		    CloseMOCTab (&tabinfo);
 		    return (0);
 		}
@@ -126,11 +126,11 @@ double *a4corr     o: correction factor read from table
 	}
 
 	if (!foundit) {
-	    trlwarn("Matching row not found in %s \\\n",
+	    trlwarn("Matching row not found in %s",
 			disptab->name);
-	    trlwarn("OPT_ELEM %s, CENWAVE %d \\\n",
+	    trlwarn("OPT_ELEM %s, CENWAVE %d",
 			opt_elem, cenwave);
-	    trlwarn("MAMA offset coefficient set to zero.\n");
+	    trlwarn("MAMA offset coefficient set to zero.");
 	}
 
 	if ((status = CloseMOCTab (&tabinfo)))
@@ -146,14 +146,14 @@ double *a4corr     o: correction factor read from table
 static int OpenMOCTab (char *tname, TblInfo *tabinfo) {
 
 	if (!GotFileName (tname)) {
-	    trlwarn("DISPTAB = `%s' \\\n", tname);
-	    trlwarn("MAMA offset coefficient set to zero.\n");
+	    trlwarn("DISPTAB = `%s'", tname);
+	    trlwarn("MAMA offset coefficient set to zero.");
 	    return (-1);
 	}
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlwarn("Can't open `%s'\n", tname);
+	    trlwarn("Can't open `%s'", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -171,7 +171,7 @@ static int OpenMOCTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_opt_elem == 0 || tabinfo->cp_cenwave == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    trlwarn("Column not found in %s\n", tname);
+	    trlwarn("Column not found in %s", tname);
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -179,8 +179,8 @@ static int OpenMOCTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_mref == 0 || tabinfo->cp_yref == 0 ||
 	    tabinfo->cp_a4corr == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    trlwarn("DISPTAB appears to be the old format; \\\n");
-	    trlwarn("MAMA offset coefficient set to zero.\n");
+	    trlwarn("DISPTAB appears to be the old format;");
+	    trlwarn("MAMA offset coefficient set to zero.");
 	    return (-1);	/* not a fatal error */
 	}
 

@@ -74,12 +74,12 @@ double *shift      o: the shift, in pixels
 	    else
 		return (status);		/* serious error */
 	    if (verbose)
-		trlmessage("         shift of lower edge is undetermined\n");
+		trlmessage("         shift of lower edge is undetermined");
 	} else {
 	    nedges++;
 	    sum += (locn - locn0);
 	    if (verbose)
-		trlmessage("         shift of lower edge is %.2f\n",
+		trlmessage("         shift of lower edge is %.2f",
 			(locn - locn0));
 	    UpdateRange (nedges, locn - locn0, &min_shift, &max_shift);
 	}
@@ -92,12 +92,12 @@ double *shift      o: the shift, in pixels
 	    else
 		return (status);
 	    if (verbose)
-		trlmessage("         shift of upper edge is undetermined\n");
+		trlmessage("         shift of upper edge is undetermined");
 	} else {
 	    nedges++;
 	    sum += (locn - locn0);
 	    if (verbose)
-		trlmessage("         shift of upper edge is %.2f\n",
+		trlmessage("         shift of upper edge is %.2f",
 			(locn - locn0));
 	    UpdateRange (nedges, locn - locn0, &min_shift, &max_shift);
 	}
@@ -151,7 +151,7 @@ static int CheckRange (int nedges, double min_shift, double max_shift) {
 	    return (0);
 
 	if (max_shift - min_shift > MAX_DIFF_WARNING)
-	    trlwarn("Shifts of lower and upper edges differ by %.2f\n",
+	    trlwarn("Shifts of lower and upper edges differ by %.2f",
 		max_shift - min_shift);
 
 	if (max_shift - min_shift > MAX_DIFF_ERROR)

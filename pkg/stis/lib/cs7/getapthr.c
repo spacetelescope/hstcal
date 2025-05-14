@@ -86,7 +86,7 @@ ApInfo *slit     o: description of slit
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
                 if (sts->apertab.goodPedigree == DUMMY_PEDIGREE) {
-                    trlwarn("DUMMY pedigree in row %d of %s.\n",
+                    trlwarn("DUMMY pedigree in row %d of %s.",
                             row, sts->apertab.name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseThruTab (&tabinfo);
@@ -103,9 +103,9 @@ ApInfo *slit     o: description of slit
 	    return (status);
 
 	if (!foundit) {
-	    trlwarn("Matching row not found in APERTAB %s; \\\n",
+	    trlwarn("Matching row not found in APERTAB %s;",
 			sts->apertab.name);
-	    trlwarn("APERTURE %s.\n", sts->aperture);
+	    trlwarn("APERTURE %s.", sts->aperture);
 	    sts->x2dcorr_o = OMIT;
 	}
 
@@ -120,7 +120,7 @@ static int OpenThruTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("APERTAB `%s' not found.\n", tname);
+	    trlerror("APERTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -135,7 +135,7 @@ static int OpenThruTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_nelem == 0 ||
 	    tabinfo->cp_wl == 0 ||
 	    tabinfo->cp_thr == 0) {
-	    trlerror("Column not found in APERTAB.\n");
+	    trlerror("Column not found in APERTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -199,7 +199,7 @@ static int ReadThruArray (TblInfo *tabinfo, int row, ApInfo *slit) {
 	    c_tbtclo (tabinfo->tp);
 	    free (slit->wl);
 	    free (slit->thr);
-	    trlerror("not all coefficients were read from APERTAB.\n");
+	    trlerror("not all coefficients were read from APERTAB.");
 	    return (TABLE_ERROR);
 	}
 

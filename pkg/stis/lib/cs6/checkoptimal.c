@@ -30,8 +30,7 @@ int CheckOptimal (StisInfo6 *sts) {
 
 	    if ((sts->pftab.exists == EXISTS_NO) ||
 	        (sts->pxtab.exists == EXISTS_NO)) {
-	        printf (
-"ERROR    Incomplete set of reference files for optimal extraction.\n");
+	        trlerror("Incomplete set of reference files for optimal extraction.");
 	        return (CAL_FILE_MISSING);
 	    }
 	}

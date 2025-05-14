@@ -140,7 +140,7 @@ int CalStis8 (char *input, char *output, int printtime, int verbose) {
 	    return (status);
 
 	free (orders);
-	trlmessage("\n");
+	trlmessage("");
 	PrEnd (8);
 
 	if (sts.printtime)
@@ -232,14 +232,13 @@ Hdr *phdr       i: primary header
 	    if ((status = Get_KeyI (phdr, "NRPTEXP", no_def, 0, &nrptexp)))
 		return (status);
 	    if (nrptexp != sts->nimages) {
-		printf (
-		"Warning  NEXTEND implies %d exposures, but NRPTEXP is %d.\n",
+		trlwarn("NEXTEND implies %d exposures, but NRPTEXP is %d.",
 			sts->nimages, nrptexp);
 	    }
 	}
 
 	if (sts->nimages <= 1) {
-	    trlwarn("NEXTEND indicates there is only one imset.\n");
+	    trlwarn("NEXTEND indicates there is only one imset.");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -298,12 +297,11 @@ int *maxorder    o: maximum value of sporder
 		    NotMultiOrder (sts, orders, minorder, maxorder);
 		    return (0);
 		} else if (sporder == -1) {
-		    trlerror("Keyword SPORDER missing, imset %d.\n",
+		    trlerror("Keyword SPORDER missing, imset %d.",
 				i+1);
 		    return (KEYWORD_MISSING);
 		} else {
-		    printf (
-	"ERROR    SPORDER = %d is invalid for echelle data; imset %d.\n",
+		    trlerror("SPORDER = %d is invalid for echelle data; imset %d.",
 			sporder, i+1);
 		    return (HEADER_PROBLEM);
 		}
@@ -420,7 +418,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	    iextver++;
 	    iextver = FindExtver (orders, sts->nimages, iextver, sporder);
 	    if (iextver < 0) {
-		trlwarn("No data for spectral order %d.\n", sporder);
+		trlwarn("No data for spectral order %d.", sporder);
 		return (0);
 	    }
 
@@ -437,7 +435,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		    sprintf (message, "imset %d read", iextver);
 		    TimeStamp (message, sts->rootname);
 		} else if (sts->verbose) {		/* don't do both */
-		    trlmessage("         imset %d read\n", iextver);
+		    trlmessage("         imset %d read", iextver);
 		}
 		nrptexp = 1;				/* one image so far */
 		sumexptime = exptime;
@@ -493,7 +491,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		    sprintf (message, "imset %d added", iextver);
 		    TimeStamp (message, sts->rootname);
 		} else if (sts->verbose) {
-		    trlmessage("         imset %d added\n", iextver);
+		    trlmessage("         imset %d added", iextver);
 		}
 		freeSingleGroup (&y);
 		nrptexp++;
@@ -509,7 +507,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	/* Divide by the sum of the exposure times. */
 	if (sts->fluxcorr == COMPLETE) {
 	    if (sumexptime <= 0.) {
-		trlerror("Sum of EXPTIME = %.6g\n", sumexptime);
+		trlerror("Sum of EXPTIME = %.6g", sumexptime);
 		return (GENERIC_ERROR_CODE);
 	    }
 	    if ((status = multk2d (&x, (float)(1./sumexptime))))
@@ -518,7 +516,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 
 	/* Compute statistics and update keywords in output headers. */
 	if (sts->statcorr == PERFORM) {
-	    trlmessage("\n");
+	    trlmessage("");
 	    PrSwitch ("statflag", PERFORM);
 	    if ((status = doStat (&x, sts->sdqflags)))
 		return (status);
@@ -531,7 +529,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	    trlwarn("Order %d has %d imset", sporder, nrptexp);
 	    if (nrptexp > 1)
 		trlmessage("s");
-	    trlmessage(" instead of %d.\n", sts->nrptexp);
+	    trlmessage(" instead of %d.", sts->nrptexp);
 	}
 
 	/* Update header info in output.  Note that nrptexp is passed

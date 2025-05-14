@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <math.h>
+# include "stis.h"
 
 # define MAX_COEFF 9		/* maximum number of coefficients */
 
@@ -253,8 +254,7 @@ The function value is status:
             /* For first-order data, the wavelength estimate should be good
                 enough that the slope will at least be positive.
             */
-            printf (
-        "Warning:  (evalInvDisp) slope of dispersion relation is negative\n");
+            trlwarn("(evalInvDisp) slope of dispersion relation is negative");
         }
 
 	/* If the pixel corresponding to wl_estimate is too far off, or if

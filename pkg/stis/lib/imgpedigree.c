@@ -59,7 +59,7 @@ int ImgPedigree (RefImage *ref) {
 	} else {
 	    getStringKw (key, ref->pedigree, STIS_FITS_REC);
 	    if (hstio_err()) {
-		trlerror("Trying to get PEDIGREE.\n");
+		trlerror("Trying to get PEDIGREE.");
 		return (HEADER_PROBLEM);
 	    }
 	}
@@ -70,7 +70,7 @@ int ImgPedigree (RefImage *ref) {
 	} else {
 	    getStringKw (key, ref->descrip, STIS_FITS_REC);
 	    if (hstio_err()) {
-		trlerror("Trying to get DESCRIP.\n");
+		trlerror("Trying to get DESCRIP.");
 		return (HEADER_PROBLEM);
 	    }
 	}

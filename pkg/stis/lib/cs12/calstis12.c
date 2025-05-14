@@ -118,7 +118,7 @@ int verbose            i: print additional info?
 	    wavecal.cenwave != scidata.cenwave ||
 	    strcmp (wavecal.opt_elem, scidata.opt_elem) != 0) {
 
-	    trlerror("Science file and wavecal do not match.\n");
+	    trlerror("Science file and wavecal do not match.");
 	    return (GENERIC_ERROR_CODE);
 	}
 
@@ -132,7 +132,7 @@ int verbose            i: print additional info?
 	if (scidata.printtime)
 	    TimeStamp ("CALSTIS-12 completed", scidata.rootname);
 
-trlmessage("\n");
+trlmessage("");
 	PrEnd (12);
 
 	return (0);

@@ -180,7 +180,7 @@ StisInfo4 *sts    i: calibration switches and info
 	initHdr (&hdr);
 	for (extver = 1;  extver <= sts->nimages;  extver++) {
 
-	    trlmessage("\n");
+	    trlmessage("");
 	    PrGrpBegin ("imset", extver);
 
 	    if (sts->dbg != NULL)
@@ -205,7 +205,7 @@ StisInfo4 *sts    i: calibration switches and info
 		if ((status = GetTrace4 (sts, &trace)))
 		    return (status);
 		if (sts->verbose && sts->trace_rotation != 0.) {
-		  trlmessage("         trace was rotated by = %.6g degree.\n",
+		  trlmessage("         trace was rotated by = %.6g degree.",
                        sts->trace_rotation);
 		}
 	    }
@@ -217,7 +217,7 @@ StisInfo4 *sts    i: calibration switches and info
 		if (sts->verbose)
 		    PrintSection (sts);
 
-		trlmessage("\n");
+		trlmessage("");
 		PrSwitch ("wavecorr", PERFORM);
 
 		if (!ref_names_printed) {
@@ -228,7 +228,7 @@ StisInfo4 *sts    i: calibration switches and info
 		/* Flag cosmic rays in DQ (if that bit is set). */
 		if (sts->detector == CCD_DETECTOR &&
 			sts->sdqflags & DATAREJECT) {
-		    trlmessage("\n");
+		    trlmessage("");
 		    PrSwitch ("flagcr", PERFORM);
 		    if ((status = FlagCR (sts, &in, extver)))
 			return (status);
@@ -263,18 +263,14 @@ StisInfo4 *sts    i: calibration switches and info
 		}
 
 		if (w_shift == UNDEFINED_SHIFT) {
-		    printf (
-	"Warning  Shift in dispersion direction could not be determined.\n");
+		    trlwarn("Shift in dispersion direction could not be determined.");
 		} else {
-		    printf (
-	"         Shift in dispersion direction is %.3f pixels.\n", w_shift);
+		    trlwarn("         Shift in dispersion direction is %.3f pixels.", w_shift);
 		}
 		if (s_shift == UNDEFINED_SHIFT) {
-		    printf (
-	"Warning  Shift in spatial direction could not be determined.\n");
+		    trlwarn("Shift in spatial direction could not be determined.");
 		} else {
-		    printf (
-	"         Shift in spatial direction is %.3f pixels.\n", s_shift);
+		    trlwarn("         Shift in spatial direction is %.3f pixels.", s_shift);
 		}
 
 	    } else {
@@ -408,34 +404,33 @@ static void PrintWCP (StisInfo4 *sts) {
 
 	if (sts->disp_type == ECHELLE_DISP) {
 	    if (sts->slit_angle != 0.) {
-		trlmessage("         Slit angle = %.5g degrees\n",
+		trlmessage("         Slit angle = %.5g degrees",
 			sts->slit_angle / DEGREES_TO_RADIANS);
 	    }
-	    trlmessage("         Wavecal parameters are: \\\n");
-	    trlmessage("         WL_TRIM1 = %d \\\n", sts->wl_trim1);
+	    trlmessage("         Wavecal parameters are:");
+	    trlmessage("         WL_TRIM1 = %d", sts->wl_trim1);
 	    trlmessage("         WL_TRIM2 = %d", sts->wl_trim2);
 	} else {
 	    if (sts->slit_angle != 0.) {
-		printf (
-"Warning  Slit angle was specified for non-echelle data, will be ignored.");
+		trlwarn("Slit angle was specified for non-echelle data, will be ignored.");
 	    }
-	    trlmessage("         Wavecal parameters are: \\\n");
-	    trlmessage("         WL_TRIM1 = %d \\\n", sts->wl_trim1);
-	    trlmessage("         WL_TRIM2 = %d \\\n", sts->wl_trim2);
-	    trlmessage("         SP_TRIM1 = %d \\\n", sts->sp_trim1);
-	    trlmessage("         SP_TRIM2 = %d \\\n", sts->sp_trim2);
-	    trlmessage("         WL_RANGE = %d \\\n", sts->wl_range);
+	    trlmessage("         Wavecal parameters are:");
+	    trlmessage("         WL_TRIM1 = %d", sts->wl_trim1);
+	    trlmessage("         WL_TRIM2 = %d", sts->wl_trim2);
+	    trlmessage("         SP_TRIM1 = %d", sts->sp_trim1);
+	    trlmessage("         SP_TRIM2 = %d", sts->sp_trim2);
+	    trlmessage("         WL_RANGE = %d", sts->wl_range);
 	    trlmessage("         SP_RANGE = %d", sts->sp_range);
 	}
 	if (sts->detector == CCD_DETECTOR) {
-	    trlmessage(" \\\n");
-	    trlmessage("         NSIGMA_CR = %.6g \\\n", sts->nsigma_cr);
-	    trlmessage("         NSIGMA_ILLUM = %.6g \\\n",
+	    trlmessage("");
+	    trlmessage("         NSIGMA_CR = %.6g", sts->nsigma_cr);
+	    trlmessage("         NSIGMA_ILLUM = %.6g",
 				sts->nsigma_illum);
-	    trlmessage("         MAD_REJECT = %.6g \\\n", sts->mad_reject);
-	    trlmessage("         MIN_MAD = %.6g\n", sts->min_mad);
+	    trlmessage("         MAD_REJECT = %.6g", sts->mad_reject);
+	    trlmessage("         MIN_MAD = %.6g", sts->min_mad);
 	} else {
-	    trlmessage("\n");
+	    trlmessage("");
 	}
 }
 
@@ -455,32 +450,28 @@ static void PrintSection (StisInfo4 *sts) {
 
 	if (sts->disp_type == ECHELLE_DISP) {
 
-	    trlmessage("         Section to use for finding shift: \\\n");
-	    trlmessage("             %d:%d, %d:%d \\\n",
+	    trlmessage("         Section to use for finding shift:");
+	    trlmessage("             %d:%d, %d:%d",
 		sts->wl_sect1[0]+1, sts->wl_sect1[1]+1,
 		sts->wl_sect2[0]+1, sts->wl_sect2[1]+1);
 
 	} else {
 
-	    printf (
-"         Section to use for finding shift in dispersion direction: \\\n");
-	    trlmessage("             %d:%d, %d:%d \\\n",
+	    trlmessage("         Section to use for finding shift in dispersion direction: ");
+	    trlmessage("             %d:%d, %d:%d",
 		sts->wl_sect1[0]+1, sts->wl_sect1[1]+1,
 		sts->wl_sect2[0]+1, sts->wl_sect2[1]+1);
 
-	    printf (
-"         Section to use for finding shift in spatial direction: \\\n");
-	    trlmessage("             %d:%d, %d:%d \\\n",
+	    trlmessage("         Section to use for finding shift in spatial direction: ");
+	    trlmessage("             %d:%d, %d:%d",
 		sts->sp_sect1[0]+1, sts->sp_sect1[1]+1,
 		sts->sp_sect2[0]+1, sts->sp_sect2[1]+1);
 	}
 
 	if (sts->scale[0] == 1. && sts->scale[1] == 1.) {
-	    printf (
-	"         Image pixels are reference pixel size.\n");
+	    trlmessage("         Image pixels are reference pixel size.");
 	} else {
-	    printf (
-	"         Image pixel size is %.2g by %.2g reference pixels.\n",
+	    trlmessage("         Image pixel size is %.2g by %.2g reference pixels.",
 		sts->scale[0], sts->scale[1]);
 	}
 

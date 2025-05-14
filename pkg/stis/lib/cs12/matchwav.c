@@ -88,7 +88,7 @@ double *shift        o: interpolated shift
 
 	} else {
 
-	    trlerror("interpolation option not supported\n");
+	    trlerror("interpolation option not supported");
 	    return (GENERIC_ERROR_CODE);
 	}
 

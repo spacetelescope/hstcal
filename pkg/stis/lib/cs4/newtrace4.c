@@ -41,7 +41,7 @@ SpTrace *newrec   i: a new record to be inserted into the list
 	int done = 0;
 
 	if (newrec->nelem > MAX_SP_TRACE) {
-	    trlerror("(NewTrace4) %d elements in array.\n",
+	    trlerror("(NewTrace4) %d elements in array.",
 		newrec->nelem);
 	    return (TABLE_ERROR);
 	}
@@ -142,7 +142,7 @@ SpTrace **output  o: the spectrum trace interpolated to a2center
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (SpTrace))) == NULL) {
-		trlerror("Can't allocate memory in InterpTrace4.\n");
+		trlerror("Can't allocate memory in InterpTrace4.");
 		return (OUT_OF_MEMORY);
 	    }
 	}

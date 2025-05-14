@@ -56,19 +56,19 @@ XtractInfo *input     i:  a new record to be inserted into the list
 	done = 0;
 
 	if (input->ncoeffsl > MAX_SLIT_COEFF) {
-	    trlerror("%d slit coefficients.\n",
+	    trlerror("%d slit coefficients.",
 		input->ncoeffsl);
 	    return (TABLE_ERROR);
 	}
 	if (input->ncoeffbk > MAX_BACK_COEFF) {
-	    trlerror("%d background coefficients.\n",
+	    trlerror("%d background coefficients.",
 		input->ncoeffbk);
 	    return (TABLE_ERROR);
 	}
 
 	/* Allocate space for the new record, and copy to memory. */
 	if ((new = (XtractInfo *) malloc (sizeof (XtractInfo))) == NULL) {
-	    trlerror("Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -141,7 +141,7 @@ XtractInfo **output   o: the record that matches sporder
 	if (*output == NULL) {
 	    if ((*output = (XtractInfo *) malloc (sizeof (XtractInfo))) == 
                            NULL) {
-		trlerror("Can't allocate memory.\n");
+		trlerror("Can't allocate memory.");
 		return (OUT_OF_MEMORY);
 	    }
 	}
@@ -192,13 +192,11 @@ int *minorder, *maxorder  o: minimum and maximum values of sporder
 
 	    if (current->sporder != previous->sporder + 1) {
 		if (current->sporder == previous->sporder) {
-		    printf (
-		"ERROR    Duplicate order number %d in XTRACTAB \n",
+		    trlerror("Duplicate order number %d in XTRACTAB ",
 			current->sporder);
 		    return (INVALID);
 		} else {
-		    printf (
-		"ERROR    Order numbers in XTRACTAB jump from %d to %d\n",
+		    trlerror("Order numbers in XTRACTAB jump from %d to %d",
 		    previous->sporder, current->sporder);
 		    return (INVALID);
 		}
@@ -285,7 +283,7 @@ XtractInfo **extract  i: identifies the first record in the list
 	current = *extract;
 
 	while (current != NULL) {
-	    trlmessage("%3d:  %3d\n", i, current->sporder);
+	    trlmessage("%3d:  %3d", i, current->sporder);
 	    current = current->next;
 	    i++;
 	}

@@ -144,9 +144,8 @@ int sci_extver     i: IMSET number in input (science) file
 	if (sts->doppcorr == PERFORM) {
 
 	    if (!high_res) {
-		printf (
-		"ERROR    Doppler convolution (DOPPCORR) was specified, \\\n");
-		trlerror("but %s is binned to low-res pixels.\n",
+		trlerror("Doppler convolution (DOPPCORR) was specified, ");
+		trlerror("but %s is binned to low-res pixels.",
 			sts->dark.name);
 		return (SIZE_MISMATCH);
 	    }
@@ -207,7 +206,7 @@ int sci_extver     i: IMSET number in input (science) file
 	    if ((status = MedSciVal (&y, meandark)))
 		return (status);
 	    if ((status = sub2d (x, &y))) {
-		trlerror("(darkcorr) size mismatch.\n");
+		trlerror("(darkcorr) size mismatch.");
 		return (status);
 	    }
 	    freeSingleGroup (&y);
@@ -219,7 +218,7 @@ int sci_extver     i: IMSET number in input (science) file
 	    initSingleGroup (&z);
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny, True);
 	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
-		trlerror("(darkcorr) size mismatch.\n");
+		trlerror("(darkcorr) size mismatch.");
 		return (status);
 	    }
 	    freeSingleGroup (&y);			/* done with y */
@@ -234,12 +233,10 @@ int sci_extver     i: IMSET number in input (science) file
 	}
 
 	if (sts->verbose && (factor != 1. || override)) {
-	    printf (
-"         Dark reference image was scaled by the factor %.6g, \\\n", factor);
-	    trlmessage("         in addition to the exposure time.\n");
+	    trlmessage("         Dark reference image was scaled by the factor %.6g, ", factor);
+	    trlmessage("         in addition to the exposure time.");
 	    if (override)
-	        printf (
-"Warning  Default dark scaling overriden by DARKSCALE parameter.\n");
+	        trlmessage("Default dark scaling overriden by DARKSCALE parameter.");
 	}
 
 	return (0);
@@ -338,7 +335,7 @@ static int MedSciVal (SingleGroup *y, float *meandark) {
 
 	if ((dark = (float *) calloc (y->sci.data.nx * y->sci.data.ny,
 		sizeof (float))) == NULL) {
-	    trlerror("(darkcorr) out of memory in MedSciVal.\n");
+	    trlerror("(darkcorr) out of memory in MedSciVal.");
 	    return (OUT_OF_MEMORY);
 	}
 

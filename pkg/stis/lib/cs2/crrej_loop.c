@@ -83,7 +83,7 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 	if (pic == NULL || thresh == NULL || spthresh == NULL ||
 	    sum == NULL || sumvar == NULL ||
 	    mask == NULL || buf == NULL || bufdq == NULL) {
-	    trlerror("out of memory in crrej_loop\n");
+	    trlerror("out of memory in crrej_loop");
 	    return (2);
 	}
 	
@@ -105,7 +105,7 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 	/* start the rejection iteration */
 	for (iter = 0; iter < niter; ++iter) {
 	    if (par->verbose) 
-		trlmessage("iteration %d\n", iter+1);
+		trlmessage("iteration %d", iter+1);
 
 	    sig2 = SQ(sigma[iter]);
 
@@ -223,7 +223,7 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 /* for debugging */
 /*
 if (i==676 && j==642) {
-if (n==0)trlmessage("At pixel (%d,%d) ave=%0.3g sigma=%0.3g\n", i+1, j+1, PPix(ave,i,j), sqrt(thresh[indx+i]/sig2));trlmessage("file=%d scaled DN/sec=%0.3g mask = %d\n", n, pic[indx+i], mask[indx+i]);
+if (n==0)trlerror("At pixel (%d,%d) ave=%0.3g sigma=%0.3g", i+1, j+1, PPix(ave,i,j), sqrt(thresh[indx+i]/sig2));trlmessage("file=%d scaled DN/sec=%0.3g mask = %d", n, pic[indx+i], mask[indx+i]);
 }
 */
 		    }

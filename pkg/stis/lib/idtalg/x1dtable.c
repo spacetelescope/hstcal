@@ -43,7 +43,7 @@ RowContents **x1d;	o: row contents
             (tabptr->net  == 0)) {
 	    FreeX1DTable (x1d, tabptr->nrows);
 	    c_tbtclo (tabptr->tp);
-	    trlmessage("Column not found in input table.\n");
+	    trlerror("Column not found in input table.");
 	    return (TABLE_ERROR);
 	}
 
@@ -72,7 +72,7 @@ RowContents **x1d;	o: row contents
                 x1d[irow]->net  == NULL || x1d[irow]->extrlocy == NULL) {
 	        FreeX1DTable (x1d, tabptr->nrows);
 	        c_tbtclo (tabptr->tp);
-                trlmessage("Not enough memory to allocate data arrays.\n");
+                trlerror("Not enough memory to allocate data arrays.");
 	        return (OUT_OF_MEMORY);
 	    }
 	    nwave     = c_tbagtd (tabptr->tp, tabptr->wave, irow+1,
@@ -89,7 +89,7 @@ RowContents **x1d;	o: row contents
                 (nextrlocy != x1d[irow]->npts)) {
 	        FreeX1DTable (x1d, tabptr->nrows);
 	        c_tbtclo (tabptr->tp);
-	        trlmessage("Insufficent number of elements read from table.\n");
+	        trlerror("Insufficent number of elements read from table.");
 	        return (TABLE_ERROR);
 	    }
 
@@ -119,14 +119,14 @@ TblDesc *tabptr;	o: _x1d temporary table
 	    tabptr->tp = c_tbtopn (table, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
-	    trlmessage("_x1d temporary table could not be opened.\n");
+	    trlerror("_x1d temporary table could not be opened.");
 	    return (OPEN_FAILED);
 	}
 
 	tabptr->nrows = c_tbpsta (tabptr->tp, TBL_NROWS);
 	if (c_iraferr()) {
 	    c_tbtclo (tabptr->tp);
-            trlmessage("Cannot determine the number of rows in table.\n");
+            trlerror("Cannot determine the number of rows in table.");
 	    return (OPEN_FAILED);
 	}
 	return (0);
@@ -145,13 +145,13 @@ int nrows;		i: number of rows
 
 	x1d = (RowContents **) malloc (nrows * sizeof(RowContents *));
 	if (x1d == NULL) {
-            trlmessage("Not enough memory to allocate row pointer.\n");
+            trlerror("Not enough memory to allocate row pointer.");
 	    return (NULL);
 	}
 	for (i = 0; i < nrows; i++) {
 	    x1d[i] = (RowContents *) calloc (1, sizeof(RowContents));
 	    if (x1d[i] == NULL) {
-                trlmessage("Not enough memory to allocate row pointer.\n");
+                trlerror("Not enough memory to allocate row pointer.");
 	        return (NULL);
 	    }
 	    x1d[i]->wave  = NULL; /* not allocated yet ! */

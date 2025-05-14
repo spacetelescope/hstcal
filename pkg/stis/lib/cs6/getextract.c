@@ -161,9 +161,9 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	/* Get the range of order numbers. */
 	if ((status = RangeXtract (extract, minorder, maxorder))) {
 	    if (status < 0) {
-		trlerror("Matching row not found in XTRACTAB %s\n",
+		trlerror("Matching row not found in XTRACTAB %s",
 				sts->xtrctab.name);
-		trlerror("APERTURE %s, OPT_ELEM %s, CENWAVE %d\n",
+		trlerror("APERTURE %s, OPT_ELEM %s, CENWAVE %d",
 		    sts->aperture, sts->opt_elem, sts->cenwave);
 		return (ROW_NOT_FOUND);
 	    } else {
@@ -187,7 +187,7 @@ static int OpenXtractTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("XTRACTAB `%s' not found\n", tname);
+	    trlerror("XTRACTAB `%s' not found", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -232,7 +232,7 @@ static int OpenXtractTab (char *tname, TblInfo *tabinfo) {
             tabinfo->cp_xtracalg    == 0 ||
 	    tabinfo->cp_maxsearch   == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Column not found in XTRACTAB\n");
+	    trlerror("Column not found in XTRACTAB");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -283,7 +283,7 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 	int NewXtract (XtractInfo **, XtractInfo *);
 
 	if ((newd = (XtractInfo *) malloc (sizeof (XtractInfo))) == NULL) {
-	    trlerror("Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	newd->next = NULL;
@@ -300,8 +300,7 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 	c_tbegti (tabinfo->tp, tabinfo->cp_ncoeffsl, row, &newd->ncoeffsl);
 
 	if (newd->ncoeffsl > MAX_SLIT_COEFF) {
-	    printf (
-               "ERROR    Too many slit tilt coefficients %d in XTRACTAB.\n",
+	    trlerror("Too many slit tilt coefficients %d in XTRACTAB.",
 		newd->ncoeffsl);
 	    return (TABLE_ERROR);
 	}
@@ -312,8 +311,7 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 
 	c_tbegti (tabinfo->tp, tabinfo->cp_ncoeffbk, row, &newd->ncoeffbk);
 	if (newd->ncoeffbk > MAX_BACK_COEFF) {
-	    printf (
-            "ERROR    Too many background tilt coefficients %d in XTRACTAB.\n",
+	    trlerror("Too many background tilt coefficients %d in XTRACTAB.",
 		newd->ncoeffbk);
 	    return (TABLE_ERROR);
 	}

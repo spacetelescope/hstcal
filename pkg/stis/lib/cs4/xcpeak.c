@@ -66,7 +66,7 @@ double *shift      o: pixel shift from tspec to v
 
 	if (imax == 0 || imax == range-1) {
 
-	    trlwarn("Peak in cross correlation is at end of range.\n");
+	    trlwarn("Peak in cross correlation is at end of range.");
 	    peak = 0.;
 	    status = NO_GOOD_DATA;
 

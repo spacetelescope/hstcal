@@ -89,7 +89,7 @@ void Message6 (StisInfo6 *sts, int type) {
                                          sts->tdstab.descrip,
                                          sts->tdstab.descrip2);
 	        } else
-	            trlwarn("TDSTAB correction not performed.\n");
+	            trlwarn("TDSTAB correction not performed.");
 
 	    }
 	    break;
@@ -97,9 +97,9 @@ void Message6 (StisInfo6 *sts, int type) {
 	case SGEO_INFO:
 	    if (sts->sgeocorr == PERFORM && !(sts->sgeoinfo)) {
 	        sts->sgeoinfo = 1;
-	        trlmessage("SDSTFILE %s\n", sts->sdstfile.name);
-	        trlmessage("SDSTFILE PEDIGREE=%s\n", sts->sdstfile.pedigree);
-	        trlmessage("SDSTFILE DESCRIP =%s\n", sts->sdstfile.descrip);
+	        trlmessage("SDSTFILE %s", sts->sdstfile.name);
+	        trlmessage("SDSTFILE PEDIGREE=%s", sts->sdstfile.pedigree);
+	        trlmessage("SDSTFILE DESCRIP =%s", sts->sdstfile.descrip);
 	    }
 	    break;
 

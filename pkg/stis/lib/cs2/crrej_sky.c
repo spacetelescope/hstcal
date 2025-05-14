@@ -48,7 +48,7 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    return (0);
 	}
 	if (strcmp (sky, "mode") != 0) {
-	    trlerror("illegal sky value\n");
+	    trlerror("illegal sky value");
 	    return (2);
 	}
 
@@ -61,12 +61,12 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    /* read the data in */
 	    getFloatData (ipsci[k], &a);
 	    if (hstio_err()) {
-		trlerror("%s\n", hstio_errmsg());
+		trlerror("%s", hstio_errmsg());
 		return (2);
 	    }
 	    getShortData (ipdq[k], &b);
 	    if (hstio_err()) {
-		trlerror("%s\n", hstio_errmsg());
+		trlerror("%s", hstio_errmsg());
 		return (2);
 	    }
 
@@ -104,7 +104,7 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    /*  set up the histogram array */
 	    histgrm = calloc (nbins, sizeof(int));
 	    if (histgrm == NULL) {
-		trlerror("out of memory in crrej_sky\n");
+		trlerror("out of memory in crrej_sky");
 		return (2);
 	    }
 

@@ -65,8 +65,7 @@ int *done         o: true if we actually did assign error array values
 	}
 
 	if (sts->ncombine > 1) {
-	    printf (
-	"Warning  NCOMBINE > 1 before the error array was initialized.\n");
+	    trlwarn("NCOMBINE > 1 before the error array was initialized.");
 	}
 
 	/* Evaluate the noise model for each pixel. */

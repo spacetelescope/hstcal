@@ -108,7 +108,7 @@ DispRelation **disp  o: size and coordinate info for output
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->disptab.goodPedigree == DUMMY_PEDIGREE) {
-		    trlwarn("DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 			row, sts->disptab.name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseDSPTab (&tabinfo);
@@ -125,9 +125,9 @@ DispRelation **disp  o: size and coordinate info for output
 	if ((status = CheckDisp (disp))) {
 	    FreeDisp (disp);
 	    if (status < 0) {
-		trlwarn("Matching row not found in DISPTAB %s; \\\n",
+		trlwarn("Matching row not found in DISPTAB %s;",
 				sts->disptab.name);
-		trlwarn("OPT_ELEM %s, CENWAVE %d\n",
+		trlwarn("OPT_ELEM %s, CENWAVE %d",
 			sts->opt_elem, sts->cenwave);
 		sts->x2dcorr_o = OMIT;
 	    } else {
@@ -149,7 +149,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("DISPTAB `%s' not found.\n", tname);
+	    trlerror("DISPTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -171,7 +171,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ref_aper == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Column not found in DISPTAB.\n");
+	    trlerror("Column not found in DISPTAB.");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -213,7 +213,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 	int NewDisp (DispRelation **, DispRelation *);
 
 	if ((newrec = malloc (sizeof (DispRelation))) == NULL) {
-	    trlerror("(GetDisp) can't allocate memory.\n");
+	    trlerror("(GetDisp) can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	newrec->next = NULL;
@@ -224,8 +224,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 		STIS_CBUF);
 	c_tbegti (tabinfo->tp, tabinfo->cp_ncoeff, row, &newrec->ncoeff);
 	if (newrec->ncoeff > MAX_DISP_COEFF) {
-	    printf (
-	"ERROR    Too many dispersion coefficients %d in DISPTAB.\n",
+	    trlerror("Too many dispersion coefficients %d in DISPTAB.",
 		newrec->ncoeff);
 	    return (TABLE_ERROR);
 	}
@@ -239,7 +238,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 
 	if (ncoeff < newrec->ncoeff) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Not all coefficients were read from DISPTAB.\n");
+	    trlerror("Not all coefficients were read from DISPTAB.");
 	    return (TABLE_ERROR);
 	}
 

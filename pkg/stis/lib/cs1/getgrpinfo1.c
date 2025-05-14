@@ -112,7 +112,7 @@ Hdr *hdr         i: header of current extension
 	if ((status = Get_KeyD (hdr, "EXPTIME", no_default, 0., &sts->exptime)))
 	    return (status);
 	if (sts->exptime < 0.) {
-	    trlerror("Exposure time is invalid:  %14.6g.\n",
+	    trlerror("Exposure time is invalid:  %14.6g.",
 		sts->exptime);
 	    return (GENERIC_ERROR_CODE);
 	}
@@ -273,7 +273,7 @@ Hdr *hdr         i: header of current extension
 	    return (status);
 
 	if (sts->ncombine < 1) {
-	    trlwarn("NCOMBINE = %d, reset to one.\n", sts->ncombine);
+	    trlwarn("NCOMBINE = %d, reset to one.", sts->ncombine);
 	    sts->ncombine = 1;
 	}
 
