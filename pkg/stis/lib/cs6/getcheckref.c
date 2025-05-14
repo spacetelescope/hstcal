@@ -37,7 +37,7 @@ int GetCheckRef (Hdr *phdr, char *keyword, RefTab *table, int *calswitch,
 	if (table->exists != EXISTS_YES) {
 	    (*missing)++;
 	    if (no_fatal == 0)
-	        printf ("ERROR    %s `%s' not found\n", keyword, table->name);
+	        trlerror("ERROR    %s `%s' not found\n", keyword, table->name);
 	}
 	if (table->goodPedigree != GOOD_PEDIGREE)
 	    *calswitch = DUMMY;

@@ -47,7 +47,7 @@ CoordInfo *input    i: a new record to be inserted into the list
 
 	/* Allocate space for the new record, and copy to memory. */
 	if ((newrec = (CoordInfo *) malloc (sizeof (CoordInfo))) == NULL) {
-	    printf ("ERROR    Can't allocate memory in NewCoord.\n");
+	    trlerror("ERROR    Can't allocate memory in NewCoord.\n");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -119,7 +119,7 @@ CoordInfo **output   o: the record that matches sporder
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (CoordInfo))) == NULL) {
-		printf ("ERROR    Can't allocate memory in ReturnCoord.\n");
+		trlerror("ERROR    Can't allocate memory in ReturnCoord.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	    (*output)->next = NULL;
@@ -244,7 +244,7 @@ CoordInfo **coords  i: identifies the first record in the list
 	current = *coords;
 
 	while (current != NULL) {
-	    printf ("%3d:  %3d\n", i, current->sporder);
+	    trlmessage("%3d:  %3d\n", i, current->sporder);
 	    current = current->next;
 	    i++;
 	}

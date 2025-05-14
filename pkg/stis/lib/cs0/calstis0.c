@@ -191,7 +191,7 @@ int verbose      i: true --> print info in individual csN
 	save_fwv = save_tmp;		/*   we may need to save these */
 
 	/* Print image name.  We may not have the wavecal name yet. */
-	printf ("\n");
+trlmessage("\n");
 	PrFileName ("input", sts.rawfile);
 	if (outroot[0] != '\0')
 	    PrFileName ("outroot", sts.outroot);
@@ -228,7 +228,7 @@ int verbose      i: true --> print info in individual csN
 	    sts.sci_1d_extract != PERFORM &&
 	    sts.sci_geocorr != PERFORM &&
 	    sts.wav_basic_2d != PERFORM) {
-	    printf ("Warning  No calibration switch was set to PERFORM.\n");
+	    trlwarn("Warning  No calibration switch was set to PERFORM.\n");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -490,7 +490,7 @@ int verbose      i: true --> print info in individual csN
 	FreeRefFile (&sciref);
 	FreeRefFile (&wavref);
 
-	printf ("\n");
+trlmessage("\n");
 	PrEnd (0);		/* *** CALSTIS-0 complete *** */
 
 	if (printtime)
@@ -694,13 +694,13 @@ char *outfile   i: name of output file
 	    return (OUT_OF_MEMORY);
 
 	if ((ofp = fopen (outfile, "wb")) == NULL) {
-	    printf ("ERROR    Can't create temporary file %s.\n", outfile);
+	    trlerror("ERROR    Can't create temporary file %s.\n", outfile);
 	    free (buf);
 	    return (GENERIC_ERROR_CODE);
 	}
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-	    printf ("ERROR    Can't open %s.\n", infile);
+	    trlerror("ERROR    Can't open %s.\n", infile);
 	    (void)fcloseWithStatus(&ofp);
 	    remove (outfile);
 	    free (buf);
@@ -711,7 +711,7 @@ char *outfile   i: name of output file
 	while (!done) {
 	    nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
 	    if (ferror (ifp)) {
-		printf ("ERROR    Can't read from %s (copying to %s).\n",
+		trlerror("ERROR    Can't read from %s (copying to %s).\n",
 				infile, outfile);
 		(void)fcloseWithStatus(&ofp);
 		(void)fcloseWithStatus(&ifp);
@@ -723,7 +723,7 @@ char *outfile   i: name of output file
 
 	    nout = fwrite (buf, sizeof(char), nin, ofp);
 	    if (nout < nin) {
-		printf ("ERROR    Can't copy %s to %s.\n", infile, outfile);
+		trlerror("ERROR    Can't copy %s to %s.\n", infile, outfile);
 		(void)fcloseWithStatus(&ofp);
 		(void)fcloseWithStatus(&ifp);
 		free (buf);

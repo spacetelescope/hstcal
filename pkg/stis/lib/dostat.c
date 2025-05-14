@@ -113,17 +113,17 @@ short sdqflags    i: "serious" data quality flags
 	} else {
 	    area = out->sci.data.ny * out->sci.data.nx;
 	    if (area == 0) {
-		printf ("Warning  Output image size is zero.\n");
+		trlwarn("Warning  Output image size is zero.\n");
 	    } else if (num_bad_stddev > 0) {
 		if (num_bad_stddev == area) {
-		    printf ("Warning  No ERR values > 0.\n");
+		    trlwarn("Warning  No ERR values > 0.\n");
 		} else {
 		    printf (
 		"Warning  All output pixels either flagged as bad \\\n");
-		    printf ("Warning  or ERR <= 0.\n");
+		    trlwarn("Warning  or ERR <= 0.\n");
 		}
 	    } else {
-		printf ("Warning  All output pixels flagged as bad.\n");
+		trlwarn("Warning  All output pixels flagged as bad.\n");
 	    }
 	    status = Put_KeyI (&out->sci.hdr, "NGOODPIX", numgood, "");
 	    status = Put_KeyI (&out->err.hdr, "NGOODPIX", numgood, "");

@@ -19,7 +19,7 @@ char *filename  i: name of reference file
 	len = strlen (filename);
 
 	if ((fname = calloc (len+1, sizeof(char))) == NULL) {
-	    printf ("ERROR    Out of memory.\n");
+	    trlerror("ERROR    Out of memory.\n");
 	    return (-1);
 	}
 

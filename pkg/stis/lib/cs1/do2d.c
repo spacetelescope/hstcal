@@ -189,7 +189,7 @@ int ngood_extver   io: incremented unless the current imset has zero
                                     "heliocentric radial velocity (km/s)")))
 		return (status);
 	    if (sts->verbose) {
-		printf ("         Heliocentric radial velocity = %.3f (km/s)\n",
+		trlmessage("         Heliocentric radial velocity = %.3f (km/s)\n",
 				v_helio);
 	    }
 	}
@@ -216,7 +216,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    "Warning  %simset %d flagged as bad because all values = %.6g\n",
 				wavecal_str, extver, maxval);
 		}
-		printf ("%s", msg1);
+		trlmessage("%s", msg1);
 		if ((status = Put_KeyB (&x->sci.hdr, "IMSET_OK", 0,
 				"is the current imset good?")) != 0)
 		    return (status);
@@ -226,7 +226,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 		}
 		putSingleGroup (sts->output, extver, x, option);
 		if (hstio_err()) {
-		    printf ("ERROR    Couldn't write imset %d.\n", extver);
+		    trlerror("ERROR    Couldn't write imset %d.\n", extver);
 		    return (IO_ERROR);
 		}
 		freeSingleGroup (x);
@@ -251,7 +251,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    if ((status = Put_KeyF (x->globalhdr, "READNSE",
                                     sts->readnoise, "")))
 		return (status);
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrRefInfo ("ccdtab", sts->ccdpar.name, sts->ccdpar.pedigree,
 		sts->ccdpar.descrip, sts->ccdpar.descrip2);
 	    if ((status = CCDHistory (sts, x->globalhdr)))
@@ -319,10 +319,10 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    if (done) {
 		printf (
 "         Bias level from overscan has been subtracted; \\\n");
-		printf ("         mean of bias levels subtracted was %.6g.\n",
+		trlmessage("         mean of bias levels subtracted was %.6g.\n",
 			meanblev);
 	    } else {
-		printf ("         Default bias level %.6g was subtracted.\n",
+		trlmessage("         Default bias level %.6g was subtracted.\n",
 			meanblev);
 	    }
 	    PrSwitch ("blevcorr", COMPLETE);
@@ -356,17 +356,17 @@ int ngood_extver   io: incremented unless the current imset has zero
 		    if ((status = noiseHistory (x->globalhdr)))
 			return (status);
 		}
-		printf ("         Uncertainty array initialized");
+		trlmessage("         Uncertainty array initialized");
 		if (sts->detector == CCD_DETECTOR) {
 		    if (sts->err_init_bias > 0.) {
-			printf (", readnoise=%.5g, gain=%.5g, bias=%.5g\n",
+			trlmessage(", readnoise=%.5g, gain=%.5g, bias=%.5g\n",
 			sts->readnoise, sts->atodgain, sts->err_init_bias);
 		    } else {
-			printf (", readnoise=%.5g, gain=%.5g\n",
+			trlmessage(", readnoise=%.5g, gain=%.5g\n",
 			sts->readnoise, sts->atodgain);
 		    }
 		} else {
-		    printf (".\n");
+		    trlmessage(".\n");
 		}
 		if (sts->printtime)
 		    TimeStamp ("Uncertainty array initialized", sts->rootname);
@@ -486,7 +486,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    if ((status = PhotMode (sts, x)))
 		return (status);
 
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("photcorr", sts->photcorr);
 	    if (sts->photcorr == PERFORM) {
 		if ((status = doPhot (sts, x)))
@@ -509,9 +509,9 @@ int ngood_extver   io: incremented unless the current imset has zero
 
 	if (sts->detector != CCD_DETECTOR) {
 	    /* Doppler message and history. */
-	    printf ("\n");
+	    trlmessage("\n");
 	    if (doppcount > 0) {
-		printf ("%s\n", doppstr);
+		trlmessage("%s\n", doppstr);
 		addHistoryKw (x->globalhdr, doppstr);
 	    } else if (sts->doppcorr != PERFORM) {
 		PrSwitch ("doppcorr", sts->doppcorr);	/* OMIT */
@@ -521,7 +521,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 
 	/* Compute min, max, mean, etc. of good science data. */
 	if (sts->statcorr == PERFORM) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("statflag", PERFORM);
 	    if ((status = doStat (x, sts->sdqflags)))
 		return (status);
@@ -540,7 +540,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	}
 	putSingleGroup (sts->output, extver, x, option);
 	if (hstio_err()) {
-	    printf ("ERROR    Couldn't write imset %d.\n", extver);
+	    trlerror("ERROR    Couldn't write imset %d.\n", extver);
 	    return (IO_ERROR);
 	}
 	if (sts->printtime)
@@ -577,7 +577,7 @@ static void getMinMax (SingleGroup *x, float *minval, float *maxval) {
 static void AtoDMsg (StisInfo1 *sts, int extver) {
 
 	if (sts->detector == CCD_DETECTOR) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("atodcorr", sts->atodcorr);
 	}
 
@@ -591,7 +591,7 @@ static void AtoDMsg (StisInfo1 *sts, int extver) {
 static void BiasMsg (StisInfo1 *sts, int extver) {
 
 	if (sts->detector == CCD_DETECTOR) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("biascorr", sts->biascorr);
 	}
 
@@ -605,14 +605,14 @@ static void BiasMsg (StisInfo1 *sts, int extver) {
 static void BlevMsg (StisInfo1 *sts) {
 
 	if (sts->detector == CCD_DETECTOR) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("blevcorr", sts->blevcorr);
 	}
 }
 
 static void DarkMsg (StisInfo1 *sts, int extver) {
 
-	printf ("\n");
+trlmessage("\n");
 	PrSwitch ("darkcorr", sts->darkcorr);
 
 	if (extver == 1 && !OmitStep (sts->darkcorr)) {
@@ -655,7 +655,7 @@ char *calswitch  i: name of current calibration step (e.g. FLATCORR)
 
 static void dqiMsg (StisInfo1 *sts, int extver) {
 
-	printf ("\n");
+trlmessage("\n");
 	PrSwitch ("dqicorr", sts->dqicorr);
 
 	if (extver == 1 && !OmitStep (sts->dqicorr)) {
@@ -667,7 +667,7 @@ static void dqiMsg (StisInfo1 *sts, int extver) {
 
 static void FlatMsg (StisInfo1 *sts, int extver) {
 
-	printf ("\n");
+trlmessage("\n");
 	PrSwitch ("flatcorr", sts->flatcorr);
 
 	if (extver == 1 && !OmitStep (sts->flatcorr)) {
@@ -690,7 +690,7 @@ static void FlatMsg (StisInfo1 *sts, int extver) {
 static void LoResMsg (StisInfo1 *sts) {
 
 	if (sts->detector != CCD_DETECTOR) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("lorscorr", sts->lorscorr);
 	}
 }
@@ -698,7 +698,7 @@ static void LoResMsg (StisInfo1 *sts) {
 static void NonLinMsg (StisInfo1 *sts, int extver) {
 
 	if (sts->detector != CCD_DETECTOR) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("glincorr", sts->glincorr);
 	    PrSwitch ("lflgcorr", sts->lflgcorr);
 	}
@@ -725,7 +725,7 @@ static void PhotMsg (StisInfo1 *sts) {
 static void ShadMsg (StisInfo1 *sts, int extver) {
 
 	if (sts->detector == CCD_DETECTOR) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("shadcorr", sts->shadcorr);
 	}
 

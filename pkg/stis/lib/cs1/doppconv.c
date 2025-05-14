@@ -3,6 +3,7 @@
 # include <math.h>		/* sqrt */
 # include "hstio.h"
 
+# include "stis.h"
 # include "stisdq.h"		/* for GOODPIXEL and DETECTORPROB */
 # include "hstcalerr.h"
 
@@ -61,7 +62,7 @@ int d0             i: index in ds corresponding to zero Doppler shift;
 
 	x = calloc (nscr, sizeof(float));
 	if (x == NULL) {
-	    printf ("ERROR    (DoppConv) can't allocate memory.\n");
+	    trlerror("ERROR    (DoppConv) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -105,7 +106,7 @@ int d0             i: index in ds corresponding to zero Doppler shift;
 
 	xdq = calloc (nscr, sizeof(short));
 	if (xdq == NULL) {
-	    printf ("ERROR    (DoppConv) can't allocate memory.\n");
+	    trlerror("ERROR    (DoppConv) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 

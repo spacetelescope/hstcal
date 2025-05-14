@@ -215,18 +215,18 @@ int CalStis1 (char *input, char *output, char *outblev,
 
 	ngood_extver = 0;
 	for (extver = 1;  extver <= sts.nimages;  extver++) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrGrpBegin ("imset", extver);
 	    if ((status = Do2D (&sts, extver, &ngood_extver)) != 0)
 		return (status);
 	    PrGrpEnd ("imset", extver);
 	}
 	if (ngood_extver <= 0) {
-	    printf ("Warning  No good data were written to output.\n");
+	    trlwarn("Warning  No good data were written to output.\n");
 	    return (NOTHING_TO_DO);
 	}
 
-	printf ("\n");
+trlmessage("\n");
 	PrEnd (1);
 
 	if (sts.printtime)

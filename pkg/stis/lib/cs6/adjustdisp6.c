@@ -33,8 +33,8 @@ InangInfo *iac        i: incidence-angle correction coeff
 	/* First apply the incidence-angle correction. */
 
 	if (disp_y->ncoeff < iac->ncoeff1) {
-	    printf ("Warning  %d dispersion coefficients, ",disp_y->ncoeff);
-	    printf ("but %d incidence-angle coeff.\n",iac->ncoeff1);
+	    trlwarn("Warning  %d dispersion coefficients, ",disp_y->ncoeff);
+	    trlmessage("but %d incidence-angle coeff.\n",iac->ncoeff1);
 	    ncoeff = disp_y->ncoeff;
 	} else {
 	    ncoeff = iac->ncoeff1;
@@ -52,10 +52,10 @@ InangInfo *iac        i: incidence-angle correction coeff
 	    disp_y->coeff[0] += iac->coeff2[1] * delta * delta;
 
 	if (iac->ncoeff2 > 2) {
-	    printf ("Warning  %d incidence-angle second ", iac->ncoeff2);
-	    printf ("coefficents, limit is 2;\n");
-	    printf ("Warning  the remaining coefficents ");
-	    printf ("will not be applied.\n");
+	    trlwarn("Warning  %d incidence-angle second ", iac->ncoeff2);
+	    trlmessage("coefficents, limit is 2;\n");
+	    trlwarn("Warning  the remaining coefficents ");
+	    trlmessage("will not be applied.\n");
 	}
 
 	/* Add the auto-wavecal offset (which will be zero if we're

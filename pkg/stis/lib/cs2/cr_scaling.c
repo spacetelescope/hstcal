@@ -46,12 +46,12 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 	    getHeader (ipsci[k], &scihdr);
 
 	    if (getKeyF(&scihdr, expname, &efac[k]) != 0) {
-		printf ("cannot read the keyword '%s' from the SCI "
+		trlerror("cannot read the keyword '%s' from the SCI "
 			"extension of '%s'\n", expname, imgname[k]);
 		return (2);
 	    }
 	    if (efac[k] < 0.) {
-		printf ("exposure time of file '%s' is negative\n",
+		trlerror("exposure time of file '%s' is negative\n",
 		    	imgname[k]);
 		return (2);
 	    }
@@ -80,7 +80,7 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 	    freeHdr (&scihdr);
 	}
 	if (nzero > 0 && nzero < nimgs) {
-	    printf ("some (but not all) input imsets have zero exposure time\n");
+	    trlerror("some (but not all) input imsets have zero exposure time\n");
 	    return (2);
 	}
 

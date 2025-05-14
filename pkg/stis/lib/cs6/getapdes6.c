@@ -113,7 +113,7 @@ ApInfo *slit     o: description of slit
 	    return (status);
 
 	if (!foundit) {
-	    printf ("ERROR    APERTURE %s not found in APDESTAB %s\n",
+	    trlerror("ERROR    APERTURE %s not found in APDESTAB %s\n",
 		sts->aperture, sts->apdestab.name);
 	    return (ROW_NOT_FOUND);
 	}
@@ -135,7 +135,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    APDESTAB `%s' not found\n", tname);
+	    trlerror("ERROR    APDESTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -152,7 +152,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
             tabinfo->cp_width[1]  == 0 ||
 	    tabinfo->cp_offset[0] == 0 ||
             tabinfo->cp_offset[1] == 0) {
-	    printf ("ERROR    Column not found in APDESTAB\n");
+	    trlerror("ERROR    Column not found in APDESTAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}

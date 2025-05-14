@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>		/* malloc */
 # include <string.h>
+# include "stis.h"
 # include "hstcalerr.h"
 
 # define MAX_NAMES_INCR   20
@@ -26,7 +27,7 @@ int InitNames (void) {
 	nnames = 0;
 	fnames = malloc (MAX_NAMES_INCR * sizeof (char *));
 	if (fnames == NULL) {
-	    printf ("ERROR    (InitNames) can't allocate memory.\n");
+	    trlerror("ERROR    (InitNames) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	maxnames = MAX_NAMES_INCR;
@@ -66,7 +67,7 @@ int *oldname     o: true if name already present in list
 	i = nnames;
 	fnames[i] = malloc ((strlen (filename) + 1) * sizeof (char));
 	if (fnames[i] == NULL) {
-	    printf ("ERROR    (SaveName) can't allocate memory.\n");
+	    trlerror("ERROR    (SaveName) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	strcpy (fnames[i], filename);
@@ -84,7 +85,7 @@ static int ReallocNames (void) {
 
 	fnames = realloc (fnames, newmax * sizeof (char *));
 	if (fnames == NULL) {
-	    printf ("ERROR    (SaveName) can't allocate memory.\n");
+	    trlerror("ERROR    (SaveName) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 

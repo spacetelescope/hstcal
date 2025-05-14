@@ -140,7 +140,7 @@ int CalStis8 (char *input, char *output, int printtime, int verbose) {
 	    return (status);
 
 	free (orders);
-	printf ("\n");
+	trlmessage("\n");
 	PrEnd (8);
 
 	if (sts.printtime)
@@ -239,7 +239,7 @@ Hdr *phdr       i: primary header
 	}
 
 	if (sts->nimages <= 1) {
-	    printf ("Warning  NEXTEND indicates there is only one imset.\n");
+	    trlwarn("Warning  NEXTEND indicates there is only one imset.\n");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -298,7 +298,7 @@ int *maxorder    o: maximum value of sporder
 		    NotMultiOrder (sts, orders, minorder, maxorder);
 		    return (0);
 		} else if (sporder == -1) {
-		    printf ("ERROR    Keyword SPORDER missing, imset %d.\n",
+		    trlerror("ERROR    Keyword SPORDER missing, imset %d.\n",
 				i+1);
 		    return (KEYWORD_MISSING);
 		} else {
@@ -420,7 +420,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	    iextver++;
 	    iextver = FindExtver (orders, sts->nimages, iextver, sporder);
 	    if (iextver < 0) {
-		printf ("Warning  No data for spectral order %d.\n", sporder);
+		trlwarn("Warning  No data for spectral order %d.\n", sporder);
 		return (0);
 	    }
 
@@ -437,7 +437,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		    sprintf (message, "imset %d read", iextver);
 		    TimeStamp (message, sts->rootname);
 		} else if (sts->verbose) {		/* don't do both */
-		    printf ("         imset %d read\n", iextver);
+		    trlmessage("         imset %d read\n", iextver);
 		}
 		nrptexp = 1;				/* one image so far */
 		sumexptime = exptime;
@@ -493,7 +493,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 		    sprintf (message, "imset %d added", iextver);
 		    TimeStamp (message, sts->rootname);
 		} else if (sts->verbose) {
-		    printf ("         imset %d added\n", iextver);
+		    trlmessage("         imset %d added\n", iextver);
 		}
 		freeSingleGroup (&y);
 		nrptexp++;
@@ -509,7 +509,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	/* Divide by the sum of the exposure times. */
 	if (sts->fluxcorr == COMPLETE) {
 	    if (sumexptime <= 0.) {
-		printf ("ERROR    Sum of EXPTIME = %.6g\n", sumexptime);
+		trlerror("ERROR    Sum of EXPTIME = %.6g\n", sumexptime);
 		return (GENERIC_ERROR_CODE);
 	    }
 	    if ((status = multk2d (&x, (float)(1./sumexptime))))
@@ -518,7 +518,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 
 	/* Compute statistics and update keywords in output headers. */
 	if (sts->statcorr == PERFORM) {
-	    printf ("\n");
+	    trlmessage("\n");
 	    PrSwitch ("statflag", PERFORM);
 	    if ((status = doStat (&x, sts->sdqflags)))
 		return (status);
@@ -528,10 +528,10 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	}
 
 	if (nrptexp != sts->nrptexp) {
-	    printf ("Warning  Order %d has %d imset", sporder, nrptexp);
+	    trlwarn("Warning  Order %d has %d imset", sporder, nrptexp);
 	    if (nrptexp > 1)
-		printf ("s");
-	    printf (" instead of %d.\n", sts->nrptexp);
+		trlmessage("s");
+	    trlmessage(" instead of %d.\n", sts->nrptexp);
 	}
 
 	/* Update header info in output.  Note that nrptexp is passed

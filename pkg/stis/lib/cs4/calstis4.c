@@ -134,7 +134,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 
 		sts.dbg = fopen (sts.dbgfile, "a");
 		if (sts.dbg == NULL) {
-		    printf ("Warning  Can't open debug file %s\n", sts.dbgfile);
+		    trlwarn("Warning  Can't open debug file %s\n", sts.dbgfile);
 		    sts.dbgfile[0] = '\0';
 		}
 	    }
@@ -163,7 +163,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 	if ((status = WaveCal (&sts)))
 	    return (status);
 
-	printf ("\n");
+trlmessage("\n");
 	PrEnd (4);
 
 	if ((status = fcloseWithStatus(&sts.dbg)))

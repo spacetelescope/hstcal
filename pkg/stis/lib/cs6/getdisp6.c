@@ -125,9 +125,9 @@ DispRelation **disp  o: size and coordinate info for output
 	if ((status = CheckDisp6 (disp))) {
 	    FreeDisp6 (disp);
 	    if (status < 0) {
-		printf ("ERROR    Matching row not found in DISPTAB %s\n",
+		trlerror("ERROR    Matching row not found in DISPTAB %s\n",
 				sts->disptab.name);
-		printf ("ERROR    OPT_ELEM %s, CENWAVE %d\n",
+		trlerror("ERROR    OPT_ELEM %s, CENWAVE %d\n",
 		    sts->opt_elem, sts->cenwave);
 		return (ROW_NOT_FOUND);
 	    } else {
@@ -149,7 +149,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    DISPTAB `%s' not found\n", tname);
+	    trlerror("ERROR    DISPTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -171,7 +171,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ref_aper == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in DISPTAB\n");
+	    trlerror("ERROR    Column not found in DISPTAB\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -212,7 +212,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 	int NewDisp6 (DispRelation **, DispRelation *);
 
 	if ((newd = (DispRelation *) malloc (sizeof (DispRelation))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	newd->next = NULL;
@@ -238,7 +238,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 
 	if (ncoeff < newd->ncoeff) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Not all coefficients were read from DISPTAB\n");
+	    trlerror("ERROR    Not all coefficients were read from DISPTAB\n");
 	    return (TABLE_ERROR);
 	}
 

@@ -31,7 +31,7 @@ int maxch          i: maximum size of output
 	fits_len = strlen (fitsext);
 
 	if (i_len > maxch) {
-	    printf ("ERROR    (MkName) Input name is too long.\n");
+	    trlerror("ERROR    (MkName) Input name is too long.\n");
 	    return (2011);
 	}
 

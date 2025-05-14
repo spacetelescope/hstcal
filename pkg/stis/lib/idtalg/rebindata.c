@@ -65,7 +65,7 @@ int nrows;			i: number of rows
                                                  sizeof(float));
 	    if (ox1d[j]->wave == NULL || ox1d[j]->gross    == NULL ||
                 ox1d[j]->net  == NULL || ox1d[j]->extrlocy == NULL) {
-                printf ("Not enough memory to allocate data arrays.\n");
+                trlmessage("Not enough memory to allocate data arrays.\n");
 	        return (OUT_OF_MEMORY);
 	    }
 	}

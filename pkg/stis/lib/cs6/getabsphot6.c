@@ -167,9 +167,9 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	if (!foundit) {
 	    if (print) {
-	        printf ("ERROR    Matching row not found in PHOTTAB %s\n",
+	        trlerror("ERROR    Matching row not found in PHOTTAB %s\n",
 	                sts->phottab.name);
-	        printf ("ERROR    OPT_ELEM %s, CENWAVE %d, SPORDER %d\n",
+	        trlerror("ERROR    OPT_ELEM %s, CENWAVE %d, SPORDER %d\n",
 	                sts->opt_elem, sts->cenwave, sporder);
 	    }
 	    return (ROW_NOT_FOUND);
@@ -193,7 +193,7 @@ static int OpenPhotTab (StisInfo6 *sts, TblInfo *tabinfo, PhotInfo *phot,
 	tabinfo->tp = c_tbtopn (sts->phottab.name, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
-	    printf ("ERROR    PHOTTAB `%s' not found\n", sts->phottab.name);
+	    trlerror("ERROR    PHOTTAB `%s' not found\n", sts->phottab.name);
 	    return (OPEN_FAILED);
 	}
 
@@ -210,7 +210,7 @@ static int OpenPhotTab (StisInfo6 *sts, TblInfo *tabinfo, PhotInfo *phot,
 	    tabinfo->cp_wl       == 0 ||
 	    tabinfo->cp_thru     == 0 ||
 	    tabinfo->cp_error    == 0) {
-	    printf ("ERROR    Column not found in PHOTTAB\n");
+	    trlerror("ERROR    Column not found in PHOTTAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -339,7 +339,7 @@ static int ReadPhotData (TblInfo *tabinfo, int row, PhotInfo *phot) {
 	    free (phot->wl);
 	    free (phot->thru);
 	    free (phot->error);
-	    printf ("ERROR    Not all elements were read from PHOTTAB\n");
+	    trlerror("ERROR    Not all elements were read from PHOTTAB\n");
 	    return (TABLE_ERROR);
 	}
 

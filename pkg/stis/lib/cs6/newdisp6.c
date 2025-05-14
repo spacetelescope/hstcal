@@ -51,14 +51,14 @@ DispRelation *input  i: a new record to be inserted into the list
 	int done = 0;
 
 	if (input->ncoeff > MAX_DISP_COEFF) {
-	    printf ("ERROR    %d dispersion coefficients.\n",
+	    trlerror("ERROR    %d dispersion coefficients.\n",
 		input->ncoeff);
 	    return (TABLE_ERROR);
 	}
 
 	/* Allocate space for the new record, and copy input to new. */
 	if ((new = (DispRelation *) malloc (sizeof (DispRelation))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	CopyDisp (input, new);
@@ -199,7 +199,7 @@ DispRelation **output o: the dispersion relation interpolated to a2center
 	if (*output == NULL) {
 	    if ((*output = (DispRelation *) malloc (sizeof (DispRelation))) == 
                             NULL) {
-		printf ("ERROR    Can't allocate memory.\n");
+		trlerror("ERROR    Can't allocate memory.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	}
@@ -293,7 +293,7 @@ DispRelation **disp  i: identifies the first record in the list
 	current = *disp;
 
 	while (current != NULL) {
-	    printf ("%3d:  %.8g\n", i, current->a2center);
+	    trlmessage("%3d:  %.8g\n", i, current->a2center);
 	    current = current->next;
 	    i++;
 	}

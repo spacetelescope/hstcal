@@ -132,9 +132,9 @@ ProfileArray *profa;  o: list with profile arrays for current sporder
 	if ((status = CheckProfile (profa))) {
 	    FreeProfileArray (profa);
 	    if (status < 0) {
-		printf ("ERROR    Matching row not found in OPROFAB %s\n",
+		trlerror("ERROR    Matching row not found in OPROFAB %s\n",
 				sts->pftab.name);
-		printf ("ERROR    SPORDER %d\n", sporder);
+		trlerror("ERROR    SPORDER %d\n", sporder);
 		return (ROW_NOT_FOUND);
 	    } else {
 		return (status);
@@ -157,7 +157,7 @@ static int OpenProfileTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    OPROFTAB `%s' not found\n", tname);
+	    trlerror("ERROR    OPROFTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -181,7 +181,7 @@ static int OpenProfileTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_profoff == 0 || tabinfo->cp_prof == 0 ||
 	    tabinfo->cp_sn      == 0 || tabinfo->cp_nptsoff == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in OPROFTAB\n");
+	    trlerror("ERROR    Column not found in OPROFTAB\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -220,7 +220,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 	int NewProfile (ProfileArray **, ProfileArray *);
 
 	if ((newp = (ProfileArray *) malloc (sizeof (ProfileArray))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	newp->next = NULL;
@@ -239,7 +239,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 	newp->profoff = (double *) malloc (newp->nptsoff * sizeof (double));
 	newp->prof    = (double *) malloc (newp->npts * sizeof (double));
 	if (newp->profoff == NULL || newp->prof == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -255,7 +255,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 
 	if (npts1 != newp->nptsoff) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Inconsistent array info in OPROFTAB\n");
+	    trlerror("ERROR    Inconsistent array info in OPROFTAB\n");
 	    return (TABLE_ERROR);
 	}
 

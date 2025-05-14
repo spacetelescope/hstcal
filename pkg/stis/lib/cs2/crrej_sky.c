@@ -2,6 +2,7 @@
 # include	<string.h>
 # include	<stdlib.h>
 # include	"hstio.h"
+# include	"stis.h"
 
 # define	MINVAL	-1000
 
@@ -47,7 +48,7 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    return (0);
 	}
 	if (strcmp (sky, "mode") != 0) {
-	    printf ("illegal sky value\n");
+	    trlerror("illegal sky value\n");
 	    return (2);
 	}
 
@@ -60,12 +61,12 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    /* read the data in */
 	    getFloatData (ipsci[k], &a);
 	    if (hstio_err()) {
-		printf ("ERROR    %s\n", hstio_errmsg());
+		trlerror("ERROR    %s\n", hstio_errmsg());
 		return (2);
 	    }
 	    getShortData (ipdq[k], &b);
 	    if (hstio_err()) {
-		printf ("ERROR    %s\n", hstio_errmsg());
+		trlerror("ERROR    %s\n", hstio_errmsg());
 		return (2);
 	    }
 
@@ -103,7 +104,7 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    /*  set up the histogram array */
 	    histgrm = calloc (nbins, sizeof(int));
 	    if (histgrm == NULL) {
-		printf ("ERROR    out of memory in crrej_sky\n");
+		trlerror("ERROR    out of memory in crrej_sky\n");
 		return (2);
 	    }
 

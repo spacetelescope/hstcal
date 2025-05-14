@@ -108,7 +108,7 @@ DispRelation **disp  o: size and coordinate info for output
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->disptab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("Warning  DUMMY pedigree in row %d of %s.\n",
 			row, sts->disptab.name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseDSPTab (&tabinfo);
@@ -125,9 +125,9 @@ DispRelation **disp  o: size and coordinate info for output
 	if ((status = CheckDisp (disp))) {
 	    FreeDisp (disp);
 	    if (status < 0) {
-		printf ("Warning  Matching row not found in DISPTAB %s; \\\n",
+		trlwarn("Warning  Matching row not found in DISPTAB %s; \\\n",
 				sts->disptab.name);
-		printf ("Warning  OPT_ELEM %s, CENWAVE %d\n",
+		trlwarn("Warning  OPT_ELEM %s, CENWAVE %d\n",
 			sts->opt_elem, sts->cenwave);
 		sts->x2dcorr_o = OMIT;
 	    } else {
@@ -149,7 +149,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    DISPTAB `%s' not found.\n", tname);
+	    trlerror("ERROR    DISPTAB `%s' not found.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -171,7 +171,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ref_aper == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in DISPTAB.\n");
+	    trlerror("ERROR    Column not found in DISPTAB.\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -213,7 +213,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 	int NewDisp (DispRelation **, DispRelation *);
 
 	if ((newrec = malloc (sizeof (DispRelation))) == NULL) {
-	    printf ("ERROR    (GetDisp) can't allocate memory.\n");
+	    trlerror("ERROR    (GetDisp) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	newrec->next = NULL;
@@ -239,7 +239,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 
 	if (ncoeff < newrec->ncoeff) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Not all coefficients were read from DISPTAB.\n");
+	    trlerror("ERROR    Not all coefficients were read from DISPTAB.\n");
 	    return (TABLE_ERROR);
 	}
 

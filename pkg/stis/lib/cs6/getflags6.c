@@ -341,7 +341,7 @@ int *missing    io: incremented if the table is missing
                 printf (
         "Warning  Grating-aperture throughput correction table (GACTAB)"
         " was not found,\n");
-                printf ("         and no gac corrections will be applied\n");
+                trlmessage("         and no gac corrections will be applied\n");
             }
 
             /* Time-dependent sensitivity table. Handled like pct. */
@@ -422,7 +422,7 @@ int *missing    io: incremented if the file is missing
                 return (status);
             if (sts->sdstfile.exists != EXISTS_YES) {
                 (*missing)++;
-                printf ("ERROR    SDSTFILE `%s' not found\n",
+                trlerror("ERROR    SDSTFILE `%s' not found\n",
                         sts->sdstfile.name);
             }
             if (sts->sdstfile.goodPedigree != GOOD_PEDIGREE)

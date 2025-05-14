@@ -123,9 +123,9 @@ double *shift      o: the shift, in pixels
 
 	    if (sts->verbose) {
 		if (barweight[i] == 0.) {
-		    printf ("Warning  Bar %d could not be found.\n", i+1);
+		    trlwarn("Warning  Bar %d could not be found.\n", i+1);
 		} else {
-		    printf ("         shift of bar %d is %.3f, weight = %.5g\n",
+		    trlmessage("         shift of bar %d is %.3f, weight = %.5g\n",
 			i+1, barshift[i], barweight[i]);
 		}
 	    }
@@ -348,7 +348,7 @@ FILE *dbg          i: file handle for debug output
 
 	if (bad != BAR_OK) {
 
-	    printf ("Warning  Skipping current occulting bar ... \\\n");
+	    trlwarn("Warning  Skipping current occulting bar ... \\\n");
 
 	    if (bad == SEARCH_RANGE_TOO_SMALL) {
 
@@ -400,7 +400,7 @@ FILE *dbg          i: file handle for debug output
 	if (cent == NULL) {
 	    *barshift = 0.;
 	    *barweight = 0.;
-	    printf ("Warning  Out of memory in FindBars.\n");
+	    trlwarn("Warning  Out of memory in FindBars.\n");
 	    return;
 	}
 
@@ -457,7 +457,7 @@ FILE *dbg          i: file handle for debug output
 	    *barweight = 0.;
 	} else if (n == 1) {
 	    *barshift = cent[0] - (double) middle;
-	    printf ("Warning  Only one point used for bar location.\n");
+	    trlwarn("Warning  Only one point used for bar location.\n");
 	} else {
 	    /* reject outliers from cent */
 	    median = MedianDouble (cent, n, 0);
@@ -573,7 +573,7 @@ double *shift        o: the average shift
 	    return (NO_GOOD_DATA);
 
 	if (max_shift - min_shift > MAX_DIFF_WARNING)
-	    printf ("Warning  Shifts of individual bars differ by %.2f\n",
+	    trlwarn("Warning  Shifts of individual bars differ by %.2f\n",
 		max_shift - min_shift);
 
 	if (max_shift - min_shift > MAX_DIFF_ERROR)
@@ -591,7 +591,7 @@ double *shift        o: the average shift
 	for (i = 0;  i < nbars;  i++) {
 
 	    if (i == wmin) {
-		printf ("Warning  bar %d excluded due to low weight\n", i+1);
+		trlwarn("Warning  bar %d excluded due to low weight\n", i+1);
 		continue;		/* skip this point */
 	    }
 

@@ -98,7 +98,7 @@ double angle         i: incidence angle
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->inangtab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("Warning  DUMMY pedigree in row %d of %s.\n",
 			row, sts->inangtab.name);
 		}
 
@@ -114,9 +114,9 @@ double angle         i: incidence angle
 	}
 
 	if (!foundit) {
-	    printf ("Matching row not found in INANGTAB %s;\n",
+	    trlerror("Matching row not found in INANGTAB %s;\n",
 			sts->inangtab.name);
-	    printf ("  OPT_ELEM %s, CENWAVE %d.\n",
+	    trlmessage("  OPT_ELEM %s, CENWAVE %d.\n",
 			sts->opt_elem, sts->cenwave);
 	    return (TABLE_ERROR);
 	}
@@ -137,7 +137,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("Can't open `%s'.\n", tname);
+	    trlerror("Can't open `%s'.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -158,7 +158,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ncoeff2 == 0   || tabinfo->cp_coeff2 == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("Column not found in %s.\n", tname);
+	    trlerror("Column not found in %s.\n", tname);
 	    return (COLUMN_NOT_FOUND);
 	}
 
