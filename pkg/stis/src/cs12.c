@@ -20,7 +20,7 @@ static int WavOption (char *, int *);
 static int CompareNumbers (int, int);
 static void printSyntax(void)
 {
-    printf ("syntax:  cs12.e [--help] [-t] [-v] [--version] [--gitinfo] wavecal science\n");
+    printf("syntax:  cs12.e [--help] [-t] [-v] [--version] [--gitinfo] wavecal science\n");
 }
 static void printHelp(void)
 {
@@ -56,6 +56,8 @@ static void printHelp(void)
 	Include command-line option '-r'.
 */
 
+static struct TrlBuf trlbuf = {0};
+
 int main (int argc, char **argv) {
 
 	int status;		/* zero is OK */
@@ -90,7 +92,7 @@ int main (int argc, char **argv) {
     addPtr(&ptrReg, insci, &free);
 	if (wavlist == NULL || scilist == NULL || which_wavecal == NULL ||
 		inwav == NULL || insci == NULL) {
-	    printf ("ERROR:  Can't even begin; out of memory.\n");
+	    printf("ERROR:  Can't even begin; out of memory.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
@@ -125,7 +127,7 @@ int main (int argc, char **argv) {
 		    } else if (argv[i][j] == 'v') {
 			verbose = 1;
 		    } else {
-			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printf("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
 			freeOnExit(&ptrReg);
 			exit (1);
@@ -164,6 +166,11 @@ int main (int argc, char **argv) {
 	n_wav = c_imtlen (w_imt);
 	n_sci = c_imtlen (s_imt);
 
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+	trlGitInfo();
+
 	/* The number of wavecal and science files must be the same. */
 	if (CompareNumbers (n_wav, n_sci)) {
 	    freeOnExit(&ptrReg);
@@ -179,7 +186,7 @@ int main (int argc, char **argv) {
 	    status = 0;
 	    if ((status = CalStis12 (inwav, insci,
                                      w_option, printtime, verbose))) {
-		printf ("Error processing %s.\n", insci);
+		printf("Error processing %s.\n", insci);
 		WhichError (status);
 	    }
 	}
@@ -220,7 +227,7 @@ static int WavOption (char *which_wavecal, int *w_option) {
 	} else if (strncmp (which_lc, "linear", len) == 0) {
 	    *w_option = STIS_LINEAR;
 	} else {
-	    printf ("ERROR:  Don't understand wavecal option = `%s'.\n",
+	    printf("ERROR:  Don't understand wavecal option = `%s'.\n",
 		which_wavecal);
 	    return (ERROR_RETURN);
 	}
@@ -240,13 +247,13 @@ static int WavOption (char *which_wavecal, int *w_option) {
 static int CompareNumbers (int n_in, int n_out) {
 
 	if (n_out != n_in) {
-	    printf ("You specified %d wavecal file", n_in);
+	    printf("You specified %d wavecal file", n_in);
 	    if (n_in > 1)
-		printf ("s");
-	    printf (" but %d science file", n_out);
+		printf("s");
+	    printf(" but %d science file", n_out);
 	    if (n_out > 1)
-		printf ("s");
-	    printf (".\n");
+		printf("s");
+	    printf(".\n");
 	    return (1);
 	}
 

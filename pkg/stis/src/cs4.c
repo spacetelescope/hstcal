@@ -48,6 +48,8 @@ static void printHelp(void)
 	Include command-line option '-r'.
 */
 
+static struct TrlBuf trlbuf = {0};
+
 int main (int argc, char **argv) {
 
 	int status;		/* zero is OK */
@@ -87,7 +89,7 @@ int main (int argc, char **argv) {
 	addPtr(&ptrReg, dbgfile, &free);
 	if (inlist == NULL || input == NULL ||
 	    dbglist == NULL || dbgfile == NULL) {
-	    printf ("ERROR:  Can't even begin; out of memory.\n");
+	    printf("ERROR:  Can't even begin; out of memory.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
@@ -142,7 +144,7 @@ int main (int argc, char **argv) {
 			    /* next argument must be debug file name */
 			    dbg_next = 1;
 			} else {
-			    printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			    printf("ERROR:  Unrecognized option %s\n", argv[i]);
 			    printSyntax();
 			    freeOnExit(&ptrReg);
 			    exit (1);
@@ -164,6 +166,11 @@ int main (int argc, char **argv) {
 	/* Initialize the list of reference file keywords and names. */
 	InitRefFile (&refnames);
 	addPtr(&ptrReg, &refnames, &FreeRefFile);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+	trlGitInfo();
 
 	/* Expand the templates. */
 	i_imt = c_imtopen (inlist);
@@ -192,7 +199,7 @@ int main (int argc, char **argv) {
 	    status = 0;
 	    if ((status = CalStis4 (input, dbgfile, &refnames,
                                     printtime, verbose, slit_angle))) {
-		printf ("Error processing %s.\n", input);
+		printf("Error processing %s.\n", input);
 		WhichError (status);
 	    }
 	}
@@ -214,13 +221,13 @@ int main (int argc, char **argv) {
 static int CompareNumbers (int n_in, int n_dbg) {
 
 	if (n_dbg > 0 && n_dbg != n_in) {
-	    printf ("You specified %d input file", n_in);
+	    printf("You specified %d input file", n_in);
 	    if (n_in > 1)
-		printf ("s");
-	    printf (" but %d debug file", n_dbg);
+		printf("s");
+	    printf(" but %d debug file", n_dbg);
 	    if (n_dbg > 1)
-		printf ("s");
-	    printf (".\n");
+		printf("s");
+	    printf(".\n");
 	    return (1);
 	}
 

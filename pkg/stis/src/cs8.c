@@ -34,6 +34,8 @@ static void printHelp(void)
 	Include command-line option '-r'.
 */
 
+static struct TrlBuf trlbuf = {0};
+
 int main (int argc, char **argv) {
 
 	int status;		/* zero is OK */
@@ -52,7 +54,7 @@ int main (int argc, char **argv) {
 	output = calloc (STIS_LINE+1, sizeof (char));
     addPtr(&ptrReg, output, &free);
 	if (input == NULL || output == NULL) {
-	    printf ("ERROR:  Can't even begin:  out of memory.\n");
+	    printf("ERROR:  Can't even begin:  out of memory.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
@@ -88,7 +90,7 @@ int main (int argc, char **argv) {
 		    } else if (argv[i][j] == 'v') {
 			verbose = 1;
 		    } else {
-			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printf("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
 			freeOnExit(&ptrReg);
 			exit (1);
@@ -107,6 +109,11 @@ int main (int argc, char **argv) {
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (output[0] == '\0') {
 	    if ((status = MkName (input, "_x2d", "_sx2", output, STIS_LINE)))
 	    {
@@ -115,9 +122,11 @@ int main (int argc, char **argv) {
 	    }
 	}
 
+	trlGitInfo();
+
 	/* Sum imsets. */
 	if ((status = CalStis8 (input, output, printtime, verbose))) {
-	    printf ("Error processing %s.\n", input);
+	    printf("Error processing %s.\n", input);
 	    WhichError (status);
 	}
 

@@ -43,6 +43,8 @@ static void printHelp(void)
 	Include command-line option '-r'.
 */
 
+static struct TrlBuf trlbuf = {0};
+
 int main (int argc, char **argv) {
 
 	extern int status;		/* zero is OK */
@@ -84,7 +86,7 @@ int main (int argc, char **argv) {
     addPtr(&ptrReg, output, &free);
 
 	if (!wavlist || !scilist || !outlist || !inwav || !insci || !output) {
-	    printf ("ERROR:  Can't even begin:  out of memory.\n");
+	    printf("ERROR:  Can't even begin:  out of memory.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
@@ -120,7 +122,7 @@ int main (int argc, char **argv) {
 		    } else if (argv[i][j] == 'v') {
 			verbose = 1;
 		    } else {
-			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printf("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
 			freeOnExit(&ptrReg);
 			exit (1);
@@ -154,6 +156,11 @@ int main (int argc, char **argv) {
 	n_sci = c_imtlen (s_imt);
 	n_out = c_imtlen (o_imt);
 
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+	trlGitInfo();
+
 	/* The number of wavecal and science files must be the same.
 	   The output may have been omitted, but if any output was
 	   specified, the number must match the number of wavecals.
@@ -182,12 +189,12 @@ int main (int argc, char **argv) {
 	    if ((status = MkOutName (inwav, isuffix, osuffix, nsuffix,
                                      output, STIS_LINE))) {
 		WhichError (status);
-		printf ("Skipping %s\n", inwav);
+		printf("Skipping %s\n", inwav);
 		continue;
 	    }
 
 	    if ((status = CalStis11 (inwav, insci, output, printtime, verbose))) {
-		printf ("Error processing %s.\n", inwav);
+		printf("Error processing %s.\n", inwav);
 		WhichError (status);
 	    }
 	}
@@ -211,13 +218,13 @@ static int CompareNumbers (int n_in, char *str_in,
 		int n_out, char *str_out) {
 
 	if (n_out != n_in) {
-	    printf ("You specified %d %s file", n_in, str_in);
+	    printf("You specified %d %s file", n_in, str_in);
 	    if (n_in > 1)
-		printf ("s");
-	    printf (" but %d %s file", n_out, str_out);
+		printf("s");
+	    printf(" but %d %s file", n_out, str_out);
 	    if (n_out > 1)
-		printf ("s");
-	    printf (".\n");
+		printf("s");
+	    printf(".\n");
 	    return (1);
 	}
 

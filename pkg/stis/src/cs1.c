@@ -17,11 +17,11 @@
 static int CompareNumbers (int, int, char *);
 static void printSyntax(void)
 {
-    printf ("syntax:  cs1.e [--help] [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
-    printf ("  command-line switches:\n");
-    printf ("       -dqi  -atod -blev\n");
-    printf ("       -dopp -lors -glin -lflg\n");
-    printf ("       -bias -dark -flat -shad -phot -stat\n");
+    printf("syntax:  cs1.e [--help] [-t] [-v] [--version] [--gitinfo] input output [outblev]\n");
+    printf("  command-line switches:\n");
+    printf("       -dqi  -atod -blev\n");
+    printf("       -dopp -lors -glin -lflg\n");
+    printf("       -bias -dark -flat -shad -phot -stat\n");
 }
 static void printHelp(void)
 {
@@ -61,6 +61,8 @@ static void printHelp(void)
    Phil Hodge, 2012 Feb 10:
 	Include command-line option '-r'.
 */
+
+static struct TrlBuf trlbuf = {0};
 
 int main (int argc, char **argv) {
 
@@ -112,7 +114,7 @@ int main (int argc, char **argv) {
 	outblev = calloc (STIS_LINE+1, sizeof (char));
 	addPtr(&ptrReg, outblev, &free);
 	if (!inlist || !outlist || !blevlist || !input || !output || !outblev) {
-	    printf ("ERROR:  Can't even begin; out of memory.\n");
+	    printf("ERROR:  Can't even begin; out of memory.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
@@ -212,7 +214,7 @@ int main (int argc, char **argv) {
 		    } else if (argv[i][j] == 'v') {
 			verbose = 1;
 		    } else {
-			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printf("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
 			freeOnExit(&ptrReg);
 			exit (1);
@@ -222,7 +224,7 @@ int main (int argc, char **argv) {
 	    freePtr(&ptrReg, inlist);
 		if ((inlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
-		    printf ("ERROR:  Out of memory.\n");
+		    printf("ERROR:  Out of memory.\n");
 		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
@@ -231,7 +233,7 @@ int main (int argc, char **argv) {
 	    freePtr(&ptrReg, outlist);
 		if ((outlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
-		    printf ("ERROR:  Out of memory.\n");
+		    printf("ERROR:  Out of memory.\n");
 		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
@@ -240,7 +242,7 @@ int main (int argc, char **argv) {
 	    freePtr(&ptrReg, blevlist);
 		if ((blevlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
-		    printf ("ERROR:  Out of memory.\n");
+		    printf("ERROR:  Out of memory.\n");
 		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
@@ -271,6 +273,11 @@ int main (int argc, char **argv) {
 	    cs1_sw.photcorr = DefSwitch ("photcorr");
 	    cs1_sw.statcorr = DefSwitch ("statcorr");
 	}
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+	trlGitInfo();
 
 	/* Expand the templates. */
 	i_imt = c_imtopen (inlist);
@@ -311,14 +318,14 @@ int main (int argc, char **argv) {
 	    if ((status = MkOutName (input, isuffix, osuffix, nsuffix,
                                      output, STIS_LINE))) {
 		WhichError (status);
-		printf ("Skipping %s\n", input);
+		printf("Skipping %s\n", input);
 		continue;
 	    }
 
 	    /* Calibrate the current input file. */
 	    if ((status = CalStis1 (input, output, outblev,
                                     &cs1_sw, &refnames, printtime, verbose))) {
-		printf ("Error processing %s.\n", input);
+		printf("Error processing %s.\n", input);
 		WhichError (status);
 	    }
 	}
@@ -340,13 +347,13 @@ int main (int argc, char **argv) {
 static int CompareNumbers (int n_in, int n_out, char *str_out) {
 
 	if (n_out > 0 && n_out != n_in) {
-	    printf ("You specified %d input file", n_in);
+	    printf("You specified %d input file", n_in);
 	    if (n_in > 1)
-		printf ("s");
-	    printf (" but %d %s file", n_out, str_out);
+		printf("s");
+	    printf(" but %d %s file", n_out, str_out);
 	    if (n_out > 1)
-		printf ("s");
-	    printf (".\n");
+		printf("s");
+	    printf(".\n");
 	    return (1);
 	}
 

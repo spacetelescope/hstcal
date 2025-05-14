@@ -188,7 +188,7 @@ static int getArgR (char **argv, int argc, int *ctoken, float *value) {
 }
 
 static int syntax_error (char *msg) {
-	printf ("ERROR  Syntax error: %s\n", msg);
+printf("ERROR  Syntax error: %s\n", msg);
 	return (1);
 }
 
