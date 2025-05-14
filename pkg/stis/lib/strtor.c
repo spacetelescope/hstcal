@@ -52,7 +52,7 @@ int strtor (char *str, float arr[])
 	    	    tmp[i] = str[ip0+i];
 		tmp[ip-ip0] = '\0';
 		if (!(isdigit (tmp[0]) || tmp[0] == '-' || tmp[0] == '.')) {
-		    trlerror("illegal input string '%s'\n", str);
+		    trlerror("illegal input string '%s'", str);
 		    return (-1);
 		}
 	    	arr[n] = (float) atof(tmp);

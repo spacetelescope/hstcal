@@ -86,7 +86,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	*/
 	ywidth = strtod (sts->aper_fov, &wx);	/* arcseconds */
 	if (ywidth == 0.) {
-	    trlwarn("Can't interpret APER_FOV = `%s'; \\\n",
+	    trlwarn("Can't interpret APER_FOV = `%s';",
 		sts->aper_fov);
 	    trlmessage("%s", noflag);
 	    return;
@@ -94,7 +94,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	wx++;				/* skip over the "X" */
 	xwidth = strtod (wx, &dummy);
 	if (xwidth == 0.) {
-	    trlwarn("Can't interpret APER_FOV = `%s'; \\\n",
+	    trlwarn("Can't interpret APER_FOV = `%s';",
 		sts->aper_fov);
 	    trlmessage("%s", noflag);
 	    return;
@@ -176,8 +176,7 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	    peculiar = 1;
 
 	if (peculiar) {
-	    printf (
-	"Warning  The input image appears to be outside the aperture; \\\n");
+	    trlwarn("The input image appears to be outside the aperture; ");
 	    trlmessage("%s", noflag);
 	    return;
 	}

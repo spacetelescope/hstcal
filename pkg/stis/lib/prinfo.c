@@ -60,9 +60,9 @@ static void Upper1 (char *, char *, int);
 
 void PrBegin (int csnumber) {
 
-trlmessage("\n");
-trlmessage("*** CALSTIS-%d -- Version %s ***\n", csnumber, STIS_CAL_VER);
-trlmessage("Begin    %s\n", GetDateTime());
+trlmessage("");
+trlmessage("*** CALSTIS-%d -- Version %s ***", csnumber, STIS_CAL_VER);
+trlmessage("Begin    %s", GetDateTime());
 
 	fflush (stdout);
 }
@@ -71,16 +71,16 @@ trlmessage("Begin    %s\n", GetDateTime());
 
 void PrEnd (int csnumber) {
 
-trlmessage("End      %s\n", GetDateTime());
-trlmessage("\n");
-trlmessage("*** CALSTIS-%d complete ***\n", csnumber);
+trlmessage("End      %s", GetDateTime());
+trlmessage("");
+trlmessage("*** CALSTIS-%d complete ***", csnumber);
 
 	fflush (stdout);
 }
 
 void PrFullVersion (void) {
 
-trlmessage("%s\n", STIS_CAL_VER);
+trlmessage("%s", STIS_CAL_VER);
 	fflush (stdout);
 }
 
@@ -101,7 +101,7 @@ void PrVersion (void) {
 	    }
 	    vstring[i] = STIS_CAL_VER[i];
 	}
-trlmessage("%s\n", vstring);
+trlmessage("%s", vstring);
 	fflush (stdout);
 	free (vstring);
 }
@@ -117,7 +117,7 @@ char *filename  i: name of input or output file
 
 	Upper1 (label, buf, SCRATCH_SIZE);
 
-trlmessage("%s %s\n", buf, filename);
+trlmessage("%s %s", buf, filename);
 
 	fflush (stdout);
 }
@@ -126,10 +126,10 @@ trlmessage("%s %s\n", buf, filename);
 
 void PrHdrInfo (char *obsmode, char *aperture, char *opt_elem, char *detector) {
 
-trlmessage("OBSMODE  %s\n", obsmode);
-trlmessage("APERTURE %s\n", aperture);
-trlmessage("OPT_ELEM %s\n", opt_elem);
-trlmessage("DETECTOR %s\n", detector);
+trlmessage("OBSMODE  %s", obsmode);
+trlmessage("APERTURE %s", aperture);
+trlmessage("OPT_ELEM %s", opt_elem);
+trlmessage("DETECTOR %s", detector);
 
 	fflush (stdout);
 }
@@ -145,20 +145,21 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
-trlmessage("%s", buf);
-
+	const char *value_s;
 	if (value == OMIT)
-	    trlmessage(" OMIT\n");
+	    value_s = "OMIT";
 	else if (value == PERFORM)
-	    trlmessage(" PERFORM\n");
+	    value_s = "PERFORM";
 	else if (value == DUMMY)
-	    trlmessage(" SKIPPED\n");
+	    value_s = "SKIPPED";
 	else if (value == SKIPPED)
-	    trlmessage(" SKIPPED\n");
+	    value_s = "SKIPPED";
 	else if (value == COMPLETE)
-	    trlmessage(" COMPLETE\n");
+	    value_s = "COMPLETE";
 	else
-	    trlmessage(" unknown\n");
+	    value_s = "unknown";
+
+	trlmessage("%s %s", buf, value_s);
 
 	fflush (stdout);
 }
@@ -187,7 +188,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-trlmessage("%s Begin %s\n", buf, GetTime());
+trlmessage("%s Begin %s", buf, GetTime());
 
 	fflush (stdout);
 }
@@ -215,7 +216,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-trlmessage("%s End %s\n", buf, GetTime());
+trlmessage("%s End %s", buf, GetTime());
 
 	fflush (stdout);
 }
@@ -237,16 +238,16 @@ char *descrip2  i: second descrip, if any, from table row
 
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
-trlmessage("%s %s\n", buf, filename);
+trlmessage("%s %s", buf, filename);
 
 	if (pedigree[0] != '\0')
-	    trlmessage("%s PEDIGREE=%s\n", buf, pedigree);
+	    trlmessage("%s PEDIGREE=%s", buf, pedigree);
 
 	if (descrip[0] != '\0')
-	    trlmessage("%s DESCRIP =%s\n", buf, descrip);
+	    trlmessage("%s DESCRIP =%s", buf, descrip);
 
 	if (descrip2[0] != '\0')
-	    trlmessage("%s DESCRIP =%s\n", buf, descrip2);
+	    trlmessage("%s DESCRIP =%s", buf, descrip2);
 
 	fflush (stdout);
 }

@@ -149,7 +149,7 @@ StisInfo11 *scidata  i: info for science data
 		    return (HEADER_PROBLEM);
 	    }
 
-	    trlmessage("         %s[EXTVER=%d] was subtracted.\n",
+	    trlmessage("         %s[EXTVER=%d] was subtracted.",
 			scidata->input, extverSci);
 
 	    sprintf (history, "%s[EXTVER=%d] was subtracted\n",
@@ -162,7 +162,7 @@ StisInfo11 *scidata  i: info for science data
 	    UFilename (wavecal->output, wav.globalhdr);	/* update FILENAME */
 	    putSingleGroup (wavecal->output, extverWav, &wav, 0);
 	    if (hstio_err()) {
-		trlerror("Couldn't write imset %d of %s.\n",
+		trlerror("Couldn't write imset %d of %s.",
 			extverWav, wavecal->output);
 		return (GENERIC_ERROR_CODE);
 	    }

@@ -82,10 +82,8 @@ int w_option         i: option for selecting wavecal
 	    midpt = wavecal->midpt[0];
 	    for (n = 1;  n < wavecal->nimages;  n++) {
 		if (midpt >= wavecal->midpt[n]) {
-		    printf (
-"Warning  Times of wavecal exposures are not strictly increasing; \\\n");
-		    printf (
-"Warning  interpolation option will be reset to nearest neighbor.\n");
+		    trlwarn("Times of wavecal exposures are not strictly increasing; ");
+		    trlwarn("interpolation option will be reset to nearest neighbor.");
 		    w_option = STIS_NEAREST;
 		    break;
 		}
@@ -117,11 +115,9 @@ int w_option         i: option for selecting wavecal
 
 	if (wavecal->verbose && (n1 > 1 || n2 > 1)) {
 	    if (w_option == STIS_NEAREST)
-		printf (
-"         The wavecal that is nearest in time will be selected.\n");
+		trlmessage("         The wavecal that is nearest in time will be selected.");
 	    else if (w_option == STIS_LINEAR)
-		printf (
-"         Linear interpolation will be used to get the output shifts.\n");
+		trlmessage("         Linear interpolation will be used to get the output shifts.");
 	}
 
 	/* Process each imset in the science data file. */

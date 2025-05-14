@@ -27,7 +27,7 @@ int InitNames (void) {
 	nnames = 0;
 	fnames = malloc (MAX_NAMES_INCR * sizeof (char *));
 	if (fnames == NULL) {
-	    trlerror("(InitNames) can't allocate memory.\n");
+	    trlerror("(InitNames) can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	maxnames = MAX_NAMES_INCR;
@@ -67,7 +67,7 @@ int *oldname     o: true if name already present in list
 	i = nnames;
 	fnames[i] = malloc ((strlen (filename) + 1) * sizeof (char));
 	if (fnames[i] == NULL) {
-	    trlerror("(SaveName) can't allocate memory.\n");
+	    trlerror("(SaveName) can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	strcpy (fnames[i], filename);
@@ -85,7 +85,7 @@ static int ReallocNames (void) {
 
 	fnames = realloc (fnames, newmax * sizeof (char *));
 	if (fnames == NULL) {
-	    trlerror("(SaveName) can't allocate memory.\n");
+	    trlerror("(SaveName) can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 

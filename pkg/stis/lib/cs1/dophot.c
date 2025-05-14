@@ -86,7 +86,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 	/* Get the photometry values. */
 	if ((status = GetPhotTab (&obs, obsmode)) != 0) {
-	    trlwarn("photmode '%s' not found.\n", obsmode);
+	    trlwarn("photmode '%s' not found.", obsmode);
 	    FreePhotPar (&obs);
 	    sts->photcorr = IGNORED;
 	    return 0;

@@ -95,12 +95,11 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    if (sts->detector != CCD_DETECTOR)
 		mismatch = 1;
 	} else {
-	    trlerror("(in wavecal) DETECTOR = %s is invalid\n", buf);
+	    trlerror("(in wavecal) DETECTOR = %s is invalid", buf);
 	    return (HEADER_PROBLEM);
 	}
 	if (mismatch) {
-	    printf (
-	"ERROR    DETECTOR mismatch between science and wavecal.\n");
+	    trlerror("DETECTOR mismatch between science and wavecal.");
 	    return (HEADER_PROBLEM);
 	}
 
@@ -116,11 +115,10 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    if (sts->obstype != IMAGING_TYPE)
 		mismatch = 1;
 	} else {
-	    trlwarn("Unknown OBSTYPE = '%s'\n", buf);
+	    trlwarn("Unknown OBSTYPE = '%s'", buf);
 	}
 	if (mismatch)
-	    printf (
-	"Warning  OBSTYPE mismatch between science and wavecal.\n");
+	    trlwarn("OBSTYPE mismatch between science and wavecal.");
 
 	/* Was HITM used for wavecal?  Note that we're setting a switch
 	   here (to run calstis11 or not), but it's based on SCLAMP and

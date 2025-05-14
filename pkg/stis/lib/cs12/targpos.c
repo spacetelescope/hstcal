@@ -94,9 +94,9 @@ double shift1, shift2  i: shift to be assigned to SHIFTAi keywords
 
 	/* write to trailer */
 	if (fabs (shift1) < MUCH_TOO_BIG)	/* shift is OK */
-	    trlmessage("         SHIFTA1 set to %.6g\n", shift1);
+	    trlmessage("         SHIFTA1 set to %.6g", shift1);
 	if (fabs (shift2) < MUCH_TOO_BIG)
-	    trlmessage("         SHIFTA2 set to %.6g\n", shift2);
+	    trlmessage("         SHIFTA2 set to %.6g", shift2);
 
 	return (0);
 }

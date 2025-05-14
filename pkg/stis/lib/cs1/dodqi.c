@@ -349,8 +349,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	    /* Allocate space for a scratch array. */
 	    allocShortData (&ydq, snpix[0], snpix[1], True);
 	    if (hstio_err()) {
-		printf (
-		"ERROR    (doDQI) couldn't allocate data quality array.\n");
+		trlerror("(doDQI) couldn't allocate data quality array.");
 		return (OUT_OF_MEMORY);
 	    }
 	    for (j = 0;  j < snpix[1];  j++)
@@ -363,7 +362,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
 	    if ((status = ReadBpixTab (&tabinfo, row, &tabrow))) {
-		trlerror("Error reading BPIXTAB.\n");
+		trlerror("Error reading BPIXTAB.");
 		return (status);
 	    }
 
@@ -372,8 +371,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 
 	    if (tabrow.xstart < 0 || tabrow.xstart >= tabinfo.axlen1 ||
 		tabrow.ystart < 0 || tabrow.ystart >= tabinfo.axlen2) {
-		printf (
-	"Warning  Starting pixel (%d,%d) in BPIXTAB is out of range.\n",
+		trlwarn("Starting pixel (%d,%d) in BPIXTAB is out of range.",
 			tabrow.xstart+1, tabrow.ystart+1);
 		continue;			/* ignore this row */
 	    }
@@ -445,7 +443,7 @@ static int OpenBpixTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_axis == 0 ||
 	    tabinfo->cp_flag == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Column not found in BPIXTAB.\n");
+	    trlerror("Column not found in BPIXTAB.");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -456,14 +454,13 @@ static int OpenBpixTab (char *tname, TblInfo *tabinfo) {
 	tabinfo->axlen1 = c_tbhgti (tabinfo->tp, "SIZAXIS1");
 	if (c_iraferr()) {
 	    c_tbtclo (tabinfo->tp);
-	    printf (
-		"ERROR    Couldn't get SIZAXIS1 from BPIXTAB header.\n");
+	    trlerror("Couldn't get SIZAXIS1 from BPIXTAB header.");
 	    return (TABLE_ERROR);
 	}
 	tabinfo->axlen2 = c_tbhgti (tabinfo->tp, "SIZAXIS2");
 	if (c_iraferr()) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Couldn't get SIZAXIS2 from BPIXTAB header.\n");
+	    trlerror("Couldn't get SIZAXIS2 from BPIXTAB header.");
 	    return (TABLE_ERROR);
 	}
 
@@ -508,14 +505,13 @@ static int ReadBpixTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	    return (TABLE_ERROR);
 
 	if (tabrow->axis !=1 && tabrow->axis != 2) {
-	    trlerror("Axis = %d in BPIXTAB, but it must be 1 or 2.\n",
+	    trlerror("Axis = %d in BPIXTAB, but it must be 1 or 2.",
 			tabrow->axis);
 	    c_tbtclo (tabinfo->tp);
 	    return (TABLE_ERROR);
 	}
 	if (tabrow->length <= 0) {
-	    printf (
-	"ERROR    Length = %d in BPIXTAB, but it must be positive.\n",
+	    trlerror("Length = %d in BPIXTAB, but it must be positive.",
 		    tabrow->length);
 	    c_tbtclo (tabinfo->tp);
 	    return (TABLE_ERROR);

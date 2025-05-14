@@ -136,7 +136,7 @@ int err_algorithm      i: specifies how interpolation of error estimates
 	if ((status = Do2Dx (&sts)))
 	    return (status);
 
-trlmessage("\n");
+trlmessage("");
 	PrEnd (7);
 
 	if (sts.printtime)

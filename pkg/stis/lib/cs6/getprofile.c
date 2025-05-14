@@ -132,9 +132,9 @@ ProfileArray *profa;  o: list with profile arrays for current sporder
 	if ((status = CheckProfile (profa))) {
 	    FreeProfileArray (profa);
 	    if (status < 0) {
-		trlerror("Matching row not found in OPROFAB %s\n",
+		trlerror("Matching row not found in OPROFAB %s",
 				sts->pftab.name);
-		trlerror("SPORDER %d\n", sporder);
+		trlerror("SPORDER %d", sporder);
 		return (ROW_NOT_FOUND);
 	    } else {
 		return (status);
@@ -157,7 +157,7 @@ static int OpenProfileTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("OPROFTAB `%s' not found\n", tname);
+	    trlerror("OPROFTAB `%s' not found", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -181,7 +181,7 @@ static int OpenProfileTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_profoff == 0 || tabinfo->cp_prof == 0 ||
 	    tabinfo->cp_sn      == 0 || tabinfo->cp_nptsoff == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Column not found in OPROFTAB\n");
+	    trlerror("Column not found in OPROFTAB");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -220,7 +220,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 	int NewProfile (ProfileArray **, ProfileArray *);
 
 	if ((newp = (ProfileArray *) malloc (sizeof (ProfileArray))) == NULL) {
-	    trlerror("Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	newp->next = NULL;
@@ -239,7 +239,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 	newp->profoff = (double *) malloc (newp->nptsoff * sizeof (double));
 	newp->prof    = (double *) malloc (newp->npts * sizeof (double));
 	if (newp->profoff == NULL || newp->prof == NULL) {
-	    trlerror("Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -255,7 +255,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 
 	if (npts1 != newp->nptsoff) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Inconsistent array info in OPROFTAB\n");
+	    trlerror("Inconsistent array info in OPROFTAB");
 	    return (TABLE_ERROR);
 	}
 

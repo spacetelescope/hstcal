@@ -269,8 +269,7 @@ int *ihigh_end;	        that maps into the convolution buffer
 
 	/* They must be physically meaningful. These criteria are arbitrary ! */
 	if (sz1 < 4 || sz2 < 4 || offst1 > -4 || offst2 < 4) {
-	    printf (
-  "Warning  No reliable signal. Using default background extraction boxes.\n");
+	    trlwarn("No reliable signal. Using default background extraction boxes.");
 	    sz1 = sts->bksize[0];
 	    sz2 = sts->bksize[1];
 	    offst1 = sts->bkoffset[0];

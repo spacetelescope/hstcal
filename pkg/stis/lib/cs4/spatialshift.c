@@ -104,7 +104,7 @@ double *shift       o: the shift, in pixels
 	length = (double) slit->width[1];
 
 	if (nv <= 0) {
-	    trlwarn("No data for spatial shift.\n");
+	    trlwarn("No data for spatial shift.");
 	    *shift = UNDEFINED_SHIFT;
 	    return (0);
 	}
@@ -186,16 +186,14 @@ double *shift       o: the shift, in pixels
 			slit->nbars, slit->barlocn, slit->barwidth,
 			v, qv, nv, crpix, cdelt, shift);
 	    } else {
-		printf (
-	"Warning  Aperture `%s' has no occulting bars, and without them \\\n",
+		trlwarn("Aperture `%s' has no occulting bars, and without them ",
 			sts->aperture);
-		printf (
-	"         we can't find the shift in the spatial direction.\n");
+		trlwarn("         we can't find the shift in the spatial direction.");
 		*shift = UNDEFINED_SHIFT;
 		status = 0;		/* not a fatal error */
 	    }
 	} else {
-	    trlwarn("Aperture `%s' is not supported for a wavecal.\n",
+	    trlwarn("Aperture `%s' is not supported for a wavecal.",
 		sts->aperture);
 	    status = NO_GOOD_DATA;
 	}

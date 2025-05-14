@@ -51,7 +51,7 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 		return (2);
 	    }
 	    if (efac[k] < 0.) {
-		trlerror("exposure time of file '%s' is negative\n",
+		trlerror("exposure time of file '%s' is negative",
 		    	imgname[k]);
 		return (2);
 	    }
@@ -80,7 +80,7 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 	    freeHdr (&scihdr);
 	}
 	if (nzero > 0 && nzero < nimgs) {
-	    trlerror("some (but not all) input imsets have zero exposure time\n");
+	    trlerror("some (but not all) input imsets have zero exposure time");
 	    return (2);
 	}
 

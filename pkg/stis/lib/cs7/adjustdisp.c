@@ -35,8 +35,7 @@ InangInfo *iac        i: incidence-angle correction coeff
 	if (disp_y->ncoeff < iac->ncoeff1) {
 	    ncoeff = disp_y->ncoeff;
 	    if (!(*warn1)) {
-		printf (
-	"Warning  %d dispersion coefficients, but %d incidence-angle coeff.\n",
+		trlwarn("%d dispersion coefficients, but %d incidence-angle coeff.",
 			disp_y->ncoeff, iac->ncoeff1);
 		*warn1 = 1;	/* yes, a warning has been printed */
 	    }
@@ -56,11 +55,9 @@ InangInfo *iac        i: incidence-angle correction coeff
 	    disp_y->coeff[0] += iac->coeff2[1] * delta * delta;
 
 	if (iac->ncoeff2 > 2 && !(*warn2)) {
-	    printf (
-	"Warning  %d incidence-angle second coefficents, limit is 2; \\\n",
+	    trlwarn("%d incidence-angle second coefficents, limit is 2; ",
 			iac->ncoeff2);
-	    printf (
-	"Warning  the remaining coefficents will not be applied.\n");
+	    trlwarn("the remaining coefficents will not be applied.");
 	    *warn2 = 1;
 	}
 

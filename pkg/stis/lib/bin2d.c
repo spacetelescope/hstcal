@@ -59,11 +59,11 @@ SingleGroup *b        o: output data
 	if (xcorner < 0 || ycorner < 0 ||
 		xcorner + nx*binx > a->sci.data.nx ||
 		ycorner + ny*biny > a->sci.data.ny) {
-	    trlerror("(bin2d)  subset is out of bounds: \\\n");
-	    trlmessage("         input is %d x %d, output is %d x %d \\\n",
+	    trlerror("(bin2d)  subset is out of bounds:");
+	    trlmessage("         input is %d x %d, output is %d x %d",
 		a->sci.data.nx, a->sci.data.ny,
 		b->sci.data.nx, b->sci.data.ny);
-	    trlmessage("         start = (%d,%d), binx = %d, biny = %d.\n",
+	    trlmessage("         start = (%d,%d), binx = %d, biny = %d.",
 		xcorner+1, ycorner+1, binx, biny);
 	    return (SIZE_MISMATCH);
 	}

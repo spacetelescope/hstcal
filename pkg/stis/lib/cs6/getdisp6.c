@@ -125,9 +125,9 @@ DispRelation **disp  o: size and coordinate info for output
 	if ((status = CheckDisp6 (disp))) {
 	    FreeDisp6 (disp);
 	    if (status < 0) {
-		trlerror("Matching row not found in DISPTAB %s\n",
+		trlerror("Matching row not found in DISPTAB %s",
 				sts->disptab.name);
-		trlerror("OPT_ELEM %s, CENWAVE %d\n",
+		trlerror("OPT_ELEM %s, CENWAVE %d",
 		    sts->opt_elem, sts->cenwave);
 		return (ROW_NOT_FOUND);
 	    } else {
@@ -149,7 +149,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("DISPTAB `%s' not found\n", tname);
+	    trlerror("DISPTAB `%s' not found", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -171,7 +171,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ref_aper == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Column not found in DISPTAB\n");
+	    trlerror("Column not found in DISPTAB");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -212,7 +212,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 	int NewDisp6 (DispRelation **, DispRelation *);
 
 	if ((newd = (DispRelation *) malloc (sizeof (DispRelation))) == NULL) {
-	    trlerror("Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	newd->next = NULL;
@@ -223,8 +223,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 		STIS_CBUF-1);
 	c_tbegti (tabinfo->tp, tabinfo->cp_ncoeff, row, &newd->ncoeff);
 	if (newd->ncoeff > MAX_DISP_COEFF) {
-	    printf (
-                "ERROR    Too many dispersion coefficients %d in DISPTAB.\n",
+	    trlerror("Too many dispersion coefficients %d in DISPTAB.",
 		newd->ncoeff);
 	    return (TABLE_ERROR);
 	}
@@ -238,7 +237,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row, DispRelation **disp) {
 
 	if (ncoeff < newd->ncoeff) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("Not all coefficients were read from DISPTAB\n");
+	    trlerror("Not all coefficients were read from DISPTAB");
 	    return (TABLE_ERROR);
 	}
 

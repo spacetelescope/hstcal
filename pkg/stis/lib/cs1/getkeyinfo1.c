@@ -96,7 +96,7 @@ Hdr *phdr        i: primary header
 	} else if (strcmp (sts->det, "CCD") == 0) {
 	    sts->detector = CCD_DETECTOR;
 	} else {
-	    trlerror("DETECTOR = %s is invalid\n", sts->det);
+	    trlerror("DETECTOR = %s is invalid", sts->det);
 	    return (HEADER_PROBLEM);
 	}
 
@@ -150,7 +150,7 @@ Hdr *phdr        i: primary header
 	/* Convert number of extensions to number of SingleGroups. */
 	sts->nimages = nextend / EXT_PER_GROUP;
 	if (sts->nimages < 1) {
-	    trlerror("NEXTEND = %d; must be at least three.\n",
+	    trlerror("NEXTEND = %d; must be at least three.",
 		sts->nimages);
 	    return (GENERIC_ERROR_CODE);
 	}
@@ -163,8 +163,7 @@ Hdr *phdr        i: primary header
 	    return (status);
 	if (strcmp (sts->obstype, "IMAGING") != 0 &&
 	    strcmp (sts->obstype, "SPECTROSCOPIC") != 0) {
-	    printf (
-	"Warning  OBSTYPE = %s; should be either IMAGING or SPECTROSCOPIC\n",
+	    trlwarn("OBSTYPE = %s; should be either IMAGING or SPECTROSCOPIC",
 			sts->obstype);
 	}
 
@@ -186,15 +185,14 @@ Hdr *phdr        i: primary header
                                     sts->ccdamp, STIS_CBUF-1)))
 		return (status);
 	    if (sts->ccdamp[0] != '\0' && sts->ccdamp[1] != '\0') {
-		printf (
-		"Warning  Multiple amp readout `%s' is not supported.\n",
+		trlwarn("Multiple amp readout `%s' is not supported.",
 		    sts->ccdamp);
 	    }
 	    if (islower (sts->ccdamp[0]))
 		sts->ccdamp[0] = toupper (sts->ccdamp[0]);
 
 	    if (strchr ("ABCD", sts->ccdamp[0]) == NULL) {
-		trlerror("CCDAMP = `%s' is invalid.\n", sts->ccdamp);
+		trlerror("CCDAMP = `%s' is invalid.", sts->ccdamp);
 		return (GENERIC_ERROR_CODE);
 	    }
 

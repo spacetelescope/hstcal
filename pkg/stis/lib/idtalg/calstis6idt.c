@@ -230,7 +230,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        TimeStamp ("CALSTIS-6 started", "");
 	        prtimestamp = 1;
 	    }
-	    trlmessage("\n2-D scattering correction algorithm activated.\n\n");
+	    trlmessage("\n2-D scattering correction algorithm activated.");
 	    fflush (stdout);
 	}
 
@@ -260,8 +260,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	nimages = nextend / EXT_PER_GROUP;
 	if (nextend != nimages * EXT_PER_GROUP) {
-	    printf (
-            "ERROR    NEXTEND must be a multiple of %d\n", EXT_PER_GROUP);
+	    trlerror("NEXTEND must be a multiple of %d", EXT_PER_GROUP);
 	    return (HEADER_PROBLEM);
 	}
 
@@ -287,10 +286,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	sts_idt.idt = PERFORM;
 	if ((status = CheckIDT (phdr, &sts_idt, &missing))) {
 	    if (status == KEYWORD_MISSING) {
-	        printf (
-"ERROR    Input file header may not have keywords specific to SC2DCORR.\n");
-	        printf (
-"         Process it with task 'sc2dref'to install the required keywords.\n");
+	        trlmessage("Input file header may not have keywords specific to SC2DCORR.");
+	        trlmessage("         Process it with task 'sc2dref'to install the required keywords.");
 	        fflush (stdout);
 	    }
 	    return (status);
@@ -325,7 +322,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	/* Read scattering functions and build kernels. */
 
 	if (verbose) {
-	    trlmessage("Read scattering functions and build kernels.\n");
+	    trlmessage("Read scattering functions and build kernels.");
 	    fflush (stdout);
 	}
 	if ((status = EchScatRead (phdr, ap_xsize, ap_ysize, &scf, verbose)))
@@ -338,7 +335,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    extver0 = extver - 1;
 
 	    if (verbose && (nimages > 1)) {
-	        trlmessage("Begin processing IMSET %d\n", extver);
+	        trlmessage("Begin processing IMSET %d", extver);
 	        fflush (stdout);
 	    }
 
@@ -352,7 +349,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    else if (status > 0)
                 return status;
 	    if (!imset_ok) {
-		trlwarn("imset %d skipped (IMSET_OK = F)\n",
+		trlwarn("imset %d skipped (IMSET_OK = F)",
 			extver);
 		continue;
 	    }
@@ -367,7 +364,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                of orders not matched by the photometric reference tables.
             */
 	    if (verbose) {
-	        trlmessage("Begin extraction of 1-D data.\n");
+	        trlmessage("Begin extraction of 1-D data.");
 	        fflush (stdout);
 	    }
 	    if ((status = CalStis6Std (input, temp_x1d, backcorr, dispcorr,
@@ -382,14 +379,14 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        return (status);
 
 	    if (verbose) {
-	        trlmessage("End extraction of 1-D data.\n");
+	        trlmessage("End extraction of 1-D data.");
 	        fflush (stdout);
 	    }
 
 	    /* Get image data from current IMSET. */
 
 	    if (verbose) {
-	        trlmessage("Read input image.\n");
+	        trlmessage("Read input image.");
 	        fflush (stdout);
 	    }
 	    initSingleGroup (&in);
@@ -400,7 +397,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Open table file created by CalStis6Std */
 
 	    if (verbose) {
-	        trlmessage("Read 1-D data.\n");
+	        trlmessage("Read 1-D data.");
 	        fflush (stdout);
 	    }
 	    if ((status = OpenX1DTable (temp_x1d, 0, &tabptr)))
@@ -432,7 +429,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                                                    gx1d[extver0][j]->npts,
                                                    sizeof(float));
 	        if (gx1d[extver0][j]->gross == NULL) {
-	            trlmessage("Not enough memory to allocate data arrays.\n");
+	            trlmessage("Not enough memory to allocate data arrays.");
 	            return (OUT_OF_MEMORY);
 	        }
 	        for (i = 0; i < gx1d[extver0][j]->npts; i++)
@@ -451,7 +448,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Rebin image and x1d data to handle hires data. */
 
 	    if (verbose) {
-	        trlmessage("Rebin/copy image to work area.\n");
+	        trlmessage("Rebin/copy image to work area.");
 	        fflush (stdout);
 	    }
 	    initSingleGroup (&win);
@@ -490,7 +487,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    FreeX1DTable (x1d, tabptr.nrows);
 
 	    if (verbose) {
-	        trlmessage("Compute algorithm parameters.\n");
+	        trlmessage("Compute algorithm parameters.");
 	        fflush (stdout);
 	    }
 
@@ -544,7 +541,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        inc_scale = 1.0;
 	        yyamp = 0.0;
 	    } else {
-	        trlmessage("Non supported grating.\n");
+	        trlmessage("Non supported grating.");
 	        return (ERROR_RETURN);
 	    }
 
@@ -600,7 +597,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Compute extended wavelength array. */
 
 	    if (verbose) {
-	        trlmessage("Compute extended arrays.\n");
+	        trlmessage("Compute extended arrays.");
 	        fflush (stdout);
 	    }
 	    if ((wbig = Alloc2DArrayF (NSBIG, tabptr.nrows)) == NULL)
@@ -632,7 +629,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        return (OUT_OF_MEMORY);
 	    for (j = 0; j < tabptr.nrows; j++) {
 	        if ((mrip = GetMatchingOrder (wx1d[j]->sporder, &scf)) < 0) {
-	            trlmessage("No matching spectral order in ripple table.\n");
+	            trlmessage("No matching spectral order in ripple table.");
 	            return (ERROR_RETURN);
 	        }
 	        if ((hold1 = (double *) malloc (scf.rpfunc[mrip].nelem *
@@ -680,7 +677,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Create model spectrum. */
 
 	    if (verbose) {
-	        trlmessage("Create model 1-D spectrum.\n");
+	        trlmessage("Create model 1-D spectrum.");
 	        fflush (stdout);
 	    }
 	    /* Multiply by scale and divide by on-image blaze. */
@@ -721,7 +718,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Main loop. */
 
 	    if (verbose) {
-	        trlmessage("Begin main loop.\n");
+	        trlmessage("Begin main loop.");
 	        fflush (stdout);
 	    }
 
@@ -735,7 +732,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    for (iter = 1; iter <= NITER; iter++) {
 
 	        if (verbose) {
-	            trlmessage("\nBegin iteration  %d\n", iter);
+	            trlmessage("\nBegin iteration  %d", iter);
 	            fflush (stdout);
 	        }
 
@@ -752,7 +749,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                    mapping spliced spectrum onto wbig array. */
 
 	        if (verbose) {
-	            trlmessage("Map 1-D spectrum onto 2-D arrays.\n");
+	            trlmessage("Map 1-D spectrum onto 2-D arrays.");
 	            fflush (stdout);
 	        }
 
@@ -783,7 +780,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        /* Build image containing scattered light prediction. */
 
 	        if (verbose) {
-	            trlmessage("Build image with scattered light prediction.\n");
+	            trlmessage("Build image with scattered light prediction.");
 	            fflush (stdout);
 	        }
 
@@ -793,8 +790,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	            if ((k = GetScatterOrder (wx1d[iorder]->sporder, &scf)) ==
                         -1) {
-	                printf (
-                        "Error: No matching order (# %d) in ECHSCTAB table.\n",
+	                trlerror("Error: No matching order (# %d) in ECHSCTAB table.",
                         wx1d[iorder]->sporder);
 	                return (ERROR_RETURN);
 	            }
@@ -892,7 +888,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                     image2pos = win.sci.data.nx - 1;
 	                 }
 	                 if (image2pos < image1pos) {
-	                     trlmessage("Invalid indices.\n");
+	                     trlmessage("Invalid indices.");
 	                     return (ERROR_RETURN);
 	                 }
 
@@ -958,7 +954,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                    cross-disperser profile.
                 */
 	        if (verbose) {
-	            trlmessage("Convolve with x-disperser profile.\n");
+	            trlmessage("Convolve with x-disperser profile.");
 	            fflush (stdout);
 	        }
 	        npix = win.sci.data.ny + scf.nspsf;
@@ -1003,7 +999,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        /* Sum model components to construct composite model. */
 
 	        if (verbose) {
-	            trlmessage("Build composite model.\n");
+	            trlmessage("Build composite model.");
 	            fflush (stdout);
 	        }
 	        for (j = 0; j < win.sci.data.ny; j++) {
@@ -1016,7 +1012,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                 */
 
 	        if (verbose) {
-	            trlmessage("Convolve model with PSF and detector halo.\n");
+	            trlmessage("Convolve model with PSF and detector halo.");
 	            fflush (stdout);
 	        }
 
@@ -1034,7 +1030,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	        if (scf.nwave > 1) {
 	            if (verbose) {
-	                trlmessage("Convolve at 2nd wavelength.\n");
+	                trlmessage("Convolve at 2nd wavelength.");
 	                fflush (stdout);
 	            }
 	            Float2Cmplx (im_mod, nx, ny, &zhold);
@@ -1044,7 +1040,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        }
 	        if (scf.nwave > 2) {
 	            if (verbose) {
-	                trlmessage("Convolve at 3rd wavelength.\n");
+	                trlmessage("Convolve at 3rd wavelength.");
 	                fflush (stdout);
 	            }
 	            Float2Cmplx (im_mod, nx, ny, &zhold);
@@ -1063,7 +1059,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        if (iter == NITER) {
 
 	            if (verbose) {
-	                trlmessage("Convolve final object image.\n");
+	                trlmessage("Convolve final object image.");
 	                fflush (stdout);
 	            }
 
@@ -1081,7 +1077,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                if (o_mod2 == NULL)
 	                    return (OUT_OF_MEMORY);
 	                if (verbose) {
-	                    trlmessage("Convolve at 2nd wavelength.\n");
+	                    trlmessage("Convolve at 2nd wavelength.");
 	                    fflush (stdout);
 	                }
 	                Float2Cmplx (o_mod, nx, ny, &zhold);
@@ -1095,7 +1091,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                if (o_mod3 == NULL)
 	                    return (OUT_OF_MEMORY);
 	                if (verbose) {
-	                    trlmessage("Convolve at 3rd wavelength.\n");
+	                    trlmessage("Convolve at 3rd wavelength.");
 	                    fflush (stdout);
 	                }
 	                Float2Cmplx (o_mod, nx, ny, &zhold);
@@ -1114,7 +1110,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                 */
 
 	        if (verbose) {
-	            trlmessage("Co-add individual model images.\n");
+	            trlmessage("Co-add individual model images.");
 	            fflush (stdout);
 	        }
 	        for (j = 0; j < win.sci.data.ny; j++) {
@@ -1148,7 +1144,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        if (iter == NITER) {
 
 	            if (verbose) {
-	                trlmessage("Co-add individual object images.\n");
+	                trlmessage("Co-add individual object images.");
 	                fflush (stdout);
 	            }
 	            for (j = 0; j < win.sci.data.ny; j++) {
@@ -1206,7 +1202,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                    the standard 1-D extraction code.
                 */
 	        if (verbose) {
-	            trlmessage("Write current model image to disk.\n");
+	            trlmessage("Write current model image to disk.");
 	            fflush (stdout);
 	        }
 	        remove (temp_ima);
@@ -1233,7 +1229,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                 */
 
 	        if (verbose) {
-	            trlmessage("Begin extraction of 1-D data.\n");
+	            trlmessage("Begin extraction of 1-D data.");
 	            fflush (stdout);
 	        }
 	        if ((status = CalStis6Std (temp_ima, temp_x1d, backcorr,
@@ -1250,14 +1246,14 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        remove (temp_ima);
 
 	        if (verbose) {
-	            trlmessage("End extraction of 1-D data.\n");
+	            trlmessage("End extraction of 1-D data.");
 	            fflush (stdout);
 	        }
 
 	        /* Open table file just created by CalStis6Std */
 
 	        if (verbose) {
-	            trlmessage("Read 1-D data.\n");
+	            trlmessage("Read 1-D data.");
 	            fflush (stdout);
 	        }
 	        if ((status = OpenX1DTable (temp_x1d, 0, &tabptr)))
@@ -1292,7 +1288,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                    spectrum estimate is expressed in counts, not c/s !
                 */
 	        if (verbose) {
-	            trlmessage("Update with correction term.\n");
+	            trlmessage("Update with correction term.");
 	            fflush (stdout);
 	        }
 	        for (j = 0; j < tabptr.nrows; j++) {
@@ -1322,7 +1318,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        /* Update model. */
 
 	        if (verbose) {
-	            trlmessage("Build new 1-D spectrum model.\n");
+	            trlmessage("Build new 1-D spectrum model.");
 	            fflush (stdout);
 	        }
 	        /* Must be fred now so they can be reused with arrays
@@ -1347,7 +1343,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    }
 
 	    if (verbose) {
-	        trlmessage("End main loop.\n");
+	        trlmessage("End main loop.");
 	        fflush (stdout);
 	    }
 
@@ -1371,7 +1367,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Rebin image back to hi-res if necessary. */
 
 	    if (verbose) {
-	        trlmessage("Rebin/copy work image to original sampling.\n");
+	        trlmessage("Rebin/copy work image to original sampling.");
 	        fflush (stdout);
 	    }
 	    initSingleGroup (&wout);
@@ -1401,7 +1397,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Subtract scattered light image from original raw image. */
 
 	    if (verbose) {
-	        trlmessage("Subtract scattered light from input image.\n");
+	        trlmessage("Subtract scattered light from input image.");
 	        fflush (stdout);
 	    }
 	    for (j = 0; j < in.sci.data.ny; j++) {
@@ -1414,7 +1410,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                the standard 1-D extraction code.
             */
 	    if (verbose) {
-	        trlmessage("Write corrected input image to disk.\n");
+	        trlmessage("Write corrected input image to disk.");
 	        fflush (stdout);
 	    }
 	    if (first_extver) {
@@ -1430,7 +1426,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    freeSingleGroup (&wout);
 
 	    if (verbose && (nimages > 1)) {
-	        trlmessage("End processing IMSET %d\n\n", extver);
+	        trlerror("End processing IMSET %d", extver);
 	        fflush (stdout);
 	    }
 
@@ -1455,7 +1451,7 @@ int bks_order;		i: backgr. smoothing polynomial order
            fluxcorr properly.
         */
 	if (verbose) {
-	    trlmessage("Begin final extraction of 1-D data.\n");
+	    trlmessage("Begin final extraction of 1-D data.");
 	    fflush (stdout);
 	}
 
@@ -1476,7 +1472,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    sprintf (out_ima, "%s.fits", idtfile);
 	    rename (temp_ima1, out_ima);
 	    if (verbose) {
-	        trlmessage("File %s contains deconvolved image.\n", out_ima);
+	        trlmessage("File %s contains deconvolved image.", out_ima);
 	        fflush (stdout);
 	    }
 	} else
@@ -1487,7 +1483,7 @@ int bks_order;		i: backgr. smoothing polynomial order
            supplied, not one of the possibly rebinned later versions.
          */
 	if (verbose) {
-	    trlmessage("Update columns in final output table.\n");
+	    trlmessage("Update columns in final output table.");
 	    fflush (stdout);
 	}
 	for (extver = 1; extver <= nimages; extver++) {
@@ -1515,7 +1511,7 @@ int bks_order;		i: backgr. smoothing polynomial order
            updated (SC2DCORR switch and HISTORY keywords).
         */
 	if (verbose) {
-	    trlmessage("Update header in final output table.\n");
+	    trlmessage("Update header in final output table.");
 	    fflush (stdout);
 	}
 	initHdr (&tphdr);
@@ -1982,7 +1978,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
             (tabptr.npts    == 0) || (tabptr.net  == 0) ||
             (tabptr.sporder == 0)) {
 	    c_tbtclo (tabptr.tp);
-	    trlmessage("Column not found in output table.\n");
+	    trlmessage("Column not found in output table.");
 	    return (TABLE_ERROR);
 	}
 
@@ -1997,7 +1993,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 	    if ((new_gross == NULL) || (new_back == NULL) ||
                 (new_net == NULL)) {
 	        c_tbtclo (tabptr.tp);
-                trlmessage("Not enough memory to allocate data arrays.\n");
+                trlmessage("Not enough memory to allocate data arrays.");
 	        return (OUT_OF_MEMORY);
 	    }
 
@@ -2006,7 +2002,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
                                new_net, 1, npts);
 	    if (nnet != npts) {
 	        c_tbtclo (tabptr.tp);
-	        trlmessage("Unexpected number of elements read from table.\n");
+	        trlmessage("Unexpected number of elements read from table.");
 	        return (TABLE_ERROR);
 	    }
 
@@ -2021,7 +2017,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 		}
 	    }
 	    if (jrow == -1) {
-		trlerror("sporder %d not found in gx1d array.\n",
+		trlerror("sporder %d not found in gx1d array.",
 			sporder);
 		return (INTERNAL_ERROR);
 	    }
@@ -2081,8 +2077,7 @@ int *missing    io: incremented if the file is missing
 	    return (status);
 
 	if (sts->idt != PERFORM) {
-	    printf (
-            "Warning  SC2DCORR skipped due to dummy reference file.\n");
+	    trlwarn("SC2DCORR skipped due to dummy reference file.");
 	    return (NOTHING_TO_DO);
 	}
 	return (0);
@@ -2155,13 +2150,13 @@ static int Debug (char *name, float **array, int nx, int ny) {
 	        Pix (out.sci.data, i, j) = array[j][i];
 	}
 
-trlmessage("Writing %s image.\n", name);
+trlmessage("Writing %s image.", name);
 
 	if (putSingleGroup (name, 1, &out, 0))
 	    return (OPEN_FAILED);
 	freeSingleGroup (&out);
 
-trlmessage("Done writing.\n");
+trlmessage("Done writing.");
 
 	return (STIS_OK);
 }
@@ -2177,13 +2172,13 @@ static int DDebug (char *name, double *array, int nx) {
 	for (i = 0; i < nx; i++)
 	    Pix (out.sci.data, i, 0) = array[i];
 
-trlmessage("Writing %s image.\n", name);
+trlmessage("Writing %s image.", name);
 
 	if (putSingleGroup (name, 1, &out, 0))
 	    return (OPEN_FAILED);
 	freeSingleGroup (&out);
 
-trlmessage("Done writing.\n");
+trlmessage("Done writing.");
 
 	return (STIS_OK);
 }
@@ -2203,13 +2198,13 @@ static int CDebug (char *name, CmplxArray *z) {
 	    }
 	}
 
-trlmessage("Writing %s image.\n", name);
+trlmessage("Writing %s image.", name);
 
 	if (putSingleGroup (name, 1, &out, 0))
 	    return (OPEN_FAILED);
 	freeSingleGroup (&out);
 
-trlmessage("Done writing.\n");
+trlmessage("Done writing.");
 
 	return (STIS_OK);
 }
@@ -2231,7 +2226,7 @@ static void CReport (CmplxArray *z) {
 	sumr /= (double)z->nx * (double)z->ny;
 	sumi /= (double)z->nx * (double)z->ny;
 
-trlmessage("real = %g  imag = %g  n = %d\n", sumr, sumi, z->nx * z->ny);
+trlmessage("real = %g  imag = %g  n = %d", sumr, sumi, z->nx * z->ny);
 	fflush (stdout);
 }
 
@@ -2248,7 +2243,7 @@ static void Report (float **a, int nx, int ny) {
 
 	sum /= (double)nx * (double)ny;
 
-trlmessage("aver = %g  n = %d\n", sum, nx * ny);
+trlmessage("aver = %g  n = %d", sum, nx * ny);
 	fflush (stdout);
 }
 */

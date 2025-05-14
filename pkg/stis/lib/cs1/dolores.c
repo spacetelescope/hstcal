@@ -53,11 +53,11 @@ int *done         o: true if input image has been binned
 	    return (0);
 
 	if (sts->bin[0] < 1 || sts->bin[1] < 1) {
-	    trlerror("(doLoRes) bin size is less than one.\n");
+	    trlerror("(doLoRes) bin size is less than one.");
 	    return (GENERIC_ERROR_CODE);
 	}
 	if (sts->bin[0] > 2 || sts->bin[1] > 2) {
-	    trlerror("(doLoRes) bin size is greater than two.\n");
+	    trlerror("(doLoRes) bin size is greater than two.");
 	    return (GENERIC_ERROR_CODE);
 	}
 

@@ -103,7 +103,7 @@ ApInfo *slit     o: description of slit
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->apdestab.goodPedigree == DUMMY_PEDIGREE) {
-		    trlwarn("DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 			row, sts->apdestab.name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseApTab (&tabinfo);
@@ -122,7 +122,7 @@ ApInfo *slit     o: description of slit
 	    return (status);
 
 	if (!foundit) {
-	    trlwarn("APERTURE %s not found in APDESTAB %s.\n",
+	    trlwarn("APERTURE %s not found in APDESTAB %s.",
 		sts->aperture, sts->apdestab.name);
 	    sts->x2dcorr_o = OMIT;
 	}
@@ -138,7 +138,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("APDESTAB `%s' not found.\n", tname);
+	    trlerror("APDESTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -164,7 +164,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_barlocn[0] == 0 || tabinfo->cp_barwidth[0] == 0 ||
 	    tabinfo->cp_barlocn[1] == 0 || tabinfo->cp_barwidth[1] == 0 ||
 	    tabinfo->cp_barlocn[2] == 0 || tabinfo->cp_barwidth[2] == 0) {
-	    trlerror("Column not found in APDESTAB.\n");
+	    trlerror("Column not found in APDESTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}

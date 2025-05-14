@@ -182,7 +182,7 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 
 	for (i = lmaxx;  !done;  i += xdir) {
 	    if (xdir * (i - lmaxx) > too_far || i < 0 || i >= z->nx) {
-		trlwarn("peak in cross correlation is too broad\n");
+		trlwarn("peak in cross correlation is too broad");
 		return;
 	    }
 	    if (RPIX2D (z, i, lmaxy) < cutoff) {
@@ -197,7 +197,7 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 	done = 0;
 	for (j = lmaxy;  !done;  j += ydir) {
 	    if (ydir * (j - lmaxy) > too_far || j < 0 || j >= z->ny) {
-		trlwarn("peak in cross correlation is too broad\n");
+		trlwarn("peak in cross correlation is too broad");
 		return;
 	    }
 	    if (RPIX2D (z, lmaxx, j) < cutoff) {

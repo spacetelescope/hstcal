@@ -75,15 +75,13 @@ int verbose;            i: verbosity flag
 
         if ((status = Get_KeyS (phdr, "ECHSCTAB", no_default, "",
                                 fname, STIS_LINE))) {
-            printf (
-"WARNING  The input file *might* not have the required keywords\n");
-            printf (
-"         to run the scattered light correction algorithm.\n");
+            trlwarn("The input file *might* not have the required keywords");
+            trlwarn("         to run the scattered light correction algorithm.");
             fflush (stdout);
             return (status);
         }
         if (verbose) {
-            trlmessage("Reading ECHSCTAB: %s\n", fname);
+            trlmessage("Reading ECHSCTAB: %s", fname);
             fflush (stdout);
         }
         if ((status = GetScatter (fname, scf)))
@@ -95,7 +93,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            trlmessage("Reading EXSTAB: %s\n", fname);
+            trlmessage("Reading EXSTAB: %s", fname);
             fflush (stdout);
         }
         if ((status = GetEchelleScatter (fname, scf)))
@@ -107,7 +105,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            trlmessage("Reading CDSTAB: %s\n", fname);
+            trlmessage("Reading CDSTAB: %s", fname);
             fflush (stdout);
         }
         if ((status = GetXDisp (fname, scf)))
@@ -119,7 +117,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            trlmessage("Reading RIPTAB: %s\n", fname);
+            trlmessage("Reading RIPTAB: %s", fname);
             fflush (stdout);
         }
         if ((status = GetRipple (phdr, fname, scf)))
@@ -131,7 +129,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            trlmessage("Reading SRWTAB: %s\n", fname);
+            trlmessage("Reading SRWTAB: %s", fname);
             fflush (stdout);
         }
 
@@ -144,7 +142,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            trlmessage("Reading HALOTAB: %s\n", fname);
+            trlmessage("Reading HALOTAB: %s", fname);
             fflush (stdout);
         }
         if ((status = GetHalo (fname, scf, &halo1, &halo2, &halo3)))
@@ -154,7 +152,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            trlmessage("Reading TELTAB: %s\n", fname);
+            trlmessage("Reading TELTAB: %s", fname);
             fflush (stdout);
         }
         if ((status = GetPSF (fname, phdr, xsize, ysize, scf,
@@ -169,8 +167,7 @@ int verbose;            i: verbosity flag
         InitCmplxArray (&(scf->fto3));
 
         if (verbose) {
-            printf (
-            "Computing Fourier Transforms of kernel at wavelength  %g\n",
+            trlmessage("Computing Fourier Transforms of kernel at wavelength  %g",
                      scf->kernw[0]);
             fflush (stdout);
         }
@@ -179,8 +176,7 @@ int verbose;            i: verbosity flag
 
         if (scf->nwave > 1) {
             if (verbose) {
-                printf (
-                "Computing Fourier Transforms of kernel at wavelength  %g\n",
+                trlmessage("Computing Fourier Transforms of kernel at wavelength  %g",
                          scf->kernw[1]);
                 fflush (stdout);
             }
@@ -190,8 +186,7 @@ int verbose;            i: verbosity flag
 
         if (scf->nwave > 2) {
             if (verbose) {
-                printf (
-                "Computing Fourier Transforms of kernel at wavelength  %g\n",
+                trlmessage("Computing Fourier Transforms of kernel at wavelength  %g",
                          scf->kernw[2]);
                 fflush (stdout);
             }
@@ -228,7 +223,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ECHSCTAB `%s' not found\n", name);
+            trlerror("ECHSCTAB `%s' not found", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -321,7 +316,7 @@ ScatterFunctions *scf;  o: data structure with reference wavelengths
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("SRWTAB `%s' not found\n", name);
+            trlerror("SRWTAB `%s' not found", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -404,7 +399,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("RIPTAB `%s' not found\n", name);
+            trlerror("RIPTAB `%s' not found", name);
             return (OPEN_FAILED);
         }
         c_tbcfnd1 (tp, "OPT_ELEM",   &cp_optelem);
@@ -435,7 +430,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
                 (scf->nrp)++;
         }
         if (scf->nrp == 0) {
-            trlerror("No matching rows in RIPTAB `%s'\n", name);
+            trlerror("No matching rows in RIPTAB `%s'", name);
             return (TABLE_ERROR);
         }
 
@@ -509,7 +504,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("EXSTAB `%s' not found\n", name);
+            trlerror("EXSTAB `%s' not found", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -562,7 +557,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("CDSTAB `%s' not found\n", name);
+            trlerror("CDSTAB `%s' not found", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -621,7 +616,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("HALOTAB `%s' not found\n", name);
+            trlerror("HALOTAB `%s' not found", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -684,7 +679,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
         }
 
         if (k == 0) {
-            trlerror("No matching rows in HALOTAB `%s'\n", name);
+            trlerror("No matching rows in HALOTAB `%s'", name);
             return (TABLE_ERROR);
         }
 
@@ -742,7 +737,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         else if (streq_ic (scf->opt_elem, "E230H"))
             xplate = 0.0466;
         else {
-            trlmessage("Non supported grating.\n");
+            trlmessage("Non supported grating.");
             return (ERROR_RETURN);
         }
         yplate = 0.029;
@@ -793,7 +788,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("TELTAB `%s' not found\n", name);
+            trlerror("TELTAB `%s' not found", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -972,7 +967,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         }
 
         if (kk == 0) {
-            trlerror("No matching rows in TELTAB `%s'\n", name);
+            trlerror("No matching rows in TELTAB `%s'", name);
             return (TABLE_ERROR);
         }
 
@@ -1170,12 +1165,12 @@ static int Debug (char *name, CmplxArray *z) {
             }
         }
 
-        trlmessage("Writing %s image.\n", name);
+        trlmessage("Writing %s image.", name);
 
         if (putSingleGroup (name, 1, &out, 0))
             return (OPEN_FAILED);
 
-        trlmessage("Done writing.\n");
+        trlmessage("Done writing.");
 
         return (STIS_OK);
 }

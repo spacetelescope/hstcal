@@ -118,13 +118,11 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->crcorr == PERFORM) {
 	    sts->sci_crcorr = PERFORM;
 	    if (sts->detector != CCD_DETECTOR) {
-		printf (
-	"Warning  CRCORR will be omitted because detector is MAMA.\n");
+		trlwarn("CRCORR will be omitted because detector is MAMA.");
 		sts->sci_crcorr = OMIT;
 	    }
 	    if (sts->nimages < 2) {
-		printf (
-	"Warning  CRCORR will be omitted because there's only one imset.\n");
+		trlwarn("CRCORR will be omitted because there's only one imset.");
 		sts->sci_crcorr = OMIT;
 	    }
 	    /* reference table is checked below, after getting rptcorr */
@@ -132,8 +130,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 
 	if (sci_sw->rptcorr == PERFORM) {
 	    if (sts->nimages < 2) {
-		printf (
-	"Warning  RPTCORR will be omitted because there's only one imset.\n");
+		trlwarn("RPTCORR will be omitted because there's only one imset.");
 	    } else if (sts->detector == CCD_DETECTOR) {
 		/* For the CCD, interpret rptcorr to mean crcorr. */
 		sts->sci_crcorr = PERFORM;
@@ -151,8 +148,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sci_sw->expscorr == PERFORM) {
 	    sts->sci_expscorr = PERFORM;
 	    if (sts->detector != CCD_DETECTOR) {
-		printf (
-	"Warning  EXPSCORR will be omitted because detector is MAMA.\n");
+		trlwarn("EXPSCORR will be omitted because detector is MAMA.");
 		sts->sci_expscorr = OMIT;
 	    }
 	}
@@ -203,17 +199,14 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	} else if (sci_sw->blevcorr == OMIT && refimage_used &&
 			sts->detector == CCD_DETECTOR) {
 	    /* Dark, flat, etc., assume the overscan has been subtracted. */
-	    printf (
-"Warning  For science file, should do BLEVCORR to remove overscan \\\n");
-	    printf (
-"         before doing other steps that use reference images.\n");
+	    trlwarn("For science file, should do BLEVCORR to remove overscan ");
+	    trlwarn("         before doing other steps that use reference images.");
 	}
 
 	if (sci_sw->photcorr == PERFORM) {
 	    sts->sci_basic_2d = PERFORM;
 	    if (sts->obstype != IMAGING_TYPE)
-		printf (
-	"Warning  PHOTCORR = PERFORM, but OBSTYPE is not IMAGING.\n");
+		trlwarn("PHOTCORR = PERFORM, but OBSTYPE is not IMAGING.");
 	    if ((status = GetNewRef (phdr, "IMPHTTAB", sciref)))
 		return (status);
 	    if ((status = GetNewRef (phdr, "APERTAB", sciref)))
@@ -313,15 +306,13 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 
 	    if (sci_sw->geocorr == PERFORM) {
-		printf (
-	"Warning  GEOCORR = PERFORM, but OBSTYPE is not IMAGING.\n");
+		trlwarn("GEOCORR = PERFORM, but OBSTYPE is not IMAGING.");
 	    }
 
 	} else {
 
 	    if (sci_sw->x2dcorr == PERFORM) {
-		printf (
-	"Warning  X2DCORR = PERFORM, but OBSTYPE is not SPECTROSCOPIC.\n");
+		trlwarn("X2DCORR = PERFORM, but OBSTYPE is not SPECTROSCOPIC.");
 	    }
 	}
 
@@ -331,13 +322,13 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 static void MAMASanity (int detector, char *calswitch) {
 
 	if (detector == CCD_DETECTOR)
-	    trlwarn("%s = PERFORM, but detector is CCD.\n",
+	    trlwarn("%s = PERFORM, but detector is CCD.",
 			calswitch);
 }
 
 static void CCDSanity (int detector, char *calswitch) {
 
 	if (detector != CCD_DETECTOR)
-	    trlwarn("%s = PERFORM, but detector is MAMA.\n",
+	    trlwarn("%s = PERFORM, but detector is MAMA.",
 			calswitch);
 }

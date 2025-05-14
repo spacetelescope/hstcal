@@ -69,8 +69,7 @@ Hdr *hdr        i: header of current imset
 	if ((status = Get_KeyI (hdr, "DISPAXIS", use_def, 1, &sts->dispaxis)))
 	    return (status);
 	if (sts->dispaxis < 1 || sts->dispaxis > 2) {
-	    printf (
-	"ERROR    DISPAXIS = %d is invalid for spectroscopic data.\n",
+	    trlerror("DISPAXIS = %d is invalid for spectroscopic data.",
 		sts->dispaxis);
 	    return (GENERIC_ERROR_CODE);
 	}
@@ -160,7 +159,7 @@ static void GetSDC (StisInfo4 *sts) {
 
 	tp = c_tbtopn (sts->sdctab.name, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlwarn("SDCTAB `%s' not found; default values used.\n",
+	    trlwarn("SDCTAB `%s' not found; default values used.",
 		sts->sdctab.name);
 	    clear_cvoserr();
 	    return;
@@ -171,7 +170,7 @@ static void GetSDC (StisInfo4 *sts) {
 	c_tbcfnd1 (tp, "A2CENTER", &cp_a2center);
 	c_tbcfnd1 (tp, "CDELT2", &cp_cdelt2);
 	if (cp_opt_elem == 0 || cp_a2center == 0 || cp_cdelt2 == 0) {
-	    trlwarn("Column(s) not found in SDCTAB; defaults used.\n");
+	    trlwarn("Column(s) not found in SDCTAB; defaults used.");
 	    c_tbtclo (tp);
 	    return;
 	}
@@ -204,5 +203,5 @@ static void GetSDC (StisInfo4 *sts) {
 	c_tbtclo (tp);
 
 	if (!foundit)
-	    trlwarn("PRISM not found in SDCTAB; defaults used.\n");
+	    trlwarn("PRISM not found in SDCTAB; defaults used.");
 }

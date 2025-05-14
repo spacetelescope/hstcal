@@ -102,8 +102,8 @@ StisInfo4 *sts    i: calibration switches and info
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->wcptab.goodPedigree == DUMMY_PEDIGREE) {
-		    trlwarn("WCPTAB has PEDIGREE = DUMMY; \\\n");
-		    trlwarn("default parameters will be used.\n");
+		    trlwarn("WCPTAB has PEDIGREE = DUMMY;");
+		    trlwarn("default parameters will be used.");
 		    break;
 		}
 
@@ -119,7 +119,7 @@ StisInfo4 *sts    i: calibration switches and info
 	    return (status);
 
 	if (!foundit) {
-	    trlerror("DETECTOR %s, OPT_ELEM %s not found in %s.\n",
+	    trlerror("DETECTOR %s, OPT_ELEM %s not found in %s.",
 		sts->det, sts->opt_elem, sts->wcptab.name);
 	    return (GENERIC_ERROR_CODE);
 	}
@@ -135,7 +135,7 @@ static int OpenWCPTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("WCPTAB `%s' not found.\n", tname);
+	    trlerror("WCPTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -167,7 +167,7 @@ static int OpenWCPTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_nsigma_illum == 0 ||
 	    tabinfo->cp_mad_reject == 0 ||
 	    tabinfo->cp_min_mad == 0) {
-	    trlerror("Column not found in WCPTAB.\n");
+	    trlerror("Column not found in WCPTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
