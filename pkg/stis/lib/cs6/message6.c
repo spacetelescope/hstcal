@@ -89,7 +89,7 @@ void Message6 (StisInfo6 *sts, int type) {
                                          sts->tdstab.descrip,
                                          sts->tdstab.descrip2);
 	        } else
-	            trlwarn("Warning  TDSTAB correction not performed.\n");
+	            trlwarn("TDSTAB correction not performed.\n");
 
 	    }
 	    break;

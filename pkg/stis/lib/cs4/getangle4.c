@@ -90,7 +90,7 @@ double *angle    o: incidence angle, in arcseconds
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->apdestab.goodPedigree == DUMMY_PEDIGREE)
-		    trlwarn("Warning  APDESTAB has PEDIGREE = DUMMY.\n");
+		    trlwarn("APDESTAB has PEDIGREE = DUMMY.\n");
 	    }
 
 	    if (SameString (tabrow.aperture, ref_aper)) {

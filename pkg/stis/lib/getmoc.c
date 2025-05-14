@@ -112,9 +112,9 @@ double *a4corr     o: correction factor read from table
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (disptab->goodPedigree == DUMMY_PEDIGREE) {
-		    trlwarn("Warning  DUMMY pedigree in row %d of %s. \\\n",
+		    trlwarn("DUMMY pedigree in row %d of %s. \\\n",
 			row, disptab->name);
-		    trlwarn("Warning  MAMA offset coefficient set to zero.\n");
+		    trlwarn("MAMA offset coefficient set to zero.\n");
 		    CloseMOCTab (&tabinfo);
 		    return (0);
 		}
@@ -126,11 +126,11 @@ double *a4corr     o: correction factor read from table
 	}
 
 	if (!foundit) {
-	    trlwarn("Warning  Matching row not found in %s \\\n",
+	    trlwarn("Matching row not found in %s \\\n",
 			disptab->name);
-	    trlwarn("Warning  OPT_ELEM %s, CENWAVE %d \\\n",
+	    trlwarn("OPT_ELEM %s, CENWAVE %d \\\n",
 			opt_elem, cenwave);
-	    trlwarn("Warning  MAMA offset coefficient set to zero.\n");
+	    trlwarn("MAMA offset coefficient set to zero.\n");
 	}
 
 	if ((status = CloseMOCTab (&tabinfo)))
@@ -146,8 +146,8 @@ double *a4corr     o: correction factor read from table
 static int OpenMOCTab (char *tname, TblInfo *tabinfo) {
 
 	if (!GotFileName (tname)) {
-	    trlwarn("Warning  DISPTAB = `%s' \\\n", tname);
-	    trlwarn("Warning  MAMA offset coefficient set to zero.\n");
+	    trlwarn("DISPTAB = `%s' \\\n", tname);
+	    trlwarn("MAMA offset coefficient set to zero.\n");
 	    return (-1);
 	}
 
@@ -179,8 +179,8 @@ static int OpenMOCTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_mref == 0 || tabinfo->cp_yref == 0 ||
 	    tabinfo->cp_a4corr == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    trlwarn("Warning  DISPTAB appears to be the old format; \\\n");
-	    trlwarn("Warning  MAMA offset coefficient set to zero.\n");
+	    trlwarn("DISPTAB appears to be the old format; \\\n");
+	    trlwarn("MAMA offset coefficient set to zero.\n");
 	    return (-1);	/* not a fatal error */
 	}
 

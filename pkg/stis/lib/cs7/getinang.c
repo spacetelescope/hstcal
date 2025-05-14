@@ -108,7 +108,7 @@ InangInfo *iac     o: incidence-angle info
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (table->goodPedigree == DUMMY_PEDIGREE) {
-		    trlwarn("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.\n",
 			row, table->name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseIACTab (&tabinfo);
@@ -122,9 +122,9 @@ InangInfo *iac     o: incidence-angle info
 	}
 
 	if (!foundit) {
-	    trlwarn("Warning  Matching row not found in %s; \\\n",
+	    trlwarn("Matching row not found in %s; \\\n",
 			table->name);
-	    trlwarn("Warning  OPT_ELEM %s, SPORDER %d, CENWAVE %d.\n",
+	    trlwarn("OPT_ELEM %s, SPORDER %d, CENWAVE %d.\n",
 			sts->opt_elem, sporder, sts->cenwave);
 	    sts->x2dcorr_o = OMIT;
 	}
@@ -143,7 +143,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("ERROR    Can't open `%s'.\n", tname);
+	    trlerror("Can't open `%s'.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -166,7 +166,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ncoeff2 == 0   || tabinfo->cp_coeff2 == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("ERROR    Column not found in %s.\n", tname);
+	    trlerror("Column not found in %s.\n", tname);
 	    return (COLUMN_NOT_FOUND);
 	}
 

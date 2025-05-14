@@ -38,50 +38,50 @@ Hdr *hdr         i: SCI extension header
 	/* Get the voltages. */
 	status = getKeyD (hdr, "OCBABAV",&abav);
 	if (status) {
-	    trlwarn("Warning  Keyword OCBABAV not found.\n");
+	    trlwarn("Keyword OCBABAV not found.\n");
 	    abav = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBCDAV",&cdav);
 	if (status) {
-	    trlwarn("Warning  Keyword OCBCDAV not found.\n");
+	    trlwarn("Keyword OCBCDAV not found.\n");
 	    cdav = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBLGCDV",&lgcdv);
 	if (status) {
-	    trlwarn("Warning  Keyword OCBLGCDV not found.\n");
+	    trlwarn("Keyword OCBLGCDV not found.\n");
 	    lgcdv = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBSWALV",&swalv);
 	if (status) {
-	    trlwarn("Warning  Keyword OCBSWALV not found.\n");
+	    trlwarn("Keyword OCBSWALV not found.\n");
 	    swalv = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBRCDLV",&rcdlv);
 	if (status) {
-	    trlwarn("Warning  Keyword OCBRCDLV not found.\n");
+	    trlwarn("Keyword OCBRCDLV not found.\n");
 	    rcdlv = DEFAULT_VOLTAGE;
 	}
 
 	/* Check the voltages against the minimum allowed values. */
 	if (abav != DEFAULT_VOLTAGE && abav < MIN_OCBABAV) {
 	    low_voltage = 1;
-	    trlwarn("Warning  OCBABAV = %.6g\n", abav);
+	    trlwarn("OCBABAV = %.6g\n", abav);
 	}
 	if (cdav != DEFAULT_VOLTAGE && cdav < MIN_OCBCDAV) {
 	    low_voltage = 1;
-	    trlwarn("Warning  OCBCDAV = %.6g\n", cdav);
+	    trlwarn("OCBCDAV = %.6g\n", cdav);
 	}
 	if (lgcdv != DEFAULT_VOLTAGE && lgcdv < MIN_OCBLGCDV) {
 	    low_voltage = 1;
-	    trlwarn("Warning  OCBLGCDV = %.6g\n", lgcdv);
+	    trlwarn("OCBLGCDV = %.6g\n", lgcdv);
 	}
 	if (swalv != DEFAULT_VOLTAGE && swalv < MIN_OCBSWALV) {
 	    low_voltage = 1;
-	    trlwarn("Warning  OCBSWALV = %.6g\n", swalv);
+	    trlwarn("OCBSWALV = %.6g\n", swalv);
 	}
 	if (rcdlv != DEFAULT_VOLTAGE && rcdlv < MIN_OCBRCDLV) {
 	    low_voltage = 1;
-	    trlwarn("Warning  OCBRCDLV = %.6g\n", rcdlv);
+	    trlwarn("OCBRCDLV = %.6g\n", rcdlv);
 	}
 
 	if (low_voltage) {

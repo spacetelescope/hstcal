@@ -136,9 +136,7 @@ static void NoComparison (char *keyword, char *sciname, char *wavname) {
 	"Warning  %s is not the same in the science and wavecal headers; \\\n",
 		keyword);
 	printf (
-	"Warning  values in the science and wavecal are respectively: \\\n");
-trlwarn("Warning  `%s' \\\n", sciname);
-trlwarn("Warning  `%s' \\\n", wavname);
+	"Warning  values in the science and wavecal are respectively: \\\n");trlwarn("`%s' \\\n", sciname);trlwarn("`%s' \\\n", wavname);
 	printf (
 "Warning  The value from the science header will be used for the wavecal.\n");
 }

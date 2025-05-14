@@ -228,7 +228,7 @@ trlmessage("\n");
 	    sts.sci_1d_extract != PERFORM &&
 	    sts.sci_geocorr != PERFORM &&
 	    sts.wav_basic_2d != PERFORM) {
-	    trlwarn("Warning  No calibration switch was set to PERFORM.\n");
+	    trlwarn("No calibration switch was set to PERFORM.\n");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -694,13 +694,13 @@ char *outfile   i: name of output file
 	    return (OUT_OF_MEMORY);
 
 	if ((ofp = fopen (outfile, "wb")) == NULL) {
-	    trlerror("ERROR    Can't create temporary file %s.\n", outfile);
+	    trlerror("Can't create temporary file %s.\n", outfile);
 	    free (buf);
 	    return (GENERIC_ERROR_CODE);
 	}
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-	    trlerror("ERROR    Can't open %s.\n", infile);
+	    trlerror("Can't open %s.\n", infile);
 	    (void)fcloseWithStatus(&ofp);
 	    remove (outfile);
 	    free (buf);
@@ -711,7 +711,7 @@ char *outfile   i: name of output file
 	while (!done) {
 	    nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
 	    if (ferror (ifp)) {
-		trlerror("ERROR    Can't read from %s (copying to %s).\n",
+		trlerror("Can't read from %s (copying to %s).\n",
 				infile, outfile);
 		(void)fcloseWithStatus(&ofp);
 		(void)fcloseWithStatus(&ifp);
@@ -723,7 +723,7 @@ char *outfile   i: name of output file
 
 	    nout = fwrite (buf, sizeof(char), nin, ofp);
 	    if (nout < nin) {
-		trlerror("ERROR    Can't copy %s to %s.\n", infile, outfile);
+		trlerror("Can't copy %s to %s.\n", infile, outfile);
 		(void)fcloseWithStatus(&ofp);
 		(void)fcloseWithStatus(&ifp);
 		free (buf);

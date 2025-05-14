@@ -98,12 +98,12 @@ int CalStis11 (char *inwav, char *insci, char *output,
 	subscicorr = PERFORM;			/* initial value */
 	if (wavecal.detector != CCD_DETECTOR) {
 	    subscicorr = OMIT;
-	    trlwarn("Warning  Detector is %s\n", wavecal.det);
+	    trlwarn("Detector is %s\n", wavecal.det);
 	}
 	if (strcmp (wavecal.sclamp, "HITM1") != 0 &&
 		   strcmp (wavecal.sclamp, "HITM2") != 0) {
 	    subscicorr = OMIT;
-	    trlwarn("Warning  Wavecal SCLAMP is `%s', not HITM1 or HITM2\n",
+	    trlwarn("Wavecal SCLAMP is `%s', not HITM1 or HITM2\n",
 			wavecal.sclamp);
 	}
 	if (wavecal.texpstrt >= EXT_SHUTTER_CLOSED) {
@@ -145,8 +145,8 @@ int CalStis11 (char *inwav, char *insci, char *output,
 	    strcmp (wavecal.opt_elem, scidata.opt_elem) != 0 ||
 	    strcmp (wavecal.aperture, scidata.aperture) != 0) {
 
-	    trlwarn("Warning  Wavecal and science file do not match; \\\n");
-	    trlwarn("Warning  the science file will not be subtracted.\n");
+	    trlwarn("Wavecal and science file do not match; \\\n");
+	    trlwarn("the science file will not be subtracted.\n");
 	    return (NOTHING_TO_DO);
 	}
 

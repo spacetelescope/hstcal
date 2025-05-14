@@ -239,7 +239,7 @@ Hdr *phdr       i: primary header
 	}
 
 	if (sts->nimages <= 1) {
-	    trlwarn("Warning  NEXTEND indicates there is only one imset.\n");
+	    trlwarn("NEXTEND indicates there is only one imset.\n");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -298,7 +298,7 @@ int *maxorder    o: maximum value of sporder
 		    NotMultiOrder (sts, orders, minorder, maxorder);
 		    return (0);
 		} else if (sporder == -1) {
-		    trlerror("ERROR    Keyword SPORDER missing, imset %d.\n",
+		    trlerror("Keyword SPORDER missing, imset %d.\n",
 				i+1);
 		    return (KEYWORD_MISSING);
 		} else {
@@ -420,7 +420,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	    iextver++;
 	    iextver = FindExtver (orders, sts->nimages, iextver, sporder);
 	    if (iextver < 0) {
-		trlwarn("Warning  No data for spectral order %d.\n", sporder);
+		trlwarn("No data for spectral order %d.\n", sporder);
 		return (0);
 	    }
 
@@ -509,7 +509,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	/* Divide by the sum of the exposure times. */
 	if (sts->fluxcorr == COMPLETE) {
 	    if (sumexptime <= 0.) {
-		trlerror("ERROR    Sum of EXPTIME = %.6g\n", sumexptime);
+		trlerror("Sum of EXPTIME = %.6g\n", sumexptime);
 		return (GENERIC_ERROR_CODE);
 	    }
 	    if ((status = multk2d (&x, (float)(1./sumexptime))))
@@ -528,7 +528,7 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	}
 
 	if (nrptexp != sts->nrptexp) {
-	    trlwarn("Warning  Order %d has %d imset", sporder, nrptexp);
+	    trlwarn("Order %d has %d imset", sporder, nrptexp);
 	    if (nrptexp > 1)
 		trlmessage("s");
 	    trlmessage(" instead of %d.\n", sts->nrptexp);

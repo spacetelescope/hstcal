@@ -33,7 +33,7 @@ InangInfo *iac        i: incidence-angle correction coeff
 	/* First apply the incidence-angle correction. */
 
 	if (disp_y->ncoeff < iac->ncoeff1) {
-	    trlwarn("Warning  %d dispersion coefficients, ",disp_y->ncoeff);
+	    trlwarn("%d dispersion coefficients, ",disp_y->ncoeff);
 	    trlmessage("but %d incidence-angle coeff.\n",iac->ncoeff1);
 	    ncoeff = disp_y->ncoeff;
 	} else {
@@ -52,9 +52,9 @@ InangInfo *iac        i: incidence-angle correction coeff
 	    disp_y->coeff[0] += iac->coeff2[1] * delta * delta;
 
 	if (iac->ncoeff2 > 2) {
-	    trlwarn("Warning  %d incidence-angle second ", iac->ncoeff2);
+	    trlwarn("%d incidence-angle second ", iac->ncoeff2);
 	    trlmessage("coefficents, limit is 2;\n");
-	    trlwarn("Warning  the remaining coefficents ");
+	    trlwarn("the remaining coefficents ");
 	    trlmessage("will not be applied.\n");
 	}
 
