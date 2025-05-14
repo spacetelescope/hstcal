@@ -118,7 +118,7 @@ int verbose            i: print additional info?
 	    wavecal.cenwave != scidata.cenwave ||
 	    strcmp (wavecal.opt_elem, scidata.opt_elem) != 0) {
 
-	    trlerror("ERROR    Science file and wavecal do not match.\n");
+	    trlerror("Science file and wavecal do not match.\n");
 	    return (GENERIC_ERROR_CODE);
 	}
 

@@ -79,11 +79,11 @@ int *d0            o: index in ds corresponding to zero Doppler shift;
 	int i;
 
 	if (orbitper <= 0.) {
-	    trlerror("ERROR    ORBITPER = %.6g.\n", orbitper);
+	    trlerror("ORBITPER = %.6g.\n", orbitper);
 	    return (GENERIC_ERROR_CODE);
 	}
 	if (doppmag <= 0.) {
-	    trlerror("ERROR    DOPPMAG = %.6g.\n", doppmag);
+	    trlerror("DOPPMAG = %.6g.\n", doppmag);
 	    return (GENERIC_ERROR_CODE);
 	}
 

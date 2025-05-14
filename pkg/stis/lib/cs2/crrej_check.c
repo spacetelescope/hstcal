@@ -67,7 +67,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    /* open the primary header */
 	    ip = openInputImage (fdata, "", 0);
 	    if (hstio_err()) {
-		trlerror("ERROR    HSTIO error %s\n", hstio_errmsg());
+		trlerror("HSTIO error %s\n", hstio_errmsg());
 		return (2);
 	    }
 	
@@ -127,19 +127,19 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    for (k = 1; k <= nk; ++k) {
 		/* ignore if IMSET_OK is F */
 		if ((status = checkImsetOK (fdata, k, &imset_ok)) != 0) {
-		    trlerror("ERROR    HSTIO error %s\n", hstio_errmsg());
+		    trlerror("HSTIO error %s\n", hstio_errmsg());
 		    return (2);
 		}
 		if (!imset_ok)
 		    continue;
 	    	ipsci[*nimgs] = openInputImage (fdata, "SCI", k);
 		if (hstio_err()) {
-		    trlerror("ERROR    HSTIO error %s\n", hstio_errmsg());
+		    trlerror("HSTIO error %s\n", hstio_errmsg());
 		    return (2);
 		}
 	    	ipdq[*nimgs]  = openInputImage (fdata, "DQ",  k);
 		if (hstio_err()) {
-		    trlerror("ERROR    HSTIO error %s\n", hstio_errmsg());
+		    trlerror("HSTIO error %s\n", hstio_errmsg());
 		    return (2);
 		}
 		noise[*nimgs] = ron/gn;

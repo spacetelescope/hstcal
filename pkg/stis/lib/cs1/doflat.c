@@ -189,7 +189,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* No binning required. */
 
 	    if ((status = div2d (x, &y))) {
-		trlerror("ERROR    (doFlat) size mismatch\n");
+		trlerror("(doFlat) size mismatch\n");
 		return (status);
 	    }
 	    freeSingleGroup (&y);
@@ -200,7 +200,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny, True);
 	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
-		trlerror("ERROR    (doFlat) size mismatch\n");
+		trlerror("(doFlat) size mismatch\n");
 		return (status);
 	    }
 	    freeSingleGroup (&y);		/* done with y */

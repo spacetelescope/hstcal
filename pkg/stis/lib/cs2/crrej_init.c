@@ -43,7 +43,7 @@ int crrej_init (IODescPtr ipsci[], clpar *par, int nimgs, int dim_x, int dim_y,
 	npts = calloc (dim_x, sizeof(int));
 	buf = calloc (dim_x, sizeof(float));
 	if (npts == NULL || buf == NULL) {
-	    trlerror("ERROR    out of memory in crrej_init\n");
+	    trlerror("out of memory in crrej_init\n");
 	    return (2);
 	}
 

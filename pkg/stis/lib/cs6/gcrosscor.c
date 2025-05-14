@@ -131,7 +131,7 @@ double       *yoff                o: reference order croscor offset
 	if ((status = GetXtract (sts, &extract, &minorder, &maxorder)))
 	    return (status);
         if (sts->x1d_o == DUMMY) {
-	    trlerror("ERROR    DUMMY pedigree entry in extraction table.\n");
+	    trlerror("DUMMY pedigree entry in extraction table.\n");
 	    return (status);
 	}
 

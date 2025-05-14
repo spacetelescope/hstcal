@@ -115,7 +115,7 @@ double *delta    o: offset in dispersion direction, arcseconds
 	    return (status);
 
 	if (!foundit) {
-	    trlerror("ERROR    APERTURE %s not found in APDESTAB %s\n",
+	    trlerror("APERTURE %s not found in APDESTAB %s\n",
 		sts->aperture, sts->apdestab.name);
 	    return (ROW_NOT_FOUND);
 	}
@@ -131,7 +131,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("ERROR    APDESTAB `%s' not found\n", tname);
+	    trlerror("APDESTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -143,7 +143,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "OFFSET2", &tabinfo->cp_offset[1]);
 	if (tabinfo->cp_aperture == 0 ||
 	    tabinfo->cp_offset[0] == 0 || tabinfo->cp_offset[1] == 0) {
-	    trlerror("ERROR    Column not found in APDESTAB\n");
+	    trlerror("Column not found in APDESTAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -182,7 +182,7 @@ static int CheckPedigree (TblInfo *tabinfo, int row, int *pedigree) {
 
 	    if ((str_pedigree = (char *) calloc (STIS_LINE+1,
                                          sizeof(char))) == NULL) {
-		trlerror("ERROR    Out of memory.\n");
+		trlerror("Out of memory.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	    c_tbegtt (tabinfo->tp, tabinfo->cp_pedigree, row,

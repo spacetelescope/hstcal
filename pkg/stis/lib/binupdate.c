@@ -46,7 +46,7 @@ double crpix[2]         io: reference pixel
 	double off[2];
 
 	if (block[0] == 0. || block[1] == 0.) {
-	    trlerror("ERROR    (binupdate) block size of zero\n");
+	    trlerror("(binupdate) block size of zero\n");
 	    return (INTERNAL_ERROR);
 	}
 

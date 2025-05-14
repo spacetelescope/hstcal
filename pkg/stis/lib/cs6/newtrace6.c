@@ -58,14 +58,14 @@ SpTrace *input   i: a new record to be inserted into the list
 	int done = 0;
 
 	if (input->nelem > MAX_SP_TRACE) {
-	    trlerror("ERROR    %d trace coefficients.\n",
+	    trlerror("%d trace coefficients.\n",
 		input->nelem);
 	    return (TABLE_ERROR);
 	}
 
 	/* Allocate space for the new record, and copy input to new. */
 	if ((new = (SpTrace *) malloc (sizeof (SpTrace))) == NULL) {
-	    trlerror("ERROR    Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	CopyTrace (input, new);
@@ -184,7 +184,7 @@ SpTrace **output  o: the spectrum trace interpolated to a2center
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (SpTrace))) == NULL) {
-		trlerror("ERROR    Can't allocate memory in InterpTrace.\n");
+		trlerror("Can't allocate memory in InterpTrace.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	}

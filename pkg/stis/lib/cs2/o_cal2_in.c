@@ -121,7 +121,7 @@ float sigma[])
 	        }
 	        c_tbegtt (tp, colptr, row, par->sigmas, STIS_LINE);
 		if (c_iraferr()) {
-		    trlerror("ERROR   can't read CRSIGMAS from row %d\n", row);
+		    trlerror("can't read CRSIGMAS from row %d\n", row);
 		    return (2);
 		}
 	    }

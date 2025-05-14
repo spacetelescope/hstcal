@@ -113,9 +113,9 @@ ApInfo *slit     o: description of slit
 	    return (status);
 
 	if (!foundit) {
-	    trlerror("ERROR    Matching row not found in APERTAB %s\n",
+	    trlerror("Matching row not found in APERTAB %s\n",
 			sts->apertab.name);
-	    trlerror("ERROR    APERTURE %s\n", sts->aperture);
+	    trlerror("APERTURE %s\n", sts->aperture);
 	    return (ROW_NOT_FOUND);
 	}
 
@@ -132,7 +132,7 @@ static int OpenThruTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("ERROR    APERTAB `%s' not found\n", tname);
+	    trlerror("APERTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -147,7 +147,7 @@ static int OpenThruTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_nelem == 0 ||
 	    tabinfo->cp_wl == 0 ||
 	    tabinfo->cp_thr == 0) {
-	    trlerror("ERROR    Column not found in APERTAB\n");
+	    trlerror("Column not found in APERTAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -217,7 +217,7 @@ static int ReadThruArray (TblInfo *tabinfo, int row, ApInfo *slit) {
 	    c_tbtclo (tabinfo->tp);
 	    free (slit->wl);
 	    free (slit->thr);
-	    trlerror("ERROR    Not all coefficients were read from APERTAB\n");
+	    trlerror("Not all coefficients were read from APERTAB\n");
 	    return (TABLE_ERROR);
 	}
 

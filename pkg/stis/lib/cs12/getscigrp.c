@@ -36,7 +36,7 @@ double *midpt    o: the time (MJD) of the middle of the exposure
 	if ((status = Get_KeyD (hdr, "EXPTIME", no_default, 0., exptime)))
 	    return (status);
 	if (*exptime < 0.) {
-	    trlerror("ERROR    GetSciGrp:  exposure time = %.6g is invalid.\n",
+	    trlerror("GetSciGrp:  exposure time = %.6g is invalid.\n",
 		*exptime);
 	    return (GENERIC_ERROR_CODE);
 	}

@@ -40,10 +40,10 @@ int	CalStis2 (char *input, char *fout, clpar *par, int newpar[])
         flag = ckNewFile (fout);
         if (flag > 0) {
             if (flag == 1) {
-                trlerror("ERROR    Output file `%s' already exists.\n", fout);
+                trlerror("Output file `%s' already exists.\n", fout);
                 return (2);
             } else {
-                trlerror("ERROR    Can't clobber `%s'.\n", fout);
+                trlerror("Can't clobber `%s'.\n", fout);
                 return (2);
             }
         }

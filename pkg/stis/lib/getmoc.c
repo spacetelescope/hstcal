@@ -153,7 +153,7 @@ static int OpenMOCTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("ERROR:  Can't open `%s'\n", tname);
+	    trlwarn("Can't open `%s'\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -171,7 +171,7 @@ static int OpenMOCTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_opt_elem == 0 || tabinfo->cp_cenwave == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("ERROR:  Column not found in %s\n", tname);
+	    trlwarn("Column not found in %s\n", tname);
 	    return (COLUMN_NOT_FOUND);
 	}
 

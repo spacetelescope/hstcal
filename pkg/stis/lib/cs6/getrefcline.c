@@ -59,7 +59,7 @@ static int CheckRef (char *filename, RefTab *table) {
 
 	    /* If table cannot be found, abort. */
 	    if (table->exists != EXISTS_YES) {
-	        trlerror("ERROR    %s not found\n", table->name);
+	        trlerror("%s not found\n", table->name);
 	        return (CAL_FILE_MISSING);
 	    }
 	}

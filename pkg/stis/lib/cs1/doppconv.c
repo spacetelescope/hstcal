@@ -62,7 +62,7 @@ int d0             i: index in ds corresponding to zero Doppler shift;
 
 	x = calloc (nscr, sizeof(float));
 	if (x == NULL) {
-	    trlerror("ERROR    (DoppConv) can't allocate memory.\n");
+	    trlerror("(DoppConv) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -106,7 +106,7 @@ int d0             i: index in ds corresponding to zero Doppler shift;
 
 	xdq = calloc (nscr, sizeof(short));
 	if (xdq == NULL) {
-	    trlerror("ERROR    (DoppConv) can't allocate memory.\n");
+	    trlerror("(DoppConv) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 

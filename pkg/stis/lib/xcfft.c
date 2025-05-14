@@ -59,7 +59,7 @@ CmplxArray *z       io: FT array to be shifted
 int AllocCmplxArray (CmplxArray *z, int nx, int ny) {
 
 	if (z->allocated) {
-	    trlerror("Error:  complex array already allocated.\n");
+	    trlwarn("complex array already allocated.\n");
 	    return (ERROR_RETURN);
 	}
 

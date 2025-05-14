@@ -83,7 +83,7 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 	if (pic == NULL || thresh == NULL || spthresh == NULL ||
 	    sum == NULL || sumvar == NULL ||
 	    mask == NULL || buf == NULL || bufdq == NULL) {
-	    trlerror("ERROR    out of memory in crrej_loop\n");
+	    trlerror("out of memory in crrej_loop\n");
 	    return (2);
 	}
 	
