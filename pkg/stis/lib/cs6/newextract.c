@@ -56,19 +56,19 @@ XtractInfo *input     i:  a new record to be inserted into the list
 	done = 0;
 
 	if (input->ncoeffsl > MAX_SLIT_COEFF) {
-	    printf ("ERROR    %d slit coefficients.\n",
+	    trlerror("ERROR    %d slit coefficients.\n",
 		input->ncoeffsl);
 	    return (TABLE_ERROR);
 	}
 	if (input->ncoeffbk > MAX_BACK_COEFF) {
-	    printf ("ERROR    %d background coefficients.\n",
+	    trlerror("ERROR    %d background coefficients.\n",
 		input->ncoeffbk);
 	    return (TABLE_ERROR);
 	}
 
 	/* Allocate space for the new record, and copy to memory. */
 	if ((new = (XtractInfo *) malloc (sizeof (XtractInfo))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -141,7 +141,7 @@ XtractInfo **output   o: the record that matches sporder
 	if (*output == NULL) {
 	    if ((*output = (XtractInfo *) malloc (sizeof (XtractInfo))) == 
                            NULL) {
-		printf ("ERROR    Can't allocate memory.\n");
+		trlerror("ERROR    Can't allocate memory.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	}
@@ -285,7 +285,7 @@ XtractInfo **extract  i: identifies the first record in the list
 	current = *extract;
 
 	while (current != NULL) {
-	    printf ("%3d:  %3d\n", i, current->sporder);
+	    trlmessage("%3d:  %3d\n", i, current->sporder);
 	    current = current->next;
 	    i++;
 	}

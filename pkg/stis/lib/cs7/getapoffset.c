@@ -82,7 +82,7 @@ double *delta    o: offset in dispersion direction, arcseconds
 		if ((status = CheckPedigree (&tabinfo, row, &pedigree)))
 		    return (status);
 		if (pedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("Warning  DUMMY pedigree in row %d of %s.\n",
 			row, sts->apdestab.name);
 		    *delta = 0.;
 		    sts->x2dcorr_o = DUMMY;
@@ -105,7 +105,7 @@ double *delta    o: offset in dispersion direction, arcseconds
 	    return (status);
 
 	if (!foundit) {
-	    printf ("Warning  APERTURE %s not found in APDESTAB %s.\n",
+	    trlwarn("Warning  APERTURE %s not found in APDESTAB %s.\n",
 		ref_aper, sts->apdestab.name);
 	    sts->x2dcorr_o = OMIT;
 	}
@@ -121,7 +121,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    APDESTAB `%s' not found.\n", tname);
+	    trlerror("ERROR    APDESTAB `%s' not found.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -133,7 +133,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "OFFSET2", &tabinfo->cp_offset[1]);
 	if (tabinfo->cp_aperture == 0 ||
 	    tabinfo->cp_offset[0] == 0 || tabinfo->cp_offset[1] == 0) {
-	    printf ("ERROR    Column not found in APDESTAB.\n");
+	    trlerror("ERROR    Column not found in APDESTAB.\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -171,7 +171,7 @@ static int CheckPedigree (TblInfo *tabinfo, int row, int *pedigree) {
 	if (tabinfo->cp_pedigree > 0) {
 
 	    if ((str_pedigree = calloc (STIS_LINE+1, sizeof(char))) == NULL) {
-		printf ("ERROR    Out of memory.\n");
+		trlerror("ERROR    Out of memory.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	    c_tbegtt (tabinfo->tp, tabinfo->cp_pedigree, row,

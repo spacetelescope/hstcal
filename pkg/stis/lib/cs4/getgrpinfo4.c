@@ -160,7 +160,7 @@ static void GetSDC (StisInfo4 *sts) {
 
 	tp = c_tbtopn (sts->sdctab.name, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("Warning  SDCTAB `%s' not found; default values used.\n",
+	    trlwarn("Warning  SDCTAB `%s' not found; default values used.\n",
 		sts->sdctab.name);
 	    clear_cvoserr();
 	    return;
@@ -171,7 +171,7 @@ static void GetSDC (StisInfo4 *sts) {
 	c_tbcfnd1 (tp, "A2CENTER", &cp_a2center);
 	c_tbcfnd1 (tp, "CDELT2", &cp_cdelt2);
 	if (cp_opt_elem == 0 || cp_a2center == 0 || cp_cdelt2 == 0) {
-	    printf ("Warning  Column(s) not found in SDCTAB; defaults used.\n");
+	    trlwarn("Warning  Column(s) not found in SDCTAB; defaults used.\n");
 	    c_tbtclo (tp);
 	    return;
 	}
@@ -204,5 +204,5 @@ static void GetSDC (StisInfo4 *sts) {
 	c_tbtclo (tp);
 
 	if (!foundit)
-	    printf ("Warning  PRISM not found in SDCTAB; defaults used.\n");
+	    trlwarn("Warning  PRISM not found in SDCTAB; defaults used.\n");
 }

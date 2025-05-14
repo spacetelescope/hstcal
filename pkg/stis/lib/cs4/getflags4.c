@@ -103,11 +103,11 @@ int *nsteps     io: incremented if this step can be performed
 	if (sts->wcptab.exists != EXISTS_YES) {
 	    if (GotFileName (sts->wcptab.name)) {
 		(*missing)++;
-		printf ("ERROR    WCPTAB `%s' not found.\n", sts->wcptab.name);
+		trlerror("ERROR    WCPTAB `%s' not found.\n", sts->wcptab.name);
 	    }
 	} else if (sts->wcptab.goodPedigree != GOOD_PEDIGREE) {
-	    printf ("Warning  WCPTAB has PEDIGREE = DUMMY; \\\n");
-	    printf ("Warning  default parameters will be used.\n");
+	    trlwarn("Warning  WCPTAB has PEDIGREE = DUMMY; \\\n");
+	    trlwarn("Warning  default parameters will be used.\n");
 	    sts->wcptab.exists = EXISTS_NO;
 	}
 
@@ -226,14 +226,14 @@ static int GetCheckRef4 (RefFileInfo *refnames, Hdr *phdr,
 	if (table->exists == EXISTS_YES) {
 
 	    if (table->goodPedigree != GOOD_PEDIGREE) {
-		printf ("ERROR    %s has PEDIGREE = DUMMY.\n", table->name);
+		trlerror("ERROR    %s has PEDIGREE = DUMMY.\n", table->name);
 		*calswitch = DUMMY;
 		(*missing)++;
 	    }
 
 	} else {
 
-	    printf ("ERROR    %s `%s' not found or can't open.\n",
+	    trlerror("ERROR    %s `%s' not found or can't open.\n",
 				keyword, table->name);
 	    (*missing)++;
 	}

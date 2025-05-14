@@ -42,7 +42,7 @@ int *flag         o: value of switch:  PERFORM, OMIT, or COMPLETE
 	getStringKw (key, word, STIS_FNAME);
 	if (hstio_err()) {
 	    free (word);
-	    printf ("ERROR    Error getting keyword `%s'.\n", calswitch);
+	    trlerror("ERROR    Error getting keyword `%s'.\n", calswitch);
 	    return (HEADER_PROBLEM);
 	}
 
@@ -56,7 +56,7 @@ int *flag         o: value of switch:  PERFORM, OMIT, or COMPLETE
 	    *flag = OMIT;
 	} else {
 	    *flag = OMIT;
-	    printf ("ERROR    Keyword %s = %s is invalid.\n",
+	    trlerror("ERROR    Keyword %s = %s is invalid.\n",
 			calswitch, word);
 	    free (word);
 	    return (HEADER_PROBLEM);

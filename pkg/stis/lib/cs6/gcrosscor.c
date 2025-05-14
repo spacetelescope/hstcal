@@ -106,7 +106,7 @@ double       *yoff                o: reference order croscor offset
 	trace_y     = NULL;
 
 	if (sts->verbose == 1 || sts->verbose == 2)
-	    printf ("         Begin offset analysis.\n");
+	    trlmessage("         Begin offset analysis.\n");
 
      	/* Get aperture description. */
 	if ((status = GetApDes6 (sts, &slit)))
@@ -131,7 +131,7 @@ double       *yoff                o: reference order croscor offset
 	if ((status = GetXtract (sts, &extract, &minorder, &maxorder)))
 	    return (status);
         if (sts->x1d_o == DUMMY) {
-	    printf ("ERROR    DUMMY pedigree entry in extraction table.\n");
+	    trlerror("ERROR    DUMMY pedigree entry in extraction table.\n");
 	    return (status);
 	}
 
@@ -286,7 +286,7 @@ double       *yoff                o: reference order croscor offset
 	}
 
 	if (sts->verbose == 1 || sts->verbose == 2)
-	    printf ("         End offset analysis.\n");
+	    trlmessage("         End offset analysis.\n");
 
 	return (0);
 }
@@ -377,17 +377,17 @@ static void ReportCrossCorr (StisInfo6 *sts, int norder, double gcc,
 
 	int i, c;
 
-	printf ("\n         Sporder Rej.  Offset\n");
+trlmessage("\n         Sporder Rej.  Offset\n");
 
 	for (i = 0; i < norder; i++) {
 	    if (sts->cc_rej[i])
 	        c = '*';
 	    else
 	        c = ' ';
-	    printf ("            %d    %c    %g\n",
+	    trlmessage("            %d    %c    %g\n",
                sts->cc_spord[i], c, sts->cc_off[i]);
 	}
-	printf ("         Average       %g  (%g)\n\n", gcc, sigma);
+trlmessage("         Average       %g  (%g)\n\n", gcc, sigma);
 }
 
 

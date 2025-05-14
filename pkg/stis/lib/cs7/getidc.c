@@ -129,7 +129,7 @@ DistInfo *dist      o: distortion coefficients
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->distntab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("Warning  DUMMY pedigree in row %d of %s.\n",
 			row, sts->distntab.name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseDistTab (&tabinfo);
@@ -144,10 +144,10 @@ DistInfo *dist      o: distortion coefficients
 	}
 
 	if (!foundit) {
-	    printf ("Warning  Matching row not found in IDCTAB %s \\\n",
+	    trlwarn("Warning  Matching row not found in IDCTAB %s \\\n",
 				sts->distntab.name);
 
-	    printf ("Warning  for DIRECTION = 'INVERSE')\n");
+	    trlwarn("Warning  for DIRECTION = 'INVERSE')\n");
 	    sts->x2dcorr_o = OMIT;
 	}
 
@@ -167,7 +167,7 @@ static int OpenDistTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    IDCTAB `%s' not found.\n", tname);
+	    trlerror("ERROR    IDCTAB `%s' not found.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -193,7 +193,7 @@ static int OpenDistTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_cxref == 0 || tabinfo->cp_cyref == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in IDCTAB.\n");
+	    trlerror("ERROR    Column not found in IDCTAB.\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -206,7 +206,7 @@ static int OpenDistTab (char *tname, TblInfo *tabinfo) {
 	    c_tbtclo (tabinfo->tp);
 	    printf (
 "ERROR    Columns for linear transformation coefficients are required; \\\n");
-	    printf ("ERROR    these columns are CX10, CX11, CY10, CY11.\n");
+	    trlerror("ERROR    these columns are CX10, CX11, CY10, CY11.\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -266,7 +266,7 @@ static int ReadCoefficients (TblInfo *tabinfo, int row,
 	int NewCoord (CoordInfo **, CoordInfo *);
 
 	if ((newrec = malloc (sizeof (CoordInfo))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	newrec->sporder = 1;	/* use nominal values for imaging mode */
@@ -325,7 +325,7 @@ static int ReadCoefficients (TblInfo *tabinfo, int row,
 	/* The polynomial order is a header keyword. */
 	dist->norder = c_tbhgti (tabinfo->tp, "NORDER");
 	if (c_iraferr()) {
-	    printf ("Warning  Can't read NORDER from IDCTAB table header.\n");
+	    trlwarn("Warning  Can't read NORDER from IDCTAB table header.\n");
 	    dist->norder = MAX_ORDER;
 	    clear_cvoserr();
 	}

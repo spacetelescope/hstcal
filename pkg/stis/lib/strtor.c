@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <ctype.h>
+# include "stis.h"
 
 /*  strtor -- convert a string of real numbers into a real array 
 
@@ -51,7 +52,7 @@ int strtor (char *str, float arr[])
 	    	    tmp[i] = str[ip0+i];
 		tmp[ip-ip0] = '\0';
 		if (!(isdigit (tmp[0]) || tmp[0] == '-' || tmp[0] == '.')) {
-		    printf ("illegal input string '%s'\n", str);
+		    trlerror("illegal input string '%s'\n", str);
 		    return (-1);
 		}
 	    	arr[n] = (float) atof(tmp);

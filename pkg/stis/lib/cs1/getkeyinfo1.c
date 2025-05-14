@@ -96,7 +96,7 @@ Hdr *phdr        i: primary header
 	} else if (strcmp (sts->det, "CCD") == 0) {
 	    sts->detector = CCD_DETECTOR;
 	} else {
-	    printf ("ERROR    DETECTOR = %s is invalid\n", sts->det);
+	    trlerror("ERROR    DETECTOR = %s is invalid\n", sts->det);
 	    return (HEADER_PROBLEM);
 	}
 
@@ -150,7 +150,7 @@ Hdr *phdr        i: primary header
 	/* Convert number of extensions to number of SingleGroups. */
 	sts->nimages = nextend / EXT_PER_GROUP;
 	if (sts->nimages < 1) {
-	    printf ("ERROR    NEXTEND = %d; must be at least three.\n",
+	    trlerror("ERROR    NEXTEND = %d; must be at least three.\n",
 		sts->nimages);
 	    return (GENERIC_ERROR_CODE);
 	}
@@ -194,7 +194,7 @@ Hdr *phdr        i: primary header
 		sts->ccdamp[0] = toupper (sts->ccdamp[0]);
 
 	    if (strchr ("ABCD", sts->ccdamp[0]) == NULL) {
-		printf ("ERROR    CCDAMP = `%s' is invalid.\n", sts->ccdamp);
+		trlerror("ERROR    CCDAMP = `%s' is invalid.\n", sts->ccdamp);
 		return (GENERIC_ERROR_CODE);
 	    }
 

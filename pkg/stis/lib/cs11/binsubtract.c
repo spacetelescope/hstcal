@@ -77,7 +77,7 @@ int verbose         i: print info about first pixel and binning?
 
 	if (ltmW[0] <= 0. || ltmS[0] <= 0. ||
 	    ltmW[1] <= 0. || ltmS[1] <= 0.) {
-	    printf ("ERROR    Can't handle LTM less than or equal to zero.\n");
+	    trlerror("ERROR    Can't handle LTM less than or equal to zero.\n");
 	    return (GENERIC_ERROR_CODE);
 	}
 
@@ -100,10 +100,10 @@ int verbose         i: print info about first pixel and binning?
 			lower_left[0]+1, upper_right[0]+1,
 			lower_left[1]+1, upper_right[1]+1);
 	    } else {
-		printf ("         Science image covers entire wavecal.\n");
+		trlmessage("         Science image covers entire wavecal.\n");
 	    }
 	    if (sci_start[0] > 0 || sci_start[1] > 0) {
-		printf ("         Starting pixel in science image = %d, %d\n",
+		trlmessage("         Starting pixel in science image = %d, %d\n",
 			sci_start[0]+1, sci_start[1]+1);
 	    }
 	    printf (

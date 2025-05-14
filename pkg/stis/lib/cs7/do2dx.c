@@ -328,7 +328,7 @@ StisInfo7 *sts    i: calibration switches and info
 
 	    /* Get heliocentric correction factor. */
 	    if (sts->heliocorr == PERFORM && !sts->wavecal) {
-		printf ("\n");
+		trlmessage("\n");
 		PrSwitch ("helcorr", PERFORM);
 		sts->hfactor = HelioFactor (sts, &v_helio);
 		/* Note:  written to input in memory, copied later to output */
@@ -421,7 +421,7 @@ StisInfo7 *sts    i: calibration switches and info
 	    for (sporder = minorder;  sporder <= maxorder;  sporder++) {
 
 		if (sts->obstype == SPECTROSCOPIC_TYPE) {
-		    printf ("\n");
+		    trlmessage("\n");
 		    PrGrpBegin ("order", sporder);
 		}
 
@@ -467,7 +467,7 @@ StisInfo7 *sts    i: calibration switches and info
 			if (status > 0)
 			    return (status);		/* a real error */
 			status = 0;
-			printf ("Warning  Skipping spectral order %d.\n",
+			trlwarn("Warning  Skipping spectral order %d.\n",
 					sporder);
 			freeSingleGroup (out);
 			continue;
@@ -563,7 +563,7 @@ StisInfo7 *sts    i: calibration switches and info
 
 		putSingleGroup (sts->output, o_extver, out, 0);
 		if (hstio_err()) {
-		    printf ("ERROR    Couldn't write imset %d.\n", o_extver);
+		    trlerror("ERROR    Couldn't write imset %d.\n", o_extver);
 		    return (GENERIC_ERROR_CODE);
 		}
 		freeSingleGroup (out);
@@ -579,14 +579,14 @@ StisInfo7 *sts    i: calibration switches and info
 
 	    /* Have we actually written any output for this imset? */
 	    if (o_extver <= 0) {
-		printf ("ERROR    No output written for any order.\n");
+		trlerror("ERROR    No output written for any order.\n");
 		return (NOTHING_TO_DO);
 	    }
 	}
 
 	if (sts->verbose && sts->obstype == SPECTROSCOPIC_TYPE &&
                        sts->trace_rotation != 0.)
-                   printf ("         trace was rotated by = %.6g degree.\n",
+                   trlmessage("         trace was rotated by = %.6g degree.\n",
                        sts->trace_rotation);
 
 	/* free memory */
@@ -629,7 +629,7 @@ StisInfo7 *sts    i: calibration switches and info
 
 	/* Have we written any output for any imset? */
 	if (o_extver <= 0) {
-	    printf ("Warning  No output written for any imset.\n");
+	    trlwarn("Warning  No output written for any imset.\n");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -720,7 +720,7 @@ FloatHdrData *ssgy      o: small-scale distortion in Y
 
 static void x2dMsg (StisInfo7 *sts, int o_extver) {
 
-	printf ("\n");
+trlmessage("\n");
 	if (sts->obstype == SPECTROSCOPIC_TYPE) {
 	    PrSwitch ("x2dcorr", PERFORM);
 	    PrSwitch ("dispcorr", PERFORM);
@@ -752,7 +752,7 @@ static void x2dMsg (StisInfo7 *sts, int o_extver) {
 			sts->sptrctab.pedigree,
 			sts->sptrctab.descrip, sts->sptrctab.descrip2);
 		if (sts->wx2dcorr == COMPLETE)
-		    printf ("SPTRCTAB trace was applied earlier, by wx2d\n");
+		    trlmessage("SPTRCTAB trace was applied earlier, by wx2d\n");
 
 	    } else {
 
@@ -765,7 +765,7 @@ static void x2dMsg (StisInfo7 *sts, int o_extver) {
 
 static void FluxMsg (StisInfo7 *sts, int o_extver) {
 
-	printf ("\n");
+trlmessage("\n");
 	PrSwitch ("fluxcorr", PERFORM);
 
 	if (o_extver == 0) {
@@ -792,7 +792,7 @@ static void FluxMsg (StisInfo7 *sts, int o_extver) {
 			             sts->tdstab.descrip,
 			             sts->tdstab.descrip2);
 	    } else {
-		printf ("Warning  TDS correction not performed.\n");
+		trlwarn("Warning  TDS correction not performed.\n");
 	    }
 	}
 }

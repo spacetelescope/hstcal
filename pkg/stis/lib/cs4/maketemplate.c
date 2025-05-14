@@ -207,14 +207,14 @@ double slitwidth[]  o: slit width and height, in image pixels
 
 	ywidth = strtod (sts->aper_fov, &wx);
 	if (ywidth == 0.) {
-	    printf ("Warning  Can't interpret APER_FOV = `%s'\n",
+	    trlwarn("Warning  Can't interpret APER_FOV = `%s'\n",
 		sts->aper_fov);
 	    return;
 	}
 	wx++;				/* skip over the "X" */
 	xwidth = strtod (wx, &dummy);
 	if (xwidth == 0.) {
-	    printf ("Warning  Can't interpret APER_FOV = `%s'\n",
+	    trlwarn("Warning  Can't interpret APER_FOV = `%s'\n",
 		sts->aper_fov);
 	    return;
 	}
@@ -240,7 +240,7 @@ static void debugimg (char *dbgfile, CmplxArray *z) {
 	/* Write the data to dbgfile, extension 1, using option = 0. */
 	putSci (dbgfile, 1, &x, 0);
 	if (hstio_err()) {
-	    printf ("Warning  Can't create template image:  %s\n",
+	    trlwarn("Warning  Can't create template image:  %s\n",
 			hstio_errmsg());
 	    clear_hstioerr();
 	}
@@ -348,8 +348,8 @@ double ltm, ltv     i: for converting from image to reference pixels
 		wl_estimate, TOLERANCE, &wl);
 
 	if (status != 0) {
-	    printf ("Warning  PixToWl status = %d from evalInvDisp\n", status);
-	    printf ("    order %g, wl_estimate = %g, wl = %g\n",
+	    trlwarn("Warning  PixToWl status = %d from evalInvDisp\n", status);
+	    trlmessage("    order %g, wl_estimate = %g, wl = %g\n",
 		m, wl_estimate, wl);
 	}
 

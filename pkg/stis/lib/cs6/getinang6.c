@@ -125,8 +125,8 @@ InangInfo *iac     o: incidence-angle info
 	}
 
 	if (!foundit) {
-	    printf ("ERROR    Matching row not found in %s\n", table->name);
-	    printf ("ERROR    OPT_ELEM %s, SPORDER %d, CENWAVE %d\n",
+	    trlerror("ERROR    Matching row not found in %s\n", table->name);
+	    trlerror("ERROR    OPT_ELEM %s, SPORDER %d, CENWAVE %d\n",
 		    sts->opt_elem, sporder, sts->cenwave);
 	    return (ROW_NOT_FOUND);
 	}
@@ -145,7 +145,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    Can't open `%s'\n", tname);
+	    trlerror("ERROR    Can't open `%s'\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -168,7 +168,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ncoeff2 == 0   || tabinfo->cp_coeff2 == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in %s\n", tname);
+	    trlerror("ERROR    Column not found in %s\n", tname);
 	    return (COLUMN_NOT_FOUND);
 	}
 

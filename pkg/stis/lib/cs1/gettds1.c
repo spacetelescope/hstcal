@@ -116,9 +116,9 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	    return (status);
 
 	if (!foundit) {
-	    printf ("Warning  Matching row not found in TDSTAB %s\n", tabname);
-	    printf ("Warning  OPT_ELEM %s\n", opt_elem);
-	    printf ("Warning  Skipping TDS correction.\n");
+	    trlwarn("Warning  Matching row not found in TDSTAB %s\n", tabname);
+	    trlwarn("Warning  OPT_ELEM %s\n", opt_elem);
+	    trlwarn("Warning  Skipping TDS correction.\n");
 	    return (ROW_NOT_FOUND);
 	}
 
@@ -133,7 +133,7 @@ static int OpenTdsTab1 (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    TDSTAB `%s' not found\n", tname);
+	    trlerror("ERROR    TDSTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -145,7 +145,7 @@ static int OpenTdsTab1 (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 	if (tabinfo->cp_optelem == 0 ||
 	    tabinfo->cp_wl      == 0 ||
 	    tabinfo->cp_nwl     == 0) {
-	    printf ("ERROR    Column not found in TDSTAB\n");
+	    trlerror("ERROR    Column not found in TDSTAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -154,7 +154,7 @@ static int OpenTdsTab1 (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 	c_tbcfnd1 (tabinfo->tp, "REFTEMP",  &tabinfo->cp_reftemp);
 	c_tbcfnd1 (tabinfo->tp, "TEMPSENS", &tabinfo->cp_tempsens);
 	if (tabinfo->cp_reftemp == 0 ||tabinfo->cp_tempsens == 0) {
-	    printf ("Warning  Column REFTEMP or TEMPSENS not found in %s;\n",
+	    trlwarn("Warning  Column REFTEMP or TEMPSENS not found in %s;\n",
 			tname);
 	    printf (
 	"Warning  no temperature correction applied to sensitivity\n");
@@ -222,7 +222,7 @@ static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
 	if (nwl < tds->nwl) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Not all values were read from TDSTAB\n");
+	    trlerror("ERROR    Not all values were read from TDSTAB\n");
 	    return (TABLE_ERROR);
 	}
 

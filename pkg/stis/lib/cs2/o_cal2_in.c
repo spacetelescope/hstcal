@@ -67,7 +67,7 @@ float sigma[])
 	if (newpar[0] < MAX_PAR) {
 	    tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
             if (c_iraferr() != 0) {
-                printf ("CRREJTAB table '%s' does not exist\n", par->tbname);
+                trlerror("CRREJTAB table '%s' does not exist\n", par->tbname);
                 return (2);
             }
 	    nrows = c_tbpsta (tp, TBL_NROWS);
@@ -75,12 +75,12 @@ float sigma[])
 	    /* read the columns CRSPLIT and MEANEXP */
 	    c_tbcfnd1 (tp, "crsplit", &colptr);
 	    if (colptr == 0) {
-	        printf ("column CRSPLIT does not exist in CRREJTAB\n");
+	        trlerror("column CRSPLIT does not exist in CRREJTAB\n");
 	        return (2);
 	    }
 	    c_tbcfnd1 (tp, "meanexp", &colptr1);
 	    if (colptr1 == 0) {
-	        printf ("column MEANEXP does not exist in CRREJTAB\n");
+	        trlerror("column MEANEXP does not exist in CRREJTAB\n");
 	        return (2);
 	    }
 
@@ -108,7 +108,7 @@ float sigma[])
 	        }
 	    }
 	    if (nmatch == 0) {
-	        printf (" No matching CRSPLIT and MEANEXP in CRREJTAB\n");
+	        trlerror(" No matching CRSPLIT and MEANEXP in CRREJTAB\n");
 	        return (2);
 	    }
 
@@ -116,12 +116,12 @@ float sigma[])
 	    if (newpar[CRSIGMAS] == 0) {
 	        c_tbcfnd1 (tp, "crsigmas", &colptr);
 	        if (colptr == 0) {
-	            printf ("column CRSIGMAS does not exist in CRREJTAB\n");
+	            trlerror("column CRSIGMAS does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegtt (tp, colptr, row, par->sigmas, STIS_LINE);
 		if (c_iraferr()) {
-		    printf ("ERROR   can't read CRSIGMAS from row %d\n", row);
+		    trlerror("ERROR   can't read CRSIGMAS from row %d\n", row);
 		    return (2);
 		}
 	    }
@@ -130,7 +130,7 @@ float sigma[])
 	    if (newpar[SKYSUB] == 0) {
 	        c_tbcfnd1 (tp, "skysub", &colptr);
 	        if (colptr == 0) {
-	            printf ("column SKYSUB does not exist in CRREJTAB\n");
+	            trlerror("column SKYSUB does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegtt (tp, colptr, row, par->sky, STIS_LINE);
@@ -144,7 +144,7 @@ float sigma[])
 	    if (newpar[CRRADIUS] == 0) {
 	        c_tbcfnd1 (tp, "crradius", &colptr);
 	        if (colptr == 0) {
-	            printf ("column CRRADIUS does not exist in CRREJTAB\n");
+	            trlerror("column CRRADIUS does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegtr (tp, colptr, row, &par->rej);
@@ -152,7 +152,7 @@ float sigma[])
 	    if (newpar[CRTHRESH] == 0) {
 	        c_tbcfnd1 (tp, "crthresh", &colptr);
 	        if (colptr == 0) {
-	            printf ("column CRTHRESH does not exist in CRREJTAB\n");
+	            trlerror("column CRTHRESH does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegtr (tp, colptr, row, &par->psigma);
@@ -162,7 +162,7 @@ float sigma[])
 	    if (newpar[INITGUES] == 0) {
 	        c_tbcfnd1 (tp, "initgues", &colptr);
 	        if (colptr == 0) {
-	            printf ("column INITGUES does not exist in CRREJTAB\n");
+	            trlerror("column INITGUES does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegtt (tp, colptr, row, par->initial, STIS_LINE);
@@ -172,7 +172,7 @@ float sigma[])
 	    if (newpar[SCALENSE] == 0) {
 	        c_tbcfnd1 (tp, "scalense", &colptr);
 	        if (colptr == 0) {
-	            printf ("column SCALENSE does not exist in CRREJTAB\n");
+	            trlerror("column SCALENSE does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegtr (tp, colptr, row, &par->scalenoise);
@@ -181,7 +181,7 @@ float sigma[])
 	    if (newpar[BADINPDQ] == 0) {
 	        c_tbcfnd1 (tp, "badinpdq", &colptr);
 	        if (colptr == 0) {
-	            printf ("column BADINPDQ does not exist in CRREJTAB\n");
+	            trlerror("column BADINPDQ does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegts (tp, colptr, row, &par->badbits);
@@ -190,7 +190,7 @@ float sigma[])
 	    if (newpar[CRMASK] == 0) {
 	        c_tbcfnd1 (tp, "crmask", &colptr);
 	        if (colptr == 0) {
-	            printf ("column CRMASK does not exist in CRREJTAB\n");
+	            trlerror("column CRMASK does not exist in CRREJTAB\n");
 	            return (2);
 	        }
 	        c_tbegti (tp, colptr, row, &par->mask);
@@ -204,11 +204,11 @@ float sigma[])
 	/* parse the sigmas string into numbers */
         *niter = strtor (par->sigmas, sigma);
         if (*niter > MAX_ITER) {
-            printf ("max number of iterations is exceeded\n");
+            trlmessage("max number of iterations is exceeded\n");
 	    return (2);
 	}
         if (*niter <= 0) {
-            printf ("number of iterations is zero\n");
+            trlmessage("number of iterations is zero\n");
 	    return (2);
 	}
 
@@ -218,17 +218,17 @@ float sigma[])
 
 	/* print out which parameter are used */
 	if (par->verbose) {
-	    printf ("\n number of imsets = %d\n", nimgs);
-	    printf (" ref table used: %s\n", par->tbname);
-	    printf (" initial guess method: %s\n", par->initial);
-	    printf (" total exposure time = %0.1f\n", exptot);
-	    printf (" sigmas used: %s\n", par->sigmas);
-	    printf (" sky subtraction used: %s\n", par->sky);
-	    printf (" rejection radius = %0.1f\n", par->rej);
-	    printf (" propagation threshold = %0.1f\n", par->psigma);
-	    printf (" scale noise = %0.1f%%\n", par->scalenoise);
-	    printf (" input bad bits value = %d\n", par->badbits);
-	    printf (" reset crmask = %d (1 = yes)\n\n", par->mask);
+	    trlmessage("\n number of imsets = %d\n", nimgs);
+	    trlmessage(" ref table used: %s\n", par->tbname);
+	    trlmessage(" initial guess method: %s\n", par->initial);
+	    trlmessage(" total exposure time = %0.1f\n", exptot);
+	    trlmessage(" sigmas used: %s\n", par->sigmas);
+	    trlmessage(" sky subtraction used: %s\n", par->sky);
+	    trlmessage(" rejection radius = %0.1f\n", par->rej);
+	    trlmessage(" propagation threshold = %0.1f\n", par->psigma);
+	    trlmessage(" scale noise = %0.1f%%\n", par->scalenoise);
+	    trlmessage(" input bad bits value = %d\n", par->badbits);
+	    trlmessage(" reset crmask = %d (1 = yes)\n\n", par->mask);
 	}
 
 	return (0);

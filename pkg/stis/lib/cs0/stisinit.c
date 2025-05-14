@@ -65,7 +65,7 @@ CalSwitch *wav_sw  o: all calibration switches (0 or 1) for wavecal
 	/* Get switches and reference file names for wavecal, if any. */
 	if (sts->sci_wavecorr == PERFORM) {
 	    if (sts->wavfile[0] == '\0') {
-		printf ("ERROR    WAVECORR = PERFORM, but WAVECAL is blank.\n");
+		trlerror("ERROR    WAVECORR = PERFORM, but WAVECAL is blank.\n");
 		return (OPEN_FAILED);
 	    }
 	    PrFileName ("wavecal", sts->wavfile);	/* print wavecal name */
@@ -93,9 +93,9 @@ CalSwitch *wav_sw  o: all calibration switches (0 or 1) for wavecal
 
 	if (missing > 0) {
 	    if (missing == 1)
-		printf ("ERROR    One reference file was missing.\n");
+		trlerror("ERROR    One reference file was missing.\n");
 	    else
-		printf ("ERROR    %d reference files were missing.\n", missing);
+		trlerror("ERROR    %d reference files were missing.\n", missing);
 	    return (CAL_FILE_MISSING);
 	}
 

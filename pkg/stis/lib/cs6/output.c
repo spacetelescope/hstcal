@@ -223,7 +223,7 @@ int *row_number         io: row where to write in output table
             return (1);
         }
 */
-            printf ("Warning  Empty spectrum.\n");
+            trlwarn("Warning  Empty spectrum.\n");
         }
 
         /* Increment row number. */
@@ -269,7 +269,7 @@ int *row_number         io: row where to write in output table
                   &(row->cc_offset), 1, 1);
 
         if (sts->verbose == 1 || sts->verbose == 2)
-            printf ("         Row %d written to disk.\n", *row_number);
+            trlmessage("         Row %d written to disk.\n", *row_number);
 
         return (0);
 }
@@ -369,7 +369,7 @@ int *row_number         io: row where to start writing in output table.
             c_tbaptr (table->tp, table->profcent, *row_number, profile_cent, 1,
                       asize_off);
 
-            printf ("         Row %d written to disk.\n", *row_number);
+            trlmessage("         Row %d written to disk.\n", *row_number);
         }
 
         free (profile);

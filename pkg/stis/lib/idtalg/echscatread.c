@@ -83,7 +83,7 @@ int verbose;            i: verbosity flag
             return (status);
         }
         if (verbose) {
-            printf ("Reading ECHSCTAB: %s\n", fname);
+            trlmessage("Reading ECHSCTAB: %s\n", fname);
             fflush (stdout);
         }
         if ((status = GetScatter (fname, scf)))
@@ -95,7 +95,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            printf ("Reading EXSTAB: %s\n", fname);
+            trlmessage("Reading EXSTAB: %s\n", fname);
             fflush (stdout);
         }
         if ((status = GetEchelleScatter (fname, scf)))
@@ -107,7 +107,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            printf ("Reading CDSTAB: %s\n", fname);
+            trlmessage("Reading CDSTAB: %s\n", fname);
             fflush (stdout);
         }
         if ((status = GetXDisp (fname, scf)))
@@ -119,7 +119,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            printf ("Reading RIPTAB: %s\n", fname);
+            trlmessage("Reading RIPTAB: %s\n", fname);
             fflush (stdout);
         }
         if ((status = GetRipple (phdr, fname, scf)))
@@ -131,7 +131,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            printf ("Reading SRWTAB: %s\n", fname);
+            trlmessage("Reading SRWTAB: %s\n", fname);
             fflush (stdout);
         }
 
@@ -144,7 +144,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            printf ("Reading HALOTAB: %s\n", fname);
+            trlmessage("Reading HALOTAB: %s\n", fname);
             fflush (stdout);
         }
         if ((status = GetHalo (fname, scf, &halo1, &halo2, &halo3)))
@@ -154,7 +154,7 @@ int verbose;            i: verbosity flag
                                 fname, STIS_LINE)))
             return (status);
         if (verbose) {
-            printf ("Reading TELTAB: %s\n", fname);
+            trlmessage("Reading TELTAB: %s\n", fname);
             fflush (stdout);
         }
         if ((status = GetPSF (fname, phdr, xsize, ysize, scf,
@@ -228,7 +228,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            printf ("ERROR    ECHSCTAB `%s' not found\n", name);
+            trlerror("ERROR    ECHSCTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -321,7 +321,7 @@ ScatterFunctions *scf;  o: data structure with reference wavelengths
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            printf ("ERROR    SRWTAB `%s' not found\n", name);
+            trlerror("ERROR    SRWTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -404,7 +404,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            printf ("ERROR    RIPTAB `%s' not found\n", name);
+            trlerror("ERROR    RIPTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         c_tbcfnd1 (tp, "OPT_ELEM",   &cp_optelem);
@@ -435,7 +435,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
                 (scf->nrp)++;
         }
         if (scf->nrp == 0) {
-            printf ("ERROR    No matching rows in RIPTAB `%s'\n", name);
+            trlerror("ERROR    No matching rows in RIPTAB `%s'\n", name);
             return (TABLE_ERROR);
         }
 
@@ -509,7 +509,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            printf ("ERROR    EXSTAB `%s' not found\n", name);
+            trlerror("ERROR    EXSTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -562,7 +562,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            printf ("ERROR    CDSTAB `%s' not found\n", name);
+            trlerror("ERROR    CDSTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -621,7 +621,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            printf ("ERROR    HALOTAB `%s' not found\n", name);
+            trlerror("ERROR    HALOTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -684,7 +684,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
         }
 
         if (k == 0) {
-            printf ("ERROR    No matching rows in HALOTAB `%s'\n", name);
+            trlerror("ERROR    No matching rows in HALOTAB `%s'\n", name);
             return (TABLE_ERROR);
         }
 
@@ -742,7 +742,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         else if (streq_ic (scf->opt_elem, "E230H"))
             xplate = 0.0466;
         else {
-            printf ("Non supported grating.\n");
+            trlmessage("Non supported grating.\n");
             return (ERROR_RETURN);
         }
         yplate = 0.029;
@@ -793,7 +793,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            printf ("ERROR    TELTAB `%s' not found\n", name);
+            trlerror("ERROR    TELTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -972,7 +972,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         }
 
         if (kk == 0) {
-            printf ("ERROR    No matching rows in TELTAB `%s'\n", name);
+            trlerror("ERROR    No matching rows in TELTAB `%s'\n", name);
             return (TABLE_ERROR);
         }
 
@@ -1170,12 +1170,12 @@ static int Debug (char *name, CmplxArray *z) {
             }
         }
 
-        printf ("Writing %s image.\n", name);
+        trlmessage("Writing %s image.\n", name);
 
         if (putSingleGroup (name, 1, &out, 0))
             return (OPEN_FAILED);
 
-        printf ("Done writing.\n");
+        trlmessage("Done writing.\n");
 
         return (STIS_OK);
 }

@@ -26,7 +26,7 @@ int verbose      i: true --> print message if aperture is modified
 		strcmptail (aperture, pseudo_ap[i]) != 0) {
 		strcat (aperture, pseudo_ap[i]);
 		if (verbose) {
-		    printf ("INFO     '%s' has been appended to aperture\n",
+		    trlmessage("INFO     '%s' has been appended to aperture\n",
 			pseudo_ap[i]);
 		}
 		break;

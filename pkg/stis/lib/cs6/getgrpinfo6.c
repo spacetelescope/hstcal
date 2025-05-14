@@ -55,7 +55,7 @@ Hdr *hdr        i: header of current IMSET
 	if ((status = Get_KeyI (hdr, "DISPAXIS", use_def, 1, &sts->dispaxis)))
 	    return (status);
 	if (sts->dispaxis < 1 || sts->dispaxis > 2) {
-	    printf ("ERROR    Dispaxis = %d is invalid\n", sts->dispaxis);
+	    trlerror("ERROR    Dispaxis = %d is invalid\n", sts->dispaxis);
 	    return (INVALID);
 	}
 
@@ -72,7 +72,7 @@ Hdr *hdr        i: header of current IMSET
 	if ((status = Get_KeyD (hdr, "EXPTIME", no_default, 0., &sts->exptime)))
 	    return (status);
 	if (sts->exptime < 0.) {
-	    printf ("ERROR    Exposure time is invalid:  %14.6g\n",
+	    trlerror("ERROR    Exposure time is invalid:  %14.6g\n",
 		sts->exptime);
 	    return (INVALID);
 	}

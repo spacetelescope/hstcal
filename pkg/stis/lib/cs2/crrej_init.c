@@ -43,7 +43,7 @@ int crrej_init (IODescPtr ipsci[], clpar *par, int nimgs, int dim_x, int dim_y,
 	npts = calloc (dim_x, sizeof(int));
 	buf = calloc (dim_x, sizeof(float));
 	if (npts == NULL || buf == NULL) {
-	    printf ("ERROR    out of memory in crrej_init\n");
+	    trlerror("ERROR    out of memory in crrej_init\n");
 	    return (2);
 	}
 
@@ -79,7 +79,7 @@ int crrej_init (IODescPtr ipsci[], clpar *par, int nimgs, int dim_x, int dim_y,
 	/* use the minimum to construct the initial average */
 	} else {
 	    if (strncmp(par->initial, "minimum", 3) != 0) {
-		printf ("Invalid INITGUES value %s, reset it to 'minimum'\n",
+		trlerror("Invalid INITGUES value %s, reset it to 'minimum'\n",
 			par->initial);
 		strcpy (par->initial, "minimum");
 	    }

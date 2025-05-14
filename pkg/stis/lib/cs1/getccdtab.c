@@ -113,7 +113,7 @@ StisInfo1 *sts     io: calibration switches, etc
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->ccdpar.goodPedigree == DUMMY_PEDIGREE)
-		    printf ("Warning  Row %d of CCDTAB is DUMMY.\n", row);
+		    trlwarn("Warning  Row %d of CCDTAB is DUMMY.\n", row);
 		sts->atodgain = tabrow.atodgain;
 		sts->ccdbias = tabrow.ccdbias;
 		sts->readnoise = tabrow.readnoise;
@@ -124,7 +124,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	}
 
 	if (!foundit) {
-	    printf ("ERROR    Matching row not found in CCDTAB `%s'.\n",
+	    trlerror("ERROR    Matching row not found in CCDTAB `%s'.\n",
 			sts->ccdpar.name);
 	    printf (
 		"ERROR    CCDAMP %s, CCDGAIN %d, CCDOFFST %d, BINAXIS %d,%d.\n",
@@ -149,7 +149,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    CCDTAB `%s' not found.\n", tname);
+	    trlerror("ERROR    CCDTAB `%s' not found.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -175,7 +175,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_bias == 0 ||
 	    tabinfo->cp_readnoise == 0 ||
 	    tabinfo->cp_saturate == 0) {
-	    printf ("ERROR    Column not found in CCDTAB.\n");
+	    trlerror("ERROR    Column not found in CCDTAB.\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}

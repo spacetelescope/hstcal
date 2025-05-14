@@ -58,14 +58,14 @@ SpTrace *input   i: a new record to be inserted into the list
 	int done = 0;
 
 	if (input->nelem > MAX_SP_TRACE) {
-	    printf ("ERROR    %d trace coefficients.\n",
+	    trlerror("ERROR    %d trace coefficients.\n",
 		input->nelem);
 	    return (TABLE_ERROR);
 	}
 
 	/* Allocate space for the new record, and copy input to new. */
 	if ((new = (SpTrace *) malloc (sizeof (SpTrace))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	CopyTrace (input, new);
@@ -184,7 +184,7 @@ SpTrace **output  o: the spectrum trace interpolated to a2center
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (SpTrace))) == NULL) {
-		printf ("ERROR    Can't allocate memory in InterpTrace.\n");
+		trlerror("ERROR    Can't allocate memory in InterpTrace.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	}
@@ -308,16 +308,16 @@ SpTrace **trace   i: identifies the first record in the list
 
 	current = *trace;
 	done = (current == NULL);
-	printf ("Beginning of trace list.\n");
+trlmessage("Beginning of trace list.\n");
 
 	while (!done) {
 
-	    printf ("%g  %g\n", current->a2center, current->a2displ[0]);
+	    trlmessage("%g  %g\n", current->a2center, current->a2displ[0]);
 	    current = current->next;
 	    if (current == NULL)
 		done = 1;
 	}
 
-	printf ("End of trace list.\n");
+trlmessage("End of trace list.\n");
 }
 

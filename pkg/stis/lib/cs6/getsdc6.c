@@ -119,7 +119,7 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
                        tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->distntab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("Warning  DUMMY pedigree in row %d of %s.\n",
 			row, sts->distntab.name);
 		    sts->x1d_o = DUMMY;
 		    CloseSDistTab (&tabinfo);
@@ -143,9 +143,9 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	/* Get the range of order numbers. */
 	if ((status = RangeCoord6 (coords, minorder, maxorder))) {
 	    if (status < 0) {
-		printf ("Warning  Matching row not found in SDCTAB %s; \\\n",
+		trlwarn("Warning  Matching row not found in SDCTAB %s; \\\n",
 				sts->distntab.name);
-		printf ("Warning  OPT_ELEM %s, CENWAVE %d.\n",
+		trlwarn("Warning  OPT_ELEM %s, CENWAVE %d.\n",
 		    sts->opt_elem, sts->cenwave);
 		sts->x1d_o = OMIT;
 	    } else {
@@ -167,7 +167,7 @@ static int OpenSDistTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    SDCTAB `%s' not found.\n", tname);
+	    trlerror("ERROR    SDCTAB `%s' not found.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -188,7 +188,7 @@ static int OpenSDistTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_cdelt2 == 0   || tabinfo->cp_npix == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in SDCTAB.\n");
+	    trlerror("ERROR    Column not found in SDCTAB.\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -231,7 +231,7 @@ static int ReadSDistArray (TblInfo *tabinfo, int row, CoordInfo **coords) {
 	int NewCoord6 (CoordInfo **, CoordInfo *);
 
 	if ((newrec = malloc (sizeof (CoordInfo))) == NULL) {
-	    printf ("ERROR    (GetSDC) can't allocate memory.\n");
+	    trlerror("ERROR    (GetSDC) can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	newrec->next = NULL;

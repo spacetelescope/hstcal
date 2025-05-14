@@ -91,7 +91,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 	max_files = countImsets (tpin);
 	if (max_files < 0)
 	    return 2;
-	printf ("Total number of input image sets = %d\n", max_files);
+trlmessage("Total number of input image sets = %d\n", max_files);
 
 	ipsci = calloc (max_files, sizeof(IODescPtr));
 	ipdq = calloc (max_files, sizeof(IODescPtr));
@@ -105,13 +105,13 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 	if (ipsci == NULL || ipdq == NULL || skyval == NULL ||
 	    efac == NULL || tfac == NULL || noise == NULL ||
 	    gain == NULL || grp == NULL || imgname == NULL) {
-	    printf ("ERROR    out of memory in crrej_do\n");
+	    trlerror("ERROR    out of memory in crrej_do\n");
 	    return 2;
 	}
 	for (n = 0;  n < max_files;  n++) {
 	    imgname[n] = calloc (STIS_FNAME+1, sizeof(char));
 	    if (imgname[n] == NULL) {
-		printf ("ERROR    out of memory in crrej_do\n");
+		trlerror("ERROR    out of memory in crrej_do\n");
 		return 2;
 	    }
 	}
@@ -155,7 +155,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 	efacsum = calloc (dim_x*dim_y, sizeof(float));
 	work    = calloc (nimgs*dim_x, sizeof(float));
 	if (efacsum == NULL || work == NULL) {
-	    printf ("ERROR    out of memory in crrej_do\n");
+	    trlerror("ERROR    out of memory in crrej_do\n");
 	    return (2);
 	}
 
@@ -164,7 +164,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 	    return (2);
 	if (par->verbose) {
 	    for (n = 0; n < nimgs; ++n)
-		printf ("sky of '%s[sci,%d]' is %0.3f DN\n", imgname[n],
+		trlmessage("sky of '%s[sci,%d]' is %0.3f DN\n", imgname[n],
 			grp[n], skyval[n]);
 	}
 
@@ -179,7 +179,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 
 	getSingleGroup (imgname[0], 1, &sg);
 	if (hstio_err()) {
-	    printf ("ERROR    %s\n", hstio_errmsg());
+	    trlerror("ERROR    %s\n", hstio_errmsg());
 	    return (2);
 	}
 	n = 0;
@@ -244,7 +244,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 
 	putSingleGroup (outfile, 1, &sg, 0);
 	if (hstio_err()) {
-	    printf ("ERROR    %s\n", hstio_errmsg());
+	    trlerror("ERROR    %s\n", hstio_errmsg());
 	    return (2);
 	}
 	freeSingleGroup (&sg);
@@ -297,7 +297,7 @@ static int countImsets (IRAFPointer tpin) {
 	    /* open the primary header */
 	    ip = openInputImage (fname, "", 0);
 	    if (hstio_err()) {
-		printf ("ERROR    HSTIO error %s\n", hstio_errmsg());
+		trlerror("ERROR    HSTIO error %s\n", hstio_errmsg());
 		return -1;
 	    }
 	

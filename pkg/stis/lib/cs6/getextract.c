@@ -161,9 +161,9 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	/* Get the range of order numbers. */
 	if ((status = RangeXtract (extract, minorder, maxorder))) {
 	    if (status < 0) {
-		printf ("ERROR    Matching row not found in XTRACTAB %s\n",
+		trlerror("ERROR    Matching row not found in XTRACTAB %s\n",
 				sts->xtrctab.name);
-		printf ("ERROR    APERTURE %s, OPT_ELEM %s, CENWAVE %d\n",
+		trlerror("ERROR    APERTURE %s, OPT_ELEM %s, CENWAVE %d\n",
 		    sts->aperture, sts->opt_elem, sts->cenwave);
 		return (ROW_NOT_FOUND);
 	    } else {
@@ -187,7 +187,7 @@ static int OpenXtractTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    XTRACTAB `%s' not found\n", tname);
+	    trlerror("ERROR    XTRACTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -232,7 +232,7 @@ static int OpenXtractTab (char *tname, TblInfo *tabinfo) {
             tabinfo->cp_xtracalg    == 0 ||
 	    tabinfo->cp_maxsearch   == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in XTRACTAB\n");
+	    trlerror("ERROR    Column not found in XTRACTAB\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -283,7 +283,7 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 	int NewXtract (XtractInfo **, XtractInfo *);
 
 	if ((newd = (XtractInfo *) malloc (sizeof (XtractInfo))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("ERROR    Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	newd->next = NULL;

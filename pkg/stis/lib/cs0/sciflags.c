@@ -331,13 +331,13 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 static void MAMASanity (int detector, char *calswitch) {
 
 	if (detector == CCD_DETECTOR)
-	    printf ("Warning  %s = PERFORM, but detector is CCD.\n",
+	    trlwarn("Warning  %s = PERFORM, but detector is CCD.\n",
 			calswitch);
 }
 
 static void CCDSanity (int detector, char *calswitch) {
 
 	if (detector != CCD_DETECTOR)
-	    printf ("Warning  %s = PERFORM, but detector is MAMA.\n",
+	    trlwarn("Warning  %s = PERFORM, but detector is MAMA.\n",
 			calswitch);
 }

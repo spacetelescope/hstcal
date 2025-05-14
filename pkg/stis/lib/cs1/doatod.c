@@ -205,7 +205,7 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    ATODTAB `%s' not found.\n", tname);
+	    trlerror("ERROR    ATODTAB `%s' not found.\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -224,7 +224,7 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_keyval == 0 ||
 	    tabinfo->cp_nelem == 0 ||
 	    tabinfo->cp_atod == 0) {
-	    printf ("ERROR    Column not found in ATODTAB.\n");
+	    trlerror("ERROR    Column not found in ATODTAB.\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
