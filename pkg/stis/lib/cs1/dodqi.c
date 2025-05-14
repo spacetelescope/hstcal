@@ -363,7 +363,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
 
 	    if ((status = ReadBpixTab (&tabinfo, row, &tabrow))) {
-		trlerror("ERROR    Error reading BPIXTAB.\n");
+		trlerror("Error reading BPIXTAB.\n");
 		return (status);
 	    }
 
@@ -445,7 +445,7 @@ static int OpenBpixTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_axis == 0 ||
 	    tabinfo->cp_flag == 0) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("ERROR    Column not found in BPIXTAB.\n");
+	    trlerror("Column not found in BPIXTAB.\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -463,7 +463,7 @@ static int OpenBpixTab (char *tname, TblInfo *tabinfo) {
 	tabinfo->axlen2 = c_tbhgti (tabinfo->tp, "SIZAXIS2");
 	if (c_iraferr()) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("ERROR    Couldn't get SIZAXIS2 from BPIXTAB header.\n");
+	    trlerror("Couldn't get SIZAXIS2 from BPIXTAB header.\n");
 	    return (TABLE_ERROR);
 	}
 
@@ -508,7 +508,7 @@ static int ReadBpixTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 	    return (TABLE_ERROR);
 
 	if (tabrow->axis !=1 && tabrow->axis != 2) {
-	    trlerror("ERROR    Axis = %d in BPIXTAB, but it must be 1 or 2.\n",
+	    trlerror("Axis = %d in BPIXTAB, but it must be 1 or 2.\n",
 			tabrow->axis);
 	    c_tbtclo (tabinfo->tp);
 	    return (TABLE_ERROR);

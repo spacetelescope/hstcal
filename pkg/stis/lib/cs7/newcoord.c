@@ -39,7 +39,7 @@ CoordInfo *input    i: a new record to be inserted into the list
 
 	/* Allocate space for the new record, and copy to memory. */
 	if ((newrec = malloc (sizeof (CoordInfo))) == NULL) {
-	    trlerror("ERROR    Can't allocate memory in NewCoord.\n");
+	    trlerror("Can't allocate memory in NewCoord.\n");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -111,7 +111,7 @@ CoordInfo **output   o: the record that matches sporder
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (CoordInfo))) == NULL) {
-		trlerror("ERROR    Can't allocate memory in ReturnCoord.\n");
+		trlerror("Can't allocate memory in ReturnCoord.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	}

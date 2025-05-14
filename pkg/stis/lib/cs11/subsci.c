@@ -162,7 +162,7 @@ StisInfo11 *scidata  i: info for science data
 	    UFilename (wavecal->output, wav.globalhdr);	/* update FILENAME */
 	    putSingleGroup (wavecal->output, extverWav, &wav, 0);
 	    if (hstio_err()) {
-		trlerror("ERROR    Couldn't write imset %d of %s.\n",
+		trlerror("Couldn't write imset %d of %s.\n",
 			extverWav, wavecal->output);
 		return (GENERIC_ERROR_CODE);
 	    }

@@ -422,7 +422,7 @@ int *missing    io: incremented if the file is missing
                 return (status);
             if (sts->sdstfile.exists != EXISTS_YES) {
                 (*missing)++;
-                trlerror("ERROR    SDSTFILE `%s' not found\n",
+                trlerror("SDSTFILE `%s' not found\n",
                         sts->sdstfile.name);
             }
             if (sts->sdstfile.goodPedigree != GOOD_PEDIGREE)

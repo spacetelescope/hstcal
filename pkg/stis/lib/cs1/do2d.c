@@ -226,7 +226,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 		}
 		putSingleGroup (sts->output, extver, x, option);
 		if (hstio_err()) {
-		    trlerror("ERROR    Couldn't write imset %d.\n", extver);
+		    trlerror("Couldn't write imset %d.\n", extver);
 		    return (IO_ERROR);
 		}
 		freeSingleGroup (x);
@@ -540,7 +540,7 @@ int ngood_extver   io: incremented unless the current imset has zero
 	}
 	putSingleGroup (sts->output, extver, x, option);
 	if (hstio_err()) {
-	    trlerror("ERROR    Couldn't write imset %d.\n", extver);
+	    trlerror("Couldn't write imset %d.\n", extver);
 	    return (IO_ERROR);
 	}
 	if (sts->printtime)

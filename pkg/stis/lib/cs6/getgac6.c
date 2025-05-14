@@ -141,7 +141,7 @@ static int OpenGacTab (StisInfo6 *sts, TblInfo *tabinfo) {
 	tabinfo->tp = c_tbtopn (sts->gactab.name, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
-	    trlerror("ERROR    GACTAB `%s' not found\n", sts->gactab.name);
+	    trlerror("GACTAB `%s' not found\n", sts->gactab.name);
 	    return (OPEN_FAILED);
 	}
 
@@ -160,7 +160,7 @@ static int OpenGacTab (StisInfo6 *sts, TblInfo *tabinfo) {
 	    tabinfo->cp_nelem    == 0 ||
 	    tabinfo->cp_wl       == 0 ||
 	    tabinfo->cp_thr      == 0) {
-	    trlerror("ERROR    Column not found in GACTAB\n");
+	    trlerror("Column not found in GACTAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -234,7 +234,7 @@ static int ReadGacData (TblInfo *tabinfo, int row, ApInfo *slit) {
 	    c_tbtclo (tabinfo->tp);
 	    free (slit->gac_wl);
 	    free (slit->gac_thr);
-	    trlerror("ERROR    Not all coefficients were read from GACTAB\n");
+	    trlerror("Not all coefficients were read from GACTAB\n");
 	    return (TABLE_ERROR);
 	}
 

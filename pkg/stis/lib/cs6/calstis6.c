@@ -131,7 +131,7 @@ int pipeline;		i: is calstis6 being run from the pipeline ?
 	if (GetSwitch (&phdr, "X2DCORR", &x2dcorr) == 0) {
 	    if (x2dcorr == COMPLETE) {
 	        freeHdr (&phdr);
-	        trlerror("ERROR    Input file was already rectified (x2d).\n");
+	        trlerror("Input file was already rectified (x2d).\n");
 	        return (ERROR_RETURN);
 	    }
 	}

@@ -170,7 +170,7 @@ static int OpenTraceTab (char *tname, TblInfo *tabinfo) {
         clear_cvoserr();
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    trlerror("ERROR    SPTRCTAB `%s' not found\n", tname);
+	    trlerror("SPTRCTAB `%s' not found\n", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -193,7 +193,7 @@ static int OpenTraceTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_nelem == 0   || tabinfo->cp_a2displ == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("ERROR    Column not found in SPTRCTAB\n");
+	    trlerror("Column not found in SPTRCTAB\n");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -250,7 +250,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo6* sts, SpTrace **
 	int NewTrace6 (SpTrace **, SpTrace *);
 
 	if ((newd = (SpTrace *) malloc (sizeof (SpTrace))) == NULL) {
-	    trlerror("ERROR    Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	newd->next = NULL;
@@ -261,7 +261,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo6* sts, SpTrace **
 
 	c_tbegti (tabinfo->tp, tabinfo->cp_nelem, row, &newd->nelem);
 	if (newd->nelem > MAX_SP_TRACE) {
-	    trlerror("ERROR    Spectrum trace in SPTRCTAB is too large.\n");
+	    trlerror("Spectrum trace in SPTRCTAB is too large.\n");
 	    return (TABLE_ERROR);
 	}
 	nelem = c_tbagtd (tabinfo->tp, tabinfo->cp_a2displ, row,
@@ -281,7 +281,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo6* sts, SpTrace **
 
 	if (nelem < newd->nelem) {
 	    c_tbtclo (tabinfo->tp);
-	    trlerror("ERROR    Not all elements were read from SPTRCTAB\n");
+	    trlerror("Not all elements were read from SPTRCTAB\n");
 	    return (TABLE_ERROR);
 	}
 

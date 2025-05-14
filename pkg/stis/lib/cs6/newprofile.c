@@ -45,13 +45,13 @@ ProfileArray *input   i: a new record to be inserted into the list
 
 	/* Allocate space for the new record, and copy input to new. */
 	if ((new = (ProfileArray *) malloc (sizeof (ProfileArray))) == NULL) {
-	    trlerror("ERROR    Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	new->profoff = (double *) malloc (input->nptsoff * sizeof (double));
 	new->prof    = (double *) malloc (input->npts    * sizeof (double));
 	if (new->profoff == NULL || new->prof == NULL) {
-	    trlerror("ERROR    Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.\n");
 	    return (OUT_OF_MEMORY);
 	}
 	CopyProfile (input, new);
@@ -202,7 +202,7 @@ double *offset;       o: offset corresponding to position X
 	if (*output == NULL) {
 	    if ((*output = (ProfileArray *) malloc (sizeof (ProfileArray))) == 
                             NULL) {
-		trlerror("ERROR    Can't allocate memory.\n");
+		trlerror("Can't allocate memory.\n");
 		return (OUT_OF_MEMORY);
 	    }
 	    (*output)->profoff = (double *) malloc (current->nptsoff * 
@@ -210,7 +210,7 @@ double *offset;       o: offset corresponding to position X
 	    (*output)->prof    = (double *) malloc (current->npts * 
                                  sizeof (double));
 	    if ((*output)->profoff == NULL || (*output)->prof == NULL) {
-	        trlerror("ERROR    Can't allocate memory.\n");
+	        trlerror("Can't allocate memory.\n");
 	        return (OUT_OF_MEMORY);
 	    }
 	}

@@ -580,6 +580,6 @@ static int getArgD (char **argv, int argc, int *ctoken, double *value) {
 
 static int syntax_error (char *msg) {
 
-trlerror("ERROR  Syntax error: %s\n", msg);
+printf("Syntax error: %s\n", msg);
 	return (1);
 }

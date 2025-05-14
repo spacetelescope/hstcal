@@ -228,7 +228,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ERROR    ECHSCTAB `%s' not found\n", name);
+            trlerror("ECHSCTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -321,7 +321,7 @@ ScatterFunctions *scf;  o: data structure with reference wavelengths
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ERROR    SRWTAB `%s' not found\n", name);
+            trlerror("SRWTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -404,7 +404,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ERROR    RIPTAB `%s' not found\n", name);
+            trlerror("RIPTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         c_tbcfnd1 (tp, "OPT_ELEM",   &cp_optelem);
@@ -435,7 +435,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
                 (scf->nrp)++;
         }
         if (scf->nrp == 0) {
-            trlerror("ERROR    No matching rows in RIPTAB `%s'\n", name);
+            trlerror("No matching rows in RIPTAB `%s'\n", name);
             return (TABLE_ERROR);
         }
 
@@ -509,7 +509,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ERROR    EXSTAB `%s' not found\n", name);
+            trlerror("EXSTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -562,7 +562,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ERROR    CDSTAB `%s' not found\n", name);
+            trlerror("CDSTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -621,7 +621,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ERROR    HALOTAB `%s' not found\n", name);
+            trlerror("HALOTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -684,7 +684,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
         }
 
         if (k == 0) {
-            trlerror("ERROR    No matching rows in HALOTAB `%s'\n", name);
+            trlerror("No matching rows in HALOTAB `%s'\n", name);
             return (TABLE_ERROR);
         }
 
@@ -793,7 +793,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
-            trlerror("ERROR    TELTAB `%s' not found\n", name);
+            trlerror("TELTAB `%s' not found\n", name);
             return (OPEN_FAILED);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -972,7 +972,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         }
 
         if (kk == 0) {
-            trlerror("ERROR    No matching rows in TELTAB `%s'\n", name);
+            trlerror("No matching rows in TELTAB `%s'\n", name);
             return (TABLE_ERROR);
         }
 

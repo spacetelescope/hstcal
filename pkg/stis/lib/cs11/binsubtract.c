@@ -77,7 +77,7 @@ int verbose         i: print info about first pixel and binning?
 
 	if (ltmW[0] <= 0. || ltmS[0] <= 0. ||
 	    ltmW[1] <= 0. || ltmS[1] <= 0.) {
-	    trlerror("ERROR    Can't handle LTM less than or equal to zero.\n");
+	    trlerror("Can't handle LTM less than or equal to zero.\n");
 	    return (GENERIC_ERROR_CODE);
 	}
 

@@ -402,7 +402,7 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	    if (response   <= 0.0 ||
 	        dispersion <= 0.0 ||
 	        throughput <= 0.0) {
-	        trlerror("Error in fflux file contents.\n");
+	        trlerror("in fflux file contents.\n");
 	        return (ERROR_RETURN);
 	    }
 

@@ -258,7 +258,7 @@ double *factor          o: NUV correction factor for dark image
 	}
 	if (read_this_row < 1) {
 	    c_tbtclo(tp);
-	    trlwarn("Warning:  No valid row found in TDCTAB %s\n",
+	    trlwarn("No valid row found in TDCTAB %s\n",
 	           sts->tdctab.name);
 	    *factor = 1.;
 	    return 0;

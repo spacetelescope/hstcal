@@ -32,7 +32,7 @@ double ltv[2]    o: MWCS linear transformation vector, one indexed
 	    return (status);
 
 	if (ltm[0] <= 0. || ltm[1] <= 0.) {
-	    trlerror("ERROR:  (LTM1_1, LTM2_2) = (%.8g, %.8g) is invalid\n",
+	    trlwarn("(LTM1_1, LTM2_2) = (%.8g, %.8g) is invalid\n",
                         ltm[0], ltm[1]);
 	    return (2030);
 	}

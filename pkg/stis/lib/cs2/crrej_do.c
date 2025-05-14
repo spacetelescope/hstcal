@@ -105,13 +105,13 @@ trlmessage("Total number of input image sets = %d\n", max_files);
 	if (ipsci == NULL || ipdq == NULL || skyval == NULL ||
 	    efac == NULL || tfac == NULL || noise == NULL ||
 	    gain == NULL || grp == NULL || imgname == NULL) {
-	    trlerror("ERROR    out of memory in crrej_do\n");
+	    trlerror("out of memory in crrej_do\n");
 	    return 2;
 	}
 	for (n = 0;  n < max_files;  n++) {
 	    imgname[n] = calloc (STIS_FNAME+1, sizeof(char));
 	    if (imgname[n] == NULL) {
-		trlerror("ERROR    out of memory in crrej_do\n");
+		trlerror("out of memory in crrej_do\n");
 		return 2;
 	    }
 	}
@@ -155,7 +155,7 @@ trlmessage("Total number of input image sets = %d\n", max_files);
 	efacsum = calloc (dim_x*dim_y, sizeof(float));
 	work    = calloc (nimgs*dim_x, sizeof(float));
 	if (efacsum == NULL || work == NULL) {
-	    trlerror("ERROR    out of memory in crrej_do\n");
+	    trlerror("out of memory in crrej_do\n");
 	    return (2);
 	}
 
@@ -179,7 +179,7 @@ trlmessage("Total number of input image sets = %d\n", max_files);
 
 	getSingleGroup (imgname[0], 1, &sg);
 	if (hstio_err()) {
-	    trlerror("ERROR    %s\n", hstio_errmsg());
+	    trlerror("%s\n", hstio_errmsg());
 	    return (2);
 	}
 	n = 0;
@@ -244,7 +244,7 @@ trlmessage("Total number of input image sets = %d\n", max_files);
 
 	putSingleGroup (outfile, 1, &sg, 0);
 	if (hstio_err()) {
-	    trlerror("ERROR    %s\n", hstio_errmsg());
+	    trlerror("%s\n", hstio_errmsg());
 	    return (2);
 	}
 	freeSingleGroup (&sg);
@@ -297,7 +297,7 @@ static int countImsets (IRAFPointer tpin) {
 	    /* open the primary header */
 	    ip = openInputImage (fname, "", 0);
 	    if (hstio_err()) {
-		trlerror("ERROR    HSTIO error %s\n", hstio_errmsg());
+		trlerror("HSTIO error %s\n", hstio_errmsg());
 		return -1;
 	    }
 	
