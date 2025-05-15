@@ -349,29 +349,31 @@ int ngood_extver   io: incremented unless the current imset has zero
 	if (sts->noisecorr == PERFORM) {
 		if ((status = doNoise (sts, x, &done)))
 			return (status);
-	    if (done) {
+		if (done) {
 			if (*ngood_extver == 1) {
-				if ((status = noiseHistory (x->globalhdr)))
-				return (status);
+				if ((status = noiseHistory(x->globalhdr)))
+					return (status);
 			}
 			snprintf(MsgText, sizeof(MsgText), "         Uncertainty array initialized");
 			if (sts->detector == CCD_DETECTOR) {
 				if (sts->err_init_bias > 0.) {
-					snprintf(MsgText + strlen(MsgText), sizeof(MsgText) - strlen(MsgText), ", readnoise=%.5g, gain=%.5g, bias=%.5g",
-					sts->readnoise, sts->atodgain, sts->err_init_bias);
+					snprintf(MsgText + strlen(MsgText), sizeof(MsgText) - strlen(MsgText),
+					         ", readnoise=%.5g, gain=%.5g, bias=%.5g",
+					         sts->readnoise, sts->atodgain, sts->err_init_bias);
 				} else {
-					snprintf(MsgText + strlen(MsgText), sizeof(MsgText) - strlen(MsgText), ", readnoise=%.5g, gain=%.5g",
-					sts->readnoise, sts->atodgain);
+					snprintf(MsgText + strlen(MsgText), sizeof(MsgText) - strlen(MsgText),
+					         ", readnoise=%.5g, gain=%.5g",
+					         sts->readnoise, sts->atodgain);
 				}
 			} else {
 				snprintf(MsgText + strlen(MsgText), sizeof(MsgText) - strlen(MsgText), ".");
 			}
 
-	    	trlmessage("%s", MsgText);
+			trlmessage("%s", MsgText);
 
 			if (sts->printtime)
-				TimeStamp ("Uncertainty array initialized", sts->rootname);
-	    }
+				TimeStamp("Uncertainty array initialized", sts->rootname);
+		}
 	}
 
 	/* Convert MAMA data from high-res to low-res.
