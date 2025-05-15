@@ -250,12 +250,11 @@ int main (int argc, char **argv) {
 
 	/* Loop over the list of input files. */
 	for (n = 0;  n < n_raw;  n++) {
-
 	    j = c_imtgetim (r_imt, rawfile, STIS_LINE);
 	    if (many_wavfiles)
-		j = c_imtgetim (w_imt, wavfile, STIS_LINE);
+			j = c_imtgetim (w_imt, wavfile, STIS_LINE);
 	    if (many_outroots)
-		j = c_imtgetim (o_imt, outroot, STIS_LINE);
+			j = c_imtgetim (o_imt, outroot, STIS_LINE);
 
 	    /* Calibrate the current input file. */
 	    status = 0;
