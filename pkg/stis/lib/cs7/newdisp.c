@@ -41,14 +41,14 @@ DispRelation *input  i: a new record to be inserted into the list
 	int done = 0;
 
 	if (input->ncoeff > MAX_DISP_COEFF) {
-	    printf ("ERROR    (NewDisp) %d dispersion coefficients.\n",
+	    trlerror("(NewDisp) %d dispersion coefficients.",
 		input->ncoeff);
 	    return (TABLE_ERROR);
 	}
 
 	/* Allocate space for the new record, and copy input to newrec. */
 	if ((newrec = malloc (sizeof (DispRelation))) == NULL) {
-	    printf ("ERROR    Can't allocate memory in NewDisp.\n");
+	    trlerror("Can't allocate memory in NewDisp.");
 	    return (OUT_OF_MEMORY);
 	}
 	CopyDisp (input, newrec);
@@ -120,14 +120,12 @@ DispRelation **disp  i: identifies the first record in the list
 
 	while (current != NULL) {
 	    if (current->a2center == previous->a2center) {
-		printf (
-	"ERROR    Duplicate values of A2CENTER=%.8g in DISPTAB.\n",
+		trlerror("Duplicate values of A2CENTER=%.8g in DISPTAB.",
 			current->a2center);
 		return (GENERIC_ERROR_CODE);
 	    }
 	    if (strcmp (current->ref_aper, previous->ref_aper) != 0) {
-		printf (
-	"ERROR    Different REF_APER values in different rows in DISPTAB.\n");
+		trlerror("Different REF_APER values in different rows in DISPTAB.");
 		return (GENERIC_ERROR_CODE);
 	    }
 	    previous = current;
@@ -190,7 +188,7 @@ DispRelation **output o: the dispersion relation interpolated to a2center
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (DispRelation))) == NULL) {
-		printf ("ERROR    Can't allocate memory in InterpDisp.\n");
+		trlerror("Can't allocate memory in InterpDisp.");
 		return (OUT_OF_MEMORY);
 	    }
 	}

@@ -108,7 +108,7 @@ InangInfo *iac     o: incidence-angle info
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (table->goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 			row, table->name);
 		    sts->x2dcorr_o = DUMMY;
 		    CloseIACTab (&tabinfo);
@@ -122,9 +122,9 @@ InangInfo *iac     o: incidence-angle info
 	}
 
 	if (!foundit) {
-	    printf ("Warning  Matching row not found in %s; \\\n",
+	    trlwarn("Matching row not found in %s;",
 			table->name);
-	    printf ("Warning  OPT_ELEM %s, SPORDER %d, CENWAVE %d.\n",
+	    trlwarn("OPT_ELEM %s, SPORDER %d, CENWAVE %d.",
 			sts->opt_elem, sporder, sts->cenwave);
 	    sts->x2dcorr_o = OMIT;
 	}
@@ -143,7 +143,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    Can't open `%s'.\n", tname);
+	    trlerror("Can't open `%s'.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -166,7 +166,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ncoeff2 == 0   || tabinfo->cp_coeff2 == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in %s.\n", tname);
+	    trlerror("Column not found in %s.", tname);
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -238,8 +238,7 @@ static int ReadIACArray (TblInfo *tabinfo, int row, InangInfo *iac) {
 		return (OUT_OF_MEMORY);
 	    c_tbtnam (tabinfo->tp, tname, STIS_LINE);
 	    c_tbtclo (tabinfo->tp);
-	    printf (
-	"ERROR    Not all coefficients were read from %s.\n", tname);
+	    trlerror("Not all coefficients were read from %s.", tname);
 	    free (tname);
 	    return (TABLE_ERROR);
 	}

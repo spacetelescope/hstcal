@@ -52,8 +52,7 @@ double dispersion;	i:  dispersion (used only when no reference values
 
 	    *bs = bshift;
 
-	    printf (
-	    "         Blaze shift of %g pixels applied to sensitivity curve.\n",
+	    trlmessage("         Blaze shift of %g pixels applied to sensitivity curve.",
 	     bshift);
 
 	} else if (blazeshift != NO_VALUE) {
@@ -67,8 +66,7 @@ double dispersion;	i:  dispersion (used only when no reference values
 
 	    *bs = blazeshift;
 
-	    printf (
-	    "         Blaze shift of %g pixels applied to sensitivity curve.\n",
+	    trlmessage("         Blaze shift of %g pixels applied to sensitivity curve.",
 	     blazeshift);
 	} 
 }

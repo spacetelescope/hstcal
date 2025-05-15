@@ -142,7 +142,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->phottab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 			row, sts->phottab.name);
 		    sts->x2dcorr_o = DUMMY;
 		    ClosePhotTab (&tabinfo);
@@ -162,13 +162,13 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	if (!foundit) {
 	    if (print) {
-	        printf ("Warning  Matching row not found in PHOTTAB %s; \\\n",
+	        trlwarn("Matching row not found in PHOTTAB %s;",
 			 sts->phottab.name);
 	        if (sts->obstype == SPECTROSCOPIC_TYPE) {
-		    printf ("Warning  OPT_ELEM %s, CENWAVE %d, SPORDER %d.\n",
+		    trlwarn("OPT_ELEM %s, CENWAVE %d, SPORDER %d.",
 			    sts->opt_elem, sts->cenwave, sporder);
 	        } else {
-		    printf ("Warning  OPT_ELEM %s\n", sts->opt_elem);
+		    trlwarn("OPT_ELEM %s", sts->opt_elem);
 	        }
 	        sts->x2dcorr_o = OMIT;
 	    } else
@@ -190,7 +190,7 @@ static int OpenPhotTab (StisInfo7 *sts, TblInfo *tabinfo, PhotInfo *phot,
 
 	tabinfo->tp = c_tbtopn (sts->phottab.name, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    PHOTTAB `%s' not found.\n", sts->phottab.name);
+	    trlerror("PHOTTAB `%s' not found.", sts->phottab.name);
 	    return (OPEN_FAILED);
 	}
 
@@ -205,7 +205,7 @@ static int OpenPhotTab (StisInfo7 *sts, TblInfo *tabinfo, PhotInfo *phot,
 	    tabinfo->cp_nelem == 0 ||
 	    tabinfo->cp_wl == 0 ||
 	    tabinfo->cp_thru == 0) {
-	    printf ("ERROR    Column not found in PHOTTAB.\n");
+	    trlerror("Column not found in PHOTTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -213,8 +213,7 @@ static int OpenPhotTab (StisInfo7 *sts, TblInfo *tabinfo, PhotInfo *phot,
 	    c_tbcfnd1 (tabinfo->tp, "CENWAVE", &tabinfo->cp_cenwave);
 	    c_tbcfnd1 (tabinfo->tp, "SPORDER", &tabinfo->cp_sporder);
 	    if (tabinfo->cp_cenwave == 0 || tabinfo->cp_sporder == 0) {
-		printf (
-	"ERROR    Column (CENWAVE or SPORDER) not found in PHOTTAB.\n");
+		trlerror("Column (CENWAVE or SPORDER) not found in PHOTTAB.");
 		c_tbtclo (tabinfo->tp);
 		return (COLUMN_NOT_FOUND);
 	    }
@@ -250,7 +249,7 @@ static int OpenPhotTab (StisInfo7 *sts, TblInfo *tabinfo, PhotInfo *phot,
 		phot->blazecorr = OMIT;
 
 		if (*warn)
-		    printf ("Warning  PHOTTAB does not "
+		    trlwarn("PHOTTAB does not "
 			    "contain blaze shift information.\n");
 		*warn = 0;
 	    }
@@ -326,7 +325,7 @@ static int ReadPhotData (TblInfo *tabinfo, int row, PhotInfo *phot) {
 	    c_tbtclo (tabinfo->tp);
 	    free (phot->wl);
 	    free (phot->thru);
-	    printf ("ERROR    Not all elements were read from PHOTTAB.\n");
+	    trlerror("Not all elements were read from PHOTTAB.");
 	    return (TABLE_ERROR);
 	}
 

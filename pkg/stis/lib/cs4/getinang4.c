@@ -98,7 +98,7 @@ double angle         i: incidence angle
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->inangtab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 			row, sts->inangtab.name);
 		}
 
@@ -114,9 +114,9 @@ double angle         i: incidence angle
 	}
 
 	if (!foundit) {
-	    printf ("Matching row not found in INANGTAB %s;\n",
+	    trlerror("Matching row not found in INANGTAB %s;",
 			sts->inangtab.name);
-	    printf ("  OPT_ELEM %s, CENWAVE %d.\n",
+	    trlmessage("  OPT_ELEM %s, CENWAVE %d.",
 			sts->opt_elem, sts->cenwave);
 	    return (TABLE_ERROR);
 	}
@@ -137,7 +137,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("Can't open `%s'.\n", tname);
+	    trlerror("Can't open `%s'.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -158,7 +158,7 @@ static int OpenIACTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ncoeff2 == 0   || tabinfo->cp_coeff2 == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("Column not found in %s.\n", tname);
+	    trlerror("Column not found in %s.", tname);
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -226,8 +226,7 @@ static int ReadIACArray (TblInfo *tabinfo, int row, InangInfo *iac) {
 		return (OUT_OF_MEMORY);
 	    c_tbtnam (tabinfo->tp, tname, STIS_FNAME);
 	    c_tbtclo (tabinfo->tp);
-	    printf (
-	"Not all coefficients were read from %s.\n", tname);
+	    trlerror("Not all coefficients were read from %s.", tname);
 	    free (tname);
 	    return (TABLE_ERROR);
 	}
@@ -263,8 +262,7 @@ InangInfo *iac        i: incidence-angle correction coefficients
 
 	if (disp->ncoeff < iac->ncoeff1) {
 	    ncoeff = disp->ncoeff;
-	    printf (
-	"Warning  %d dispersion coefficients, but %d incidence-angle coeff.\n",
+	    trlwarn("%d dispersion coefficients, but %d incidence-angle coeff.",
 			disp->ncoeff, iac->ncoeff1);
 	} else {
 	    ncoeff = iac->ncoeff1;
@@ -282,11 +280,9 @@ InangInfo *iac        i: incidence-angle correction coefficients
 	    disp->coeff[0] += iac->coeff2[1] * angle * angle;
 
 	if (iac->ncoeff2 > 2) {
-	    printf (
-	"Warning  %d incidence-angle second coefficents, limit is 2;\n",
+	    trlwarn("%d incidence-angle second coefficents, limit is 2;",
 			iac->ncoeff2);
-	    printf (
-	"  the remaining coefficents will not be applied.\n");
+	    trlwarn("  the remaining coefficents will not be applied.");
 	}
 }
 

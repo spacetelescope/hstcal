@@ -10,6 +10,10 @@
 # include "hstcalerr.h"
 # include "cs2.h"
 
+#include "hstcal_memory.h"
+
+static struct TrlBuf trlbuf = {0};
+
 int main (int argc, char **argv) {
 
 	int status = 0;			/* zero is OK */
@@ -23,10 +27,24 @@ int main (int argc, char **argv) {
 
 	c_irafinit (argc, argv);
 
+	if (argc < 2) {
+		printf("ERROR    missing input file name\n");
+		exit(ERROR_RETURN);
+	}
+
 	if ((input = calloc (strlen(argv[1]) + 1, sizeof(char))) == NULL) {
-	    printf ("ERROR    out of memory in cs2.c\n");
+	    printf("ERROR    out of memory in cs2.c\n");
 	    exit (ERROR_RETURN);
 	}
+
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+	trlGitInfo();
+
 
 	/* Get input and output file names and switches in the command line. */
 	status = cs2_command (argc, argv, input, output, &par, newpar);
@@ -38,11 +56,13 @@ int main (int argc, char **argv) {
 
 	/* Reject cosmic rays. */
 	if ((status = CalStis2 (input, output, &par, newpar))) {
-	    printf ("Error processing %s.\n", input);
+	    printf("Error processing %s.\n", input);
 	}
 
 	if (input)
 	    free (input);
+
+	freeOnExit(&ptrReg);
 
 	if (status)
 	    exit (ERROR_RETURN);

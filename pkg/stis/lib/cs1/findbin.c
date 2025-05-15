@@ -123,8 +123,7 @@ int *x0, *y0      o: location of start of subimage in ref image
 	    yzero = cshift[1] / ref_bin[1];
 	    if (xzero * ref_bin[0] != cshift[0] ||
 		yzero * ref_bin[1] != cshift[1]) {
-		printf (
-		"Warning  Subimage offset not divisible by bin size.\n");
+		trlwarn("Subimage offset not divisible by bin size.");
 	    }
 	    *rx = ratiox;
 	    *ry = ratioy;

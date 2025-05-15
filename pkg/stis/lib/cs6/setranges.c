@@ -64,7 +64,7 @@ void SetRanges (StisInfo6 *sts, RowContents *row) {
 
 	        /* Check for valid range. */
                 if (index1 < 0 || index2 >= row->npts) {
-	            printf ("Warning  Invalid wavelength range.\n");
+	            trlwarn("Invalid wavelength range.");
 	            continue;
 	        }
 

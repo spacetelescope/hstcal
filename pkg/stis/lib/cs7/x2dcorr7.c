@@ -165,7 +165,7 @@ SingleGroup *out           o: output data
 	if ((status = GetApOffset (sts, slit, disp->ref_aper, &delta)))
 	    return (status);
 	if (sts->verbose)
-	    printf ("         Delta = %.6g arcsec.\n", delta);
+	    trlmessage("         Delta = %.6g arcsec.", delta);
 
         /* Calculate slit angle correction.
            This is the difference in the tangents of the slit angle
@@ -179,7 +179,7 @@ SingleGroup *out           o: output data
 	    return (status);
 
 	if (sts->verbose && sts->trace_rotation != 0.)
-           printf ("         trace was rotated by = %.6g degree.\n",
+           trlmessage("         trace was rotated by = %.6g degree.",
                        sts->trace_rotation);
 
 	/* Get incidence-angle correction coefficients. */
@@ -202,7 +202,7 @@ SingleGroup *out           o: output data
                                          in->sci.data.nx, in->sci.data.ny))) {
 		if (status > 0)			/* a real error */
 		    return (status);
-		printf ("Info     Spectral order %d is outside the image.\n",
+		trlmessage("Info     Spectral order %d is outside the image.",
 			coord_o->sporder);
 		return (-1);
 	    }
@@ -255,7 +255,7 @@ SingleGroup *out           o: output data
 /* add small-scale geo */
 		if (sts->sgeocorr == PERFORM) {
 		    SgeoMsg (sts, o_extver);
-		    printf ("Warning  SGEOCORR not implemented yet.\n");
+		    trlwarn("SGEOCORR not implemented yet.");
 		    PrSwitch ("sgeocorr", SKIPPED);
 		}
 
@@ -420,7 +420,7 @@ static void FreeInang (InangInfo *iac) {
 
 static void SgeoMsg (StisInfo7 *sts, int o_extver) {
 
-	printf ("\n");
+trlmessage("");
 	PrSwitch ("sgeocorr", PERFORM);
 
 	if (o_extver == 0) {

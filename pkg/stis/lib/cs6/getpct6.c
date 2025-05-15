@@ -124,9 +124,7 @@ int warn	i: warning message control
 		return (status);
 	    else {
 	        if (warn == WARN) {
-printf ("Warning  No PCTAB information in input file.\n");
-printf ("Warning  No extraction box photometric correction is used to\n");
-printf ("Warning  correct the flux-calibrated result.\n");
+	        	trlwarn("correct the flux-calibrated result.");
                 }
 		return (0);
 	    }
@@ -159,7 +157,7 @@ printf ("Warning  correct the flux-calibrated result.\n");
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->pctab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 		            row, sts->pctab.name);
 		    sts->pctcorr = DUMMY;
 		    if ((status = PCDummy (phot)))
@@ -191,18 +189,16 @@ printf ("Warning  correct the flux-calibrated result.\n");
 	    return (status);
 
 	if (foundit == -1) {
-	    printf ("Warning  No appropriate row found in PCTAB %s; \\\n",
+	    trlwarn("No appropriate row found in PCTAB %s;",
 			sts->pctab.name);
-	    printf ("Warning  APERTURE %s, CENWAVE %d, EXTRHEIGHT %d.\n",
+	    trlwarn("APERTURE %s, CENWAVE %d, EXTRHEIGHT %d.",
 		sts->aperture, sts->cenwave, tabinfo.maxhght);
 	    sts->pctcorr = OMIT;
 	    if ((status = PCDummy (phot)))
 		return (status);
 	} else if (foundit > 0) {
-	    printf
-            ("Warning  No exact extraction box height match in PCTAB.\n");
-	    printf
-            ("Warning  Using entry for height %d\n", foundit);
+	    trlwarn("No exact extraction box height match in PCTAB.");
+	    trlwarn("Using entry for height %d", foundit);
 	}
 
 	return (0);
@@ -216,7 +212,7 @@ static int OpenPCTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    PCTAB `%s' not found.\n", tname);
+	    trlerror("PCTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -237,7 +233,7 @@ static int OpenPCTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_nelem == 0 ||
 	    tabinfo->cp_wl == 0 ||
 	    tabinfo->cp_pc == 0) {
-	    printf ("ERROR    Column not found in PCTAB.\n");
+	    trlerror("Column not found in PCTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -317,7 +313,7 @@ static int ReadPCArray (TblInfo *tabinfo, int row, PhotInfo *phot) {
 
 	if (nret_wl < nelem || nret_pc < nelem) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Not all coefficients were read from PCTAB.\n");
+	    trlerror("Not all coefficients were read from PCTAB.");
 	    free (wl);
 	    free (pc);
 	    return (TABLE_ERROR);

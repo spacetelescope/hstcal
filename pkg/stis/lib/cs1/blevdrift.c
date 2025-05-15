@@ -101,14 +101,14 @@ int *driftcorr       o: true if correction can be applied
 	*driftcorr = 0;		/* initial value */
 
 	if (vx[1] <= vx[0] || vy[1] <= vy[0]) {
-	    printf ("Warning  (blevcorr) No virtual overscan region; \\\n");
-	    printf ("%s", nodriftcorr);
+	    trlwarn("(blevcorr) No virtual overscan region;");
+	    trlmessage("%s", nodriftcorr);
 	    DriftSet (0.);
 	    return (0);
 	}
 
 	if ((scratch = malloc ((vy[1]-vy[0]+1) * sizeof (double))) == NULL) {
-	    printf ("ERROR    Out of memory in BlevDrift.\n");
+	    trlerror("Out of memory in BlevDrift.");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -136,9 +136,8 @@ int *driftcorr       o: true if correction can be applied
 
 	/* Fit a curve to the values found. */
 	if (DriftFit()) {
-	    printf (
-	"Warning  (blevcorr) Singular fit to virtual overscan; \\\n");
-	    printf ("%s", nodriftcorr);
+	    trlwarn("(blevcorr) Singular fit to virtual overscan; ");
+	    trlmessage("%s", nodriftcorr);
 	    DriftSet (0.);
 	} else {
 	    *driftcorr = 1;
@@ -194,7 +193,7 @@ float blev_clip    i: criterion for clipping in virtual overscan region
 	nscratch = (vx[1]-vx[0]+1) * (vy[1]-vy[0]+1);
 	scratch = (double *)malloc (nscratch * sizeof (double));
 	if (scratch == NULL) {
-	    printf ("ERROR    Out of memory in BlevDrift.\n");
+	    trlerror("Out of memory in BlevDrift.");
 	    return (OUT_OF_MEMORY);
 	}
 	k = 0;

@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>		/* for calloc */
 # include <math.h>		/* for sin */
+# include "stis.h"
 # include "hstcalerr.h"
 
 # define PI    3.1415926535897932384626433
@@ -78,11 +79,11 @@ int *d0            o: index in ds corresponding to zero Doppler shift;
 	int i;
 
 	if (orbitper <= 0.) {
-	    printf ("ERROR    ORBITPER = %.6g.\n", orbitper);
+	    trlerror("ORBITPER = %.6g.", orbitper);
 	    return (GENERIC_ERROR_CODE);
 	}
 	if (doppmag <= 0.) {
-	    printf ("ERROR    DOPPMAG = %.6g.\n", doppmag);
+	    trlerror("DOPPMAG = %.6g.", doppmag);
 	    return (GENERIC_ERROR_CODE);
 	}
 

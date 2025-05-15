@@ -171,8 +171,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	*/
 	if (sts.ndarkscale > 0) {
 	    if (sts.ndarkscale != sts.nimages) {
-	        printf (
-"Warning: number of IMSETS = %d, number of darkscale entries = %d\n",
+	        trlwarn("number of IMSETS = %d, number of darkscale entries = %d",
                         sts.nimages, sts.ndarkscale);
 	        fflush (stdout);
 	    }
@@ -215,18 +214,18 @@ int CalStis1 (char *input, char *output, char *outblev,
 
 	ngood_extver = 0;
 	for (extver = 1;  extver <= sts.nimages;  extver++) {
-	    printf ("\n");
+	    trlmessage("");
 	    PrGrpBegin ("imset", extver);
 	    if ((status = Do2D (&sts, extver, &ngood_extver)) != 0)
 		return (status);
 	    PrGrpEnd ("imset", extver);
 	}
 	if (ngood_extver <= 0) {
-	    printf ("Warning  No good data were written to output.\n");
+	    trlwarn("No good data were written to output.");
 	    return (NOTHING_TO_DO);
 	}
 
-	printf ("\n");
+trlmessage("");
 	PrEnd (1);
 
 	if (sts.printtime)

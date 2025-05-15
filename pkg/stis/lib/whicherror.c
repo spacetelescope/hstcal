@@ -22,52 +22,50 @@ void WhichError (int status) {
 	    return;
 
 	if (hstio_err())
-	    printf ("         HSTIO error %d:  %s\n", status, hstio_errmsg());
+	    trlerror("         HSTIO error %d:  %s", status, hstio_errmsg());
 	else if (c_iraferr())
-	    printf (
-	"         IRAF error %d:  %s\n", c_iraferr(), c_iraferrmsg());
+	    trlerror("         IRAF error %d:  %s", c_iraferr(), c_iraferrmsg());
 
 	if (status == OUT_OF_MEMORY) {
-	    printf ("         Out of memory.\n");
+	    trlerror("         Out of memory.");
 
 	} else if (status == OPEN_FAILED) {
-	    printf ("         Open failed.\n");
+	    trlerror("         Open failed.");
 
 	} else if (status == CAL_FILE_MISSING) {
-	    printf ("         Calibration file(s) missing.\n");
+	    trlerror("         Calibration file(s) missing.");
 
 	} else if (status == NOTHING_TO_DO) {
-	    printf ("         No output from current processing step.\n");
+	    trlerror("         No output from current processing step.");
 
 	} else if (status == KEYWORD_MISSING) {
-	    printf ("         Required keyword missing.\n");
+	    trlerror("         Required keyword missing.");
 
 	} else if (status == ALLOCATION_PROBLEM) {
-	    printf ("         Allocation problem.\n");
+	    trlerror("         Allocation problem.");
 
 	} else if (status == HEADER_PROBLEM) {
-	    printf ("         Header problem.\n");
+	    trlerror("         Header problem.");
 
 	} else if (status == SIZE_MISMATCH) {
-	    printf ("         Size mismatch.\n");
+	    trlerror("         Size mismatch.");
 
 	} else if (status == TABLE_ERROR) {
-	    printf ("         Table error.\n");
+	    trlerror("         Table error.");
 
 	} else if (status == COLUMN_NOT_FOUND) {
-	    printf ("         Column not found.\n");
+	    trlerror("         Column not found.");
 
 	} else if (status == NO_GOOD_DATA) {
-	    printf ("         All data were flagged as bad.\n");
+	    trlerror("         All data were flagged as bad.");
 
 	} else if (status == REF_TOO_SMALL) {
-	    printf (
-	"         Reference image is binned more than science image.\n");
+	    trlerror("         Reference image is binned more than science image.");
 
 	} else if (status == INTERNAL_ERROR) {
-	    printf ("         Internal error.\n");
+	    trlerror("         Internal error.");
 
 	} else if (status < 0) {
-	    printf ("         Internal error; status = %d.\n", status);
+	    trlerror("         Internal error; status = %d.", status);
 	}
 }

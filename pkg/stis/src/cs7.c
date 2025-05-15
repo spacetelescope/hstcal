@@ -17,8 +17,8 @@
 static int CompareNumbers (int, int, char *);
 static void printSyntax(void)
 {
-    printf ("syntax:  cs7.e [-t] [-v] [-c] [-wgt_err] [-b blazeshift] [--version] [--gitinfo] input output\n");
-    printf ("  command-line switches:  -x2d -sgeo -hel -flux -stat\n");
+    printf("syntax:  cs7.e [-t] [-v] [-c] [-wgt_err] [-b blazeshift] [--version] [--gitinfo] input output\n");
+    printf("  command-line switches:  -x2d -sgeo -hel -flux -stat\n");
 }
 static void printHelp(void)
 {
@@ -60,6 +60,8 @@ static void printHelp(void)
    Phil Hodge, 2012 Feb 10:
 	Include command-line option '-r'.
 */
+
+static struct TrlBuf trlbuf = {0};
 
 int main (int argc, char **argv) {
 
@@ -110,7 +112,7 @@ int main (int argc, char **argv) {
 
 	if (inlist == NULL || outlist == NULL ||
 		input == NULL || output == NULL) {
-	    printf ("ERROR:  Can't even begin:  out of memory.\n");
+	    printf("ERROR:  Can't even begin:  out of memory.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
@@ -168,7 +170,7 @@ int main (int argc, char **argv) {
 	                if (i == argc-1)
 	                    break;
 		    } else {
-			printf ("ERROR:  Unrecognized option %s\n", argv[i]);
+			printf("ERROR:  Unrecognized option %s\n", argv[i]);
 			printSyntax();
 			freeOnExit(&ptrReg);
 			exit (1);
@@ -213,6 +215,11 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf ();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+	trlGitInfo();
+
 	/* Loop over the list of input files. */
 	for (n = 0;  n < n_in;  n++) {
 
@@ -226,7 +233,7 @@ int main (int argc, char **argv) {
 	    if ((status = MkOutName (input, isuffix, osuffix, nsuffix,
                                      output, STIS_LINE))) {
 		WhichError (status);
-		printf ("Skipping %s\n", input);
+		printf("Skipping %s\n", input);
 		continue;
 	    }
 
@@ -235,7 +242,7 @@ int main (int argc, char **argv) {
 			sgeocorr, helcorr, fluxcorr, statcorr,
 			&refnames, printtime, verbose, center_target,
                                     blazeshift, err_algorithm))) {
-		printf ("Error processing %s.\n", input);
+		printf("Error processing %s.\n", input);
 		WhichError (status);
 	    }
 	}
@@ -257,13 +264,13 @@ int main (int argc, char **argv) {
 static int CompareNumbers (int n_in, int n_out, char *str_out) {
 
 	if (n_out > 0 && n_out != n_in) {
-	    printf ("You specified %d input file", n_in);
+	    printf("You specified %d input file", n_in);
 	    if (n_in > 1)
-		printf ("s");
-	    printf (" but %d %s file", n_out, str_out);
+		printf("s");
+	    printf(" but %d %s file", n_out, str_out);
 	    if (n_out > 1)
-		printf ("s");
-	    printf (".\n");
+		printf("s");
+	    printf(".\n");
 	    return (1);
 	}
 

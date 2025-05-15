@@ -472,9 +472,9 @@ int SmoothBack (StisInfo6 *sts, RowContents *row_contents) {
 	                               sts->avoid1a, sts->avoid2a,
 	                               sts->avoid1b, sts->avoid2b);
 	    if (status < 0 && sts->detector == FUV_MAMA_DETECTOR) {
-		printf ("Warning  There was not enough background data" \
+		trlwarn("There was not enough background data" \
 			" to fit a polynomial, probably due\n");
-		printf ("Warning  to the use of a large aperture;" \
+		trlwarn("to the use of a large aperture;" \
 			" background smoothing will not be done.\n");
 		sts->bks_mode = BKS_OFF;
 		return 0;

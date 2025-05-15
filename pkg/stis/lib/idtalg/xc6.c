@@ -201,13 +201,13 @@ static int CDebug (char *name, CmplxArray *z) {
 	    }
 	}
 
-	printf ("Writing %s image.\n", name);
+trlmessage("Writing %s image.", name);
 
 	if (putSingleGroup (name, 1, &out, 0))
 	    return (OPEN_FAILED);
 	freeSingleGroup (&out);
 
-	printf ("Done writing.\n");
+trlmessage("Done writing.");
 
 	return (STIS_OK);
 }

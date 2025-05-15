@@ -209,7 +209,7 @@ int i0, j0          i: center pixel of region to flag
 	int i, j;
 
 	if (i0 < 0 || i0 >= x->dq.data.nx || j0 < 0 || j0 >= x->dq.data.ny) {
-	    printf ("Warning  (ExpandDQ) (%d,%d) is out of range.\n", i0, j0);
+	    trlwarn("(ExpandDQ) (%d,%d) is out of range.", i0, j0);
 	    return;
 	}
 

@@ -87,8 +87,8 @@ int GetFlags7 (StisInfo7 *sts, Hdr *phdr) {
 	if (missing) {
 	    return (CAL_FILE_MISSING);
 	} else if (nsteps < 1) {
-	    printf ("Warning  No calibration switch was set to PERFORM, \\\n");
-	    printf ("Warning  or all reference files had PEDIGREE = DUMMY.\n");
+	    trlwarn("No calibration switch was set to PERFORM,");
+	    trlwarn("or all reference files had PEDIGREE = DUMMY.");
 	    return (NOTHING_TO_DO);
 	} else {
 	    return (0);
@@ -197,10 +197,10 @@ int *nsteps     io: incremented if this step can be performed
 	if (sts->x2dcorr == PERFORM) {
 	    (*nsteps)++;
 	} else if (sts->x2dcorr == DUMMY) {
-	    printf ("Warning  Dummy reference file encountered.\n");
+	    trlwarn("Dummy reference file encountered.");
 	    return (NOTHING_TO_DO);
 	} else {
-	    printf ("Warning  X2DCORR not set to PERFORM.\n");
+	    trlwarn("X2DCORR not set to PERFORM.");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -237,7 +237,7 @@ int *nsteps     io: incremented if this step can be performed
 		return (status);
 	    if (sts->sdstfile.exists != EXISTS_YES) {
 		(*missing)++;
-		printf ("ERROR    SDSTFILE `%s' not found.\n",
+		trlerror("SDSTFILE `%s' not found.",
 			sts->sdstfile.name);
 	    }
 	    if (sts->sdstfile.goodPedigree != GOOD_PEDIGREE)
@@ -341,7 +341,7 @@ static int GetCheckRef (RefFileInfo *refnames, Hdr *phdr,
 
 static void MissingFile (char *keyword, char *filename, int *missing) {
 
-	printf ("ERROR    %s `%s' not found or can't open.\n",
+trlerror("%s `%s' not found or can't open.",
 				keyword, filename);
 	(*missing)++;
 }

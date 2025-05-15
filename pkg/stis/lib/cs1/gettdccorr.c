@@ -90,7 +90,7 @@ double *factor          o: NUV correction factor for dark image
 
 	tp = c_tbtopn(sts->tdctab.name, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf("ERROR    Can't open TDCTAB `%s'.\n", sts->tdctab.name);
+	    trlerror("Can't open TDCTAB `%s'.", sts->tdctab.name);
 	    return OPEN_FAILED;
 	}
 
@@ -121,7 +121,7 @@ double *factor          o: NUV correction factor for dark image
 	} else if (tbl_type == ORIG_TDC_FORMAT) {
 	    status = origTdcCorr(sts, factor);
 	} else {
-	    printf("ERROR    TDCTAB `%s' is not a recognized format.\n",
+	    trlerror("TDCTAB `%s' is not a recognized format.",
 		sts->tdctab.name);
 	    return OPEN_FAILED;
 	}
@@ -193,12 +193,12 @@ double *factor          o: NUV correction factor for dark image
 
 	tp = c_tbtopn(sts->tdctab.name, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf("ERROR    Can't open TDCTAB `%s'.\n", sts->tdctab.name);
+	    trlerror("Can't open TDCTAB `%s'.", sts->tdctab.name);
 	    return OPEN_FAILED;
 	}
 	nrows = c_tbpsta(tp, TBL_NROWS);
 	if (nrows < 1) {
-	    printf("ERROR    TDCTAB %s is empty.\n", sts->tdctab.name);
+	    trlerror("TDCTAB %s is empty.", sts->tdctab.name);
 	    c_tbtclo(tp);
 	    return TABLE_ERROR;
 	}
@@ -217,7 +217,7 @@ double *factor          o: NUV correction factor for dark image
 	    cp_a1 == 0 || cp_d1 == 0 ||
 	    cp_a2 == 0 || cp_d2 == 0 ||
 	    cp_ta == 0 || cp_tb == 0 || cp_tc == 0) {
-	    printf("ERROR    Column not found in TDCTAB.\n");
+	    trlerror("Column not found in TDCTAB.");
 	    c_tbtclo(tp);
 	    return COLUMN_NOT_FOUND;
 	}
@@ -235,7 +235,7 @@ double *factor          o: NUV correction factor for dark image
 		min_date0 = date0;
 	}
 	if (sts->expstart < min_date0) {
-	    printf("ERROR    Exposure start time precedes earliest date "
+	    trlerror("Exposure start time precedes earliest date "
 	           "in TDCTAB.\n");
 	    c_tbtclo(tp);
 	    return TABLE_ERROR;
@@ -258,7 +258,7 @@ double *factor          o: NUV correction factor for dark image
 	}
 	if (read_this_row < 1) {
 	    c_tbtclo(tp);
-	    printf("Warning:  No valid row found in TDCTAB %s\n",
+	    trlwarn("No valid row found in TDCTAB %s",
 	           sts->tdctab.name);
 	    *factor = 1.;
 	    return 0;
@@ -328,11 +328,11 @@ double *factor          o: NUV correction factor for dark image
 	                  tc * d_temp * d_temp;
 
 	if (count_rate > 100.) {
-	    printf("Warning  TDC dark count rate = %.6g\n", count_rate);
+	    trlwarn("TDC dark count rate = %.6g", count_rate);
 	}
 	*factor = count_rate / mean_dark;
 	if (fabs(*factor) > 100. || fabs(*factor) < 0.01) {
-	    printf("Warning  TDC correction factor = %.6g.\n", *factor);
+	    trlwarn("TDC correction factor = %.6g.", *factor);
 	}
 
 	return 0;
@@ -412,7 +412,7 @@ double *factor          o: NUV correction factor for dark image
                     tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		return status;
 	    if (sts->tdctab.goodPedigree == DUMMY_PEDIGREE)
-		printf ("Warning  Row %d of TDCTAB is DUMMY.\n", row);
+		trlwarn("Row %d of TDCTAB is DUMMY.", row);
 
 	    mjd[row-1]      = tabrow.mjd;
 	    scale[row-1]    = tabrow.scale;
@@ -451,7 +451,7 @@ static int OpenTdcTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    TDCTAB `%s' not found.\n", tname);
+	    trlerror("TDCTAB `%s' not found.", tname);
 	    return OPEN_FAILED;
 	}
 
@@ -469,7 +469,7 @@ static int OpenTdcTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_norm == 0 ||
 	    tabinfo->cp_tmin == 0 ||
 	    tabinfo->cp_thermcst == 0) {
-	    printf ("ERROR    Column not found in TDCTAB.\n");
+	    trlerror("Column not found in TDCTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return COLUMN_NOT_FOUND;
 	}

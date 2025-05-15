@@ -71,7 +71,7 @@ SingleGroup *in    io: input data (DQ array can be modified)
 
 	if (sci == NULL || illum == NULL || masked == NULL ||
 		absdiff == NULL || dq == NULL) {
-	    printf ("ERROR    (FlagCR) can't allocate memory.\n");
+	    trlerror("(FlagCR) can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -305,7 +305,7 @@ static void SaveDQ (SingleGroup *in, char *dbgfile, int extver) {
 	int option = 0;
 
 	if ((dqname = malloc ((STIS_LINE+1) * sizeof(char))) == NULL) {
-	    printf ("Warning  Out of memory in SaveDQ (debug option).\n");
+	    trlwarn("Out of memory in SaveDQ (debug option).");
 	    return;
 	}
 	/* Construct FITS file name. */
@@ -315,9 +315,8 @@ static void SaveDQ (SingleGroup *in, char *dbgfile, int extver) {
 	/* Write the DQ extension to the debug FITS file. */
 	putDQ (dqname, extver, &(in->dq), option);
 	if (hstio_err()) {
-	    printf (
-	"Warning  SaveDQ couldn't write DQ extension (debug option); \\\n");
-	    printf ("Warning  %s\n", hstio_errmsg());
+	    trlwarn("SaveDQ couldn't write DQ extension (debug option); ");
+	    trlwarn("%s", hstio_errmsg());
 	    clear_hstioerr();
 	}
 

@@ -123,7 +123,7 @@ LampInfo *lamp    o: spectrum of calibration lamp
 		if (sts->lamptab.goodPedigree == DUMMY_PEDIGREE) {
 		    sts->wavecorr = DUMMY;
 		    CloseLampTab (&tabinfo);
-		    printf ("Warning  LAMPTAB has PEDIGREE = DUMMY.\n");
+		    trlwarn("LAMPTAB has PEDIGREE = DUMMY.");
 		    return (NOTHING_TO_DO);
 		}
 
@@ -139,7 +139,7 @@ LampInfo *lamp    o: spectrum of calibration lamp
 	    return (status);
 
 	if (!foundit) {
-	    printf ("ERROR    LAMP %s, LAMPSET %s not found in %s.\n",
+	    trlerror("LAMP %s, LAMPSET %s not found in %s.",
 		sts->sclamp, sts->lampset, sts->lamptab.name);
 	    return (GENERIC_ERROR_CODE);
 	}
@@ -155,7 +155,7 @@ static int OpenLampTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    LAMPTAB `%s' not found.\n", tname);
+	    trlerror("LAMPTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -170,7 +170,7 @@ static int OpenLampTab (char *tname, TblInfo *tabinfo) {
 	if (tabinfo->cp_lampset == 0 ||
 	    tabinfo->cp_nelem == 0 ||
 	    tabinfo->cp_wl == 0 || tabinfo->cp_flux == 0) {
-	    printf ("ERROR    Column not found in LAMPTAB.\n");
+	    trlerror("Column not found in LAMPTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -249,7 +249,7 @@ static int ReadLampArray (TblInfo *tabinfo, int row, LampInfo *lamp) {
 
 	if (nwl < lamp->nelem || nflux < lamp->nelem) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Not all elements were read from LAMPTAB.\n");
+	    trlerror("Not all elements were read from LAMPTAB.");
 	    return (TABLE_ERROR);
 	}
 

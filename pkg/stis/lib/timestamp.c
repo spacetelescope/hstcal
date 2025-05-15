@@ -30,7 +30,7 @@ char *rootname  i: root name to include in printed string
 	time_t *tp, now;
 
 	if ((timestring = malloc (SZ_TIMESTRING * sizeof (char))) == NULL) {
-	    printf ("Warning  (TimeStamp) Out of memory.\n");
+	    trlwarn("(TimeStamp) Out of memory.");
 	    return;
 	}
 
@@ -38,7 +38,7 @@ char *rootname  i: root name to include in printed string
 	if (lenrootname > 0) {
 	    uc_rootname = malloc ((lenrootname+1) * sizeof (char));
 	    if (uc_rootname == NULL) {
-		printf ("Warning  (TimeStamp) Out of memory.\n");
+		trlwarn("(TimeStamp) Out of memory.");
 		return;
 	    }
 	    strcpy (uc_rootname, rootname);
@@ -64,7 +64,7 @@ char *rootname  i: root name to include in printed string
 	    timestring[i] = '-';
 	timestring[SZ_EIGHTY] = '\0';
 
-	printf ("%s\n", timestring);
+trlmessage("%s", timestring);
 
 	if (lenrootname > 0)
 	    free (uc_rootname);

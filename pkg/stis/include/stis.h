@@ -2,6 +2,7 @@
 #define INCL_STIS_H
 
 # include <float.h>
+# include "trlbuf.h"
 
 /* stis.h generic header for calstis */
 

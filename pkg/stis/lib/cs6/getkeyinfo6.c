@@ -80,8 +80,7 @@ Hdr *phdr       i: primary header
 	/* Convert number of extensions to number of SingleGroups. */
 	sts->nimages = nextend / EXT_PER_GROUP;
 	if (nextend != sts->nimages * EXT_PER_GROUP) {
-	    printf (
-            "ERROR    NEXTEND must be a multiple of %d\n", EXT_PER_GROUP);
+	    trlerror("NEXTEND must be a multiple of %d", EXT_PER_GROUP);
 	    return (HEADER_PROBLEM);
 	}
 

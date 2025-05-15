@@ -124,9 +124,9 @@ char *ref_aper       o: name of aperture used to measure dispersion relation
 	}
 
 	if (best_row < 1) {
-	    printf ("Matching row not found in DISPTAB %s:\n",
+	    trlerror("Matching row not found in DISPTAB %s:",
 				sts->disptab.name);
-	    printf ("    OPT_ELEM %s, CENWAVE %d\n",
+	    trlmessage("    OPT_ELEM %s, CENWAVE %d",
 			sts->opt_elem, sts->cenwave);
 	    return (TABLE_ERROR);
 	}
@@ -140,7 +140,7 @@ char *ref_aper       o: name of aperture used to measure dispersion relation
                 tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 	    return (status);
 	if (sts->disptab.goodPedigree == DUMMY_PEDIGREE) {
-	    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+	    trlwarn("DUMMY pedigree in row %d of %s.",
 		best_row, sts->disptab.name);
 	}
 
@@ -158,7 +158,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("DISPTAB `%s' not found.\n", tname);
+	    trlerror("DISPTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -185,7 +185,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_ref_aper == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("Column not found in DISPTAB.\n");
+	    trlerror("Column not found in DISPTAB.");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -195,7 +195,7 @@ static int OpenDSPTab (char *tname, TblInfo *tabinfo) {
 
 	if (tabinfo->cp_mref == 0 || tabinfo->cp_yref == 0 ||
 	    tabinfo->cp_a4corr == 0) {
-	    printf ("Warning  A4CORR not found.\n");
+	    trlwarn("A4CORR not found.");
 	    tabinfo->cp_a4corr = 0;	/* so we can test on just one value */
 	}
 
@@ -243,7 +243,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row,
 	/* Number of coefficients in dispersion relation. */
 	c_tbegti (tabinfo->tp, tabinfo->cp_ncoeff, row, &disp->ncoeff);
 	if (disp->ncoeff > MAX_DISP_COEFF) {
-	    printf ("Too many dispersion coefficients %d in DISPTAB.\n",
+	    trlmessage("Too many dispersion coefficients %d in DISPTAB.",
 		disp->ncoeff);
 	    return (TABLE_ERROR);
 	}
@@ -256,7 +256,7 @@ static int ReadDSPArray (TblInfo *tabinfo, int row,
 
 	if (ncoeff < disp->ncoeff) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("Not all coefficients were read from DISPTAB.\n");
+	    trlmessage("Not all coefficients were read from DISPTAB.");
 	    return (TABLE_ERROR);
 	}
 

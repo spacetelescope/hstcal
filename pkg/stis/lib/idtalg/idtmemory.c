@@ -23,13 +23,13 @@ float **Alloc2DArrayF (int x, int y) {
 
 	array = (float **) malloc (y * sizeof (float *));
 	if (array == NULL) {
-            printf ("Not enough memory to allocate array.\n");
+            trlerror("Not enough memory to allocate array.");
 	    return (NULL);
 	}
 	for (i = 0; i < y; i++) {
 	    array[i] = (float *) calloc (x, sizeof (float));
 	    if (array[i] == NULL) {
-                printf ("Not enough memory to allocate array.\n");
+                trlerror("Not enough memory to allocate array.");
 	        return (NULL);
 	    }
 	}
@@ -53,13 +53,13 @@ double **Alloc2DArrayD (int x, int y) {
 
 	array = (double **) malloc (y * sizeof (double *));
 	if (array == NULL) {
-            printf ("Not enough memory to allocate array.\n");
+            trlerror("Not enough memory to allocate array.");
 	    return (NULL);
 	}
 	for (i = 0; i < y; i++) {
 	    array[i] = (double *) calloc (x, sizeof (double));
 	    if (array[i] == NULL) {
-                printf ("Not enough memory to allocate array.\n");
+                trlerror("Not enough memory to allocate array.");
 	        return (NULL);
 	    }
 	}

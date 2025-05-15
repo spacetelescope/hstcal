@@ -90,7 +90,7 @@ double *angle    o: incidence angle, in arcseconds
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->apdestab.goodPedigree == DUMMY_PEDIGREE)
-		    printf ("Warning  APDESTAB has PEDIGREE = DUMMY.\n");
+		    trlwarn("APDESTAB has PEDIGREE = DUMMY.");
 	    }
 
 	    if (SameString (tabrow.aperture, ref_aper)) {
@@ -106,10 +106,10 @@ double *angle    o: incidence angle, in arcseconds
 
 	if (!ap_found || !ref_found) {
 	    if (!ap_found)
-		printf ("APERTURE %s not found in APDESTAB.\n", sts->aperture);
+		trlmessage("APERTURE %s not found in APDESTAB.", sts->aperture);
 	    if (!ref_found)
-		printf ("REF_APER %s not found in APDESTAB.\n", ref_aper);
-	    printf ("  APDESTAB = %s\n", sts->apdestab.name);
+		trlmessage("REF_APER %s not found in APDESTAB.", ref_aper);
+	    trlmessage("  APDESTAB = %s", sts->apdestab.name);
 	    return (TABLE_ERROR);
 	}
 
@@ -126,7 +126,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("APDESTAB `%s' not found.\n", tname);
+	    trlmessage("APDESTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -136,7 +136,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 	c_tbcfnd1 (tabinfo->tp, "APERTURE", &tabinfo->cp_aperture);
 	c_tbcfnd1 (tabinfo->tp, "OFFSET1", &tabinfo->cp_offset);
 	if (tabinfo->cp_aperture == 0 || tabinfo->cp_offset == 0) {
-	    printf ("Column not found in APDESTAB.\n");
+	    trlmessage("Column not found in APDESTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}

@@ -39,7 +39,7 @@ CoordInfo *input    i: a new record to be inserted into the list
 
 	/* Allocate space for the new record, and copy to memory. */
 	if ((newrec = malloc (sizeof (CoordInfo))) == NULL) {
-	    printf ("ERROR    Can't allocate memory in NewCoord.\n");
+	    trlerror("Can't allocate memory in NewCoord.");
 	    return (OUT_OF_MEMORY);
 	}
 
@@ -111,7 +111,7 @@ CoordInfo **output   o: the record that matches sporder
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (CoordInfo))) == NULL) {
-		printf ("ERROR    Can't allocate memory in ReturnCoord.\n");
+		trlerror("Can't allocate memory in ReturnCoord.");
 		return (OUT_OF_MEMORY);
 	    }
 	}
@@ -162,13 +162,11 @@ int *minorder, *maxorder  o: minimum and maximum values of sporder
 
 	    if (current->sporder != previous->sporder + 1) {
 		if (current->sporder == previous->sporder) {
-		    printf (
-		"ERROR    Duplicate order number %d in SDC table.\n",
+		    trlerror("Duplicate order number %d in SDC table.",
 			current->sporder);
 		    return (GENERIC_ERROR_CODE);
 		} else {
-		    printf (
-		"ERROR    Order numbers in SDC table jump from %d to %d.\n",
+		    trlerror("Order numbers in SDC table jump from %d to %d.",
 		    previous->sporder, current->sporder);
 		    return (GENERIC_ERROR_CODE);
 		}

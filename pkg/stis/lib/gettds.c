@@ -133,9 +133,9 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	    return (status);
 
 	if (!foundit) {
-	    printf ("Warning  Matching row not found in TDSTAB %s\n", tabname);
-	    printf ("Warning  OPT_ELEM %s\n", opt_elem);
-	    printf ("Warning  Skipping TDS correction.\n");
+	    trlwarn("Matching row not found in TDSTAB %s", tabname);
+	    trlwarn("OPT_ELEM %s", opt_elem);
+	    trlwarn("Skipping TDS correction.");
 	    return (ROW_NOT_FOUND);
 	}
 
@@ -155,7 +155,7 @@ static int OpenTdsTab (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    TDSTAB `%s' not found\n", tname);
+	    trlerror("TDSTAB `%s' not found", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -187,7 +187,7 @@ static int OpenTdsTab (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 	    tabinfo->cp_slope == 0 ||
 	    tabinfo->cp_nwl   == 0 ||
 	    tabinfo->cp_nt    == 0) {
-	    printf ("ERROR    Column not found in TDSTAB\n");
+	    trlerror("Column not found in TDSTAB");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -198,10 +198,9 @@ static int OpenTdsTab (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
 	c_tbcfnd1 (tabinfo->tp, "REFTEMP",  &tabinfo->cp_reftemp);
 	c_tbcfnd1 (tabinfo->tp, "TEMPSENS", &tabinfo->cp_tempsens);
 	if (tabinfo->cp_reftemp == 0 ||tabinfo->cp_tempsens == 0) {
-	    printf ("Warning  Column REFTEMP or TEMPSENS not found in %s;\n",
+	    trlwarn("Column REFTEMP or TEMPSENS not found in %s;",
 			tname);
-	    printf (
-	"Warning  no temperature correction applied to sensitivity\n");
+	    trlwarn("no temperature correction applied to sensitivity");
 	}
 
 	/* Pedigree and descrip are optional columns. */
@@ -310,7 +309,7 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
 	if (nwl < tds->nwl || nt < tds->nt) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Not all values were read from TDSTAB\n");
+	    trlerror("Not all values were read from TDSTAB");
 	    return (TABLE_ERROR);
 	}
 
@@ -332,8 +331,7 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 		return (TABLE_ERROR);
 	    if (ntemp < tds->nwl) {
 		c_tbtclo (tabinfo->tp);
-		printf (
-		"ERROR    Not all TEMPSENS values were read from TDSTAB\n");
+		trlerror("Not all TEMPSENS values were read from TDSTAB");
 		return (TABLE_ERROR);
 	    }
 	}

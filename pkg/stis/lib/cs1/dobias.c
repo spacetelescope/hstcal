@@ -59,9 +59,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	if ((status = FindBin (sts, x, &y,
                 &same_size, &high_res, &rx, &ry, &x0, &y0))) {
 	    if (status == REF_TOO_SMALL && sts->wavecal) {
-		printf (
-	"Warning  BIASFILE is binned more than the input wavecal, \\\n");
-		printf ("Warning  so BIASCORR will not be performed.\n");
+		trlwarn("BIASFILE is binned more than the input wavecal, ");
+		trlwarn("so BIASCORR will not be performed.");
 		sts->biascorr = SKIPPED;	/* reset BIASCORR switch */
 		freeSingleGroup (&y);
 		return (0);
@@ -80,7 +79,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    if ((status = multk2d (&y, (float)(sts->ncombine))))
 		return (status);
 	    if ((status = sub2d (x, &y))) {
-		printf ("ERROR    (biascorr) size mismatch.\n");
+		trlerror("(biascorr) size mismatch.");
 		return (status);
 	    }
 	    freeSingleGroup (&y);
@@ -92,7 +91,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    initSingleGroup (&z);
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny, True);
 	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
-		printf ("ERROR    (biascorr) size mismatch.\n");
+		trlerror("(biascorr) size mismatch.");
 		return (status);
 	    }
 	    freeSingleGroup (&y);			/* done with y */
