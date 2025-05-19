@@ -10,9 +10,8 @@
 
 extern int status;
 
-static int zsigcorr (WF3Info *, MultiNicmosGroup *, NlinData *, 
+static int zsigcorr (WF3InfoRef *, MultiNicmosGroup *, NlinData *,
 		     SingleNicmosGroup *);
-
 
 /* DOZSIG: Calls ZSIGCORR calibration step for a MultiAccum science image.
 **
@@ -23,7 +22,7 @@ static int zsigcorr (WF3Info *, MultiNicmosGroup *, NlinData *,
 				the saturation value at each pixel.
 */
 
-int doZsigIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig) {
+int doZsigIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig) {
 
 /* Arguments:
 **	wf3	i: WFC3 info structure
@@ -38,7 +37,7 @@ int doZsigIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig) {
 	int getNlinData  (WF3Info *, NlinData *);
 	void freeNlinData (NlinData *);
 	void PrSwitch (char *, int);
-	
+
 	if (wf3->zsigcorr == PERFORM) {
 
 	    /* Get nonlinearity reference data;
@@ -49,13 +48,13 @@ int doZsigIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig) {
 	    /* Compute zero-read signal correction image */
             if (zsigcorr (wf3, input, &nlin, zsig))
         	return (status);
-	
+
 	    /* Free the reference data */
 	    freeNlinData (&nlin);
 
 	    PrSwitch ("zsigcorr", COMPLETE);
 	}
- 
+
 	/* Successful return */
 	return (status = 0);
 
@@ -107,7 +106,7 @@ int doZsigIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig) {
 ** Also no longer need the dark ref file. (PR #67728, Trac #681)
 */
 
-static int zsigcorr (WF3Info *wf3, MultiNicmosGroup *input, NlinData *nlin,
+static int zsigcorr (WF3InfoRef *wf3, MultiNicmosGroup *input, NlinData *nlin,
 		     SingleNicmosGroup *zsig) {
 
 /* Arguments:
@@ -195,7 +194,7 @@ static int zsigcorr (WF3Info *wf3, MultiNicmosGroup *input, NlinData *nlin,
 	     } else
 		 Pix(zsig->sci.data,i,j) = 0.0;
 
-	     /* Flag pixels that are saturated in the zeroth read */    
+	     /* Flag pixels that are saturated in the zeroth read */
 	     if (Pix(zsig->sci.data,i,j) > Pix(nlin->nodes[0].data,li,lj)) {
 
 		 DQSetPix(zsig->dq.data,i,j, DQPix(zsig->dq.data,i,j) |
@@ -234,7 +233,7 @@ static int zsigcorr (WF3Info *wf3, MultiNicmosGroup *input, NlinData *nlin,
 			Pix(zsig->sci.data,i,j);
 	     }
 	}
-	
+
 	/* Successful return */
 	return (status = 0);
 

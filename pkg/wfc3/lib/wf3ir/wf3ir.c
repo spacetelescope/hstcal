@@ -58,20 +58,20 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	char ima_file[CHAR_FNAME_LENGTH+1];	/* Intermediate MultiAccum file name */
 	int sizex, sizey;		/* Output trimmed image sizes */
 
-	WF3Info wf3;	/* calibration switches, reference files, etc. */
+	WF3InfoRef wf3;	/* calibration switches, reference files, etc. */
 
 	/* Function definitions */
 	int  DoIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
 	int  FileExists (char *);
-	int  GetIRFlags (WF3Info *, Hdr *);
-	int  GetKeys (WF3Info *, Hdr *);
+	int  GetIRFlags (WF3InfoRef *, Hdr *);
+	int  GetKeys (WF3InfoRef *, Hdr *);
 	void PrBegin (char *);
 	void PrEnd   (char *);
 	void PrFileName (char *, char *);
 	void PrHdrInfo (char *, char *, char *);
 	int  LoadHdr (char *, Hdr *);
 	void InitIRTrl (char *, char *);
-	void WF3Init   (WF3Info *);
+	void WF3Init   (WF3InfoRef *);
 
 	int  getRawData (WF3Info *, MultiNicmosGroup *);
 	int  putMultiCalData (MultiNicmosGroup *, char *);
@@ -157,7 +157,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	    freeHdr (&phdr);
 	    return (status);
 	}
-	
+
 	/* Free the primary header. */
 	freeHdr (&phdr);
 
@@ -281,7 +281,7 @@ static void mkNames (char *rawfile, char *imafile, char *fltfile) {
 	    inroot[rlen-4] = '\0';
 	    rlen = strlen (inroot);
 	}
-	
+
 	/* Add any missing pieces to the input raw file name */
 	if (israw && !ext1 && !ext2) {
 	    strcat (rawfile, fitsext1);

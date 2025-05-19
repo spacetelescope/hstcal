@@ -69,7 +69,7 @@ static void  Phot2Obs (char *, char *);
 
  */
 
-int doPhot (WF3Info *wf32d, SingleGroup *x) {
+int doPhot (WF3InfoRef *wf32d, SingleGroup *x) {
 
 	/* arguments:
 	   WF3Info *wf32d     i: calibration switches, etc

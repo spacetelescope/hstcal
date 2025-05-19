@@ -31,13 +31,13 @@ extern int status;
 ** H.Bushouse	20-Mar-2002	Removed ckImgSize routine (not needed for WFC3).
 ** H.Bushouse	08-May-2002	Modified to use trlopenerr and trlreaderr.
 ** H.Bushouse	16-Feb-2007	Enhanced copyGroup to only copy filename if
-**				input name is not Null. Added new 
+**				input name is not Null. Added new
 **				putCalDataSect routine.
 */
 
 /* GETPRIHDR: Read primary header from an input file. */
 
-int getPriHdr (WF3Info *wf3, Hdr *PriHdr) {
+int getPriHdr (WF3InfoRef *wf3, Hdr *PriHdr) {
 
 /* Arguments:
 **	wf3	i: WFC3 info structure
@@ -76,7 +76,7 @@ int getPriHdr (WF3Info *wf3, Hdr *PriHdr) {
 
 /* GETRAWDATA: Read raw data from input file. One group is read. */
 
-int getRawData (WF3Info *wf3, MultiNicmosGroup *in) {
+int getRawData (WF3InfoRef *wf3, MultiNicmosGroup *in) {
 
 /* Arguments:
 **	wf3	i: WFC3 info structure
@@ -191,7 +191,7 @@ int putCalDataSect (SingleNicmosGroup *out, char *fname, int x1, int y1,
 }
 
 /* PUTMULTICALDATA: Write multiple groups of calibrated data to ouput file.
-** The file is created and the primary header is written when writing the 
+** The file is created and the primary header is written when writing the
 ** first data group. */
 
 int putMultiCalData (MultiNicmosGroup *out, char *fname) {
@@ -233,22 +233,22 @@ int putMultiCalData (MultiNicmosGroup *out, char *fname) {
 /* COPYGROUP: Copy one group structure to another.
 ** Initializes and allocates the structure for the new group.
 */
- 
+
 int copyGroup (SingleNicmosGroup *to, SingleNicmosGroup *from) {
- 
+
 /* Arguments:
 **      to      o: new group
 **      from    i: group to be copied
 */
- 
+
         /* Initialize and allocate new group structure */
         initSingleNicmosGroup (to);
-        if (allocSingleNicmosGroup 
+        if (allocSingleNicmosGroup
 		(to, from->sci.data.nx, from->sci.data.ny) == -1) {
             trlerror("in copyGroup; can't allocate new group");
             return (status = 1);
         }
- 
+
 	/* Copy the filename */
 	if (from->filename != NULL) {
 	    to->filename = (char *)calloc((strlen(from->filename)+1),sizeof(char));
@@ -265,7 +265,7 @@ int copyGroup (SingleNicmosGroup *to, SingleNicmosGroup *from) {
         if (copyHdr (&(to->dq.hdr),   &(from->dq.hdr)))   return(status=1);
         if (copyHdr (&(to->smpl.hdr), &(from->smpl.hdr))) return(status=1);
         if (copyHdr (&(to->intg.hdr), &(from->intg.hdr))) return(status=1);
- 
+
         /* Copy the extension images data arrays */
         memcpy (to->sci.data.data, from->sci.data.data,
                 from->sci.data.nx*from->sci.data.ny*sizeof(float));
@@ -277,7 +277,7 @@ int copyGroup (SingleNicmosGroup *to, SingleNicmosGroup *from) {
                 from->sci.data.nx*from->sci.data.ny*sizeof(short));
         memcpy (to->intg.data.data,from->intg.data.data,
                 from->sci.data.nx*from->sci.data.ny*sizeof(float));
- 
+
         /* Successful return */
         return (status = 0);
 }

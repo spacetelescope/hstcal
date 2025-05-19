@@ -27,11 +27,11 @@
 	assume ratio of bin factors to be 1.
 
     The value of MEANDARK is calculated based on the weighted average
-    of each lines' dark value.  The weighting is based on the percent of 
+    of each lines' dark value.  The weighting is based on the percent of
     good pixels in each line, so only pixels not flagged BAD (in some way)
-    will contribute to the average, and each line will contribute only 
-    as much as the line has good pixels. 
-    
+    will contribute to the average, and each line will contribute only
+    as much as the line has good pixels.
+
    Warren Hack, 1998 June 11:
    	Initial ACS Version.
    Howard Bushouse, 2000 Aug 28:
@@ -45,7 +45,7 @@
 	instead of being hardwired to 'exptime'.
 */
 
-int doDark (WF3Info *wf32d, SingleGroup *x, float *meandark) {
+int doDark (WF3InfoRef *wf32d, SingleGroup *x, float *meandark) {
 
 /* arguments:
 WF3Info *wf3       i: calibration switches, etc
@@ -80,14 +80,14 @@ float *meandark	   o: mean of dark image values subtracted
 
 
 	initSingleGroupLine (&y);
-	
+
 	scilines = x->sci.data.ny;
 
 	/* Compute correct extension version number to extract from
 	   reference image to correspond to CHIP in science data.  */
 	if (DetCCDChip(wf32d->dark.name, wf32d->chip, wf32d->nimsets, &extver))
-	    return (status);	
-	
+	    return (status);
+
 	if (wf32d->verbose) {
 	    trlmessage("Performing dark subtraction on chip %d in imset %d", wf32d->chip, extver);
 	}
@@ -103,7 +103,7 @@ float *meandark	   o: mean of dark image values subtracted
 	*/
 	if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
 	    return (status);
-    
+
 	/* Return with error if reference data not binned same as input */
 	if (rx != 1 || ry != 1) {
 	    closeSingleGroupLine (&y);
@@ -117,12 +117,12 @@ float *meandark	   o: mean of dark image values subtracted
 
 	mean = 0.0;
 	weight = 0.0;
-    
+
 	/* Multiply the dark image by the exposure time and divide by the
 	   atodgain (or just by exposure time for the MAMAs), and
 	   subtract it from x.
 	*/
-    
+
 	for (i = 0; i < NAMPS; i++) {
 	     gain[i] = 0.;
 	     rn2[i] = 0.;
@@ -132,7 +132,7 @@ float *meandark	   o: mean of dark image values subtracted
 
 	initSingleGroupLine (&z);
 	allocSingleGroupLine (&z, x->sci.data.nx);
-	for (i=0, j=y0; i < scilines; i++,j++) { 
+	for (i=0, j=y0; i < scilines; i++,j++) {
 
 	     /* We are working with a sub-array and need to apply the
 		proper section from the reference image to the science image.
@@ -150,7 +150,7 @@ float *meandark	   o: mean of dark image values subtracted
 
 	     AvgSciValLine (&z, wf32d->sdqflags, &dark, &wdark);
 
-	     /* Sum the contribution from each line */			
+	     /* Sum the contribution from each line */
 	     mean += dark * wdark;
 	     weight += wdark;
 
@@ -163,12 +163,12 @@ float *meandark	   o: mean of dark image values subtracted
 	closeSingleGroupLine (&y);
 	freeSingleGroupLine (&y);
 
-	/* Compute the mean for the entire image */	
-	if (scilines > 0) 
-	    *meandark = mean / weight; 
-	else 
+	/* Compute the mean for the entire image */
+	if (scilines > 0)
+	    *meandark = mean / weight;
+	else
 	    *meandark = 0.;
-	
+
 	return (status);
 }
 

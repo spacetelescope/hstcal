@@ -132,8 +132,8 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	void initAsnInfo (AsnInfo *);
 	void freeAsnInfo (AsnInfo *);
 	int LoadAsn (AsnInfo *);
-	int ProcessCCD (AsnInfo *, WF3Info *, int *, int, int);
-	int ProcessIR  (AsnInfo *, WF3Info *, int);
+	int ProcessCCD (AsnInfo *, WF3InfoRef *, int *, int, int);
+	int ProcessIR  (AsnInfo *, WF3InfoRef *, int);
 	int Wf3Dth (const char *, char *, int, int, int);
 	char* BuildDthInput (AsnInfo *, int, char *);
 	int updateAsnTable (AsnInfo *, int, int);

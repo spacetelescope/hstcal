@@ -5,7 +5,9 @@
 #define TRAPS 999 /*max number of traps per column = rows in pctetab[1], valid traps are < 999999 in qlev*/
 #define CTEFLAG 9999999 /*flag to ignore value in array during cte calculation*/
 
-
+#include "hstio.h"
+#include "wf3.h"
+#include "wf3info.h"
 /* structure to hold CTE parameters from the reference files */
 typedef struct {
     double scale512[RAZ_COLS]; /*scaling appropriate at row 512 */
@@ -76,10 +78,10 @@ int GetCorner (Hdr *, int, int *, int *);
 
 int GetCTEPars (char *, CTEParams *);
 void initCTEParams(CTEParams *);
-int doCteBias (WF3Info *, SingleGroup *);
-int GetCTEFlags (WF3Info *, Hdr *);
+int doCteBias (WF3InfoRef *, SingleGroup *);
+int GetCTEFlags (WF3InfoRef *, Hdr *);
 int a2d_raz(WF3Info *);
-int raw2raz(WF3Info *, SingleGroup *, SingleGroup *, SingleGroup *);
+int raw2raz(WF3InfoRef *, SingleGroup *, SingleGroup *, SingleGroup *);
 int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, double , int );
 int findPostScanBias(SingleGroup *, float *, float * );
 int findPreScanBias(SingleGroup *, float *, float *);

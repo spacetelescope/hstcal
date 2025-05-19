@@ -144,7 +144,7 @@ static void FirstLast (double *, double *, int *, int *, int *, int *,
 
 */
 
-int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
+int doDQI (WF3InfoRef *wf3, SingleGroup *x, int overscan) {
 
     /* arguments:
     WF3Info *wf3    i: calibration switches, etc
@@ -208,8 +208,8 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     int CloseBpixTab (TblInfo *);
 
     void DQINormal (DQHdrData *, double *, TblRow *);
-    void ToWF3RawCoords (WF3Info *, double *, TblRow *);
-    void ComputeLimits(WF3Info *, int, int, int *, int *, int *, int *);
+    void ToWF3RawCoords (WF3InfoRef *, double *, TblRow *);
+    void ComputeLimits(WF3InfoRef *, int, int, int *, int *, int *, int *);
 
     /* Get the dimensions of the data image */
     dimx = x->sci.data.nx;
@@ -331,7 +331,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
                     }
                 }
             }
-        /* Subarray - only serial physical overscan */ 
+        /* Subarray - only serial physical overscan */
         } else  {
             if (wf3->trimx[0] > 0) {
                 xoscan_beg1 = 0;
@@ -638,7 +638,7 @@ int CloseBpixTab (TblInfo *tabinfo) {
 ** in some modes of WFC3 raw images.
 */
 
-void ToWF3RawCoords (WF3Info *wf3, double *ltm, TblRow *tabrow) {
+void ToWF3RawCoords (WF3InfoRef *wf3, double *ltm, TblRow *tabrow) {
 
     /* arguments:
     WF3Info *wf3	     i: WFC3 calibration info

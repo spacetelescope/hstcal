@@ -30,8 +30,8 @@ int getGroupInfo (WF3Info *wf3, SingleNicmosGroup *in) {
 	/* Local variables */
 
 	/* Function definitions */
-	int getExpTime   (WF3Info *, Hdr *);
-	int getDataUnits (WF3Info *, Hdr *);
+	int getExpTime   (WF3InfoRef *, Hdr *);
+	int getDataUnits (WF3InfoRef *, Hdr *);
 	/*int getTDFTrans  (WF3Info *, Hdr *);*/
 
 	/* Get the exposure time */
@@ -46,14 +46,14 @@ int getGroupInfo (WF3Info *wf3, SingleNicmosGroup *in) {
 	if (getTDFTrans (wf3, &(in->sci.hdr)))
 	    return (status);
     */
-    
+
 	/* Successful return */
 	return (status = 0);
 }
 
 /* GETEXPTIME: Read the exposure time keyword from group header */
 
-int getExpTime (WF3Info *wf3, Hdr *header) {
+int getExpTime (WF3InfoRef *wf3, Hdr *header) {
 
 /* Arguments:
 **	wf3	io: WFC3 info structure
@@ -85,7 +85,7 @@ int getExpTime (WF3Info *wf3, Hdr *header) {
 
 /* GETDATUNITS: Read the BUNIT keyword from group header */
 
-int getDataUnits (WF3Info *wf3, Hdr *header) {
+int getDataUnits (WF3InfoRef *wf3, Hdr *header) {
 
 /* Arguments:
 **	wf3	io: WFC3 info structure
@@ -120,7 +120,7 @@ int getDataUnits (WF3Info *wf3, Hdr *header) {
 
 /* GETTDFTRANS: Read the TDFTRANS keyword from group header */
 
-int getTDFTrans (WF3Info *wf3, Hdr *header) {
+int getTDFTrans (WF3InfoRef *wf3, Hdr *header) {
 
 /* Arguments:
 **	wf3	io: WFC3 info structure

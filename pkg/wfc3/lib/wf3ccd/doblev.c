@@ -83,7 +83,7 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
 	limits being used.
 */
 
-int doBlev (WF3Info *wf3, SingleGroup *x, int chip, float *meanblev,
+int doBlev (WF3InfoRef *wf3, SingleGroup *x, int chip, float *meanblev,
 	    int *overscan, int *driftcorr) {
 
 /* arguments:

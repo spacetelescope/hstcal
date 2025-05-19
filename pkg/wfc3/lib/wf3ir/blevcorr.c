@@ -1,4 +1,4 @@
-# include <float.h> 
+# include <float.h>
 # include <math.h>
 # include <stdio.h>
 
@@ -22,7 +22,7 @@ extern int status;
 **				(calwf3 v2.0)
 */
 
-int doBlevIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
+int doBlevIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -32,9 +32,9 @@ int doBlevIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
 	/* Local variables */
 
 	/* Function definitions */
-	int blevcorr (WF3Info *, SingleNicmosGroup *);
+	int blevcorr (WF3InfoRef *, SingleNicmosGroup *);
 	void PrSwitch (char *, int);
-    
+
 	/* Do the bias correction for each group */
         if (wf3->blevcorr == PERFORM) {
 
@@ -72,19 +72,19 @@ int doBlevIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
 **				rotations, because all old data have been
 **				reprocessed to new orientation, and reset all
 **				quad boundaries for new orientation.
-** M. Sosey	August 2008 	The reference pixel subtraction has been 
-**				changed so that	the mean of all the reference 
+** M. Sosey	August 2008 	The reference pixel subtraction has been
+**				changed so that	the mean of all the reference
 **				pixels in the image is subtracted from the
 **				the whole image, rather than computing and
 **				subtracting a separate mean for each quad.
 **				A method similar to the resistant_mean routine
-**				in IDL was implemented in a new statistics 
+**				in IDL was implemented in a new statistics
 **				routine that just accepts an array of values,
-**				rather than a SingleNicmosGroup pointer. The 
+**				rather than a SingleNicmosGroup pointer. The
 **				new statistics routine is "resistmean".
 */
 
-int blevcorr (WF3Info *wf3, SingleNicmosGroup *input) {
+int blevcorr (WF3InfoRef *wf3, SingleNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -97,16 +97,16 @@ int blevcorr (WF3Info *wf3, SingleNicmosGroup *input) {
 	float mean;		/* ref pixel stats */
 	float stdv, min, max;	/* more stats */
 	float *refpix;		/* array to hold all the reference pixels */
-	int arrsize;		/* size of ref pixel array */        
+	int arrsize;		/* size of ref pixel array */
 	float sigrej;		/* rejection limit for statistics */
 	int pixcount;		/* counter for reference pixels */
-           
+
 	/* Function definitions */
 	int resistmean(float *, int, float, float *,float *,float *,float *);
 
 	/* Set defaults */
 	sigrej = 3.0; /*sigma rejection limit for mean calculation*/
-    
+
 	/* Allocate memory for the temporary reference pixel array:
 	   there are 5 pixels on each end of each row, but 1 is ignored
 	   on each side for a total of 8 being used per row */
@@ -116,17 +116,17 @@ int blevcorr (WF3Info *wf3, SingleNicmosGroup *input) {
 	    trlerror("Memory allocation failure in blevcorr");
 	    return (status = 1);
 	}
-    
+
 	/* zero out the memory here just to be sure */
 	for (i=0; i<arrsize; i++)
 	     refpix[i]=0.0;
-        
-	/* Loop over the 4 quads of the image to gather the reference 
-	   pixels into a new array that can be passed to the resistant 
+
+	/* Loop over the 4 quads of the image to gather the reference
+	   pixels into a new array that can be passed to the resistant
 	   mean stats routine */
 	pixcount = 0;
-	for (q = 1; q <= 4; q++) {      
-        
+	for (q = 1; q <= 4; q++) {
+
 	     /* Set the bounds of the ref pixels in each quadrant;
 	     ** note that these are zero-indexed. */
 	     switch (q) {
@@ -177,17 +177,17 @@ int blevcorr (WF3Info *wf3, SingleNicmosGroup *input) {
 			     }
 			}
 	     }
-	                  
+
 	}
-     
+
 	/* Compute stats of the ref pixels */
 	if (resistmean(refpix, pixcount, sigrej, &mean, &stdv, &min, &max))
 	    return (status = 1);
-         
+
 	/* Record the computed mean in the header for the science extension*/
 	if (putKeyF (&input->sci.hdr, "MEANBLEV", mean, ""))
 	    return (status = 1);
-     
+
 	/* Subtract the mean value from entire image */
 	for (j=0; j < input->sci.data.ny; j++) {
 	     for (i=0; i < input->sci.data.nx; i++) {

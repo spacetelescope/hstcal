@@ -10,7 +10,7 @@
 
 extern int status;
 
-static int nlincorr (WF3Info *, SingleNicmosGroup *, NlinData *,
+static int nlincorr (WF3InfoRef *, SingleNicmosGroup *, NlinData *,
 		     SingleNicmosGroup *);
 
 /* DONLIN: Call NLINCORR for all readouts of a MultiAccum.
@@ -28,7 +28,7 @@ static int nlincorr (WF3Info *, SingleNicmosGroup *, NlinData *,
 ** H.Bushouse	Oct. 2000	Initial CALNICA to CALWF3 port.
 */
 
-int doNlinIR (WF3Info *wf3, MultiNicmosGroup *input,
+int doNlinIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
 	      SingleNicmosGroup *zsig) {
 
 /* Arguments:
@@ -83,7 +83,7 @@ int doNlinIR (WF3Info *wf3, MultiNicmosGroup *input,
 ** It is further assumed that there is one "node" or transition value array
 ** in the reference data that defines the signal level (in units of DNs)
 ** above which a given pixel saturates. Science image values below this node
-** receive the non-linearity correction; values above the node are deemed 
+** receive the non-linearity correction; values above the node are deemed
 ** saturated, are flagged as such, and receive no correction.
 ** There is also a DQ flag array in the reference data, which is
 ** propagated into the science data.
@@ -122,7 +122,7 @@ int doNlinIR (WF3Info *wf3, MultiNicmosGroup *input,
 **				this time. This will be added in the future.
 */
 
-static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
+static int nlincorr (WF3InfoRef *wf3, SingleNicmosGroup *input, NlinData *nlin,
 		     SingleNicmosGroup *zsig) {
 
 /* Arguments:
@@ -174,7 +174,7 @@ static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
 	     eval = Pix(input->err.data,i,j);
 
 	     /* Temporarily add the MULTIACCUM zero-read signal back into the
-	     ** the pixel value, but only if ZSIG step is turned on and only 
+	     ** the pixel value, but only if ZSIG step is turned on and only
 	     ** for groups other than the zeroth-read itself */
 	     if (wf3->zsigcorr == PERFORM && wf3->group != wf3->ngroups) {
 		 sval += Pix(zsig->sci.data,i,j);
@@ -207,7 +207,7 @@ static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
 	       Pix(input->sci.data,i,j) = sval * corr;
 
 	       /* Remove the MULTIACCUM zero-read signal that was added in
-	       ** above, but only if ZSIG step is turned on and only for 
+	       ** above, but only if ZSIG step is turned on and only for
 	       ** groups other than the zeroth-read itself */
 	       if (wf3->zsigcorr == PERFORM && wf3->group != wf3->ngroups)
 		   Pix(input->sci.data,i,j) -= Pix(zsig->sci.data,i,j);
