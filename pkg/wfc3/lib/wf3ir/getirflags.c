@@ -7,15 +7,15 @@
 # include "wf3info.h"
 # include "hstcalerr.h"		/* defines error codes */
 
-static int checkCCD  (Hdr *, WF3Info *, int *);
-static int checkDQI  (Hdr *, WF3Info *, int *, int *);
-static int checkZoff (Hdr *, WF3Info *, int *, int *);
-static int checkDark (Hdr *, WF3Info *, int *, int *);
-static int checkBlev (Hdr *, WF3Info *, int *, int *);
-static int checkNlin (Hdr *, WF3Info *, int *, int *);
-static int checkFlat (Hdr *, WF3Info *, int *, int *);
-static int checkPhot (Hdr *, WF3Info *, int *, int *);
-static int checkCRRej (Hdr *, WF3Info *, int *, int *);
+static int checkCCD  (Hdr *, WF3InfoRef *, int *);
+static int checkDQI  (Hdr *, WF3InfoRef *, int *, int *);
+static int checkZoff (Hdr *, WF3InfoRef *, int *, int *);
+static int checkDark (Hdr *, WF3InfoRef *, int *, int *);
+static int checkBlev (Hdr *, WF3InfoRef *, int *, int *);
+static int checkNlin (Hdr *, WF3InfoRef *, int *, int *);
+static int checkFlat (Hdr *, WF3InfoRef *, int *, int *);
+static int checkPhot (Hdr *, WF3InfoRef *, int *, int *);
+static int checkCRRej (Hdr *, WF3InfoRef *, int *, int *);
 
 /* This routine gets the names of reference images and tables from the
    primary header and checks for dummy pedigree.
@@ -60,7 +60,7 @@ int GetIRFlags (WF3Info *wf3, Hdr *phdr) {
 
 	int missing = 0;	/* true if any calibration file is missing */
 	int nsteps = 0;		/* number of calibration steps to perform */
-		
+
 	int GetirSw (WF3Info *, Hdr *);
 
 	/* Get the values for the Calibration Switches from the
@@ -108,7 +108,7 @@ int GetIRFlags (WF3Info *wf3, Hdr *phdr) {
 }
 
 
-static int checkZoff (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkZoff (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr	i: primary header
@@ -148,7 +148,7 @@ int *nsteps	io: incremented if this step can be performed
    regardless of which steps are to be performed.
 */
 
-static int checkCCD (Hdr *phdr, WF3Info *wf3, int *missing) {
+static int checkCCD (Hdr *phdr, WF3InfoRef *wf3, int *missing) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -215,7 +215,7 @@ int *missing     io: incremented if the table is missing
    dark file.  If it exists, get the pedigree and descrip keyword values.
 */
 
-static int checkDark (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkDark (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -267,7 +267,7 @@ int *nsteps      io: incremented if this step can be performed
 }
 
 
-static int checkBlev (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkBlev (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr	i: primary header
@@ -315,7 +315,7 @@ int *nsteps	io: incremented if this step can be performed
    deliberately in order to accumulate the flags from more than one table.
 */
 
-static int checkDQI (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkDQI (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
@@ -366,7 +366,7 @@ int *nsteps      io: incremented if this step can be performed
    keyword values.  If pedigree is DUMMY, the flag may be reset.
 */
 
-static int checkFlat (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkFlat (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -496,7 +496,7 @@ int *nsteps      io: incremented if this step can be performed
    cause any problem to perform this step more than once.
 */
 
-static int checkPhot (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkPhot (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -533,7 +533,7 @@ int *nsteps      io: incremented if this step can be performed
    keyword values.
 */
 
-static int checkNlin (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkNlin (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -589,7 +589,7 @@ int *nsteps      io: incremented if this step can be performed
    DETECTOR value.
 */
 
-static int checkCRRej (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkCRRej (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header

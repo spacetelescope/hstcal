@@ -57,18 +57,18 @@
 # include "wf3info.h"
 # include "hstcalerr.h"
 
-static void DarkMsg (WF3Info *, int);
-static void dqiMsg (WF3Info *, int);
-static void PhotMsg (WF3Info *);
-static void ShadMsg (WF3Info *, int);
-static void FlatMsg (WF3Info *, int);
+static void DarkMsg (WF3InfoRef *, int);
+static void dqiMsg (WF3InfoRef *, int);
+static void PhotMsg (WF3InfoRef *);
+static void ShadMsg (WF3InfoRef *, int);
+static void FlatMsg (WF3InfoRef *, int);
 static int OscnTrimmed (Hdr*, Hdr *);
 
 Hdr phdr; /*primary header for input image, all output information saved here*/
 Hdr scihdr; /*science header in case of subarray image to detect chip*/
 IODescPtr ip = NULL;
 
-int Do2D (WF3Info *wf32d, int extver) {
+int Do2D (WF3InfoRef *wf32d, int extver) {
 
 /* arguments:
 WF3Info *wf32d   i: calibration switches and info
@@ -87,7 +87,7 @@ int extver       i: "imset" number, the current set of extensions
 	char buff[SZ_FITS_REC+1];
 	Bool subarray;
 
-    /* The value of this parameter should NOT be changed from zero. */ 
+    /* The value of this parameter should NOT be changed from zero. */
     int overscan = 0;	/* New parameter necessary for API change to doDQi */
 
 	int CCDHistory (WF3Info *, Hdr *);
@@ -366,7 +366,7 @@ int extver       i: "imset" number, the current set of extensions
 	return (status);
 }
 
-static void DarkMsg (WF3Info *wf32d, int extver) {
+static void DarkMsg (WF3InfoRef *wf32d, int extver) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -382,7 +382,7 @@ static void DarkMsg (WF3Info *wf32d, int extver) {
 	}
 }
 
-static void dqiMsg (WF3Info *wf32d, int extver) {
+static void dqiMsg (WF3InfoRef *wf32d, int extver) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -398,7 +398,7 @@ static void dqiMsg (WF3Info *wf32d, int extver) {
 	}
 }
 
-static void FlatMsg (WF3Info *wf32d, int extver) {
+static void FlatMsg (WF3InfoRef *wf32d, int extver) {
 
 	int GotFileName (char *);
 	int OmitStep (int);
@@ -425,7 +425,7 @@ static void FlatMsg (WF3Info *wf32d, int extver) {
 	}
 }
 
-static void PhotMsg (WF3Info *wf32d) {
+static void PhotMsg (WF3InfoRef *wf32d) {
 
 	int OmitStep (int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
@@ -438,7 +438,7 @@ static void PhotMsg (WF3Info *wf32d) {
 }
 
 
-static void ShadMsg (WF3Info *wf32d, int extver) {
+static void ShadMsg (WF3InfoRef *wf32d, int extver) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);

@@ -41,7 +41,7 @@
 # define SIZE_SV_OVERSCAN 60
 # define END_PIX_AC_AMP 2072 
 
-int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
+int doFullWellSat(WF3InfoRef *wf3, SingleGroup *x) {
 
     /*
       WF3Info *wf3     i: calibration switches, etc.

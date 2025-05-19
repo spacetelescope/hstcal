@@ -14,22 +14,22 @@ int GetSw (Hdr *, char *, int *);
 
 
 /* Read the value fo PCTECORR. OMIT and PERFORM are the only possible values
- returned by this function. 
+ returned by this function.
 */
 
-int GetCTESwitch (WF3Info *wf3, Hdr *phdr){
-    
+int GetCTESwitch (WF3InfoRef *wf3, Hdr *phdr){
+
     extern int status;
-    FitsKw key;       
-     
+    FitsKw key;
+
     key = findKw (phdr, "PCTECORR");
     if (key == NotFound) {
         trlwarn("PCTECORR keyword not found...");
     }
     if (GetSw(phdr, "PCTECORR", &wf3->pctecorr))
         return (status);
-        
-    
+
+
     key = findKw (phdr, "BIASCORR");
     if (key == NotFound) {
         trlwarn("BIASCORR keyword not found...");

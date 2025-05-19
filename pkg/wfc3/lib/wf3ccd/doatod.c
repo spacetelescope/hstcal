@@ -74,7 +74,7 @@ static int CloseAtoDTab (TblInfo *);
    Values that on input are greater than or equal to the number of elements
    in the ATOD array will be set to the value of the last element of that
    array, and they will be flagged as saturated.
-   
+
 
    Original CALSTIS version slightly modified for ACS use.
    ACS version slightly modified for WFC3 use.
@@ -83,7 +83,7 @@ static int CloseAtoDTab (TblInfo *);
                            for WFC3.
 */
 
-int doAtoD (WF3Info *wf3, SingleGroup *x) {
+int doAtoD (WF3InfoRef *wf3, SingleGroup *x) {
 
 /* arguments:
 WF3Info *wf3	 i: calibration switches, etc
@@ -112,12 +112,13 @@ SingleGroup *x	io: image to be calibrated; written to in-place
 
     row_min=0;
     dt_min=0.0f;
-    
+
 	if (wf3->atodcorr != PERFORM)
 	    return (status);
 
 	if (wf3->ncombine > 1) {
-	    trlerror("NCOMBINE is already > 1 before ATODCORR has been performed.");
+	    trlerror
+		("NCOMBINE is already > 1 before ATODCORR has been performed.");
 	    return (status = 1010);
 	}
 

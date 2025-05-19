@@ -8,12 +8,12 @@
 # include "wf3info.h"
 # include "hstcalerr.h"		/* defines error codes */
 
-static int checkCCD  (Hdr *, WF3Info *, int *);
-static int checkDark (Hdr *, WF3Info *, int *, int *);
-static int checkDQI  (Hdr *, WF3Info *, int *, int *);
-static int checkFlat (Hdr *, WF3Info *, int *, int *);
-static int checkPhot (Hdr *, WF3Info *, int *, int *);
-static int checkShad (Hdr *, WF3Info *, int *, int *);
+static int checkCCD  (Hdr *, WF3InfoRef *, int *);
+static int checkDark (Hdr *, WF3InfoRef *, int *, int *);
+static int checkDQI  (Hdr *, WF3InfoRef *, int *, int *);
+static int checkFlat (Hdr *, WF3InfoRef *, int *, int *);
+static int checkPhot (Hdr *, WF3InfoRef *, int *, int *);
+static int checkShad (Hdr *, WF3InfoRef *, int *, int *);
 
 /* This routine gets the names of reference images and tables from the
    primary header and checks for dummy pedigree.
@@ -40,7 +40,7 @@ int Get2dFlags (WF3Info *wf32d, Hdr *phdr) {
 
 	int missing = 0;	/* true if any calibration file is missing */
 	int nsteps = 0;		/* number of calibration steps to perform */
-		
+
 	/* Check each reference file that we need. */
 
 	if (checkDQI (phdr, wf32d, &missing, &nsteps))
@@ -81,7 +81,7 @@ int Get2dFlags (WF3Info *wf32d, Hdr *phdr) {
    regardless of which steps are to be performed.
 */
 
-static int checkCCD (Hdr *phdr, WF3Info *wf32d, int *missing) {
+static int checkCCD (Hdr *phdr, WF3InfoRef *wf32d, int *missing) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -126,7 +126,7 @@ int *missing     io: incremented if the table is missing
    dark file.  If it exists, get the pedigree and descrip keyword values.
 */
 
-static int checkDark (Hdr *phdr, WF3Info *wf32d, int *missing, int *nsteps) {
+static int checkDark (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -137,7 +137,7 @@ int *nsteps      io: incremented if this step can be performed
 
 	extern int status;
 
-	int calswitch; 
+	int calswitch;
 	int GetSwitch (Hdr *, char *, int *);
 	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 	void MissingFile (char *, char *, int *);
@@ -145,7 +145,7 @@ int *nsteps      io: incremented if this step can be performed
 	int  CheckDetector (char *, int, char *, int *);
     char *darktouse;
     char *darktype;
-    
+
 	if (wf32d->darkcorr == PERFORM) {
 	    if (GetSwitch (phdr, "DARKCORR", &calswitch))
 		    return (status);
@@ -153,8 +153,8 @@ int *nsteps      io: incremented if this step can be performed
 		    wf32d->darkcorr = OMIT;
 		    return (status);
 	    } else {
-        
-            if (GetSwitch (phdr, "PCTECORR", &calswitch))   
+
+            if (GetSwitch (phdr, "PCTECORR", &calswitch))
                 return(status);
             if (calswitch == COMPLETE){
                 darktouse="DRKCFILE";
@@ -165,7 +165,7 @@ int *nsteps      io: incremented if this step can be performed
             }
         }
 
-            
+
 	    if (GetImageRef (wf32d->refnames, phdr, darktouse, &wf32d->dark,
 			     &wf32d->darkcorr))
 		    return (status);
@@ -207,7 +207,7 @@ int *nsteps      io: incremented if this step can be performed
    deliberately in order to accumulate the flags from more than one table.
 */
 
-static int checkDQI (Hdr *phdr, WF3Info *wf32d, int *missing, int *nsteps) {
+static int checkDQI (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
@@ -261,7 +261,7 @@ int *nsteps      io: incremented if this step can be performed
    keyword values.  If pedigree is DUMMY, the flag may be reset.
 */
 
-static int checkFlat (Hdr *phdr, WF3Info *wf32d, int *missing, int *nsteps) {
+static int checkFlat (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -307,7 +307,7 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    } else {
 		/* Is the FILETYPE appropriate for a PFLT file? */
-		CheckImgType (&wf32d->pflt, "PIXEL-TO-PIXEL FLAT", "PFLTFILE", 
+		CheckImgType (&wf32d->pflt, "PIXEL-TO-PIXEL FLAT", "PFLTFILE",
 			      missing);
 		/* Does it have the correct FILTER value? */
 		if (CheckFilter(wf32d->pflt.name, wf32d->filter, "FILTER",
@@ -330,7 +330,7 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    } else {
 		/* Is the FILETYPE appropriate for a DFLT file? */
-		CheckImgType (&wf32d->dflt, "DELTA FLAT", "DFLTFILE", 
+		CheckImgType (&wf32d->dflt, "DELTA FLAT", "DFLTFILE",
 			      missing);
 		/* Does it have the correct FILTER value? */
 		if (CheckFilter(wf32d->dflt.name, wf32d->filter, "FILTER",
@@ -353,7 +353,7 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    } else {
 		/* Is the FILETYPE appropriate for a LFLT file? */
-		CheckImgType (&wf32d->lflt, "LARGE SCALE FLAT", "LFLTFILE", 
+		CheckImgType (&wf32d->lflt, "LARGE SCALE FLAT", "LFLTFILE",
 			      missing);
 		/* Does it have the correct FILTER value? */
 		if (CheckFilter(wf32d->lflt.name, wf32d->filter, "FILTER",
@@ -395,7 +395,7 @@ int *nsteps      io: incremented if this step can be performed
    cause any problem to perform this step more than once.
 */
 
-static int checkPhot (Hdr *phdr, WF3Info *wf32d, int *missing, int *nsteps) {
+static int checkPhot (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
@@ -432,7 +432,7 @@ int *nsteps      io: incremented if this step can be performed
    keyword values.
 */
 
-static int checkShad (Hdr *phdr, WF3Info *wf32d, int *missing, int *nsteps) {
+static int checkShad (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header

@@ -15,32 +15,32 @@
    the gain, and binned the same as the input image.
 
    In order to accomodate the larger WFC images, the bias images will be
-   applied line-by-line to the input image.  
+   applied line-by-line to the input image.
 
    Warren Hack, 1998 June 3:
-   Initial version for ACS. 
-   
+   Initial version for ACS.
+
    Howard Bushouse, 2000 Aug 29:
    Initial version for WFC3.
-   
+
    H.Bushouse, 2001 Dec 4:
    Added error message and return after FindLine if reference data
    are found to be binned differently than science image.
-   
+
    H.Bushouse, 2009 Mar 9:
    Updated to compute correct x-offset values for amp B and D subarray
-   science images, which needs to account for the columns of serial 
+   science images, which needs to account for the columns of serial
    virtual overscan that are in the middle of a full-frame bias reference
    image.
-   
+
    M. Sosey, 2013 Feb 7:
    Updated to take into account the bias reference files who have values for their
    CCDAMP of SINGLE_AMP or SINGLE_OR_ALL. This was not being tested against and their
-   are now reference files in CDBS with this designation when any single amp is used. 
-   
+   are now reference files in CDBS with this designation when any single amp is used.
+
  */
 
-int doBias (WF3Info *wf3, SingleGroup *x) {
+int doBias (WF3InfoRef *wf3, SingleGroup *x) {
 
     /* arguments:
        WF3Info *wf3     i: calibration switches, etc
@@ -86,20 +86,20 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
     /* Compute correct extension version number to extract from
      ** reference image to correspond to CHIP in science data. */
     if (DetCCDChip (wf3->bias.name, wf3->chip, wf3->nimsets, &extver))
-        return (status);		
+        return (status);
 
     /* Get the first line of bias image data. */
     openSingleGroupLine (wf3->bias.name, extver, &y);
     if (hstio_err())
         return (status = OPEN_FAILED);
 
-    /* 
+    /*
        Reference image should already be selected to have the
        same binning factor as the science image.  All we need to
        make sure of is whether the science array is a sub-array of
-       the bias image.  
+       the bias image.
 
-       x0,y0 is the location of the start of the 
+       x0,y0 is the location of the start of the
        subimage in the reference image.
      */
     if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
@@ -173,7 +173,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
 
         /* Loop over all the lines in the science array, and
          ** match them to the appropriate line in the reference image. */
-        /* 
+        /*
            i - index for line in science image
            j - index for line in reference image
            y0 - line in reference image corresponding to
@@ -181,7 +181,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
          */
         initSingleGroupLine (&z);
         allocSingleGroupLine (&z, x->sci.data.nx);
-        for (i=0, j=y0; i < scilines; i++,j++) { 
+        for (i=0, j=y0; i < scilines; i++,j++) {
 
             /* We are working with a sub-array and need to apply the
              ** proper section from the reference image to the science

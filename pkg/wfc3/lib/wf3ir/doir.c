@@ -44,19 +44,19 @@ extern int status;
 **				instead of graph and comp tabs.
 */
 
-static void dqiMsg  (WF3Info *);
-static void zsigMsg (WF3Info *);
-static void zoffMsg (WF3Info *);
-static void noisMsg (WF3Info *);
-static void darkMsg (WF3Info *);
-static void blevMsg (WF3Info *);
-static void nlinMsg (WF3Info *);
-static void crejMsg (WF3Info *);
-static void flatMsg (WF3Info *);
-static void photMsg (WF3Info *);
-static void unitMsg (WF3Info *);
+static void dqiMsg  (WF3InfoRef *);
+static void zsigMsg (WF3InfoRef *);
+static void zoffMsg (WF3InfoRef *);
+static void noisMsg (WF3InfoRef *);
+static void darkMsg (WF3InfoRef *);
+static void blevMsg (WF3InfoRef *);
+static void nlinMsg (WF3InfoRef *);
+static void crejMsg (WF3InfoRef *);
+static void flatMsg (WF3InfoRef *);
+static void photMsg (WF3InfoRef *);
+static void unitMsg (WF3InfoRef *);
 
-int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
+int DoIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 
 /* Arguments:
 **	wf3	 i: WF3 info structure
@@ -336,7 +336,7 @@ int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 	return (status = 0);
 }
 
-static void zsigMsg (WF3Info *wf3) {
+static void zsigMsg (WF3InfoRef *wf3) {
 
 	void PrSwitch (char *, int);
 
@@ -345,7 +345,7 @@ static void zsigMsg (WF3Info *wf3) {
 
 }
 
-static void zoffMsg (WF3Info *wf3) {
+static void zoffMsg (WF3InfoRef *wf3) {
 
 	void PrSwitch (char *, int);
 
@@ -354,7 +354,7 @@ static void zoffMsg (WF3Info *wf3) {
 
 }
 
-static void dqiMsg (WF3Info *wf3) {
+static void dqiMsg (WF3InfoRef *wf3) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -369,7 +369,7 @@ static void dqiMsg (WF3Info *wf3) {
 	}
 }
 
-static void darkMsg (WF3Info *wf3) {
+static void darkMsg (WF3InfoRef *wf3) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -384,7 +384,7 @@ static void darkMsg (WF3Info *wf3) {
 	}
 }
 
-static void blevMsg (WF3Info *wf3) {
+static void blevMsg (WF3InfoRef *wf3) {
 
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
@@ -399,7 +399,7 @@ static void blevMsg (WF3Info *wf3) {
 	}
 }
 
-static void noisMsg (WF3Info *wf3) {
+static void noisMsg (WF3InfoRef *wf3) {
 
 	void PrSwitch (char *, int);
 
@@ -407,7 +407,7 @@ static void noisMsg (WF3Info *wf3) {
 	PrSwitch ("noiscorr", wf3->noiscorr);
 }
 
-static void nlinMsg (WF3Info *wf3) {
+static void nlinMsg (WF3InfoRef *wf3) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -422,7 +422,7 @@ static void nlinMsg (WF3Info *wf3) {
 	}
 }
 
-static void crejMsg (WF3Info *wf3) {
+static void crejMsg (WF3InfoRef *wf3) {
 
 	void PrSwitch (char *, int);
 
@@ -431,7 +431,7 @@ static void crejMsg (WF3Info *wf3) {
 
 }
 
-static void flatMsg (WF3Info *wf3) {
+static void flatMsg (WF3InfoRef *wf3) {
 
 	int GotFileName (char *);
 	int OmitStep (int);
@@ -460,7 +460,7 @@ static void flatMsg (WF3Info *wf3) {
 	}
 }
 
-static void photMsg (WF3Info *wf3) {
+static void photMsg (WF3InfoRef *wf3) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -476,7 +476,7 @@ static void photMsg (WF3Info *wf3) {
 	}
 }
 
-static void unitMsg (WF3Info *wf3) {
+static void unitMsg (WF3InfoRef *wf3) {
 
 	void PrSwitch (char *, int);
 

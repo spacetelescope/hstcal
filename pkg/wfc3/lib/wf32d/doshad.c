@@ -14,12 +14,12 @@
    The value of EXPTIME will (locally) be divided by the number of
    exposures that were combined by cosmic-ray rejection to make the
    current image.
-   
+
    Howard Bushouse, 2000 Aug 29:
 	Initial WFC3 version.
 */
 
-int doShad (WF3Info *wf32d, int extver, SingleGroup *x) {
+int doShad (WF3InfoRef *wf32d, int extver, SingleGroup *x) {
 
 /* arguments:
 WF3Info *wf32d     i: calibration switches, etc
@@ -40,7 +40,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	int update = NO;
 	int zsecty, zsectx;
 
-	int FindLine (SingleGroup *, SingleGroupLine *, int *, 
+	int FindLine (SingleGroup *, SingleGroupLine *, int *,
 		      int *, int *, int *, int *);
 	int addk1d (SingleGroupLine *, float);
 	int multk1d (SingleGroupLine *, float);
@@ -54,7 +54,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	void getWF3sect (char *, SingleGroupLine *, int, int, WF3sect *);
 	int unbinsect (WF3sect *, int, WF3sect *);
 	int DetCCDChip (char *, int, int, int *);
-	
+
 	if (wf32d->shadcorr != PERFORM)
 	    return (status);
 
@@ -63,9 +63,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    wf32d->shadcorr = IGNORED;
 	    return (status);
 	}
-	
+
 	initSingleGroupLine (&y);
-		
+
 	/* Correct for the number of exposures that were combined. */
 	exptime = wf32d->exptime[0] / wf32d->ncombine;
 
@@ -74,7 +74,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	chipext = extver;
 	if (DetCCDChip (wf32d->shad.name, wf32d->chip, wf32d->nimsets,
 			&chipext) )
-	    return (status);	
+	    return (status);
 
 	/* Get the shutter shading image data. */
 	openSingleGroupLine (wf32d->shad.name, chipext, &y);
@@ -94,13 +94,13 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* Loop over all the lines in the science image.
             ** The shading image may be binned the same, but the SCI
             ** image may be a sub-array, so it will need to be trimmed.  */
-        
+
 	    initSingleGroupLine (&z);
 	    allocSingleGroupLine (&z, x->sci.data.nx);
 	    for (i=0,j=y0; i < x->sci.data.ny; i++,j++) {
-		
+
 		 getSingleGroupLine (wf32d->shad.name, j, &y);
-			
+
 		 if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
 		     trlerror("(doShad) size mismatch.");
 		     return (status);
@@ -112,7 +112,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		     return (status);
 		 if (div1d (x, i, &z))
 		     return (status);
-		
+
 	    }
             freeSingleGroupLine (&z);			/* done with z */
 
@@ -162,18 +162,18 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		   getWF3sect (wf32d->shad.name, &y, j, SECTLINES, &ysect);
 
 		   /* Increment row counter for reference image */
-		   j += SECTLINES;			
+		   j += SECTLINES;
 
 		   /* Expand binned reference data */
 		   unbinsect (&ysect, update, &zsect);
 
-		   /* For each line in expanded section, copy out a 
+		   /* For each line in expanded section, copy out a
 		   ** SingleGroupLine and apply it to the science image. */
 		   for (zline=0; zline < zsecty; zline++) {
 
 			/* Copy out individual expanded lines from
 			** reference data */
-			copySectLine (&zsect, zline, &zl); 
+			copySectLine (&zsect, zline, &zl);
 
 			if (trim1d (&zl, x0, y0, 1, avg, update, &z)) {
 			    trlerror("(doShad) size mismatch.");
@@ -190,19 +190,19 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 			/* Increment row counters for science image */
 			i++;
         		/* In case we are processing a sub-array SCI image... */
-        		if (i >= x->sci.data.ny) break;                
+        		if (i >= x->sci.data.ny) break;
 		   }
 	    }
 
 	    /* Clean up scratch space... */
-	    freeSingleGroupLine (&z);		
+	    freeSingleGroupLine (&z);
 	    freeSingleGroupLine (&zl);
 	    freeWF3sect (&zsect);
 	    freeWF3sect (&ysect);
 	}
-	
+
 	closeSingleGroupLine (&y);
 	freeSingleGroupLine (&y);
-	
+
 	return (status);
 }

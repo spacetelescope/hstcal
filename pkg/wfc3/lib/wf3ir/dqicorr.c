@@ -67,7 +67,7 @@ static int dqicorr (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
 **				(PR 61436)
 */
 
-int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
+int doDQIIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WF3 info structure

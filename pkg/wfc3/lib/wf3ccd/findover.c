@@ -158,7 +158,7 @@ static int CloseOverTab (TblInfo *);
 	overscan columns present in the image.
 */
 
-int FindOverscan (WF3Info *wf3, int nx, int ny, int *overscan) {
+int FindOverscan (WF3InfoRef *wf3, int nx, int ny, int *overscan) {
 
     /* arguments:
     WF3Info *wf3		i: structure with all values from OSCNTAB

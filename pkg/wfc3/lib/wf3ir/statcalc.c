@@ -27,7 +27,7 @@ extern int status;
 **				on trim values from OSCNTAB.
 */
 
-int statcalc (WF3Info *wf3, SingleNicmosGroup *input, short sdqflags) {
+int statcalc (WF3InfoRef *wf3, SingleNicmosGroup *input, short sdqflags) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -52,7 +52,7 @@ int statcalc (WF3Info *wf3, SingleNicmosGroup *input, short sdqflags) {
 	jbeg = wf3->trimy[0]; jend = input->sci.data.ny - wf3->trimy[1] - 1;
 
 	/* Calculate statistics for the SCI and ERR images */
-	if (qstats (input, ibeg, iend, jbeg, jend, sdqflags, 
+	if (qstats (input, ibeg, iend, jbeg, jend, sdqflags,
 		    &npix, &mean, &min, &max, &emean, &emin, &emax,
 		    &smean, &smin, &smax))
 	    return (status = 1);

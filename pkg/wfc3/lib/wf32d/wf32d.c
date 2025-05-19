@@ -86,7 +86,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 	extern int status;
 
-	WF3Info wf32d;	/* calibration switches, reference files, etc */
+	WF3InfoRef wf32d;	/* calibration switches, reference files, etc */
 	int extver;
 
 	Hdr phdr;		/* primary header for input image */

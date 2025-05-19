@@ -20,7 +20,7 @@
    This routine is based upon code in doblev.c.
 */
 void
-ComputeLimits(WF3Info *wf3, int xdim, int ydim, int begx[2], int begy[2], int endx[2], int endy[2]) {
+ComputeLimits(WF3InfoRef *wf3, int xdim, int ydim, int begx[2], int begy[2], int endx[2], int endy[2]) {
     int amp;			/* Counter for amps used */
     int numamps;		/* Number of AMPS used to readout chip */
     char *ccdamp;		/* Amps which are used for this chip */

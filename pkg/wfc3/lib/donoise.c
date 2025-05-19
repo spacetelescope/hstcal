@@ -18,20 +18,20 @@
    where I is the science data value in dn, bias is in dn, readnoise is
    the readout noise in electrons, gain is the CCD gain in electrons per dn.
    The value of sigma in dn is what is assigned to the error array.
-   
+
     This has been modified to account for 1/2/4 AMP readout of a CCD
     where each AMP creates regions of the chip with different
-    readnoise and gain values.  
+    readnoise and gain values.
     The regions are specified in the CCDTAB table,
     when the READNSE[1-4] values are determined.
-    
+
     For each AMP used, a gain and readnoise value will be non-zero, with
     the AMPX and AMPY parameters specifying the first column affected by
     the second AMP in that dimension.
-    
-    The boundary for each AMP is modified by the trim values as 
+
+    The boundary for each AMP is modified by the trim values as
        read in from the LTV1,2 keywords in the header.
-       
+
     For ACS MAMA data, a separate loop initializes the ERR array with a
         value of SQRT(SCI data) or 1, whichever is greater.
         WJH 27 July 1999
@@ -51,7 +51,7 @@
 	serial virtual overscan columns.
 */
 
-int doNoise (WF3Info *wf3, SingleGroup *x, int *done) {
+int doNoise (WF3InfoRef *wf3, SingleGroup *x, int *done) {
 
 /* arguments:
 WF3Info *wf3	 i: calibration switches and info
@@ -75,7 +75,7 @@ int *done        o: true if we actually did assign error array values
 	void get_nsegn (int, int, int, int, float *, float*, float *, float *);
 
 	*done = 0;				/* initial value */
-	
+
 	/* First check for a dummy error array.  If it's not dummy,
 	** we just return without doing anything.  */
 	dimx = x->err.data.nx;
@@ -88,7 +88,7 @@ int *done        o: true if we actually did assign error array values
 	    }
 	}
 
-    if (wf3->detector != IR_DETECTOR) { 
+    if (wf3->detector != IR_DETECTOR) {
 
         /* CCD initialization */
         offsetx = (int)(wf3->offsetx > 0) ? wf3->offsetx : 0;
@@ -107,7 +107,7 @@ int *done        o: true if we actually did assign error array values
 	** WJH 8 Sept 2000 (HAB 8 May 2001)
 	**
 	** We need to make sure that if the ampx value extends into the
-	** overscan at the end of the line, ampx gets automatically 
+	** overscan at the end of the line, ampx gets automatically
 	** moved to cover the whole line. This allows all AMPX and AMPY
 	** values to be specified in CCDTAB in trimmed coordinates.
 	** WJH 27 Oct 2000 (HAB 8 May 2001)
@@ -140,21 +140,22 @@ int *done        o: true if we actually did assign error array values
         /* Now square the readnoise */
         for (i = 0; i < NAMPS; i++)
 	     rn2[i] = rn2[i] * rn2[i];
-        
+
 	if (wf3->ncombine > 1) {
 	    trlwarn("NCOMBINE > 1 before the error array was initialized.");
 	}
 
         /* Now apply the initilalization for each AMP used */
         for (j = 0; j < ampy; j++) {
-        
-            /* This region corresponds to AMP_C, 
+
+            /* This region corresponds to AMP_C,
                 if it is even used for this observation. */
 	    /* Let's make sure we actually found a value for the gain
 	    **	and readnoise... */
 
-	    if (ampx > 0 && (gain[AMP_C] == 0. || rn2[AMP_C] == 0.)) { 
-                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
+	    if (ampx > 0 && (gain[AMP_C] == 0. || rn2[AMP_C] == 0.)) {
+                trlerror
+		  ("No valid GAIN or READNOISE values to initialize ERR data.");
 		return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[2];
@@ -168,13 +169,14 @@ int *done        o: true if we actually did assign error array values
 
             }
 
-            /* This region corresponds to AMP_D, 
+            /* This region corresponds to AMP_D,
             **  if it is even used for this observation.  */
 
 	    /* Let's make sure we actually found a value for the gain
 	    **	and readnoise...  */
 	    if (ampx == 0 && (gain[AMP_D] == 0. || rn2[AMP_D] == 0.) ) {
-                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
+                trlerror
+		  ("No valid GAIN or READNOISE values to initialize ERR data.");
 		return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[3];
@@ -187,17 +189,18 @@ int *done        o: true if we actually did assign error array values
 		 Pix (x->err.data,i,j) = sqrt(value + rn2[AMP_D]) / gain[AMP_D];
 	    }
         }
-        
-        
+
+
         for (j = ampy; j < dimy; j++) {
 
-            /* This region corresponds to AMP_A, 
+            /* This region corresponds to AMP_A,
             **  if it is even used for this observation.  */
 
 	    /* Let's make sure we actually found a value for the gain
 	    **	and readnoise...  */
 	    if (ampx > 0 && (gain[AMP_A] == 0. || rn2[AMP_A] == 0.)) {
-                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
+                trlerror
+		  ("No valid GAIN or READNOISE values to initialize ERR data.");
 		return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[0];
@@ -211,20 +214,21 @@ int *done        o: true if we actually did assign error array values
 		 Pix (x->err.data,i,j) = sqrt(value + rn2[AMP_A]) / gain[AMP_A];
             }
 
-            /* This region corresponds to AMP_B, 
+            /* This region corresponds to AMP_B,
             ** if it is even used for this observation.
-            **  
+            **
             **  Default 1-AMP loop. AMPX and AMPY are zero.  */
 
             /* Let's make sure we actually found a value for the gain
             **	and readnoise...  */
             if (ampx == 0 && (gain[AMP_B] == 0. || rn2[AMP_B] == 0.)) {
-                trlerror("No valid GAIN or READNOISE values to initialize ERR data.");
+                trlerror
+		  ("No valid GAIN or READNOISE values to initialize ERR data.");
 	        return (status = ERROR_RETURN);
             }
 	    bias = ccdbias[1];
 	    for (i = ampx;  i < dimx;  i++) {
- 
+
 		 /* subtract bias and convert to electrons */
 		 value = (Pix (x->sci.data, i, j) - bias) * gain[AMP_B];
 		 if (value < 0.)

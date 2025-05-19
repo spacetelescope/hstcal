@@ -9,7 +9,7 @@
 # include "wf3info.h"
 # include "hstcalerr.h"
 
-static int divFlat (SingleGroup *, char *, WF3Info *, int);
+static int divFlat (SingleGroup *, char *, WF3InfoRef *, int);
 
 /* This routine divides x in-place by the flat fields.
    There are up to three flat fields.  Each flat field is loaded
@@ -52,7 +52,7 @@ static int divFlat (SingleGroup *, char *, WF3Info *, int);
 
 */
 
-int doFlat (WF3Info *wf32d, int extver, SingleGroup *x) {
+int doFlat (WF3InfoRef *wf32d, int extver, SingleGroup *x) {
 
 /* arguments:
 WF3Info *wf32d     i: calibration switches, etc
@@ -77,7 +77,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	int scilines;
 	int applygain;		/* Flag to determine whether to apply the gain
 				** to ref file */
-    
+
 	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *,
 		      int *, int *);
 	int div1d (SingleGroup *, int, SingleGroupLine *);
@@ -89,7 +89,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	void getWF3sect (char *, SingleGroupLine *, int, int, WF3sect *);
 	int unbinsect (WF3sect *, int, WF3sect *);
 	int DetCCDChip (char *, int, int, int *);
-	
+
 	/* Initialize applygain so that correction gets applied */
 	applygain = 1;
 
@@ -112,7 +112,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* Turn off applygain so that it doesn't get applied again */
 	    applygain = 0;
 	}
-	
+
 	initHdr (&phdr);
 
 	/* low-order flat */
@@ -161,8 +161,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    ** they're improved. So put in a temporary stub here that forces
 	    ** a return with a warning if the L-flat is binned. */
 	    trlerror("LFLTFILE %s size does not match science data.", wf32d->lflt.name);
-	    trlerror("LFLTFILE interpolation methods are not available at this time.");
-	    trlerror("Please use an LFLTFILE that matches size of science image.");
+	    trlerror(
+	     "LFLTFILE interpolation methods are not available at this time.");
+	    trlerror ("Please use an LFLTFILE that matches size of science image.");
 	    closeSingleGroupLine (&w);
 	    freeSingleGroupLine (&w);
 	    return (status = SIZE_MISMATCH);
@@ -202,25 +203,25 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		   getWF3sect (wf32d->lflt.name, &w, lf, SECTLINES, &lfsect);
 
 		   /* Increment row counter for reference image */
-		   lf += 1;			
+		   lf += 1;
 
 		   /* Expand binned reference data accounting for
 		   ** offsets of subarrays */
 		   unbinsect (&lfsect, update, &elfsect);
 
-		   /* For each line in expanded section, copy out a 
+		   /* For each line in expanded section, copy out a
 		   SingleGroupLine and apply it to the science image. */
 		   for (zline=0; (zline < ry) && (xline<scilines); zline++) {
 
-			/* Copy out individual averaged, expanded lines from 
+			/* Copy out individual averaged, expanded lines from
         		** reference data. */
 			if (scilines-xline <= ry) {
-			    copySectLine (&elfsect, zline+ry, &zl); 
+			    copySectLine (&elfsect, zline+ry, &zl);
 			} else {
-			    copySectLine (&elfsect, zline, &zl); 
+			    copySectLine (&elfsect, zline, &zl);
 			}
 
-			/* We now have 1 expanded low-order flat line to apply 
+			/* We now have 1 expanded low-order flat line to apply
 			** Let's check to see if we have any other
 			** flat-fields to apply...  */
 
@@ -233,19 +234,19 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	    /* Clean up scratch areas that were used... */
 	    freeWF3sect (&lfsect);
-	    freeWF3sect (&elfsect);	
+	    freeWF3sect (&elfsect);
 	    freeSingleGroupLine (&zl);
 	    freeSingleGroupLine (&ztrim);
 	    }
 	    closeSingleGroupLine (&w);
 	    freeSingleGroupLine (&w);
-						
+
 	} /* End if (lfltcorr) */
 
 	return (status);
 }
 
-static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
+static int divFlat (SingleGroup *x, char *flatname, WF3InfoRef *wf32d,
 		    int applygain) {
 
 	extern int status;
@@ -264,7 +265,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	float gain[NAMPS];
 	float rn2[NAMPS];	/* only need this to call get_nsegn */
 	float gnscale;
-    
+
 	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *,
 		      int *, int *);
 	int DetCCDChip (char *, int, int, int *);
@@ -279,7 +280,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
 	if (DetCCDChip (flatname, wf32d->chip, wf32d->nimsets, &pchipext) )
-	    return (status);	
+	    return (status);
 
 	openSingleGroupLine (flatname, pchipext, &y);
 	if (hstio_err())
@@ -335,7 +336,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 
 	    } /* End loop over input image lines, xline loop */
 
-	} else {    
+	} else {
 
 	    /* We are working with a sub-array image and need to trim
 	    ** down the flat field lines.
@@ -362,9 +363,9 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	    } /* End loop over input image lines, xline loop */
 
 	    /* Clean up buffers... */
-	    freeSingleGroupLine (&ytrim);    
+	    freeSingleGroupLine (&ytrim);
 	}
-    
+
 	closeSingleGroupLine (&y);
 	freeSingleGroupLine (&y);
 
