@@ -1,13 +1,16 @@
 #ifndef INCL_DOCCD_H
 #define INCL_DOCCD_H
 
+#include "hstio.h"
+#include "wf3info.h"
+
 /*USEFUL LIB FUNCTIONS*/
-static void AtoDMsg (WF3Info *, int);
-static void BiasMsg (WF3Info *, int);
-static void SatMsg (WF3Info *, int);
-static void FlashMsg (WF3Info *, int);
-static void BlevMsg (WF3Info *, int);
-static void dqiMsg  (WF3Info *, int);
+static void AtoDMsg (WF3InfoRef *, int);
+static void BiasMsg (WF3InfoRef *, int);
+static void SatMsg (WF3InfoRef *, int);
+static void FlashMsg (WF3InfoRef *, int);
+static void BlevMsg (WF3InfoRef *, int);
+static void dqiMsg  (WF3InfoRef *, int);
 
 int checkBinned (SingleGroup *);
 int GetCorner (Hdr *, int , int *, int *);

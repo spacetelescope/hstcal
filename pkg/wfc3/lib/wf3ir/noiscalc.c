@@ -21,7 +21,7 @@ extern int status;
 **				processing. (PR 66081)
 */
 
-int doNoisIR (WF3Info *wf3, MultiNicmosGroup *input) {
+int doNoisIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -29,7 +29,7 @@ int doNoisIR (WF3Info *wf3, MultiNicmosGroup *input) {
 */
 
 	/* Function definitions */
-	int noiscalc (WF3Info *, SingleNicmosGroup *);
+	int noiscalc (WF3InfoRef *, SingleNicmosGroup *);
 	int OmitStep (int);
 	void PrSwitch (char *, int);
 
@@ -82,7 +82,7 @@ int doNoisIR (WF3Info *wf3, MultiNicmosGroup *input) {
 **				re-entrant processing. (PR 66081)
 */
 
-int noiscalc (WF3Info *wf3, SingleNicmosGroup *input) {
+int noiscalc (WF3InfoRef *wf3, SingleNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure

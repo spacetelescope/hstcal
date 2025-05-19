@@ -11,7 +11,7 @@
 
 /* PHOTCALC: Store the photometry parameter values in the global header
 ** keywords PHOTMODE, PHOTFLAM, PHOTFNU, PHOTZPT, PHOTPLAM, and PHOTBW.
-** 
+**
 ** The input data are NOT modified (only the global header is modified).
 **
 ** Revision history:
@@ -27,8 +27,8 @@
 
 static void Phot2Obs (char *, char *);
 
-int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
-    
+int photcalc (WF3InfoRef *wf3, MultiNicmosGroup *input) {
+
 /* Arguments:
 **	wf3	 i: WFC3 info structure
 **	input	io: input image

@@ -62,10 +62,10 @@
 
     M. Sosey, 2013 Dec 4:
     Added new FLUXCORR switch for UVIS data to scale chip photometry
-    
+
     M. Sosey 2014 August:
     Added new keywords and step for UVIS CTE correction
-    
+
     M. Sosey  ARG, this is where the wf3info structure is defined for the
     calibration steps. It has all the reference file names from the science
     image. There is ANOTHER wf3info struct, yes, called exactly the same
@@ -75,16 +75,16 @@
 
     M. Sosey 2015 May:
     Updates for UVIS 2.0
-    
+
     M. sosey 2015 June:
     Updates to fluxcorr for subarray images necessitate adding
-    a FLAM variable to the info array so that I can access the 
+    a FLAM variable to the info array so that I can access the
     value to scale subarray images which have only 1 set of science
     images. When the chip being processed is chip2, then the flam
     for chip1 will be saved in the structure for use in fluxcorr.
 
     M. De La Pena 2020 March:
-    Read the PCTERNOI value from the raw image header for possible 
+    Read the PCTERNOI value from the raw image header for possible
     use in the CTE reduction.
 
     M. De La Pena 2022 February:
@@ -98,10 +98,11 @@
     the original algorithm in doDQI. Added a flag, scalar_satflag, to
     indicate which method should be used for the full-well saturation
     flagging.
- 
+
 */
 
-# include "msg.h"
+# include "wf3.h"
+#include "hstio.h"
 
 # define NAMPS  4    /* Maximum number of amps for a single readout */
 # define MAX_MAREADS	26	/* Max number of MultiAccum reads */
@@ -224,7 +225,7 @@ typedef struct {
     /* calibration images and tables */
     RefImage bias;      /* bias image */
     RefImage sink;     /*the sink pixel file*/
-    RefImage biac;     /*biasc image for cte correction*/ 
+    RefImage biac;     /*biasc image for cte correction*/
     RefImage flash;  	/* post-flash image */
     RefTab bpix;        /* bad pixel table */
     RefTab ccdpar;      /* CCD parameters table */
@@ -241,7 +242,60 @@ typedef struct {
     RefImage zoff;      /* super zero  */
     RefTab pctetab;     /*uvis CTE parameter table*/
     RefImage satmap;    /* full-well saturation image */
-    
+    } WF3InfoRef;
+
+/*
+        Howard Bushouse, 2000 August 22: Initial version (adapted from
+                         calacs.h by W. Hack)
+
+        H.Bushouse, 2000-Sep-28: Added "sci_basic_ir" calib switches for IR chip
+        H.Bushouse, 2002-Nov-26: Removed "sflfile" char string.
+        H.Bushouse, 2003-Oct-16: Changed scigain from int to float.
+    M.Sosey, August 2014: added PCTECORR step names and switches
+*/
+
+typedef struct {
+    /* name of association table exposure comes from */
+    char asn_table[CHAR_LINE_LENGTH + 1];
+    char crj_root[CHAR_LINE_LENGTH + 1];
+    char crc_root[CHAR_LINE_LENGTH + 1];
+
+    /* input, outroot, and temporary file names */
+    char rawfile[CHAR_LINE_LENGTH + 1]; /* uncalibrated science data */
+    char outroot[CHAR_LINE_LENGTH + 1]; /* file name _raw for output product */
+    char rac_tmp[CHAR_LINE_LENGTH + 1]; /* PCTECORR corrected raw file in orig format */
+    char crjfile[CHAR_LINE_LENGTH + 1]; /* CR rejected, flat fielded science */
+    char crcfile[CHAR_LINE_LENGTH + 1]; /* CR reject, CTE fixed, flat fielded science */
+    char imafile[CHAR_LINE_LENGTH + 1]; /* IR intermediate file */
+    char fltfile[CHAR_LINE_LENGTH + 1]; /* flat fielded science, no CTE correction */
+    char flcfile[CHAR_LINE_LENGTH + 1]; /* flat fielded science with CTE correction */
+    char blv_tmp[CHAR_LINE_LENGTH + 1]; /* blevcorr,no CTE, then CR flagged */
+    char blc_tmp[CHAR_LINE_LENGTH + 1]; /* blevcorr, with CTE bias*/
+    char crj_tmp[CHAR_LINE_LENGTH + 1]; /* CR rejected, no CTE, summed */
+    char crc_tmp[CHAR_LINE_LENGTH + 1]; /* CR combined with CTE done*/
+    char dthfile[CHAR_LINE_LENGTH + 1]; /* dither combined science data */
+    char mtype[SZ_FITS_VAL + 1];        /* Role of exposure in association */
+
+    char rootname[CHAR_LINE_LENGTH + 1]; /* root name for set of obs */
+
+    /* info about input science file */
+    int detector; /* integer code for detector */
+    int nchips;   /* number of IMSETs in file */
+    int nimages;  /* number of images in this set */
+
+    /* Info on the binning and gain of the science file.	*/
+    int scibin[2]; /* binning factors */
+    float scigain; /* ccdgain values */
+    int samebin;
+
+    /* calibration switches */
+    int sci_basic_ccd; /* do wf3ccd? (dqicorr or blevcorr) */
+    int sci_basic_2d;  /* do wf32d for science file? */
+    int sci_basic_ir;  /* do wf3ir for science file? */
+    int sci_basic_cte; /* CTE correction for uvis */
+    int sci_crcorr;    /* do cosmic-ray rejection for science file? */
+    int sci_rptcorr;   /* combine repeatobs science data? */
+    int sci_dthcorr;   /* dither combine science data?    */
 } WF3Info;
 
 /* This contains the throughput curve (from _pht table) and the aperture

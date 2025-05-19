@@ -9,8 +9,8 @@
 # include "hstcalerr.h"		/* defines error codes */
 # include "cte.h"
 
-static int checkCCD (Hdr *, WF3Info *, int *, int *);
-static int checkBiac (Hdr *, WF3Info *, int *);
+static int checkCCD (Hdr *, WF3InfoRef *, int *, int *);
+static int checkBiac (Hdr *, WF3InfoRef *, int *);
 
 /* This routine gets the names of reference images and tables from the
    primary header and checks for dummy pedigree for the CTE reference files
@@ -19,13 +19,13 @@ static int checkBiac (Hdr *, WF3Info *, int *);
 
    M.Sosey, 2014 August
    Updated to include the new PCTETAB for the CTE uvis correction
-   
+
    M.Sose, 2015 August
    Updated to check BIASC filename based on PCTECORR and added check
    for BIASCORR complete with clean exit, #1216
  */
 
-int GetCTEFlags (WF3Info *wf3, Hdr *phdr) {
+int GetCTEFlags (WF3InfoRef *wf3, Hdr *phdr) {
 
 	extern int status;
 
@@ -34,11 +34,11 @@ int GetCTEFlags (WF3Info *wf3, Hdr *phdr) {
 
 	/* Get the values for the Calibration Switches from the
 	 **	header for processing.  */
- 
-    
+
+
 	if (GetCTESwitch (wf3, phdr) )
 		return(status);
-    
+
 	/* Check each reference file that we need. */
 
 	if (checkCCD(phdr, wf3, &missing, &nsteps))
@@ -46,7 +46,7 @@ int GetCTEFlags (WF3Info *wf3, Hdr *phdr) {
 
 	if (checkBiac (phdr, wf3, &missing))
 	    return (status);
-                        
+
 	if (missing) {
 		return (status = CAL_FILE_MISSING);
 
@@ -64,7 +64,7 @@ int GetCTEFlags (WF3Info *wf3, Hdr *phdr) {
    PCTECORR.  This routine checks that the table exists.
  */
 
-static int checkCCD (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkCCD (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 	/* arguments:
 	   Hdr *phdr         i: primary header
@@ -79,8 +79,8 @@ static int checkCCD (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 	void MissingFile (char *, char *, int *);
 	void CheckTabType (RefTab *, char *, char *, int *);
     int GotFileName(char *);
-    
-	if (wf3->pctecorr == PERFORM) {        
+
+	if (wf3->pctecorr == PERFORM) {
 		if (GetTabRef (wf3->refnames, phdr, "PCTETAB", &wf3->pctetab, &wf3->pctecorr))
 			return (status);
 
@@ -101,7 +101,7 @@ static int checkCCD (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 
 	return (status);
 }
-static int checkBiac (Hdr *phdr, WF3Info *wf3, int *missing) {
+static int checkBiac (Hdr *phdr, WF3InfoRef *wf3, int *missing) {
 
 /* arguments:
 Hdr *phdr         i: primary header
@@ -118,14 +118,14 @@ int *missing     io: incremented if the file is missing
 	void CheckImgType (RefImage *, char *, char *, int *);
 	int CheckGain (char *, float, char *, int *);
     int GotFileName(char *);
-    
+
 	/* Are we supposed to do this step? */
 	if (wf3->pctecorr == PERFORM) {
 
-	    if (GetImageRef (wf3->refnames, phdr, "BIACFILE", &wf3->biac, 
+	    if (GetImageRef (wf3->refnames, phdr, "BIACFILE", &wf3->biac,
 			     &wf3->biascorr))
     		return (status=CAL_FILE_MISSING);
-	            
+
         if (wf3->biac.exists != EXISTS_YES) {
     		if (GotFileName (wf3->biac.name)) {
                 MissingFile ("BIACFILE", wf3->biac.name, missing);

@@ -13,7 +13,7 @@ switch will be set to PERFORM only if the calibration switch value in
 the header exists and is "PERFORM".
 */
 
-int GetccdSw (WF3Info *wf3, Hdr *phdr) {
+int GetccdSw (WF3InfoRef *wf3, Hdr *phdr) {
 
 
 	extern int status;
