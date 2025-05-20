@@ -12,105 +12,11 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-
-# Check Sphinx version
 import os
-import sys
-import sphinx
+
 import stsci_rtd_theme
-from distutils.version import LooseVersion
-try:
-    from ConfigParser import ConfigParser
-except ImportError:
-    from configparser import ConfigParser
-conf = ConfigParser()
-
-
-def setup(app):
-    app.add_stylesheet('stsci.css')
-
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../../'))
-sys.path.insert(0, os.path.abspath('../../.eggs'))
-sys.path.insert(0, os.path.abspath('../../src/'))
-
-#sys.path.insert(0, os.path.abspath('../'))
-#sys.path.insert(0, os.path.abspath('packagename/'))
-#sys.path.insert(0, os.path.abspath('exts/'))
-
-
-# If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.3'
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-# -- General configuration ------------------------------------------------
-conf.read([os.path.join(os.path.dirname(__file__), '..', 'setup.cfg')])
-
-
-
-
-def check_sphinx_version(expected_version):
-    sphinx_version = LooseVersion(sphinx.__version__)
-    expected_version = LooseVersion(expected_version)
-    if sphinx_version < expected_version:
-        raise RuntimeError(
-            "At least Sphinx version {0} is required to build this "
-            "documentation.  Found {1}.".format(
-                expected_version, sphinx_version))
-
-
-# Configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {
-    'python': ('http://docs.python.org/3/', None),
-    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
-    'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
-    'matplotlib': ('http://matplotlib.org/', None),
-    'astropy': ('http://docs.astropy.org/en/stable/', None),
-}
-
-if sys.version_info[0] == 2:
-    intersphinx_mapping['python'] = ('http://docs.python.org/2/', None)
-    #intersphinx_mapping['pythonloc'] = (
-        #'http://docs.python.org/',
-        #os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                     #'local/python2_local_links.inv')))
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.inheritance_diagram',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.doctest',
-    'sphinx.ext.coverage',
-    'numpydoc',
-    'sphinx_automodapi.automodapi',
-    'sphinx_automodapi.automodsumm',
-    'sphinx_automodapi.autodoc_enhancements',
-    'sphinx_automodapi.smart_resolver',
-]
-
-if on_rtd:
-    extensions.append('sphinx.ext.mathjax')
-
-elif LooseVersion(sphinx.__version__) < LooseVersion('1.4'):
-    extensions.append('sphinx.ext.pngmath')
-
-else:
-    extensions.append('sphinx.ext.imgmath')
-
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -184,34 +90,6 @@ exclude_patterns = ['_build']
 # documents.
 default_role = 'obj'
 
-
-
-
-# Don't show summaries of the members in each class along with the
-# class' docstring
-numpydoc_show_class_members = False
-
-autosummary_generate = True
-
-automodapi_toctreedirnm = 'api'
-
-# Class documentation should contain *both* the class docstring and
-# the __init__ docstring
-autoclass_content = "both"
-
-# Render inheritance diagrams in SVG
-graphviz_output_format = "svg"
-
-graphviz_dot_args = [
-    '-Nfontsize=10',
-    '-Nfontname=Helvetica Neue, Helvetica, Arial, sans-serif',
-    '-Efontsize=10',
-    '-Efontname=Helvetica Neue, Helvetica, Arial, sans-serif',
-    '-Gfontsize=10',
-    '-Gfontname=Helvetica Neue, Helvetica, Arial, sans-serif'
-]
-
-
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
@@ -284,40 +162,3 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'hstcaldoc'
-
-
-# -- Options for LaTeX output --------------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    'papersize': 'letterpaper',
-    # The font size ('10pt', '11pt' or '12pt').
-    'pointsize': '11pt',
-    # Additional stuff for the LaTeX preamble.
-    'preamble': r"""\usepackage{enumitem} \setlistdepth{99}"""
-}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, documentclass [howto/manual]).
-
-latex_documents = [
-  ('index', 'hstcal.tex', u'HSTCAL Documentation',
-   u'Warren Hack, \\and Nadia Dencheva, \\and Robert Jedrzejewski, '
-   u'\\and Michele de la Pena', 'manual'),
-]
-
-# The name of an image file (relative to this directory) to place at the top of
-# the title page.
-#latex_logo = None
-
-# For "manual" documents, if this is true, then toplevel headings are parts,
-# not chapters.
-#latex_use_parts = False
-
-# Documents to append as an appendix to all manuals.
-#latex_appendices = []
-
-# If false, no module index is generated.
-#latex_use_modindex = True
-
-latex_elements = { 'pointsize' : '11pt' }
