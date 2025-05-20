@@ -33,14 +33,14 @@
 
 /*prototypes*/
 
-void FluxMsg(WF3InfoRef *);
-int doFlux(WF3InfoRef *);
+void FluxMsg(WF3Info *);
+int doFlux(WF3Info *);
 int doStat(SingleGroup *, short);
 int PutKeyDbl(Hdr *, char *, double, char *);
 int UpdateSwitch(char *, int, Hdr*, int*);
 int GetKeyDbl (Hdr *, char *, int, double, double *);
 
-void FluxMsg (WF3InfoRef *wf32d) {
+void FluxMsg (WF3Info *wf32d) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -53,10 +53,10 @@ void FluxMsg (WF3InfoRef *wf32d) {
 }
 
 
-int doFlux (WF3InfoRef *wf32d){
+int doFlux (WF3Info *wf32d){
 
 	/* arguments:
-	   WF3InfoRef *wf3     i: calibration switches, etc
+	   WF3Info *wf3     i: calibration switches, etc
 	 */
 
 	extern int status;

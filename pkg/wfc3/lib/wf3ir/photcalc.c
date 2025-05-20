@@ -27,7 +27,7 @@
 
 static void Phot2Obs (char *, char *);
 
-int photcalc (WF3InfoRef *wf3, MultiNicmosGroup *input) {
+int photcalc (WF3Info *wf3, MultiNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure

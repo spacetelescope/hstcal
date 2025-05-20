@@ -22,7 +22,7 @@ extern int status;
 **				(calwf3 v2.0)
 */
 
-int doBlevIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
+int doBlevIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -32,7 +32,7 @@ int doBlevIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff)
 	/* Local variables */
 
 	/* Function definitions */
-	int blevcorr (WF3InfoRef *, SingleNicmosGroup *);
+	int blevcorr (WF3Info *, SingleNicmosGroup *);
 	void PrSwitch (char *, int);
 
 	/* Do the bias correction for each group */
@@ -84,7 +84,7 @@ int doBlevIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff)
 **				new statistics routine is "resistmean".
 */
 
-int blevcorr (WF3InfoRef *wf3, SingleNicmosGroup *input) {
+int blevcorr (WF3Info *wf3, SingleNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure

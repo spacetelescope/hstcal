@@ -17,7 +17,7 @@ int GetSw (Hdr *, char *, int *);
  returned by this function.
 */
 
-int GetCTESwitch (WF3InfoRef *wf3, Hdr *phdr){
+int GetCTESwitch (WF3Info *wf3, Hdr *phdr){
 
     extern int status;
     FitsKw key;

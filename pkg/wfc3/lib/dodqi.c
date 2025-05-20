@@ -144,10 +144,10 @@ static void FirstLast (double *, double *, int *, int *, int *, int *,
 
 */
 
-int doDQI (WF3InfoRef *wf3, SingleGroup *x, int overscan) {
+int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
 
     /* arguments:
-    WF3InfoRef *wf3    i: calibration switches, etc
+    WF3Info *wf3    i: calibration switches, etc
     SingleGroup *x    io: image to be calibrated; DQ array written to in-place
     */
 
@@ -208,8 +208,8 @@ int doDQI (WF3InfoRef *wf3, SingleGroup *x, int overscan) {
     int CloseBpixTab (TblInfo *);
 
     void DQINormal (DQHdrData *, double *, TblRow *);
-    void ToWF3RawCoords (WF3InfoRef *, double *, TblRow *);
-    void ComputeLimits(WF3InfoRef *, int, int, int *, int *, int *, int *);
+    void ToWF3RawCoords (WF3Info *, double *, TblRow *);
+    void ComputeLimits(WF3Info *, int, int, int *, int *, int *, int *);
 
     /* Get the dimensions of the data image */
     dimx = x->sci.data.nx;
@@ -638,10 +638,10 @@ int CloseBpixTab (TblInfo *tabinfo) {
 ** in some modes of WFC3 raw images.
 */
 
-void ToWF3RawCoords (WF3InfoRef *wf3, double *ltm, TblRow *tabrow) {
+void ToWF3RawCoords (WF3Info *wf3, double *ltm, TblRow *tabrow) {
 
     /* arguments:
-    WF3InfoRef *wf3	     i: WFC3 calibration info
+    WF3Info *wf3	     i: WFC3 calibration info
     double ltm[2]        i: scale factor of science data
     TblRow *tabrow       io: data quality info read from one row of BPIXTAB
     */

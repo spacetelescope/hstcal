@@ -51,10 +51,10 @@
 	serial virtual overscan columns.
 */
 
-int doNoise (WF3InfoRef *wf3, SingleGroup *x, int *done) {
+int doNoise (WF3Info *wf3, SingleGroup *x, int *done) {
 
 /* arguments:
-WF3InfoRef *wf3	 i: calibration switches and info
+WF3Info *wf3	 i: calibration switches and info
 SingleGroup *x	io: image to be calibrated; written to in-place
 int *done        o: true if we actually did assign error array values
 */

@@ -10,7 +10,7 @@
 
 extern int status;
 
-static int zsigcorr (WF3InfoRef *, MultiNicmosGroup *, NlinData *,
+static int zsigcorr (WF3Info *, MultiNicmosGroup *, NlinData *,
 		     SingleNicmosGroup *);
 
 /* DOZSIG: Calls ZSIGCORR calibration step for a MultiAccum science image.
@@ -22,7 +22,7 @@ static int zsigcorr (WF3InfoRef *, MultiNicmosGroup *, NlinData *,
 				the saturation value at each pixel.
 */
 
-int doZsigIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig) {
+int doZsigIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig) {
 
 /* Arguments:
 **	wf3	i: WFC3 info structure
@@ -34,7 +34,7 @@ int doZsigIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig)
 	NlinData nlin;
 
 	/* Function definitions */
-	int getNlinData  (WF3InfoRef *, NlinData *);
+	int getNlinData  (WF3Info *, NlinData *);
 	void freeNlinData (NlinData *);
 	void PrSwitch (char *, int);
 
@@ -106,7 +106,7 @@ int doZsigIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig)
 ** Also no longer need the dark ref file. (PR #67728, Trac #681)
 */
 
-static int zsigcorr (WF3InfoRef *wf3, MultiNicmosGroup *input, NlinData *nlin,
+static int zsigcorr (WF3Info *wf3, MultiNicmosGroup *input, NlinData *nlin,
 		     SingleNicmosGroup *zsig) {
 
 /* Arguments:
@@ -131,8 +131,8 @@ static int zsigcorr (WF3InfoRef *wf3, MultiNicmosGroup *input, NlinData *nlin,
 	/* Function definitions */
 	int  copyGroup (SingleNicmosGroup *, SingleNicmosGroup *);
 	void asub (SingleNicmosGroup *, SingleNicmosGroup *);
-	void asub_noref (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
-	int  noiscalc (WF3InfoRef *, SingleNicmosGroup *);
+	void asub_noref (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
+	int  noiscalc (WF3Info *, SingleNicmosGroup *);
 	int  GetCorner (Hdr *, int, int *, int *);
 
 	/* Initialize counters */

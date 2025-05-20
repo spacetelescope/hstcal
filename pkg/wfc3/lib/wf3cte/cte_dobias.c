@@ -22,10 +22,10 @@
  */
 int sub1dreform (SingleGroup *, int, int, SingleGroupLine *);
 
-int doCteBias (WF3InfoRef *wf3, SingleGroup *x) {
+int doCteBias (WF3Info *wf3, SingleGroup *x) {
 
 	/* arguments:
-	   WF3InfoRef *wf3     i: calibration switches, etc
+	   WF3Info *wf3     i: calibration switches, etc
 	   SingleGroup *x	io: image to be calibrated; written to in-place
 	 */
 

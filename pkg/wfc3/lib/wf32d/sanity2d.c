@@ -7,7 +7,7 @@
    detector.
 */
 
-void Sanity2d (WF3InfoRef *wf32d) {
+void Sanity2d (WF3Info *wf32d) {
 
 	if (wf32d->detector == IR_DETECTOR) {
 

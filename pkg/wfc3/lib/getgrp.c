@@ -18,10 +18,10 @@
 	the BINAXIS keywords from the sci extension header to populate it.
 */
 
-int GetGrp (WF3InfoRef *wf3, Hdr *hdr) {
+int GetGrp (WF3Info *wf3, Hdr *hdr) {
 
 /* arguments:
-WF3InfoRef *wf3   io: calibration switches and info
+WF3Info *wf3   io: calibration switches and info
 Hdr *hdr         i: header of current extension
 */
 

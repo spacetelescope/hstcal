@@ -27,7 +27,7 @@ extern int status;
 **				on trim values from OSCNTAB.
 */
 
-int statcalc (WF3InfoRef *wf3, SingleNicmosGroup *input, short sdqflags) {
+int statcalc (WF3Info *wf3, SingleNicmosGroup *input, short sdqflags) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure

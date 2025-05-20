@@ -9,7 +9,7 @@
 
 extern int status;
 
-static int darkcorr (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
+static int darkcorr (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
 
 /* DoDarkIR: Call DARKCORR routine for each readout of a MultiAccum.
 **	     The appropriate dark image is loaded for each readout
@@ -19,7 +19,7 @@ static int darkcorr (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
 ** H.Bushouse	Oct. 2000	Initial CALNICA to CALWF3 port.
 */
 
-int doDarkIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
+int doDarkIR (WF3Info *wf3, MultiNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -30,7 +30,7 @@ int doDarkIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 	SingleNicmosGroup dark;
 
 	/* Function definitions */
-	int getDarkImage (WF3InfoRef *, SingleNicmosGroup *, int);
+	int getDarkImage (WF3Info *, SingleNicmosGroup *, int);
 	void PrSwitch (char *, int);
 
 	/* Do the dark current subtraction for each group */
@@ -78,7 +78,7 @@ int doDarkIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 ** H.Bushouse	14-May-2010	Added computation of MEANDARK.
 */
 
-static int darkcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
+static int darkcorr (WF3Info *wf3, SingleNicmosGroup *input,
 		     SingleNicmosGroup *dark) {
 
 /* Arguments:
@@ -95,7 +95,7 @@ static int darkcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
         float stdv, min, max;           /* more stats */
 
 	/* Function definitions */
-	void asub_noref (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
+	void asub_noref (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
         int stats (SingleNicmosGroup *, int, int, int, int, float, float, short,
                    float *, float *, float *, float *, float *, float *);
 	int PutKeyFlt (Hdr *, char *, float, char *);

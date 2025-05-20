@@ -34,7 +34,7 @@ static void EstimateDarkandGlow(const short nsamp,float *time,float,float *tot_A
 
 extern int status;
 
-static int  crrej (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+static int  crrej (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
 static void fitsamps (const short, float *, float *, short *,float *, float *, float,
         float *, float *, short *, float *, short, short, float, float);
 static void linfit (short, float *, float *, float *, float *, short, float,
@@ -50,7 +50,7 @@ static void linfit (short, float *, float *, float *, float *, short, float,
  **                              made in 2007 to the way CR's are detected.
  */
 
-int cridcalc (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
+int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 
     /* Arguments:
      ** wf3  i: WFC3 info structure
@@ -192,7 +192,7 @@ int cridcalc (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crima
     **
     */
 
-    int crrej (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
+    int crrej (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 
         /* Arguments:
          ** wf3  i: WFC3 info structure

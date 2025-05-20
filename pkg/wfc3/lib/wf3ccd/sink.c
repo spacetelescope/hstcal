@@ -59,7 +59,7 @@ int undodqRAZ(SingleGroup *, SingleGroup *);
 int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *, int);
 int getFloatHD(char *, char *, int , FloatHdrData *);
 
-int SinkDetect(WF3InfoRef *wf3, SingleGroup *x){
+int SinkDetect(WF3Info *wf3, SingleGroup *x){
 
     extern int status;
     int i,j, jj;

@@ -82,10 +82,10 @@
 int PutKeyDbl(Hdr *, char *, double , char *);
 int PutKeyStr(Hdr *, char *, char *, char *);
 
-int DoCCD (WF3InfoRef *wf3, int extver) {
+int DoCCD (WF3Info *wf3, int extver) {
 
     /* arguments:
-       WF3InfoRef *wf3	i: calibration switches and info
+       WF3Info *wf3	i: calibration switches and info
        int extver	i: "imset" number, the current set of extensions
      */
 
@@ -532,7 +532,7 @@ int checkBinned (SingleGroup *x){
 
 }
 
-static void AtoDMsg (WF3InfoRef *wf3, int extver) {
+static void AtoDMsg (WF3Info *wf3, int extver) {
 
     int OmitStep (int);
     void PrSwitch (char *, int);
@@ -548,7 +548,7 @@ static void AtoDMsg (WF3InfoRef *wf3, int extver) {
     }
 }
 
-static void BiasMsg (WF3InfoRef *wf3, int extver) {
+static void BiasMsg (WF3Info *wf3, int extver) {
 
     int OmitStep (int);
     void PrSwitch (char *, int);
@@ -564,7 +564,7 @@ static void BiasMsg (WF3InfoRef *wf3, int extver) {
     }
 }
 
-static void SatMsg (WF3InfoRef *wf3, int extver) {
+static void SatMsg (WF3Info *wf3, int extver) {
 
     int OmitStep (int);
     void PrSwitch (char *, int);
@@ -578,7 +578,7 @@ static void SatMsg (WF3InfoRef *wf3, int extver) {
     }
 }
 
-static void FlashMsg (WF3InfoRef *wf3, int extver) {
+static void FlashMsg (WF3Info *wf3, int extver) {
 
     int OmitStep (int);
     void PrSwitch (char *, int);
@@ -594,7 +594,7 @@ static void FlashMsg (WF3InfoRef *wf3, int extver) {
     }
 }
 
-static void BlevMsg (WF3InfoRef *wf3, int extver) {
+static void BlevMsg (WF3Info *wf3, int extver) {
 
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
@@ -611,7 +611,7 @@ static void BlevMsg (WF3InfoRef *wf3, int extver) {
 
 }
 
-static void dqiMsg (WF3InfoRef *wf3, int extver) {
+static void dqiMsg (WF3Info *wf3, int extver) {
 
     int OmitStep (int);
     void PrSwitch (char *, int);

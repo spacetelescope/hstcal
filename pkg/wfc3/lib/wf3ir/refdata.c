@@ -48,7 +48,7 @@ extern int status;
 ** file is the appropriate one to use with the science data being processed.
 */
 
-int getNlinData (WF3InfoRef *wf3, NlinData *nlin) {
+int getNlinData (WF3Info *wf3, NlinData *nlin) {
 
 /* Arguments:
 **	wf3 	 i: WFC3 info structure
@@ -170,7 +170,7 @@ int getNlinData (WF3InfoRef *wf3, NlinData *nlin) {
 ** being combined.
 */
 
-int getFlats (WF3InfoRef *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
+int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 
 	/* Local variables */
 	int dummy;
@@ -179,7 +179,7 @@ int getFlats (WF3InfoRef *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 	SingleNicmosGroup lflt;
 
 	/* Function definitions */
-	int getFlatImage (WF3InfoRef *, RefImage *, SingleNicmosGroup *);
+	int getFlatImage (WF3Info *, RefImage *, SingleNicmosGroup *);
 	int FindBinIR (SingleNicmosGroup *, SingleNicmosGroup *, int *, int *,
 		       int *, int *, int *);
 	void amul (SingleNicmosGroup *, SingleNicmosGroup *);
@@ -295,7 +295,7 @@ int getFlats (WF3InfoRef *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 /* GETFLATIMAGE: Load the flat field reference file image.
 */
 
-int getFlatImage (WF3InfoRef *wf3, RefImage *ref, SingleNicmosGroup *flat) {
+int getFlatImage (WF3Info *wf3, RefImage *ref, SingleNicmosGroup *flat) {
 
 /* Arguments:
 **	nic	i: NICMOS info structure
@@ -318,7 +318,7 @@ int getFlatImage (WF3InfoRef *wf3, RefImage *ref, SingleNicmosGroup *flat) {
 /* GETDARKINFO: Load information from the DARKFILE reference file.
 */
 
-int getDarkInfo (WF3InfoRef *wf3) {
+int getDarkInfo (WF3Info *wf3) {
 
 /* Arguments:
 **	nic	 i: NICMOS info structure
@@ -376,7 +376,7 @@ int getDarkInfo (WF3InfoRef *wf3) {
 
 # define ALLOWDIFF 0.01	/* Max allowed exptime difference */
 
-int getDarkImage (WF3InfoRef *wf3, SingleNicmosGroup *dark1, int ngroup) {
+int getDarkImage (WF3Info *wf3, SingleNicmosGroup *dark1, int ngroup) {
 
 /* Arguments:
 **	nic	 i: NICMOS info structure

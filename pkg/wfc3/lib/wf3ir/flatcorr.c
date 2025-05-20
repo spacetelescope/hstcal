@@ -6,7 +6,7 @@
 
 extern int status;
 
-static int flatcorr (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
+static int flatcorr (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
 
 /* DOFLAT: Call FLATCORR for each readout of a MultiAccum.
 **
@@ -17,7 +17,7 @@ static int flatcorr (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
 **				RebinRef routines.
 */
 
-int doFlatIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
+int doFlatIR (WF3Info *wf3, MultiNicmosGroup *input,
 	      SingleNicmosGroup *crimage) {
 
 /* Arguments:
@@ -31,7 +31,7 @@ int doFlatIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
 	SingleNicmosGroup flat;
 
 	/* Function definitions */
-	int getFlats (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
+	int getFlats (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
 	int RebinRef (SingleNicmosGroup *, SingleNicmosGroup *, int);
 	void PrSwitch (char *, int);
 
@@ -91,7 +91,7 @@ int doFlatIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
 **				images, including grism. (calwf3 v2.0)
 */
 
-int flatcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
+int flatcorr (WF3Info *wf3, SingleNicmosGroup *input,
 	      SingleNicmosGroup *flat) {
 
 /* Arguments:
@@ -101,8 +101,8 @@ int flatcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
 */
 
 	/* Function definitions */
-	void adiv_noref (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
-	void mult_gain  (WF3InfoRef *, SingleNicmosGroup *);
+	void adiv_noref (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
+	void mult_gain  (WF3Info *, SingleNicmosGroup *);
 	int  PutKeyStr (Hdr *, char *, char *, char *);
 
 	/* Do the flat fielding in-place in input image data */
@@ -128,7 +128,7 @@ int flatcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
 	return (status = 0);
 }
 
-void mult_gain (WF3InfoRef *wf3, SingleNicmosGroup *in) {
+void mult_gain (WF3Info *wf3, SingleNicmosGroup *in) {
 
 /* Multiply a SingleNicmosGroup by the gain value.
 

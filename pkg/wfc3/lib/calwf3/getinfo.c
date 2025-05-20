@@ -30,10 +30,10 @@
     Some memory cleanup
 */
 
-int GetCCDInfo (WF3Info *wf3, CCD_Switch *sci_sw, RefFileInfo *sciref) {
+int GetCCDInfo (CALWF3Info *wf3, CCD_Switch *sci_sw, RefFileInfo *sciref) {
 
 /* arguments:
-WF3Info *wf3          i: calibration flags and other info
+CALWF3Info *wf3          i: calibration flags and other info
 CCD_Switch *sci_sw    o: all calibration switches (0 or 1) for science file
 RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 */
@@ -47,7 +47,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyFlt (Hdr *, char *, int, float, float *);
 	int GetCCDSws (CCD_Switch *, Hdr *);
-	int GetCCDRef (WF3Info *, CCD_Switch *, Hdr *, RefFileInfo *);
+	int GetCCDRef (CALWF3Info *, CCD_Switch *, Hdr *, RefFileInfo *);
 	
 	/* Open input raw data file. */
 	initHdr (&phdr);
@@ -108,10 +108,10 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	return (status);
 }
 
-int GetIRInfo (WF3Info *wf3, IR_Switch *sci_sw, RefFileInfo *sciref) {
+int GetIRInfo (CALWF3Info *wf3, IR_Switch *sci_sw, RefFileInfo *sciref) {
 
 /* arguments:
-WF3Info *wf3          i: calibration flags and other info
+CALWF3Info *wf3          i: calibration flags and other info
 IR_Switch *sci_sw     o: all calibration switches (0 or 1) for science file
 RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 */
@@ -125,7 +125,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyFlt (Hdr *, char *, int, float, float *);
 	int GetIRSws (IR_Switch *, Hdr *);
-	int GetIRRef (WF3Info *, IR_Switch *, Hdr *, RefFileInfo *);
+	int GetIRRef (CALWF3Info *, IR_Switch *, Hdr *, RefFileInfo *);
 	
 	/* Open input raw data file. */
 	initHdr (&phdr);

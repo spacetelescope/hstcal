@@ -38,7 +38,7 @@
 	Replaced graph and comp tab with new phot tab in photHistory.
 */
 
-int atodHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int atodHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 
@@ -62,7 +62,7 @@ int atodHistory (WF3InfoRef *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int biasHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int biasHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 
@@ -86,7 +86,7 @@ int biasHistory (WF3InfoRef *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int flashHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int flashHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 
@@ -110,7 +110,7 @@ int flashHistory (WF3InfoRef *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int blevHistory (WF3InfoRef *wf3, Hdr *phdr, int done, int driftcorr) {
+int blevHistory (WF3Info *wf3, Hdr *phdr, int done, int driftcorr) {
 
 	extern int status;
 	int OmitStep (int);
@@ -152,7 +152,7 @@ int blevHistory (WF3InfoRef *wf3, Hdr *phdr, int done, int driftcorr) {
 
 /* Info about CCD parameters table (no specific calibration step). */
 
-int CCDHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int CCDHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 	int TabHistory (RefTab *, Hdr *);
@@ -165,7 +165,7 @@ int CCDHistory (WF3InfoRef *wf3, Hdr *phdr) {
 }
 
 
-int dqiHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int dqiHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -219,7 +219,7 @@ int noiseHistory (Hdr *phdr) {
 	return (status);
 }
 
-int darkHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int darkHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -241,7 +241,7 @@ int darkHistory (WF3InfoRef *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int flatHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int flatHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 
@@ -278,7 +278,7 @@ int flatHistory (WF3InfoRef *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int shadHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int shadHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -302,7 +302,7 @@ int shadHistory (WF3InfoRef *wf3, Hdr *phdr) {
 
 /* Photometry. */
 
-int photHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int photHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -324,7 +324,7 @@ int photHistory (WF3InfoRef *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int fluxHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int fluxHistory (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -341,7 +341,7 @@ int fluxHistory (WF3InfoRef *wf3, Hdr *phdr) {
 	return (status);
 }
 
-int cteHistory (WF3InfoRef *wf3, Hdr *phdr) {
+int cteHistory (WF3Info *wf3, Hdr *phdr) {
 	extern int status;
 	int logit;			/* true if we should log file name */
 	int OmitStep (int);

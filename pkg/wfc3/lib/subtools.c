@@ -18,7 +18,7 @@ int PutKeyBool(Hdr *, char *, int, char *);
 int GetCorner (Hdr *, int, int *, int *);
 
 
-int CreateEmptyChip(WF3InfoRef *wf3, SingleGroup *full){
+int CreateEmptyChip(WF3Info *wf3, SingleGroup *full){
   /* Create a full size, but empty group, which contains necessary meta data
      alloc and init the full data with the group and sizes you want
   */
@@ -65,7 +65,7 @@ return(status);
 }
 
 
-int Sub2Full(WF3InfoRef *wf3, SingleGroup *x, SingleGroup *full, int real_dq, int flag, int virtual) {
+int Sub2Full(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int real_dq, int flag, int virtual) {
   /* Place a subarray into a full frame image, this only  works on one chip
 
   flag is used to populate the DQ array when real_dq is false
@@ -140,7 +140,7 @@ int Sub2Full(WF3InfoRef *wf3, SingleGroup *x, SingleGroup *full, int real_dq, in
   return (status);
 }
 
-int Full2Sub(WF3InfoRef *wf3, SingleGroup *x, SingleGroup *full, int dq, int sci, int virtual) {
+int Full2Sub(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int dq, int sci, int virtual) {
   /* Take a full frame image and cut out the original subarray, this only
   works on one chip
   */

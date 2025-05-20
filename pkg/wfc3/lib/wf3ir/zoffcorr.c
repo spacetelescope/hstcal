@@ -5,7 +5,7 @@
 
 extern int status;
 
-static int zoffcorr (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
+static int zoffcorr (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
 
 /* DOZOFF: Call the ZOFFCORR step for all MULTIACCUM groups.
 **
@@ -14,7 +14,7 @@ static int zoffcorr (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
 ** H.Bushouse	08-May-2002	Modified to use trlkwerr.
 */
 
-int doZoffIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
+int doZoffIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -52,7 +52,7 @@ int doZoffIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff)
 ** H.Bushouse	Oct. 2000	Initial CALNICA to CALWF3 port.
 */
 
-static int zoffcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
+static int zoffcorr (WF3Info *wf3, SingleNicmosGroup *input,
 		     SingleNicmosGroup *zoff) {
 
 /* Arguments:

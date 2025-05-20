@@ -24,7 +24,7 @@ Revision History:
 				switches may be COMPLETE. (PR 66081)
 */
 
-int GetirSw (WF3InfoRef *wf3, Hdr *phdr) {
+int GetirSw (WF3Info *wf3, Hdr *phdr) {
 
 
 	extern int status;

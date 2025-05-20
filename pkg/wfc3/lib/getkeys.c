@@ -40,10 +40,10 @@
               the CTE reduction.
 */
 
-int GetKeys (WF3InfoRef *wf3, Hdr *phdr) {
+int GetKeys (WF3Info *wf3, Hdr *phdr) {
 
 /* arguments:
-WF3InfoRef *wf3  	io: calibration switches and info
+WF3Info *wf3  	io: calibration switches and info
 Hdr *phdr        i: primary header
 */
 
