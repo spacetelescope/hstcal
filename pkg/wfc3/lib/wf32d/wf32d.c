@@ -62,14 +62,14 @@
 
 
 /*Prototypes*/
-void FluxMsg(WF3Info *);
-int Do2D (WF3Info *, int);
+void FluxMsg(WF3InfoRef *);
+int Do2D (WF3InfoRef *, int);
 int FileExists (char *);
-int Get2dFlags (WF3Info *, Hdr *);
-int GetKeys (WF3Info *, Hdr *);
-void Sanity2d (WF3Info *);
+int Get2dFlags (WF3InfoRef *, Hdr *);
+int GetKeys (WF3InfoRef *, Hdr *);
+void Sanity2d (WF3InfoRef *);
 int LoadHdr (char *, Hdr *);
-void WF3Init (WF3Info *);
+void WF3Init (WF3InfoRef *);
 void PrBegin (char *label);
 void PrEnd (char *label);
 void PrFileName (char *label, char *filename);
@@ -77,7 +77,7 @@ void PrHdrInfo (char *aperture, char *filter, char *detector);
 void PrGrpBegin (char *label, int n);
 void PrGrpEnd (char *label, int n);
 void Init2DTrl (char *, char *);
-int doFlux (WF3Info *);
+int doFlux (WF3InfoRef *);
 void Init2DTrl (char *, char *);
 void PrSwitch (char *, int);
 

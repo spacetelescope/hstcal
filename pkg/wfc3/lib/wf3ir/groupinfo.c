@@ -20,7 +20,7 @@ extern int status;
 **				processing. (PR 66081)
 */
 
-int getGroupInfo (WF3Info *wf3, SingleNicmosGroup *in) {
+int getGroupInfo (WF3InfoRef *wf3, SingleNicmosGroup *in) {
 
 /* Arguments:
 **	wf3	io: WFC3 info structure
@@ -32,7 +32,7 @@ int getGroupInfo (WF3Info *wf3, SingleNicmosGroup *in) {
 	/* Function definitions */
 	int getExpTime   (WF3InfoRef *, Hdr *);
 	int getDataUnits (WF3InfoRef *, Hdr *);
-	/*int getTDFTrans  (WF3Info *, Hdr *);*/
+	/*int getTDFTrans  (WF3InfoRef *, Hdr *);*/
 
 	/* Get the exposure time */
 	if (getExpTime (wf3, &(in->sci.hdr)))

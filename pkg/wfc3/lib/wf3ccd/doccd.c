@@ -85,7 +85,7 @@ int PutKeyStr(Hdr *, char *, char *, char *);
 int DoCCD (WF3InfoRef *wf3, int extver) {
 
     /* arguments:
-       WF3Info *wf3	i: calibration switches and info
+       WF3InfoRef *wf3	i: calibration switches and info
        int extver	i: "imset" number, the current set of extensions
      */
 

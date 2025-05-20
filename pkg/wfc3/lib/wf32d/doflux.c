@@ -56,7 +56,7 @@ void FluxMsg (WF3InfoRef *wf32d) {
 int doFlux (WF3InfoRef *wf32d){
 
 	/* arguments:
-	   WF3Info *wf3     i: calibration switches, etc
+	   WF3InfoRef *wf3     i: calibration switches, etc
 	 */
 
 	extern int status;

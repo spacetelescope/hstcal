@@ -87,7 +87,7 @@ int doBlev (WF3InfoRef *wf3, SingleGroup *x, int chip, float *meanblev,
 	    int *overscan, int *driftcorr) {
 
 /* arguments:
-WF3Info *wf3     i: calibration switches, etc
+WF3InfoRef *wf3     i: calibration switches, etc
 SingleGroup *x	io: image to be calibrated
 int chip         i: chip number
 float meanblev   o: mean value of bias levels that were subtracted

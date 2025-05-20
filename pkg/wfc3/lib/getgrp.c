@@ -21,7 +21,7 @@
 int GetGrp (WF3InfoRef *wf3, Hdr *hdr) {
 
 /* arguments:
-WF3Info *wf3   io: calibration switches and info
+WF3InfoRef *wf3   io: calibration switches and info
 Hdr *hdr         i: header of current extension
 */
 

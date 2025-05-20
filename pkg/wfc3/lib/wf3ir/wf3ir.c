@@ -61,7 +61,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	WF3InfoRef wf3;	/* calibration switches, reference files, etc. */
 
 	/* Function definitions */
-	int  DoIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int  DoIR (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
 	int  FileExists (char *);
 	int  GetIRFlags (WF3InfoRef *, Hdr *);
 	int  GetKeys (WF3InfoRef *, Hdr *);
@@ -73,7 +73,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	void InitIRTrl (char *, char *);
 	void WF3Init   (WF3InfoRef *);
 
-	int  getRawData (WF3Info *, MultiNicmosGroup *);
+	int  getRawData (WF3InfoRef *, MultiNicmosGroup *);
 	int  putMultiCalData (MultiNicmosGroup *, char *);
 	int  putCalDataSect (SingleNicmosGroup *, char *, int, int, int, int);
 

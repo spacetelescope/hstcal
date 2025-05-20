@@ -48,7 +48,7 @@
 int doDark (WF3InfoRef *wf32d, SingleGroup *x, float *meandark) {
 
 /* arguments:
-WF3Info *wf3       i: calibration switches, etc
+WF3InfoRef *wf3       i: calibration switches, etc
 SingleGroup *x    io: image to be calibrated; written to in-place
 float *meandark	   o: mean of dark image values subtracted
 */

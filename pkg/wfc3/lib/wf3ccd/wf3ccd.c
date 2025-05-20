@@ -46,10 +46,10 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
 
     Hdr phdr;	/* primary header for input image */
 
-    int DoCCD (WF3Info *, int);
+    int DoCCD (WF3InfoRef *, int);
     int FileExists (char *);
-    int GetFlags (WF3Info *, Hdr *);
-    int GetKeys (WF3Info *, Hdr *);
+    int GetFlags (WF3InfoRef *, Hdr *);
+    int GetKeys (WF3InfoRef *, Hdr *);
     void PrBegin (char *);
     void PrEnd (char *);
     void PrFileName (char *, char *);
@@ -58,7 +58,7 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     void PrGrpEnd (char *, int);
     int LoadHdr (char *, Hdr *);
     void InitCCDTrl (char *, char *);
-    void WF3Init (WF3Info *);
+    void WF3Init (WF3InfoRef *);
     int MkName (char *, char *, char *, char *, char *, int);
     /* ----------------------- Start Code --------------------------------*/
 
