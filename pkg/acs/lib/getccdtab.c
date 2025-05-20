@@ -108,10 +108,10 @@ static int CloseCCDTab (TblInfo *);
     29-Apr-2020 MDD: Updated to read the new ATODSAT column.
 */
 
-int GetCCDTab (ACSInfo *acs, int dimx, int dimy) {
+int GetCCDTab (ACSInfoRef *acs, int dimx, int dimy) {
 
 /* arguments:
-ACSInfo *acs     io: calibration switches, etc
+ACSInfoRef *acs     io: calibration switches, etc
 int     dimx      i: number of columns in exposure
 int     dimy      i: number of lines in exposure
 */

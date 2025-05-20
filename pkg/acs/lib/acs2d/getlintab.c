@@ -50,7 +50,7 @@ static int CloseLinTab (TblInfo *);
    of any nonlinear pixel will also be flagged.
 */
 
-int GetLinTab (ACSInfo *acs2d) {
+int GetLinTab (ACSInfoRef *acs2d) {
 
 /* arguments:
 ACS2dInfo *acs2d     io: calibration switches, etc

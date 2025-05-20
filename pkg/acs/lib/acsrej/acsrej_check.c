@@ -386,12 +386,12 @@ static int checkgn (multiamp gn, char *fdata) {
 static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int dimy, int *ampx, int *ampy) {
 
     extern int status;
-    ACSInfo acsrej;
+    ACSInfoRef acsrej;
     char tabname[CHAR_LINE_LENGTH];
 
-    void ACSInit (ACSInfo *);
+    void ACSInit (ACSInfoRef *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
-    int GetCCDTab (ACSInfo *, int, int);
+    int GetCCDTab (ACSInfoRef *, int, int);
 
     ACSInit (&acsrej);
 

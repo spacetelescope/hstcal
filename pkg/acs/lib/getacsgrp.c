@@ -14,10 +14,10 @@
 		from EXT headers.
 */
 
-int GetACSGrp (ACSInfo *acs, Hdr *hdr) {
+int GetACSGrp (ACSInfoRef *acs, Hdr *hdr) {
 
 /* arguments:
-ACSInfo *acs   io: calibration switches and info
+ACSInfoRef *acs   io: calibration switches and info
 Hdr *hdr         i: header of current extension
 */
 
@@ -41,7 +41,7 @@ Hdr *hdr         i: header of current extension
 	/* Set acs->bin here, size of pixel in detector coordinates ... */
 	acs->bin[0] = 1;
 	acs->bin[1] = 1;
-	
+
 	/* Get CCD-specific parameters. */
 	if (GetKeyInt (hdr, "CCDCHIP", USE_DEFAULT, 1, &acs->chip))
 	    return (status);

@@ -22,7 +22,7 @@
 # include "../../../../ctegen2/ctegen2.h"
 #include <assert.h>
 
-int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *amp,
+int get_amp_array_size_acs_cte(const ACSInfoRef *acs, SingleGroup *amp,
                                char *amploc, char *ccdamp,
                                int *xsize, int *ysize, int *xbeg,
                                int *xend, int *ybeg, int *yend);
@@ -39,7 +39,7 @@ static void transpose(FloatTwoDArray *amp);
 static void side2sideFlip(FloatTwoDArray *amp);
 static void top2bottomFlip(FloatTwoDArray *amp);
 
-int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID)
+int doPCTEGen3 (ACSInfoRef *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID)
 
 {
 
@@ -348,11 +348,11 @@ static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsig
 
 /*
    The rotation routines support the serial CTE correction such that the data
-   is configured to mimic the parallel CTE data.  The idea is to 
-   rotate the amp to put the serial trails in the same orientation as 
+   is configured to mimic the parallel CTE data.  The idea is to
+   rotate the amp to put the serial trails in the same orientation as
    those of the parallel trails and then the existing CTE functions are applied.
    Essentially, the CTE correction routines can then be applied in the identical
-   manner for BOTH the serial and the parallel CTE correction cases. 
+   manner for BOTH the serial and the parallel CTE correction cases.
 
    Once the serial CTE correction has been performed, the amps then need to be
    "de-rotated" so the parallel CTE correction can then be applied.
@@ -414,7 +414,7 @@ static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
        Rotate the amp to put the serial trails in the same orientation
        as the parallel trails would be. A rotation requires a transpose
        and then a flip. Always transpose the data first.
-       
+
     */
     transpose(amp);
 
@@ -440,8 +440,8 @@ static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
 
     /*
        To derotate the amp, you are reversing the direction of the initial
-       rotation.  Always transpose the data first, and then apply the 
-       side-to-side or top-to-bottom flip to put the amp back into its 
+       rotation.  Always transpose the data first, and then apply the
+       side-to-side or top-to-bottom flip to put the amp back into its
        original orientation so the parallel CTE correction can proceed.
     */
     transpose(amp);
@@ -583,9 +583,9 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
 /*
    Flip the amp about the X-axis central row (i.e., flip from top to bottom)
 
-   Note: This routine was originally in alignAmpData flow of processing.  It 
+   Note: This routine was originally in alignAmpData flow of processing.  It
    is now encapulated here as it is used multiple times due to the rotations
-   needed to accommodate the serial CTE correction.  The original OPENMP 
+   needed to accommodate the serial CTE correction.  The original OPENMP
    specifications have been left intact.
 */
 static void top2bottomFlip(FloatTwoDArray * amp)

@@ -21,7 +21,7 @@ static int GetSw (Hdr *, char *, int *);
  12 Aug 2013 PLL - Separated PCTECORR from ACSCCD.
  21 Feb 2017 PLL - Added SINKCORR.
  */
-int GetccdSw (ACSInfo *acs, Hdr *phdr) {
+int GetccdSw (ACSInfoRef *acs, Hdr *phdr) {
 
     extern int status;
     /*FitsKw key;*/        /* keyword location in header */

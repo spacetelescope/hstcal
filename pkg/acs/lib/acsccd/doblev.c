@@ -41,11 +41,11 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
  where the column id was being incremented twice.
  */
 
-int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
+int doBlev (ACSInfoRef *acs, SingleGroup *x, int chip, float *meanblev,
             int *overscan, int *driftcorr) {
 
   /* arguments:
-   ACSInfo *acs    i: calibration switches, etc
+   ACSInfoRef *acs    i: calibration switches, etc
    SingleGroup *x    io: image to be calibrated
    int chip        i: chip number
    float meanblev   o: mean value of bias levels that were subtracted

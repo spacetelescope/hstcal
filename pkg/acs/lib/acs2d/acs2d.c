@@ -24,7 +24,7 @@ void Init2DTrl (char *, char *);
 
    	Warren Hack, 1998 June 9:
 		Initial ACS version.
-	
+
 	Warren Hack, 1998 Nov 17:
 		Revised to support trailer file comments
 */
@@ -34,19 +34,19 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 
 	extern int status;
 
-	ACSInfo acs2d;	/* calibration switches, reference files, etc */
+	ACSInfoRef acs2d;	/* calibration switches, reference files, etc */
 	int extver;
 
 	Hdr phdr;		/* primary header for input image */
 
-	int Do2D (ACSInfo *, int);
+	int Do2D (ACSInfoRef *, int);
 	int FileExists (char *);
-	int Get2dFlags (ACSInfo *, Hdr *);
-	int GetLinTab (ACSInfo *);
-	void Sanity2d (ACSInfo *);
+	int Get2dFlags (ACSInfoRef *, Hdr *);
+	int GetLinTab (ACSInfoRef *);
+	void Sanity2d (ACSInfoRef *);
 	void TimeStamp (char *, char *);
 	int LoadHdr (char *, Hdr *);
-	void ACSInit (ACSInfo *);
+	void ACSInit (ACSInfoRef *);
 	void PrBegin (char *label);
 	void PrEnd (char *label);
 	void PrFileName (char *label, char *filename);
@@ -54,7 +54,7 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	void PrGrpBegin (char *label, int n);
 	void PrGrpEnd (char *label, int n);
 	void Init2DTrl (char *, char *);
-	
+
 /* ----------------------- Start Code --------------------------------*/
 
 	/* Determine the names of the trailer files based on the input
@@ -63,9 +63,9 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	*/
 	Init2DTrl (input, output);
 	/* If we had a problem initializing the trailer files, quit... */
-	if (status != ACS_OK) 
+	if (status != ACS_OK)
 		return (status);
-	
+
 	PrBegin ("ACS2D");
 
 	if (printtime)
@@ -90,12 +90,12 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	acs2d.noisecorr = PERFORM;
 	acs2d.printtime = printtime;
 	acs2d.verbose = verbose;
-    
+
 	acs2d.refnames = refnames;
 
 	PrFileName ("input", acs2d.input);
 	PrFileName ("output", acs2d.output);
-	
+
 	/* Check whether the output file already exists. */
 	if (FileExists (acs2d.output))
 	    return (status);
@@ -104,7 +104,7 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	if (LoadHdr (acs2d.input, &phdr) )
 		return (status);
 
-	/* Get keyword values from primary header using same function 
+	/* Get keyword values from primary header using same function
 		used in ACSCCD
 	*/
 	if (getAndCheckACSKeys (&acs2d, &phdr)) {
@@ -141,11 +141,11 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 
 	if (acs2d.printtime)
 	    TimeStamp ("Begin processing", acs2d.rootname);
-	
+
 	if (verbose) {
 		trlmessage("Processing %d IMSETs...",acs2d.nimsets);
 	}
-	
+
 	for (extver = 1;  extver <= acs2d.nimsets;  extver++) {
 	    trlmessage("\n");
 	    PrGrpBegin ("imset", extver);
@@ -169,13 +169,13 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 
 
 void Init2DTrl (char *input, char *output) {
-	
+
 	extern int status;
 	int exist;
 
 	char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
 	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
-	
+
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
@@ -187,7 +187,7 @@ void Init2DTrl (char *input, char *output) {
 	char *trlsuffix[] = {"", "", "", "", ""};
 
 	int nsuffix = 5;
-	
+
 	/* Initialize internal variables */
 	trl_in[0] = '\0';
 	trl_out[0] = '\0';
@@ -202,7 +202,7 @@ void Init2DTrl (char *input, char *output) {
 		WhichError (status);
 		trlerror("Couldn't create trailer filename for %s", output);
 	}
-    
+
 	/* Now, convert trailer filename extensions from '.fits' to '.trl' */
 	if (MkNewExtn (trl_in, TRL_EXTN) ) {
 		trlerror("Error with input trailer filename %s", trl_in);
@@ -213,17 +213,17 @@ void Init2DTrl (char *input, char *output) {
 		WhichError (status);
 	}
 
-	/* If we are working with a RAW file, then see if a TRL file 
+	/* If we are working with a RAW file, then see if a TRL file
 		needs to be overwritten after the generic conversion comments.
 	*/
 	if (strstr(input, isuffix[0]) != NULL) {
 		/* Test whether the output file already exists */
-		exist = TrlExists(trl_out);            
+		exist = TrlExists(trl_out);
 		if (exist == EXISTS_YES) {
 			/* The output file exists, so we want to overwrite them with
 				the new trailer comments.
 			*/
-			SetTrlOverwriteMode (YES);	
+			SetTrlOverwriteMode (YES);
 		}
 	}
 

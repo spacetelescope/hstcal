@@ -34,13 +34,13 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
 
     extern int status;
 
-    ACSInfo acs;	/* calibration switches, reference files, etc */
+    ACSInfoRef acs;	/* calibration switches, reference files, etc */
 
     Hdr phdr;		/* primary header for input image */
 
-    int DoCTE (ACSInfo *, const bool forwardModelOnly);
+    int DoCTE (ACSInfoRef *, const bool forwardModelOnly);
     int FileExists (char *);
-    int GetCTEFlags (ACSInfo *, Hdr *);
+    int GetCTEFlags (ACSInfoRef *, Hdr *);
     void TimeStamp (char *, char *);
     void PrBegin (char *);
     void PrEnd (char *);
@@ -49,11 +49,11 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
     void PrGrpBegin (char *, int);
     void PrGrpEnd (char *, int);
     int LoadHdr (char *, Hdr *);
-    void ACSInit (ACSInfo *);
+    void ACSInit (ACSInfoRef *);
     int MkName (char *, char *, char *, char *, char *, int);
 
-    int GetACSGrp (ACSInfo *, Hdr *);
-    int GetCCDTab (ACSInfo *, int, int);
+    int GetACSGrp (ACSInfoRef *, Hdr *);
+    int GetCCDTab (ACSInfoRef *, int, int);
 
     /* ----------------------- Start Code --------------------------------*/
 

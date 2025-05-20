@@ -45,10 +45,10 @@
 # include "hstcalerr.h"
 
 
-static void dqiMsg (ACSInfo *, const int);
-static void BiasMsg (ACSInfo *, const int);
-static void BlevMsg (ACSInfo *, const int);
-static void SinkMsg (ACSInfo *, const int);
+static void dqiMsg (ACSInfoRef *, const int);
+static void BiasMsg (ACSInfoRef *, const int);
+static void BlevMsg (ACSInfoRef *, const int);
+static void SinkMsg (ACSInfoRef *, const int);
 
 /* This variable contains the subarray aperture names for the officially supported
    subarrays since ~Cycle 24.  The polarizer and ramp subarray apertures did NOT
@@ -81,7 +81,7 @@ static const char *darkSubApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WF
 
 static const int numSupportedDarkSubApertures = sizeof(darkSubApertures) / sizeof(darkSubApertures[0]);
 
-int DoCCD (ACSInfo *acs_info) {
+int DoCCD (ACSInfoRef *acs_info) {
 
     /* arguments:
        acs   i: calibration switches and info
@@ -91,23 +91,23 @@ int DoCCD (ACSInfo *acs_info) {
 
     char buff[ACS_FITS_REC+1];
 
-    int to_electrons(ACSInfo *, SingleGroup *);
-    void computeDarktime(ACSInfo *, float *);
-    int doBias (ACSInfo *, SingleGroup *);
-    int biasHistory (ACSInfo *, Hdr *);
-    int doBlev (ACSInfo *, SingleGroup *, int, float *, int *, int *);
-    int bias_shift_corr(ACSInfo *, int, ...);
-    void cross_talk_corr(ACSInfo *, SingleGroup *);
-    int doDestripe(ACSInfo *, SingleGroup *, SingleGroup *);
-    int blevHistory (ACSInfo *, Hdr *, int, int);
-    int CCDHistory (ACSInfo *, Hdr *);
-    int doDQI (ACSInfo *, SingleGroup *);
-    int dqiHistory (ACSInfo *, Hdr *);
-    int doNoise (ACSInfo *, SingleGroup *, int *);
+    int to_electrons(ACSInfoRef *, SingleGroup *);
+    void computeDarktime(ACSInfoRef *, float *);
+    int doBias (ACSInfoRef *, SingleGroup *);
+    int biasHistory (ACSInfoRef *, Hdr *);
+    int doBlev (ACSInfoRef *, SingleGroup *, int, float *, int *, int *);
+    int bias_shift_corr(ACSInfoRef *, int, ...);
+    void cross_talk_corr(ACSInfoRef *, SingleGroup *);
+    int doDestripe(ACSInfoRef *, SingleGroup *, SingleGroup *);
+    int blevHistory (ACSInfoRef *, Hdr *, int, int);
+    int CCDHistory (ACSInfoRef *, Hdr *);
+    int doDQI (ACSInfoRef *, SingleGroup *);
+    int dqiHistory (ACSInfoRef *, Hdr *);
+    int doNoise (ACSInfoRef *, SingleGroup *, int *);
     int noiseHistory (Hdr *);
-    int SinkDetect (ACSInfo *, SingleGroup *);
-    int sinkHistory(const ACSInfo *, Hdr *);
-    int GetACSGrp (ACSInfo *, Hdr *);
+    int SinkDetect (ACSInfoRef *, SingleGroup *);
+    int sinkHistory(const ACSInfoRef *, Hdr *);
+    int GetACSGrp (ACSInfoRef *, Hdr *);
     int OmitStep (int);
     int PutKeyFlt (Hdr *, char *, float, char *);
     int PutKeyInt (Hdr *, char *, int, char *);
@@ -117,10 +117,10 @@ int DoCCD (ACSInfo *acs_info) {
     void TimeStamp (char *, char *);
     void UCalVer (Hdr *);
     void UFilename (char *, Hdr *);
-    int FindOverscan (ACSInfo *, int, int, int *, int *);
-    int GetCCDTab (ACSInfo *, int, int);
+    int FindOverscan (ACSInfoRef *, int, int, int *, int *);
+    int GetCCDTab (ACSInfoRef *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
-    int doFullWellSat(ACSInfo *, SingleGroup *);
+    int doFullWellSat(ACSInfoRef *, SingleGroup *);
 
     /*========================Start Code here =======================*/
 
@@ -134,8 +134,8 @@ int DoCCD (ACSInfo *acs_info) {
        return (status = OUT_OF_MEMORY);
     addPtr(&ptrReg, x, &free);
 
-    ACSInfo * acs   = NULL;   /* hold a copy of the acs_info struct for each extension */
-    acs = (ACSInfo *) malloc(acs_info->nimsets * sizeof(ACSInfo));
+    ACSInfoRef * acs   = NULL;   /* hold a copy of the acs_info struct for each extension */
+    acs = (ACSInfoRef *) malloc(acs_info->nimsets * sizeof(ACSInfoRef));
     if (!acs) {
        freeOnExit (&ptrReg);
        return (status = OUT_OF_MEMORY);
@@ -913,12 +913,12 @@ int DoCCD (ACSInfo *acs_info) {
  * This routine updates the DARKTIME value such that every BLV_TMP file will
  * have the correct DARKTIME keyword.
  */
-void computeDarktime(ACSInfo *acs, float *darktime) {
+void computeDarktime(ACSInfoRef *acs, float *darktime) {
 
     float darktimeFromHeader;  /* base darktime value from FITS keyword DARKTIME in image header */
     float darktimeOffset;      /* overhead offset time (s) based upon full-frame/subarray and post-flashed/unflashed */
 
-    /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
+    /* Get the DARKTIME FITS keyword value stored in the ACSInfoRef structure */
     darktimeFromHeader = (float)acs->darktime;
 
     /*
@@ -971,7 +971,7 @@ void computeDarktime(ACSInfo *acs, float *darktime) {
 }
 
 
-static void dqiMsg (ACSInfo *acs, const int extver) {
+static void dqiMsg (ACSInfoRef *acs, const int extver) {
     int OmitStep (int);
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
@@ -986,7 +986,7 @@ static void dqiMsg (ACSInfo *acs, const int extver) {
 }
 
 
-static void BiasMsg (ACSInfo *acs, const int extver) {
+static void BiasMsg (ACSInfoRef *acs, const int extver) {
     int OmitStep (int);
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
@@ -1001,7 +1001,7 @@ static void BiasMsg (ACSInfo *acs, const int extver) {
 }
 
 
-static void BlevMsg (ACSInfo *acs, const int extver) {
+static void BlevMsg (ACSInfoRef *acs, const int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
     int OmitStep (int);
@@ -1016,7 +1016,7 @@ static void BlevMsg (ACSInfo *acs, const int extver) {
 }
 
 
-static void SinkMsg (ACSInfo *acs, const int extver) {
+static void SinkMsg (ACSInfoRef *acs, const int extver) {
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
     int OmitStep (int);

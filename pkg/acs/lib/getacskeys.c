@@ -11,43 +11,43 @@
 # include "str_util.h"
 
 /* This routine gets keyword values from the primary header.
- 
+
  Warren Hack, 1998 June 8:
  Original ACS version based on Phil Hodge's CALSTIS routine...
- 
+
  24-Sep-1998 WJH - Removed BIAS_REJ as a keyword
  17-Nov-1998 WJH - Revised to support trailer files
  11-Feb-1999 WJH - Read EXPTIME from Primary header instead of SCI hdr
  29-Oct-2001 WJH - Updated to use default value for CCDOFST[A,B,C.D] of 3
  4-Dec-2001 WJH - Read in EXPSTART and EXPEND for computing darktime.
  12-Dec-2012 PLL - Changed FLASHDUR and FLASHSTA defaults.
- 26-Jul-2018 MDD - Convert APERTURE and JWROTYPE values to upper-case. 
+ 26-Jul-2018 MDD - Convert APERTURE and JWROTYPE values to upper-case.
  05-Dec-2019 MDD - Read the DARKTIME keyword and convert FLASHSTA to upper-case.
  */
 
-int getACSKeys (ACSInfo *acs, Hdr *phdr) {
-  
+int getACSKeys (ACSInfoRef *acs, Hdr *phdr) {
+
   /* arguments:
-   ACSInfo *acs  	io: calibration switches and info
+   ACSInfoRef *acs  	io: calibration switches and info
    Hdr *phdr        i: primary header
    */
-  
+
 	extern int status;
-  
+
 	Bool subarray;
-  
+
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int GetKeyFlt (Hdr *, char *, int, float, float *);
   int GetKeyDbl (Hdr *, char *, int, double, double *);
   int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
-  
+
 	/* Get generic parameters. */
-  
+
 	if (GetKeyStr (phdr, "ROOTNAME", NO_DEFAULT, "",
                  acs->rootname, ACS_CBUF))
        return (status);
-  
+
 	if (GetKeyStr (phdr, "APERTURE", USE_DEFAULT, "", acs->aperture, ACS_CBUF))
        return (status);
 
@@ -55,7 +55,7 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
     return (status);
     if (GetKeyStr (phdr, "JWROTYPE", USE_DEFAULT, "", acs->jwrotype, ACS_CBUF))
        return (status);
-  
+
 	if (GetKeyStr (phdr, "DETECTOR", NO_DEFAULT, "", acs->det, ACS_CBUF))
     return (status);
 
@@ -64,7 +64,7 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
     return (status);
   if (GetKeyStr (phdr, "FILTER2", USE_DEFAULT, "", acs->filter2, ACS_CBUF))
     return (status);
-  
+
 	if (GetKeyDbl (phdr, "EXPTIME", NO_DEFAULT, 0., &acs->exptime))
     return (status);
 
@@ -79,9 +79,9 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
 
 	if (GetKeyInt (phdr, "SUBARRAY", NO_DEFAULT, 0, &acs->subarray))
 	  return (status);
-  
+
 	/* Get CCD-specific parameters. */
-  
+
     if (strcmp (acs->det, "SBC") != 0)
     {
         if (GetKeyStr (phdr, "CCDAMP", NO_DEFAULT, "",
@@ -121,7 +121,7 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int checkACSKeys(ACSInfo *acs)
+int checkACSKeys(ACSInfoRef *acs)
 {
     int tmpStatus = HSTCAL_OK;
 
@@ -172,7 +172,7 @@ int checkACSKeys(ACSInfo *acs)
     return HSTCAL_OK;
 }
 
-int getAndCheckACSKeys (ACSInfo *acs, Hdr *phdr)
+int getAndCheckACSKeys (ACSInfoRef *acs, Hdr *phdr)
 {
     int tmpStatus = HSTCAL_OK;
     if ((tmpStatus = getACSKeys(acs, phdr)))

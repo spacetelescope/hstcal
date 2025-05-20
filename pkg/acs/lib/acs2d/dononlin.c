@@ -34,16 +34,16 @@ static void ExpandDQ (SingleGroup *, float, int, int);
    (by scaling by the pixel area if high-res is used in X and/or Y),
    but it is not known at the time of writing whether this is the
    appropriate correction.
-   
+
    Warren Hack, 1998 June 11:
-   	Initial ACS version.  No code changes necessary, other than 
+   	Initial ACS version.  No code changes necessary, other than
 		renaming structure to 'ACSInfo'.
 */
 
-int doNonLin (ACSInfo *acs2d, SingleGroup *x, int *gsat, int *lsat) {
+int doNonLin (ACSInfoRef *acs2d, SingleGroup *x, int *gsat, int *lsat) {
 
 /* arguments:
-ACSInfo *acs2d    i: calibration switches, etc
+ACSInfoRef *acs2d    i: calibration switches, etc
 SingleGroup *x   io: image to be calibrated; written to in-place
 int *gsat         o: > 0 if global saturation limit exceeded
 int *lsat         o: > 0 if locally saturated pixels found
@@ -90,7 +90,7 @@ int *lsat         o: > 0 if locally saturated pixels found
 	if (acs2d->lflgcorr == PERFORM) {
 
 	    local_limit = acs2d->local_limit * acs2d->exptime;
-        
+
 	    /* If a value is nonlinear, flag it as well as pixels near it. */
 	    for (j = 0;  j < x->sci.data.ny;  j++) {
 		for (i = 0;  i < x->sci.data.nx;  i++) {
@@ -150,7 +150,7 @@ function value   o: the ratio of true to observed count rate
    pixel, this function will mark those pixels that are +/- EXPAND
    number of pixels from it.  Therefore, if EXPAND = 1, all pixels
    within 1 pixel from the flagged pixel will be marked.
-   
+
    Removed all references to binning.  WJH 27 July 1999
 */
 

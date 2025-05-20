@@ -31,20 +31,20 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"
 
-static void DarkMsg (ACSInfo *, int, int);
-static void FlashMsg (ACSInfo *, int, int);
-static void dqiMsg (ACSInfo *, int);
-static void NonLinMsg (ACSInfo *, int);
-static void PhotMsg (ACSInfo *);
-static void ShadMsg (ACSInfo *, int);
-static void FlatMsg (ACSInfo *, int);
+static void DarkMsg (ACSInfoRef *, int, int);
+static void FlashMsg (ACSInfoRef *, int, int);
+static void dqiMsg (ACSInfoRef *, int);
+static void NonLinMsg (ACSInfoRef *, int);
+static void PhotMsg (ACSInfoRef *);
+static void ShadMsg (ACSInfoRef *, int);
+static void FlatMsg (ACSInfoRef *, int);
 
 static int OscnTrimmed (Hdr*, Hdr *);
 
-int Do2D (ACSInfo *acs2d, int extver) {
+int Do2D (ACSInfoRef *acs2d, int extver) {
 
   /* arguments:
-   ACSInfo *acs2d   i: calibration switches and info
+   ACSInfoRef *acs2d   i: calibration switches and info
    int extver       i: "imset" number, the current set of extensions
    */
 
@@ -64,28 +64,28 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
   char units[CHAR_LINE_LENGTH];
 
-  int to_electrons(ACSInfo *, SingleGroup *);
+  int to_electrons(ACSInfoRef *, SingleGroup *);
   int check_zero_noise(SingleGroup *);
-	int CCDHistory (ACSInfo *, Hdr *);
-	int doDark (ACSInfo *, SingleGroup *, float *);
-	int darkHistory (ACSInfo *, Hdr *);
-        int doFlash (ACSInfo *, SingleGroup *, float *);
-        int flashHistory (ACSInfo *, Hdr *);
-	int doDQI (ACSInfo *, SingleGroup *);
-	int dqiHistory (ACSInfo *, Hdr *);
-	int doFlat (ACSInfo *, int, SingleGroup *);
-	int flatHistory (ACSInfo *, Hdr *);
-	int doNonLin (ACSInfo *, SingleGroup *, int *, int *);
-	int nonlinHistory (ACSInfo *, Hdr *);
-	int doNoise (ACSInfo *, SingleGroup *, int *);
+	int CCDHistory (ACSInfoRef *, Hdr *);
+	int doDark (ACSInfoRef *, SingleGroup *, float *);
+	int darkHistory (ACSInfoRef *, Hdr *);
+        int doFlash (ACSInfoRef *, SingleGroup *, float *);
+        int flashHistory (ACSInfoRef *, Hdr *);
+	int doDQI (ACSInfoRef *, SingleGroup *);
+	int dqiHistory (ACSInfoRef *, Hdr *);
+	int doFlat (ACSInfoRef *, int, SingleGroup *);
+	int flatHistory (ACSInfoRef *, Hdr *);
+	int doNonLin (ACSInfoRef *, SingleGroup *, int *, int *);
+	int nonlinHistory (ACSInfoRef *, Hdr *);
+	int doNoise (ACSInfoRef *, SingleGroup *, int *);
 	int noiseHistory (Hdr *);
-	int doPhot (ACSInfo *, SingleGroup *);
-	int PhotMode (ACSInfo *, SingleGroup *);
-	int photHistory (ACSInfo *, Hdr *);
-	int doShad (ACSInfo *, int, SingleGroup *);
-	int shadHistory (ACSInfo *, Hdr *);
+	int doPhot (ACSInfoRef *, SingleGroup *);
+	int PhotMode (ACSInfoRef *, SingleGroup *);
+	int photHistory (ACSInfoRef *, Hdr *);
+	int doShad (ACSInfoRef *, int, SingleGroup *);
+	int shadHistory (ACSInfoRef *, Hdr *);
 	int doStat (SingleGroup *, short);
-	int GetACSGrp (ACSInfo *, Hdr *);
+	int GetACSGrp (ACSInfoRef *, Hdr *);
 	int OmitStep (int);
 	int PutKeyFlt (Hdr *, char *, float, char *);
   int PutKeyStr(Hdr *, char *, char *, char *);
@@ -95,7 +95,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	void TimeStamp (char *, char *);
 	void UCalVer (Hdr *);
 	void UFilename (char *, Hdr *);
-	int GetCCDTab (ACSInfo *, int, int);
+	int GetCCDTab (ACSInfoRef *, int, int);
         int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
         int UpdateSwitch (char *, int, Hdr *, int *);
 
@@ -422,7 +422,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	return (status);
 }
 
-static void DarkMsg (ACSInfo *acs2d, int extver, int pctecorr) {
+static void DarkMsg (ACSInfoRef *acs2d, int extver, int pctecorr) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -443,7 +443,7 @@ static void DarkMsg (ACSInfo *acs2d, int extver, int pctecorr) {
 	}
 }
 
-static void FlashMsg (ACSInfo *acs2d, int extver, int pctecorr) {
+static void FlashMsg (ACSInfoRef *acs2d, int extver, int pctecorr) {
 
     int OmitStep (int);
     void PrSwitch (char *, int);
@@ -464,7 +464,7 @@ static void FlashMsg (ACSInfo *acs2d, int extver, int pctecorr) {
     }
 }
 
-static void dqiMsg (ACSInfo *acs2d, int extver) {
+static void dqiMsg (ACSInfoRef *acs2d, int extver) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -480,7 +480,7 @@ static void dqiMsg (ACSInfo *acs2d, int extver) {
 	}
 }
 
-static void FlatMsg (ACSInfo *acs2d, int extver) {
+static void FlatMsg (ACSInfoRef *acs2d, int extver) {
 
 	int GotFileName (char *);
 	int OmitStep (int);
@@ -514,7 +514,7 @@ static void FlatMsg (ACSInfo *acs2d, int extver) {
 	}
 }
 
-static void NonLinMsg (ACSInfo *acs2d, int extver) {
+static void NonLinMsg (ACSInfoRef *acs2d, int extver) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);
@@ -536,7 +536,7 @@ static void NonLinMsg (ACSInfo *acs2d, int extver) {
 	}
 }
 
-static void PhotMsg (ACSInfo *acs2d) {
+static void PhotMsg (ACSInfoRef *acs2d) {
 
 	int OmitStep (int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
@@ -547,7 +547,7 @@ static void PhotMsg (ACSInfo *acs2d) {
 	}
 }
 
-static void ShadMsg (ACSInfo *acs2d, int extver) {
+static void ShadMsg (ACSInfoRef *acs2d, int extver) {
 
 	int OmitStep (int);
 	void PrSwitch (char *, int);

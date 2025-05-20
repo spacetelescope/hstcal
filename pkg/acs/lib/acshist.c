@@ -32,7 +32,7 @@
 
  */
 
-int atodHistory (ACSInfo *acs, Hdr *phdr) {
+int atodHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 
@@ -56,7 +56,7 @@ int atodHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int pcteHistory (ACSInfo *acs, Hdr *phdr) {
+int pcteHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 
@@ -94,7 +94,7 @@ int pcteHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int biasHistory (ACSInfo *acs, Hdr *phdr) {
+int biasHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 
@@ -118,7 +118,7 @@ int biasHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int flashHistory (ACSInfo *acs, Hdr *phdr) {
+int flashHistory (ACSInfoRef *acs, Hdr *phdr) {
 
     extern int status;
 
@@ -146,7 +146,7 @@ int flashHistory (ACSInfo *acs, Hdr *phdr) {
     return (status);
 }
 
-int blevHistory (ACSInfo *acs, Hdr *phdr, int done, int driftcorr) {
+int blevHistory (ACSInfoRef *acs, Hdr *phdr, int done, int driftcorr) {
 
 	extern int status;
 	int OmitStep (int);
@@ -185,7 +185,7 @@ int blevHistory (ACSInfo *acs, Hdr *phdr, int done, int driftcorr) {
 	return (status);
 }
 
-int sinkHistory (const ACSInfo *acs, Hdr *phdr) {
+int sinkHistory (const ACSInfoRef *acs, Hdr *phdr) {
 
     extern int status;
 
@@ -211,7 +211,7 @@ int sinkHistory (const ACSInfo *acs, Hdr *phdr) {
 
 /* Info about CCD parameters table (no specific calibration step). */
 
-int CCDHistory (ACSInfo *acs, Hdr *phdr) {
+int CCDHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 	int TabHistory (RefTab *, Hdr *);
@@ -223,7 +223,7 @@ int CCDHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int dqiHistory (ACSInfo *acs, Hdr *phdr) {
+int dqiHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -277,7 +277,7 @@ int noiseHistory (Hdr *phdr) {
 	return (status);
 }
 
-int darkHistory (ACSInfo *acs, Hdr *phdr) {
+int darkHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -302,7 +302,7 @@ int darkHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int flatHistory (ACSInfo *acs, Hdr *phdr) {
+int flatHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 
@@ -346,7 +346,7 @@ int flatHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int nonlinHistory (ACSInfo *acs, Hdr *phdr) {
+int nonlinHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 	int logglin, loglfl;			/* true if we should log file name */
@@ -376,7 +376,7 @@ int nonlinHistory (ACSInfo *acs, Hdr *phdr) {
 	return (status);
 }
 
-int shadHistory (ACSInfo *acs, Hdr *phdr) {
+int shadHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */
@@ -400,7 +400,7 @@ int shadHistory (ACSInfo *acs, Hdr *phdr) {
 
 /* Photometry. */
 
-int photHistory (ACSInfo *acs, Hdr *phdr) {
+int photHistory (ACSInfoRef *acs, Hdr *phdr) {
 
 	extern int status;
 	int logit;			/* true if we should log file name */

@@ -17,7 +17,7 @@
 # include "trlbuf.h"
 # include "getacskeys.h"
 
-static int BiasKeywords (ACSInfo *);
+static int BiasKeywords (ACSInfoRef *);
 void InitCCDTrl (char *, char *);
 
 
@@ -41,13 +41,13 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
 
     extern int status;
 
-    ACSInfo acs;	/* calibration switches, reference files, etc */
+    ACSInfoRef acs;	/* calibration switches, reference files, etc */
 
     Hdr phdr;		/* primary header for input image */
 
-    int DoCCD (ACSInfo *);
+    int DoCCD (ACSInfoRef *);
     int FileExists (char *);
-    int GetACSFlags (ACSInfo *, Hdr *);
+    int GetACSFlags (ACSInfoRef *, Hdr *);
     void TimeStamp (char *, char *);
     void PrBegin (char *);
     void PrEnd (char *);
@@ -56,11 +56,11 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     void PrGrpBegin (char *, int);
     void PrGrpEnd (char *, int);
     int LoadHdr (char *, Hdr *);
-    void ACSInit (ACSInfo *);
+    void ACSInit (ACSInfoRef *);
     int MkName (char *, char *, char *, char *, char *, int);
 
-    int GetACSGrp (ACSInfo *, Hdr *);
-    int GetCCDTab (ACSInfo *, int, int);
+    int GetACSGrp (ACSInfoRef *, Hdr *);
+    int GetCCDTab (ACSInfoRef *, int, int);
 
     /* ----------------------- Start Code --------------------------------*/
 
@@ -225,7 +225,7 @@ void InitCCDTrl (char *input, char *output) {
 }
 
 
-static int BiasKeywords (ACSInfo *acs) {
+static int BiasKeywords (ACSInfoRef *acs) {
 
     extern int status;
 

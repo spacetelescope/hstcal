@@ -30,10 +30,10 @@
   Read entire saturation image into memory rather than line by line access.
  */
 
-int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
+int doFullWellSat(ACSInfoRef *acs, SingleGroup *x) {
 
     /*
-      ACSInfo *acs     i: calibration switches, etc.
+      ACSInfoRef *acs     i: calibration switches, etc.
       SingleGroup *x   io: image to be modified; dq array is updated in-place
      */
 

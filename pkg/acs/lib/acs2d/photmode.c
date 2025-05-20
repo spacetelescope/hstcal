@@ -15,10 +15,10 @@
 
 */
 
-int PhotMode (ACSInfo *acs2d, SingleGroup *x) {
+int PhotMode (ACSInfoRef *acs2d, SingleGroup *x) {
 
 /* arguments:
-ACSInfo *acs    i: calibration switches, etc
+ACSInfoRef *acs    i: calibration switches, etc
 SingleGroup *x    io: image to be calibrated; primary header is modified
 */
 

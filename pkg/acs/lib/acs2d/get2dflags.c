@@ -7,16 +7,16 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"		/* defines error codes */
 
-static int checkCCD (Hdr *, ACSInfo *, int *);
-static int checkDark (Hdr *, ACSInfo *, int *, int *);
-static int checkDarkCTE (Hdr *, ACSInfo *, int *, int *);
-static int checkFlash (Hdr *, ACSInfo *, int *, int *);
-static int checkFlashCTE (Hdr *, ACSInfo *, int *, int *);
-static int checkDQI (Hdr *, ACSInfo *, int *, int *);
-static int checkFlat (Hdr *, ACSInfo *, int *, int *);
-static int checkNonLin (Hdr *, ACSInfo *, int *, int *);
-static int checkPhot (Hdr *, ACSInfo *, int *, int *);
-static int checkShad (Hdr *, ACSInfo *, int *, int *);
+static int checkCCD (Hdr *, ACSInfoRef *, int *);
+static int checkDark (Hdr *, ACSInfoRef *, int *, int *);
+static int checkDarkCTE (Hdr *, ACSInfoRef *, int *, int *);
+static int checkFlash (Hdr *, ACSInfoRef *, int *, int *);
+static int checkFlashCTE (Hdr *, ACSInfoRef *, int *, int *);
+static int checkDQI (Hdr *, ACSInfoRef *, int *, int *);
+static int checkFlat (Hdr *, ACSInfoRef *, int *, int *);
+static int checkNonLin (Hdr *, ACSInfoRef *, int *, int *);
+static int checkPhot (Hdr *, ACSInfoRef *, int *, int *);
+static int checkShad (Hdr *, ACSInfoRef *, int *, int *);
 
 /* This routine gets the names of reference images and tables from the
  primary header and checks for dummy pedigree.
@@ -30,7 +30,7 @@ static int checkShad (Hdr *, ACSInfo *, int *, int *);
  Moved FLASHCORR from ACSCCD. Removed POSTFLSH support per PR 44872.
  */
 
-int Get2dFlags (ACSInfo *acs2d, Hdr *phdr) {
+int Get2dFlags (ACSInfoRef *acs2d, Hdr *phdr) {
 
     extern int status;
 
@@ -92,11 +92,11 @@ int Get2dFlags (ACSInfo *acs2d, Hdr *phdr) {
  regardless of which steps are to be performed.
  */
 
-static int checkCCD (Hdr *phdr, ACSInfo *acs2d, int *missing) {
+static int checkCCD (Hdr *phdr, ACSInfoRef *acs2d, int *missing) {
 
   /* arguments:
    Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
+   ACSInfoRef *acs2d   i: switches, file names, etc
    int *missing     io: incremented if the table is missing
    */
 
@@ -129,11 +129,11 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs2d, int *missing) {
  dark file.  If it exists, get the pedigree and descrip keyword values.
  */
 
-static int checkDark (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkDark (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs2d   i: switches, file names, etc
+       ACSInfoRef *acs2d   i: switches, file names, etc
        int *missing     io: incremented if the file is missing
        int *nsteps      io: incremented if this step can be performed
      */
@@ -173,11 +173,11 @@ static int checkDark (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  dark file.  If it exists, get the pedigree and descrip keyword values.
  */
 
-static int checkDarkCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkDarkCTE (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs2d   i: switches, file names, etc
+       ACSInfoRef *acs2d   i: switches, file names, etc
        int *missing     io: incremented if the file is missing
        int *nsteps      io: incremented if this step can be performed
      */
@@ -217,11 +217,11 @@ static int checkDarkCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  post-flash file.  If it exists, get the pedigree and descrip keyword values.
  */
 
-static int checkFlash (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkFlash (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs2d   i: switches, file names, etc
+       ACSInfoRef *acs2d   i: switches, file names, etc
        int *missing     io: incremented if the file is missing
        int *nsteps      io: incremented if this step can be performed
      */
@@ -282,7 +282,7 @@ static int checkFlash (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  post-flash file.  If it exists, get the pedigree and descrip keyword values.
  */
 
-static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkFlashCTE (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
     /* This is basically the same as checkFlash().
        It was written to support CTE-corrected post-flash reference file.
@@ -291,7 +291,7 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs2d   i: switches, file names, etc
+       ACSInfoRef *acs2d   i: switches, file names, etc
        int *missing     io: incremented if the file is missing
        int *nsteps      io: incremented if this step can be performed
      */
@@ -364,11 +364,11 @@ static int checkFlashCTE (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) 
  deliberately in order to accumulate the flags from more than one table.
  */
 
-static int checkDQI (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkDQI (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
   /* arguments:
    Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
+   ACSInfoRef *acs2d   i: switches, file names, etc
    int *missing     io: incremented if the table is missing
    int *nsteps      io: incremented if this step can be performed
    */
@@ -406,11 +406,11 @@ static int checkDQI (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  keyword values.  If pedigree is DUMMY, the flag may be reset.
  */
 
-static int checkFlat (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkFlat (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
   /* arguments:
    Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
+   ACSInfoRef *acs2d   i: switches, file names, etc
    int *missing     io: incremented if a file is missing
    int *nsteps      io: incremented if this step can be performed
    */
@@ -521,14 +521,14 @@ static int checkFlat (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
 
 /* Check whether we should check for and possibly correct nonlinearity.
  There is a reference table but not an image for this step.  The table
- is opened, and the values are read into the ACSInfo structure.
+ is opened, and the values are read into the ACSInfoRef structure.
  */
 
-static int checkNonLin (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkNonLin (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
   /* arguments:
    Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
+   ACSInfoRef *acs2d   i: switches, file names, etc
    int *missing     io: incremented if the table is missing
    int *nsteps      io: incremented if this step can be performed
    */
@@ -587,11 +587,11 @@ static int checkNonLin (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  cause any problem to perform this step more than once.
  */
 
-static int checkPhot (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkPhot (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
   /* arguments:
    Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
+   ACSInfoRef *acs2d   i: switches, file names, etc
    int *missing     io: incremented if the table is missing
    int *nsteps      io: incremented if this step can be performed
    */
@@ -624,11 +624,11 @@ static int checkPhot (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
  keyword values.
  */
 
-static int checkShad (Hdr *phdr, ACSInfo *acs2d, int *missing, int *nsteps) {
+static int checkShad (Hdr *phdr, ACSInfoRef *acs2d, int *missing, int *nsteps) {
 
   /* arguments:
    Hdr *phdr        i: primary header
-   ACSInfo *acs2d   i: switches, file names, etc
+   ACSInfoRef *acs2d   i: switches, file names, etc
    int *missing     io: incremented if the file is missing
    int *nsteps      io: incremented if this step can be performed
    */

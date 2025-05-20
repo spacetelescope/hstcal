@@ -33,9 +33,9 @@ static int DetSinkChip (char *, int, int *);
    3. If upstream (+1 to +n) pixel > SCI, set DQ to 1024 until
       pixel <= SCI or pixel == 0 or pixel == another sink pixel.
 */
-int SinkDetect(ACSInfo *acs, SingleGroup *x) {
+int SinkDetect(ACSInfoRef *acs, SingleGroup *x) {
     /* arguments:
-       ACSInfo *acs       i: calibration switches, etc
+       ACSInfoRef *acs       i: calibration switches, etc
        SingleGroup *x    io: image to be calibrated; written to in-place
     */
     extern int status;

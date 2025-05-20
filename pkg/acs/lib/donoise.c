@@ -39,10 +39,10 @@
  WJH 27 July 1999
  */
 
-int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
+int doNoise (ACSInfoRef *acs, SingleGroup *x, int *done) {
 
   /* arguments:
-   ACSInfo *acs    i: calibration switches and info
+   ACSInfoRef *acs    i: calibration switches and info
    SingleGroup *x   io: image to be calibrated; written to in-place
    int *done         o: true if we actually did assign error array values
    */
@@ -59,7 +59,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
   int dimx, dimy;
   int offsetx, offsety;
   float val;
-  
+
   char targname[CHAR_LINE_LENGTH];
 
 	int FindLine(SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
@@ -166,10 +166,10 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       for (i = ampx;  i < dimx;  i++) {
         value = Pix(x->sci.data, i, j);
         err_val = Pix(x->err.data, i, j);
-        
+
         if (value < 0.)
           value = 0.;			/* sigma = 0 if signal = 0 */
-        
+
         if (strncmp(targname,"BIAS",4) != 0) {
           /* include readout noise and convert back to dn */
           Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_D] + err_val*err_val);
@@ -198,10 +198,10 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       for (i = 0;  i < ampx;  i++) {
         value = Pix(x->sci.data, i, j);
         err_val = Pix(x->err.data, i, j);
-        
+
         if (value < 0.)
           value = 0.;			/* sigma = 0 if signal = 0 */
-        
+
         if (strncmp(targname,"BIAS",4) != 0) {
           /* include readout noise and convert back to dn */
           Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_A] + err_val*err_val);
@@ -228,7 +228,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       for (i = ampx;  i < dimx;  i++) {
         value = Pix(x->sci.data, i, j);
         err_val = Pix(x->err.data, i, j);
-        
+
         if (value < 0.)
           value = 0.;			/* sigma = 0 if signal = 0 */
 
@@ -242,7 +242,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       }
     }
     /* End of CCD initialization */
-    
+
   } else {
     /* MAMA initialization */
     /* Set error to max of 1 or sqrt(counts) */
@@ -268,12 +268,12 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
  * if that's the case, NO otherwise. */
 int check_zero_noise(SingleGroup *x) {
   int all_zeros = YES;
-  
+
   int i, j, dimx, dimy;
-  
+
   dimx = x->err.data.nx;
   dimy = x->err.data.ny;
-  
+
   for (i = 0; i < dimx; i++) {
     for (j = 0; j < dimy; j++) {
       if (Pix(x->err.data, i, j) != 0.) {
@@ -282,6 +282,6 @@ int check_zero_noise(SingleGroup *x) {
         }
       }
     }
-  
+
   return all_zeros;
   }

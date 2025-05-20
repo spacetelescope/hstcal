@@ -23,7 +23,7 @@
  Reference image should have been selected to have
  the same binning factor as the science image, so
  assume ratio of bin factors to be 1.
- 
+
  The value of MEANFLSH is calculated based on the weighted average
  of each lines' post-flash value.  The weighting is based on the percent of
  good pixels in each line, so only pixels not flagged BAD (in some way)
@@ -42,10 +42,10 @@
  Modified algorithm to be similar to dodark.c.
  */
 
-int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
+int doFlash (ACSInfoRef *acs2d, SingleGroup *x, float *meanflash) {
 
     /* arguments:
-       ACSInfo *acs2d     i: calibration switches, etc
+       ACSInfoRef *acs2d     i: calibration switches, etc
        SingleGroup *x    io: image to be calibrated; written to in-place
        float *meanflash   o: mean of post-flash image values subtracted
      */
@@ -95,9 +95,9 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     /* Start with the actual post-flash subtraction now. */
 
     initSingleGroupLine (&y);
-  
+
     scilines = x->sci.data.ny;
-  
+
     /* Compute correct extension version number to extract from
        reference image to correspond to CHIP in science data.
      */
@@ -123,7 +123,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     }
     if (hstio_err())
         return (status = OPEN_FAILED);
-  
+
     /* Compare binning of science image and reference image;
         get same_size and high_res flags, and get info about
         binning and offset for use by bin2d.
@@ -141,9 +141,9 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
 
     mean = 0.0;
     weight = 0.0;
- 
+
     /* Bin the post-flash image down to the actual size of x. */
-  
+
     initSingleGroupLine(&z);
     allocSingleGroupLine(&z, x->sci.data.nx);
     for (i=0, j=y0; i < scilines; i++,j++) {
@@ -163,15 +163,15 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
             trlerror("(flshcorr) size mismatch.");
             return (status);
         }
-    
+
         multk1d(&z, acs2d->flashdur);
-    
+
         AvgSciValLine(&z, acs2d->sdqflags, &flash, &wflash);
 
         /* Sum the contribution from each line */
         mean += flash * wflash;
         weight += wflash;
-    
+
         status = sub1d(x, i, &z);
         if (status)
             return (status);

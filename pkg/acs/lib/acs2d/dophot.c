@@ -38,10 +38,10 @@ static void Phot2Obs (char *, char *);
   Switched to use of getphttab functions.
  */
 
-int doPhot (ACSInfo *acs2d, SingleGroup *x) {
+int doPhot (ACSInfoRef *acs2d, SingleGroup *x) {
 
   /* arguments:
-   ACSInfo *acs2d     i: calibration switches, etc
+   ACSInfoRef *acs2d     i: calibration switches, etc
    SingleGroup *x    io: image to be calibrated; primary header is modified
    */
 

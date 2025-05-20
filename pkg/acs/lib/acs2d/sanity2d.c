@@ -6,7 +6,7 @@
    detector.
 */
 
-void Sanity2d (ACSInfo *acs2d) {
+void Sanity2d (ACSInfoRef *acs2d) {
 
 	if (acs2d->detector != MAMA_DETECTOR) {
 

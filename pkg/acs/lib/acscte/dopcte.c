@@ -14,17 +14,17 @@
 #include "pcte.h"
 
 
-int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
+int get_amp_array_size_acs_cte(const ACSInfoRef *acs, SingleGroup *x,
                               char *amploc, char *ccdamp,
                               int *xsize, int *ysize, int *xbeg,
                               int *xend, int *ybeg, int *yend);
-static int make_amp_array(const ACSInfo *acs, const SingleGroup *im,
+static int make_amp_array(const ACSInfoRef *acs, const SingleGroup *im,
                           const int amp,
                           const int arr1, const int arr2,
                           const int xbeg, const int ybeg,
                           double amp_sci_array[arr1*arr2],
                           double amp_err_array[arr1*arr2]);
-static int unmake_amp_array(const ACSInfo *acs, const SingleGroup *im,
+static int unmake_amp_array(const ACSInfoRef *acs, const SingleGroup *im,
                             const int amp,
                             const int arr1, const int arr2,
                             const int xbeg, const int ybeg,
@@ -42,7 +42,7 @@ static int unmake_amp_array(const ACSInfo *acs, const SingleGroup *im,
    the logic for figuring out the amp regions has been copied from doblev.
    - MRD 14 Mar 2011
 */
-int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
+int get_amp_array_size_acs_cte(const ACSInfoRef *acs, SingleGroup *x,
                               char *amploc, char *ccdamp,
                               int *xsize, int *ysize, int *xbeg, int *xend,
                               int *ybeg, int *yend) {
@@ -91,7 +91,7 @@ int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
 /* Make_amp_array returns an array view of the data readout through the
    specified amp in which the amp is at the lower left hand corner.
 */
-static int make_amp_array(const ACSInfo *acs, const SingleGroup *im,
+static int make_amp_array(const ACSInfoRef *acs, const SingleGroup *im,
                           const int amp,
                           const int arr1, const int arr2,
                           const int xbeg, const int ybeg,
@@ -144,7 +144,7 @@ static int make_amp_array(const ACSInfo *acs, const SingleGroup *im,
 /* unmake_amp_array does the opposite of make_amp_array, it takes amp array
    views and puts them back into the single group in the right order.
 */
-static int unmake_amp_array(const ACSInfo *acs, const SingleGroup *im,
+static int unmake_amp_array(const ACSInfoRef *acs, const SingleGroup *im,
                             const int amp,
                             const int arr1, const int arr2,
                             const int xbeg, const int ybeg,

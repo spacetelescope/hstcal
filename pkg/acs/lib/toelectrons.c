@@ -8,12 +8,12 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"
 
-/* This functions converts a a SingleGroup from DN to electrons. */
+/* This functions converts a SingleGroup from DN to electrons. */
 
-int to_electrons(ACSInfo *acs, SingleGroup *x) {
+int to_electrons(ACSInfoRef *acs, SingleGroup *x) {
 
   /* arguments:
-   ACSInfo *acs    i: calibration switches and info
+   ACSInfoRef *acs    i: calibration switches and info
    SingleGroup *x   io: image to be calibrated; written to in-place
    int *done         o: true if we actually did assign error array values
    */
@@ -33,7 +33,7 @@ int to_electrons(ACSInfo *acs, SingleGroup *x) {
 
   offsetx = (int)(acs->offsetx > 0) ? acs->offsetx : 0;
   offsety = (int)(acs->offsety > 0) ? acs->offsety : 0;
-  
+
   dimx = x->sci.data.nx;
   dimy = x->sci.data.ny;
 
@@ -61,10 +61,10 @@ int to_electrons(ACSInfo *acs, SingleGroup *x) {
     gain[i] = 0.;
     rn[i] = 0.;
   }
-  
-  get_nsegn(acs->detector, acs->chip, acs->ampx, acs->ampy, acs->atodgain, 
+
+  get_nsegn(acs->detector, acs->chip, acs->ampx, acs->ampy, acs->atodgain,
             acs->readnoise, gain, rn);
-  
+
   /* Now apply the initilalization for each AMP used */
   for (j = 0; j < ampy; j++) {
 
@@ -146,6 +146,6 @@ int to_electrons(ACSInfo *acs, SingleGroup *x) {
       Pix(x->err.data, i, j) = Pix(x->err.data, i, j) * gain[AMP_B];
     }
   }
-  
+
 	return (status);
 }

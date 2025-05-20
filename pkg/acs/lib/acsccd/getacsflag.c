@@ -7,12 +7,12 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"        /* defines error codes */
 
-static int checkAtoD (Hdr *, ACSInfo *, int *, int *);
-static int checkBias (Hdr *, ACSInfo *, int *, int *);
-static int checkBlev (Hdr *, ACSInfo *, int *, int *);
-static int checkCCD (Hdr *, ACSInfo *, int *);
-static int checkDQI (Hdr *, ACSInfo *, int *, int *);
-static int checkSink (Hdr *, ACSInfo *, int *, int *);
+static int checkAtoD (Hdr *, ACSInfoRef *, int *, int *);
+static int checkBias (Hdr *, ACSInfoRef *, int *, int *);
+static int checkBlev (Hdr *, ACSInfoRef *, int *, int *);
+static int checkCCD (Hdr *, ACSInfoRef *, int *);
+static int checkDQI (Hdr *, ACSInfoRef *, int *, int *);
+static int checkSink (Hdr *, ACSInfoRef *, int *, int *);
 
 
 /* This routine gets the names of reference images and tables from the
@@ -48,14 +48,14 @@ static int checkSink (Hdr *, ACSInfo *, int *, int *);
  Michele De La Pena, 2020 May 18:
  Added new SATUFILE: Full-well saturation image.
 */
-int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
+int GetACSFlags (ACSInfoRef *acs, Hdr *phdr) {
 
     extern int status;
 
     int missing = 0;    /* true if any calibration file is missing */
     int nsteps = 0;     /* number of calibration steps to perform */
 
-    int GetccdSw (ACSInfo *, Hdr *);
+    int GetccdSw (ACSInfoRef *, Hdr *);
 
     /* Get the values for the Calibration Switches from the
     **    header for processing.
@@ -103,11 +103,11 @@ int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
 /* If this step is to be performed, check for the existence of the
    atod table.
 */
-static int checkAtoD (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+static int checkAtoD (Hdr *phdr, ACSInfoRef *acs, int *missing, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs   i: switches, file names, etc
+       ACSInfoRef *acs   i: switches, file names, etc
        int *missing     io: incremented if the file is missing
        int *nsteps      io: incremented if this step can be performed
     */
@@ -149,11 +149,11 @@ static int checkAtoD (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 /* If this step is to be performed, check for the existence of the
    bias file.  If it exists, get the pedigree and descrip keyword values.
 */
-static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+static int checkBias (Hdr *phdr, ACSInfoRef *acs, int *missing, int *nsteps) {
 
   /* arguments:
    Hdr *phdr        i: primary header
-   ACSInfo *acs   i: switches, file names, etc
+   ACSInfoRef *acs   i: switches, file names, etc
    int *missing     io: incremented if the file is missing
    int *nsteps      io: incremented if this step can be performed
    */
@@ -214,11 +214,11 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 }
 
 
-static int checkBlev (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+static int checkBlev (Hdr *phdr, ACSInfoRef *acs, int *missing, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs   i: switches, file names, etc
+       ACSInfoRef *acs   i: switches, file names, etc
        int *nsteps      io: incremented if this step can be performed
     */
 
@@ -256,11 +256,11 @@ static int checkBlev (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
    don't have a flag for that step.  That's why we need this table
    regardless of which steps are to be performed.
 */
-static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
+static int checkCCD (Hdr *phdr, ACSInfoRef *acs, int *missing) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs   i: switches, file names, etc
+       ACSInfoRef *acs   i: switches, file names, etc
        int *missing     io: incremented if the table is missing
     */
 
@@ -319,11 +319,11 @@ static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
    problem to perform this step more than once.  The user might do so
    deliberately in order to accumulate the flags from more than one table.
 */
-static int checkDQI (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+static int checkDQI (Hdr *phdr, ACSInfoRef *acs, int *missing, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs   i: switches, file names, etc
+       ACSInfoRef *acs   i: switches, file names, etc
        int *missing     io: incremented if the table is missing
        int *nsteps      io: incremented if this step can be performed
     */
@@ -360,10 +360,10 @@ static int checkDQI (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 /* If this step is to be performed, check for the existence of the
    sink file.  If it exists, get the pedigree and descrip keyword values.
 */
-static int checkSink (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+static int checkSink (Hdr *phdr, ACSInfoRef *acs, int *missing, int *nsteps) {
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs     i: switches, file names, etc
+       ACSInfoRef *acs     i: switches, file names, etc
        int *missing     io: incremented if the file is missing
        int *nsteps      io: incremented if this step can be performed
     */

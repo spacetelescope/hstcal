@@ -8,8 +8,8 @@
 # include "hstcalerr.h"        /* defines error codes */
 #include "trlbuf.h"
 
-static int checkPCTE (Hdr *, ACSInfo *, int *, int *);
-static int checkCCD (Hdr *, ACSInfo *, int *);
+static int checkPCTE (Hdr *, ACSInfoRef *, int *, int *);
+static int checkCCD (Hdr *, ACSInfoRef *, int *);
 
 
 /* This routine gets the names of reference images and tables from the
@@ -20,14 +20,14 @@ static int checkCCD (Hdr *, ACSInfo *, int *);
  **
 
 */
-int GetCTEFlags (ACSInfo *acs, Hdr *phdr) {
+int GetCTEFlags (ACSInfoRef *acs, Hdr *phdr) {
 
     extern int status;
 
     int missing = 0;    /* true if any calibration file is missing */
     int nsteps = 0;     /* number of calibration steps to perform */
 
-    int GetcteSw (ACSInfo *, Hdr *);
+    int GetcteSw (ACSInfoRef *, Hdr *);
 
     /* Get the values for the Calibration Switches from the
     **    header for processing.
@@ -64,11 +64,11 @@ int GetCTEFlags (ACSInfo *acs, Hdr *phdr) {
    CTE parameters file.  If it exists, get the pedigree and descrip
    keyword values.
 */
-static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+static int checkPCTE (Hdr *phdr, ACSInfoRef *acs, int *missing, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs   i: switches, file names, etc
+       ACSInfoRef *acs   i: switches, file names, etc
        int *missing     io: incremented if the file is missing
        int *nsteps      io: incremented if this step can be performed
     */
@@ -125,11 +125,11 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
    don't have a flag for that step.  That's why we need this table
    regardless of which steps are to be performed.
 */
-static int checkCCD (Hdr *phdr, ACSInfo *acs, int *missing) {
+static int checkCCD (Hdr *phdr, ACSInfoRef *acs, int *missing) {
 
     /* arguments:
        Hdr *phdr        i: primary header
-       ACSInfo *acs   i: switches, file names, etc
+       ACSInfoRef *acs   i: switches, file names, etc
        int *missing     io: incremented if the table is missing
     */
 

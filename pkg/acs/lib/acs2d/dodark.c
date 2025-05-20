@@ -21,19 +21,19 @@
  before subtracting.  The dark time is the exposure time + FLASHDUR;
  for post-SM4 non-BIAS WFC, it also INCLUDES the idle time since the last
  flushing of the chip or the readout time.
- 
+
  For MAMA data, the dark image is just multiplied by the exposure time
  before subtracting.
- 
+
  Reference image should have been selected to have
  the same binning factor as the science image, so
  assume ratio of bin factors to be 1.
- 
+
  The value of MEANDARK is calculated based on the weighted average
- of the image where the weighting is based on the percent of 
+ of the image where the weighting is based on the percent of
  good pixels in the image.  Only pixels not flagged BAD (in some way)
  will contribute to the average.
- 
+
  Warren Hack, 1998 June 11:
  Initial ACS Version.
  Warren Hack, 1999 July 27:
@@ -41,7 +41,7 @@
  cases.
  Warren Hack, 2000 April 14:
  Fixed the code which applies the gain to each line so that if
- there is only 1 AMP used per line, it doesn't try to apply a 
+ there is only 1 AMP used per line, it doesn't try to apply a
  second amp with gain = 0.
  Warren Hack, 2001 April 16:
  Revised calling sequence for 'multgn1d' to be more general
@@ -55,7 +55,7 @@
  Pey Lian Lim, 2012 Dec 11:
  Now use DARKTIME for scaling dark image.
  M.D. De La Pena, 2018 June 05:
- Dark correction processing is now done on the entire image instead of 
+ Dark correction processing is now done on the entire image instead of
  line by line. Also, performed some clean up and new commentary.
  M.D. De La Pena, 2019 November 26:
  Removed hard-coded darktime scaling value and read new
@@ -64,7 +64,7 @@
  under appropropriate date and supported subarray criteria.  The
  DARKTIME keyword value is now the default scaling factor for the
  superdarks, with the offset being an additive correction to DARKTIME
- under appropriate circumstances. The offset values is applicable for 
+ under appropriate circumstances. The offset values is applicable for
  WFC and HRC only.
  M.D. De La Pena, 2021 May 24:
  Moved the computation of the darktime with the additive correction using
@@ -72,14 +72,14 @@
  In this way every blv_tmp will have the correct DARKTIME keyword value.
  */
 
-int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
-  
+int doDark (ACSInfoRef *acs2d, SingleGroup *x, float *meandark) {
+
   /* arguments:
-   ACSInfo *acs     i: calibration switches, etc
+   ACSInfoRef *acs     i: calibration switches, etc
    SingleGroup *x  io: image to be calibrated; written to in-place
    float *meandark  o: mean of dark image values subtracted
   */
-  
+
   extern int status;
 
   int extver = 1;	/* get this imset from dark image */
@@ -95,7 +95,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   double weight;    /* weight value for the image (No. good pixels/all pixels) */
   int update;
   float darktime;  /* darktime value based upon FITS keyword DARKTIME from image header */
-  
+
   int DetCCDChip (char *, int, int, int *);
 
   /* 2D routines based on 1D counterparts - process in 2D instead of line by line */
@@ -104,12 +104,12 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   int multk2d (SingleGroup *, float);
   void AvgSciVal (SingleGroup *, short, double *, double *);
   int FindBin (SingleGroup *, SingleGroup *, int *, int *, int *, int *, int *);
-  
+
   /* Get the dimensions of the science data */
   scicols = x->sci.data.nx;
-  scirows = x->sci.data.ny; 
+  scirows = x->sci.data.ny;
 
-  /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
+  /* Get the DARKTIME FITS keyword value stored in the ACSInfoRef structure */
   darktime = (float)acs2d->darktime;
   trlmessage("Darktime from header %f", darktime);
 
@@ -125,11 +125,11 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
         return (status);
      }
   }
-	
+
   if (acs2d->verbose) {
      trlmessage("Performing dark subtraction on chip %d in imset %d",acs2d->chip, extver);
   }
-  
+
   /* Create a pointer register for bookkeeping purposes and to ease cleanup */
   PtrRegister ptrReg;
   initPtrRegister(&ptrReg);
@@ -151,22 +151,22 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      return (status = OPEN_FAILED);
   }
 
-  /* Compare binning of science image and reference image; get same_size 
-     and high_res flags, and get info about binning and offset for 
+  /* Compare binning of science image and reference image; get same_size
+     and high_res flags, and get info about binning and offset for
      use by bin2d.
   */
   if (FindBin (x, &y, &same_size, &rx, &ry, &x0, &y0)) {
      freeOnExit(&ptrReg);
      return (status);
   }
-  
+
   if (rx != 1 || ry != 1) {
      trlwarn("Reference image and input are not binned to the same pixel size!");
   }
   if (acs2d->verbose){
      trlmessage("Image has an offset of %d,%d",x0,y0);
   }
-  
+
   /* Trim the dark image (y->z) down to the actual size of the science image (x). */
   SingleGroup z; /* scratch space */
   initSingleGroup (&z);
@@ -178,7 +178,7 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      freeOnExit(&ptrReg);
      return (status = ALLOCATION_PROBLEM);
   }
-    
+
   /* We are working with a sub-array and need to apply the
      proper section from the reference image to the science image.
      update = NO = do not update the header of the scratch image
@@ -189,14 +189,14 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
      freeOnExit(&ptrReg);
      return (status);
   }
-    
+
   /* Multipy the dark image (SCI and ERR extensions) by the darktime constant. */
   if (multk2d(&z, darktime)) {
      freeOnExit(&ptrReg);
      return (status);
   }
-    
-  /* Compute the average of all the good pixels in the science image, as well as 
+
+  /* Compute the average of all the good pixels in the science image, as well as
      a weight = (number of good pixels / total number of pixels).
   */
   mean   = 0.0;
@@ -210,10 +210,10 @@ int doDark (ACSInfo *acs2d, SingleGroup *x, float *meandark) {
   }
 
   /* This is to force a compatibility match to the previous version of the
-     code.  
+     code.
   */
   *meandark = mean;
-	
+
   /* Free up the scratch data */
   freeOnExit(&ptrReg);
 

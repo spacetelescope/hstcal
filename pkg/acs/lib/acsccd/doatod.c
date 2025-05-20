@@ -87,10 +87,10 @@ static int CloseAtoDTab (TblInfo *);
 ** only the variable names and some of the column names were changed.
 */
 
-int doAtoD (ACSInfo *acs, SingleGroup *x) {
+int doAtoD (ACSInfoRef *acs, SingleGroup *x) {
 
 /* arguments:
-ACSInfo *acs     i: calibration switches, etc
+ACSInfoRef *acs     i: calibration switches, etc
 SingleGroup *x    io: image to be calibrated; written to in-place
 */
 

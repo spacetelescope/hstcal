@@ -1,4 +1,4 @@
-/* These functions initialize values for the ACSInfo structure.
+/* These functions initialize values for the ACSInfoRef structure.
    The values set here are NOT default values, just initialization.
 
    10-Jun-1998 WJH - Initial ACS version.
@@ -27,7 +27,7 @@
 # include "hstcal.h"
 
 
-void ACSInit (ACSInfo *acs) {
+void ACSInit (ACSInfoRef *acs) {
     void InitRefTab (RefTab *tab);
     void InitRefImg (RefImage *img);
 

@@ -135,9 +135,9 @@ static int CloseOverTab (TblInfo *);
                            backward compatible.
    2017-06-24 M.D. De La Pena  Added indicator for presence of virtual overscan.
 */
-int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan, int *virtOverscan) {
+int FindOverscan (ACSInfoRef *acs, int nx, int ny, int *overscan, int *virtOverscan) {
     /* arguments:
-       ACSInfo *acs          i: structure with all values from OSCNTAB
+       ACSInfoRef *acs          i: structure with all values from OSCNTAB
        int nx, ny            i: lengths of first and second image axes
        int overscan          o: indicates whether there is overscan or not
        int virtOverscan      o: indicater for presence of virtual overscan

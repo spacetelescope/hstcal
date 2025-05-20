@@ -27,7 +27,7 @@
 # include "../../../../ctegen2/ctegen2.h"
 # include "pcte.h"
 
-static void PCTEMsg (ACSInfo *, int);
+static void PCTEMsg (ACSInfoRef *, int);
 static int OscnTrimmed (Hdr*, Hdr *);
 
 /*
@@ -58,7 +58,7 @@ int SET_TO_PROCESS[] = {13, 17, 5, 9};  // Starting extension number of a set of
 #define SZ_CBUF 30
 int getCTE_NAME(char * filename, char * cteName, int cteNameBufferLength);
 
-int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
+int DoCTE (ACSInfoRef *acs_info, const bool forwardModelOnly) {
 
     /* arguments:
        acs   i: calibration switches and info
@@ -67,7 +67,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     extern int status;
 
     SingleGroup * x;  /* used for both input and output */
-    ACSInfo * acs;    /* hold a copy of the acs_info struct for each extension */
+    ACSInfoRef * acs;    /* hold a copy of the acs_info struct for each extension */
     int option = 0;
     int ampID;             /* index amp A:0, B:1, etc. */
     int ampIDInCalib;      /* index amp C:0, D:1, etc. in calibration file */
@@ -76,10 +76,10 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     int numamps;
 
     Bool subarray;
-    int CCDHistory (ACSInfo *, Hdr *);
-    int doPCTEGen3 (ACSInfo *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID);
-    int pcteHistory (ACSInfo *, Hdr *);
-    int GetACSGrp (ACSInfo *, Hdr *);
+    int CCDHistory (ACSInfoRef *, Hdr *);
+    int doPCTEGen3 (ACSInfoRef *,  CTEParamsFast * pars, SingleGroup *, const bool forwardModelOnly, char * corrType, char *ccdamp, int nthAmp, char *amploc, int ampID);
+    int pcteHistory (ACSInfoRef *, Hdr *);
+    int GetACSGrp (ACSInfoRef *, Hdr *);
     int OmitStep (int);
     int PutKeyFlt (Hdr *, char *, float, char *);
     int PutKeyStr (Hdr *, char *, char *, char *);
@@ -89,7 +89,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     void UCalVer (Hdr *);
     void UCteVer(Hdr * hdr, char * cteName, char * cteVersion);
     void UFilename (char *, Hdr *);
-    int GetCCDTab (ACSInfo *, int, int);
+    int GetCCDTab (ACSInfoRef *, int, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
     void parseWFCamps (char *acsamps, int chip, char *ccdamp);
@@ -98,7 +98,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
     /* set up an array of SingleGroups to hold all image extensions */
     x = (SingleGroup *) malloc(acs_info->nimsets * sizeof(SingleGroup));
-    acs = (ACSInfo *) malloc(acs_info->nimsets * sizeof(ACSInfo));
+    acs = (ACSInfoRef *) malloc(acs_info->nimsets * sizeof(ACSInfoRef));
 
     {   unsigned i;
         for (i = 0; i < acs_info->nimsets; i++) {
@@ -530,7 +530,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 }
 
 
-static void PCTEMsg (ACSInfo *acs, int extver) {
+static void PCTEMsg (ACSInfoRef *acs, int extver) {
     int OmitStep (int);
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
