@@ -41,7 +41,7 @@ int doNlinIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
 	NlinData nlin;
 
 	/* Function definitions */
-	int getNlinData (WF3Info *, NlinData *);
+	int getNlinData (WF3InfoRef *, NlinData *);
 	void freeNlinData (NlinData *);
 	void satcheck (SingleNicmosGroup *, SingleNicmosGroup *);
 	void PrSwitch (char *, int);

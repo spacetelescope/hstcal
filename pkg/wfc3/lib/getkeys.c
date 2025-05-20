@@ -43,7 +43,7 @@
 int GetKeys (WF3InfoRef *wf3, Hdr *phdr) {
 
 /* arguments:
-WF3Info *wf3  	io: calibration switches and info
+WF3InfoRef *wf3  	io: calibration switches and info
 Hdr *phdr        i: primary header
 */
 

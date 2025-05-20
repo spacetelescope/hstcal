@@ -71,7 +71,7 @@ IODescPtr ip = NULL;
 int Do2D (WF3InfoRef *wf32d, int extver) {
 
 /* arguments:
-WF3Info *wf32d   i: calibration switches and info
+WF3InfoRef *wf32d   i: calibration switches and info
 int extver       i: "imset" number, the current set of extensions
 */
 
@@ -90,23 +90,23 @@ int extver       i: "imset" number, the current set of extensions
     /* The value of this parameter should NOT be changed from zero. */
     int overscan = 0;	/* New parameter necessary for API change to doDQi */
 
-	int CCDHistory (WF3Info *, Hdr *);
-	int doDark (WF3Info *, SingleGroup *, float *);
-	int darkHistory (WF3Info *, Hdr *);
-	int doDQI (WF3Info *, SingleGroup *, int overscan);
-	int dqiHistory (WF3Info *, Hdr *);
-	int doFlat (WF3Info *, int, SingleGroup *);
-	int flatHistory (WF3Info *, Hdr *);
-	int doNoise (WF3Info *, SingleGroup *, int *);
+	int CCDHistory (WF3InfoRef *, Hdr *);
+	int doDark (WF3InfoRef *, SingleGroup *, float *);
+	int darkHistory (WF3InfoRef *, Hdr *);
+	int doDQI (WF3InfoRef *, SingleGroup *, int overscan);
+	int dqiHistory (WF3InfoRef *, Hdr *);
+	int doFlat (WF3InfoRef *, int, SingleGroup *);
+	int flatHistory (WF3InfoRef *, Hdr *);
+	int doNoise (WF3InfoRef *, SingleGroup *, int *);
 	int noiseHistory (Hdr *);
-	int doPhot (WF3Info *, SingleGroup *);
-	int PhotMode (WF3Info *, Hdr *);
-	int photHistory (WF3Info *, Hdr *);
-    int fluxHistory (WF3Info *, Hdr *);
-	int doShad (WF3Info *, int, SingleGroup *);
-	int shadHistory (WF3Info *, Hdr *);
+	int doPhot (WF3InfoRef *, SingleGroup *);
+	int PhotMode (WF3InfoRef *, Hdr *);
+	int photHistory (WF3InfoRef *, Hdr *);
+    int fluxHistory (WF3InfoRef *, Hdr *);
+	int doShad (WF3InfoRef *, int, SingleGroup *);
+	int shadHistory (WF3InfoRef *, Hdr *);
 	int doStat (SingleGroup *, short);
-	int GetGrp (WF3Info *, Hdr *);
+	int GetGrp (WF3InfoRef *, Hdr *);
 	int OmitStep (int);
 	int PutKeyFlt (Hdr *, char *, float, char *);
 	int PutKeyStr (Hdr *, char *, char *, char *);
@@ -115,7 +115,7 @@ int extver       i: "imset" number, the current set of extensions
 	void UCalVer (Hdr *);
 	void UFilename (char *, Hdr *);
 	int UpdateSwitch (char *, int, Hdr *, int *);
-	int GetCCDTab (WF3Info *, int, int);
+	int GetCCDTab (WF3InfoRef *, int, int);
 	int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
 
 	initSingleGroup (&x);

@@ -73,43 +73,43 @@ int DoIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) 
 	static SingleNicmosGroup zsig;	/* zero-read signal image */
 
 	/* Function definitions */
-	int getDarkInfo (WF3Info *);
+	int getDarkInfo (WF3InfoRef *);
 	int copyGroup (SingleNicmosGroup *, SingleNicmosGroup *);
-	int GetGrp (WF3Info *, Hdr *);
-	int GetCCDTab (WF3Info *, int, int);
-	int FindOverscan (WF3Info *, int, int, int *);
+	int GetGrp (WF3InfoRef *, Hdr *);
+	int GetCCDTab (WF3InfoRef *, int, int);
+	int FindOverscan (WF3InfoRef *, int, int, int *);
 	int PutKeyFlt (Hdr *, char *, float, char *);
 	int PutKeyStr (Hdr *, char *, char *, char *);
 	int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	int doDQIIR  (WF3Info *, MultiNicmosGroup *);
-	int doBlevIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-	int doZsigIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-	int doZoffIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-	int doNoisIR (WF3Info *, MultiNicmosGroup *);
-	int doDarkIR (WF3Info *, MultiNicmosGroup *);
-	int doNlinIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-	int doFlatIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-	int doUnitIR (WF3Info *, MultiNicmosGroup *);
-        int photcalc (WF3Info *, MultiNicmosGroup *);
-	int cridcalc (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
-	int statcalc (WF3Info *, SingleNicmosGroup *, short);
+	int doDQIIR  (WF3InfoRef *, MultiNicmosGroup *);
+	int doBlevIR (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int doZsigIR (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int doZoffIR (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int doNoisIR (WF3InfoRef *, MultiNicmosGroup *);
+	int doDarkIR (WF3InfoRef *, MultiNicmosGroup *);
+	int doNlinIR (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int doFlatIR (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int doUnitIR (WF3InfoRef *, MultiNicmosGroup *);
+        int photcalc (WF3InfoRef *, MultiNicmosGroup *);
+	int cridcalc (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int statcalc (WF3InfoRef *, SingleNicmosGroup *, short);
 
-	int PhotMode (WF3Info *, Hdr *);
+	int PhotMode (WF3InfoRef *, Hdr *);
 
-	int CCDHistory    (WF3Info *, Hdr *);
-	int dqiIRHistory  (WF3Info *, Hdr *);
-	int zsigIRHistory (WF3Info *, Hdr *);
-	int zoffIRHistory (WF3Info *, Hdr *);
-	int noisIRHistory (WF3Info *, Hdr *);
-	int darkIRHistory (WF3Info *, Hdr *);
-	int blevIRHistory (WF3Info *, Hdr *);
-	int nlinIRHistory (WF3Info *, Hdr *);
-	int crIRHistory   (WF3Info *, Hdr *);
-	int flatIRHistory (WF3Info *, Hdr *);
-	int photIRHistory (WF3Info *, Hdr *);
-	int unitIRHistory (WF3Info *, Hdr *);
+	int CCDHistory    (WF3InfoRef *, Hdr *);
+	int dqiIRHistory  (WF3InfoRef *, Hdr *);
+	int zsigIRHistory (WF3InfoRef *, Hdr *);
+	int zoffIRHistory (WF3InfoRef *, Hdr *);
+	int noisIRHistory (WF3InfoRef *, Hdr *);
+	int darkIRHistory (WF3InfoRef *, Hdr *);
+	int blevIRHistory (WF3InfoRef *, Hdr *);
+	int nlinIRHistory (WF3InfoRef *, Hdr *);
+	int crIRHistory   (WF3InfoRef *, Hdr *);
+	int flatIRHistory (WF3InfoRef *, Hdr *);
+	int photIRHistory (WF3InfoRef *, Hdr *);
+	int unitIRHistory (WF3InfoRef *, Hdr *);
 
 	/* Get header info */
 	if (GetGrp (wf3, &input->group[0].sci.hdr))

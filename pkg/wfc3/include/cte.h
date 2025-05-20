@@ -37,7 +37,7 @@ typedef struct {
 
 
 /*USEFUL LIB FUNCTIONS*/
-int GetGrp (WF3Info *, Hdr *);
+int GetGrp (WF3InfoRef *, Hdr *);
 void PrBegin (char *);
 void PrEnd (char *);
 void PrFileName (char *, char *);
@@ -45,9 +45,9 @@ void PrHdrInfo (char *, char *, char *);
 void PrGrpBegin (char *, int);
 void PrGrpEnd (char *, int);
 int LoadHdr (char *, Hdr *);
-void WF3Init (WF3Info *);
+void WF3Init (WF3InfoRef *);
 int MkName (char *, char *, char *, char *, char *, int);
-int GetKeys (WF3Info *, Hdr *);
+int GetKeys (WF3InfoRef *, Hdr *);
 int GetSwitch (Hdr *, char *, int *);
 int resistmean(float *, int, float, float *,float *,float *,float *);
 int  FileExists (char *);
@@ -69,9 +69,9 @@ int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 int streq_ic (char *, char *); /* case insensitive string equal */
 int  MkOutName (char *, char **, char **, int, char *, int);
 int MkNewExtn (char *, char *);
-int Sub2Full(WF3Info *, SingleGroup *, SingleGroup *, int, int, int );
-int Full2Sub(WF3Info *, SingleGroup *, SingleGroup *, int, int, int );
-int CreateEmptyChip(WF3Info *, SingleGroup *);
+int Sub2Full(WF3InfoRef *, SingleGroup *, SingleGroup *, int, int, int );
+int Full2Sub(WF3InfoRef *, SingleGroup *, SingleGroup *, int, int, int );
+int CreateEmptyChip(WF3InfoRef *, SingleGroup *);
 int GetCorner (Hdr *, int, int *, int *);
 
 /*FUNCTION SIGNATURES FOR CTE SPECIFIC CODE*/
@@ -80,19 +80,19 @@ int GetCTEPars (char *, CTEParams *);
 void initCTEParams(CTEParams *);
 int doCteBias (WF3InfoRef *, SingleGroup *);
 int GetCTEFlags (WF3InfoRef *, Hdr *);
-int a2d_raz(WF3Info *);
+int a2d_raz(WF3InfoRef *);
 int raw2raz(WF3InfoRef *, SingleGroup *, SingleGroup *, SingleGroup *);
-int raz2rsz(WF3Info *, SingleGroup *, SingleGroup *, double , int );
+int raz2rsz(WF3InfoRef *, SingleGroup *, SingleGroup *, double , int );
 int findPostScanBias(SingleGroup *, float *, float * );
 int findPreScanBias(SingleGroup *, float *, float *);
 int find_dadj(int ,int , double [][RAZ_ROWS], double [][RAZ_ROWS], double , double *);
-int rsz2rsc(WF3Info *, SingleGroup *, SingleGroup *, CTEParams * );
+int rsz2rsc(WF3InfoRef *, SingleGroup *, SingleGroup *, CTEParams * );
 int inverse_cte_blur(SingleGroup *, SingleGroup *, SingleGroup *, CTEParams *, int, double);
 int sim_colreadout_l(double *, double *, double *, CTEParams *);
 int CompareCTEParams(SingleGroup *, CTEParams *);
-int cteHistory (WF3Info *, Hdr *);
+int cteHistory (WF3InfoRef *, Hdr *);
 int free_array(float **ptr, int rows, int columns);
-int GetCTESwitch (WF3Info *, Hdr *);
+int GetCTESwitch (WF3InfoRef *, Hdr *);
 int initCTETrl (char *, char *);
 
 int makeRAZ(SingleGroup *, SingleGroup *, SingleGroup *);

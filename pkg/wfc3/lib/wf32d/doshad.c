@@ -22,7 +22,7 @@
 int doShad (WF3InfoRef *wf32d, int extver, SingleGroup *x) {
 
 /* arguments:
-WF3Info *wf32d     i: calibration switches, etc
+WF3InfoRef *wf32d     i: calibration switches, etc
 SingleGroup *x    io: image to be calibrated; written to in-place
 */
 

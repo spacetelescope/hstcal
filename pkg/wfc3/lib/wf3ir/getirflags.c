@@ -54,14 +54,14 @@ static int checkCRRej (Hdr *, WF3InfoRef *, int *, int *);
 	tabs.
 */
 
-int GetIRFlags (WF3Info *wf3, Hdr *phdr) {
+int GetIRFlags (WF3InfoRef *wf3, Hdr *phdr) {
 
 	extern int status;
 
 	int missing = 0;	/* true if any calibration file is missing */
 	int nsteps = 0;		/* number of calibration steps to perform */
 
-	int GetirSw (WF3Info *, Hdr *);
+	int GetirSw (WF3InfoRef *, Hdr *);
 
 	/* Get the values for the Calibration Switches from the
 	** header for processing. */
@@ -112,7 +112,7 @@ static int checkZoff (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr	i: primary header
-WF3Info *wf3	i: switches, file names, etc
+WF3InfoRef *wf3	i: switches, file names, etc
 int *nsteps	io: incremented if this step can be performed
 */
 
@@ -152,7 +152,7 @@ static int checkCCD (Hdr *phdr, WF3InfoRef *wf3, int *missing) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf3     i: switches, file names, etc
+WF3InfoRef *wf3     i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 */
 
@@ -219,7 +219,7 @@ static int checkDark (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf3     i: switches, file names, etc
+WF3InfoRef *wf3     i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -271,7 +271,7 @@ static int checkBlev (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr	i: primary header
-WF3Info *wf3	i: switches, file names, etc
+WF3InfoRef *wf3	i: switches, file names, etc
 int *nsteps	io: incremented if this step can be performed
 */
 
@@ -319,7 +319,7 @@ static int checkDQI (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3Info *wf3      i: switches, file names, etc
+WF3InfoRef *wf3      i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -370,7 +370,7 @@ static int checkFlat (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf3     i: switches, file names, etc
+WF3InfoRef *wf3     i: switches, file names, etc
 int *missing     io: incremented if a file is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -500,7 +500,7 @@ static int checkPhot (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf3     i: switches, file names, etc
+WF3InfoRef *wf3     i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -537,7 +537,7 @@ static int checkNlin (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf3     i: switches, file names, etc
+WF3InfoRef *wf3     i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -593,7 +593,7 @@ static int checkCRRej (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf3     i: switches, file names, etc
+WF3InfoRef *wf3     i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 int *nsteps      io: incremented if this step can be performed
 */

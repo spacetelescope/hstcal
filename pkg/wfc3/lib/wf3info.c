@@ -7,7 +7,7 @@
 # include "wf3corr.h"		/* calibration switch names */
 # include "hstcalerr.h"			/* defines error codes */
 
-/* These functions initialize values for the WF3Info structure.
+/* These functions initialize values for the WF3InfoRef structure.
 	The values set here are NOT default values, just initialization...
    Warren Hack, 1998 June 10:
    	Initial ACS version.

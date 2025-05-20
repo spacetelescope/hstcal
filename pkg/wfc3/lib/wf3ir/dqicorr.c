@@ -34,7 +34,7 @@ typedef struct {
 
 extern int status;
 
-static int dqicorr (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
+static int dqicorr (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
 
 
 /* DODQIIR: Load the data quality initialization table (BPIXTAB) and
@@ -198,7 +198,7 @@ int doDQIIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 ** M. Sosey     11-Feb-2013, the DQ array no longer reflects TDFTRANS
 */
 
-static int dqicorr (WF3Info *wf3, SingleNicmosGroup *input,
+static int dqicorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
 		    SingleNicmosGroup *mask) {
 
 /* Arguments:

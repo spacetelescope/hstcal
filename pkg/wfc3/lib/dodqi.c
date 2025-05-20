@@ -147,7 +147,7 @@ static void FirstLast (double *, double *, int *, int *, int *, int *,
 int doDQI (WF3InfoRef *wf3, SingleGroup *x, int overscan) {
 
     /* arguments:
-    WF3Info *wf3    i: calibration switches, etc
+    WF3InfoRef *wf3    i: calibration switches, etc
     SingleGroup *x    io: image to be calibrated; DQ array written to in-place
     */
 
@@ -641,7 +641,7 @@ int CloseBpixTab (TblInfo *tabinfo) {
 void ToWF3RawCoords (WF3InfoRef *wf3, double *ltm, TblRow *tabrow) {
 
     /* arguments:
-    WF3Info *wf3	     i: WFC3 calibration info
+    WF3InfoRef *wf3	     i: WFC3 calibration info
     double ltm[2]        i: scale factor of science data
     TblRow *tabrow       io: data quality info read from one row of BPIXTAB
     */

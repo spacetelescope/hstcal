@@ -161,7 +161,7 @@ static int CloseOverTab (TblInfo *);
 int FindOverscan (WF3InfoRef *wf3, int nx, int ny, int *overscan) {
 
     /* arguments:
-    WF3Info *wf3		i: structure with all values from OSCNTAB
+    WF3InfoRef *wf3		i: structure with all values from OSCNTAB
     int nx, ny		i: lengths of first and second image axes
     int offsetx, offsety	i: Trim values from LTV1,2
     */

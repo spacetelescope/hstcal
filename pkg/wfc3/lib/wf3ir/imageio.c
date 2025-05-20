@@ -84,7 +84,7 @@ int getRawData (WF3InfoRef *wf3, MultiNicmosGroup *in) {
 */
 
 	/* Function definitions */
-	int getGroupInfo (WF3Info *, SingleNicmosGroup *);
+	int getGroupInfo (WF3InfoRef *, SingleNicmosGroup *);
 
 	/* Initialize the input data structure */
 	initMultiNicmosGroup (in);

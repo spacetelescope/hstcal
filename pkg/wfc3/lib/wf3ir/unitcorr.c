@@ -74,7 +74,7 @@ int unitcorr (WF3InfoRef *wf3, SingleNicmosGroup *input) {
 	float time;		/* exposure time */
 
 	/* Function definitions */
-	void amulk_noref (WF3Info *, SingleNicmosGroup *, float);
+	void amulk_noref (WF3InfoRef *, SingleNicmosGroup *, float);
 	int  PutKeyStr (Hdr *, char *, char *, char *);
 
 	/* Skip conversion if units are already countrate */

@@ -30,7 +30,7 @@ int doDarkIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 	SingleNicmosGroup dark;
 
 	/* Function definitions */
-	int getDarkImage (WF3Info *, SingleNicmosGroup *, int);
+	int getDarkImage (WF3InfoRef *, SingleNicmosGroup *, int);
 	void PrSwitch (char *, int);
 
 	/* Do the dark current subtraction for each group */
@@ -95,7 +95,7 @@ static int darkcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
         float stdv, min, max;           /* more stats */
 
 	/* Function definitions */
-	void asub_noref (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
+	void asub_noref (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
         int stats (SingleNicmosGroup *, int, int, int, int, float, float, short,
                    float *, float *, float *, float *, float *, float *);
 	int PutKeyFlt (Hdr *, char *, float, char *);

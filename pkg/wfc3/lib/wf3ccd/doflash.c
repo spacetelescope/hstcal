@@ -53,7 +53,7 @@
 int doFlash (WF3InfoRef *wf3ccd, SingleGroup *x, float *meanflash) {
 
 /* arguments:
-WF3Info *wf3     	i: calibration switches, etc
+WF3InfoRef *wf3     	i: calibration switches, etc
 SingleGroup *x     io: image to be calibrated; written to in-place
 float *meanflash    o: mean of post-flash image values subtracted
 
