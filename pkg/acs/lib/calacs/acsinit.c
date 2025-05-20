@@ -15,7 +15,7 @@
    Warren Hack, 1998 May 26:
    Initial ACS version
 */
-int ACSRefInit (ACSInfo *acs, CalSwitch *sci_sw, RefFileInfo *sciref) {
+int ACSRefInit (CALACSInfo *acs, CalSwitch *sci_sw, RefFileInfo *sciref) {
 
     /* arguments:
        acs      i: calibration flags and other info
@@ -27,9 +27,9 @@ int ACSRefInit (ACSInfo *acs, CalSwitch *sci_sw, RefFileInfo *sciref) {
 
     int missing;  /* number of missing reference files */
 
-    int GetSciInfo (ACSInfo *, CalSwitch *, RefFileInfo *);
+    int GetSciInfo (CALACSInfo *, CalSwitch *, RefFileInfo *);
     void RefExist (RefFileInfo *, int, int *);
-    int InsertACSSuffix (ACSInfo *);
+    int InsertACSSuffix (CALACSInfo *);
 
     /* Construct output and temporary file names. */
     if (InsertACSSuffix (acs))
@@ -56,7 +56,7 @@ int ACSRefInit (ACSInfo *acs, CalSwitch *sci_sw, RefFileInfo *sciref) {
 }
 
 
-void ACSDefaults (ACSInfo *acs) {
+void ACSDefaults (CALACSInfo *acs) {
 
     /* rawfile has been assigned already */
     acs->crj_root[0] = '\0';
@@ -100,7 +100,7 @@ void ACSDefaults (ACSInfo *acs) {
    because it is either given on the command line or is gotten as the
    value of the WAVECAL keyword.
 */
-int InsertACSSuffix (ACSInfo *acs) {
+int InsertACSSuffix (CALACSInfo *acs) {
 
     extern int status;
 

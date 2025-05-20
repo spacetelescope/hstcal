@@ -49,6 +49,6 @@ typedef struct {
     int sci_rptcorr;    /* combine repeatobs science data? */
     int sci_dthcorr;    /* dither combine science data? */
 
-} ACSInfo;
+} CALACSInfo;
 
 #endif

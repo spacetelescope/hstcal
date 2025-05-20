@@ -37,11 +37,11 @@ static void MAMASanity (int, char *);
    Pey Lian Lim, 2013 Aug 9:
      Separated PCTECORR from ACSCCD.
 */
-int SciFlags (ACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
+int SciFlags (CALACSInfo *acs, CalSwitch *sci_sw, Hdr *phdr,
               RefFileInfo *sciref) {
 
     /* arguments:
-       ACSInfo *acs          i: calibration flags and other info
+       CALACSInfo *acs          i: calibration flags and other info
        CalSwitch *sci_sw     i: all calibration switches for science file
        Hdr *phdr             i: primary header of science file
        RefFileInfo *sciref  io: list of keyword,filename pairs

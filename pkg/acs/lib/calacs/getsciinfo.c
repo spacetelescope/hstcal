@@ -17,10 +17,10 @@
     Revised to work with ACS data.
 */
 
-int GetSciInfo (ACSInfo *acs, CalSwitch *sci_sw, RefFileInfo *sciref) {
+int GetSciInfo (CALACSInfo *acs, CalSwitch *sci_sw, RefFileInfo *sciref) {
 
 /* arguments:
-ACSInfo *acs         i: calibration flags and other info
+CALACSInfo *acs         i: calibration flags and other info
 CalSwitch *sci_sw     o: all calibration switches (0 or 1) for science file
 RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 */
@@ -36,7 +36,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetFlags (CalSwitch *, Hdr *);
-	int SciFlags (ACSInfo *, CalSwitch *, Hdr *, RefFileInfo *);
+	int SciFlags (CALACSInfo *, CalSwitch *, Hdr *, RefFileInfo *);
 
 	/* Read primary header of rawfile into phdr. */
 	initHdr (&phdr);

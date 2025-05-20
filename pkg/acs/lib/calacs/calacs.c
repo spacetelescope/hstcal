@@ -66,7 +66,7 @@ static int ACSRej_0Wrapper(char * inputList,
         char * crTempName,
         char * crFileName,
         char * asnTempProductName,
-        ACSInfo *acshdr,
+        CALACSInfo *acshdr,
         AsnInfo *asn,
         int prod,
         int posid,
@@ -94,7 +94,7 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
 
     extern int status;
 
-    ACSInfo acshdr;        /* calibration switches, etc */
+    CALACSInfo acshdr;        /* calibration switches, etc */
     AsnInfo    asn;        /* association table data    */
 
     char *acsdth_input;    /* Input list for ACSDTH */
@@ -109,8 +109,8 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
     void initAsnInfo (AsnInfo *);
     void freeAsnInfo (AsnInfo *);
     int LoadAsn (AsnInfo *);
-    int ProcessACSCCD (AsnInfo *, ACSInfo *, int *, int, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd);
-    int ProcessMAMA (AsnInfo *, ACSInfo *, int);
+    int ProcessACSCCD (AsnInfo *, CALACSInfo *, int *, int, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd);
+    int ProcessMAMA (AsnInfo *, CALACSInfo *, int);
     int AcsDth (char *, char *, int, int, int);
     char *BuildDthInput (AsnInfo *, int);
     void InitDthTrl (char *, char *);
@@ -362,7 +362,7 @@ static int ACSRej_0Wrapper(char * inputList,
         char * crTempName,
         char * crFileName,
         char * asnTempProductName,
-        ACSInfo *acshdr,
+        CALACSInfo *acshdr,
         AsnInfo *asn,
         int prod,
         int posid,
@@ -418,7 +418,7 @@ static int ACSRej_0Wrapper(char * inputList,
     return HSTCAL_OK;
 }
 
-int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd) {
+int ProcessACSCCD (AsnInfo *asn, CALACSInfo *acshdr, int *save_tmp, int printtime, const unsigned nThreads, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd) {
 
     extern int status;
 
@@ -441,17 +441,17 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
     char *acsrejc_msgtext;  /* str for list of CTE corrected input filenames */
     int nchars;             /* Number of chars for input string to ACSREJ */
 
-    void ACSDefaults (ACSInfo *);
+    void ACSDefaults (CALACSInfo *);
     void InitRefFile (RefFileInfo *);
     void FreeRefFile (RefFileInfo *);
-    int ACSRefInit (ACSInfo *, CalSwitch *, RefFileInfo *);
+    int ACSRefInit (CALACSInfo *, CalSwitch *, RefFileInfo *);
     int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int);
     int ACScte (char *, char *, CalSwitch *, RefFileInfo *, int, int, int, const unsigned cteAlgorithmGen, const char * pcteTabNameFromCmd, const bool forwardModelOnly);
     int ACS2d (char *, char *,CalSwitch *, RefFileInfo *, int, int);
-    int GetAsnMember (AsnInfo *, int, int, int, ACSInfo *);
-    int GetSingle (AsnInfo *, ACSInfo *);
-    int CheckCorr (AsnInfo *, ACSInfo *);
-    int InsertACSSuffix (ACSInfo *);
+    int GetAsnMember (AsnInfo *, int, int, int, CALACSInfo *);
+    int GetSingle (AsnInfo *, CALACSInfo *);
+    int CheckCorr (AsnInfo *, CALACSInfo *);
+    int InsertACSSuffix (CALACSInfo *);
 
     save_crj = *save_tmp;  /* initial value; */
 
@@ -878,7 +878,7 @@ int ProcessACSCCD (AsnInfo *asn, ACSInfo *acshdr, int *save_tmp, int printtime, 
 }
 
 
-int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
+int ProcessMAMA (AsnInfo *asn, CALACSInfo *acshdr, int printtime) {
 
     extern int status;
 
@@ -899,16 +899,16 @@ int ProcessMAMA (AsnInfo *asn, ACSInfo *acshdr, int printtime) {
     char acssum_mtype[SZ_STRKWVAL+1];  /* Role of exposure in association */
     char *acssum_msgtext;
 
-    void ACSDefaults (ACSInfo *);
+    void ACSDefaults (CALACSInfo *);
     void InitRefFile (RefFileInfo *);
     void FreeRefFile (RefFileInfo *);
-    int ACSRefInit (ACSInfo *, CalSwitch *, RefFileInfo *);
+    int ACSRefInit (CALACSInfo *, CalSwitch *, RefFileInfo *);
     int ACS2d (char *, char *, CalSwitch *, RefFileInfo *, int, int);
     int AcsSum (char *, char *, char *, int, int);
     char *BuildSumInput (AsnInfo *, int, int);
-    int GetAsnMember (AsnInfo *, int, int, int, ACSInfo *);
-    int GetSingle (AsnInfo *, ACSInfo *);
-    int InsertACSSuffix (ACSInfo *);
+    int GetAsnMember (AsnInfo *, int, int, int, CALACSInfo *);
+    int GetSingle (AsnInfo *, CALACSInfo *);
+    int InsertACSSuffix (CALACSInfo *);
     void updateAsnTable (AsnInfo *, int, int);
 
     if (asn->debug) {
@@ -1272,7 +1272,7 @@ static int ACSRej_0 (char *input, char *output, char *mtype, int readnoise_only,
 
 /* This function compares the values of CRCORR and RPTCORR from
    the image header with those deduced from the ASN table. */
-int CheckCorr (AsnInfo *asn, ACSInfo *acshdr) {
+int CheckCorr (AsnInfo *asn, CALACSInfo *acshdr) {
 
     extern int status;
 

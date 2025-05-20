@@ -11,27 +11,27 @@
 # include "calacs.h"	/* defines ACS observation data structures */
 
 /* GETASNMEMBER: Copy information from association table structure
-**	to a single image structure for use by the remainder of the 
+**	to a single image structure for use by the remainder of the
 **	processing tasks.
 */
-int GetAsnMember (AsnInfo *asn, int prodid, int posid, int expid, ACSInfo *acs) {
+int GetAsnMember (AsnInfo *asn, int prodid, int posid, int expid, CALACSInfo *acs) {
 
 /* arguments:
 AsnInfo *asn      	i: calibration flags and other info
 int prodid			i: product id for exposure
-int posid			i: sub-product id for exposure 
+int posid			i: sub-product id for exposure
 int expid			i: id of exposure within sub-product
-ACSInfo *acs		o: exposure specific flags and info
+CALACSInfo *acs		o: exposure specific flags and info
 */
 	extern int status;
-	
+
 	char rootname[CHAR_FNAME_LENGTH+1];
 	char mtype[SZ_STRKWVAL+1];
     int mlen;
 	void FindAsnRoot (const char *, char *);
     void UpperAll (char *, char *, int);
-    
-	/* find out if the member we want exists... */	
+
+	/* find out if the member we want exists... */
 	if (asn->product[prodid].subprod[posid].exp[expid].name[0] == '\0') {
 		trlerror("Couldn't find exposure %d of sub-product %d for product %d.", expid, posid, prodid);
 		return (status = NO_GOOD_DATA);
@@ -42,26 +42,26 @@ ACSInfo *acs		o: exposure specific flags and info
     mtype[0] = '\0';
 
     const char * outroot = asn->product[prodid].subprod[posid].name;
-	
+
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (outroot, rootname);
 	strcpy (acs->outroot, rootname);
-					
+
 	strcpy (acs->rootname, asn->product[prodid].subprod[posid].exp[expid].name);
 	strcpy (acs->crj_root, asn->product[prodid].subprod[posid].spname);
 
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (acs->rootname, rootname);
 	strcpy (acs->rootname, rootname);
-	
+
 	if (asn->debug){
 		trlmessage("GetAsnMember: Rootname: %s, Output rootname: %s",rootname, outroot);
 	}
 	/* Check to see that this value of rootname is what we really need... */
-	strcpy (acs->asn_table, asn->asn_table);	
+	strcpy (acs->asn_table, asn->asn_table);
 	strcpy (acs->rawfile, asn->product[prodid].subprod[posid].exp[expid].expname);
-	
-	/* Set sci_* flags for acs */	
+
+	/* Set sci_* flags for acs */
 	acs->sci_crcorr = asn->crcorr;
 	acs->sci_dthcorr = asn->dthcorr;
 	acs->sci_rptcorr = asn->rptcorr;
@@ -74,38 +74,38 @@ ACSInfo *acs		o: exposure specific flags and info
         UpperAll (acs->mtype, mtype, mlen);
         strcpy(mtype, asn->product[prodid].subprod[posid].mtype);
     }
-    
+
 	return (status);
 }
 
 
-int GetSingle (AsnInfo *asn, ACSInfo *acs) {
+int GetSingle (AsnInfo *asn, CALACSInfo *acs) {
 
 /* arguments:
 AsnInfo *asn      	i: calibration flags and other info
-ACSInfo *acs		o: exposure specific flags and info
+CALACSInfo *acs		o: exposure specific flags and info
 */
 	extern int status;
 	char rootname[CHAR_FNAME_LENGTH];
 	*rootname = '\0';
 	void FindAsnRoot (const char *, char *);
-	
+
 	const char * outroot = asn->filename;
-	
+
 	/* Make sure we are only passing a rootname, and not a full filename.*/
 	FindAsnRoot (outroot, rootname);
 	strcpy (acs->outroot, rootname);
 	strcpy (acs->rootname, rootname);
-	
+
 	if (asn->debug) {
 		trlmessage("GetSingle: Rootname: %s, Output rootname: %s",rootname, outroot);
 	}
 
 	/* Check to see that this value of rootname is what we really need... */
-	strcpy (acs->asn_table, asn->asn_table);	
+	strcpy (acs->asn_table, asn->asn_table);
 	strcpy (acs->rawfile, asn->filename);
-	
-	/* Set sci_* flags for acs */	
+
+	/* Set sci_* flags for acs */
 	acs->sci_crcorr = asn->crcorr;
 	acs->sci_dthcorr = asn->dthcorr;
 	acs->sci_rptcorr = asn->rptcorr;
