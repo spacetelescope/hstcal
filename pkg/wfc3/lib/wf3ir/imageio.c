@@ -37,7 +37,7 @@ extern int status;
 
 /* GETPRIHDR: Read primary header from an input file. */
 
-int getPriHdr (WF3InfoRef *wf3, Hdr *PriHdr) {
+int getPriHdr (WF3Info *wf3, Hdr *PriHdr) {
 
 /* Arguments:
 **	wf3	i: WFC3 info structure
@@ -76,7 +76,7 @@ int getPriHdr (WF3InfoRef *wf3, Hdr *PriHdr) {
 
 /* GETRAWDATA: Read raw data from input file. One group is read. */
 
-int getRawData (WF3InfoRef *wf3, MultiNicmosGroup *in) {
+int getRawData (WF3Info *wf3, MultiNicmosGroup *in) {
 
 /* Arguments:
 **	wf3	i: WFC3 info structure
@@ -84,7 +84,7 @@ int getRawData (WF3InfoRef *wf3, MultiNicmosGroup *in) {
 */
 
 	/* Function definitions */
-	int getGroupInfo (WF3InfoRef *, SingleNicmosGroup *);
+	int getGroupInfo (WF3Info *, SingleNicmosGroup *);
 
 	/* Initialize the input data structure */
 	initMultiNicmosGroup (in);

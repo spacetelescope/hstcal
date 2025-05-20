@@ -228,7 +228,7 @@ void aor (SingleNicmosGroup *a, SingleNicmosGroup *b) {
 	}
 }
 
-void aadd_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
+void aadd_noref (WF3Info *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 
 /* Add two SingleNicmosGroups, leaving the result in the first.
 
@@ -266,7 +266,7 @@ void aadd_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 	}
 }
 
-void asub_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
+void asub_noref (WF3Info *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 
 /* Subtract two SingleNicmosGroups, leaving the result in the first.
 
@@ -304,7 +304,7 @@ void asub_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 	}
 }
 
-void amul_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
+void amul_noref (WF3Info *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 
 /* Multiply two SingleNicmosGroups, leaving the result in the first.
 
@@ -342,7 +342,7 @@ void amul_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 	}
 }
 
-void adiv_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
+void adiv_noref (WF3Info *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 
 /* Divide two SingleNicmosGroups, leaving the result in the first.
 
@@ -391,7 +391,7 @@ void adiv_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 	}
 }
 
-void asubk_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, float b) {
+void asubk_noref (WF3Info *wf3, SingleNicmosGroup *a, float b) {
 
 /* Subtract in-place a constant from a SingleNicmosGroup.
 
@@ -418,7 +418,7 @@ void asubk_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, float b) {
 	}
 }
 
-void amulk_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, float b) {
+void amulk_noref (WF3Info *wf3, SingleNicmosGroup *a, float b) {
 
 /* Multiply in-place a SingleNicmosGroup by a constant.
 
@@ -448,7 +448,7 @@ void amulk_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, float b) {
 	}
 }
 
-void aor_noref (WF3InfoRef *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
+void aor_noref (WF3Info *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 
 /* Take the logical OR of two SingleNicmosGroup DQ arrays, leaving the result
 ** in the first.

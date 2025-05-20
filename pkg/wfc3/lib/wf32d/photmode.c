@@ -45,10 +45,10 @@
     the change done previously for the UVIS in 2020.
 */
 
-int PhotMode (WF3InfoRef *wf32d, Hdr *hdr) {
+int PhotMode (WF3Info *wf32d, Hdr *hdr) {
 
 /* arguments:
-WF3InfoRef *wf3     i: calibration switches, etc
+WF3Info *wf3     i: calibration switches, etc
 Hdr *hdr	io: image header to be modified
 */
 

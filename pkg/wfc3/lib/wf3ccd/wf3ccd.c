@@ -16,7 +16,7 @@
 # include "wf3corr.h"		/* calibration switch names */
 # include "trlbuf.h"
 
-static int BiasKeywords (WF3InfoRef *);
+static int BiasKeywords (WF3Info *);
 
 /* Do basic CCD calibration.
 
@@ -41,15 +41,15 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
 
     extern int status;
 
-    WF3InfoRef wf3;	/* calibration switches, reference files, etc */
+    WF3Info wf3;	/* calibration switches, reference files, etc */
     int extver;
 
     Hdr phdr;	/* primary header for input image */
 
-    int DoCCD (WF3InfoRef *, int);
+    int DoCCD (WF3Info *, int);
     int FileExists (char *);
-    int GetFlags (WF3InfoRef *, Hdr *);
-    int GetKeys (WF3InfoRef *, Hdr *);
+    int GetFlags (WF3Info *, Hdr *);
+    int GetKeys (WF3Info *, Hdr *);
     void PrBegin (char *);
     void PrEnd (char *);
     void PrFileName (char *, char *);
@@ -58,7 +58,7 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     void PrGrpEnd (char *, int);
     int LoadHdr (char *, Hdr *);
     void InitCCDTrl (char *, char *);
-    void WF3Init (WF3InfoRef *);
+    void WF3Init (WF3Info *);
     int MkName (char *, char *, char *, char *, char *, int);
     /* ----------------------- Start Code --------------------------------*/
 
@@ -268,7 +268,7 @@ void InitCCDTrl (char *input, char *output) {
 	/* Check value of STATUS for errors in calling routine */
 }
 
-static int BiasKeywords (WF3InfoRef *wf3) {
+static int BiasKeywords (WF3Info *wf3) {
 
     extern int status;
 

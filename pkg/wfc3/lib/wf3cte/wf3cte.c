@@ -126,7 +126,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     extern int status;
 
-    WF3InfoRef wf3; /*structure with calibration switches and reference files for passing*/
+    WF3Info wf3; /*structure with calibration switches and reference files for passing*/
     Hdr phdr;    /*primary header for input image, all output information saved here*/
     Hdr scihdr;  /*science header in case of subarray image to detect chip*/
     IODescPtr ip = NULL;
@@ -659,7 +659,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
 /********************* SUPPORTING SUBROUTINES *****************************/
 
-int raw2raz(WF3InfoRef *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
+int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
     /*
 
        convert a raw file to raz file: CDAB longwise amps, save data array

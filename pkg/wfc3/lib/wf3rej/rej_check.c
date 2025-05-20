@@ -291,13 +291,13 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
 		     int dimy, int *ampx, int *ampy) {
 
     extern int status;
-    WF3InfoRef wf3rej;
+    WF3Info wf3rej;
     char tabname[CHAR_LINE_LENGTH+1];
 
-    void WF3Init (WF3InfoRef *);
-    int GetKeys (WF3InfoRef *, Hdr *);
+    void WF3Init (WF3Info *);
+    int GetKeys (WF3Info *, Hdr *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
-    int GetCCDTab (WF3InfoRef *, int, int);
+    int GetCCDTab (WF3Info *, int, int);
 
     WF3Init (&wf3rej);
 

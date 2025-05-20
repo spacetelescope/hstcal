@@ -9,7 +9,7 @@
 # include "wf3info.h"
 # include "hstcalerr.h"
 
-static int divFlat (SingleGroup *, char *, WF3InfoRef *, int);
+static int divFlat (SingleGroup *, char *, WF3Info *, int);
 
 /* This routine divides x in-place by the flat fields.
    There are up to three flat fields.  Each flat field is loaded
@@ -52,10 +52,10 @@ static int divFlat (SingleGroup *, char *, WF3InfoRef *, int);
 
 */
 
-int doFlat (WF3InfoRef *wf32d, int extver, SingleGroup *x) {
+int doFlat (WF3Info *wf32d, int extver, SingleGroup *x) {
 
 /* arguments:
-WF3InfoRef *wf32d     i: calibration switches, etc
+WF3Info *wf32d     i: calibration switches, etc
 int extver	   i: extension/imset to be flat-fielded
 SingleGroup *x    io: image to be calibrated; written to in-place
 */
@@ -246,7 +246,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	return (status);
 }
 
-static int divFlat (SingleGroup *x, char *flatname, WF3InfoRef *wf32d,
+static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 		    int applygain) {
 
 	extern int status;

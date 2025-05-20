@@ -10,6 +10,7 @@
 # include "hstcalerr.h"
 # include "wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
+#include "wf3info.h"
 
 /* ProcessCCD: This routine controls the overall flow of processing
    for CCD images.
@@ -59,7 +60,7 @@
 
  */
 
-int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {
+int ProcessCCD (AsnInfo *asn, CALWF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {
 
     extern int status;
 
@@ -86,17 +87,17 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
     void SetCCDSw   (CCD_Switch *, CCD_Switch *, CCD_Switch *,CCD_Switch *);
     void ResetCCDSw (CCD_Switch *, CCD_Switch *);
     void ResetSwitch (CCD_Switch *, CCD_Switch *);
-    void WF3Defaults (WF3InfoRef *);
+    void WF3Defaults (WF3Info *);
     void InitRefFile (RefFileInfo *);
     void FreeRefFile (RefFileInfo *);
-    int  CCDRefInit (WF3InfoRef *, CCD_Switch *, RefFileInfo *);
+    int  CCDRefInit (WF3Info *, CCD_Switch *, RefFileInfo *);
     int  WF3cte (char *, char *, CCD_Switch *, RefFileInfo *, int, int, int);
     int  WF3ccd (char *, char *, CCD_Switch *, RefFileInfo *, int, int);
     int  WF32d (char *, char *,CCD_Switch *, RefFileInfo *, int, int);
-    int  GetAsnMember (AsnInfo *, int, int, int, WF3InfoRef *);
-    int  GetSingle (AsnInfo *, WF3InfoRef *);
-    int  CheckCorr (AsnInfo *, WF3InfoRef *);
-    int  InsertWF3Suffix (WF3InfoRef *);
+    int  GetAsnMember (AsnInfo *, int, int, int, WF3Info *);
+    int  GetSingle (AsnInfo *, WF3Info *);
+    int  CheckCorr (AsnInfo *, WF3Info *);
+    int  InsertWF3Suffix (WF3Info *);
     int  updateAsnTable (AsnInfo *, int, int);
 
     /* initial value; */

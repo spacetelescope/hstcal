@@ -8,12 +8,12 @@
 # include "wf3info.h"
 # include "hstcalerr.h"		/* defines error codes */
 
-static int checkAtoD (Hdr *, WF3InfoRef *, int *, int *);
-static int checkBias (Hdr *, WF3InfoRef *, int *, int *);
-static int checkBlev (Hdr *, WF3InfoRef *, int *, int *);
-static int checkCCD  (Hdr *, WF3InfoRef *, int *);
-static int checkDQI  (Hdr *, WF3InfoRef *, int *, int *);
-static int checkFlash(Hdr *, WF3InfoRef *, int *, int *);
+static int checkAtoD (Hdr *, WF3Info *, int *, int *);
+static int checkBias (Hdr *, WF3Info *, int *, int *);
+static int checkBlev (Hdr *, WF3Info *, int *, int *);
+static int checkCCD  (Hdr *, WF3Info *, int *);
+static int checkDQI  (Hdr *, WF3Info *, int *, int *);
+static int checkFlash(Hdr *, WF3Info *, int *, int *);
 int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 
 /* This routine gets the names of reference images and tables from the
@@ -50,14 +50,14 @@ int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
     saturation must fall back to be applied as a scalar threshold.
 */
 
-int GetFlags (WF3InfoRef *wf3, Hdr *phdr) {
+int GetFlags (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 
 	int missing = 0;	/* true if any calibration file is missing */
 	int nsteps = 0;		/* number of calibration steps to perform */
 
-	int GetccdSw (WF3InfoRef *, Hdr *);
+	int GetccdSw (WF3Info *, Hdr *);
 
 	/* Get the values for the Calibration Switches from the
 	**	header for processing.  */
@@ -98,11 +98,11 @@ int GetFlags (WF3InfoRef *wf3, Hdr *phdr) {
    atod table.
 */
 
-static int checkAtoD (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
+static int checkAtoD (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3InfoRef *wf3      i: switches, file names, etc
+WF3Info *wf3      i: switches, file names, etc
 int *missing     io: incremented if the file is missing or wrong type
 int *nsteps      io: incremented if this step can be performed
 */
@@ -151,11 +151,11 @@ int *nsteps      io: incremented if this step can be performed
    bias file.  If it exists, get the pedigree and descrip keyword values.
 */
 
-static int checkBias (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
+static int checkBias (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3InfoRef *wf3      i: switches, file names, etc
+WF3Info *wf3      i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -256,11 +256,11 @@ int *nsteps      io: incremented if this step can be performed
 }
 
 
-static int checkBlev (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
+static int checkBlev (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3InfoRef *wf3      i: switches, file names, etc
+WF3Info *wf3      i: switches, file names, etc
 int *nsteps      io: incremented if this step can be performed
 */
 
@@ -291,11 +291,11 @@ int *nsteps      io: incremented if this step can be performed
    post-flash file.  If it exists, get the pedigree and descrip keyword values.
 */
 
-static int checkFlash (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
+static int checkFlash (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3InfoRef *wf3     i: switches, file names, etc
+WF3Info *wf3     i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -345,11 +345,11 @@ int *nsteps      io: incremented if this step can be performed
    regardless of which steps are to be performed.
 */
 
-static int checkCCD (Hdr *phdr, WF3InfoRef *wf3, int *missing) {
+static int checkCCD (Hdr *phdr, WF3Info *wf3, int *missing) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3InfoRef *wf3      i: switches, file names, etc
+WF3Info *wf3      i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 */
 
@@ -423,11 +423,11 @@ int *missing     io: incremented if the table is missing
    deliberately in order to accumulate the flags from more than one table.
 */
 
-static int checkDQI (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
+static int checkDQI (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3InfoRef *wf3      i: switches, file names, etc
+WF3Info *wf3      i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 int *nsteps      io: incremented if this step can be performed
 */

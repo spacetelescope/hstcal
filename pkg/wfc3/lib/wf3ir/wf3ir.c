@@ -58,22 +58,22 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	char ima_file[CHAR_FNAME_LENGTH+1];	/* Intermediate MultiAccum file name */
 	int sizex, sizey;		/* Output trimmed image sizes */
 
-	WF3InfoRef wf3;	/* calibration switches, reference files, etc. */
+	WF3Info wf3;	/* calibration switches, reference files, etc. */
 
 	/* Function definitions */
-	int  DoIR (WF3InfoRef *, MultiNicmosGroup *, SingleNicmosGroup *);
+	int  DoIR (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
 	int  FileExists (char *);
-	int  GetIRFlags (WF3InfoRef *, Hdr *);
-	int  GetKeys (WF3InfoRef *, Hdr *);
+	int  GetIRFlags (WF3Info *, Hdr *);
+	int  GetKeys (WF3Info *, Hdr *);
 	void PrBegin (char *);
 	void PrEnd   (char *);
 	void PrFileName (char *, char *);
 	void PrHdrInfo (char *, char *, char *);
 	int  LoadHdr (char *, Hdr *);
 	void InitIRTrl (char *, char *);
-	void WF3Init   (WF3InfoRef *);
+	void WF3Init   (WF3Info *);
 
-	int  getRawData (WF3InfoRef *, MultiNicmosGroup *);
+	int  getRawData (WF3Info *, MultiNicmosGroup *);
 	int  putMultiCalData (MultiNicmosGroup *, char *);
 	int  putCalDataSect (SingleNicmosGroup *, char *, int, int, int, int);
 
