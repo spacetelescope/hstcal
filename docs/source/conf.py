@@ -32,15 +32,15 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'HSTCAL'
-copyright = u'2019, Warren Hack, Nadia Dencheva, Robert Jedrzejewski, Michele de la Pena'
+copyright = u'2025, STScI'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '2.3.1'
-version_date = '30-Sep-2019'
+version = '3.1.0'
+version_date = '13-Dec-2024'
 
 #from hstcal import __version__, __version_date__
 #version = __version__
