@@ -62,15 +62,15 @@
 
 
 /*Prototypes*/
-void FluxMsg(WF3InfoRef *);
-int Do2D (WF3InfoRef *, int);
+void FluxMsg(WF3Info *);
+int Do2D (WF3Info *, int);
 int FileExists (char *);
-int Get2dFlags (WF3InfoRef *, Hdr *);
-int GetKeys (WF3InfoRef *, Hdr *);
-void Sanity2d (WF3InfoRef *);
+int Get2dFlags (WF3Info *, Hdr *);
+int GetKeys (WF3Info *, Hdr *);
+void Sanity2d (WF3Info *);
 void TimeStamp (char *, char *);
 int LoadHdr (char *, Hdr *);
-void WF3Init (WF3InfoRef *);
+void WF3Init (WF3Info *);
 void PrBegin (char *label);
 void PrEnd (char *label);
 void PrFileName (char *label, char *filename);
@@ -78,7 +78,7 @@ void PrHdrInfo (char *aperture, char *filter, char *detector);
 void PrGrpBegin (char *label, int n);
 void PrGrpEnd (char *label, int n);
 void Init2DTrl (char *, char *);
-int doFlux (WF3InfoRef *);
+int doFlux (WF3Info *);
 void Init2DTrl (char *, char *);
 void PrSwitch (char *, int);
 
@@ -87,7 +87,7 @@ int WF32d (char *input, char *output, CCD_Switch *wf32d_sw,
 
 	extern int status;
 
-	WF3InfoRef wf32d;	/* calibration switches, reference files, etc */
+	WF3Info wf32d;	/* calibration switches, reference files, etc */
 	int extver;
 
 	Hdr phdr;		/* primary header for input image */

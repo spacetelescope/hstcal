@@ -10,7 +10,7 @@
 
 extern int status;
 
-static int nlincorr (WF3InfoRef *, SingleNicmosGroup *, NlinData *,
+static int nlincorr (WF3Info *, SingleNicmosGroup *, NlinData *,
 		     SingleNicmosGroup *);
 
 /* DONLIN: Call NLINCORR for all readouts of a MultiAccum.
@@ -28,7 +28,7 @@ static int nlincorr (WF3InfoRef *, SingleNicmosGroup *, NlinData *,
 ** H.Bushouse	Oct. 2000	Initial CALNICA to CALWF3 port.
 */
 
-int doNlinIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
+int doNlinIR (WF3Info *wf3, MultiNicmosGroup *input,
 	      SingleNicmosGroup *zsig) {
 
 /* Arguments:
@@ -41,7 +41,7 @@ int doNlinIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
 	NlinData nlin;
 
 	/* Function definitions */
-	int getNlinData (WF3InfoRef *, NlinData *);
+	int getNlinData (WF3Info *, NlinData *);
 	void freeNlinData (NlinData *);
 	void satcheck (SingleNicmosGroup *, SingleNicmosGroup *);
 	void PrSwitch (char *, int);
@@ -122,7 +122,7 @@ int doNlinIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
 **				this time. This will be added in the future.
 */
 
-static int nlincorr (WF3InfoRef *wf3, SingleNicmosGroup *input, NlinData *nlin,
+static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
 		     SingleNicmosGroup *zsig) {
 
 /* Arguments:

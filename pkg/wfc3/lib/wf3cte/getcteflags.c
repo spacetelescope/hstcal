@@ -9,8 +9,8 @@
 # include "hstcalerr.h"		/* defines error codes */
 # include "cte.h"
 
-static int checkCCD (Hdr *, WF3InfoRef *, int *, int *);
-static int checkBiac (Hdr *, WF3InfoRef *, int *);
+static int checkCCD (Hdr *, WF3Info *, int *, int *);
+static int checkBiac (Hdr *, WF3Info *, int *);
 
 /* This routine gets the names of reference images and tables from the
    primary header and checks for dummy pedigree for the CTE reference files
@@ -25,7 +25,7 @@ static int checkBiac (Hdr *, WF3InfoRef *, int *);
    for BIASCORR complete with clean exit, #1216
  */
 
-int GetCTEFlags (WF3InfoRef *wf3, Hdr *phdr) {
+int GetCTEFlags (WF3Info *wf3, Hdr *phdr) {
 
 	extern int status;
 
@@ -64,11 +64,11 @@ int GetCTEFlags (WF3InfoRef *wf3, Hdr *phdr) {
    PCTECORR.  This routine checks that the table exists.
  */
 
-static int checkCCD (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
+static int checkCCD (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
 
 	/* arguments:
 	   Hdr *phdr         i: primary header
-	   WF3InfoRef *wf3      i: switches, file names, etc
+	   WF3Info *wf3      i: switches, file names, etc
 	   int *missing     io: incremented if the table is missing
 	   int *nsteps      io: incremented if this step can be performed
 	 */
@@ -101,11 +101,11 @@ static int checkCCD (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 	return (status);
 }
-static int checkBiac (Hdr *phdr, WF3InfoRef *wf3, int *missing) {
+static int checkBiac (Hdr *phdr, WF3Info *wf3, int *missing) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3InfoRef *wf3      i: switches, file names, etc
+WF3Info *wf3      i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 */
 

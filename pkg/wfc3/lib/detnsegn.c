@@ -34,7 +34,7 @@
 
 /* This function populates the gain and readnoise arrays appropriate
     for the detector used.  In the case of WFC3/IR, it provides a copy of both
-    from the WF3Info structure (header).  However, for WFC3/UVIS, it insures
+    from the CALWF3Info structure (header).  However, for WFC3/UVIS, it insures
     that the first two elements are the appropriate values for the chip,
     as only 2 amps can be used at most per chip.
 
@@ -70,7 +70,7 @@
     out by all 4 amps.
 
     This routine also assumes that only those amps used will have valid
-    values in the WF3Info structure to begin with, as no further checking
+    values in the CALWF3Info structure to begin with, as no further checking
     of amp usage will be required.  
 */  
 void get_nsegn (int detector, int chip, int ampx, int ampy, float *hdrgain,

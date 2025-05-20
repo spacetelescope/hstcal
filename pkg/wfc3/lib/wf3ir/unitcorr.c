@@ -14,7 +14,7 @@ extern int status;
 ** H.Bushouse	Oct. 2000	Initial CALNICA to CALWF3 port.
 */
 
-int doUnitIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
+int doUnitIR (WF3Info *wf3, MultiNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -24,7 +24,7 @@ int doUnitIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 	/* Local variables */
 
 	/* Function definitions */
-	int unitcorr (WF3InfoRef *, SingleNicmosGroup *);
+	int unitcorr (WF3Info *, SingleNicmosGroup *);
 	void PrSwitch (char *, int);
 
 	/* Do the units correction for each group */
@@ -60,7 +60,7 @@ int doUnitIR (WF3InfoRef *wf3, MultiNicmosGroup *input) {
 **				support re-entrant processing. (PR 66081)
 */
 
-int unitcorr (WF3InfoRef *wf3, SingleNicmosGroup *input) {
+int unitcorr (WF3Info *wf3, SingleNicmosGroup *input) {
 
 /* Arguments:
 **	wf3	 i: WFC3 info structure
@@ -74,7 +74,7 @@ int unitcorr (WF3InfoRef *wf3, SingleNicmosGroup *input) {
 	float time;		/* exposure time */
 
 	/* Function definitions */
-	void amulk_noref (WF3InfoRef *, SingleNicmosGroup *, float);
+	void amulk_noref (WF3Info *, SingleNicmosGroup *, float);
 	int  PutKeyStr (Hdr *, char *, char *, char *);
 
 	/* Skip conversion if units are already countrate */
