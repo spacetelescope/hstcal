@@ -68,7 +68,7 @@ static int checkCCD (Hdr *phdr, WF3InfoRef *wf3, int *missing, int *nsteps) {
 
 	/* arguments:
 	   Hdr *phdr         i: primary header
-	   WF3Info *wf3      i: switches, file names, etc
+	   WF3InfoRef *wf3      i: switches, file names, etc
 	   int *missing     io: incremented if the table is missing
 	   int *nsteps      io: incremented if this step can be performed
 	 */
@@ -105,7 +105,7 @@ static int checkBiac (Hdr *phdr, WF3InfoRef *wf3, int *missing) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3Info *wf3      i: switches, file names, etc
+WF3InfoRef *wf3      i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 */
 

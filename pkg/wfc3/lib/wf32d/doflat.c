@@ -55,7 +55,7 @@ static int divFlat (SingleGroup *, char *, WF3InfoRef *, int);
 int doFlat (WF3InfoRef *wf32d, int extver, SingleGroup *x) {
 
 /* arguments:
-WF3Info *wf32d     i: calibration switches, etc
+WF3InfoRef *wf32d     i: calibration switches, etc
 int extver	   i: extension/imset to be flat-fielded
 SingleGroup *x    io: image to be calibrated; written to in-place
 */

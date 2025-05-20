@@ -44,7 +44,7 @@
 int doFullWellSat(WF3InfoRef *wf3, SingleGroup *x) {
 
     /*
-      WF3Info *wf3     i: calibration switches, etc.
+      WF3InfoRef *wf3     i: calibration switches, etc.
       SingleGroup *x   io: image to be modified; dq array is updated in-place
      */
 
@@ -67,7 +67,7 @@ int doFullWellSat(WF3InfoRef *wf3, SingleGroup *x) {
 
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
     int DetCCDChip (char *, int, int, int *);
-    void ComputeLimits(WF3Info *, int, int, int *, int *, int *, int *);
+    void ComputeLimits(WF3InfoRef *, int, int, int *, int *, int *, int *);
 
     {unsigned int i;
     for (i = 0; i < 2; i++) {

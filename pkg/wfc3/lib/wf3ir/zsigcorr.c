@@ -34,7 +34,7 @@ int doZsigIR (WF3InfoRef *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zsig)
 	NlinData nlin;
 
 	/* Function definitions */
-	int getNlinData  (WF3Info *, NlinData *);
+	int getNlinData  (WF3InfoRef *, NlinData *);
 	void freeNlinData (NlinData *);
 	void PrSwitch (char *, int);
 
@@ -131,8 +131,8 @@ static int zsigcorr (WF3InfoRef *wf3, MultiNicmosGroup *input, NlinData *nlin,
 	/* Function definitions */
 	int  copyGroup (SingleNicmosGroup *, SingleNicmosGroup *);
 	void asub (SingleNicmosGroup *, SingleNicmosGroup *);
-	void asub_noref (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
-	int  noiscalc (WF3Info *, SingleNicmosGroup *);
+	void asub_noref (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
+	int  noiscalc (WF3InfoRef *, SingleNicmosGroup *);
 	int  GetCorner (Hdr *, int, int *, int *);
 
 	/* Initialize counters */

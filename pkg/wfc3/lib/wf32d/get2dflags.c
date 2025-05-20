@@ -34,7 +34,7 @@ static int checkShad (Hdr *, WF3InfoRef *, int *, int *);
 	comp tabs.
 */
 
-int Get2dFlags (WF3Info *wf32d, Hdr *phdr) {
+int Get2dFlags (WF3InfoRef *wf32d, Hdr *phdr) {
 
 	extern int status;
 
@@ -86,7 +86,7 @@ static int checkCCD (Hdr *phdr, WF3InfoRef *wf32d, int *missing) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf32d   i: switches, file names, etc
+WF3InfoRef *wf32d   i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 */
 
@@ -134,7 +134,7 @@ static int checkDark (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf32d   i: switches, file names, etc
+WF3InfoRef *wf32d   i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -215,7 +215,7 @@ static int checkDQI (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
-WF3Info *wf32d    i: switches, file names, etc
+WF3InfoRef *wf32d    i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -269,7 +269,7 @@ static int checkFlat (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf32d   i: switches, file names, etc
+WF3InfoRef *wf32d   i: switches, file names, etc
 int *missing     io: incremented if a file is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -403,7 +403,7 @@ static int checkPhot (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf32d   i: switches, file names, etc
+WF3InfoRef *wf32d   i: switches, file names, etc
 int *missing     io: incremented if the table is missing
 int *nsteps      io: incremented if this step can be performed
 */
@@ -440,7 +440,7 @@ static int checkShad (Hdr *phdr, WF3InfoRef *wf32d, int *missing, int *nsteps) {
 
 /* arguments:
 Hdr *phdr        i: primary header
-WF3Info *wf32d   i: switches, file names, etc
+WF3InfoRef *wf32d   i: switches, file names, etc
 int *missing     io: incremented if the file is missing
 int *nsteps      io: incremented if this step can be performed
 */

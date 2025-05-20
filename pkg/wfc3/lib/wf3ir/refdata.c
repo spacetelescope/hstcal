@@ -181,7 +181,7 @@ int getFlats (WF3InfoRef *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 	SingleNicmosGroup lflt;
 
 	/* Function definitions */
-	int getFlatImage (WF3Info *, RefImage *, SingleNicmosGroup *);
+	int getFlatImage (WF3InfoRef *, RefImage *, SingleNicmosGroup *);
 	int FindBinIR (SingleNicmosGroup *, SingleNicmosGroup *, int *, int *,
 		       int *, int *, int *);
 	void amul (SingleNicmosGroup *, SingleNicmosGroup *);
@@ -301,7 +301,7 @@ int getFlats (WF3InfoRef *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 /* GETFLATIMAGE: Load the flat field reference file image.
 */
 
-int getFlatImage (WF3Info *wf3, RefImage *ref, SingleNicmosGroup *flat) {
+int getFlatImage (WF3InfoRef *wf3, RefImage *ref, SingleNicmosGroup *flat) {
 
 /* Arguments:
 **	nic	i: NICMOS info structure

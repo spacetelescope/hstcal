@@ -31,7 +31,7 @@ int doFlatIR (WF3InfoRef *wf3, MultiNicmosGroup *input,
 	SingleNicmosGroup flat;
 
 	/* Function definitions */
-	int getFlats (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
+	int getFlats (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
 	int RebinRef (SingleNicmosGroup *, SingleNicmosGroup *, int);
 	void PrSwitch (char *, int);
 
@@ -101,7 +101,7 @@ int flatcorr (WF3InfoRef *wf3, SingleNicmosGroup *input,
 */
 
 	/* Function definitions */
-	void adiv_noref (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
+	void adiv_noref (WF3InfoRef *, SingleNicmosGroup *, SingleNicmosGroup *);
 	void mult_gain  (WF3InfoRef *, SingleNicmosGroup *);
 	int  PutKeyStr (Hdr *, char *, char *, char *);
 

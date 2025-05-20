@@ -125,7 +125,7 @@ static int CloseCCDTab (TblInfo *);
 int GetCCDTab (WF3InfoRef *wf3, int dimx, int dimy) {
 
 /* arguments:
-WF3Info *wf3     io: calibration switches, etc
+WF3InfoRef *wf3     io: calibration switches, etc
 int     dimx      i: number of columns in exposure
 int     dimy      i: number of lines in exposure
 */
