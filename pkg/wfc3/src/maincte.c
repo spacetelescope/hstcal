@@ -52,7 +52,6 @@ static void printHelp(void)
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-struct TrlBuf trlbuf = { 0 };
 
 /* 
 
