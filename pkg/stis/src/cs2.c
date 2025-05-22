@@ -12,7 +12,6 @@
 
 #include "hstcal_memory.h"
 
-static struct TrlBuf trlbuf = {0};
 
 int main (int argc, char **argv) {
 

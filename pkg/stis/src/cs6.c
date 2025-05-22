@@ -49,7 +49,6 @@
    16 Dec 11  -  Include <stdlib.h> for the declaration of exit().
 */
 
-static struct TrlBuf trlbuf = {0};
 
 int main (int argc, char **argv) {
 

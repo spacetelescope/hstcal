@@ -61,7 +61,6 @@ static void printHelp(void)
 	Include command-line option '-r'.
 */
 
-static struct TrlBuf trlbuf = {0};
 
 int main (int argc, char **argv) {
 
