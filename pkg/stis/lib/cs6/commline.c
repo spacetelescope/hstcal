@@ -7,6 +7,7 @@
 # include "stis.h"
 # include "calstis6.h"
 # include "hstcalerr.h"
+#include "hstcalversion.h"
 
 static int syntax_error (char *);
 static int getArgI (char **, int, int *, int *);
@@ -196,13 +197,17 @@ double *xoffset;	o: offset in dispersion direction for slitless data
 	}
 	for (ctoken = 1;  ctoken < argc;  ctoken++) {
 	    if (strcmp (argv[ctoken], "--version") == 0) {
-		PrVersion();
-		exit (0);
+	        PrVersion();
+	        exit (0);
+	    }
+	    if (strcmp (argv[ctoken], "--gitinfo") == 0) {
+	        printGitInfo();
+	        exit(0);
 	    }
 	}
 
 	if (argc == 1) {
-		printf("cs6 input [output] [-t] [-v] [-e] [-back] [-disp] [-flux] [-hel]\n");
+		printf("cs6 input [output] [-t] [-v] [-e] [--version] [--gitinfo] [-back] [-disp] [-flux] [-hel]\n");
 		printf("    [-cte] [-idt] [-g] [-c a2center] [-r maxsearch] [-p ccthresold]\n");
 		printf("    [-x extrsize] [-if sc2dfile] [-bs blazeshift]\n");
 		printf("    [-b1 bk1size] [-b2 bk2size] [-o1 bk1offset] [-o2 bk2offset]\n");

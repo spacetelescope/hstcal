@@ -6,6 +6,7 @@
 
 # include "stis.h"
 # include "cs2.h"
+#include "hstcalversion.h"
 
 void cs2_reset (clpar *, int []); 
 static int syntax_error (char *);
@@ -44,12 +45,16 @@ int newpar;		o: parameter been set by the user?
 
 	for (ctoken = 1;  ctoken < argc;  ctoken++) {
 	    if (strcmp (argv[ctoken], "--version") == 0) {
-		PrVersion();
-		exit (0);
+	        PrVersion();
+	        exit (0);
+	    }
+	    if (strcmp(argv[ctoken], "--gitinfo") == 0) {
+	        printGitInfo();
+	        exit(0);
 	    }
 	    if (strcmp (argv[ctoken], "-r") == 0) {
-		PrFullVersion();
-		exit (0);
+	        PrFullVersion();
+	        exit (0);
 	    }
 	}
 
