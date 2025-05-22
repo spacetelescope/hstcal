@@ -175,7 +175,7 @@ int extver       i: "imset" number, the current set of extensions
 		return (status);
 	    if (PutKeyFlt (x.globalhdr, "READNSED", wf32d->readnoise[3], ""))
 		return (status);
-	    trlmessage ("");
+	    trlmessage("");
 
 	    PrRefInfo ("ccdtab", wf32d->ccdpar.name, wf32d->ccdpar.pedigree,
 		wf32d->ccdpar.descrip, wf32d->ccdpar.descrip2);
@@ -196,35 +196,35 @@ int extver       i: "imset" number, the current set of extensions
 		    if (noiseHistory (x.globalhdr))
 			return (status);
 		}
-		trlmessage ("         Uncertainty array initialized,");
+		trlmessage("         Uncertainty array initialized,");
 		buff[0] = '\0';
 
 		if (wf32d->detector != IR_DETECTOR) {
-		    sprintf (MsgText, "    readnoise =");
+		    snprintf(MsgText, sizeof(MsgText), "    readnoise =");
 		    for (i=0; i < NAMPS-1; i++) {
 			 if (wf32d->readnoise[i] > 0) {
-			     sprintf (buff, "%.5g,",wf32d->readnoise[i]);
+			     snprintf (buff, sizeof(buff), "%.5g,",wf32d->readnoise[i]);
 			     strcat (MsgText, buff);
 			 }
 		    }
 		    if (wf32d->readnoise[NAMPS-1] > 0) {
-			sprintf (buff, "%.5g",wf32d->readnoise[NAMPS-1]);
+			snprintf(buff, sizeof(buff), "%.5g",wf32d->readnoise[NAMPS-1]);
 			strcat (MsgText, buff);
 		    }
-		    trlmessage (MsgText);
+		    trlmessage("%s", MsgText);
 
-		    sprintf(MsgText, "    gain =");
+		    snprintf(MsgText, sizeof(MsgText), "    gain =");
 		    for (i=0; i < NAMPS-1; i++) {
 			 if (wf32d->atodgain[i] > 0) {
-			     sprintf (buff, "%.5g,",wf32d->atodgain[i]);
+			     snprintf(buff, sizeof(buff), "%.5g,",wf32d->atodgain[i]);
 			     strcat (MsgText, buff);
 			 }
 		    }
 		    if (wf32d->atodgain[NAMPS-1] > 0) {
-			sprintf(buff, "%.5g",wf32d->atodgain[NAMPS-1]);
+			snprintf(buff, sizeof(buff), "%.5g",wf32d->atodgain[NAMPS-1]);
 			strcat (MsgText, buff);
 		    }
-		    trlmessage (MsgText);
+		    trlmessage("%s", MsgText);
 		}
 		if (wf32d->printtime)
 		TimeStamp ("Uncertainty array initialized", wf32d->rootname);
@@ -252,8 +252,7 @@ int extver       i: "imset" number, the current set of extensions
 	    if (doDark (wf32d, &x, &meandark))
 		return (status);
 
-	    sprintf(MsgText,"Mean of dark image (MEANDARK) = %g",meandark);
-	    trlmessage(MsgText);
+	    trlmessage("Mean of dark image (MEANDARK) = %g",meandark);
 
 	    if (PutKeyFlt (&x.sci.hdr, "MEANDARK", meandark,
 			   "mean of dark values subtracted"))
@@ -307,9 +306,9 @@ int extver       i: "imset" number, the current set of extensions
 		return (status);
 
 	/* Assign values to photometry keywords. */
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("photcorr", wf32d->photcorr);
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("fluxcorr", wf32d->fluxcorr);
 
 	/* Update the PHOTMODE keyword regardless of PHOTCORR. */
@@ -357,8 +356,7 @@ int extver       i: "imset" number, the current set of extensions
 
 	putSingleGroup (wf32d->output, extver, &x, option);
 	if (hstio_err()) {
-	    sprintf (MsgText, "Couldn't write imset %d.", extver);
-	    trlerror (MsgText);
+	    trlerror("Couldn't write imset %d.", extver);
 	    return (status = 1001);
 	}
 	if (wf32d->printtime)
@@ -375,7 +373,7 @@ static void DarkMsg (WF3Info *wf32d, int extver) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("darkcorr", wf32d->darkcorr);
 
 	if (extver == 1 && !OmitStep (wf32d->darkcorr)) {
@@ -391,7 +389,7 @@ static void dqiMsg (WF3Info *wf32d, int extver) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("dqicorr", wf32d->dqicorr);
 
 	if (extver == 1 && !OmitStep (wf32d->dqicorr)) {
@@ -408,7 +406,7 @@ static void FlatMsg (WF3Info *wf32d, int extver) {
 	void PrSwitch (char *, int);
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
-	trlmessage ("");
+	trlmessage("");
 	PrSwitch ("flatcorr", wf32d->flatcorr);
 
 	if (extver == 1 && !OmitStep (wf32d->flatcorr)) {
@@ -448,7 +446,7 @@ static void ShadMsg (WF3Info *wf32d, int extver) {
 	void PrRefInfo (char *, char *, char *, char *, char *);
 
 	if (wf32d->detector != IR_DETECTOR) {
-	    trlmessage ("");
+	    trlmessage("");
 	    PrSwitch ("shadcorr", wf32d->shadcorr);
 	}
 
@@ -493,7 +491,7 @@ static int OscnTrimmed (Hdr *phdr, Hdr *hdr) {
            trimming is performed, so test must be for ltv > 1.
 	*/
 	if (blevcorr != COMPLETE || (ltv1 > 1. || ltv2 > 1.)) {
-	    trlerror ("Overscan region not trimmed.  Please perform BLEVCORR.");
+	    trlerror("Overscan region not trimmed.  Please perform BLEVCORR.");
 	    status = CAL_STEP_NOT_DONE;
 	}
 

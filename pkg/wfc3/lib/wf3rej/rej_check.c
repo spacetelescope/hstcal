@@ -83,8 +83,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
         if (hstio_err()) {
-            sprintf (MsgText, "Cannot open data file '%s'", fdata);
-            trlerror (MsgText);
+            trlerror("Cannot open data file '%s'", fdata);
             return (status = OPEN_FAILED);
         }
         strcpy (imgname[k], fdata);
@@ -143,8 +142,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
             } else if (strcmp (det, "UVIS") == 0) {
                 detector = CCD_DETECTOR;
             } else {
-                sprintf (MsgText, "DETECTOR = %s is unknown.", det);
-                trlwarn (MsgText);
+                trlwarn("DETECTOR = %s is unknown.", det);
                 detector = UNKNOWN_DETECTOR;
             }
 
@@ -163,8 +161,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
             /* Make sure each image has the same value of CCDAMP */
             if (!streq_ic (ccdamp,ccdamp0)) {
-                sprintf (MsgText, "%s uses different CCDAMP", fdata);
-                trlerror (MsgText);
+                trlerror("%s uses different CCDAMP", fdata);
                 return (status = INVALID_VALUE);
             }
 
@@ -207,10 +204,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
         /* Verify the image size to be the same as the first image */
         if (getNaxis1(ipsci[k]) != *dim_x || getNaxis2(ipsci[k]) != *dim_y){
-            sprintf (MsgText,
-	   "file '%s[sci,%d]' does not have the same size as the first image\n",
-	    imgname[k], grp[k]);
-            trlerror (MsgText);
+            trlerror("file '%s[sci,%d]' does not have the same size as the first image\n", imgname[k], grp[k]);
             return (status = SIZE_MISMATCH);
         }
 
@@ -285,8 +279,7 @@ static int checkgn (multiamp gn, char *fdata) {
     }   
     
     if (ampset == 0) {
-        sprintf (MsgText, "All ATODGN values in file %s are 0.\n", fdata);
-        trlerror (MsgText);
+        trlerror("All ATODGN values in file %s are 0.\n", fdata);
         return (status = INVALID_VALUE);
     }
 

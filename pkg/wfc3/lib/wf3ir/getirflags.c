@@ -99,8 +99,8 @@ int GetIRFlags (WF3Info *wf3, Hdr *phdr) {
 	if (missing) {
 	    return (status = CAL_FILE_MISSING);
 	} else if (nsteps < 1) {
-	    trlwarn ("No calibration switch was set to PERFORM,");
-	    trlwarn ("  or all reference files had PEDIGREE = DUMMY.");
+	    trlwarn("No calibration switch was set to PERFORM,");
+	    trlwarn("  or all reference files had PEDIGREE = DUMMY.");
 	    return (status = NOTHING_TO_DO);
 	} else {
 	    return (status);
@@ -174,8 +174,7 @@ int *missing     io: incremented if the table is missing
 	} else if (wf3->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
 	    (*missing)++;
-	    sprintf (MsgText, "CCDTAB `%s' is a dummy table.",wf3->ccdpar.name);
-	    trlerror (MsgText);
+	    trlerror("CCDTAB `%s' is a dummy table.",wf3->ccdpar.name);
 
 	} else {
 
@@ -479,7 +478,7 @@ int *nsteps      io: incremented if this step can be performed
 	    } else if (wf3->pfltcorr == OMIT && wf3->dfltcorr == OMIT &&
 		wf3->lfltcorr == OMIT) {
                 (*missing)++;
-                trlerror ("PFLTFILE, DFLTFILE, and LFLTFILE are all blank.");
+                trlerror("PFLTFILE, DFLTFILE, and LFLTFILE are all blank.");
 	    } else if (wf3->pfltcorr == DUMMY || wf3->dfltcorr == DUMMY ||
 		wf3->lfltcorr == DUMMY) {
                 wf3->flatcorr = DUMMY;
@@ -620,10 +619,7 @@ int *nsteps      io: incremented if this step can be performed
 	    } else if (wf3->crrej.goodPedigree != GOOD_PEDIGREE) {
 
 		(*missing)++;
-		sprintf (MsgText,"CRREJTAB '%s' is a dummy table.",
-			 wf3->crrej.name);
-		trlerror (MsgText);
-
+		trlerror("CRREJTAB '%s' is a dummy table.", wf3->crrej.name);
 	    } else {
 
 		/* Is the FILETYPE appropriate for a CRREJ table? */

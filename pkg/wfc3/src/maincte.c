@@ -52,7 +52,6 @@ static void printHelp(void)
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-struct TrlBuf trlbuf = { 0 };
 
 /* 
 
@@ -213,8 +212,7 @@ int main (int argc, char **argv) {
         /* OPEN INPUT IMAGE IN ORDER TO READ ITS PRIMARY HEADER. */
         if (LoadHdr (input, &phdr)) {
             WhichError (status);
-            sprintf (MsgText, "Skipping %s", input);
-            trlmessage (MsgText);
+            trlmessage("Skipping %s", input);
             continue;
         }
 
@@ -234,8 +232,7 @@ int main (int argc, char **argv) {
 
         /*SIMPLE CHECK*/
         if (cte_sw.biascorr == COMPLETE || cte_sw.blevcorr == COMPLETE || cte_sw.darkcorr == COMPLETE){
-            sprintf(MsgText,"An uncalibrated, RAW file must be used as input to CTE corr, skipping %s", input);
-            trlmessage(MsgText);
+            trlerror("An uncalibrated, RAW file must be used as input to CTE corr, skipping %s", input);
             freeOnExit(&ptrReg);
             exit(ERROR_RETURN);
             
@@ -243,15 +240,12 @@ int main (int argc, char **argv) {
 
             if (MkName (input, "_raw", "_rac_tmp", "", output, CHAR_FNAME_LENGTH)) {
                 WhichError (status);
-                sprintf (MsgText, "Skipping %s, problem making output name", input);
-                trlmessage (MsgText);
+                trlerror("Skipping %s, problem making output name", input);
             }
 
             /* CALIBRATE THE CURRENT INPUT FILE. */
-            if (WF3cte (input, output, &cte_sw, &refnames, printtime, verbose,
-                        onecpu)) {
-                sprintf (MsgText, "Error processing cte for %s", input);
-                trlerror (MsgText);
+            if (WF3cte (input, output, &cte_sw, &refnames, printtime, verbose, onecpu)) {
+                trlerror("Error processing cte for %s", input);
                 WhichError (status);
             }
         }

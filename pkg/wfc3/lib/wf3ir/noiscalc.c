@@ -46,7 +46,7 @@ int doNoisIR (WF3Info *wf3, MultiNicmosGroup *input) {
 
 	/* Print status to trailer */
 	if (!OmitStep (wf3->noiscorr))
-	    trlmessage ("Uncertainty array initialized.");
+	    trlmessage("Uncertainty array initialized.");
 	PrSwitch ("noiscorr", COMPLETE);
 
 	/* Successful return */

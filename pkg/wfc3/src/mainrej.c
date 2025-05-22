@@ -16,7 +16,6 @@
 # include "trlbuf.h"
 
 extern int status;
-struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
@@ -61,8 +60,7 @@ int main (int argc, char **argv) {
 
     /* Reject cosmic rays. */
     if (Wf3Rej (input, output, mtype, &par, newpar)) {
-        sprintf (MsgText,"Error processing %s.", input);
-        asnerror (MsgText);
+        trlerror("Error processing %s.", input);
     }
 
 
