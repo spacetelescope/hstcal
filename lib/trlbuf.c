@@ -112,7 +112,7 @@ static void CatTrlFile (FILE *ip, FILE *op);
 static void CatTrlFile_NoEOF (FILE *ip, FILE *op);
 static int AppendTrlFile(void);
 
-struct TrlBuf trlbuf;
+struct TrlBuf trlbuf = {0};
 
 int InitTrlFile (char *inlist, char *output)
 {
@@ -593,21 +593,22 @@ void CloseTrlBuf (struct TrlBuf * buf)
 
     /* Do we have any messages which need to be written out? */
     if (buf->buffer && buf->buffer[0] != '\0') {
-        /* We do, so open last known trailer file and
-            append these messages to that file...
-        */
+        if (strlen(buf->trlfile)) {
+            /* We do, so open last known trailer file and
+                append these messages to that file...
+            */
+            if ((ofp = fopen(buf->trlfile,"a+")) == NULL) {
+                trlopenerr(buf->trlfile);
+                status = INVALID_TEMP_FILE;
+                goto cleanup;
+            }
+            fprintf (ofp,"%s",buf->buffer);
 
-        if ( (ofp = fopen(buf->trlfile,"a+")) == NULL) {
-            trlopenerr(buf->trlfile);
-            status = INVALID_TEMP_FILE;
-            goto cleanup;
+            /* Now that we have copied the information to the final
+                trailer file, we can close it and the temp file...
+            */
+            status = fcloseWithStatus(&ofp);
         }
-        fprintf (ofp,"%s",buf->buffer);
-
-        /* Now that we have copied the information to the final
-            trailer file, we can close it and the temp file...
-        */
-        status = fcloseWithStatus(&ofp);
     }
 
     cleanup: ;
