@@ -84,9 +84,8 @@ ProfileArray **profa i:  list with profiles read from OPROFTAB
 	/* Warn of abnormal conditions. */
 
 	if (negflag)
-	    printf ("Warning  Negative value(s) in input profile.\n");
-	if (outerflag)
-printf ("Warning  Outer pixels in profile have more than 0.1 of the total flux.\n");
+	    trlwarn("Negative value(s) in input profile.");
+	if (outerflag)trlwarn("Outer pixels in profile have more than 0.1 of the total flux.");
 
 	return (0);
 }

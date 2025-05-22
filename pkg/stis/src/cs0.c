@@ -43,6 +43,7 @@ static void printHelp(void)
 	Include command-line option '-r'.
 */
 
+
 int main (int argc, char **argv) {
 
 	int status;			/* zero is OK */
@@ -84,8 +85,12 @@ int main (int argc, char **argv) {
 	outroot = calloc (STIS_LINE+1, sizeof (char));
     addPtr(&ptrReg, outroot, &free);
 
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (!rawlist || !wavlist || !outlist || !rawfile || !wavfile || !outroot) {
-	    printf ("Can't even begin; out of memory.\n");
+	    printf("Can't even begin; out of memory.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
@@ -93,15 +98,13 @@ int main (int argc, char **argv) {
 	for (i = 1;  i < argc;  i++) {
 	    if (wavecal_next) {
 		if (argv[i][0] == '-') {
-		    printf (
-	"`%s' encountered when wavecal file name was expected\n", argv[i]);
+		    printf("`%s' encountered when wavecal file name was expected\n", argv[i]);
 		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
 		freePtr(&ptrReg, wavlist);
-		if ((wavlist = calloc (strlen(argv[i])+1, sizeof(char)))
-			== NULL) {
-		    printf ("ERROR:  Out of memory.\n");
+		if ((wavlist = calloc (strlen(argv[i])+1, sizeof(char))) == NULL) {
+		    printf("ERROR:  Out of memory.\n");
 		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
@@ -142,7 +145,7 @@ int main (int argc, char **argv) {
 			/* next argument must be wavecal name */
 			wavecal_next = 1;
 		    } else {
-			printf ("Unrecognized option %s\n", argv[i]);
+			printf("Unrecognized option %s\n", argv[i]);
 			printSyntax();
 			freeOnExit(&ptrReg);
 			exit (ERROR_RETURN);
@@ -152,7 +155,7 @@ int main (int argc, char **argv) {
 		freePtr(&ptrReg, rawlist);
 		if ((rawlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
-		    printf ("ERROR:  Out of memory.\n");
+		    printf("ERROR:  Out of memory.\n");
 		    freeOnExit(&ptrReg);
 		    exit (ERROR_RETURN);
 		}
@@ -162,7 +165,7 @@ int main (int argc, char **argv) {
 		freePtr(&ptrReg, outlist);
 		if ((outlist = calloc (strlen(argv[i])+1, sizeof(char)))
 			== NULL) {
-		    printf ("ERROR:  Out of memory.\n");
+		    printf("ERROR:  Out of memory.\n");
 		    exit (ERROR_RETURN);
 		}
 		addPtr(&ptrReg, outlist, &free);
@@ -176,6 +179,8 @@ int main (int argc, char **argv) {
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
+
+	trlGitInfo();
 
 	/* Expand the templates. */
 	r_imt = c_imtopen (rawlist);
@@ -192,10 +197,10 @@ int main (int argc, char **argv) {
 	if (n_wav > 1) {
 	    many_wavfiles = 1;
 	    if (n_wav != n_raw) {
-		printf ("You specified %d input file", n_raw);
+		printf("You specified %d input file", n_raw);
 		if (n_raw > 1)
-		    printf ("s");
-		printf (" but %d wavecals.\n", n_wav);
+		    printf("s");
+		printf(" but %d wavecals.\n", n_wav);
 		freeOnExit(&ptrReg);
 		exit (ERROR_RETURN);
 	    }
@@ -211,12 +216,12 @@ int main (int argc, char **argv) {
 	if (n_out > 1) {
 	    many_outroots = 1;
 	    if (n_out != n_raw) {
-		printf ("You specified %d input file", n_raw);
+		printf("You specified %d input file", n_raw);
 		if (n_raw > 1)
-		    printf ("s");
-		printf (" but %d outroots.\n", n_out);
-		freeOnExit(&ptrReg);
-		exit (ERROR_RETURN);
+		    printf("s");
+			printf(" but %d outroots.\n", n_out);
+			freeOnExit(&ptrReg);
+			exit (ERROR_RETURN);
 	    }
 	} else {
 	    many_outroots = 0;
@@ -227,10 +232,8 @@ int main (int argc, char **argv) {
 		*/
 		if (n_raw > 1) {
 		    if (outroot[strlen(outroot)-1] != '/') {
-			printf (
-	"You specified multiple input files and only one outroot;\n");
-			printf (
-	"to do this outroot must be a directory (i.e. end in '/').\n");
+			printf("You specified multiple input files and only one outroot;\n");
+			printf("to do this outroot must be a directory (i.e. end in '/').\n");
 			freeOnExit(&ptrReg);
 			exit (ERROR_RETURN);
 		    }
@@ -240,19 +243,18 @@ int main (int argc, char **argv) {
 	    }
 	}
 	if (n_raw < 1) {
-	    printf ("File not found.\n");
+	    printf("File not found.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 
 	/* Loop over the list of input files. */
 	for (n = 0;  n < n_raw;  n++) {
-
 	    j = c_imtgetim (r_imt, rawfile, STIS_LINE);
 	    if (many_wavfiles)
-		j = c_imtgetim (w_imt, wavfile, STIS_LINE);
+			j = c_imtgetim (w_imt, wavfile, STIS_LINE);
 	    if (many_outroots)
-		j = c_imtgetim (o_imt, outroot, STIS_LINE);
+			j = c_imtgetim (o_imt, outroot, STIS_LINE);
 
 	    /* Calibrate the current input file. */
 	    status = 0;
@@ -262,7 +264,7 @@ int main (int argc, char **argv) {
 		if ((status == NOTHING_TO_DO))
 		    status = 0;			/* not an error for cs0 */
 		else
-		    printf ("calstis0 failed.\n");
+		    printf("calstis0 failed.\n");
 	    }
 	}
 

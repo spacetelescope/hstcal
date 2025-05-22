@@ -107,7 +107,7 @@ ApInfo *slit     o: description of slit
 		if (sts->apdestab.goodPedigree == DUMMY_PEDIGREE) {
 		    sts->wavecorr = DUMMY;
 		    CloseApTab (&tabinfo);
-		    printf ("Warning  APDESTAB has PEDIGREE = DUMMY.\n");
+		    trlwarn("APDESTAB has PEDIGREE = DUMMY.");
 		    return (NOTHING_TO_DO);
 		}
 
@@ -123,7 +123,7 @@ ApInfo *slit     o: description of slit
 	    return (status);
 
 	if (!foundit) {
-	    printf ("ERROR    APERTURE %s not found in APDESTAB %s\n",
+	    trlerror("APERTURE %s not found in APDESTAB %s",
 		sts->aperture, sts->apdestab.name);
 	    return (GENERIC_ERROR_CODE);
 	}
@@ -139,7 +139,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    APDESTAB `%s' not found.\n", tname);
+	    trlerror("APDESTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -162,7 +162,7 @@ static int OpenApTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_barlocn[0] == 0 || tabinfo->cp_barwidth[0] == 0 ||
 	    tabinfo->cp_barlocn[1] == 0 || tabinfo->cp_barwidth[1] == 0 ||
 	    tabinfo->cp_barlocn[2] == 0 || tabinfo->cp_barwidth[2] == 0) {
-	    printf ("ERROR    (GetApDes4) column not found in APDESTAB.\n");
+	    trlerror("(GetApDes4) column not found in APDESTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}

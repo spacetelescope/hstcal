@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <float.h>
+#include "stis.h"
 
 static int  Slfit (double *, double *, double *, int, double *, int *, int,
                    double **, void (*funcs)(double, double [], int));
@@ -119,7 +120,7 @@ double coeff[];		o:  output coefficients
 	for (int i = 1; i <= nterm; ia[i++] = 1);
 
 	/* Solve. */
-    printf("******** Calling Slfit ***********");
+    trlmessage("******** Calling Slfit ***********");
 	if ((status = Slfit (x, y, sig, ndat, a, ia, nterm, covar, poly)))
 	    return (status);
 
@@ -187,7 +188,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
             mfit++;
 
 	if (mfit == 0) {
-	    printf ("lfit: There are no parameters to be fit.\n");
+	    trlmessage("lfit: There are no parameters to be fit.");
 	    return (1);
 	}
 
@@ -300,8 +301,7 @@ static int Sgaussj (double **a, int n, double **b, int m)
 							col = k;
 						}
 					} else if (index_pivot[k] > 1) {
-	                    printf
-                        ("gaussj: Singular Matrix when choosing largest element.\n");
+	                    trlerror("gaussj: Singular Matrix when choosing largest element.");
 	                    return (1);
 	                }
 				}
@@ -325,7 +325,7 @@ static int Sgaussj (double **a, int n, double **b, int m)
 		index_row[i] = row;
 		index_col[i] = col;
 		if (a[col][col] == 0.0) {
-            printf("gaussj: Singular Matrix - pivot element is zero.\n");
+            trlmessage("gaussj: Singular Matrix - pivot element is zero.");
 	        return (1);
 	    }
 

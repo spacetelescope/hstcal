@@ -53,10 +53,8 @@ StisInfo *sts         i: calibration flags and other info
 	if ((status = Get_KeyD (&phdr, "TEXPTIME", use_default, 0., &texptime)))
 	    return (status);
 	if (texptime <= 0.) {
-	    printf (
-"Warning  Wavecal file has zero total exposure time,\\\n");
-	    printf (
-"         so WAVECORR, X1DCORR, X2DCORR will be set to OMIT.\n");
+	    trlwarn("Wavecal file has zero total exposure time,");
+	    trlwarn("         so WAVECORR, X1DCORR, X2DCORR will be set to OMIT.");
 	    sts->sci_wavecorr = OMIT;
 	    sts->sci_2d_rect = OMIT;
 	    sts->sci_1d_extract = OMIT;
@@ -96,10 +94,8 @@ StisInfo *sts         i: calibration flags and other info
 	    freeSingleGroup (&x);
 	}
 	if (all_bad) {
-	    printf (
-"Warning  Wavecal file has zero exposure time or zero data values, \\\n");
-	    printf (
-"         so WAVECORR, X1DCORR, X2DCORR will be set to OMIT.\n");
+	    trlwarn("Wavecal file has zero exposure time or zero data values, ");
+	    trlwarn("         so WAVECORR, X1DCORR, X2DCORR will be set to OMIT.");
 	    sts->sci_wavecorr = OMIT;
 	    sts->sci_2d_rect = OMIT;
 	    sts->sci_1d_extract = OMIT;

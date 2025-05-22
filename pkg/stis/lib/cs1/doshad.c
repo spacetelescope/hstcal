@@ -41,8 +41,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    return (0);
 
 	if (sts->exptime <= 0.) {
-	    printf (
-		"Warning  EXPTIME must be positive if SHADCORR = PERFORM.\n");
+	    trlwarn("EXPTIME must be positive if SHADCORR = PERFORM.");
 	    sts->shadcorr = IGNORED;
 	    return (0);
 	}
@@ -76,7 +75,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    if ((status = addk2d (&y, 1.)))
 		return (status);
 	    if ((status = div2d (x, &y))) {
-		printf ("ERROR    (doShad) size mismatch.\n");
+		trlerror("(doShad) size mismatch.");
 		return (status);
 	    }
 	    freeSingleGroup (&y);
@@ -88,7 +87,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    initSingleGroup (&z);
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny, True);
 	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
-		printf ("ERROR    (doShad) size mismatch.\n");
+		trlerror("(doShad) size mismatch.");
 		return (status);
 	    }
 	    freeSingleGroup (&y);			/* done with y */

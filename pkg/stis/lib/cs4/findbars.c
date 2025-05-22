@@ -123,9 +123,9 @@ double *shift      o: the shift, in pixels
 
 	    if (sts->verbose) {
 		if (barweight[i] == 0.) {
-		    printf ("Warning  Bar %d could not be found.\n", i+1);
+		    trlwarn("Bar %d could not be found.", i+1);
 		} else {
-		    printf ("         shift of bar %d is %.3f, weight = %.5g\n",
+		    trlmessage("         shift of bar %d is %.3f, weight = %.5g",
 			i+1, barshift[i], barweight[i]);
 		}
 	    }
@@ -348,24 +348,19 @@ FILE *dbg          i: file handle for debug output
 
 	if (bad != BAR_OK) {
 
-	    printf ("Warning  Skipping current occulting bar ... \\\n");
+	    trlwarn("Skipping current occulting bar ...");
 
 	    if (bad == SEARCH_RANGE_TOO_SMALL) {
 
-		printf (
-"Warning  Peak of cross correlation is at end of search range. \\\n");
-		printf (
-"Warning  This probably means the search range is too small; \\\n");
-		printf (
-"Warning  check the value of SP_RANGE in the WCPTAB.\n");
+		trlwarn("Peak of cross correlation is at end of search range. ");
+		trlwarn("This probably means the search range is too small; ");
+		trlwarn("check the value of SP_RANGE in the WCPTAB.");
 
 	    } else if (bad == PEAK_VALUE_OUT_OF_RANGE) {
 
-		printf (
-"Warning  Peak of cross correlation is %.6g of the expected value, \\\n",
+		trlwarn("Peak of cross correlation is %.6g of the expected value, ",
 			*barweight);
-		printf (
-"Warning  which is outside the allowed range %.6g to %.6g\n",
+		trlwarn("which is outside the allowed range %.6g to %.6g",
 			MIN_BARWEIGHT, MAX_BARWEIGHT);
 	    }
 
@@ -400,7 +395,7 @@ FILE *dbg          i: file handle for debug output
 	if (cent == NULL) {
 	    *barshift = 0.;
 	    *barweight = 0.;
-	    printf ("Warning  Out of memory in FindBars.\n");
+	    trlwarn("Out of memory in FindBars.");
 	    return;
 	}
 
@@ -457,7 +452,7 @@ FILE *dbg          i: file handle for debug output
 	    *barweight = 0.;
 	} else if (n == 1) {
 	    *barshift = cent[0] - (double) middle;
-	    printf ("Warning  Only one point used for bar location.\n");
+	    trlwarn("Only one point used for bar location.");
 	} else {
 	    /* reject outliers from cent */
 	    median = MedianDouble (cent, n, 0);
@@ -573,7 +568,7 @@ double *shift        o: the average shift
 	    return (NO_GOOD_DATA);
 
 	if (max_shift - min_shift > MAX_DIFF_WARNING)
-	    printf ("Warning  Shifts of individual bars differ by %.2f\n",
+	    trlwarn("Shifts of individual bars differ by %.2f",
 		max_shift - min_shift);
 
 	if (max_shift - min_shift > MAX_DIFF_ERROR)
@@ -591,7 +586,7 @@ double *shift        o: the average shift
 	for (i = 0;  i < nbars;  i++) {
 
 	    if (i == wmin) {
-		printf ("Warning  bar %d excluded due to low weight\n", i+1);
+		trlwarn("bar %d excluded due to low weight", i+1);
 		continue;		/* skip this point */
 	    }
 

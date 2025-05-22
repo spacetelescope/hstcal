@@ -110,7 +110,7 @@ StisInfo1 *sts     io: calibration switches, etc
 	}
 
 	if (!foundit) {
-	    printf ("ERROR    Detector `%s' not found in MLINTAB `%s'.\n",
+	    trlerror("Detector `%s' not found in MLINTAB `%s'.",
 		sts->det, sts->mlin.name);
 	    CloseLinTab (&tabinfo);
 	    return (TABLE_ERROR);
@@ -131,7 +131,7 @@ static int OpenLinTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    MLINTAB `%s' not found.\n", tname);
+	    trlerror("MLINTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -148,7 +148,7 @@ static int OpenLinTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_local == 0 ||
 	    tabinfo->cp_tau == 0 ||
 	    tabinfo->cp_expand == 0) {
-	    printf ("ERROR    Column not found in MLINTAB.\n");
+	    trlerror("Column not found in MLINTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}

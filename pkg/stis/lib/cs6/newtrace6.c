@@ -58,14 +58,14 @@ SpTrace *input   i: a new record to be inserted into the list
 	int done = 0;
 
 	if (input->nelem > MAX_SP_TRACE) {
-	    printf ("ERROR    %d trace coefficients.\n",
+	    trlerror("%d trace coefficients.",
 		input->nelem);
 	    return (TABLE_ERROR);
 	}
 
 	/* Allocate space for the new record, and copy input to new. */
 	if ((new = (SpTrace *) malloc (sizeof (SpTrace))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	CopyTrace (input, new);
@@ -136,14 +136,12 @@ SpTrace **trace  i: identifies the first record in the list
 	while (current != NULL) {
 	    if (current->a2center == previous->a2center) {
 	        /* a2center is stored internally in zero-indexed format */
-		printf (
-	"ERROR    Duplicate values of A2CENTER=%.8g in SPTRCTAB.\n",
+		trlerror("Duplicate values of A2CENTER=%.8g in SPTRCTAB.",
 			current->a2center + 1.0);
 		return (ERROR_TRACE);
 	    }
 	    if (current->a1center != previous->a1center) {
-		printf (
-	"ERROR    Different A1CENTER values in different rows in SPTRCTAB.\n");
+		trlerror("Different A1CENTER values in different rows in SPTRCTAB.");
 		return (ERROR_TRACE);
 	    }
 	    previous = current;
@@ -184,7 +182,7 @@ SpTrace **output  o: the spectrum trace interpolated to a2center
 	/* Allocate space for the output. */
 	if (*output == NULL) {
 	    if ((*output = malloc (sizeof (SpTrace))) == NULL) {
-		printf ("ERROR    Can't allocate memory in InterpTrace.\n");
+		trlerror("Can't allocate memory in InterpTrace.");
 		return (OUT_OF_MEMORY);
 	    }
 	}
@@ -308,16 +306,16 @@ SpTrace **trace   i: identifies the first record in the list
 
 	current = *trace;
 	done = (current == NULL);
-	printf ("Beginning of trace list.\n");
+trlmessage("Beginning of trace list.");
 
 	while (!done) {
 
-	    printf ("%g  %g\n", current->a2center, current->a2displ[0]);
+	    trlmessage("%g  %g", current->a2center, current->a2displ[0]);
 	    current = current->next;
 	    if (current == NULL)
 		done = 1;
 	}
 
-	printf ("End of trace list.\n");
+trlmessage("End of trace list.");
 }
 

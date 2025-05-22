@@ -49,7 +49,7 @@ int TabPedigree (RefTab *ref) {
 	/* Append "[0]" to the file name, for the primary HDU. */
 	primary_hdu = calloc(strlen(ref->name) + 11, sizeof(char));
 	if (primary_hdu == NULL) {
-	    printf("ERROR    Out of memory.\n");
+	    trlerror("Out of memory.");
 	    return(-1);
 	}
 	strcpy(primary_hdu, ref->name);

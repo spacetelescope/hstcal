@@ -103,11 +103,11 @@ int *nsteps     io: incremented if this step can be performed
 	if (sts->wcptab.exists != EXISTS_YES) {
 	    if (GotFileName (sts->wcptab.name)) {
 		(*missing)++;
-		printf ("ERROR    WCPTAB `%s' not found.\n", sts->wcptab.name);
+		trlerror("WCPTAB `%s' not found.", sts->wcptab.name);
 	    }
 	} else if (sts->wcptab.goodPedigree != GOOD_PEDIGREE) {
-	    printf ("Warning  WCPTAB has PEDIGREE = DUMMY; \\\n");
-	    printf ("Warning  default parameters will be used.\n");
+	    trlwarn("WCPTAB has PEDIGREE = DUMMY;");
+	    trlwarn("default parameters will be used.");
 	    sts->wcptab.exists = EXISTS_NO;
 	}
 
@@ -174,26 +174,20 @@ StisInfo4 *sts  i: switches, file names, etc
 
 	if (sts->disp_type == ECHELLE_DISP) {
 	    if (x2dcorr == COMPLETE) {
-		printf (
-	"ERROR    Input file has already been 2-D rectified; \\\n");
-		printf (
-	"ERROR    for echelle data the input should be the _flt file.\n");
+		trlerror("Input file has already been 2-D rectified; ");
+		trlerror("for echelle data the input should be the _flt file.");
 		sts->wavecorr = OMIT;
 	    }
 	} else if (sts->disp_type == PRISM_DISP) {
 	    if (x2dcorr == COMPLETE) {
-		printf (
-	"ERROR    Input file has already been 2-D rectified; \\\n");
-		printf (
-	"ERROR    for prism data the input should be the _flt file.\n");
+		trlerror("Input file has already been 2-D rectified; ");
+		trlerror("for prism data the input should be the _flt file.");
 		sts->wavecorr = OMIT;
 	    }
 	} else {
 	    if (x2dcorr != COMPLETE) {
-		printf (
-	"ERROR    Input file has not been 2-D rectified; \\\n");
-		printf (
-	"ERROR    for first-order data you must first run x2d.\n");
+		trlerror("Input file has not been 2-D rectified; ");
+		trlerror("for first-order data you must first run x2d.");
 		sts->wavecorr = OMIT;
 	    }
 	}
@@ -226,14 +220,14 @@ static int GetCheckRef4 (RefFileInfo *refnames, Hdr *phdr,
 	if (table->exists == EXISTS_YES) {
 
 	    if (table->goodPedigree != GOOD_PEDIGREE) {
-		printf ("ERROR    %s has PEDIGREE = DUMMY.\n", table->name);
+		trlerror("%s has PEDIGREE = DUMMY.", table->name);
 		*calswitch = DUMMY;
 		(*missing)++;
 	    }
 
 	} else {
 
-	    printf ("ERROR    %s `%s' not found or can't open.\n",
+	    trlerror("%s `%s' not found or can't open.",
 				keyword, table->name);
 	    (*missing)++;
 	}

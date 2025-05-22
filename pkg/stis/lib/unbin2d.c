@@ -76,7 +76,7 @@ SingleGroup *b        o: output data
 	binx = onx / inx;
 	biny = ony / iny;
 	if (binx * inx != onx || biny * iny != ony) {
-	    printf ("ERROR    (unbin2d) bin ratio is not an integer.\n");
+	    trlerror("(unbin2d) bin ratio is not an integer.");
 	    return (GENERIC_ERROR_CODE);
 	}
 

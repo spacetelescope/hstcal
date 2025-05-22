@@ -140,7 +140,7 @@ static int OpenEPCTab(char *tname, TblInfo *tabinfo) {
 
     tabinfo->tp = c_tbtopn(tname, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
-        printf("Warning  EPCTAB `%s' not found.\n", tname);
+        trlwarn("EPCTAB `%s' not found.", tname);
         return (OPEN_FAILED);
     }
 
@@ -151,7 +151,7 @@ static int OpenEPCTab(char *tname, TblInfo *tabinfo) {
     c_tbcfnd1(tabinfo->tp, "VALUE", &tabinfo->cp_temp);
 
     if (tabinfo->cp_mjd == 0 || tabinfo->cp_temp == 0) {
-        printf ("Warning  Column not found in EPCTAB.\n");
+        trlwarn("Column not found in EPCTAB.");
         c_tbtclo(tabinfo->tp);
         return (COLUMN_NOT_FOUND);
     }

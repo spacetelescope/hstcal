@@ -132,13 +132,9 @@ static void SpecialComp (RefFileInfo *sciref, RefFileInfo *wcurrent,
 
 static void NoComparison (char *keyword, char *sciname, char *wavname) {
 
-	printf (
-	"Warning  %s is not the same in the science and wavecal headers; \\\n",
-		keyword);
-	printf (
-	"Warning  values in the science and wavecal are respectively: \\\n");
-	printf ("Warning  `%s' \\\n", sciname);
-	printf ("Warning  `%s' \\\n", wavname);
-	printf (
-"Warning  The value from the science header will be used for the wavecal.\n");
+    trlwarn("%s is not the same in the science and wavecal headers;", keyword);
+    trlwarn("values in the science and wavecal are respectively:");
+	trlwarn("`%s'", sciname);
+	trlwarn("`%s'", wavname);
+	trlwarn("The value from the science header will be used for the wavecal.");
 }

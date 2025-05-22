@@ -67,7 +67,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    /* open the primary header */
 	    ip = openInputImage (fdata, "", 0);
 	    if (hstio_err()) {
-		printf ("ERROR    HSTIO error %s\n", hstio_errmsg());
+		trlerror("HSTIO error %s", hstio_errmsg());
 		return (2);
 	    }
 	
@@ -84,7 +84,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    if (n == 0) {
 		if (newpar[0] < MAX_PAR && par->tbname[0] == '\0') {
 	    	    if (getKeyS (&prihdr, "CRREJTAB", par->tbname)) {
-			printf ("Keyword CRREJTAB not found in file %s.\n",
+			trlerror("Keyword CRREJTAB not found in file %s.",
 				fdata);
 			return (2);
 		    }
@@ -92,22 +92,22 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 
 		/* also read the keyword OBSTYPE */
 	    	if (getKeyS (&prihdr, "OBSTYPE", par->obstype)) {
-		    printf ("Keyword OBSTYPE not found in file %s.\n", fdata);
+		    trlerror("Keyword OBSTYPE not found in file %s.", fdata);
 		    return (2);
 		}
 	    }
 
 	    /* get the readout noise and A-to-D gain */
 	    if (getKeyF (&prihdr, "READNSE", &ron) != 0) {
-		printf ("Keyword READNSE not found in file %s.\n", fdata);
+		trlerror("Keyword READNSE not found in file %s.", fdata);
 		return (2);
 	    }
 	    if (getKeyF (&prihdr, "ATODGAIN", &gn) != 0) {
-		printf ("Keyword ATODGAIN not found in file %s.\n", fdata);
+		trlerror("Keyword ATODGAIN not found in file %s.", fdata);
 		return (2);
 	    }
 	    if (gn == 0.) {
-		printf ("Keyword ATODGAIN in file %s is 0.\n", fdata);
+		trlerror("Keyword ATODGAIN in file %s is 0.", fdata);
 		return (2);
 	    }
 
@@ -118,7 +118,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 		strcpy (ccdamp0, ccdamp);
 	    } else {
 		if (strcmp (ccdamp0, ccdamp) != 0) {
-		    printf ("%s uses different CCDAMP.\n", fdata);
+		    trlerror("%s uses different CCDAMP.", fdata);
 		    return (2);
 		}
 	    }
@@ -127,19 +127,19 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    for (k = 1; k <= nk; ++k) {
 		/* ignore if IMSET_OK is F */
 		if ((status = checkImsetOK (fdata, k, &imset_ok)) != 0) {
-		    printf ("ERROR    HSTIO error %s\n", hstio_errmsg());
+		    trlerror("HSTIO error %s", hstio_errmsg());
 		    return (2);
 		}
 		if (!imset_ok)
 		    continue;
 	    	ipsci[*nimgs] = openInputImage (fdata, "SCI", k);
 		if (hstio_err()) {
-		    printf ("ERROR    HSTIO error %s\n", hstio_errmsg());
+		    trlerror("HSTIO error %s", hstio_errmsg());
 		    return (2);
 		}
 	    	ipdq[*nimgs]  = openInputImage (fdata, "DQ",  k);
 		if (hstio_err()) {
-		    printf ("ERROR    HSTIO error %s\n", hstio_errmsg());
+		    trlerror("HSTIO error %s", hstio_errmsg());
 		    return (2);
 		}
 		noise[*nimgs] = ron/gn;
@@ -154,7 +154,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 
 	/* make sure there is more than one image */
 	if (*nimgs < 2) {
-	    printf ("Needs more than one input images\n");
+	    trlerror("Needs more than one input images");
 	    return (2);
 	}
 		
@@ -169,7 +169,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 
 	    /* verify the image size to be the same as the first image */
 	    if (getNaxis1(ipsci[k]) != *dim_x || getNaxis2(ipsci[k]) != *dim_y){
-		printf ("file '%s[%d][sci]' does not have the same size as the first image\n", imgname[k], grp[k]);
+		trlerror("file '%s[%d][sci]' does not have the same size as the first image", imgname[k], grp[k]);
 		return (2);
 	    }
 	}

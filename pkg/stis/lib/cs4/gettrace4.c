@@ -110,7 +110,7 @@ SpTrace **trace   o: list of spectral traces
                         tabinfo.tp, tabinfo.cp_pedigree, tabinfo.cp_descrip)))
 		    return (status);
 		if (sts->sptrctab.goodPedigree == DUMMY_PEDIGREE) {
-		    printf ("Warning  DUMMY pedigree in row %d of %s.\n",
+		    trlwarn("DUMMY pedigree in row %d of %s.",
 			row, sts->sptrctab.name);
 		    continue;
 		}
@@ -125,9 +125,9 @@ SpTrace **trace   o: list of spectral traces
 	/* Get for duplicate a2center or non-duplicate a1center. */
 	if (!foundit) {
 	    FreeTrace4 (trace);
-	    printf ("Warning  No matching row found in SPTRCTAB %s; \\\n",
+	    trlwarn("No matching row found in SPTRCTAB %s;",
 			sts->sptrctab.name);
-	    printf ("Warning  OPT_ELEM %s, CENWAVE %d.\n",
+	    trlwarn("OPT_ELEM %s, CENWAVE %d.",
 			sts->opt_elem, sts->cenwave);
 	    CloseTraceTab (&tabinfo);
 	    return (status);
@@ -147,7 +147,7 @@ static int OpenTraceTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    SPTRCTAB `%s' not found.\n", tname);
+	    trlerror("SPTRCTAB `%s' not found.", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -170,7 +170,7 @@ static int OpenTraceTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_nelem == 0   || tabinfo->cp_a2displ == 0) {
 
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Column not found in SPTRCTAB.\n");
+	    trlerror("Column not found in SPTRCTAB.");
 	    return (COLUMN_NOT_FOUND);
 	}
 
@@ -218,7 +218,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo4* sts, SpTrace **
 	int NewTrace4 (SpTrace **, SpTrace *);
 
 	if ((newrec = malloc (sizeof (SpTrace))) == NULL) {
-	    printf ("ERROR    Can't allocate memory in GetTrace4.\n");
+	    trlerror("Can't allocate memory in GetTrace4.");
 	    return (OUT_OF_MEMORY);
 	}
 	newrec->next = NULL;
@@ -229,7 +229,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo4* sts, SpTrace **
 	c_tbegtd (tabinfo->tp, tabinfo->cp_a2center, row, &newrec->a2center);
 	c_tbegti (tabinfo->tp, tabinfo->cp_nelem, row, &newrec->nelem);
 	if (newrec->nelem > MAX_SP_TRACE) {
-	    printf ("ERROR    Spectrum trace in SPTRCTAB is too large.\n");
+	    trlerror("Spectrum trace in SPTRCTAB is too large.");
 	    return (TABLE_ERROR);
 	}
 	nelem = c_tbagtd (tabinfo->tp, tabinfo->cp_a2displ, row,
@@ -249,7 +249,7 @@ static int ReadTraceArray (TblInfo *tabinfo, int row, StisInfo4* sts, SpTrace **
 
 	if (nelem < newrec->nelem) {
 	    c_tbtclo (tabinfo->tp);
-	    printf ("ERROR    Not all elements were read from SPTRCTAB.\n");
+	    trlerror("Not all elements were read from SPTRCTAB.");
 	    return (TABLE_ERROR);
 	}
 

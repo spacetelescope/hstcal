@@ -90,7 +90,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	} else if (strcmp (buf, "CCD") == 0) {
 	    sts->detector = CCD_DETECTOR;
 	} else {
-	    printf ("ERROR    DETECTOR = %s is invalid\n", buf);
+	    trlerror("DETECTOR = %s is invalid", buf);
 	    return (HEADER_PROBLEM);
 	}
 
@@ -108,7 +108,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 		}
 	    }
 	    if (strcmp (buf, "BIAS") != 0) {
-		printf ("Warning  Total exposure time = %.6g\n", texptime);
+		trlwarn("Total exposure time = %.6g", texptime);
 		free (buf);
 		freeHdr (&phdr);
 		return (NOTHING_TO_DO);
@@ -124,7 +124,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	else if (strcmp (buf, "IMAGING") == 0)
 	    sts->obstype = IMAGING_TYPE;
 	else
-	    printf ("Warning  Unknown OBSTYPE = '%s'\n", buf);
+	    trlwarn("Unknown OBSTYPE = '%s'", buf);
 
 	/* Get opt_elem in order to check for echelle or prism. */
 	if ((status = Get_KeyS (&phdr, "OPT_ELEM",
@@ -166,8 +166,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    }
 	    /* Reset wavecorr if wavecal name is "N/A". */
 	    if (strcmp (sts->wavfile, "N/A") == 0) {
-		printf (
-		"Warning  WAVECORR will be skipped because WAVECAL is N/A.\n");
+		trlwarn("WAVECORR will be skipped because WAVECAL is N/A.");
 		sci_sw->wavecorr = SKIPPED;
 	    }
 	}

@@ -19,6 +19,8 @@ struct TrlBuf
     FILE *fp;               // pointer to open trailer file
 };
 
+extern struct TrlBuf trlbuf;  // defined in trlbuf.c
+
 int InitTrlFile (char *inlist, char *output);
 int WriteTrlFile (void);
 int InitTrlBuf (void);

@@ -38,59 +38,56 @@ Hdr *hdr         i: SCI extension header
 	/* Get the voltages. */
 	status = getKeyD (hdr, "OCBABAV",&abav);
 	if (status) {
-	    printf ("Warning  Keyword OCBABAV not found.\n");
+	    trlwarn("Keyword OCBABAV not found.");
 	    abav = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBCDAV",&cdav);
 	if (status) {
-	    printf ("Warning  Keyword OCBCDAV not found.\n");
+	    trlwarn("Keyword OCBCDAV not found.");
 	    cdav = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBLGCDV",&lgcdv);
 	if (status) {
-	    printf ("Warning  Keyword OCBLGCDV not found.\n");
+	    trlwarn("Keyword OCBLGCDV not found.");
 	    lgcdv = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBSWALV",&swalv);
 	if (status) {
-	    printf ("Warning  Keyword OCBSWALV not found.\n");
+	    trlwarn("Keyword OCBSWALV not found.");
 	    swalv = DEFAULT_VOLTAGE;
 	}
 	status = getKeyD (hdr, "OCBRCDLV",&rcdlv);
 	if (status) {
-	    printf ("Warning  Keyword OCBRCDLV not found.\n");
+	    trlwarn("Keyword OCBRCDLV not found.");
 	    rcdlv = DEFAULT_VOLTAGE;
 	}
 
 	/* Check the voltages against the minimum allowed values. */
 	if (abav != DEFAULT_VOLTAGE && abav < MIN_OCBABAV) {
 	    low_voltage = 1;
-	    printf ("Warning  OCBABAV = %.6g\n", abav);
+	    trlwarn("OCBABAV = %.6g", abav);
 	}
 	if (cdav != DEFAULT_VOLTAGE && cdav < MIN_OCBCDAV) {
 	    low_voltage = 1;
-	    printf ("Warning  OCBCDAV = %.6g\n", cdav);
+	    trlwarn("OCBCDAV = %.6g", cdav);
 	}
 	if (lgcdv != DEFAULT_VOLTAGE && lgcdv < MIN_OCBLGCDV) {
 	    low_voltage = 1;
-	    printf ("Warning  OCBLGCDV = %.6g\n", lgcdv);
+	    trlwarn("OCBLGCDV = %.6g", lgcdv);
 	}
 	if (swalv != DEFAULT_VOLTAGE && swalv < MIN_OCBSWALV) {
 	    low_voltage = 1;
-	    printf ("Warning  OCBSWALV = %.6g\n", swalv);
+	    trlwarn("OCBSWALV = %.6g", swalv);
 	}
 	if (rcdlv != DEFAULT_VOLTAGE && rcdlv < MIN_OCBRCDLV) {
 	    low_voltage = 1;
-	    printf ("Warning  OCBRCDLV = %.6g\n", rcdlv);
+	    trlwarn("OCBRCDLV = %.6g", rcdlv);
 	}
 
 	if (low_voltage) {
-	    printf (
-	"Warning  Data are likely to be corrupted; CCD settings indicate \\\n");
-	    printf (
-	"Warning  a cosmic ray induced CCD reset has occured, causing \\\n");
-	    printf (
-	"Warning  biases and clocking voltages to be incorrectly set.\n");
+	    trlwarn("Data are likely to be corrupted; CCD settings indicate ");
+	    trlwarn("a cosmic ray induced CCD reset has occured, causing ");
+	    trlwarn("biases and clocking voltages to be incorrectly set.");
 	}
 
 	return (0);

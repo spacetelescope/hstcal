@@ -40,10 +40,10 @@ int	CalStis2 (char *input, char *fout, clpar *par, int newpar[])
         flag = ckNewFile (fout);
         if (flag > 0) {
             if (flag == 1) {
-                printf ("ERROR    Output file `%s' already exists.\n", fout);
+                trlerror("Output file `%s' already exists.", fout);
                 return (2);
             } else {
-                printf ("ERROR    Can't clobber `%s'.\n", fout);
+                trlerror("Can't clobber `%s'.", fout);
                 return (2);
             }
         }
@@ -60,7 +60,7 @@ int	CalStis2 (char *input, char *fout, clpar *par, int newpar[])
 	}
 	PrFileName ("output", fout);
 
-        printf ("\n");
+        trlmessage("");
         PrSwitch ("crcorr", PERFORM);
 
 	/* perform the calculation */
@@ -69,13 +69,13 @@ int	CalStis2 (char *input, char *fout, clpar *par, int newpar[])
 
         PrSwitch ("crcorr", COMPLETE);
 	/*
-	printf ("Created output file '%s'\n", fout);
+trlmessage("Created output file '%s'", fout);
 	*/
 
 	/* close file template */
 	c_imtclose (tpin);
 
-        printf ("\n");
+        trlmessage("");
         PrEnd (2);
 
 	if (par->printtime)

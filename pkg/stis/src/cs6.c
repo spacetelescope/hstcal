@@ -49,6 +49,7 @@
    16 Dec 11  -  Include <stdlib.h> for the declaration of exit().
 */
 
+
 int main (int argc, char **argv) {
 
 	int status = 0;			/* zero is OK */
@@ -128,6 +129,14 @@ int main (int argc, char **argv) {
                       double *, int *, int *, char *, double *, double *,
                       int *, int *, double *);
 
+	/* Expand input and output file lists. */
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	c_irafinit (argc, argv);
 
 	/* Get command line parameters. */
@@ -143,9 +152,6 @@ int main (int argc, char **argv) {
                       &xoffset))
 	    exit (ERROR_RETURN);
 
-	/* Expand input and output file lists. */
-	PtrRegister ptrReg;
-	initPtrRegister(&ptrReg);
 	inlist   = c_imtopen (input);
 	addPtr(&ptrReg, inlist, &c_imtclose);
 	outlist  = c_imtopen (output);
@@ -155,16 +161,18 @@ int main (int argc, char **argv) {
 	innf     = c_imtlen (inlist);
 	outnf    = c_imtlen (outlist);
 	outwnf   = c_imtlen (outwlist);
+
 	if (outnf != 0 && innf != outnf) {
-	    printf ("ERROR: Input and output lists have different sizes.\n");
+	    printf("ERROR: Input and output lists have different sizes.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
 	if (outwnf != 0 && innf != outwnf) {
-	    printf ("ERROR: Input and weights lists have different sizes.\n");
+	    printf("ERROR: Input and weights lists have different sizes.\n");
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
+
 	for (ifile = 0; ifile < innf; ifile++) {
 	    c_imtgetim (inlist,  finput,  STIS_FNAME);
 	    if (outnf != 0)
@@ -192,6 +200,7 @@ int main (int argc, char **argv) {
 	    }
 
 	    /* Extract 1-D STIS data. */
+		trlGitInfo();
 
 	    if ((status = CalStis6 (finput, foutput,
 			  backcorr, dispcorr, fluxcorr, helcorr, sgeocorr,
@@ -203,7 +212,7 @@ int main (int argc, char **argv) {
                           foutw, backval, backerr, variance, fflux, psclip,
                           sclip, lfilter, idtfile, subscale, blazeshift,
                           bks_mode, bks_order, xoffset, 0))) {
-	        printf ("Error processing %s.\n", finput);
+	        printf("Error processing %s.\n", finput);
 	        WhichError (status);
 	    }
 	    if (status)

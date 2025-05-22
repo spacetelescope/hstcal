@@ -97,7 +97,7 @@ double *shift       o: the shift, in pixels
 	nwl = in->sci.data.nx;
 
 	if (nwl <= 0) {
-	    printf ("Warning  No data for shift in dispersion direction.\n");
+	    trlwarn("No data for shift in dispersion direction.");
 	    *shift = UNDEFINED_SHIFT;
 	    return (0);
 	}

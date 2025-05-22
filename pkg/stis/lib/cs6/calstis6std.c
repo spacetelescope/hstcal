@@ -199,7 +199,7 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
 	    PrBegin (6);
 	    if (verbose == 2)
 	        TimeStamp ("CALSTIS-6 started", "");
-	    printf ("\n");
+	    trlmessage("");
 	}
 
 	/* PCT, GAC & TDS corrections are performed only if fluxcorr is
@@ -278,7 +278,7 @@ double xoffset;		i: for slitless data, an offset in dispersion direction
 	    PrFileName ("Output",   sts.output);
 	    PrFileName ("Rootname", sts.rootname);
 	    PrHdrInfo (sts.obsmode, sts.aperture, sts.opt_elem, sts.det);
-	    printf ("\n");
+	    trlmessage("");
 	}
 
 	/* Do 1-D spectral extraction. */

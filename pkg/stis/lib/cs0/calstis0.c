@@ -191,7 +191,7 @@ int verbose      i: true --> print info in individual csN
 	save_fwv = save_tmp;		/*   we may need to save these */
 
 	/* Print image name.  We may not have the wavecal name yet. */
-	printf ("\n");
+trlmessage("");
 	PrFileName ("input", sts.rawfile);
 	if (outroot[0] != '\0')
 	    PrFileName ("outroot", sts.outroot);
@@ -228,7 +228,7 @@ int verbose      i: true --> print info in individual csN
 	    sts.sci_1d_extract != PERFORM &&
 	    sts.sci_geocorr != PERFORM &&
 	    sts.wav_basic_2d != PERFORM) {
-	    printf ("Warning  No calibration switch was set to PERFORM.\n");
+	    trlwarn("No calibration switch was set to PERFORM.");
 	    return (NOTHING_TO_DO);
 	}
 
@@ -414,8 +414,7 @@ int verbose      i: true --> print info in individual csN
 					printtime, verbose);
 			if (status != 0) {
 			    if (status == NOTHING_TO_DO) {
-				printf (
-		"Warning  Output file %s was not written.\n", sts.sx2file);
+				trlwarn("Output file %s was not written.", sts.sx2file);
 				status = 0;
 			    } else {
 				return (status);
@@ -462,8 +461,7 @@ int verbose      i: true --> print info in individual csN
 				    printtime, verbose);
 			if (status != 0) {
 			    if (status == NOTHING_TO_DO) {
-				printf (
-		"Warning  Output file %s was not written.\n", sts.sx2file);
+				trlwarn("Output file %s was not written.", sts.sx2file);
 				status = 0;
 			    } else {
 				return (status);
@@ -477,8 +475,7 @@ int verbose      i: true --> print info in individual csN
 	    status = CalStis8 (sts.fltfile, sts.sflfile, printtime, verbose);
 	    if (status != 0) {
 		if (status == NOTHING_TO_DO) {
-		    printf (
-		"Warning  Output file %s was not written.\n", sts.sflfile);
+		    trlwarn("Output file %s was not written.", sts.sflfile);
 		    status = 0;
 		} else {
 		    return (status);
@@ -490,7 +487,7 @@ int verbose      i: true --> print info in individual csN
 	FreeRefFile (&sciref);
 	FreeRefFile (&wavref);
 
-	printf ("\n");
+trlmessage("");
 	PrEnd (0);		/* *** CALSTIS-0 complete *** */
 
 	if (printtime)
@@ -694,13 +691,13 @@ char *outfile   i: name of output file
 	    return (OUT_OF_MEMORY);
 
 	if ((ofp = fopen (outfile, "wb")) == NULL) {
-	    printf ("ERROR    Can't create temporary file %s.\n", outfile);
+	    trlerror("Can't create temporary file %s.", outfile);
 	    free (buf);
 	    return (GENERIC_ERROR_CODE);
 	}
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-	    printf ("ERROR    Can't open %s.\n", infile);
+	    trlerror("Can't open %s.", infile);
 	    (void)fcloseWithStatus(&ofp);
 	    remove (outfile);
 	    free (buf);
@@ -711,7 +708,7 @@ char *outfile   i: name of output file
 	while (!done) {
 	    nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
 	    if (ferror (ifp)) {
-		printf ("ERROR    Can't read from %s (copying to %s).\n",
+		trlerror("Can't read from %s (copying to %s).",
 				infile, outfile);
 		(void)fcloseWithStatus(&ofp);
 		(void)fcloseWithStatus(&ifp);
@@ -723,7 +720,7 @@ char *outfile   i: name of output file
 
 	    nout = fwrite (buf, sizeof(char), nin, ofp);
 	    if (nout < nin) {
-		printf ("ERROR    Can't copy %s to %s.\n", infile, outfile);
+		trlerror("Can't copy %s to %s.", infile, outfile);
 		(void)fcloseWithStatus(&ofp);
 		(void)fcloseWithStatus(&ifp);
 		free (buf);

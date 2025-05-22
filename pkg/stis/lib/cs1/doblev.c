@@ -108,7 +108,7 @@ int *driftcorr    o: true means correction for drift along lines was applied
 
 	if ((binx != 1 && binx != 2 && binx != 4) ||
 	    (biny != 1 && biny != 2 && biny != 4)) {
-	    printf ("ERROR    (doBlev) bin size must be 1, 2, or 4.\n");
+	    trlerror("(doBlev) bin size must be 1, 2, or 4.");
 	    return (GENERIC_ERROR_CODE);
 	}
 
@@ -122,8 +122,8 @@ int *driftcorr    o: true means correction for drift along lines was applied
 		in->sci.data.nx, in->sci.data.ny, sts->bin,
 		&trimx1, &trimx2, &trimy1, &trimy2, biassect, vx, vy)) {
 
-	    printf ("Warning  Image size is too small to do BLEVCORR; \\\n");
-	    printf ("Warning  bias from CCDTAB will be subtracted.\n");
+	    trlwarn("Image size is too small to do BLEVCORR;");
+	    trlwarn("bias from CCDTAB will be subtracted.");
 	    biaslevel = sts->ccdbias;
 	    for (j = 0;  j < in->sci.data.ny;  j++) {
 		for (i = 0;  i < in->sci.data.nx;  i++)
@@ -218,21 +218,21 @@ static FILE *BlevOpen (char *fname, int extver, int *status) {
 	    if (fp == NULL) {
 
 		if ((fp = fopen (fname, "w")) == NULL) {
-		    printf ("ERROR    Could not open %s for writing.\n", fname);
+		    trlerror("Could not open %s for writing.", fname);
 		    *status = OPEN_FAILED;
 		}
 
 	    } else {
 
 	        (void)fcloseWithStatus(&fp);
-		printf ("ERROR    File %s already exists.\n", fname);
+		trlerror("File %s already exists.", fname);
 		*status = OPEN_FAILED;
 	    }
 
 	} else {
 
 	    if ((fp = fopen (fname, "a")) == NULL) {
-		printf ("ERROR    Could not append to %s.\n", fname);
+		trlerror("Could not append to %s.", fname);
 		*status = OPEN_FAILED;
 	    }
 	}
@@ -284,18 +284,14 @@ double ccdbias    i: bias level to subtract if we can't get it from overscan
 	    }
 	}
 	if (too_few > 0) {
-	    printf ("Warning  (blevcorr) %d image line", too_few);
-	    if (too_few == 1)
-		printf (" has");
-	    else
-		printf ("s have");
-	    printf (" too few overscan pixels.\n");
+		trlwarn(MsgText, sizeof(MsgText), "(blevcorr) %d image line%s too few overscan pixels.",
+			too_few, too_few == 1 ? " has" : "s have");
 	}
 
 	/* Fit a curve to the bias levels found. */
 	if (BlevFit()) {
-	    printf ("Warning  No bias level data, or singular fit; \\\n");
-	    printf ("Warning  bias from CCDTAB will be subtracted.\n");
+	    trlwarn("No bias level data, or singular fit;");
+	    trlwarn("bias from CCDTAB will be subtracted.");
 	    BlevSet (ccdbias);		/* assign the default value */
 	}
 }

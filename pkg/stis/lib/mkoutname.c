@@ -188,8 +188,8 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 	int status;
 
 	if (strlen (instr) + strlen (outstr) > maxch) {
-	    printf ("ERROR    (MkOutName) strings are too long: \\\n");
-	    printf ("ERROR    `%s' + `%s'\n", outstr, instr);
+	    trlerror("(MkOutName) strings are too long:");
+	    trlerror("`%s' + `%s'", outstr, instr);
 	    status = 2011;
 	} else {
 	    strcat (outstr, instr);

@@ -45,13 +45,13 @@ ProfileArray *input   i: a new record to be inserted into the list
 
 	/* Allocate space for the new record, and copy input to new. */
 	if ((new = (ProfileArray *) malloc (sizeof (ProfileArray))) == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	new->profoff = (double *) malloc (input->nptsoff * sizeof (double));
 	new->prof    = (double *) malloc (input->npts    * sizeof (double));
 	if (new->profoff == NULL || new->prof == NULL) {
-	    printf ("ERROR    Can't allocate memory.\n");
+	    trlerror("Can't allocate memory.");
 	    return (OUT_OF_MEMORY);
 	}
 	CopyProfile (input, new);
@@ -122,8 +122,7 @@ int CheckProfile (ProfileArray **profa) {
 
 	while (current != NULL) {
 	    if (current->minp == previous->minp) {
-		printf (
-	"ERROR    Duplicate values of MIN_PIX = %d in OPROFTAB.\n",
+		trlerror("Duplicate values of MIN_PIX = %d in OPROFTAB.",
 			current->minp);
 		return (INVALID);
 	    }
@@ -202,7 +201,7 @@ double *offset;       o: offset corresponding to position X
 	if (*output == NULL) {
 	    if ((*output = (ProfileArray *) malloc (sizeof (ProfileArray))) == 
                             NULL) {
-		printf ("ERROR    Can't allocate memory.\n");
+		trlerror("Can't allocate memory.");
 		return (OUT_OF_MEMORY);
 	    }
 	    (*output)->profoff = (double *) malloc (current->nptsoff * 
@@ -210,7 +209,7 @@ double *offset;       o: offset corresponding to position X
 	    (*output)->prof    = (double *) malloc (current->npts * 
                                  sizeof (double));
 	    if ((*output)->profoff == NULL || (*output)->prof == NULL) {
-	        printf ("ERROR    Can't allocate memory.\n");
+	        trlerror("Can't allocate memory.");
 	        return (OUT_OF_MEMORY);
 	    }
 	}
@@ -327,7 +326,7 @@ ProfileArray **profa  i: identifies the first record in the list
 	current = *profa;
 
 	while (current != NULL) {
-	    printf ("%3d:  %d\n", i, current->minp);
+	    trlmessage("%3d:  %d", i, current->minp);
 	    current = current->next;
 	    i++;
 	}

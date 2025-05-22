@@ -24,7 +24,6 @@ extern int status;			/* zero is OK */
 # include "acsversion.h"
 
 #include "trlbuf.h"
-extern struct TrlBuf trlbuf;
 
 # ifdef _OPENMP
 #  include <omp.h>

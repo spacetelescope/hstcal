@@ -85,8 +85,7 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
             return (status);
 
         if (sts->dispcorr != PERFORM && sts->heliocorr == PERFORM) {
-            printf (
-        "ERROR    No wavelengths - cannot apply heliocentric correction.\n");
+            trlerror("No wavelengths - cannot apply heliocentric correction.");
             return (ERROR_RETURN);
         }
 
@@ -95,8 +94,7 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
 
         if (sts->fluxcorr == PERFORM &&
             sts->dispcorr != PERFORM) {
-            printf (
-           "ERROR    No wavelengths - cannot flux-calibrate.\n");
+            trlerror("No wavelengths - cannot flux-calibrate.");
             return (ERROR_RETURN);
         }
 
@@ -163,8 +161,7 @@ int *missing    io: incremented if the file is missing
         }
 
         if (sts->x1d != PERFORM) {
-            printf (
-            "Warning  X1DCORR skipped due to dummy reference file.\n");
+            trlwarn("X1DCORR skipped due to dummy reference file.");
             return (NOTHING_TO_DO);
         }
         return (0);
@@ -204,8 +201,7 @@ int *missing    io: incremented if the file is missing
 
 /*
         if (missing != 0 && streq_ic (sts->xtracalg, OPTIMAL))
-            printf (
-"Warning  No reference file names for optimal extraction exist in header.\n");
+            trlwarn("No reference file names for optimal extraction exist in header.\n");
 */
 
 
@@ -338,10 +334,9 @@ int *missing    io: incremented if the table is missing
                 return (status);
             if (l_missing > 0) {
                 sts->gaccorr = OMIT;
-                printf (
-        "Warning  Grating-aperture throughput correction table (GACTAB)"
+                trlwarn("Grating-aperture throughput correction table (GACTAB)"
         " was not found,\n");
-                printf ("         and no gac corrections will be applied\n");
+                trlmessage("         and no gac corrections will be applied");
             }
 
             /* Time-dependent sensitivity table. Handled like pct. */
@@ -422,7 +417,7 @@ int *missing    io: incremented if the file is missing
                 return (status);
             if (sts->sdstfile.exists != EXISTS_YES) {
                 (*missing)++;
-                printf ("ERROR    SDSTFILE `%s' not found\n",
+                trlerror("SDSTFILE `%s' not found",
                         sts->sdstfile.name);
             }
             if (sts->sdstfile.goodPedigree != GOOD_PEDIGREE)

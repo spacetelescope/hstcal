@@ -71,8 +71,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		getSingleGroup (sts->dflt.name, extver, &z);
 		if (y.sci.data.nx != z.sci.data.nx ||
 		    y.sci.data.ny != z.sci.data.ny) {
-		    printf (
-	"ERROR    Pixel-to-pixel flat and delta flat are not the same size.\n");
+		    trlerror("Pixel-to-pixel flat and delta flat are not the same size.");
 		    return (SIZE_MISMATCH);
 		}
 		if ((status = mult2d (&y, &z)))		/* y is the product */
@@ -150,10 +149,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	if (sts->doppcorr == PERFORM) {
 
 	    if (!high_res) {
-		printf (
-	"ERROR    Doppler convolution (DOPPCORR) was specified, \\\n");
-		printf (
-	"ERROR    but the flat fields are binned to low-res pixels.\n");
+		trlerror("Doppler convolution (DOPPCORR) was specified, ");
+		trlerror("but the flat fields are binned to low-res pixels.");
 		return (SIZE_MISMATCH);
 	    }
 
@@ -189,7 +186,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* No binning required. */
 
 	    if ((status = div2d (x, &y))) {
-		printf ("ERROR    (doFlat) size mismatch\n");
+		trlerror("(doFlat) size mismatch");
 		return (status);
 	    }
 	    freeSingleGroup (&y);
@@ -200,7 +197,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	    allocSingleGroup (&z, x->sci.data.nx, x->sci.data.ny, True);
 	    if ((status = bin2d (&y, x0, y0, rx, ry, avg, &z))) {
-		printf ("ERROR    (doFlat) size mismatch\n");
+		trlerror("(doFlat) size mismatch");
 		return (status);
 	    }
 	    freeSingleGroup (&y);		/* done with y */

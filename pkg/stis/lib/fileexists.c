@@ -21,10 +21,10 @@ int FileExists (char *fname) {
 	flag = ckNewFile (fname);
 	if (flag > 0) {
 	    if (flag == 1) {
-		printf ("ERROR    Output file `%s' already exists.\n", fname);
+		trlerror("Output file `%s' already exists.", fname);
 		return (GENERIC_ERROR_CODE);
 	    } else {
-		printf ("ERROR    Can't clobber `%s'.\n", fname);
+		trlerror("Can't clobber `%s'.", fname);
 		return (GENERIC_ERROR_CODE);
 	    }
 	}

@@ -62,8 +62,7 @@ double *locn     o: actual location of edge
 	ilocn0 = NINT (locn0);
 	if (ilocn0 < 0 || ilocn0 >= nv) {
 	    if (sts->verbose) {
-		printf (
-	"         Estimated location (%d) of edge is off the image.\n",
+		trlerror("         Estimated location (%d) of edge is off the image.",
 			ilocn0+1);
 	    }
 	    return (NO_GOOD_DATA);
@@ -151,8 +150,7 @@ double *locn     o: actual location of edge
 
 	if (ipeak <= first || ipeak >= last) {
 
-	    printf (
-		"Warning  Edge not found, appears to be at end of range.\n");
+	    trlwarn("Edge not found, appears to be at end of range.");
 	    peak = 0.;
 	    status = NO_GOOD_DATA;
 

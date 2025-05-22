@@ -48,17 +48,15 @@ double *temperature  o: temperature (degrees C), or -1 if not found
 	}
 	key = findKw (hdr, keyword);
 	if (key == NotFound) {
-	    printf ("Warning  keyword %s not found;" \
+	    trlwarn("keyword %s not found;" \
 		" no temperature correction applied to sensitivity.\n",
 		keyword);
 	} else {
 	    if ((status = Get_KeyD (hdr, keyword, use_def, -1., temperature)))
 		return (status);
 	    if (*temperature == -1.) {
-		printf (
-	"Warning  temperature (keyword %s) has default value;\n", keyword);
-		printf (
-	"         no temperature correction applied to sensitivity.\n");
+		trlwarn("temperature (keyword %s) has default value;", keyword);
+		trlwarn("         no temperature correction applied to sensitivity.");
 	    }
 	}
 

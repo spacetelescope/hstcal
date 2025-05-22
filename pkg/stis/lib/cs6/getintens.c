@@ -123,7 +123,7 @@ IntensArray *inta     o: description of inta
 	    return (status);
 
 	if (!foundit) {
-	    printf ("Warning  Matching row not found in OSPECTAB %s\n",
+	    trlwarn("Matching row not found in OSPECTAB %s",
 			sts->pxtab.name);
 	    return (ROW_NOT_FOUND);
 	}
@@ -147,7 +147,7 @@ static int OpenIntensTab (char *tname, TblInfo *tabinfo, double *exptime,
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    printf ("ERROR    OSPECTAB `%s' not found\n", tname);
+	    trlerror("OSPECTAB `%s' not found", tname);
 	    return (OPEN_FAILED);
 	}
 
@@ -166,7 +166,7 @@ static int OpenIntensTab (char *tname, TblInfo *tabinfo, double *exptime,
             tabinfo->cp_nelem   == 0 ||
 	    tabinfo->cp_wave    == 0 ||
 	    tabinfo->cp_intens  == 0) {
-	    printf ("ERROR    Column not found in OSPECTAB\n");
+	    trlerror("Column not found in OSPECTAB");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -246,7 +246,7 @@ static int ReadIntensArray (StisInfo6 *sts, TblInfo *tabinfo, int row,
 	    c_tbtclo (tabinfo->tp);
 	    free (inta->wave);
 	    free (inta->intens);
-	    printf ("ERROR    Not all coefficients were read from OSPECTAB\n");
+	    trlerror("Not all coefficients were read from OSPECTAB");
 	    return (TABLE_ERROR);
 	}
 
@@ -347,7 +347,7 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	    return (status);
 	if (!((dispc == PERFORM || dispc == COMPLETE) &&
               (helc  == PERFORM || helc  == COMPLETE))) {
-	    printf ("ERROR    No DISPCORR/HELCORR in fflux file.\n");
+	    trlerror("No DISPCORR/HELCORR in fflux file.");
 	    return (ERROR_RETURN);
 	}
 
@@ -402,7 +402,7 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	    if (response   <= 0.0 ||
 	        dispersion <= 0.0 ||
 	        throughput <= 0.0) {
-	        printf ("ERROR    Error in fflux file contents.\n");
+	        trlerror("in fflux file contents.");
 	        return (ERROR_RETURN);
 	    }
 

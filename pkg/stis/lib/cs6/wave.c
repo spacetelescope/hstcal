@@ -72,7 +72,7 @@ RowContents rowc       io: row contents
 		if (status == 0) {
 		    wl_estimate = wl;
 		} else {
-		    printf ("Warning  error code %d from evalInvDisp\n",
+		    trlwarn("error code %d from evalInvDisp",
 			status);
 		}
 

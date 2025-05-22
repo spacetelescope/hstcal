@@ -361,7 +361,7 @@ StisInfo6 *sts    i: calibration switches and info
 	if ((status = GetXtract (sts, &extract, &minorder, &maxorder)))
 	    return (status);
         if (sts->x1d_o == DUMMY) {
-	    printf ("ERROR    DUMMY pedigree entry in extraction table.\n");
+	    trlerror("DUMMY pedigree entry in extraction table.");
 	    return (status);
 	}
 
@@ -383,7 +383,7 @@ StisInfo6 *sts    i: calibration switches and info
         */
 	if (sts->verbose == 1 || sts->verbose == 2) {
 	    Message6 (sts, XTRAC_INFO);
-	    printf ("\n");
+	    trlmessage("");
 	}
 	sts->echelle = (maxorder > 1);
 
@@ -431,7 +431,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    else if (status > 0)
                 return status;
 	    if (!imset_ok) {
-		printf ("Warning  imset %d skipped (IMSET_OK = F)\n",
+		trlwarn("imset %d skipped (IMSET_OK = F)",
 			extver);
 		continue;
 	    }
@@ -454,7 +454,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    if (hstio_err())
 		return (OPEN_FAILED);
 	    if (sts->verbose == 1 || sts->verbose == 2)
-	        printf ("         Input read into memory.\n");
+	        trlmessage("         Input read into memory.");
 
 	    /* Get keyword values from image extension header. */
 	    if ((status = GetGrpInfo6 (sts, &in.sci.hdr)))
@@ -467,8 +467,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    if (sts->xoffset != 0.) {
 		sts->msm_offset[0] += sts->xoffset;
 	        if (sts->verbose == 1 || sts->verbose == 2) {
-		    printf (
-	"         Offset of %g low-res pixels added in dispersion direction\n",
+		    trlmessage("         Offset of %g low-res pixels added in dispersion direction",
 			sts->xoffset);
 		}
 	    }
@@ -477,7 +476,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    otable.array_size = in.sci.data.nx;
 	    row_contents.npts = in.sci.data.nx;
 	    if ((status = AllocOutArrays (&row_contents))) {
-		printf ("ERROR    Cannot allocate output arrays.\n");
+		trlerror("Cannot allocate output arrays.");
 	        return (status);
 	    }
 	    if (sts->do_profile) {
@@ -633,7 +632,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    if (minorder != maxorder) {
 	        if ((status = GCrossCorr (sts, &in, minorder, maxorder,
                                           &(sts->gcrscroff), mref, &ypos))) {
-	            printf ("ERROR    Cannot compute global offset.\n");
+	            trlerror("Cannot compute global offset.");
 	            return (status);
 	        }
 	    } else
@@ -782,7 +781,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        if ((status = SelectAlg (sts, extract_a))) {
 	            if ((status == CAL_FILE_MISSING)) {
 	                status = 0;
-	                printf ("Warning  Skipping order.\n");
+	                trlwarn("Skipping order.");
 	                FreeXtract (&extract_a);
 	                FreeXtract (&extract_o);
 	                continue;
@@ -839,7 +838,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        else if (sts->x1d_o == DUMMY) {
 	            PrGrpBegin ("order", row_contents.sporder);
 	            warnDummy ("SPTRCTAB", row_contents.sporder, 1);
-	            printf ("\n");
+	            trlmessage("");
 	            FreeTrace6 (&trace);
 	            FreeXtract (&extract_o);
 	            if (sts->scatter)
@@ -850,7 +849,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        if (sts->verbose == 1 || sts->verbose == 2)
 	            PrGrpBegin ("order", row_contents.sporder);
 	        else
-	            printf ("Extracting order %d\n", row_contents.sporder);
+	            trlmessage("Extracting order %d", row_contents.sporder);
 
                 /* This is to warn in case the command-line-entered A2CENTER
                    value is too off from the respective nominal position
@@ -872,8 +871,7 @@ StisInfo6 *sts    i: calibration switches and info
                         d1 = (d1 < d2) ? d1 : d2;
 	                d2 = fabs (cl_a2center - trace->a2center);
                         if (d2 > d1)
-	                    printf (
-            "Warning  Extraction position corresponds to another SPORDER.\n");
+	                    trlwarn("Extraction position corresponds to another SPORDER.");
 	                FreeTrace6 (&trace1);
 	                FreeTrace6 (&trace2);
 	            }
@@ -913,8 +911,7 @@ StisInfo6 *sts    i: calibration switches and info
 		    a2phys = (int)(sts->nm_a2center * sts->ltm[1] +
                              sts->ltv[1]);
 		    if (a2phys < 0 || a2phys >= in.sci.data.ny) {
-			 printf (
-      "Warning  Extraction position outside data array. Skipping order.\n");
+			trlwarn("Extraction position outside data array. Skipping order.");
 			skipping = 1;
 			FreeTrace6 (&trace);
 			FreeTrace6 (&trace_y);
@@ -990,24 +987,21 @@ StisInfo6 *sts    i: calibration switches and info
                             */
 	                    if (sts->verbose == 1 || sts->verbose == 2)
 
-	                        printf (
-	    "Warning  Cross correlation to locate spectrum failed.\n");
+	                        trlwarn("Cross correlation to locate spectrum failed.");
 	                     /* Prints this only if soft-fail. */
 	                    if (!ccstatus && (sts->verbose == 1))
-	                        printf (
-	    "Warning  The offset found was: %g pixels\n", sts->crscroff);
+	                        trlwarn("The offset found was: %g pixels", sts->crscroff);
 	                     /* Global offset exists only in echelle mode. */
 	                    if (sts->echelle) {
 	                        if (sts->verbose == 1 || sts->verbose == 2)
-	                            printf (
-	                       "Warning  Using global offset instead.\n");
+	                            trlwarn("Using global offset instead.");
 	                        sts->crscroff = sts->gcrscroff;
 	                    } else {
 	                        sts->crscroff = 0.0;
 				/* This was put in place on 12 Apr 01 to
                                    comply with OPR 43663 (IB).
                                 */
-	                        printf ("ERROR    Cannot extract.\n");
+	                        trlerror("Cannot extract.");
 				skipping = 1;
 				FreeTrace6 (&trace);
 				FreeTrace6 (&trace_y);
@@ -1018,13 +1012,11 @@ StisInfo6 *sts    i: calibration switches and info
 	                    }
 
 	                    /* This was the old behavior when failing. */
-	                    /* printf (
-	    "Warning  Spectrum extracted at default Y position: %g\n",
+	                    /*trlwarn("Spectrum extracted at default Y position: %g",
                         sts->nm_a2center * sts->ltm[1] + sts->ltv[1] + 1.0);
 	                    */
 	                } else if (sts->verbose == 2)
-		            printf (
-            "         Cross correlation offset: %g pixels\n", sts->crscroff);
+		            trlmessage("         Cross correlation offset: %g pixels", sts->crscroff);
 	            } else
 	                sts->crscroff = 0.0;
 	        } else
@@ -1064,8 +1056,7 @@ StisInfo6 *sts    i: calibration switches and info
 	                FreeIntensity (&inta);
 	                status = 0;
 	                sts->optimal = 0;
-	                printf (
-          "Warning  Extraction algorithm set to UNWEIGHTED for this order.\n");
+	                trlwarn("Extraction algorithm set to UNWEIGHTED for this order.");
 	            } else if (opt_status != 0) {
 	                FreeIntensity (&inta);
 	                return (opt_status);
@@ -1077,10 +1068,8 @@ StisInfo6 *sts    i: calibration switches and info
 	            if (inta.allocated) {
 	                if (inta.nelem != in.sci.data.nx) {
 	                    sts->optimal = 0;
-	                    printf (
-          "Warning  Intensity array size different from image X size.\n");
-	                    printf (
-          "Warning  Extraction algorithm set to UNWEIGHTED for this order.\n");
+	                    trlwarn("Intensity array size different from image X size.");
+	                    trlwarn("Extraction algorithm set to UNWEIGHTED for this order.");
 	                 }
 	            }
 	        }
@@ -1096,8 +1085,7 @@ StisInfo6 *sts    i: calibration switches and info
 	                FreeProfileArray (&profa);
 	                status = 0;
 	                sts->optimal = 0;
-	                printf (
-          "Warning  Extraction algorithm set to UNWEIGHTED for this order.\n");
+	                trlwarn("Extraction algorithm set to UNWEIGHTED for this order.");
 	            } else if (opt_status != 0) {
 	                FreeProfileArray (&profa);
 	                return (opt_status);
@@ -1202,8 +1190,7 @@ StisInfo6 *sts    i: calibration switches and info
 
 	                if (status == ERROR_RETURN) {
 	                    status = 0;
-	                    printf (
-"Warning  Skipping order. No usable background regions could be found.\n");
+	                    trlwarn("Skipping order. No usable background regions could be found.\n");
 	                    FreeXtract (&extract_o);
 	                    FreeCoord6 (&coord_o);
 	                    continue;
@@ -1263,8 +1250,7 @@ StisInfo6 *sts    i: calibration switches and info
 	            if (hold > 0.0 && hold < in.sci.data.ny) {
 	                if (sts->verbose == 1 || sts->verbose == 2)
 
-	                    printf (
-                "         Spectrum extracted at y position = %g\n",hold);
+	                    trlmessage("         Spectrum extracted at y position = %g",hold);
 	            }
 	        }
 	        if (sts->verbose == 2 && !sts->do_profile) {
@@ -1279,18 +1265,16 @@ StisInfo6 *sts    i: calibration switches and info
 	                else
 	                    bkoffset[i] = sts->bkoffset[i];
 	            }
-	            printf ("         Extraction box height = %g\n",
-                            extrsize * sts->ltm[1]);
-printf ("         Background box 1 height = %g offset %g from A2CENTER\n",
+	            trlmessage("         Extraction box height = %g",
+                            extrsize * sts->ltm[1]);trlmessage("         Background box 1 height = %g offset %g from A2CENTER",
                             bksize[0]   * sts->ltm[1],
-                            bkoffset[0] * sts->ltm[1]);
-printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
+                            bkoffset[0] * sts->ltm[1]);trlmessage("         Background box 2 height = %g offset %g from A2CENTER",
                             bksize[1]   * sts->ltm[1],
                             bkoffset[1] * sts->ltm[1]);
 	        }
 	        if (!sts->do_profile) {
 	            if (sts->verbose == 1 || sts->verbose == 2)
-	                printf ("\n");
+	                trlmessage("");
 	        }
 	        /* Generate wavelength and flux arrays. */
 	        if (sts->dispcorr == PERFORM) {
@@ -1376,7 +1360,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	                continue;
 	            }
 	            if (sts->verbose == 2 && !sts->do_profile)
-	                printf ("         Delta = %.6g arcsec.\n", delta);
+	                trlmessage("         Delta = %.6g arcsec.", delta);
 
 	            /* Interpolate the dispersion relation. */
 	            if ((status = InterpDisp6 (&disp, sts->cc_a2center, &disp_y)))
@@ -1397,7 +1381,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
                                     sts->rootname);
 	            if (!sts->do_profile) {
 	                if (sts->verbose == 1 || sts->verbose == 2)
-	                    printf ("\n");
+	                    trlmessage("");
 	            }
 	            if (sts->heliocorr == PERFORM) {
 	                if (sts->verbose == 1 || sts->verbose == 2) {
@@ -1410,14 +1394,14 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
                                         sts->rootname);
 	                if (!sts->do_profile) {
 	                    if (sts->verbose == 1 || sts->verbose == 2)
-	                        printf ("\n");
+	                        trlmessage("");
 	                }
 	            } else {
 	                if (sts->verbose == 1 || sts->verbose == 2)
 	                    PrSwitch6 (sts, "helcorr", OMIT);
 	                if (!sts->do_profile) {
 	                    if (sts->verbose == 1 || sts->verbose == 2)
-	                        printf ("\n");
+	                        trlmessage("");
 	                }
 	            }
 
@@ -1438,7 +1422,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	                        FreeTrace6 (&trace);
 	                        FreeProfile (sts, in.sci.data.nx);
 	                        FreeXtract (&extract_o);
-	                        printf ("ERROR    Skipping order %d\n",
+	                        trlerror("Skipping order %d",
                                          row_contents.sporder);
 	                        continue;
 	                    } else
@@ -1457,7 +1441,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 			    }
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
 	                        PrSwitch6 (sts, "fluxcorr", OMIT);
-	                        printf ("\n");
+	                        trlmessage("");
 	                    }
 	                } else {
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
@@ -1521,8 +1505,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 				n_blazeshift += 1.;
 			    }
 			    if (sts->gaccorr == PERFORM) {
-				printf (
-			"         GACTAB correction applied for %s %s %d\n",
+				trlmessage("         GACTAB correction applied for %s %s %d",
 				sts->opt_elem, sts->aperture, sts->cenwave);
 			    }
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
@@ -1537,7 +1520,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	                    if (sts->verbose == 2) {
 	                        TimeStamp6 (sts->printtime, "FLUXCORR complete",
                                            sts->rootname);
-	                        printf ("\n");
+	                        trlmessage("");
 	                    }
 	                    FreePhot6 (&phot);
 	                    FreePhot6 (&photc);
@@ -1546,7 +1529,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	                if (!sts->do_profile) {
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
 	                        PrSwitch6 (sts, "fluxcorr", OMIT);
-	                        printf ("\n");
+	                        trlmessage("");
 	                    }
 	                }
 	            }
@@ -1563,16 +1546,16 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	                PrSwitch6 (sts, "dispcorr", OMIT);
 	            if (!sts->do_profile) {
 	                if (sts->verbose == 1 || sts->verbose == 2) {
-	                    printf ("\n");
+	                    trlmessage("");
 	                    PrSwitch6 (sts, "fluxcorr", OMIT);
-	                    printf ("\n");
+	                    trlmessage("");
 	                }
 	            }
 	            if (sts->verbose == 1 || sts->verbose == 2)
 	                PrSwitch6 (sts, "helcorr", OMIT);
 	            if (!sts->do_profile) {
 	                if (sts->verbose == 1 || sts->verbose == 2)
-	                    printf ("\n");
+	                    trlmessage("");
 	            }
 	        }
 
@@ -1581,7 +1564,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	             PrSwitch6 (sts, "sgeocorr", OMIT);
 	        if (!sts->do_profile) {
 	            if (sts->verbose == 1 || sts->verbose == 2)
-	                printf ("\n");
+	                trlmessage("");
 	        }
 
 	        /* If this is the first row to be output in this extension,
@@ -1642,7 +1625,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	            PrGrpEnd ("order", row_contents.sporder);
 	        if (!sts->do_profile) {
 	            if (sts->verbose == 1 || sts->verbose == 2)
-	                printf ("\n");
+	                trlmessage("");
 	        }
 	        /* Free memory for this spectral order. */
 	        FreeTrace6 (&trace);
@@ -1668,10 +1651,10 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	        FreeDisp6 (&disp);
 
 	    if (o_row == 0)
-	        printf ("Warning  No rows were written; no table created.\n");
+	        trlwarn("No rows were written; no table created.");
 
 	    if (sts->verbose && sts->trace_rotation != 0.)
-	        printf ("         trace was rotated by = %.6g degree.\n",
+	        trlmessage("         trace was rotated by = %.6g degree.",
                        sts->trace_rotation);
 
 	    /* Update current extension header with average
@@ -1721,7 +1704,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	            }
 	            if (putSingleGroup (sts->outw, extver, &outw, 0))
 	                return (OPEN_FAILED);
-	            printf ("         Weights image %s written to disk.\n",
+	            trlmessage("         Weights image %s written to disk.",
                             sts->outw);
 	        } else {
 
@@ -1730,8 +1713,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
                       running the task several times and not paying
                       attention to the _trl output.
 	           */
-	           printf (
-    "Warning  Weights image %s already exists. Nothing written this time.\n",
+	           trlwarn("Weights image %s already exists. Nothing written this time.",
                  sts->outw);
 	        }
 	    }
@@ -1746,7 +1728,7 @@ printf ("         Background box 2 height = %g offset %g from A2CENTER\n",
 	        PrGrpEnd ("imset",  extver);
 	    if (!sts->do_profile) {
 	        if (sts->verbose == 1 || sts->verbose == 2)
-	            printf ("\n");
+	            trlmessage("");
 	        }
 	}
 
@@ -1884,8 +1866,8 @@ static void PrSwitch6 (StisInfo6 *sts, char *text, int cal_switch) {
 
 static void warnDummy (char *text, int sporder, int skipmsg) {
 
-	printf ("ERROR    DUMMY pedigree in order %d in %s.", sporder, text);
+trlerror("DUMMY pedigree in order %d in %s.", sporder, text);
 	if (skipmsg)
-	    printf ("Skipping order.");
-	printf ("\n\n");
+	    trlmessage("Skipping order.");
+	trlmessage("");
 }

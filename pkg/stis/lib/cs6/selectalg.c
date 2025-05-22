@@ -55,8 +55,7 @@ int SelectAlg (StisInfo6 *sts, XtractInfo *xtractab) {
 
 	    if (!((sts->pftab.exists == EXISTS_YES) &&
 	          (sts->pxtab.exists == EXISTS_YES))) {
-	        printf (
-"Warning  Incomplete set of reference files for optimal extraction.\n");
+	        trlwarn("Incomplete set of reference files for optimal extraction.");
 	        return (CAL_FILE_MISSING);
 	    }
 	}
