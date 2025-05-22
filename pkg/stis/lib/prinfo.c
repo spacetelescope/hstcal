@@ -60,9 +60,9 @@ static void Upper1 (char *, char *, int);
 
 void PrBegin (int csnumber) {
 
-trlmessage("");
-trlmessage("*** CALSTIS-%d -- Version %s ***", csnumber, STIS_CAL_VER);
-trlmessage("Begin    %s", GetDateTime());
+	trlmessage("");
+	trlmessage("*** CALSTIS-%d -- Version %s ***", csnumber, STIS_CAL_VER);
+	trlmessage("Begin    %s", GetDateTime());
 
 	fflush (stdout);
 }
@@ -71,16 +71,16 @@ trlmessage("Begin    %s", GetDateTime());
 
 void PrEnd (int csnumber) {
 
-trlmessage("End      %s", GetDateTime());
-trlmessage("");
-trlmessage("*** CALSTIS-%d complete ***", csnumber);
+	trlmessage("End      %s", GetDateTime());
+	trlmessage("");
+	trlmessage("*** CALSTIS-%d complete ***", csnumber);
 
 	fflush (stdout);
 }
 
 void PrFullVersion (void) {
 
-trlmessage("%s", STIS_CAL_VER);
+	trlmessage("%s", STIS_CAL_VER);
 	fflush (stdout);
 }
 
@@ -101,7 +101,7 @@ void PrVersion (void) {
 	    }
 	    vstring[i] = STIS_CAL_VER[i];
 	}
-trlmessage("%s", vstring);
+	trlmessage("%s", vstring);
 	fflush (stdout);
 	free (vstring);
 }
@@ -117,7 +117,7 @@ char *filename  i: name of input or output file
 
 	Upper1 (label, buf, SCRATCH_SIZE);
 
-trlmessage("%s %s", buf, filename);
+	trlmessage("%s %s", buf, filename);
 
 	fflush (stdout);
 }
@@ -126,10 +126,10 @@ trlmessage("%s %s", buf, filename);
 
 void PrHdrInfo (char *obsmode, char *aperture, char *opt_elem, char *detector) {
 
-trlmessage("OBSMODE  %s", obsmode);
-trlmessage("APERTURE %s", aperture);
-trlmessage("OPT_ELEM %s", opt_elem);
-trlmessage("DETECTOR %s", detector);
+	trlmessage("OBSMODE  %s", obsmode);
+	trlmessage("APERTURE %s", aperture);
+	trlmessage("OPT_ELEM %s", opt_elem);
+	trlmessage("DETECTOR %s", detector);
 
 	fflush (stdout);
 }
@@ -188,7 +188,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-trlmessage("%s Begin %s", buf, GetTime());
+	trlmessage("%s Begin %s", buf, GetTime());
 
 	fflush (stdout);
 }
@@ -216,7 +216,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-trlmessage("%s End %s", buf, GetTime());
+	trlmessage("%s End %s", buf, GetTime());
 
 	fflush (stdout);
 }
@@ -238,7 +238,7 @@ char *descrip2  i: second descrip, if any, from table row
 
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
-trlmessage("%s %s", buf, filename);
+	trlmessage("%s %s", buf, filename);
 
 	if (pedigree[0] != '\0')
 	    trlmessage("%s PEDIGREE=%s", buf, pedigree);
