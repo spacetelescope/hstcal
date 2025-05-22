@@ -54,7 +54,7 @@ endif()
 
 if(ENABLE_ASAN)
 	# Report memory leaks, buffer overflows, etc.
-	# See: https://github.com/google/sanitizers/wiki/AddressSanitizer
+	# See: https://clang.llvm.org/docs/AddressSanitizer.html
 	add_compile_options(-fno-omit-frame-pointer)
 	add_compile_options(-fsanitize=address)
 	add_link_options(-fsanitize=address)
