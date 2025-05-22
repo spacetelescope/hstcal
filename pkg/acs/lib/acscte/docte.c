@@ -449,7 +449,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
                         /* Serial correction */
                         strcpy(corrType, "serial");
-                        if ((status = doPCTEGen3(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
+                        if ((status = doPCTEGen3(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, ccdamp, nthAmp, amploc, ampID)))
                         {
                             freeOnExit(&ptrReg);
                             freeOnExit(&ptrParallelReg);
@@ -459,7 +459,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
                     /* Parallel correction */
                     strcpy(corrType, "parallel");
-                    if ((status = doPCTEGen3(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, &ccdamp, nthAmp, amploc, ampID)))
+                    if ((status = doPCTEGen3(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, ccdamp, nthAmp, amploc, ampID)))
                     {
                         freeOnExit(&ptrReg);
                         freeOnExit(&ptrParallelReg);
