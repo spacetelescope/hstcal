@@ -16,7 +16,6 @@
 # include "trlbuf.h"
 
 extern int status;
-struct TrlBuf trlbuf = { 0 };
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'

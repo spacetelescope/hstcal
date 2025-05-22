@@ -35,7 +35,6 @@ static void printHelp(void)
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-struct TrlBuf trlbuf = { 0 };
 
 /* This is the main module for wf32d.  It gets the input and output
    file names, calibration switches, and flags, and then calls wf32d.
