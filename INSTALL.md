@@ -34,7 +34,8 @@ GCC may be supplemented by Clang under the following conditions:
 
 - Must be compiled as a shared library.
 
-- If `libcfitsio` has been installed to a non-standard path such as `$HOME/programs/cfitsio`, you will need to adjust `PKG_CONFIG_PATH` so that `pkg-config` is able to find it:
+- If `libcfitsio` has been installed to a non-standard path such as `$HOME/programs/cfitsio`, you will need to adjust
+  `PKG_CONFIG_PATH` so that `pkg-config` is able to find it:
 
     ```bash
     export PKG_CONFIG_PATH=$HOME/programs/cfitsio/lib/pkgconfig:$PKG_CONFIG_PATH
@@ -88,7 +89,8 @@ export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
     cd _build
     ```
 
-   If you use Conda/Mamba, you can install it to the env directly; however, note that this would overwrite any previous `hstcal` installation from `conda-forge` channel:
+   If you use Conda/Mamba, you can install it to the env directly; however, note that this would overwrite any previous 
+   `hstcal` installation from `conda-forge` channel:
 
     ```
     cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
@@ -120,7 +122,8 @@ export LDFLAGS="-Wl,-rpath=$CONDA_PREFIX/lib"
 
 ## Build on MacOS / OS X
 
-The LLVM/Clang suite provided by Apple XCode is not sufficient to compile HSTCAL. Please install GCC (C and Fortran compilers) either from source, or using a package management system such as Homebrew, MacPorts, Fink, or Conda.
+The LLVM/Clang suite provided by Apple XCode is not sufficient to compile HSTCAL. Please install GCC (C and Fortran
+compilers) either from source, or using a package management system such as Homebrew, MacPorts, Fink, or Conda.
 
 
 ### MacPorts
@@ -163,7 +166,8 @@ export LDFLAGS="-Wl,-rpath,$CONDA_PREFIX/lib"
     cd _build
     ```
 
-   If you use Conda/Mamba, you can install it to the env directly; however, note that this would overwrite any previous `hstcal` installation from `conda-forge` channel:
+   If you use Conda/Mamba, you can install it to the env directly; however, note that this would overwrite any previous
+   `hstcal` installation from `conda-forge` channel:
 
     ```
     cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
@@ -200,3 +204,14 @@ To enable support for debugging symbols use one of the following defines:
 ```
 cmake .. -DCMAKE_BUILD_TYPE=[RelWithDebInfo|Debug]
 ```
+
+To enable memory leak and heap overflow detection:
+
+```
+cmake .. -DENABLE_ASAN=ON [-DENABLE_ASAN_RECOVER=ON]
+```
+
+When ASAN (aka AddressAnalyzer) encounters a bug it halts execution and dumps information about the type of error, and
+where it occurred. When `ENABLE_ASAN_RECOVER` is enabled, and the `ASAN_OPTIONS` environment variable contains 
+`halt_on_error=0`, ASAN will continue to dump information as the program runs. This is mode is incredibly noisy, so it
+should only ever be used to test code changes in development.

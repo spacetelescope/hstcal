@@ -23,6 +23,12 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-13, macos-14]
         gcc: [12]
+        cmake_options: ["", "-DENABLE_ASAN=ON"]
+        exclude:
+          - os: macos-13
+            cmake_options: "-DENABLE_ASAN=ON"
+          - os: macos-14
+            cmake_options: "-DENABLE_ASAN=ON"
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -46,7 +52,7 @@ jobs:
         cd build
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }}
+          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} ${{ matrix.cmake_options }}
         make
 
     - name: MacOS build
@@ -61,7 +67,7 @@ jobs:
         cd build
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }}
+          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} ${{ matrix.cmake_options }}
         make
 
 
