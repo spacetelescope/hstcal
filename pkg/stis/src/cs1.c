@@ -112,6 +112,11 @@ int main (int argc, char **argv) {
 	addPtr(&ptrReg, output, &free);
 	outblev = calloc (STIS_LINE+1, sizeof (char));
 	addPtr(&ptrReg, outblev, &free);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (!inlist || !outlist || !blevlist || !input || !output || !outblev) {
 	    printf("ERROR:  Can't even begin; out of memory.\n");
 	    freeOnExit(&ptrReg);
@@ -273,9 +278,6 @@ int main (int argc, char **argv) {
 	    cs1_sw.statcorr = DefSwitch ("statcorr");
 	}
 
-	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
-	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
 	trlGitInfo();
 
 	/* Expand the templates. */

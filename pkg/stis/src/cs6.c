@@ -129,6 +129,14 @@ int main (int argc, char **argv) {
                       double *, int *, int *, char *, double *, double *,
                       int *, int *, double *);
 
+	/* Expand input and output file lists. */
+	PtrRegister ptrReg;
+	initPtrRegister(&ptrReg);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	c_irafinit (argc, argv);
 
 	/* Get command line parameters. */
@@ -144,9 +152,6 @@ int main (int argc, char **argv) {
                       &xoffset))
 	    exit (ERROR_RETURN);
 
-	/* Expand input and output file lists. */
-	PtrRegister ptrReg;
-	initPtrRegister(&ptrReg);
 	inlist   = c_imtopen (input);
 	addPtr(&ptrReg, inlist, &c_imtclose);
 	outlist  = c_imtopen (output);
@@ -156,6 +161,7 @@ int main (int argc, char **argv) {
 	innf     = c_imtlen (inlist);
 	outnf    = c_imtlen (outlist);
 	outwnf   = c_imtlen (outwlist);
+
 	if (outnf != 0 && innf != outnf) {
 	    printf("ERROR: Input and output lists have different sizes.\n");
 	    freeOnExit(&ptrReg);
@@ -166,10 +172,6 @@ int main (int argc, char **argv) {
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
-
-	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
-	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
 
 	for (ifile = 0; ifile < innf; ifile++) {
 	    c_imtgetim (inlist,  finput,  STIS_FNAME);

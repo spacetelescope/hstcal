@@ -52,6 +52,11 @@ int main (int argc, char **argv) {
     addPtr(&ptrReg, input, &free);
 	output = calloc (STIS_LINE+1, sizeof (char));
     addPtr(&ptrReg, output, &free);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (input == NULL || output == NULL) {
 	    printf("ERROR:  Can't even begin:  out of memory.\n");
 	    freeOnExit(&ptrReg);
@@ -108,10 +113,6 @@ int main (int argc, char **argv) {
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
-
-	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
-	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
 
 	if (output[0] == '\0') {
 	    if ((status = MkName (input, "_x2d", "_sx2", output, STIS_LINE)))

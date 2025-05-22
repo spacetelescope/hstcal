@@ -86,6 +86,11 @@ int main (int argc, char **argv) {
 	addPtr(&ptrReg, dbglist, &free);
 	dbgfile = calloc (STIS_LINE+1, sizeof (char));
 	addPtr(&ptrReg, dbgfile, &free);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (inlist == NULL || input == NULL ||
 	    dbglist == NULL || dbgfile == NULL) {
 	    printf("ERROR:  Can't even begin; out of memory.\n");
@@ -166,9 +171,6 @@ int main (int argc, char **argv) {
 	InitRefFile (&refnames);
 	addPtr(&ptrReg, &refnames, &FreeRefFile);
 
-	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
-	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
 	trlGitInfo();
 
 	/* Expand the templates. */

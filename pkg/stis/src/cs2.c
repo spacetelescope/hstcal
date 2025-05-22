@@ -40,10 +40,8 @@ int main (int argc, char **argv) {
 	initPtrRegister(&ptrReg);
 
 	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
+	InitTrlBuf();
 	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
-	trlGitInfo();
-
 
 	/* Get input and output file names and switches in the command line. */
 	status = cs2_command (argc, argv, input, output, &par, newpar);
@@ -52,6 +50,8 @@ int main (int argc, char **argv) {
 	        free(input);
 	    exit (status);
 	}
+
+	trlGitInfo();
 
 	/* Reject cosmic rays. */
 	if ((status = CalStis2 (input, output, &par, newpar))) {

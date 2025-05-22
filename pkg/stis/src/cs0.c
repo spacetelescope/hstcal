@@ -85,6 +85,10 @@ int main (int argc, char **argv) {
 	outroot = calloc (STIS_LINE+1, sizeof (char));
     addPtr(&ptrReg, outroot, &free);
 
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (!rawlist || !wavlist || !outlist || !rawfile || !wavfile || !outroot) {
 	    printf("Can't even begin; out of memory.\n");
 	    freeOnExit(&ptrReg);
@@ -176,9 +180,6 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 
-	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
-	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
 	trlGitInfo();
 
 	/* Expand the templates. */

@@ -89,6 +89,11 @@ int main (int argc, char **argv) {
     addPtr(&ptrReg, inwav, &free);
 	insci = calloc (STIS_LINE+1, sizeof (char));
     addPtr(&ptrReg, insci, &free);
+
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (wavlist == NULL || scilist == NULL || which_wavecal == NULL ||
 		inwav == NULL || insci == NULL) {
 	    printf("ERROR:  Can't even begin; out of memory.\n");
@@ -165,9 +170,6 @@ int main (int argc, char **argv) {
 	n_wav = c_imtlen (w_imt);
 	n_sci = c_imtlen (s_imt);
 
-	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
-	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
 	trlGitInfo();
 
 	/* The number of wavecal and science files must be the same. */

@@ -109,6 +109,10 @@ int main (int argc, char **argv) {
 	output = calloc (STIS_LINE+1, sizeof (char));
     addPtr(&ptrReg, output, &free);
 
+	/* Initialize the structure for managing trailer file comments */
+	InitTrlBuf();
+	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
+
 	if (inlist == NULL || outlist == NULL ||
 		input == NULL || output == NULL) {
 	    printf("ERROR:  Can't even begin:  out of memory.\n");
@@ -214,9 +218,6 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 
-	/* Initialize the structure for managing trailer file comments */
-	InitTrlBuf ();
-	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
 	trlGitInfo();
 
 	/* Loop over the list of input files. */
