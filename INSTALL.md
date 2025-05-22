@@ -200,3 +200,11 @@ To enable support for debugging symbols use one of the following defines:
 ```
 cmake .. -DCMAKE_BUILD_TYPE=[RelWithDebInfo|Debug]
 ```
+
+To enable memory leak and heap overflow detection:
+
+```
+cmake .. -DENABLE_ASAN=ON [-DENABLE_ASAN_RECOVER=ON]
+```
+
+When ASAN (aka AddressAnalyzer) encounters a bug it halts execution and dumps information about the type of error, and where it occurred. When `ENABLE_ASAN_RECOVER` is enabled, and the `ASAN_OPTIONS` environment variable contains `halt_on_error=0`, ASAN will continue to dump information as the program runs. This is mode is incredibly noisy, so it should only ever be used to test code changes in development.
