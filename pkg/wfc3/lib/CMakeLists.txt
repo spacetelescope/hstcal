@@ -145,7 +145,6 @@ add_library(${PROJECT_NAME} SHARED
 	wf3rej/wf3rej.c
 	wf3sect.c
 	wf3sum/wf3sum.c
-	whicherror.c
 )
 target_include_directories(${PROJECT_NAME}
 	PUBLIC ${HSTCAL_include}
