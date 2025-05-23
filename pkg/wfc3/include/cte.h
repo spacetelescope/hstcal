@@ -52,7 +52,6 @@ void TimeStamp (char *, char *);
 int  FileExists (char *);
 void PrRefInfo (char *, char *,char *, char *, char *);
 void PrSwitch (char *, int );
-void WhichError (int);
 int sub1d (SingleGroup *, int, SingleGroupLine *);
 int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
 int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);

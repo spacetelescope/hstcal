@@ -13,7 +13,6 @@
 
 int InitRejTrl (char *, char *); 
 int MkOutName (char *, char **, char **, int, char *,int);
-void WhichError (int);
 
 /*  WF3REJ -- cosmic ray rejection with shading correction and 
     section-by-section checking for WF3
@@ -202,7 +201,6 @@ int InitRejTrl (char *input, char *output) {
     
     int MkName (char *, char *, char *, char *, char *, int);
     int MkNewExtn(char *, char *);
-    void WhichError (int);
 
     if ((trl_in =  (char *) calloc(strlen(input)+ 1, sizeof(char)))== NULL){
         printf("\nCannot allocate memory for input string\n");
