@@ -245,7 +245,6 @@ add_library(${PROJECT_NAME} SHARED
 	ucalver.c
 	ufilename.c
 	unbin2d.c
-	whicherror.c
 	xcfft.c
 )
 target_include_directories(${PROJECT_NAME}

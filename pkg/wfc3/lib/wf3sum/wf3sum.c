@@ -615,7 +615,6 @@ static void InitSumTrl (char *input, char *output) {
 	
 	int MkOutName (const char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
-	void WhichError (int);
 
 	trl_in = realloc (NULL, (CHAR_LINE_LENGTH));
 	trl_len = CHAR_LINE_LENGTH;

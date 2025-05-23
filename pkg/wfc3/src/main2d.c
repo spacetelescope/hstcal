@@ -85,7 +85,6 @@ int main (int argc, char **argv) {
 	int WF32d (char *, char *, CCD_Switch *, RefFileInfo *, int, int);
 	int DefSwitch (char *);
 	int MkOutName (const char *, char **, char **, int, char *, int);
- 	void WhichError (int);
 	int CompareNumbers (int, int, char *);
 	void initCCDSwitches (CCD_Switch *);
 

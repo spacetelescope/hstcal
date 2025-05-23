@@ -49,7 +49,6 @@ int main (int argc, char **argv) {
 
 	int AcsSum (char *, char *, char *, int, int);
 	int MkName (char *, char *, char *, char *, char *, int);
-	void WhichError (int);
 
     status = 0;
 	c_irafinit (argc, argv);

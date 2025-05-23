@@ -130,7 +130,6 @@ void InitDthTrl (char *inlist, char *output) {
 	
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn ( char *, char *);
-	void WhichError (int);
 
 	/* Allocate space for trailer file input list */
 	trl_in = (char *) calloc((CHAR_LINE_LENGTH+1), sizeof(char));

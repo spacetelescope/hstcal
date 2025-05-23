@@ -77,7 +77,6 @@ int AcsSum (char *input, char *output, char *mtype, int printtime, int verbose)
     void         PrFileName (char *, char *);
     void         PrHdrInfo (char *, char *, char *, char *);
     int          MkName (char *, char *, char *, char *, char *, int);
-    void         WhichError (int);
     void         InitSumTrl (char *input, char *output);
     void         FindAsnRoot (char *, char *);
     int          mkNewSpt (char *, char *, char *);
@@ -625,7 +624,6 @@ void InitSumTrl (char *input, char *output) {
 
     int MkOutName (char *, char **, char **, int, char *, int);
     int MkNewExtn (char *, char *);
-    void WhichError (int);
 
     trl_in = realloc (NULL, (CHAR_LINE_LENGTH));
     trl_len = CHAR_LINE_LENGTH;
