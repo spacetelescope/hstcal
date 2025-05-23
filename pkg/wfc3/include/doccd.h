@@ -1,6 +1,9 @@
 #ifndef INCL_DOCCD_H
 #define INCL_DOCCD_H
 
+#include "hstio.h"
+#include "wf3info.h"
+
 /*USEFUL LIB FUNCTIONS*/
 static void AtoDMsg (WF3Info *, int);
 static void BiasMsg (WF3Info *, int);

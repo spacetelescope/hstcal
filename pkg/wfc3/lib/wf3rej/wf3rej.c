@@ -6,6 +6,8 @@
 
 # include "wf3.h"
 # include "wf3rej.h"
+
+#include "calwf3.h"
 # include "hstcalerr.h"
 # include "rej.h"
 # include "wf3info.h"
@@ -46,7 +48,7 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     IRAFPointer     tpin;
     int             flag;
     int		    old_status;
-    WF3Info	    wf3;
+    CALWF3Info	    wf3;
     Hdr		    phdr;
     char	    det[SZ_CBUF+1];
     char	    in_name[CHAR_FNAME_LENGTH+1];

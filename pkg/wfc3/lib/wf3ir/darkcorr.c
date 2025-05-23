@@ -149,7 +149,7 @@ static int darkcorr (WF3Info *wf3, SingleNicmosGroup *input,
 
 	if (PutKeyFlt (&input->sci.hdr, "MEANDARK", mean, ""))
 	    return (status);
-	
+
 	/* Successful return */
 	return (status = 0);
 }

@@ -10,6 +10,7 @@
 # include "hstcalerr.h"
 # include "wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
+#include "wf3info.h"
 
 /* ProcessCCD: This routine controls the overall flow of processing
    for CCD images.
@@ -59,7 +60,7 @@
 
  */
 
-int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {
+int ProcessCCD (AsnInfo *asn, CALWF3Info *wf3hdr, int *save_tmp, int printtime, int onecpu) {
 
     extern int status;
 
@@ -513,7 +514,7 @@ int ProcessCCD (AsnInfo *asn, WF3Info *wf3hdr, int *save_tmp, int printtime, int
                             return (status);
                         }
                     }
-                    
+
                     /* FREE UP MEMORY USED BY WF3REJ_INPUT FOR THIS
                      ** SUBPRODUCT */
                     free(wf3rej_cte_input);

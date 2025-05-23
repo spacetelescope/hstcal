@@ -43,7 +43,7 @@ int doZoffIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *zoff) {
 }
 
 /* ZOFFCORR: Perform zero-read subtraction for MULTIACCUM data
-** groups. The science images are subtracted and the DQ arrays 
+** groups. The science images are subtracted and the DQ arrays
 ** are combined. The ERR, SAMP, arrays are unchanged.
 ** The exposure time for the group being corrected is reduced
 ** by an amount equal to the exposure time of the zero-read.
