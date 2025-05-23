@@ -41,7 +41,6 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
     int DoCTE (ACSInfo *, const bool forwardModelOnly);
     int FileExists (char *);
     int GetCTEFlags (ACSInfo *, Hdr *);
-    void TimeStamp (char *, char *);
     void PrBegin (char *);
     void PrEnd (char *);
     void PrFileName (char *, char *);

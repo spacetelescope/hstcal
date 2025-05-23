@@ -273,7 +273,6 @@ StisInfo6 *sts    i: calibration switches and info
 	int SelectAlg (StisInfo6 *, XtractInfo *);
 	void SetRanges (StisInfo6 *, RowContents *);
 	int SmoothBack (StisInfo6 *, RowContents *);
-	void TimeStamp6 (int, char *, char *);
 	int doubleUpdateHeader (char *, char *, double, char *, int);
 	int intUpdateHeader (char *, char *, int, char *, int);
 	int strUpdateHeader (char *, char *, char *, char *, int);

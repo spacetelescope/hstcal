@@ -8,6 +8,7 @@
 # include <string.h>
 
 # include "c_iraf.h"
+# include "hstcal.h"
 # include "hstio.h"
 # include "stis.h"
 # include "calstis4.h"

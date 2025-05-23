@@ -259,7 +259,6 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
     int  LoadHdr (char *, Hdr *);
     void WhichError (int);
     void get_nsegn (int, int, int, int, float *, float*, float *, float *);
-    void TimeStamp (char *, char *);
 
     /********************************** Begin Code ****************************/
     /* Initialization */

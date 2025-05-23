@@ -114,7 +114,6 @@ int DoCCD (ACSInfo *acs_info) {
     int PutKeyStr (Hdr *, char *, char *, char *);
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
-    void TimeStamp (char *, char *);
     void UCalVer (Hdr *);
     void UFilename (char *, Hdr *);
     int FindOverscan (ACSInfo *, int, int, int *, int *);
