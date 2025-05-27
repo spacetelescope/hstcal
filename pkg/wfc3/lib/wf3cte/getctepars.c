@@ -22,6 +22,7 @@ MLS 2015: read in the CTE parameters from the PCTETAB file
 # include "wf3info.h"
 # include "hstcalerr.h"
 # include "cte.h"
+# include "ctegen2.h"
 
 /************ HELPER SUBROUTINES ****************************/    
 
@@ -128,109 +129,98 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/* LOAD PRIMARY HEADER */
 	if (LoadHdr(filename, &hdr_ptr)) {
-		sprintf(MsgText,"(pctecorr) Error loading header from %s",filename);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error loading header from %s",filename);
 		status = OPEN_FAILED;
 		return status;
 	}
 
 	/* GET CTE_NAME KEYWORD */
 	if (GetKeyStr (&hdr_ptr, "CTE_NAME", NO_DEFAULT, "", pars->cte_name, SZ_CBUF)) {
-		cteerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading CTE_NAME keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"\nCTE_NAME: %s",pars->cte_name);
-	trlmessage(MsgText);
+	trlmessage("\nCTE_NAME: %s",pars->cte_name);
 
 	/* GET VERSION NUMBER  */
 	if (GetKeyStr(&hdr_ptr, "CTE_VER", NO_DEFAULT, "", pars->cte_ver, SZ_CBUF)) {
-		cteerror("(pctecorr) Error reading CTE_VER keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading CTE_VER keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
-	sprintf(MsgText,"CTE_VER: %s",pars->cte_ver);
-	trlmessage(MsgText);
+	trlmessage("CTE_VER: %s",pars->cte_ver);
 
 	/* GET DATE OF UVIS INSTALLATION IN HST */
 	if (GetKeyDbl(&hdr_ptr, "CTEDATE0", NO_DEFAULT, -999, &pars->cte_date0)) {
-		cteerror("(pctecorr) Error reading CTEDATE0 keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading CTEDATE0 keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"CTEDATE0: %g",pars->cte_date0);
-	trlmessage(MsgText);
+	trlmessage("CTEDATE0: %g",pars->cte_date0);
 
 	/* GET REFRENCE DATE OF CTE MODEL PINNING */
 	if (GetKeyDbl(&hdr_ptr, "CTEDATE1", NO_DEFAULT, -999, &pars->cte_date1)) {
-		cteerror("(pctecorr) Error reading CTEDATE1 keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading CTEDATE1 keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"CTEDATE1: %g",pars->cte_date1);
-	trlmessage(MsgText);
+	trlmessage("CTEDATE1: %g",pars->cte_date1);
 
 	/* READ MAX LENGTH OF CTE TRAIL */
 	if (GetKeyInt(&hdr_ptr, "PCTETLEN", NO_DEFAULT, -999, &pars->cte_len)) {
-		cteerror("(pctecorr) Error reading PCTETLEN keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading PCTETLEN keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"PCTETLEN: %d",pars->cte_len);
-	trlmessage(MsgText);
+	trlmessage("PCTETLEN: %d",pars->cte_len);
 
 	/* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
 	if (GetKeyInt(&hdr_ptr, "PCTENFOR", NO_DEFAULT, -999, &pars->n_forward)) {
-		cteerror("(pctecorr) Error reading PCTENFOR keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading PCTENFOR keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
-	sprintf(MsgText,"PCTERNFOR: %d",pars->n_forward);
-	trlmessage(MsgText);
+	trlmessage("PCTERNFOR: %d",pars->n_forward);
 
 	/* GET NUMBER OF ITERATIONS USED IN PARALLEL TRANSFER*/
 	if (GetKeyInt(&hdr_ptr, "PCTENPAR", NO_DEFAULT, -999, &pars->n_par)) {
-		cteerror("(pctecorr) Error reading PCTENPAR keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading PCTENPAR keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"PCTERNPAR: %d",pars->n_par);
-	trlmessage(MsgText);
+	trlmessage("PCTERNPAR: %d",pars->n_par);
 
 	/* GET READ NOISE MITIGATION ALGORITHM*/
 	if (GetKeyInt(&hdr_ptr, "PCTENSMD", NO_DEFAULT, -999, &pars->noise_mit)) {
-		cteerror("(pctecorr) Error reading PCTENSMD keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading PCTENSMD keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
-	sprintf(MsgText,"PCTENSMD: %d",pars->noise_mit);
-	trlmessage(MsgText);
+	trlmessage("PCTENSMD: %d",pars->noise_mit);
 
 	/* GET OVER SUBTRACTION THRESHOLD */
 	if (GetKeyDbl(&hdr_ptr, "PCTETRSH", NO_DEFAULT, -999, &pars->thresh)) {
-		cteerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
+		trlerror("(pctecorr) Error reading PCTETRSH keyword from PCTETAB");
 		status = KEYWORD_MISSING;
 		return status;
 	}
 
-	sprintf(MsgText,"PCTETRSH: %g",pars->thresh);
-	trlmessage(MsgText);
- 
+	trlmessage("PCTETRSH: %g",pars->thresh);
+
     /*FIX THE READOUT CR'S? */
     if (GetKeyInt(&hdr_ptr, "FIXROCR", NO_DEFAULT, -999, &pars->fix_rocr)){
-        cteerror("(pctecorr) Error reading FIXROCR keyword from PCTETAB");
+        trlerror("(pctecorr) Error reading FIXROCR keyword from PCTETAB");
         status = KEYWORD_MISSING;
         return status;
     }
     
     /*
-	sprintf(MsgText,"FIXROCR: %d",pars->fix_rocr);
-	trlmessage(MsgText);
+	trlmessage("FIXROCR: %d",pars->fix_rocr);
     */
     
     
@@ -245,8 +235,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
-		sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error opening %s with xtables",filename_wext);
 		status = OPEN_FAILED;
 		c_tbtclo(tbl_ptr);
 		return status;
@@ -256,8 +245,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* get column pointer for w */
 	c_tbcfnd1(tbl_ptr, wcol, &w_ptr);
 	if (c_iraferr() || w_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",wcol);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",wcol);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
@@ -265,8 +253,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* GET COLUMN POINTER FOR QLEVQ */
 	c_tbcfnd1(tbl_ptr, qlevq, &qlevq_ptr);
 	if (c_iraferr() || qlevq_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",qlevq);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",qlevq);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
@@ -274,8 +261,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* GET COLUMN POINTER FOR DPDEW */
 	c_tbcfnd1(tbl_ptr, dpdew, &dpdew_ptr);
 	if (c_iraferr() || dpdew_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",dpdew);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",dpdew);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
@@ -289,8 +275,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		/* GET W FROM THIS ROW */
 		c_tbegti(tbl_ptr, w_ptr, j+1, &pars->wcol_data[j]);
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, wcol);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, wcol);
 			status = TABLE_ERROR;
 			return status;
 		}
@@ -298,8 +283,7 @@ No.    Name         Type      Cards   Dimensions   Format
 		/* GET QLEVQ FROM THIS ROW */
 		c_tbegtd(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qlevq);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, qlevq);
 			status = TABLE_ERROR;
 			return status;
 		}
@@ -310,14 +294,12 @@ No.    Name         Type      Cards   Dimensions   Format
 		/* GET DPDEW FROM THIS ROW */
 		c_tbegtd(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dpdew);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, dpdew);
 			status = TABLE_ERROR;
 			return status;
 		}
         if (ctraps > TRAPS){
-            sprintf(MsgText,"More TRAPS in reference file than available, update TRAPS: %i -> %i",TRAPS,(int)ctraps);
-            trlmessage(MsgText);
+            trlmessage("More TRAPS in reference file than available, update TRAPS: %i -> %i",TRAPS,(int)ctraps);
         }
 	}
     
@@ -325,9 +307,8 @@ No.    Name         Type      Cards   Dimensions   Format
     pars->cte_traps=(int)ctraps;
 
     /*
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
+	trlmessage("(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
             pars->wcol_data[19],pars->qlevq_data[19], pars->dpdew_data[19], pars->cte_traps);
-	trlmessage(MsgText);
     */
     
 	/* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
@@ -340,8 +321,7 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	tbl_ptr = c_tbtopn(filename_wext, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-		sprintf(MsgText,"(pctecorr) Error opening %s with xtables",filename_wext);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error opening %s with xtables",filename_wext);
 		status = OPEN_FAILED;
 		c_tbtclo(tbl_ptr);
 		return status;
@@ -350,8 +330,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/*get column pointer for iz column*/
 	c_tbcfnd1(tbl_ptr, iz, &iz_ptr);
 	if (c_iraferr() || iz_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",iz);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",iz);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
@@ -359,8 +338,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* get column pointer for sens512 */
 	c_tbcfnd1(tbl_ptr, sens512, &sens512_ptr);
 	if (c_iraferr() || w_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",sens512);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",sens512);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
@@ -368,24 +346,21 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* get column pointer for sens1024 */
 	c_tbcfnd1(tbl_ptr, sens1024, &sens1024_ptr);
 	if (c_iraferr() || w_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",sens1024);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",sens1024);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
 	/* get column pointer for sens1536 */
 	c_tbcfnd1(tbl_ptr, sens1536, &sens1536_ptr);
 	if (c_iraferr() || w_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",sens1536);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",sens1536);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
 	/* get column pointer for sens2048 */
 	c_tbcfnd1(tbl_ptr, sens2048, &sens2048_ptr);
 	if (c_iraferr() || w_ptr == 0) {
-		sprintf(MsgText,"(pctecorr) Error getting column %s of PCTETAB",sens2048);
-		cteerror(MsgText);
+		trlerror("(pctecorr) Error getting column %s of PCTETAB",sens2048);
 		status = COLUMN_NOT_FOUND;
 		return status;
 	}
@@ -399,42 +374,36 @@ No.    Name         Type      Cards   Dimensions   Format
 		c_tbegti(tbl_ptr, iz_ptr, j+1, &pars->iz_data[j]);
 
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, iz);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, iz);
 			return (status = TABLE_ERROR);
 		}
 		c_tbegtd(tbl_ptr, sens512_ptr, j+1, &pars->scale512[j]);
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens512);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens512);
 			return (status = TABLE_ERROR);
 		}
 
 		c_tbegtd(tbl_ptr, sens1024_ptr, j+1, &pars->scale1024[j]);
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1024);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1024);
 			return (status = TABLE_ERROR);
 		}
 		c_tbegtd(tbl_ptr, sens1536_ptr, j+1, &pars->scale1536[j]);
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1536);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens1536);
 			return (status = TABLE_ERROR);
 		}
 		c_tbegtd(tbl_ptr, sens2048_ptr, j+1, &pars->scale2048[j]);
 		if (c_iraferr()) {
-			sprintf(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens2048);
-			cteerror(MsgText);
+			trlerror("(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens2048);
 			return (status = TABLE_ERROR);
 		}
 
 
 	}
     /* for testing
-	sprintf(MsgText,"(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d %g\t%g\t%g\t%g\ntotal traps = %i",
+	trlmessage("(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d %g\t%g\t%g\t%g\ntotal traps = %i",
             j,pars->iz_data[j-1],pars->scale512[j-1],pars->scale1024[j-1],pars->scale1536[j-1],pars->scale2048[j-1],pars->cte_traps);
-	trlmessage(MsgText);
     */
    
 	/* close CTE parameters file for extension 2*/
@@ -442,13 +411,12 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/****************************************************************************/
 	/*  extension 3: differential trail profile as image */
-	ctemessage("Reading in image from extension 3");
+	trlmessage("Reading in image from extension 3");
 
 	/* Get the coefficient images from the PCTETAB */
 	pars->rprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->rprof == NULL){
-		sprintf (MsgText, "Can't allocate memory for RPROF ref data");
-		trlerror (MsgText);
+		trlerror("Can't allocate memory for RPROF ref data");
 		return (status = 1);
 	}
 	initFloatHdrData(pars->rprof);
@@ -459,12 +427,11 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/****************************************************************************/
 	/* ext number 4 : cummulative trail profile as image */
-	ctemessage("Reading in image from extension 4");
+	trlerror("Reading in image from extension 4");
 
 	pars->cprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->cprof == NULL){
-		sprintf (MsgText, "Can't allocate memory for CPROF ref data");
-		trlerror (MsgText);
+		trlerror("Can't allocate memory for CPROF ref data");
 		return (status = 1);
 	}
 

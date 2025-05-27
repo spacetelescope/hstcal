@@ -23,13 +23,10 @@ void WhichError (int status) {
 	    return;
 
 	if (hstio_err())
-	    sprintf (MsgText,"         HSTIO error %d:  %s", status,
-		     hstio_errmsg());
+	    trlerror("         HSTIO error %d:  %s", status, hstio_errmsg());
 	else if (c_iraferr())
-	    sprintf (MsgText, "         IRAF error %d:  %s", c_iraferr(),
-		     c_iraferrmsg());
-	trlerror (MsgText);
-	
+	    trlerror("         IRAF error %d:  %s", c_iraferr(), c_iraferrmsg());
+
 	/* Now, check value of STATUS */
 	if (status == OUT_OF_MEMORY) {
 	    trlerror("Out of memory.");
@@ -74,12 +71,10 @@ void WhichError (int status) {
 	    trlerror("Internal error.");
 
 	} else if (status < 0) {
-	    sprintf (MsgText,"         Internal error; status = %d.", status);
-	    trlerror (MsgText);
+	    trlerror("         Internal error; status = %d.", status);
 
 	} else {
-	    sprintf (MsgText,"         status = %d", status);
-	    trlerror (MsgText);
+	    trlerror("         status = %d", status);
 	}
 
 }

@@ -71,15 +71,11 @@ int getExpTime (WF3Info *wf3, Hdr *header) {
 
         /* Check the exposure time value for validity */
 	if (wf3->exptime[wf3->group-1] < 0) {
-	    sprintf (MsgText, "SAMPTIME keyword value \"%g\" not valid in %s",
-			      wf3->exptime[wf3->group-1], wf3->input);
-	    trlerror (MsgText);
+	    trlerror("SAMPTIME keyword value \"%g\" not valid in %s", wf3->exptime[wf3->group-1], wf3->input);
 	    return (status = 1);
 	} else if (wf3->exptime[wf3->group-1] == 0) {
 	    if (wf3->group != wf3->ngroups) {
-		sprintf (MsgText, "SAMPTIME equal to zero in %s",
-			 wf3->input);
-		trlwarn (MsgText);
+		trlwarn("SAMPTIME equal to zero in %s", wf3->input);
 	    }
 	}
 
@@ -114,9 +110,7 @@ int getDataUnits (WF3Info *wf3, Hdr *header) {
 		 strncmp (units, "ELECTRONS", 9) == 0)
 	    wf3->bunit[wf3->group-1] = COUNTS;
 	else {
-	    sprintf (MsgText, "Unrecognized BUNIT value \"%s\" in %s\n", units,
-		     wf3->input);
-	    trlerror (MsgText);
+	    trlerror("Unrecognized BUNIT value \"%s\" in %s\n", units, wf3->input);
 	    return (status = 1);
 	}
 
@@ -142,9 +136,7 @@ int getTDFTrans (WF3Info *wf3, Hdr *header) {
 
 	/* Check the TDFTRANS keyword value for validity */
 	if (wf3->tdftrans[wf3->group-1] < 0) {
-	    sprintf (MsgText, "TDFTRANS value \"%d\" in %s is illegal\n",
-		     wf3->tdftrans[wf3->group-1], wf3->input);
-	    trlerror (MsgText);
+	    trlerror("TDFTRANS value \"%d\" in %s is illegal\n", wf3->tdftrans[wf3->group-1], wf3->input);
 	    return (status = 1);
 	}
 
