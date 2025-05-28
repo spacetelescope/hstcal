@@ -68,7 +68,6 @@ int FileExists (char *);
 int Get2dFlags (WF3Info *, Hdr *);
 int GetKeys (WF3Info *, Hdr *);
 void Sanity2d (WF3Info *);
-void TimeStamp (char *, char *);
 int LoadHdr (char *, Hdr *);
 void WF3Init (WF3Info *);
 void PrBegin (char *label);

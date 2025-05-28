@@ -44,7 +44,6 @@ int ACS2d (char *input, char *output, CalSwitch *acs2d_sw, RefFileInfo *refnames
 	int Get2dFlags (ACSInfo *, Hdr *);
 	int GetLinTab (ACSInfo *);
 	void Sanity2d (ACSInfo *);
-	void TimeStamp (char *, char *);
 	int LoadHdr (char *, Hdr *);
 	void ACSInit (ACSInfo *);
 	void PrBegin (char *label);
