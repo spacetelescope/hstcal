@@ -96,8 +96,7 @@ jobs:
           cmake .. \
               -DCMAKE_INSTALL_PREFIX=/tmp/hstcal \
               -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-              -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
-              -DCMAKE_C_FLAGS="-Wno-incompatible-pointer-types"
+              -DCMAKE_C_COMPILER=${{ matrix.compiler }}
           make -j$(nproc)
           make install
 
