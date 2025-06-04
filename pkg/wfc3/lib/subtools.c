@@ -163,7 +163,7 @@ int Full2Sub(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int dq, int sci, i
   }
 
   if (wf3->detector != CCD_DETECTOR){
-    trlmessage("Full2Sub only valid for UVIS subarrays");
+    trlwarn("Full2Sub only valid for UVIS subarrays");
   }
 
   /* Find the subarray location, visible corner*/
