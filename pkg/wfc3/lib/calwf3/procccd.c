@@ -87,17 +87,17 @@ int ProcessCCD (AsnInfo *asn, CALWF3Info *wf3hdr, int *save_tmp, int printtime, 
     void SetCCDSw   (CCD_Switch *, CCD_Switch *, CCD_Switch *,CCD_Switch *);
     void ResetCCDSw (CCD_Switch *, CCD_Switch *);
     void ResetSwitch (CCD_Switch *, CCD_Switch *);
-    void WF3Defaults (WF3Info *);
+    void WF3Defaults (CALWF3Info *);
     void InitRefFile (RefFileInfo *);
     void FreeRefFile (RefFileInfo *);
-    int  CCDRefInit (WF3Info *, CCD_Switch *, RefFileInfo *);
+    int  CCDRefInit (CALWF3Info *, CCD_Switch *, RefFileInfo *);
     int  WF3cte (char *, char *, CCD_Switch *, RefFileInfo *, int, int, int);
     int  WF3ccd (char *, char *, CCD_Switch *, RefFileInfo *, int, int);
     int  WF32d (char *, char *,CCD_Switch *, RefFileInfo *, int, int);
-    int  GetAsnMember (AsnInfo *, int, int, int, WF3Info *);
-    int  GetSingle (AsnInfo *, WF3Info *);
-    int  CheckCorr (AsnInfo *, WF3Info *);
-    int  InsertWF3Suffix (WF3Info *);
+    int  GetAsnMember (AsnInfo *, int, int, int, CALWF3Info *);
+    int  GetSingle (AsnInfo *, CALWF3Info *);
+    int  CheckCorr (AsnInfo *, CALWF3Info *);
+    int  InsertWF3Suffix (CALWF3Info *);
     int  updateAsnTable (AsnInfo *, int, int);
 
     /* initial value; */
