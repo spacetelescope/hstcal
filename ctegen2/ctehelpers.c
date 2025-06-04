@@ -295,7 +295,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 			status = KEYWORD_MISSING;
 			return status;
 		}
-		trlerror("CTE_VER: %s",pars->cte_ver);
+		trlmessage("CTE_VER: %s",pars->cte_ver);
 
 		/* GET READ NOISE CLIPPING LEVEL */
 		if (GetKeyDbl(&hdr_ptr, "PCTERNOI", NO_DEFAULT, -999, &pars->rn_amp)) {
