@@ -98,7 +98,7 @@ float rn             i: readnoise (units of DN)
 
 	/* Allocate space for temporary arrays */
 	if ((scratch = malloc ((vy[1]-vy[0]+1) * sizeof (double))) == NULL) {
-	    trlwarn("Out of memory in BlevDrift.");
+	    trlerror("Out of memory in BlevDrift.");
 	    return (status = OUT_OF_MEMORY);
 	}
 	biasvals = (double *) calloc (vx[1]+1, sizeof(double));
