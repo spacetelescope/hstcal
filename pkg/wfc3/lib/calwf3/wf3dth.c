@@ -89,8 +89,7 @@ int Wf3Dth ( char *in_list, char *output, int dthcorr, int printtime,
 	if (printtime)
 	    TimeStamp ("WF3DTH started", "");
 
-	trlmessage("Astrodrizzle needs to be run in order to generate");
-	trlmessage("a geometrically corrected, drizzle-combined product.");
+	trlmessage("Drizzlepac needs to be run in order to generate a geometrically corrected, drizzle-combined product.");
 
 	/* Open the input file list */
 	tpin = c_imtopen (in_list);
