@@ -64,8 +64,7 @@ int Get2dFlags (WF3Info *wf32d, Hdr *phdr) {
 	if (missing) {
 	    return (status = CAL_FILE_MISSING);
 	} else if (nsteps < 1) {
-	    trlwarn("No calibration switch was set to PERFORM,");
-	    trlwarn("  or all reference files had PEDIGREE = DUMMY.");
+	    trlwarn("No calibration switch was set to PERFORM, or all reference files had PEDIGREE = DUMMY.");
 	    return (status = NOTHING_TO_DO);
 	} else {
 	    return (status);
