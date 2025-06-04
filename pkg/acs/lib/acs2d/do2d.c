@@ -272,7 +272,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 
       if (acs2d->printtime)
 		    TimeStamp ("Uncertainty array initialized", acs2d->rootname);
-	  }
+      }
 	}
 
 	/* Subtract dark image. */
@@ -411,7 +411,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	putSingleGroup (acs2d->output, extver, &x, option);
 	if (hstio_err()) {
 		trlerror("Couldn't write imset %d.", extver);
-		return (status = 1001);
+		return (status = INVALID_EXPTIME);
 	}
 
 	if (acs2d->printtime)
