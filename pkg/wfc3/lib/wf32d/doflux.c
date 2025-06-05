@@ -171,7 +171,7 @@ int doFlux (WF3Info *wf32d){
     closeImage(chip2.err.iodesc);
 
 	if (hstio_err()) {
-		trlerror("Couldn't write imset %d.", 1); // really?
+		trlerror("Couldn't write imset 1.");
 		return (status = 1001);
 	}
 
