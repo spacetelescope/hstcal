@@ -38,7 +38,7 @@ void TimeStamp(char *message, const char *rootname) {
 
     // Configure timestamp
     // Y - Year (YYYY)
-    // j - Day of the year (001-360)
+    // j - Day of the year (001-366)
     // H - Hour (00-23)
     // M - Minute (0-59)
     // S - seconds (0-60)
