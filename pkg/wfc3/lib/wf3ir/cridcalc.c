@@ -37,16 +37,15 @@ extern int status;
 static int  crrej (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
 static void fitsamps (const short, float *, float *, short *,float *, float *, float,
         float *, float *, short *, float *, short, short, float, float);
-static void linfit (short, float *, float *, float *, float *, short, float, 
+static void linfit (short, float *, float *, float *, float *, short, float,
         float, float *, float *, float *, float *, int, int);
-
 
 /** THE DRIVER ROUTINE **/
 
 /* CRIDCALC: Identify cosmic ray hits in MultiAccum images.
  **
  ** Revision history:
- ** H.Bushouse  Oct. 2000   Initial CALNICA to CALWF3 port.  
+ ** H.Bushouse  Oct. 2000   Initial CALNICA to CALWF3 port.
  ** M.Sosey July 2008   Extensive update to use improvements in CALNICA
  **                              made in 2007 to the way CR's are detected.
  */
@@ -94,31 +93,31 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
  **             for wfc3). Added use of wf3dq.h.
  **
  ** M. Sosey    Updated to use improvements in CALNICA pipeline.
- ** July-2008   This includes adding the new CR detection and fitting routines 
+ ** July-2008   This includes adding the new CR detection and fitting routines
  **     using the Fixsen et al standards. Adding the HIGH_CURVATURE
  **     DQ flag for pixels with higher than max cr hits (16384, which
  **     was previously reserved. fitsamps and  linfit are significantly
- **     changed, so was crrej, and RejFirstRead was added. 
+ **     changed, so was crrej, and RejFirstRead was added.
  **
- ** M. Sosey    OPUS 2008.3 testing revealed a problem with 
- ** 25-July-2008    the estimation of the gain that was fed to linfit later on. If 
- **     FLATCORR was set to perform then the FLATFIELD file was 
- **     referenced directly using the Pix function to return indiv. 
- **     pixel values. However, if the reference flatfield image has a 
- **     null ERR extension it would cause a memory error. Also, WFC3 
+ ** M. Sosey    OPUS 2008.3 testing revealed a problem with
+ ** 25-July-2008    the estimation of the gain that was fed to linfit later on. If
+ **     FLATCORR was set to perform then the FLATFIELD file was
+ **     referenced directly using the Pix function to return indiv.
+ **     pixel values. However, if the reference flatfield image has a
+ **     null ERR extension it would cause a memory error. Also, WFC3
  **     can use up to 3 flatfields, which need to be combined to get
- **     the true value. After examining the code and realizing that 
- **     this step was being performed for NICMOS to back out the 
- **     flatfield processing so that the errors made sense, we decided 
- **     to take out the loop all together and just return the value of 
+ **     the true value. After examining the code and realizing that
+ **     this step was being performed for NICMOS to back out the
+ **     flatfield processing so that the errors made sense, we decided
+ **     to take out the loop all together and just return the value of
  **     the gain in all cases. This is reasonable because WFC3 performs
- **     flatfielding AFTER the CRIDCALC stage, so the step is 
- **     unneccesary. It would also have mandated a bunch of changes to 
+ **     flatfielding AFTER the CRIDCALC stage, so the step is
+ **     unneccesary. It would also have mandated a bunch of changes to
  **     the code.
- ** 
+ **
  ** M. Sosey    Corrected last few lines of code in linfit, which contained an
- ** 01-Aug-2008 if statement that wasn't supposed to be there. This was 
- **     discovered by Dahlen and Reagan in the NICMOS cridcalc code, 
+ ** 01-Aug-2008 if statement that wasn't supposed to be there. This was
+ **     discovered by Dahlen and Reagan in the NICMOS cridcalc code,
  **     per ticket #233 in stsci_python.
  **
  ** H.Bushouse  Reinstated code that had been inadvertantly removed from the
@@ -145,7 +144,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
  **     Fixed many bugs in fitsamps that came with the calnica port:
  **     include time of zero-to-first read interval in output TIME;
  **     include zero read in ouput SAMP; don't double count samples
- **     at ends of multiple intervals in output SAMP; fixed bug in 
+ **     at ends of multiple intervals in output SAMP; fixed bug in
  **     syntax of IF statement that starts block of output computations
  **     for pixels that have only 1 good sample (was causing outputs to
 **      to be zero, instead of using the 1 good sample); fixed bug in
@@ -190,7 +189,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
     **              saturation in zeroth and first reads; they are now treated the same so that
     **              output pixels are never zeroed out. There's probably a lot of diffs from the previous
     **              version because I re-indented the entire file to help figure out the logic
-    **                
+    **
     */
 
     int crrej (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
@@ -213,14 +212,14 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
         float *err;         /* list of err  values for pixel */
         short *dq;          /* list of dq   values for pixel */
         float *time;            /* list of time values for pixel */
-        float *tot_ADUs;        /* list of total ADUs from dark current and 
+        float *tot_ADUs;        /* list of total ADUs from dark current and
                            amp glow for pixel */
         float out_sci;      /* output sci  value */
         float out_err;      /* output err  value */
         short out_dq;           /* output dq   value */
         short out_samp;     /* output samp value */
         float out_time;     /* output time value */
-        float flat_value;             /* value to convert from flat fielded ADUs to 
+        float flat_value;             /* value to convert from flat fielded ADUs to
                          electrons */
         float flat_uncertainty;       /* unitless rms flat field uncertainty */
         int ncurved;            /* Number of pixels with high curvature */
@@ -390,7 +389,7 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
                     if (dq[k] & DATAREJECT) {
                         dq[k+1] = dq[k+1] | DATAREJECT;
                     }
-                }  
+                }
 
                 /* If the HIGH-CURVATURE bit is set anywhere, set it for all
                    groups and unset the DATAREJECT bit */
@@ -462,8 +461,8 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
  */
 
 static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
-        float *time, float *darkandglow, float thresh, 
-        float *out_sci, float *out_err, 
+        float *time, float *darkandglow, float thresh,
+        float *out_sci, float *out_err,
         short *out_samp, float *out_time,
         short i, short j, float gain, float flat_uncertainty) {
     /* Local variables */
@@ -476,7 +475,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
     float (*tdarkandglow)[nsamp]; /* poisson counts for this interval */
     int   (*tlookup)[nsamp];      /* poisson counts for this interval */
     short   interval;             /* number of intervals that have to be fit */
-    int   sample;       
+    int   sample;
     int   number_CRs;             /* total number of CRs found in the set of reads */
     float a[max_CRs+1], siga[max_CRs+1];    /* linear fit zeropoint and error */
     float b[max_CRs+1], sigb[max_CRs+1];    /* linear fit slope and error */
@@ -520,7 +519,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
      ** are rejected:
 
      start_index and end_index are paired variables defining the start
-     and end of intervals along the samples. If no CRs were found, then 
+     and end of intervals along the samples. If no CRs were found, then
      start_index[0] would be 1 (skip the 0th read) and
      end_index[0] would be nsamp-1.
 
@@ -543,7 +542,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
 
      */
     number_CRs=0;
-    nrej = 1; 
+    nrej = 1;
     while (nrej > 0) {
         nrej = 0;  /* RejSpikes and RejCRs may increment nrej */
         iter_count++;
@@ -641,25 +640,25 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
         /* We need a unique solution for each interval. */
         for (idx=0;(idx<=interval)&&nrej==0;idx++){
             if (tcount[idx] > 1){
-                /* Compute mean countrate using linear fit and equal weighting 
+                /* Compute mean countrate using linear fit and equal weighting
                    to best find SPIKES and CRs
-                   
-                   
+
+
                    using a straight difference between samples to detect hits before
                    calculating the slope might be more mathmatically sound, see
                    Karls paper
                    */
-                linfit (equal_weight, ttime[idx], tsci[idx], terr[idx], 
-                        tdarkandglow[idx], tcount[idx], gain, flat_uncertainty, 
+                linfit (equal_weight, ttime[idx], tsci[idx], terr[idx],
+                        tdarkandglow[idx], tcount[idx], gain, flat_uncertainty,
                         &a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
 
                 /*---------------------------------------------------------------
                   EXAMINE EACH INTERVAL FOR SPIKES AND CRS
                   ----------------------------------------------------------------*/
 
-                /* Compute difference of each sample from the local fit 
+                /* Compute difference of each sample from the local fit
                    Note that the fit is done with the CR included, this might
-                   throw off the actual detection. 
+                   throw off the actual detection.
                 */
                 for (k = 0; k <tcount[idx]; k++) {
                     if (terr[idx][k] != 0 && tdq[idx][k] == 0){
@@ -720,7 +719,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
     if (no_samples == 1) {
         no_samples = 0;      /* Reset because we're starting again   */
         nsflag = 1;
-        if (DEBUG && ((i==X1 && j==Y1) || (i==X2 && j==Y2))) 
+        if (DEBUG && ((i==X1 && j==Y1) || (i==X2 && j==Y2)))
             printf ("no_samples = 1 at i = %d, j = %d\n", i, j);
         number_CRs=0;
         nrej = 1;
@@ -835,10 +834,10 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
             /* We need a unique solution for each interval. */
             for (idx=0;(idx<=interval)&&nrej==0;idx++){
                 if (tcount[idx] > 1){
-                    /* Compute mean countrate using linear fit and equal weighting 
+                    /* Compute mean countrate using linear fit and equal weighting
                        to best find spikes and CRs*/
-                    linfit (equal_weight, ttime[idx], tsci[idx], terr[idx], 
-                            tdarkandglow[idx], tcount[idx], gain, flat_uncertainty, 
+                    linfit (equal_weight, ttime[idx], tsci[idx], terr[idx],
+                            tdarkandglow[idx], tcount[idx], gain, flat_uncertainty,
                             &a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
                     if (DEBUG2) {
                         printf ("Slope = %8.2f, intercept = %8.2f ", b[idx], a[idx]);
@@ -914,14 +913,14 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
       ITERATION COMPLETE: PERFORM FINAL FIT OF EACH INTERVAL
       ---------------------------------------------------------------------*/
 
-    /* Now go back through the intervals and find the best slopes using 
+    /* Now go back through the intervals and find the best slopes using
        the optimum weighting */
     int_time = 0;
     sumwts = 0;
     sum = 0;
-    
+
     /* has more that one sample and doesn't contain too many cosmic ray hits */
-    if (found_error == 0 && no_samples == 0) { 
+    if (found_error == 0 && no_samples == 0) {
 
         /* Loop over all intervals */
         for (idx=0; idx<=interval; idx++) {
@@ -936,10 +935,10 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                     int_time += time[k] - time[k-1];
                 }
 
-                /* Compute mean countrate using linear fit, with optimum weighting 
+                /* Compute mean countrate using linear fit, with optimum weighting
                    this time to get best estimate of the slope */
-                linfit (optimum_weight, ttime[idx], tsci[idx], terr[idx], 
-                        tdarkandglow[idx],tcount[idx], gain, flat_uncertainty, 
+                linfit (optimum_weight, ttime[idx], tsci[idx], terr[idx],
+                        tdarkandglow[idx],tcount[idx], gain, flat_uncertainty,
                         &a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
                 if (nsflag == 1) {
                     if (DEBUG2) {
@@ -1080,8 +1079,8 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
  ** from Poisson noise (source and dark) and read noise.
  */
 
-static void linfit (short weight_type, float *x, float *y, float *sig, 
-        float *darkandglow, short ndata, 
+static void linfit (short weight_type, float *x, float *y, float *sig,
+        float *darkandglow, short ndata,
         float gain, float flat_uncert,
         float *a, float *b, float *siga, float *sigb,
         int i, int j) {
@@ -1122,7 +1121,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
       taken into account. Only the good data should be passed
       into this routine!!
     */
-    if (weight_type == equal_weight){ 
+    if (weight_type == equal_weight){
         power=0;
         snr=0;
     }else{
@@ -1135,7 +1134,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
         }else{
             snr=0.0;
         }
-        /* Then use that SNR to select the exponent for the weighting. 
+        /* Then use that SNR to select the exponent for the weighting.
          * These numbers come from a paper by Fixsen (ref. TBA)*/
         if (snr > 100) {
             power =10.0;
@@ -1167,7 +1166,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
             /*wt = 1.0 / (sig[k]*sig[k]);*/
 
             /* Compute dimensionless weight (ranges from 0 to 1) */
-            wt=fabs(pow(fabs(k-((ndata-1)/2.))/((ndata-1)/2.),power)); 
+            wt=fabs(pow(fabs(k-((ndata-1)/2.))/((ndata-1)/2.),power));
             /* Renormalize dimensionless weight by inverse readnoise squared */
             wt*=invrdns2;
 
@@ -1183,13 +1182,13 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
         dx = x[ndata-1]-x[0]; /* total time span of interval being fit */
         dy = y[ndata-1]-y[0]; /* total signal span of interval being fit */
         ddg = darkandglow[ndata-1]-darkandglow[0]; /* total dark of interval */
-        denom = (S*Sxx - (Sx*Sx));  
+        denom = (S*Sxx - (Sx*Sx));
 
         /* Avoid dividing by zero or other problematic numerical issues */
         if (denom < 1e-6)
             denom = 1e-6;
 
-        if (ndata == 2) { 
+        if (ndata == 2) {
             *b = dy/dx;
             *a = y[0] - (*b)*x[0];
             *siga = 1.0; /*not strictly correct, but not really used*/
@@ -1216,7 +1215,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
         errterms = terma + termb + termc;
 
         if (errterms > 0)
-            *sigb = (sqrt(errterms)/dx)/gain;   
+            *sigb = (sqrt(errterms)/dx)/gain;
 
     } else { /* No points had any weight */
         *a=0.0;
@@ -1236,7 +1235,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
  ** Mar 2010: Modified to use SPIKE_THRESH, separate from CR_THRESH. HAB
  */
 
-# define SPIKE_THRESH 6.0   /* sigma threshold for spike rejection */ 
+# define SPIKE_THRESH 6.0   /* sigma threshold for spike rejection */
 
 static int RejSpikes (float *tsci, float*terr, short *dq, float *diff,
         short nsamp, float thresh, int *max_samp) {
@@ -1315,7 +1314,7 @@ static int RejCRs (short *dq, float *diff, short nsamp, float thresh,
                 if ( current_diff> max_diff) {
                     max_diff = fabs(diff[k] -prev_diff);
                     (*cr_index) = k;
-                } 
+                }
                 prev_diff = diff[k];
             }
         }
@@ -1331,7 +1330,7 @@ static int RejCRs (short *dq, float *diff, short nsamp, float thresh,
 
 
 /* REJFIRSTREAD: Check for spikes in the first read of the interval only.
- ** This was formerly part of RejSpikes. 
+ ** This was formerly part of RejSpikes.
  */
 static int RejFirstRead(short *dq, float *diff, short nsamp, float thresh) {
 
@@ -1357,14 +1356,14 @@ static int RejFirstRead(short *dq, float *diff, short nsamp, float thresh) {
 
 
 /* This subroutine is used to estimate the dark and amp glow component of the
-   signal for a pixel.  It determines the average rate of each pixel and 
-   stores that in the rate structure. When called it will return the tot_ADUs 
-   for each read of a given pixel. 
+   signal for a pixel.  It determines the average rate of each pixel and
+   stores that in the rate structure. When called it will return the tot_ADUs
+   for each read of a given pixel.
 
    At the moment a static value for the dark and ampglow are used. This
    could be upgraded in the future to use pixel- and read-dependent values
    from an actual dark reference image.
- */  
+ */
 
 static void EstimateDarkandGlow (const short nsamp, float *time, float gain,
         float *tot_ADUs) {

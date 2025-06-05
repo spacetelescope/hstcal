@@ -61,11 +61,11 @@ static void IRSanity  (int, char *);
 
 */
 
-int GetCCDRef (WF3Info *wf3, CCD_Switch *sci_sw, Hdr *phdr,
+int GetCCDRef (CALWF3Info *wf3, CCD_Switch *sci_sw, Hdr *phdr,
 	       RefFileInfo *sciref) {
 
 /* arguments:
-WF3Info *wf3          i: calibration flags and other info
+CALWF3Info *wf3          i: calibration flags and other info
 CCD_Switch *sci_sw    i: all calibration switches for science file
 Hdr *phdr             i: primary header of science file
 RefFileInfo *sciref  io: list of keyword,filename pairs
@@ -201,11 +201,11 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	return (status);
 }
 
-int GetIRRef (WF3Info *wf3, IR_Switch *sci_sw, Hdr *phdr,
+int GetIRRef (CALWF3Info *wf3, IR_Switch *sci_sw, Hdr *phdr,
 	      RefFileInfo *sciref) {
 
 /* arguments:
-WF3Info *wf3          i: calibration flags and other info
+CALWF3Info *wf3          i: calibration flags and other info
 IR_Switch *sci_sw     i: all calibration switches for science file
 Hdr *phdr             i: primary header of science file
 RefFileInfo *sciref  io: list of keyword,filename pairs

@@ -22,10 +22,10 @@
    M. Sosey, 2016 Jan: changed name of rac file to rac_tmp
 */
 
-int CCDRefInit (WF3Info *wf3, CCD_Switch *sci_sw, RefFileInfo *sciref) {
+int CCDRefInit (CALWF3Info *wf3, CCD_Switch *sci_sw, RefFileInfo *sciref) {
 
 /* arguments:
-WF3Info *wf3        i: calibration flags and other info
+CALWF3Info *wf3        i: calibration flags and other info
 CCD_Switch *sci_sw  o: all calibration switches (0 or 1) for science file
 RefFileInfo *sciref o: reference file name and info
 */
@@ -34,9 +34,9 @@ RefFileInfo *sciref o: reference file name and info
 
 	int missing;		/* number of missing reference files */
 
-	int  GetCCDInfo (WF3Info *, CCD_Switch *, RefFileInfo *);
+	int  GetCCDInfo (CALWF3Info *, CCD_Switch *, RefFileInfo *);
 	void RefExist (RefFileInfo *, int, int *);
-	int  InsertWF3Suffix (WF3Info *);
+	int  InsertWF3Suffix (CALWF3Info *);
 
 	/* Construct output and temporary file names. */
 	if (InsertWF3Suffix (wf3))
@@ -59,10 +59,10 @@ RefFileInfo *sciref o: reference file name and info
 	return (status);
 }
 
-int IRRefInit (WF3Info *wf3, IR_Switch *sci_sw, RefFileInfo *sciref) {
+int IRRefInit (CALWF3Info *wf3, IR_Switch *sci_sw, RefFileInfo *sciref) {
 
 /* arguments:
-WF3Info *wf3        i: calibration flags and other info
+CALWF3Info *wf3        i: calibration flags and other info
 IR_Switch *sci_sw   o: all calibration switches (0 or 1) for science file
 RefFileInfo *sciref o: reference file name and info
 */
@@ -71,9 +71,9 @@ RefFileInfo *sciref o: reference file name and info
 
 	int missing;		/* number of missing reference files */
 
-	int  GetIRInfo (WF3Info *, IR_Switch *, RefFileInfo *);
+	int  GetIRInfo (CALWF3Info *, IR_Switch *, RefFileInfo *);
 	void RefExist (RefFileInfo *, int, int *);
-	int  InsertWF3Suffix (WF3Info *);
+	int  InsertWF3Suffix (CALWF3Info *);
 
 	/* Construct output and temporary file names. */
 	if (InsertWF3Suffix (wf3))
@@ -99,7 +99,7 @@ RefFileInfo *sciref o: reference file name and info
 	return (status);
 }
 
-void WF3Defaults (WF3Info *wf3) {
+void WF3Defaults (CALWF3Info *wf3) {
 
 	/* RAWFILE HAS BEEN ASSIGNED ALREADY */
 	wf3->crj_root[0] = '\0';
@@ -137,7 +137,7 @@ void WF3Defaults (WF3Info *wf3) {
 
 /* CONSTRUCT OUTPUT AND TEMPORARY FILE NAMES FROM OUTROOT. */
 
-int InsertWF3Suffix (WF3Info *wf3) {
+int InsertWF3Suffix (CALWF3Info *wf3) {
 
 	extern int status;
 

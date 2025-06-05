@@ -20,7 +20,7 @@
 
    Warren Hack, 1998 June 10:
    	Initial ACS version.
-	
+
    Howard Bushouse, 2000 Aug 24:
 	Initial WFC3 version.
 
@@ -195,7 +195,7 @@ int dqiHistory (WF3Info *wf3, Hdr *phdr) {
         if (wf3->detector != IR_DETECTOR) {
 	        addHistoryKw (phdr, "  values checked for saturation");
         }
-        
+
 	    if (wf3->bpix.exists == EXISTS_YES) {
 		    addHistoryKw (phdr, "  DQ array initialized ...");
 		    if (TabHistory (&wf3->bpix, phdr))
