@@ -51,7 +51,6 @@ int Wf3Rej (char *in_list, char *output, char *mtype, clpar *par, int newpar[], 
     char	    det[SZ_CBUF+1];
     char	    in_name[CHAR_FNAME_LENGTH+1];
 
-    void        TimeStamp (char *, char *);
     void        PrBegin (char *);
     void        PrSwitch (char *, int);
     void        PrEnd (char *);

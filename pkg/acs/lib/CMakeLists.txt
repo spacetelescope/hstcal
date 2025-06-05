@@ -119,7 +119,6 @@ add_library(${PROJECT_NAME} SHARED
 	sub2d.c
 	tabhistory.c
 	tabpedigree.c
-	timestamp.c
 	toelectrons.c
 	trim.c
 	trim2d.c

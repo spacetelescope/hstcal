@@ -10,6 +10,7 @@
 # include <time.h>
 # include <string.h>
 
+# include "hstcal.h"
 # include "hstio.h"
 
 # include "stis.h"

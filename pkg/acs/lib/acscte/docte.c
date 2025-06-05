@@ -85,7 +85,6 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     int PutKeyStr (Hdr *, char *, char *, char *);
     void PrSwitch (char *, int);
     void PrRefInfo (char *, char *, char *, char *, char *);
-    void TimeStamp (char *, char *);
     void UCalVer (Hdr *);
     void UCteVer(Hdr * hdr, char * cteName, char * cteVersion);
     void UFilename (char *, Hdr *);

@@ -9,6 +9,7 @@
 # include <stdio.h>
 # include <string.h>	/* strcpy, strcmp */
 
+# include "hstcal.h"
 # include "hstio.h"
 
 # include "stis.h"

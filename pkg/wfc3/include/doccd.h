@@ -31,7 +31,6 @@ int PutKeyFlt (Hdr *, char *, float, char *);
 int PutKeyInt (Hdr *, char *, int, char *);
 void PrSwitch (char *, int);
 void PrRefInfo (char *, char *, char *, char *, char *);
-void TimeStamp (char *, char *);
 void UCalVer (Hdr *);
 void UFilename (char *, Hdr *);
 int FindOverscan (WF3Info *, int, int, int *);

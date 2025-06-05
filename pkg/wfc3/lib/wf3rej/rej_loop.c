@@ -211,7 +211,6 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 /*  int       LoadHdr (char *, Hdr *);*/
     void      WhichError (int);
     void      get_nsegn (int, int, int, int, float *, float*, float *, float *);
-    void      TimeStamp (char *, char *);
 
     /********************************** Begin Code ****************************/
     /* Initialization */

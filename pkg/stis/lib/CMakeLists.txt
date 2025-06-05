@@ -242,7 +242,6 @@ add_library(${PROJECT_NAME} SHARED
 	tabhistory.c
 	tabpedigree.c
 	tdscorrect.c
-	timestamp.c
 	ucalver.c
 	ufilename.c
 	unbin2d.c

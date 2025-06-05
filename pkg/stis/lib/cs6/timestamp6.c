@@ -12,6 +12,8 @@
 
 */
 
+# include "timestamp.h"
+
 void TimeStamp6 (int prittime, char* msg, char *rootname) {
 
 	if (prittime)

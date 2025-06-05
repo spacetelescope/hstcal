@@ -30,7 +30,6 @@ int AcsRej (char *in_list, char *output, char *mtype, clpar *par, int newpar[])
   int             flag;
   int             old_status;
   
-  void        TimeStamp (char *, char *);
   void        PrBegin (char *);
   void        PrSwitch (char *, int);
   void        PrEnd (char *);
