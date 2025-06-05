@@ -85,7 +85,7 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 	rmean = True;
 	mode = False;
     } else {
-        trlerror ("illegal sky value");
+        trlerror("illegal sky value");
         status = INVALID_VALUE;
         return;
     }
@@ -96,7 +96,7 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
     a = (float *) calloc (dimx, sizeof(float));
     b = (short *) calloc (dimx, sizeof(short));
     if (a == NULL || b == NULL) {
-        trlerror ("Couldn't allocate memory for sky arrays");
+        trlerror("Couldn't allocate memory for sky arrays");
         status = OUT_OF_MEMORY;
         return; 
     }
@@ -167,7 +167,7 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 	sprintf (MsgText, 
 	"sky computed using min %d, max %d, mean %g, bins %d, and width %g",
 	min, max, mean, nbins, hwidth);
-	trlmessage (MsgText);
+	trlmessage(MsgText);
 	*/
     }
 
@@ -179,14 +179,14 @@ void rej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[], int nimgs,
 	    /*  set up a new histogram array for each image */
 	    histgrm = (int *) calloc (nbins, sizeof(int));
 	    if (histgrm == NULL){
-		    trlerror ("Couldn't allocate memory for sky histogram array");
+		    trlerror("Couldn't allocate memory for sky histogram array");
 		    status = OUT_OF_MEMORY;
 		return;   
 	    }
 	} else if (rmean) {
 	    skyarr = (float *) calloc (dimx*dimy, sizeof(float));
 	    if (skyarr == NULL){
-		trlerror ("Couldn't allocate memory for sky array");
+		trlerror("Couldn't allocate memory for sky array");
 		status = OUT_OF_MEMORY;
 		return;   
 	    }

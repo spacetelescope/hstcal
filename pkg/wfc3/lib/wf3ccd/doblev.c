@@ -29,10 +29,10 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
    updated.
 
    NOTE:  This task now performs the subtractions in-place on x, resulting
-   in output which still has the overscan regions.  
+   in output which still has the overscan regions.
 
    Warren Hack, 1998 June 2:
-   	Revised for ACS data. 
+   	Revised for ACS data.
    Howard Bushouse, 2000 Aug 29:
 	Revised for WFC3 data.
    H.Bushouse, 2001 May 7:
@@ -46,7 +46,7 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
    H.Bushouse, 2002 March 1:
 	Upgraded to handle WFC3 CCD serial virtual overscan region: changed
 	the computations of begx,endx to take extra trimx3,trimx4 regions
-	into account. 
+	into account.
 	Upgraded to handle splitting the parallel virtual overscan region, as
 	defined by VX,VY vectors, into two separate regions; one region for
 	each amp. Changed the call to BlevDrift to pass the appropriate set of
@@ -71,7 +71,7 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
 	to the FitToOverscan routine and also convert the readnoise value
 	to units of DN's so that it's the same as the science data.
    H.Bushouse, 2008 Sep 17:
-	Pass readnoise to BlevDrift routine for use in cleanDriftFit. 
+	Pass readnoise to BlevDrift routine for use in cleanDriftFit.
 	Modified cleanBiasFit to use different clip values on each pass.
    H.Bushouse, 2009 Jan 16:
 	Upgraded the methods used in cleanBiasFit to compute the mean and
@@ -83,7 +83,7 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
 	limits being used.
 */
 
-int doBlev (WF3Info *wf3, SingleGroup *x, int chip, float *meanblev, 
+int doBlev (WF3Info *wf3, SingleGroup *x, int chip, float *meanblev,
 	    int *overscan, int *driftcorr) {
 
 /* arguments:
@@ -116,7 +116,7 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	int numamps;		/* Number of AMPS used to readout chip */
 	char *ccdamp;		/* Amps which are used for this chip */
 	int dodrift = YES;	/* use virtual overscan to get blevdrift? */
-	char *amploc; 
+	char *amploc;
 	int bias_loc, amp_indx;
 	int bias_ampx, bias_ampy;
 	int bias_orderx[4] = {0,1,0,1};
@@ -142,13 +142,13 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	/* initial values */
 	*driftcorr = 0;
 	*meanblev = 0.;
-	
+
 	binx = wf3->bin[0];
 	biny = wf3->bin[1];
 
 	if ((binx != 1 && binx != 2 && binx != 3) ||
 	    (biny != 1 && biny != 2 && biny != 3)) {
-	    trlerror ("(doBlev) bin size must be 1, 2, or 3.");
+	    trlerror("(doBlev) bin size must be 1, 2, or 3.");
 	    free (ccdamp);
 	    return (status = 1001);
 	}
@@ -174,10 +174,8 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	if (*overscan != YES) {
 
 	    /* If no overscan region, subtract BIAS level obtained from CCDTAB*/
-	    trlwarn ("Overscan region is too small to do BLEVCORR; ");
-	    sprintf (MsgText,"     bias from CCDTAB of %g will be subtracted.",
-		     ccdbias);
-	    trlmessage (MsgText);
+	    trlwarn("Overscan region is too small to do BLEVCORR; ");
+	    trlmessage("     bias from CCDTAB of %g will be subtracted.", ccdbias);
 
 	    for (j = 0;  j < x->sci.data.ny;  j++) {
 		 for (i = 0;  i < x->sci.data.nx;  i++)
@@ -190,7 +188,7 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	}
 
 	/* Determine bias levels from BIASSECT columns specified in OSCNTAB */
-	
+
 	/* Copy out overscan info for ease of reference in this function*/
 	trimx1 = wf3->trimx[0];
 	trimx2 = wf3->trimx[1];
@@ -199,27 +197,27 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	trimy1 = wf3->trimy[0];
 	trimy2 = wf3->trimy[1];
 
-	/* Establish which amps from ccdamp string are appropriate 
+	/* Establish which amps from ccdamp string are appropriate
 	** for this chip */
 	ccdamp[0] = '\0';
-	
-	/* Set up the 2 AMPS used per line */ 
+
+	/* Set up the 2 AMPS used per line */
 	if (wf3->detector == CCD_DETECTOR) {
 	    parseWFCamps (wf3->ccdamp, chip, ccdamp);
 	}
 
-	/* How many amps are used for this chip */	
+	/* How many amps are used for this chip */
 	numamps = strlen (ccdamp);
-	
+
 	/* Are we going to calculate drift in bias from virtual overscan? */
 	/* If the end points of vx and vy are zero, no section was specified */
 	if (wf3->vy[0] <= 0 && wf3->vy[1] <= 0) {
-	    dodrift = NO;	
+	    dodrift = NO;
 	    trlmessage("(blevcorr) No virtual overscan region specified.");
 	    trlmessage("(blevcorr) Bias drift correction will not be applied.");
 	}
 
-	/* For each amp used, determine bias level and subtract from 
+	/* For each amp used, determine bias level and subtract from
 	** appropriate region of chip */
 	sumblev = 0.;
 	for (amp = 0; amp < numamps; amp++) {
@@ -264,7 +262,7 @@ int *driftcorr   o: true means correction for drift along lines was applied
 		 /* then set trailing section to zero indicating it's not used*/
 		 biassect[2] = 0;
 		 biassect[3] = 0;
-		 
+
 	     } else {
 
 		 /* otherwise, select the non-zero bias section */
@@ -277,16 +275,13 @@ int *driftcorr   o: true means correction for drift along lines was applied
 		 biassect[3] = 0;
 	     }
 	     if (wf3->verbose) {
-		 sprintf (MsgText, "Using overscan columns %d to %d",
-			  biassect[0]+1, biassect[1]+1);
-		 trlmessage (MsgText);
+		     trlmessage("Using overscan columns %d to %d", biassect[0]+1, biassect[1]+1);
+	     }
 		 if (biassect[2] != 0) {
-		 sprintf (MsgText, "           and columns %d to %d",
-		 	  biassect[2]+1, biassect[3]+1);
-		 trlmessage (MsgText); }
+			 trlmessage("           and columns %d to %d", biassect[2]+1, biassect[3]+1);
 	     }
 
-	     /* Compute range of pixels affected by each amp */	
+	     /* Compute range of pixels affected by each amp */
 	     begx = trimx1 + (wf3->ampx + trimx3 + trimx4) * bias_ampx;
 	     endx = (bias_ampx == 0 && wf3->ampx != 0) ? wf3->ampx + trimx1 :
 							x->sci.data.nx - trimx2;
@@ -299,7 +294,7 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	     if (endx > x->sci.data.nx) endx = x->sci.data.nx;
 	     if (endy > x->sci.data.ny) endy = x->sci.data.ny;
 	     sizex = endx - begx;
-	     sizey = endy - begy;		
+	     sizey = endy - begy;
 
 	     /* Compute the actual readnoise for this amp, in units
 	     ** of DN's */
@@ -387,10 +382,10 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	} /* End loop over AMPs */
 
 	*overscan = YES;
-	
+
 	/* This is the mean value of all the bias levels subtracted. */
 	*meanblev = sumblev / numamps;
-	
+
 	/* free ccdamp space allocated here... */
 	free (ccdamp);
 
@@ -474,13 +469,13 @@ floar rn          i: calibrated readnoise level for this amp
 	    else
 		strcat (MsgText, "s have");
 	    strcat (MsgText, " too few usable overscan pixels.");
-	    trlwarn (MsgText);
+	    trlwarn("%s", MsgText);
 	}
 
 	/* Fit a curve to the bias levels found. */
 	if (BlevFit()) {
-	    trlwarn ("No bias level data, or singular fit; ");
-	    trlmessage ("            bias from CCDTAB will be subtracted.");
+	    trlwarn("No bias level data, or singular fit; ");
+	    trlmessage("            bias from CCDTAB will be subtracted.");
 	    BlevSet (ccdbias);		/* assign the default value */
 	}
 
@@ -566,9 +561,7 @@ void cleanBiasFit (double *barray, int *bmask, int ny, float rn) {
 	     }
 	}
 
-	sprintf (MsgText,
-		"(blevcorr) Rejected %d bias values from serial fit.",nrej);
-	trlmessage (MsgText);
+	trlmessage("(blevcorr) Rejected %d bias values from serial fit.",nrej);
 }
 
 int selectBias (char *ccdamp) {

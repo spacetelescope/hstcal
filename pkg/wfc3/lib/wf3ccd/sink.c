@@ -68,9 +68,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
     float refdate=50000.;
     int keep_going=1;
     
-    sprintf(MsgText,"\nPerforming SINK pixel detection for imset %i",x->group_num);
-    trlmessage(MsgText);
-    
+    trlmessage("\nPerforming SINK pixel detection for imset %i",x->group_num);
 
     /*THE SCIENCE IMAGE*/
     SingleGroup raz; /*quad rotated image to work with*/    

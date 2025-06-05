@@ -97,15 +97,14 @@ int *missing       o: a count of missing (or blank) reference files
 	/* All three flats not specified?  That's not OK. */
 	if (flat_not_specified == 3) {
 	    (*missing)++;
-	    trlwarn ("PFLTFILE, DFLTFILE, LFLTFILE are all blank");
+	    trlwarn("PFLTFILE, DFLTFILE, LFLTFILE are all blank");
 	}
 
 }
 
 static void MissingFile (char *keyword, char *filename, int *missing) {
 
-	sprintf (MsgText, "%s `%s' not found or can't open.", keyword,filename);
-	trlwarn (MsgText);
+	trlwarn("%s `%s' not found or can't open.", keyword,filename);
 	(*missing)++;
 }
 

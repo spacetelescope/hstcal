@@ -108,9 +108,6 @@ void freeCTEParamsFast(CTEParamsFast * pars);
 int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *pars, char * corrType);
 int getCTEParsFromImageHeader(SingleGroup * input, CTEParamsFast * params);
 int loadPCTETAB(char *filename, CTEParamsFast * params, int extn, Bool skipLoadPrimary);
-void ctewarn (char *message);
-void cteerror (char *message);
-void ctemessage (char *message);
 
 //These shouldn't be here, they belong in their own header, in a central hstcal/inlclude with the code
 //needing to be in hstcal/lib

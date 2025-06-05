@@ -50,12 +50,9 @@ void PrBegin (char *label) {
 
 	char *GetDateTime (void);
 
-	trlmessage ("\n");
-	sprintf (MsgText,"%s*** %s -- Version %s ***",TRL_PREFIX, label,
-		 WF3_CAL_VER);
-	trlmessage (MsgText);
-	sprintf (MsgText,"Begin    %s", GetDateTime());
-	trlmessage (MsgText);
+	trlmessage("\n");
+	trlmessage("%s*** %s -- Version %s ***",TRL_PREFIX, label, WF3_CAL_VER);
+	trlmessage("Begin    %s", GetDateTime());
 }
 
 /* Print a message at the end of calwf3 task. */
@@ -64,11 +61,9 @@ void PrEnd (char *label) {
 
 	char *GetDateTime (void);
 
-	sprintf (MsgText, "End      %s", GetDateTime());
-	trlmessage (MsgText);
-	trlmessage ("");
-	sprintf (MsgText,"*** %s complete ***", label);
-	trlmessage (MsgText);
+	trlmessage("End      %s", GetDateTime());
+	trlmessage("");
+	trlmessage("*** %s complete ***", label);
 }
 
 /* Print input or output file name. */
@@ -83,20 +78,16 @@ char *filename  i: name of input or output file
 	
 	Upper1 (label, buf, SCRATCH_SIZE);
 
-	sprintf (MsgText,"%s %s", buf, filename);
-	trlmessage (MsgText);
+	trlmessage("%s %s", buf, filename);
 }
 
 /* Print info from primary header. */
 
 void PrHdrInfo (char *aperture, char *filter, char *detector) {
 
-	sprintf (MsgText, "APERTURE %s", aperture);
-	trlmessage (MsgText);
-	sprintf (MsgText, "FILTER   %s", filter);
-	trlmessage (MsgText);
-	sprintf (MsgText, "DETECTOR %s", detector);
-	trlmessage (MsgText);
+	trlmessage("APERTURE %s", aperture);
+	trlmessage("FILTER   %s", filter);
+	trlmessage("DETECTOR %s", detector);
 }
 
 /* Print a calibration switch keyword and value. */
@@ -128,7 +119,7 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 	else
 	    strcat (MsgText, " unknown");
 		
-	trlmessage (MsgText);
+	trlmessage("%s", MsgText);
 }
 
 /* Print a message at the beginning of an imset or spectral order. */
@@ -158,8 +149,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-	sprintf (MsgText, "%s Begin %s", buf, GetTime());
-	trlmessage (MsgText);
+	trlmessage("%s Begin %s", buf, GetTime());
 }
 
 /* Print a message at the end of an imset or spectral order. */
@@ -187,8 +177,7 @@ int n        i: number to be printed following label, if n > 0
 	    Upper1 (buf, buf, SCRATCH_SIZE);
 	}
 
-	sprintf (MsgText, "%s End %s", buf, GetTime());
-	trlmessage (MsgText);
+	trlmessage("%s End %s", buf, GetTime());
 }
 
 /* Print reference file keyword and name, plus any pedigree and
@@ -209,22 +198,18 @@ char *descrip2  i: second descrip, if any, from table row
 
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
-	sprintf (MsgText,"%s %s", buf, filename);
-	trlmessage (MsgText);
+	trlmessage("%s %s", buf, filename);
 
 	if (pedigree[0] != '\0') {
-	    sprintf (MsgText, "%s PEDIGREE=%s", buf, pedigree);
-	    trlmessage (MsgText);
+	    trlmessage("%s PEDIGREE=%s", buf, pedigree);
 	}
 	
 	if (descrip[0] != '\0') {
-	    sprintf (MsgText, "%s DESCRIP =%s", buf, descrip);
-	    trlmessage (MsgText);
+	    trlmessage("%s DESCRIP =%s", buf, descrip);
 	}
 	
 	if (descrip2[0] != '\0') {
-	    sprintf (MsgText, "%s DESCRIP =%s", buf, descrip2);
-	    trlmessage (MsgText);
+	    trlmessage("%s DESCRIP =%s", buf, descrip2);
 	}
 }
 

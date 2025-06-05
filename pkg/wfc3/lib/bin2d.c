@@ -61,17 +61,15 @@ SingleGroup *b        o: output data
 	    xcorner + nx*binx > a->sci.data.nx ||
 	    ycorner + ny*biny > a->sci.data.ny) {
   
-	    trlerror ("(bin2d)  subset is out of bounds:");
+	    trlerror("(bin2d)  subset is out of bounds:");
    
-	    sprintf (MsgText, "         input is %d x %d, output is %d x %d",
+	    trlmessage("         input is %d x %d, output is %d x %d",
 		     a->sci.data.nx, a->sci.data.ny, 
 		     b->sci.data.nx, b->sci.data.ny);
-	    trlmessage (MsgText);
-    
-	    sprintf (MsgText, "         start = (%d,%d), binx = %d, biny = %d.",
+
+	    trlmessage("         start = (%d,%d), binx = %d, biny = %d.",
 		     xcorner+1, ycorner+1, binx, biny);
-	    trlmessage (MsgText);
-	
+
 	    return (status = SIZE_MISMATCH);
 	}
 
@@ -219,17 +217,15 @@ SingleGroup *b        o: output data
 	    xcorner + nx*binx > a->sci.data.nx ||
 	    ycorner + ny*biny > a->sci.data.ny) {
   
-	    trlerror ("(bin2d)  subset is out of bounds:");
+	    trlerror("(bin2d)  subset is out of bounds:");
    
-	    sprintf (MsgText, "         input is %d x %d, output is %d x %d",
+	    trlmessage("         input is %d x %d, output is %d x %d",
 		     a->sci.data.nx, a->sci.data.ny, 
 		     b->sci.data.nx, b->sci.data.ny);
-	    trlmessage (MsgText);
-    
-	    sprintf (MsgText, "         start = (%d,%d), binx = %d, biny = %d.",
+
+	    trlmessage("         start = (%d,%d), binx = %d, biny = %d.",
 		     xcorner+1, ycorner+1, binx, biny);
-	    trlmessage (MsgText);
-	
+
 	    return (status = SIZE_MISMATCH);
 	}
 

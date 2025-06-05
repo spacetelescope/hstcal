@@ -91,8 +91,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
         if (hstio_err()) {
-            sprintf (MsgText, "Cannot open data file '%s'", fdata);
-            trlerror (MsgText);
+            trlerror("Cannot open data file '%s'", fdata);
             return (status = OPEN_FAILED);
         }
 
@@ -102,17 +101,13 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
         getHeader (ip, &hdr);
 
         if (GetKeyFlt (&hdr, expname, USE_DEFAULT, 0., &efac[k]) != 0) {
-            sprintf (MsgText,
-		     "cannot read '%s' from the primary header of '%s'",
-		      expname, fdata);
-            trlerror (MsgText);
+            trlerror("cannot read '%s' from the primary header of '%s'", expname, fdata);
             freeHdr (&hdr);
             return(status = KEYWORD_MISSING);
         }
         
         if (efac[k] < 0.) {
-            sprintf (MsgText, "exposure time of file '%s' is negative", fdata);
-            trlerror (MsgText);
+            trlerror("exposure time of file '%s' is negative", fdata);
             freeHdr (&hdr);
             return(status = INVALID_VALUE);
         }
@@ -122,18 +117,12 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
         
         numimgs++;
         if (GetKeyDbl (&hdr, "EXPEND", USE_DEFAULT, 0., &keyend) != 0) {
-            sprintf (MsgText,
-		     "cannot read 'EXPEND' from the primary header of '%s'",
-		     fdata);
-            trlerror (MsgText);
+            trlerror("cannot read 'EXPEND' from the primary header of '%s'", fdata);
             freeHdr (&hdr);
             return(status = KEYWORD_MISSING);
         }
         if (GetKeyDbl (&hdr, "EXPSTART", USE_DEFAULT, 0., &keystart) != 0) {
-            sprintf (MsgText,
-		     "cannot read 'EXPSTART' from the primary header of '%s'",
-		     fdata);
-            trlerror (MsgText);
+            trlerror("cannot read 'EXPSTART' from the primary header of '%s'", fdata);
             freeHdr (&hdr);
             return(status = KEYWORD_MISSING);
         }
@@ -146,8 +135,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
 	/* Open first SCI extension header to read BUNIT keyword */
         ip = openInputImage (fdata, "SCI", 1);
         if (hstio_err()) {
-            sprintf (MsgText, "Cannot open data file '%s'", fdata);
-            trlerror (MsgText);
+            trlerror("Cannot open data file '%s'", fdata);
             return (status = OPEN_FAILED);
         }
 
@@ -169,8 +157,7 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
         else if  (streq_ic (units,"COUNTS") || streq_ic (units, "ELECTRONS"))
             bunit[k] = COUNTS;
         else {
-            sprintf (MsgText, "%s value for BUNIT does not match", units);
-            trlerror (MsgText);
+            trlerror("%s value for BUNIT does not match", units);
             return (status = INVALID_VALUE);
         }
 
@@ -180,8 +167,8 @@ int cr_scaling (char *expname, IRAFPointer tpin, float efac[], int *nimgs,
     }
     
     if (nzero > 0 && nzero < *nimgs) {
-        trlwarn ("Some (but not all) input imsets have zero exposure time.");
-	trlwarn ("Final product will be compromised!");
+        trlwarn("Some (but not all) input imsets have zero exposure time.");
+        trlwarn("Final product will be compromised!");
 
 	/* This type of error will need to be handled differently in order
 	** to allow pipeline processing of this type of dataset.

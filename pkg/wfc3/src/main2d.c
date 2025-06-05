@@ -35,7 +35,6 @@ static void printHelp(void)
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-struct TrlBuf trlbuf = { 0 };
 
 /* This is the main module for wf32d.  It gets the input and output
    file names, calibration switches, and flags, and then calls wf32d.
@@ -235,15 +234,13 @@ int main (int argc, char **argv) {
 
 	    if (MkOutName (input, isuffix, osuffix, nsuffix, output, CHAR_LINE_LENGTH)) {
 		WhichError (status);
-		sprintf (MsgText, "Skipping %s", input);
-		trlmessage (MsgText);
+		trlmessage("Skipping %s", input);
 		continue;
 	    }
 										
 	    /* Calibrate the current input file. */
 	    if (WF32d(input, output, &wf32d_sw, &refnames, printtime, verbose)){
-		sprintf (MsgText, "Error processing %s.", input);
-		trlerror (MsgText);
+		trlerror("Error processing %s.", input);
 		WhichError (status);
 	    }
 	}

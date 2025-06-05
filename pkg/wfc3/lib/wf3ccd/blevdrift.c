@@ -90,15 +90,15 @@ float rn             i: readnoise (units of DN)
 	*driftcorr = 0;		/* initial value */
 
 	if (vx[1] <= vx[0] || vy[1] <= vy[0]) {
-	    trlmessage ("(blevcorr) No virtual overscan region;");
-	    trlmessage (nodriftcorr);
+	    trlmessage("(blevcorr) No virtual overscan region;");
+	    trlmessage("%s", nodriftcorr);
 	    DriftSet (0.);
 	    return (status);
 	}
 
 	/* Allocate space for temporary arrays */
 	if ((scratch = malloc ((vy[1]-vy[0]+1) * sizeof (double))) == NULL) {
-	    trlwarn ("Out of memory in BlevDrift.");
+	    trlerror("Out of memory in BlevDrift.");
 	    return (status = OUT_OF_MEMORY);
 	}
 	biasvals = (double *) calloc (vx[1]+1, sizeof(double));
@@ -142,8 +142,8 @@ float rn             i: readnoise (units of DN)
 
 	/* Fit a curve to the values found. */
 	if (DriftFit()) {
-	    trlwarn ("(blevcorr) Singular fit to virtual overscan; ");
-	    trlwarn (nodriftcorr);
+	    trlwarn("(blevcorr) Singular fit to virtual overscan; ");
+	    trlwarn("%s", nodriftcorr);
 	    DriftSet (0.);
 	} else {
 	    *driftcorr = 1;
@@ -282,9 +282,7 @@ void cleanDriftFit (double *barray, int *bmask, int *vx, float rn) {
              }
         }
 
-        sprintf (MsgText,
-		"(blevcorr) Rejected %d bias values from parallel fit.",nrej);
-        trlmessage (MsgText);
+        trlmessage("(blevcorr) Rejected %d bias values from parallel fit.",nrej);
 }
 
 /* This routine resets the sums and coefficients to zero, and it copies
@@ -358,8 +356,7 @@ static int DriftFit (void) {
 
 	slope = (sums[3] - xmean * ymean * sums[0]) / d;
 
-        sprintf (MsgText, "Computed a parallel fit with slope of %g", slope);
-        trlmessage (MsgText);
+    trlmessage("Computed a parallel fit with slope of %g", slope);
 
 	return (0);
 }

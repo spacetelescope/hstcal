@@ -88,8 +88,7 @@ Hdr *hdr	io: image header to be modified
 	strcat (photstr, scratch);
 
 	if (wf32d->verbose) {
-	    sprintf (MsgText, "Keyword PHOTMODE built as: %s", photstr);
-	    trlmessage (MsgText);
+	    trlmessage("Keyword PHOTMODE built as: %s", photstr);
 	}
 
 	/* Update PHOTMODE in the header. */

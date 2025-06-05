@@ -117,8 +117,7 @@ SingleGroup *x	io: image to be calibrated; written to in-place
 	    return (status);
 
 	if (wf3->ncombine > 1) {
-	    trlerror 
-		("NCOMBINE is already > 1 before ATODCORR has been performed.");
+	    trlerror("NCOMBINE is already > 1 before ATODCORR has been performed.");
 	    return (status = 1010);
 	}
 
@@ -154,9 +153,7 @@ SingleGroup *x	io: image to be calibrated; written to in-place
 	}
 
 	if (!foundit) {
-	    sprintf (MsgText, "CCD amp %s, gain %g, not found in ATODTAB `%s'.",
-		wf3->ccdamp, wf3->ccdgain, wf3->atod.name);
-	    trlerror (MsgText);
+	    trlerror("CCD amp %s, gain %g, not found in ATODTAB `%s'.", wf3->ccdamp, wf3->ccdgain, wf3->atod.name);
 	    CloseAtoDTab (&tabinfo);
 	    return (status = TABLE_ERROR);
 	}
@@ -212,8 +209,7 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
-	    sprintf (MsgText, "ATODTAB `%s' not found.", tname);
-	    trlerror (MsgText);
+	    trlerror("ATODTAB `%s' not found.", tname);
 	    return (status = OPEN_FAILED);
 	}
 
@@ -232,7 +228,7 @@ static int OpenAtoDTab (char *tname, TblInfo *tabinfo) {
 	    tabinfo->cp_keyval == 0 ||
 	    tabinfo->cp_nelem == 0 ||
 	    tabinfo->cp_atod == 0) {
-	    trlerror ("Column not found in ATODTAB.");
+	    trlerror("Column not found in ATODTAB.");
 	    c_tbtclo (tabinfo->tp);
 	    return (status = COLUMN_NOT_FOUND);
 	}
@@ -300,10 +296,7 @@ static int ReadAtoDArray (TblInfo *tabinfo, int row, TblArray *tabarray) {
 	    return (status = TABLE_ERROR);
 
 	if (nret < tabarray->nelem) {
-	    sprintf (MsgText,
-		     "CORRECTION array in row %d of ATODTAB is too short.",
-		     row);
-	    trlerror (MsgText);
+	    trlerror("CORRECTION array in row %d of ATODTAB is too short.", row);
 	    free (tabarray->atod);
 	    return (status = TABLE_ERROR);
 	}

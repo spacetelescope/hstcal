@@ -74,8 +74,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
         tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
         if (c_iraferr() != 0) {
-            sprintf (MsgText,"CRREJTAB table '%s' does not exist", par->tbname);
-            trlerror (MsgText);
+            trlerror("CRREJTAB table '%s' does not exist", par->tbname);
             return (status = TABLE_ERROR);
         }
         nrows = c_tbpsta (tp, TBL_NROWS);
@@ -83,12 +82,12 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         /* read the columns CRSPLIT and MEANEXP */
         c_tbcfnd1 (tp, "crsplit", &colptr);
         if (colptr == 0) {
-            trlerror ("column CRSPLIT does not exist in CRREJTAB");
+            trlerror("column CRSPLIT does not exist in CRREJTAB");
             return (status = COLUMN_NOT_FOUND);
         }
         c_tbcfnd1 (tp, "meanexp", &colptr1);
         if (colptr1 == 0) {
-            trlerror ("column MEANEXP does not exist in CRREJTAB\n");
+            trlerror("column MEANEXP does not exist in CRREJTAB\n");
             return (status = COLUMN_NOT_FOUND);
         }
         nmatch = 0;
@@ -117,7 +116,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
             }
         }
         if (nmatch == 0) {
-            trlerror (" No matching CRSPLIT and MEANEXP in CRREJTAB");
+            trlerror(" No matching CRSPLIT and MEANEXP in CRREJTAB");
             return (status = ROW_NOT_FOUND);
         }
 
@@ -125,7 +124,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRSIGMAS] == 0) {
             c_tbcfnd1 (tp, "crsigmas", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRSIGMAS does not exist in CRREJTAB");
+                trlerror("column CRSIGMAS does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtt (tp, colptr, row, par->sigmas, CHAR_LINE_LENGTH);
@@ -135,7 +134,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[SKYSUB] == 0) {
             c_tbcfnd1 (tp, "skysub", &colptr);
             if (colptr == 0) {
-                trlerror ("column SKYSUB does not exist in CRREJTAB");
+                trlerror("column SKYSUB does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtt (tp, colptr, row, par->sky, SZ_FITS_REC);
@@ -145,7 +144,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRRADIUS] == 0) {
             c_tbcfnd1 (tp, "crradius", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRRADIUS does not exist in CRREJTAB");
+                trlerror("column CRRADIUS does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtr (tp, colptr, row, &par->radius);
@@ -153,7 +152,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRTHRESH] == 0) {
             c_tbcfnd1 (tp, "crthresh", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRTHRESH does not exist in CRREJTAB");
+                trlerror("column CRTHRESH does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtr (tp, colptr, row, &par->thresh);
@@ -163,7 +162,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[INITGUES] == 0) {
             c_tbcfnd1 (tp, "initgues", &colptr);
             if (colptr == 0) {
-                trlerror ("column INITGUES does not exist in CRREJTAB");
+                trlerror("column INITGUES does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtt (tp, colptr, row, par->initgues, SZ_FITS_REC);
@@ -173,7 +172,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[SCALENSE] == 0) {
             c_tbcfnd1 (tp, "scalense", &colptr);
             if (colptr == 0) {
-                trlerror ("column SCALENSE does not exist in CRREJTAB");
+                trlerror("column SCALENSE does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegtr (tp, colptr, row, &par->scalense);
@@ -182,7 +181,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[BADINPDQ] == 0) {
             c_tbcfnd1 (tp, "badinpdq", &colptr);
             if (colptr == 0) {
-                trlerror ("column BADINPDQ does not exist in CRREJTAB");
+                trlerror("column BADINPDQ does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegts (tp, colptr, row, &par->badinpdq);
@@ -191,7 +190,7 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         if (newpar[CRMASK] == 0) {
             c_tbcfnd1 (tp, "crmask", &colptr);
             if (colptr == 0) {
-                trlerror ("column CRMASK does not exist in CRREJTAB");
+                trlerror("column CRMASK does not exist in CRREJTAB");
                 return (status = COLUMN_NOT_FOUND);
             }
             c_tbegti (tp, colptr, row, &par->mask);
@@ -209,12 +208,11 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
         return (status);
     }
     if (*niter > MAX_ITER) {
-        sprintf (MsgText,"No more than %d iterations permitted.", MAX_ITER);
-        trlerror (MsgText);
+        trlerror("No more than %d iterations permitted.", MAX_ITER);
         return (status = ERROR_RETURN);
     }
     if (*niter <= 0) {
-        trlerror ("Number of iterations is ZERO.");
+        trlerror("Number of iterations is ZERO.");
         return (status = ERROR_RETURN);
     }
 
@@ -224,36 +222,25 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
 
     /* print out which parameter are used */
     if (par->verbose) {
-        sprintf (MsgText,"\n number of images = %d", nimgs);
-        trlmessage (MsgText);
-        sprintf (MsgText," CRREJ ref table used: %s", par->tbname);
-        trlmessage (MsgText);
-        sprintf (MsgText," initial guess method: %s", par->initgues);
-        trlmessage (MsgText);
-        sprintf (MsgText," total exposure time = %0.1f", exptot);
-        trlmessage (MsgText);
-        sprintf (MsgText," sigmas used: %s", par->sigmas);
-        trlmessage (MsgText);
-        sprintf (MsgText," sky subtraction used: %s", par->sky);
-        trlmessage (MsgText);
-        sprintf (MsgText," rejection radius = %0.1f", par->radius);
-        trlmessage (MsgText);
-        sprintf (MsgText," propagation threshold = %0.1f", par->thresh);
-        trlmessage (MsgText);
+        trlmessage("\n number of images = %d", nimgs);
+        trlmessage(" CRREJ ref table used: %s", par->tbname);
+        trlmessage(" initial guess method: %s", par->initgues);
+        trlmessage(" total exposure time = %0.1f", exptot);
+        trlmessage(" sigmas used: %s", par->sigmas);
+        trlmessage(" sky subtraction used: %s", par->sky);
+        trlmessage(" rejection radius = %0.1f", par->radius);
+        trlmessage(" propagation threshold = %0.1f", par->thresh);
         // Double-escape for trlmessage. Direct trlmessage calls don't require double-escaping.
         // This will be a direct trlmessage call in the future.
-        sprintf (MsgText," scale noise = %0.1f%%%%", par->scalense);
-        trlmessage (MsgText);
-        sprintf (MsgText," input bad bits value = %d", par->badinpdq);
-        trlmessage (MsgText);
-        
+        trlmessage(" scale noise = %0.1f%%%%", par->scalense);
+        trlmessage(" input bad bits value = %d", par->badinpdq);
+
         if (par->mask == 1) {
             strcpy (maskstr,"YES");
         } else {
             strcpy (maskstr, "NO");
         }
-        sprintf (MsgText," reset crmask = %s\n", maskstr);
-        trlmessage (MsgText);
+        trlmessage(" reset crmask = %s\n", maskstr);
     }
     return (status);
 }
@@ -315,8 +302,7 @@ static int strtor (char *str, float arr[]) {
             
             tmp[ip-ip0] = '\0';
             if (!(isdigit (tmp[0]) || tmp[0] == '-' || tmp[0] == '.')) {
-                sprintf (MsgText, "illegal input string '%s'", str);
-                trlerror (MsgText);
+                trlerror("illegal input string '%s'", str);
                 status = INVALID_VALUE;
                 return (0);
             }

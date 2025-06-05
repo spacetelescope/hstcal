@@ -215,7 +215,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     /* Make sure there is more than one image to process */
     if (nimgs < 2) {
-        trlmessage ("Needs more than one input image.");
+        trlmessage("Needs more than one input image.");
         return (status = NOTHING_TO_DO);
     }
 
@@ -276,9 +276,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         }
         if (par->verbose) {
             for (n = 0; n < nimgs; n++) {
-                 sprintf (MsgText, "sky of '%s[sci,%d]' is %0.3f DN",
-			  imgname[n], ext[n], skyval[n]);
-                 trlmessage (MsgText);
+                 trlmessage("sky of '%s[sci,%d]' is %0.3f DN", imgname[n], ext[n], skyval[n]);
             }
         }
 
@@ -304,7 +302,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 	if (non_zero > 1) {
 
 	    if (non_zero < nimgs)
-		trlwarn ("Some input exposures had EXPTIME = 0.");
+		trlwarn("Some input exposures had EXPTIME = 0.");
 
             /* Compute the initial pixel values to be used to compare against
 	    ** all images. */
@@ -330,13 +328,13 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
 	} else {
 
-	    trlwarn ("Cosmic-ray rejection NOT performed!");
+	    trlwarn("Cosmic-ray rejection NOT performed!");
 	    if (non_zero > 0) {
-		trlwarn ("Some input exposures had EXPTIME = 0.");
-		trlwarn ("Output product will not be cosmic-ray cleaned!");
+		trlwarn("Some input exposures had EXPTIME = 0.");
+		trlwarn("Output product will not be cosmic-ray cleaned!");
 	    } /*else {
-		trlwarn ("ALL input exposures had EXPTIME = 0.");
-		trlwarn ("Output product will be BLANK!");
+		trlwarn("ALL input exposures had EXPTIME = 0.");
+		trlwarn("Output product will be BLANK!");
 	    } */
 	} /* End if(non_zero) block */
         

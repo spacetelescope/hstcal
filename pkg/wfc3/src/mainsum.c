@@ -19,7 +19,6 @@ extern int status;
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-struct TrlBuf trlbuf = { 0 };
 
 static void printSyntax(void)
 {
@@ -148,8 +147,7 @@ int main (int argc, char **argv) {
 
 	/* Sum imsets. */
 	if (Wf3Sum (input, output, mtype, printtime, verbose)) {
-	    sprintf (MsgText, "Error processing %s.", input);
-	    trlerror (MsgText);
+	    trlerror("Error processing %s.", input);
 	    WhichError (status);
 	}
 

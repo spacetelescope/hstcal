@@ -160,14 +160,14 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	initAsnInfo(&asn);
 
 	if (debug) {
-		trlmessage ("Initialized Association data ... ");
+		trlmessage("Initialized Association data ... ");
 	}
 
 	/* COPY INPUT FILENAME TO ASN STRUCTURE	*/
 	strcpy (asn.input, input);
 
 	/* PRINT IMAGE NAME. */
-	trlmessage ("\n");
+	trlmessage("\n");
 
 	PrFileName ("input", asn.input);
 
@@ -194,40 +194,38 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	 ** WJH  2Mar99
 	 */
 	if (asn.detector == UNKNOWN_DETECTOR || asn.detector == 0) {
-		trlwarn ("Unknown detector type for observations.");
+		trlwarn("Unknown detector type for observations.");
 		freeAsnInfo(&asn);
 		return (status = NOTHING_TO_DO);
 	}
 
 	if (asn.verbose) {
-		sprintf (MsgText,"CALWF3: Detector %s, type %d ",
-				asn.instr, asn.detector);
-		trlmessage (MsgText);
+		trlmessage("CALWF3: Detector %s, type %d ", asn.instr, asn.detector);
 	}
 
 	/* DETERMINE WHAT DETECTOR WE ARE WORKING WITH AND RUN BASICS...	*/
 	if (asn.detector == CCD_DETECTOR ) { /* Process CCD data ... */
 		if (asn.verbose) {
-			trlmessage ("CALWF3: processing a UVIS product");
+			trlmessage("CALWF3: processing a UVIS product");
 		}
 		if (ProcessCCD (&asn, &wf3hdr, &save_tmp, printtime, onecpu)) {
 			if (status == NOTHING_TO_DO) {
-				trlwarn ("No processing desired for CCD data.");
+				trlwarn("No processing desired for CCD data.");
 			} else {
-				trlerror ("Couldn't process CCD data");
+				trlerror("Couldn't process CCD data");
 			}
 			return (status);
 		}
 
 	} else { /* Process IR observations here */
 		if (asn.verbose) {
-			trlmessage ("CALWF3: processing an IR product");
+			trlmessage("CALWF3: processing an IR product");
 		}
 		if (ProcessIR (&asn, &wf3hdr, printtime)) {
 			if (status == NOTHING_TO_DO) {
-				trlwarn ("No processing desired for IR data.");
+				trlwarn("No processing desired for IR data.");
 			} else {
-				trlerror ("Couldn't process IR data");
+				trlerror("Couldn't process IR data");
 			}
 			return (status);
 		}
@@ -239,7 +237,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
         if (asn.process == FULL) {
 	        if (asn.verbose) {
-		        trlmessage ("CALWF3: Building DTH products for non-CTE data....");
+		        trlmessage("CALWF3: Building DTH products for non-CTE data....");
 	        }
 
             wf3dth_input=NULL;
@@ -279,8 +277,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 			        } else {
 
-				        trlwarn
-					        ("No DTH product name specified. No product created.");
+				        trlwarn("No DTH product name specified. No product created.");
 				        /* status = WF3_OK; */
 			        }
 		        }
@@ -294,7 +291,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
         if (asn.process == FULL) {
 
 	        if (asn.verbose) {
-		        trlmessage ("CALWF3: Building DTH products for IR Data");
+		        trlmessage("CALWF3: Building DTH products for IR Data");
 	        }
 
 	        for (prod = 0; prod < asn.numprod; prod++) {
@@ -327,8 +324,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 			        } else {
 
-				        trlwarn
-					        ("No DTH product name specified. No product created.");
+				        trlwarn("No DTH product name specified. No product created.");
 				        /* status = WF3_OK; */
 			        }
 		        }
@@ -340,12 +336,12 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
     } /* End DTHCORR IR Processing */
 
 	if (asn.verbose) {
-		trlmessage ("CALWF3: Finished processing product ");
+		trlmessage("CALWF3: Finished processing product ");
 	}
 
 	freeAsnInfo(&asn);
 
-	trlmessage ("\n");
+	trlmessage("\n");
 	PrEnd ("CALWF3");		/* *** CALWF3 complete *** */
 
 	if (printtime)
@@ -599,15 +595,13 @@ int CopyFFile (char *infile, char *outfile) {
 		return (status = OUT_OF_MEMORY);
 
 	if ((ofp = fopen (outfile, "wb")) == NULL) {
-		sprintf (MsgText,"Can't create temporary file %s.", outfile);
-		trlerror(MsgText);
+		trlerror("Can't create temporary file %s.", outfile);
 		free (buf);
 		return (status = INVALID_TEMP_FILE);
 	}
 
 	if ((ifp = fopen (infile, "rb")) == NULL) {
-		sprintf (MsgText,"Can't open %s", infile);
-		trlerror (MsgText);
+		trlerror("Can't open %s", infile);
 		(void)fcloseWithStatus(&ofp);
 		remove (outfile);
 		free (buf);
@@ -618,9 +612,7 @@ int CopyFFile (char *infile, char *outfile) {
 	while (!done) {
 		nin = fread (buf, sizeof(char), FITS_BUFSIZE, ifp);
 		if (ferror (ifp)) {
-			sprintf (MsgText, "Can't read from %s (copying to %s).",
-					infile, outfile);
-			trlerror (MsgText);
+			trlerror("Can't read from %s (copying to %s).", infile, outfile);
 			(void)fcloseWithStatus(&ofp);
 			(void)fcloseWithStatus(&ifp);
 			free (buf);
@@ -631,8 +623,7 @@ int CopyFFile (char *infile, char *outfile) {
 
 		nout = fwrite (buf, sizeof(char), nin, ofp);
 		if (nout < nin) {
-			sprintf (MsgText, "Can't copy %s to %s.", infile, outfile);
-			trlerror (MsgText);
+			trlerror("Can't copy %s to %s.", infile, outfile);
 			(void)fcloseWithStatus(&ofp);
 			(void)fcloseWithStatus(&ifp);
 			free (buf);

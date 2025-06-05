@@ -64,8 +64,7 @@ int Get2dFlags (WF3Info *wf32d, Hdr *phdr) {
 	if (missing) {
 	    return (status = CAL_FILE_MISSING);
 	} else if (nsteps < 1) {
-	    trlwarn ("No calibration switch was set to PERFORM,");
-	    trlwarn ("  or all reference files had PEDIGREE = DUMMY.");
+	    trlwarn("No calibration switch was set to PERFORM, or all reference files had PEDIGREE = DUMMY.");
 	    return (status = NOTHING_TO_DO);
 	} else {
 	    return (status);
@@ -108,10 +107,7 @@ int *missing     io: incremented if the table is missing
 	} else if (wf32d->ccdpar.goodPedigree != GOOD_PEDIGREE) {
 
 	    (*missing)++;
-	    sprintf (MsgText, "CCDTAB `%s' is a dummy table.",
-		     wf32d->ccdpar.name);
-	    trlerror (MsgText);
-
+	    trlerror("CCDTAB `%s' is a dummy table.", wf32d->ccdpar.name);
 	} else {
 
 	    /* Is the FILETYPE appropriate for a CCD table? */
@@ -381,7 +377,7 @@ int *nsteps      io: incremented if this step can be performed
 	    } else if (wf32d->pfltcorr == OMIT && wf32d->dfltcorr == OMIT &&
 		wf32d->lfltcorr == OMIT) {
                 (*missing)++;
-                trlerror ("PFLTFILE, DFLTFILE, and LFLTFILE are all blank.");
+                trlerror("PFLTFILE, DFLTFILE, and LFLTFILE are all blank.");
 	    } else if (wf32d->pfltcorr == DUMMY || wf32d->dfltcorr == DUMMY ||
 		wf32d->lfltcorr == DUMMY) {
                 wf32d->flatcorr = DUMMY;

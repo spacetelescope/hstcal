@@ -48,8 +48,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	dimx = x->sci.data.nx;
 	dimy = x->sci.data.ny;
 
-	sprintf(MsgText,"CTE: Subtracting BIACFILE: %s for imset %d",wf3->biac.name, x->group_num);
-	trlmessage(MsgText);
+	trlmessage("CTE: Subtracting BIACFILE: %s for imset %d",wf3->biac.name, x->group_num);
 
 	initSingleGroupLine (&y);
 	scilines = x->sci.data.ny;
@@ -81,9 +80,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	if (rx != 1 || ry != 1) {
 		closeSingleGroupLine (&y);
 		freeSingleGroupLine (&y);
-		sprintf (MsgText,
-				"BIAC image and input are not binned to the same pixel size!");
-		trlerror (MsgText);
+		trlerror("BIAC image and input are not binned to the same pixel size!");
 		return (status = SIZE_MISMATCH);
 	}
 
@@ -95,8 +92,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	 */
 
 	 if (wf3->verbose){
- 		sprintf(MsgText,"Image has starting location of %d,%d in the reference image",x0,y0);
- 		trlmessage(MsgText);
+ 		trlmessage("Image has starting location of %d,%d in the reference image",x0,y0);
  	}
 
 	 /* Subtract the bias image from x. */
@@ -111,15 +107,13 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	 	for (i=0; i < scilines; i++) {
 	 		status = getSingleGroupLine (wf3->biac.name, i, &y);
 	 		if (status) {
-	 			sprintf(MsgText,"Could not read line %d from bias image.",
-	 					i+1);
-	 			trlerror(MsgText);
+	 			trlerror("Could not read line %d from bias image.", i+1);
 	 		}
 
 	 		/* No trimming required. */
 	 		status = sub1d(x, i, &y);
 	 		if (status) {
-	 			trlerror ("(biascorr) size mismatch.");
+	 			trlerror("(biascorr) size mismatch.");
 	 			return (status);
 	 		}
 	 	}
@@ -128,13 +122,11 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 
 		 if (x0 >= 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
 		 	if (wf3->verbose){
-		 		sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
-		 		trlmessage(MsgText);
+		 		trlmessage("Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
 		 	}
 		 		x0 += 60;
 		 	if (wf3->verbose){
-		 		sprintf(MsgText,"(%d,%d) to avoid virtual overscan in reference",x0,y0);
-		 		trlmessage(MsgText);
+		 		trlmessage("(%d,%d) to avoid virtual overscan in reference",x0,y0);
 		 	}
 		 } else { /*the subarray starts somewhere in A or C and might straddle the virtual overscan region */
 
@@ -146,8 +138,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 		 }
 
 		 if (wf3->verbose){
-	 	    sprintf(MsgText,"ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3->ccdamp,straddle,offsetx,offsety,wf3->ampx,wf3->ampy,x0,y0);
-	         trlmessage(MsgText);
+	 	    trlmessage("ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3->ccdamp,straddle,offsetx,offsety,wf3->ampx,wf3->ampy,x0,y0);
 	     }
 
 	 	/* Loop over all the lines in the science array, and
@@ -172,15 +163,13 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	 		 ** image.  */
 	 		status = getSingleGroupLine (wf3->biac.name, j, &y);
 	 		if (status) {
-	 			sprintf (MsgText,"Could not read line %d from biac image.",
-	 					j+1);
-	 			trlerror(MsgText);
+	 			trlerror("Could not read line %d from biac image.", j+1);
 	 		}
 
 	 		update = NO;
 
 		    if (trim1d (&y, x0, j, rx, avg, update, &z)) {
-				trlerror ("(ctebiascorr) reference file size mismatch.");
+				trlerror("(ctebiascorr) reference file size mismatch.");
 				return (status);
 		    }
 			if (straddle) {

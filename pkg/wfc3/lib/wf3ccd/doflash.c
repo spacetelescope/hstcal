@@ -138,9 +138,7 @@ float *meanflash    o: mean of post-flash image values subtracted
  
 	/* Check to see whether we need to do any processing at all...  */
 	if (wf3ccd->flashdur <= 0.) {
-	    sprintf(MsgText,
-		  "Post-flash exposure was 0 seconds. FLSHCORR not performed.");
-	    trlwarn(MsgText);
+	    trlwarn("Post-flash exposure was 0 seconds. FLSHCORR not performed.");
 	    addHistoryKw (x->globalhdr, MsgText);
 	    wf3ccd->flashcorr = IGNORED;
 	
@@ -151,9 +149,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	
 	/* Flag an aborted Post-Flash exposure in the trailer file comments. */
 	if (streq_ic(wf3ccd->flashstatus,"ABORTED")){
-	    sprintf (MsgText,
-	       "Post-flash STATUS was ABORTED. Post-flash may be compromised.");
-	    trlwarn (MsgText);
+	    trlwarn("Post-flash STATUS was ABORTED. Post-flash may be compromised.");
 	    /* Add this message to the image header as well... */
 	    addHistoryKw (x->globalhdr, MsgText);
 	}
@@ -164,9 +160,8 @@ float *meanflash    o: mean of post-flash image values subtracted
 		   wf3ccd->atodgain, wf3ccd->readnoise, gain, rn2);
     
     if (wf3ccd->verbose){
-     sprintf(MsgText,"**gain,flashdur** = ([%f,%f,%f,%f],%f)",gain[0],gain[1],gain[2],gain[3],wf3ccd->flashdur);
-     trlmessage(MsgText);
-    }        
+     trlmessage("**gain,flashdur** = ([%f,%f,%f,%f],%f)",gain[0],gain[1],gain[2],gain[3],wf3ccd->flashdur);
+    }
     
 	
 	/* Start with the actual post-flash subtraction now... */
@@ -179,10 +174,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	    return (status);	
 	
 	if (wf3ccd->verbose) {
-	    sprintf (MsgText,
-		     "Performing post-flash subtraction on chip %d in imset %d",
-		     wf3ccd->chip, extver);
-	    trlmessage(MsgText);
+	    trlmessage("Performing post-flash subtraction on chip %d in imset %d", wf3ccd->chip, extver);
 	}
 
 	/* Get the post-flash image data. */
@@ -205,15 +197,12 @@ float *meanflash    o: mean of post-flash image values subtracted
 	if (rx != 1 || ry != 1) {
 	    closeSingleGroupLine (&y);
 	    freeSingleGroupLine (&y);
-	    sprintf (MsgText,
-	        "FLASH image and input are not binned to the same pixel size!");
-	    trlerror (MsgText);
+	    trlerror("FLASH image and input are not binned to the same pixel size!");
 	    return (status = SIZE_MISMATCH);
 	}
 
 	if (wf3ccd->verbose){
-	    sprintf(MsgText,"Image has starting location of %d,%d in the reference image",x0,y0);
-	    trlmessage(MsgText);
+	    trlmessage("Image has starting location of %d,%d in the reference image",x0,y0);
 	}
 
 	/* AMPX,AMPY initialization, needed for the gain+flashdur step
@@ -236,8 +225,7 @@ float *meanflash    o: mean of post-flash image values subtracted
      if (!same_size){ 
         subarray=1;
         if (wf3ccd->verbose){
-	        sprintf(MsgText,"SUBARRAY FOUND, amp=%s",wf3ccd->ccdamp);
-            trlmessage(MsgText);
+	        trlmessage("SUBARRAY FOUND, amp=%s",wf3ccd->ccdamp);
         }
         
         /*now we need to figure out where the subarray starts and if it straddles the virtual overscan in the middle
@@ -253,14 +241,12 @@ float *meanflash    o: mean of post-flash image values subtracted
              
         if (x0 > 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
             if (wf3ccd->verbose){
-	            sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
-                trlmessage(MsgText);
-	        }            
+	            trlmessage("Subarray starts in B or D region, moved from (%d,%d) to ",x0,y0);
+	        }
                 x0 += 60;
             if (wf3ccd->verbose){
-	            sprintf(MsgText,"(%d,%d) to avoid virtual overscan in reference",x0,y0);
-                trlmessage(MsgText);
-	        }            
+	            trlmessage("(%d,%d) to avoid virtual overscan in reference",x0,y0);
+	        }
         } else { /*the subarray starts somewhere in A or C and might straddle the virtual overscan region */
          
             if ( (x0 + dimx) > 2072){
@@ -272,8 +258,7 @@ float *meanflash    o: mean of post-flash image values subtracted
     }
 	
     if (wf3ccd->verbose){
-	    sprintf(MsgText,"ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3ccd->ccdamp,straddle,offsetx,offsety,wf3ccd->ampx,wf3ccd->ampy,x0,y0);
-        trlmessage(MsgText);
+	    trlmessage("ccdamp=%s, straddle=%d, offset=(%d,%d),ampx,ampy=(%d,%d),x0,y0=(%d,%d)",wf3ccd->ccdamp,straddle,offsetx,offsety,wf3ccd->ampx,wf3ccd->ampy,x0,y0);
     }
     
 	initSingleGroupLine (&z);
@@ -298,7 +283,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	    update = NO;
         
 	    if (trim1d (&y, x0, j, rx, avg, update, &z)) {
-			trlerror ("(flshcorr)reference file size mismatch.");
+			trlerror("(flshcorr)reference file size mismatch.");
 			return (status);
 	    }
         

@@ -137,10 +137,9 @@ int FindLine (SingleGroup *x, SingleGroupLine *y,
         yzero = cshift[1] / ref_bin[1];
         if (xzero * ref_bin[0] != cshift[0] ||
                 yzero * ref_bin[1] != cshift[1]) {
-            trlwarn ("Subimage offset not divisible by bin size.");
+            trlwarn("Subimage offset not divisible by bin size.");
         }
-        sprintf(MsgText,"Subimage locations rx=%d, ry=%d, x0=%d, y0=%d",ratiox,ratioy,xzero,yzero);
-        trlmessage(MsgText);
+        trlmessage("Subimage locations rx=%d, ry=%d, x0=%d, y0=%d",ratiox,ratioy,xzero,yzero);
         *rx = ratiox;
         *ry = ratioy;
         *x0 = xzero;
@@ -246,7 +245,7 @@ int FindLineHdr (Hdr *scihdr, Hdr *refhdr, int dimx, int refx,
         yzero = cshift[1] / ref_bin[1];
         if (xzero * ref_bin[0] != cshift[0] ||
                 yzero * ref_bin[1] != cshift[1]) {
-            trlwarn ("Subimage offset not divisible by bin size.");
+            trlwarn("Subimage offset not divisible by bin size.");
         }
         *rx = ratiox;
         *ry = ratioy;
@@ -343,7 +342,7 @@ int FindBin (SingleGroup *x, SingleGroup *y, int *same_size,
         yzero = cshift[1] / ref_bin[1];
         if (xzero * ref_bin[0] != cshift[0] ||
                 yzero * ref_bin[1] != cshift[1]) {
-            trlwarn ("Subimage offset not divisible by bin size.");
+            trlwarn("Subimage offset not divisible by bin size.");
         }
         *rx = ratiox;
         *ry = ratioy;
@@ -438,7 +437,7 @@ int FindBinIR (SingleNicmosGroup *x, SingleNicmosGroup *y, int *same_size,
         yzero = cshift[1] / ref_bin[1];
         if (xzero * ref_bin[0] != cshift[0] ||
                 yzero * ref_bin[1] != cshift[1]) {
-            trlwarn ("Subimage offset not divisible by bin size.");
+            trlwarn("Subimage offset not divisible by bin size.");
         }
         *rx = ratiox;
         *ry = ratioy;

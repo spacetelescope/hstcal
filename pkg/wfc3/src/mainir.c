@@ -34,7 +34,6 @@ static void printHelp(void)
 
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-struct TrlBuf trlbuf = { 0 };
 
 /* This is the main module for WF3IR.  It gets the input and output
    file names, calibration switches, and flags, and then calls WF3ir.
@@ -229,18 +228,15 @@ int main (int argc, char **argv) {
 
 	        if (MkName (input, isuffix, osuffix, "", output, CHAR_LINE_LENGTH)) {
 		        WhichError (status);
-		        sprintf (MsgText, "Skipping %s", input);
-		        trlmessage (MsgText);
+		        trlmessage("Skipping %s", input);
 		        continue;
 	        }
         }
 
 	    /* Calibrate the current input file. */
-	    if (WF3ir (input, output, &ir_sw, &refnames, printtime, verbose,
-		       0.0, 0.0, 0)){
-		sprintf (MsgText, "Error processing %s.", input);
-		trlerror (MsgText);
-		WhichError (status);
+	    if (WF3ir (input, output, &ir_sw, &refnames, printtime, verbose, 0.0, 0.0, 0)){
+			trlerror("Error processing %s.", input);
+			WhichError (status);
 	    }
 	}
 

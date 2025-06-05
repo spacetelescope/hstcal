@@ -96,9 +96,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* Apply pixel-to-pixel flat, if set to PERFORM */
 	if (wf32d->pfltcorr == PERFORM) {
 	    if (divFlat (x, wf32d->pflt.name, wf32d, applygain)) {
-		sprintf (MsgText, "Problem applying PFLTFILE %s... ",
-			 wf32d->pflt.name);
-		trlerror(MsgText);
+		trlerror("Problem applying PFLTFILE %s... ", wf32d->pflt.name);
 		return(status);
 	    }
 	    /* Turn off applygain so that it doesn't get applied again */
@@ -108,9 +106,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* Apply delta flat, if set to PERFORM */
 	if (wf32d->dfltcorr == PERFORM) {
 	    if (divFlat (x, wf32d->dflt.name, wf32d, applygain)) {
-		sprintf (MsgText, "Problem applying DFLTFILE %s... ",
-			 wf32d->dflt.name);
-		trlerror(MsgText);
+		trlerror("Problem applying DFLTFILE %s... ", wf32d->dflt.name);
 		return (status);
 	    }
 	    /* Turn off applygain so that it doesn't get applied again */
@@ -122,8 +118,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* low-order flat */
 	if (wf32d->lfltcorr == PERFORM) {
 	    if (wf32d->verbose) {
-		sprintf(MsgText, "Reading in LFLAT file...");
-		trlmessage (MsgText);
+		trlmessage("Reading in LFLAT file...");
 	    }
 
 	    /* Compute correct extension version number to extract from
@@ -149,9 +144,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    ** a straight division of the two images. */
 	    if (same_size) {
 		if (divFlat (x, wf32d->lflt.name, wf32d, applygain)) {
-		    sprintf (MsgText, "Problem applying LFLTFILE %s... ",
-			     wf32d->lflt.name);
-		    trlerror(MsgText);
+		    trlerror("Problem applying LFLTFILE %s... ", wf32d->lflt.name);
 		    return (status);
 		}
 
@@ -167,15 +160,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    ** non-optimal and we're not going to allow them to be used until
 	    ** they're improved. So put in a temporary stub here that forces
 	    ** a return with a warning if the L-flat is binned. */
-	    sprintf (MsgText, "LFLTFILE %s size does not match science data.",
-		     wf32d->lflt.name);
-	    trlerror (MsgText);
-	    sprintf (MsgText, 
-	     "LFLTFILE interpolation methods are not available at this time.");
-	    trlerror (MsgText);
-	    sprintf (MsgText,
-	     "Please use an LFLTFILE that matches size of science image.");
-	    trlerror (MsgText);
+	    trlerror("LFLTFILE %s size does not match science data.", wf32d->lflt.name);
+	    trlerror("LFLTFILE interpolation methods are not available at this time.");
+	    trlerror("Please use an LFLTFILE that matches size of science image.");
 	    closeSingleGroupLine (&w);
 	    freeSingleGroupLine (&w);
 	    return (status = SIZE_MISMATCH);
@@ -186,13 +173,13 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* Input file section */
 	    initWF3sect (&lfsect);
 	    if (allocWF3sect (&lfsect, w.sci.tot_nx, SECTLINES) ) {
-		trlerror ("(doFlat) Out of memory. ");
+		trlerror("(doFlat) Out of memory. ");
 		return (status = OUT_OF_MEMORY);
 	    }
 	    /* Output (expanded) file section.  */
 	    initWF3sect (&elfsect);
 	    if (allocWF3sect (&elfsect, w.sci.tot_nx * rx, SECTLINES * ry) ){
-		trlerror ("(doFlat) Out of memory. ");
+		trlerror("(doFlat) Out of memory. ");
 		return (status = OUT_OF_MEMORY);
 	    }
 
@@ -301,18 +288,14 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	if (FindLine (x, &y, &ysame_size, &y_rx, &y_ry, &y_x0, &y_y0))
 	    return (status);
 	if (wf32d->verbose) {
-	    sprintf (MsgText,"ratio of flat/input = %d,%d offset by %d,%d",
-		     y_rx,y_ry,y_x0,y_y0);
-	    trlmessage(MsgText);
+	    trlmessage("ratio of flat/input = %d,%d offset by %d,%d", y_rx,y_ry,y_x0,y_y0);
 	}
 
 	/* Return with error if reference data not binned same as input */
 	if (y_rx != 1 || y_ry != 1) {
 	    closeSingleGroupLine (&y);
 	    freeSingleGroupLine (&y);
-	    sprintf (MsgText,
-		"FLAT image and input are not binned to the same pixel size!");
-	    trlerror (MsgText);
+	    trlerror("FLAT image and input are not binned to the same pixel size!");
 	    return (status = SIZE_MISMATCH);
 	}
 

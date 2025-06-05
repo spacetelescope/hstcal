@@ -27,29 +27,29 @@ int CreateEmptyChip(WF3Info *wf3, SingleGroup *full){
 
   if (full->group_num == 1){
       if (PutKeyDbl(&full->sci.hdr, "LTV2", 0.0, "offset in X to light start")) {
-        trlmessage("Error putting LTV1 keyword in header");
+        trlerror("Error putting LTV1 keyword in header");
         return (status=HEADER_PROBLEM);
       }
  } else {
      if (PutKeyDbl(&full->sci.hdr, "LTV2", 19.0, "offset in X to light start")) {
-       trlmessage("Error putting LTV1 keyword in header");
+       trlerror("Error putting LTV1 keyword in header");
        return (status=HEADER_PROBLEM);
      }
  }
   if (PutKeyDbl(&full->sci.hdr, "LTV1", 25.0, "offset in X to light start")) {
-    trlmessage("Error putting LTV1 keyword in header");
+    trlerror("Error putting LTV1 keyword in header");
     return (status=HEADER_PROBLEM);
   }
   if (PutKeyDbl(&full->sci.hdr, "LTM1_1", 1.0, "reciprocal of sampling rate in X")) {
-    trlmessage("Error putting LTV2 keyword in header");
+    trlerror("Error putting LTV2 keyword in header");
     return (status=HEADER_PROBLEM);
   }
   if (PutKeyDbl(&full->sci.hdr, "LTM2_2", 1.0, "reciprocal of sampling rate in Y")) {
-    trlmessage("Error putting LTV2 keyword in header");
+    trlerror("Error putting LTV2 keyword in header");
     return (status=HEADER_PROBLEM);
   }
   if (PutKeyStr(&full->sci.hdr, "CCDAMP", wf3->ccdamp, "CCD amplifier")){
-    trlmessage("Error updating CCDAMP keyword in image header");
+    trlerror("Error updating CCDAMP keyword in image header");
     return (status=HEADER_PROBLEM);
   }
 
@@ -87,14 +87,12 @@ int Sub2Full(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int real_dq, int f
   */
 
   if (!wf3->subarray){
-    sprintf(MsgText,"Image is not a subarray, check image...");
-    trlmessage(MsgText);
+    trlerror("Image is not a subarray, check image...");
     return(status = HEADER_PROBLEM);
   }
 
   if (wf3->detector != CCD_DETECTOR){
-    sprintf(MsgText,"Sub2Full only valid for UVIS subarrays");
-    trlmessage(MsgText);
+    trlwarn("Sub2Full only valid for UVIS subarrays");
   }
 
   /* Find the subarray location*/
@@ -107,8 +105,7 @@ int Sub2Full(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int real_dq, int f
   scix=sci_corner[0] - ref_corner[0] ;
   sciy=sci_corner[1] - ref_corner[1] ;
 
-  sprintf(MsgText,"(subtools) Sci corner at x0,y0 = %i, %i", scix,sciy);
-  trlmessage(MsgText);
+  trlmessage("(subtools) Sci corner at x0,y0 = %i, %i", scix,sciy);
 
   /*Zero out the large arrays*/
   for(row=0; row < full->sci.data.nx; row++){
@@ -120,11 +117,9 @@ int Sub2Full(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int real_dq, int f
 
   if(virtual){
       if (scix >= 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
-          sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",scix,sciy);
-          trlmessage(MsgText);
+          trlmessage("Subarray starts in B or D region, moved from (%d,%d) to ",scix,sciy);
           scix += 60;
-          sprintf(MsgText,"(%d,%d) to avoid virtual overscan",scix,sciy);
-          trlmessage(MsgText);
+          trlmessage("(%d,%d) to avoid virtual overscan",scix,sciy);
       }
   }
 
@@ -163,14 +158,12 @@ int Full2Sub(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int dq, int sci, i
     sci boolean says to copy the science pixels*/
 
   if (!wf3->subarray){
-    sprintf(MsgText,"Original image is not a subarray, check image...");
-    trlmessage(MsgText);
+    trlerror("Original image is not a subarray, check image...");
     return(status = HEADER_PROBLEM);
   }
 
   if (wf3->detector != CCD_DETECTOR){
-    sprintf(MsgText,"Full2Sub only valid for UVIS subarrays");
-    trlmessage(MsgText);
+    trlwarn("Full2Sub only valid for UVIS subarrays");
   }
 
   /* Find the subarray location, visible corner*/
@@ -183,16 +176,13 @@ int Full2Sub(WF3Info *wf3, SingleGroup *x, SingleGroup *full, int dq, int sci, i
   scix=sci_corner[0] - ref_corner[0];
   sciy=sci_corner[1] - ref_corner[1];
 
-  sprintf(MsgText,"(subtools) Sci corner at x0,y0 = %i, %i", scix,sciy);
-  trlmessage(MsgText);
+  trlmessage("(subtools) Sci corner at x0,y0 = %i, %i", scix,sciy);
 
   if (virtual){
       if (scix >= 2072){ /*image starts in B or D regions and we can just shift the starting pixel*/
-          sprintf(MsgText,"Subarray starts in B or D region, moved from (%d,%d) to ",scix,sciy);
-          trlmessage(MsgText);
+          trlmessage("Subarray starts in B or D region, moved from (%d,%d) to ",scix,sciy);
           scix += 60;
-          sprintf(MsgText,"(%d,%d) to avoid virtual overscan",scix,sciy);
-          trlmessage(MsgText);
+          trlmessage("(%d,%d) to avoid virtual overscan",scix,sciy);
       }
   }
   /* Copy the data from the sub-array to the full-array */

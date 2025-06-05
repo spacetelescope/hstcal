@@ -256,8 +256,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     */
     sat = wf3->saturate;
     if ((wf3->detector != IR_DETECTOR) && (wf3->scalar_satflag == True)) {
-        sprintf (MsgText, "Full-well saturation flagging being applied during doDQI using a single threshold value.");
-        trlmessage (MsgText);
+        trlmessage("Full-well saturation flagging being applied during doDQI using a single threshold value.");
         for (j = 0;  j < dimy;  j++) {
             for (i = 0;  i < dimx;  i++) {
                 // Flag full-well or a-to-d saturated pixels with 256 bit
@@ -412,7 +411,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     if (!in_place) {
         allocShortHdrData (&ydq, snpix[0], snpix[1], True);
         if (hstio_err()) {
-            trlerror ("doDQI couldn't allocate data quality array.");
+            trlerror("doDQI couldn't allocate data quality array.");
             return (status = OUT_OF_MEMORY);
         }
         for (j=0; j < snpix[1]; j++)
@@ -425,7 +424,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     for (row = 1;  row <= tabinfo.nrows;  row++) {
 
         if (ReadBpixTab (&tabinfo, row, &tabrow)) {
-            trlerror ("Error reading BPIXTAB.");
+            trlerror("Error reading BPIXTAB.");
             return (status);
         }
 
@@ -473,9 +472,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
         return (status);
 
     if (nrows == 0) {
-        sprintf (MsgText, "No rows from BPIXTAB applied to DQ array.");
-        trlwarn (MsgText);
-
+        trlwarn("No rows from BPIXTAB applied to DQ array.");
     }
 
     /* Copy scratch contents into input DQ array */
@@ -540,7 +537,7 @@ int OpenBpixTab (char *tname, TblInfo *tabinfo) {
             tabinfo->cp_ccdchip == 0 ||
             tabinfo->cp_flag == 0) {
         c_tbtclo (tabinfo->tp);
-        trlerror ("Column not found in BPIXTAB.");
+        trlerror("Column not found in BPIXTAB.");
         return (status = COLUMN_NOT_FOUND);
     }
 
@@ -548,13 +545,13 @@ int OpenBpixTab (char *tname, TblInfo *tabinfo) {
     tabinfo->axlen1 = c_tbhgti (tabinfo->tp, "SIZAXIS1");
     if (c_iraferr ()) {
         c_tbtclo (tabinfo->tp);
-        trlerror ("Couldn't get SIZAXIS1 from BPIXTAB header.");
+        trlerror("Couldn't get SIZAXIS1 from BPIXTAB header.");
         return (status = TABLE_ERROR);
     }
     tabinfo->axlen2 = c_tbhgti (tabinfo->tp, "SIZAXIS2");
     if (c_iraferr ()) {
         c_tbtclo (tabinfo->tp);
-        trlerror ("Couldn't get SIZAXIS2 from BPIXTAB header.");
+        trlerror("Couldn't get SIZAXIS2 from BPIXTAB header.");
         return (status = TABLE_ERROR);
     }
 
@@ -610,16 +607,12 @@ int ReadBpixTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
         return (status = TABLE_ERROR);
 
     if (tabrow->axis !=1 && tabrow->axis != 2) {
-        sprintf (MsgText, "Axis = %d in BPIXTAB, but it must be 1 or 2.",
-                 tabrow->axis);
-        trlerror (MsgText);
+        trlerror("Axis = %d in BPIXTAB, but it must be 1 or 2.", tabrow->axis);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }
     if (tabrow->length <= 0) {
-        sprintf (MsgText,"Length = %d in BPIXTAB, but it must be positive.",
-                 tabrow->length);
-        trlerror (MsgText);
+        trlerror("Length = %d in BPIXTAB, but it must be positive.", tabrow->length);
         c_tbtclo (tabinfo->tp);
         return (status = TABLE_ERROR);
     }

@@ -33,7 +33,7 @@ int maxch          i: maximum size of output
 	fits_len = strlen (fitsext);
 
 	if (i_len > maxch) {
-	    trlerror ("(MkName) Input name is too long.");
+	    trlerror("(MkName) Input name is too long.");
 	    return (status = INVALID_FILENAME);
 	}
 
