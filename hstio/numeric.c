@@ -102,8 +102,8 @@ extern "C" {
      const int minLong = INT_MIN;
      const int maxLong = INT_MAX;
 # else
-     const int minLong = LONG_MIN;
-     const int maxLong = LONG_MAX;
+     const long minLong = LONG_MIN;
+     const long maxLong = LONG_MAX;
 # endif
 const float minFloat = FLT_MIN;
 const float maxFloat = FLT_MAX;
