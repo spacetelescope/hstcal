@@ -161,9 +161,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    ** they're improved. So put in a temporary stub here that forces
 	    ** a return with a warning if the L-flat is binned. */
 	    trlerror("LFLTFILE %s size does not match science data.", wf32d->lflt.name);
-	    trlerror(
-	     "LFLTFILE interpolation methods are not available at this time.");
-	    trlerror ("Please use an LFLTFILE that matches size of science image.");
+	    trlerror("LFLTFILE interpolation methods are not available at this time.");
+	    trlerror("Please use an LFLTFILE that matches size of science image.");
 	    closeSingleGroupLine (&w);
 	    freeSingleGroupLine (&w);
 	    return (status = SIZE_MISMATCH);

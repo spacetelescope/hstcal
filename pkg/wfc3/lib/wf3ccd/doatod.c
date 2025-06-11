@@ -117,8 +117,7 @@ SingleGroup *x	io: image to be calibrated; written to in-place
 	    return (status);
 
 	if (wf3->ncombine > 1) {
-	    trlerror
-		("NCOMBINE is already > 1 before ATODCORR has been performed.");
+	    trlerror("NCOMBINE is already > 1 before ATODCORR has been performed.");
 	    return (status = 1010);
 	}
 
