@@ -232,8 +232,7 @@ int qstats (SingleNicmosGroup *in, int x1, int x2, int y1, int y2,
 		if (num_bad_err == area) {
 		    trlwarn("No ERR values > 0.");
 		} else {
-		    trlwarn(
-			"All output pixels either flagged as bad or ERR <= 0.");
+		    trlwarn("All output pixels either flagged as bad or ERR <= 0.");
 		}
 	    } else {
 		trlwarn("All output pixels flagged as bad.");
