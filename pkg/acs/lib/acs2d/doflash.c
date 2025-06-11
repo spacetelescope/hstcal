@@ -82,6 +82,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     int multk1d (SingleGroupLine *a, float k);
     int streq_ic (char *, char *);
+    void WhichError (int);
 
     /* Check to see whether we need to do any processing at all */
     if (acs2d->flashdur <= 0.) {
