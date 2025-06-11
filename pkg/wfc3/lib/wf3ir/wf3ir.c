@@ -157,7 +157,7 @@ int WF3ir (char *raw_file, char *flt_file, IR_Switch *ir_sw,
 	    freeHdr (&phdr);
 	    return (status);
 	}
-	
+
 	/* Free the primary header. */
 	freeHdr (&phdr);
 
@@ -281,7 +281,7 @@ static void mkNames (char *rawfile, char *imafile, char *fltfile) {
 	    inroot[rlen-4] = '\0';
 	    rlen = strlen (inroot);
 	}
-	
+
 	/* Add any missing pieces to the input raw file name */
 	if (israw && !ext1 && !ext2) {
 	    strcat (rawfile, fitsext1);

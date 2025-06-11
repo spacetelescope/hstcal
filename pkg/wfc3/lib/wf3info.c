@@ -11,7 +11,7 @@
 	The values set here are NOT default values, just initialization...
    Warren Hack, 1998 June 10:
    	Initial ACS version.
-	
+
    Howard Bushouse, 2000 Aug 24:
 	Initial WFC3 version.
 
@@ -27,7 +27,7 @@
 	'graphtab' and 'comptab' for new PHOTCORR scheme. Upgraded to
 	use individual bias values for each CCD amp.
 
-   H.Bushouse, 2002 Jan 28: 
+   H.Bushouse, 2002 Jan 28:
 	Added biassectc, biassectd, and increased dimesions of trimx
 	to accomodate extra serial virtual overscan regions in WFC3
 	UVIS CCD's.
@@ -44,7 +44,7 @@
 	Added initialization of wf3->blev array (following CALACS).
 
    H.Bushouse, 2009 Jan 08:
-	Added initialization of new 'type' parameter in InitRefImg and 
+	Added initialization of new 'type' parameter in InitRefImg and
 	InitRefTab. Also added new CheckImgType, CheckTabType, CheckFilter,
 	CheckDetector, and CheckGain routines.
 
@@ -58,10 +58,10 @@
    H.Bushouse, 2011 Sep 7:
 	Modified WF3Init to initialize new phot tab instead of graph and
 	comp tabs.
-    
+
   M. Sosey 2013 December 4
     Added fluxcorr switches for new uvis photometry scaling of chips
-    
+
   M. sosey 2014
     Added pctecorr switches for new CTE correction
 
@@ -69,7 +69,7 @@
     Added chip keyowrds to fully support all phot keys in all headers
 
   M. De La Pena 2020 March:
-    Added reading of PCTERNOI keyword from the raw primary header for 
+    Added reading of PCTERNOI keyword from the raw primary header for
     possible use in the CTE reduction
 
   M. De La Pena 2022 February:
@@ -88,7 +88,7 @@ void WF3Init (WF3Info *wf3) {
 
 	void InitRefTab (RefTab *tab);
 	void InitRefImg (RefImage *img);
-	
+
 	/* Assign default values. */
 
 	wf3->input[0] = '\0';
@@ -96,7 +96,7 @@ void WF3Init (WF3Info *wf3) {
 	wf3->rootname[0] = '\0';
 	wf3->printtime = 0;
 	wf3->verbose = 0;
-	
+
 	wf3->det[0] = '\0';
 	wf3->aperture[0] = '\0';
 	wf3->filter[0]  = '\0';
@@ -204,7 +204,7 @@ void WF3Init (WF3Info *wf3) {
 	InitRefImg (&(wf3->lflt));
 	InitRefImg (&(wf3->shad));
 	InitRefTab (&(wf3->phot));
-	
+
 	/* Initialize reference images and tables for WF3IR */
 	InitRefImg (&(wf3->nlin));
 }
@@ -235,7 +235,7 @@ void InitRefImg (RefImage *img) {
 
 
 /* This routine gets the name of a reference image, checks whether it
-   exists, and gets filetype, pedigree and descrip if they are present.  The 
+   exists, and gets filetype, pedigree and descrip if they are present.  The
    image name will be null if the keyword is not present in the header; this is
    not an error.
 */
@@ -268,7 +268,7 @@ int GetImageRef (RefFileInfo *refnames, Hdr *phdr,
 
 
 /* This routine gets the name of a reference table, checks whether it
-   exists, and gets filetype, pedigree and descrip if they are present.  The 
+   exists, and gets filetype, pedigree and descrip if they are present.  The
    table name will be null if the keyword is not present in the header; this is
    not an error.
 */
@@ -281,7 +281,7 @@ int GetTabRef (RefFileInfo *refnames, Hdr *phdr,
 	int GetRefName (RefFileInfo *, Hdr *, char *, char *);
 	int TabPedigree (RefTab *);
 
-	/* Get the reference table name. */    
+	/* Get the reference table name. */
 	if (GetRefName (refnames, phdr, keyword, table->name))
 	    return (status);
 
@@ -309,7 +309,9 @@ void MissingFile (char *keyword, char *filename, int *missing) {
 void CheckImgType (RefImage *image, char *filetype, char *keyword, int *badtype) {
 
 	if (strncmp (image->type, filetype, strlen(filetype)) != 0) {
-	    trlerror("%s FILETYPE='%s' is invalid for %s", image->name, image->type, keyword);
+	    trlerror( "%s FILETYPE='%s' is invalid for %s",
+		     image->name, image->type, keyword);
+
 	    (*badtype)++;
 	}
 }
@@ -318,7 +320,9 @@ void CheckImgType (RefImage *image, char *filetype, char *keyword, int *badtype)
 void CheckTabType (RefTab *table, char *filetype, char *keyword, int *badtype) {
 
 	if (strncmp (table->type, filetype, strlen(filetype)) != 0) {
-	    trlerror("%s FILETYPE='%s' is invalid for %s", table->name, table->type, keyword);
+	    trlerror( "%s FILETYPE='%s' is invalid for %s",
+		     table->name, table->type, keyword);
+
 	    (*badtype)++;
 	}
 }
