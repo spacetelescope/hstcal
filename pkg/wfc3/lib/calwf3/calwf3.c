@@ -685,8 +685,7 @@ int CheckCorr (AsnInfo *asn, CALWF3Info *wf3hdr) {
 
 	if ((asn->crcorr  != wf3hdr->sci_crcorr) ||
 			(asn->rptcorr != wf3hdr->sci_rptcorr)) {
-		trlerror
-			("CRCORR and/or RPTCORR values not consistent with ASN table!");
+		trlerror("CRCORR and/or RPTCORR values not consistent with ASN table!");
 		return (status = ERROR_RETURN);
 	}
 	return (status);
