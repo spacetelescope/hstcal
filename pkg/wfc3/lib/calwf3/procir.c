@@ -135,13 +135,11 @@ int ProcessIR (AsnInfo *asn, CALWF3Info *wf3hdr, int printtime) {
                         return (status);
 
                     if (asn->verbose) {
-                        trlmessage 
-                            ("CALWF3: Got reference file information");
+                        trlmessage("CALWF3: Got reference file information");
                     }
 
                     if (sci_sw.rptcorr == PERFORM && wf3hdr->nimages < 2) {
-                        trlmessage
-                            ("RPTCORR will be omitted because there's only one image.");
+                        trlmessage("RPTCORR will be omitted because there's only one image.");
                         sci_sw.rptcorr = OMIT;
                     }
 
