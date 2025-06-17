@@ -121,7 +121,7 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 	else
 	    value_s = "unknown";
 
-	trlmessage ("%s %s", buf, value_s);
+	trlmessage("%s %s", buf, value_s);
 }
 
 /* Print a message at the beginning of an imset or spectral order. */
