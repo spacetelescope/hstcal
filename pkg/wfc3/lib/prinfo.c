@@ -101,25 +101,23 @@ int value      i: value of switch (OMIT, PERFORM, etc)
 
 	void UpperAll (char *, char *, int);
 
-	
 	UpperAll (keyword, buf, SCRATCH_SIZE);
 
-	sprintf (MsgText,"%s", buf);
-		
+	const char *value_s = NULL;
 	if (value == OMIT)
-	    strcat (MsgText," OMIT");
+	    value_s = "OMIT";
 	else if (value == PERFORM)
-	    strcat (MsgText, " PERFORM");
+	    value_s = "PERFORM";
 	else if (value == DUMMY)
-	    strcat (MsgText, " SKIPPED");
+	    value_s = "SKIPPED";
 	else if (value == SKIPPED)
-	    strcat (MsgText, " SKIPPED");
+	    value_s = "SKIPPED";
 	else if (value == COMPLETE)
-	    strcat (MsgText, " COMPLETE");
+	    value_s = "COMPLETE";
 	else
-	    strcat (MsgText, " unknown");
-		
-	trlmessage("%s", MsgText);
+	    value_s = "unknown";
+
+	trlmessage("%s %s", buf, value_s);
 }
 
 /* Print a message at the beginning of an imset or spectral order. */
