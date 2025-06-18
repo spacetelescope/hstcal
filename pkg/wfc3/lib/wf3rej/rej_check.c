@@ -20,14 +20,14 @@ static int getampxy (Hdr *, int, int, char *, int, int, int *, int *);
   ------------
   Open and check input images/masks to have consistent dimensions and number
   of groups.
-  
+
   Date      Author          Description
   ----      ------          -----------
   22-Sep-98 W. Hack         Initial version using multiamp noise,gain
   13-Sep-99 W.J. Hack       Simplified logic to only read in values from
                             first image where possible.
   20-Oct-99 W.J. Hack       getACSnsegn function revised to use 'for' loop
-                            to read keywords.  
+                            to read keywords.
   29-Aug-00 H.A. Bushouse   Revised for WFC3 use.
   24-Jun-09 H. Bushouse     Fixed ampx/ampy values in getampxy for IR subarrays.
   30-Aug-12 M. Sosey        Checks the value of EXPFLAG in all the input image and if
@@ -73,13 +73,13 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     expflag[0]='\0';
     chip = 0;
     detector = UNKNOWN_DETECTOR;
-    
+
     /* loop over all input files */
     for (k = 0; k < nimgs; ++k) {
 
         /* read the next input image name in the template list */
         c_imtgetim (tpin, fdata, CHAR_FNAME_LENGTH);
-        
+
         /* open the primary header */
         ip = openInputImage (fdata, "", 0);
         if (hstio_err()) {
@@ -98,14 +98,14 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
         trlkwerr ("EXPFLAG",fdata);
         return (status=  KEYWORD_MISSING);
     }
-    
+
     /* compare the expflag values */
     if (strcmp(expflag,expflagFinal) != 0){ /*they are not the same value*/
         if(strcmp(expflagFinal,mixed) !=0) {/*the final keyword is not already mixed*/
             strcpy(expflagFinal,mixed);
         }
     }
-    
+
 
 	/* Read the CCDAMP keyword from all images */
         if (GetKeyStr (&prihdr, "CCDAMP", NO_DEFAULT, "", ccdamp, NAMPS)) {
@@ -113,7 +113,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
             return(status = KEYWORD_MISSING);
         }
 
-        /* The following keywords are read from first image only */        
+        /* The following keywords are read from first image only */
         if (k == 0) {
 
 	    n = extver;
@@ -154,9 +154,9 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
             if (checkgn (gn, fdata)) {
                 return (status);
             }
-        
+
         } else {
-        
+
 	    /* These checks are performed for all images after the first */
 
             /* Make sure each image has the same value of CCDAMP */
@@ -165,19 +165,19 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
                 return (status = INVALID_VALUE);
             }
 
-            /* Determine which extension corresponds to desired chip 
+            /* Determine which extension corresponds to desired chip
             ** for the remainder of the images */
             if (DetCCDChip(fdata, chip, ngrps, &n) ) {
                 return (status);
             }
-                
+
         }
-        
+
         grp[k] = n;
         ipsci[k] = openInputImage (fdata, "SCI", n);
         ipdq[k]  = openInputImage (fdata, "DQ",  n);
 
-        /* Use the first image's attributes to compare with the rest of 
+        /* Use the first image's attributes to compare with the rest of
         ** the files */
         if (k == 0) {
             *dim_x = getNaxis1(ipsci[k]);
@@ -189,11 +189,11 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
             /* Which CHIP corresponds to the input extension?
             ** This chip ID will be used for the remainder of
-            ** the images in the list 
-            */			
+            ** the images in the list
+            */
             if (GetKeyInt (&scihdr, "CCDCHIP", USE_DEFAULT, 1, &chip))
                 chip = 1;
-            
+
             /* Now we need to read in CCDTAB file to get AMP regions */
             if (getampxy (&prihdr, detector, chip, ccdamp, *dim_x, *dim_y,
 			  &ampx, &ampy) )
@@ -212,7 +212,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
         closeImage (ip);
         freeHdr (&prihdr);
 
-    } /* End loop over k (images in input list) */	
+    } /* End loop over k (images in input list) */
 
     /* Save noise and gain values for use in rest of WF3REJ */
     for (i = 0; i < NAMPS; i++) {
@@ -232,7 +232,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     noise->chip = chip;
     gain->chip  = chip;
     noise->detector = detector;
-    gain->detector  = detector;						
+    gain->detector  = detector;
 
     return (status);
 }
@@ -241,15 +241,15 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 static int getnsegn (Hdr *hdr, char *fdata, multiamp *ron, multiamp *gn) {
 
     extern int status;
-    
+
     char   *nsekeyw[NAMPS] = { "READNSEA", "READNSEB", "READNSEC", "READNSED"};
     char   *gnkeyw[NAMPS] = { "ATODGNA", "ATODGNB", "ATODGNC", "ATODGND"};
     int    i;
-    
+
     int    GetKeyFlt (Hdr *, char *, int, float, float *);
 
     /* Get the readout noise values from the SCI header */
-    for (i = 0; i < NAMPS; i++){    
+    for (i = 0; i < NAMPS; i++){
         if (GetKeyFlt (hdr, nsekeyw[i], USE_DEFAULT, 0., &ron->val[i]) != 0) {
             trlkwerr (nsekeyw[i], fdata);
             return (status = KEYWORD_MISSING);
@@ -257,7 +257,7 @@ static int getnsegn (Hdr *hdr, char *fdata, multiamp *ron, multiamp *gn) {
     }
 
     /* Get the A-to-D gain values from the SCI header*/
-    for (i = 0; i < NAMPS; i++){    
+    for (i = 0; i < NAMPS; i++){
         if (GetKeyFlt (hdr, gnkeyw[i], USE_DEFAULT, 0., &gn->val[i]) != 0) {
             trlkwerr (gnkeyw[i], fdata);
             return (status = KEYWORD_MISSING);
@@ -270,14 +270,14 @@ static int getnsegn (Hdr *hdr, char *fdata, multiamp *ron, multiamp *gn) {
 static int checkgn (multiamp gn, char *fdata) {
 
     extern int status;
-    
+
     int i;
     int ampset = 0;
-    
+
     for (i = 0; i < NAMPS; i++) {
         if (gn.val[i] > 0.) ampset++;
-    }   
-    
+    }
+
     if (ampset == 0) {
         trlerror("All ATODGN values in file %s are 0.\n", fdata);
         return (status = INVALID_VALUE);
@@ -300,7 +300,7 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
     int GetCCDTab (WF3Info *, int, int);
 
     WF3Init (&wf3rej);
-    
+
     tabname[0] = '\0';
 
     /* Copy input values into wf3 structure */
@@ -308,9 +308,9 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
     wf3rej.chip = chip;
     strcpy(wf3rej.ccdamp, ccdamp);
 
-    /* We need to read in CCDGAIN, CCDOFST[A-D], and BINAXIS[1,2] 
-    ** from hdr as selection criteria for row from CCDTAB. 
-    ** Get keyword values from primary header using same function 
+    /* We need to read in CCDGAIN, CCDOFST[A-D], and BINAXIS[1,2]
+    ** from hdr as selection criteria for row from CCDTAB.
+    ** Get keyword values from primary header using same function
     ** used in WF3CCD.
     */
     if (GetKeys (&wf3rej, hdr)) {

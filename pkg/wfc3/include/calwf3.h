@@ -56,7 +56,7 @@ typedef struct {
 	int sci_rptcorr;	/* combine repeatobs science data? */
 	int sci_dthcorr;	/* dither combine science data?    */
 
-} WF3Info;
+} CALWF3Info;
 
 
 #endif /* INCL_CALWF3_H */

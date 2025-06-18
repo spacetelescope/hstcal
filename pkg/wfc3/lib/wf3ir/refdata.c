@@ -42,7 +42,7 @@ extern int status;
 
 /* GETNLINDATA: Read linearity coefficients and their associated
 ** data quality flags and node values from the NLINFILE reference file.
-** The coefficient, DQ, and node arrays are returned in a single NlinData 
+** The coefficient, DQ, and node arrays are returned in a single NlinData
 ** structure. The super zero read SCI and ERR arrays are also read and loaded
 ** into the NlinData structure. Also check to make sure that this reference
 ** file is the appropriate one to use with the science data being processed.
@@ -122,7 +122,7 @@ int getNlinData (WF3Info *wf3, NlinData *nlin) {
 	}
 
 	/* Get the coefficient images from the NLINFILE */
-	for (i=0; i < nlin->ncoeff; i++) { 
+	for (i=0; i < nlin->ncoeff; i++) {
 	     initFloatHdrData (&nlin->coeff[i]);
 	     if (getFloatHD (wf3->nlin.name, "COEF", i+1, &nlin->coeff[i]))
 		 return (status=1);
@@ -225,7 +225,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		    return (status);
 	    }
 	}
-		
+
 	/* Load the low-order flat */
 	if (wf3->lfltcorr == PERFORM) {
 
@@ -245,7 +245,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 		    trlerror("Can't allocate memory for FLAT image");
 		    return (status = 1);
 		}
-		
+
 		/* Resample lflt into dflt by linear interpolation */
 		if ( (status = unbin2d_ir (&lflt, &dflt)))
 		    return (status);
@@ -391,13 +391,13 @@ int getDarkImage (WF3Info *wf3, SingleNicmosGroup *dark1, int ngroup) {
 
 	/* Function definitions */
 	int  getRefImage (RefImage *, int, SingleNicmosGroup *);
-	void dark_interp (SingleNicmosGroup *, SingleNicmosGroup *, 
+	void dark_interp (SingleNicmosGroup *, SingleNicmosGroup *,
 			  double, double, double);
 	void dark_extrap (SingleNicmosGroup *, double, double);
 
     etime_lower=0.0f;
     etime_upper=0.0f;
-    
+
 	/* Initialize frame interpolation information */
 	wf3->DarkType   = 0;
 	wf3->darkframe1 = 0;
@@ -488,7 +488,7 @@ int getDarkImage (WF3Info *wf3, SingleNicmosGroup *dark1, int ngroup) {
 
 /* DARK_INTERP: Do a linear interpolation of two dark images */
 
-void dark_interp (SingleNicmosGroup *d1, SingleNicmosGroup *d2, 
+void dark_interp (SingleNicmosGroup *d1, SingleNicmosGroup *d2,
 	     double etime_d1, double etime_d2, double exptime) {
 
 /* Arguments:
@@ -705,7 +705,7 @@ static int strtor (char *, float []);
   Description:
   ------------
   Reads CL parameters and does necessary checkings
-  
+
   Input parameters from crrej reference table:
   -------------------------------------------
   Col. Name     Parameter
@@ -724,12 +724,12 @@ static int strtor (char *, float []);
 
   Date          Author          Description
   ----          ------          -----------
-  24-Sep-1998   W.J. Hack       Initial ACS Version	
+  24-Sep-1998   W.J. Hack       Initial ACS Version
   29-Aug-2000	H.A. Bushouse	Initial WFC3 Version
   25-Feb-2009   H. Bushouse	Modified version of wf3rej/rejpar_in to use with
 				IR CRCORR.
   06-Mar-2009	H. Bushouse	Added logic to use new IRRAMP column info in
-				CRREJTAB to identify rows that apply to IR 
+				CRREJTAB to identify rows that apply to IR
 				CRCORR.
   10-Apr-2009	H. Bushouse	Fixed bug in calls to read irramp in each row
 				(variable "row" was used before being set).
@@ -761,7 +761,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
     exp_in = exptot;
     par->meanexp = exp_in;
 
-    /* if all parameters are specified by the user, no need to open the 
+    /* if all parameters are specified by the user, no need to open the
 	    reference CRREJ table */
     if (newpar[0] < MAX_PAR) {
 
@@ -822,7 +822,7 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
             return (status = ROW_NOT_FOUND);
         }
 
-        /* read the sigmas parameter */ 
+        /* read the sigmas parameter */
         if (newpar[CRSIGMAS] == 0) {
             c_tbcfnd1 (tp, "crsigmas", &colptr);
             if (colptr == 0) {
@@ -942,15 +942,15 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
     return (status);
 }
 
-/*  strtor -- convert a string of real numbers into a real array 
+/*  strtor -- convert a string of real numbers into a real array
 
     Description:
     ------------
     If the input string is blank(s), this routine will return 0.  If there are
     characters other than digits, decimal point, comma, semi-colon, colon, or
     slash in the input string, this routine will issue an error message.
-    
-    NOTE: This function sets 'status' upon error, but returns a 
+
+    NOTE: This function sets 'status' upon error, but returns a
         different variable.
 
     Date            Author          Description
@@ -976,14 +976,14 @@ static int strtor (char *str, float arr[]) {
     status = WF3_OK;
 
     while (1) {
-        if (str[ip] == ',' || str[ip] == ';' || str[ip] == '/' || 
+        if (str[ip] == ',' || str[ip] == ';' || str[ip] == '/' ||
             str[ip] == '\0') {
             for (i = 0; i < (ip-ipx); ++i)
                 tmp[i] = str[ipx+i];
-            
+
             tmp[ip-ipx] = '\0';
             rval = strtod(tmp, (char **)NULL);
-            
+
             if (!rval && (ip-ipx) != 0) {
                 trlerror("illegal input string '%s'", str);
                 status = INVALID_VALUE;
