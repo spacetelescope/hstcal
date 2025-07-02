@@ -76,6 +76,16 @@ jobs:
         cd build
         make install
 
+    - name: Generate source archive
+      run: |
+        cd build
+        make dist
+
+    - name: Generate binary archive
+      run: |
+        cd build
+        cpack -G TGZ
+
     - name: Test
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
