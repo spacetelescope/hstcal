@@ -9,11 +9,11 @@
 # include "wf3info.h"
 # include "hstcalerr.h"
 
-/* 
+/*
 	This function builds the PHOTMODE string for the image header.
 	The string will be used as input to 'pysynphot' for determining
 	the values of the photometric keywords.
-	
+
    Howard Bushouse, 2001 May 8:
 	For WFC3 revised FILTER1,FILTER2 usage to just FILTER, changed
 	location of photmode keyword from primary header to SCI extension,
@@ -40,8 +40,8 @@
    M.De La Pena, 2020 Feb 28:
     Added MJD in order to enable a time-dependent photometric correction.
    M.De La Pena, 2024 Apr 15:
-    Allow the 'MJD#' value to be added to the PHOTMODE keyword in order to 
-    enable a time-dependent photometric correction for the IR.  This supplements 
+    Allow the 'MJD#' value to be added to the PHOTMODE keyword in order to
+    enable a time-dependent photometric correction for the IR.  This supplements
     the change done previously for the UVIS in 2020.
 */
 
@@ -82,7 +82,7 @@ Hdr *hdr	io: image header to be modified
 	    strcat (photstr, wf32d->filter);
 	}
 
-	/* Update: Add 'MJD#' value to the PHOTMODE string for both the 
+	/* Update: Add 'MJD#' value to the PHOTMODE string for both the
 		UVIS and IR detectors */
 	sprintf (scratch, " MJD#%0.4f", wf32d->expstart);
 	strcat (photstr, scratch);

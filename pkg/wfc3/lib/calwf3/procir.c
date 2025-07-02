@@ -40,7 +40,7 @@
 
  */
 
-int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
+int ProcessIR (AsnInfo *asn, CALWF3Info *wf3hdr, int printtime) {
 
     extern int status;
 
@@ -63,13 +63,13 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
     int  WF3Rej_0    (char *, char *, char *, int, int,int);
     int  CopyFFile   (char *, char *);
     void SetIRSw     (IR_Switch *, IR_Switch *);
-    void WF3Defaults (WF3Info *);
+    void WF3Defaults (CALWF3Info *);
     void InitRefFile (RefFileInfo *);
     void FreeRefFile (RefFileInfo *);
-    int  IRRefInit   (WF3Info *, IR_Switch *, RefFileInfo *);
-    int  GetAsnMember(AsnInfo *, int, int, int, WF3Info *);
-    int  GetSingle   (AsnInfo *, WF3Info *);
-    int  InsertWF3Suffix (WF3Info *);
+    int  IRRefInit   (CALWF3Info *, IR_Switch *, RefFileInfo *);
+    int  GetAsnMember(AsnInfo *, int, int, int, CALWF3Info *);
+    int  GetSingle   (AsnInfo *, CALWF3Info *);
+    int  InsertWF3Suffix (CALWF3Info *);
     int  WF3ir (char *, char *, IR_Switch *, RefFileInfo *, int, int,
             float, float, int);
     int  updateAsnTable (AsnInfo *, int, int);
@@ -135,13 +135,11 @@ int ProcessIR (AsnInfo *asn, WF3Info *wf3hdr, int printtime) {
                         return (status);
 
                     if (asn->verbose) {
-                        trlmessage 
-                            ("CALWF3: Got reference file information");
+                        trlmessage("CALWF3: Got reference file information");
                     }
 
                     if (sci_sw.rptcorr == PERFORM && wf3hdr->nimages < 2) {
-                        trlmessage
-                            ("RPTCORR will be omitted because there's only one image.");
+                        trlmessage("RPTCORR will be omitted because there's only one image.");
                         sci_sw.rptcorr = OMIT;
                     }
 

@@ -15,14 +15,14 @@
 **	to a single image structure for use by the remainder of the 
 **	processing tasks.
 */
-int GetAsnMember (AsnInfo *asn, int prodid, int posid, int expid, WF3Info *wf3){
+int GetAsnMember (AsnInfo *asn, int prodid, int posid, int expid, CALWF3Info *wf3){
 
 /* arguments:
 AsnInfo *asn      	i: calibration flags and other info
 int prodid		i: product id for exposure
 int posid		i: sub-product id for exposure 
 int expid		i: id of exposure within sub-product
-WF3Info *wf3		o: exposure specific flags and info
+CALWF3Info *wf3		o: exposure specific flags and info
 */
 	extern int status;
 	
@@ -87,11 +87,11 @@ WF3Info *wf3		o: exposure specific flags and info
 }
 
 
-int GetSingle (AsnInfo *asn, WF3Info *wf3) {
+int GetSingle (AsnInfo *asn, CALWF3Info *wf3) {
 
 /* arguments:
 AsnInfo *asn      	i: calibration flags and other info
-WF3Info *wf3		o: exposure specific flags and info
+CALWF3Info *wf3		o: exposure specific flags and info
 */
 	extern int status;
 	char rootname[CHAR_FNAME_LENGTH+1];

@@ -60,7 +60,7 @@ int GetIRFlags (WF3Info *wf3, Hdr *phdr) {
 
 	int missing = 0;	/* true if any calibration file is missing */
 	int nsteps = 0;		/* number of calibration steps to perform */
-		
+
 	int GetirSw (WF3Info *, Hdr *);
 
 	/* Get the values for the Calibration Switches from the

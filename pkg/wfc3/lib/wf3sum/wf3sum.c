@@ -621,8 +621,7 @@ static void InitSumTrl (char *input, char *output) {
 	trl_len = CHAR_LINE_LENGTH;
 	
 	if (trl_in == NULL) {
-	    trlerror(
-		 "Out of memory: Couldn't allocate for CRJ_TMP trailer file.");
+	    trlerror("Out of memory: Couldn't allocate for CRJ_TMP trailer file.");
  	    status = OUT_OF_MEMORY;
 	    trl_len = 0;
  	}	

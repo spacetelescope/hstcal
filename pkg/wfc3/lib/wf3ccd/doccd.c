@@ -64,7 +64,7 @@
     the header.  If the keyword is missing or does not contain a filename,
     the algorithm will indicate the original method of flagging saturated
     pixels by using a single value threshold should be used.
- 
+
     M. De La Pena October 2023
     Added overscan as a parameter to the doDQI function signature.
 
@@ -334,7 +334,7 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (doFullWellSat(wf3, &x)) {
             return (status);
         }
-    } 
+    }
 
     /*UPDATE THE SINK PIXELS IN THE DQ MASK OF BOTH SCIENCE IMAGE SETS
      IT'S DONE HERE WITH ONE CALL TO THE FILE BECAUSE THEY NEED TO BE

@@ -87,7 +87,7 @@ int extver       i: "imset" number, the current set of extensions
 	char buff[SZ_FITS_REC+1];
 	Bool subarray;
 
-    /* The value of this parameter should NOT be changed from zero. */ 
+    /* The value of this parameter should NOT be changed from zero. */
     int overscan = 0;	/* New parameter necessary for API change to doDQi */
 
 	int CCDHistory (WF3Info *, Hdr *);

@@ -46,7 +46,7 @@ int getGroupInfo (WF3Info *wf3, SingleNicmosGroup *in) {
 	if (getTDFTrans (wf3, &(in->sci.hdr)))
 	    return (status);
     */
-    
+
 	/* Successful return */
 	return (status = 0);
 }

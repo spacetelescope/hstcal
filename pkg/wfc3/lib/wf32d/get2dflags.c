@@ -40,7 +40,7 @@ int Get2dFlags (WF3Info *wf32d, Hdr *phdr) {
 
 	int missing = 0;	/* true if any calibration file is missing */
 	int nsteps = 0;		/* number of calibration steps to perform */
-		
+
 	/* Check each reference file that we need. */
 
 	if (checkDQI (phdr, wf32d, &missing, &nsteps))
@@ -137,7 +137,7 @@ int *nsteps      io: incremented if this step can be performed
 
 	extern int status;
 
-	int calswitch; 
+	int calswitch;
 	int GetSwitch (Hdr *, char *, int *);
 	int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 	void MissingFile (char *, char *, int *);
@@ -145,7 +145,7 @@ int *nsteps      io: incremented if this step can be performed
 	int  CheckDetector (char *, int, char *, int *);
     char *darktouse;
     char *darktype;
-    
+
 	if (wf32d->darkcorr == PERFORM) {
 	    if (GetSwitch (phdr, "DARKCORR", &calswitch))
 		    return (status);
@@ -153,8 +153,8 @@ int *nsteps      io: incremented if this step can be performed
 		    wf32d->darkcorr = OMIT;
 		    return (status);
 	    } else {
-        
-            if (GetSwitch (phdr, "PCTECORR", &calswitch))   
+
+            if (GetSwitch (phdr, "PCTECORR", &calswitch))
                 return(status);
             if (calswitch == COMPLETE){
                 darktouse="DRKCFILE";
@@ -165,7 +165,7 @@ int *nsteps      io: incremented if this step can be performed
             }
         }
 
-            
+
 	    if (GetImageRef (wf32d->refnames, phdr, darktouse, &wf32d->dark,
 			     &wf32d->darkcorr))
 		    return (status);
@@ -307,7 +307,7 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    } else {
 		/* Is the FILETYPE appropriate for a PFLT file? */
-		CheckImgType (&wf32d->pflt, "PIXEL-TO-PIXEL FLAT", "PFLTFILE", 
+		CheckImgType (&wf32d->pflt, "PIXEL-TO-PIXEL FLAT", "PFLTFILE",
 			      missing);
 		/* Does it have the correct FILTER value? */
 		if (CheckFilter(wf32d->pflt.name, wf32d->filter, "FILTER",
@@ -330,7 +330,7 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    } else {
 		/* Is the FILETYPE appropriate for a DFLT file? */
-		CheckImgType (&wf32d->dflt, "DELTA FLAT", "DFLTFILE", 
+		CheckImgType (&wf32d->dflt, "DELTA FLAT", "DFLTFILE",
 			      missing);
 		/* Does it have the correct FILTER value? */
 		if (CheckFilter(wf32d->dflt.name, wf32d->filter, "FILTER",
@@ -353,7 +353,7 @@ int *nsteps      io: incremented if this step can be performed
 		}
 	    } else {
 		/* Is the FILETYPE appropriate for a LFLT file? */
-		CheckImgType (&wf32d->lflt, "LARGE SCALE FLAT", "LFLTFILE", 
+		CheckImgType (&wf32d->lflt, "LARGE SCALE FLAT", "LFLTFILE",
 			      missing);
 		/* Does it have the correct FILTER value? */
 		if (CheckFilter(wf32d->lflt.name, wf32d->filter, "FILTER",

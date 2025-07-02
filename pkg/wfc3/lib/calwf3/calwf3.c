@@ -10,6 +10,7 @@
 # include "hstcalerr.h"
 # include "wf3corr.h"
 # include "wf3asn.h"	/* Contains association table structures */
+#include "wf3info.h"
 
 # define NOPOSID 0
 
@@ -118,7 +119,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 	extern int status;
 
-	WF3Info wf3hdr;		 /* calibration switches, etc */
+	CALWF3Info wf3hdr;		 /* calibration switches, etc */
 	AsnInfo	asn;		 /* association table data    */
 	char *wf3dth_input; /* Input list for WF3DTH */
 
@@ -132,8 +133,8 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	void initAsnInfo (AsnInfo *);
 	void freeAsnInfo (AsnInfo *);
 	int LoadAsn (AsnInfo *);
-	int ProcessCCD (AsnInfo *, WF3Info *, int *, int, int);
-	int ProcessIR  (AsnInfo *, WF3Info *, int);
+	int ProcessCCD (AsnInfo *, CALWF3Info *, int *, int, int);
+	int ProcessIR  (AsnInfo *, CALWF3Info *, int);
 	int Wf3Dth (const char *, char *, int, int, int);
 	char* BuildDthInput (AsnInfo *, int, char *);
 	int updateAsnTable (AsnInfo *, int, int);
@@ -678,14 +679,13 @@ int WF3Rej_0 (char *input, char *output, char *mtype, int printtime,
 /* This function compares the values of CRCORR and RPTCORR from
    the image header with those deduced from the ASN table. */
 
-int CheckCorr (AsnInfo *asn, WF3Info *wf3hdr) {
+int CheckCorr (AsnInfo *asn, CALWF3Info *wf3hdr) {
 
 	extern int status;
 
 	if ((asn->crcorr  != wf3hdr->sci_crcorr) ||
 			(asn->rptcorr != wf3hdr->sci_rptcorr)) {
-		trlerror
-			("CRCORR and/or RPTCORR values not consistent with ASN table!");
+		trlerror("CRCORR and/or RPTCORR values not consistent with ASN table!");
 		return (status = ERROR_RETURN);
 	}
 	return (status);

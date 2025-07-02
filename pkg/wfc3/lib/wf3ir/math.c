@@ -208,7 +208,7 @@ void amulk (SingleNicmosGroup *a, float b) {
 
 void aor (SingleNicmosGroup *a, SingleNicmosGroup *b) {
 
-/* Take the logical OR of two SingleNicmosGroup DQ arrays, leaving the result 
+/* Take the logical OR of two SingleNicmosGroup DQ arrays, leaving the result
 ** in the first.
 
    (*a.dq) = (*a.dq) | (*b.dq)
@@ -450,7 +450,7 @@ void amulk_noref (WF3Info *wf3, SingleNicmosGroup *a, float b) {
 
 void aor_noref (WF3Info *wf3, SingleNicmosGroup *a, SingleNicmosGroup *b) {
 
-/* Take the logical OR of two SingleNicmosGroup DQ arrays, leaving the result 
+/* Take the logical OR of two SingleNicmosGroup DQ arrays, leaving the result
 ** in the first.
 
    (*a.dq) = (*a.dq) | (*b.dq)

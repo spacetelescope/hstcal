@@ -28,7 +28,7 @@
     Added more code to deal with correct scaling of subarray images
 
     M. Sosey: 27 March 2017
-    Update keyword descriptions   
+    Update keyword descriptions
 */
 
 /*prototypes*/

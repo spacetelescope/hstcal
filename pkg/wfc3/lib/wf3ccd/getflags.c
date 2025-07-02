@@ -21,20 +21,20 @@ int GetImageRef (RefFileInfo *, Hdr *, char *, RefImage *, int *);
 
    Warren Hack, 1998 June 8:
     Original ACS version based on Phil Hodge's CALSTIS routine...
-   
+
    Howard Bushouse, 2000 Aug 29:
     Original WFC3 version based on Warren Hack's CALACS routine.
-   
+
    H.Bushouse, 2001 Nov 16:
     Updates to track CALACS changes - finished revisions for supporting
     post-flash processing.
-    
+
    H.Bushouse, 2009 Jan 08:
     Enhanced all the checkNNNN routines to check for the correct FILETYPE
     for each reference file, as well as verifying correct selection criteria
     such as DETECTOR, FILTER, and CCDGAIN.
 
-   M. De La Pena, 2022 February 
+   M. De La Pena, 2022 February
     Added new SATUFILE: Full-well saturation image.
 
    M. De La Pena, 2023 May
@@ -56,14 +56,14 @@ int GetFlags (WF3Info *wf3, Hdr *phdr) {
 
 	int missing = 0;	/* true if any calibration file is missing */
 	int nsteps = 0;		/* number of calibration steps to perform */
-	
+
 	int GetccdSw (WF3Info *, Hdr *);
 
 	/* Get the values for the Calibration Switches from the
 	**	header for processing.  */
 	if (GetccdSw (wf3, phdr) )
 	    return(status);
-		
+
 	/* Check each reference file that we need. */
 	if (checkDQI (phdr, wf3, &missing, &nsteps))
 	    return (status);
@@ -79,10 +79,10 @@ int GetFlags (WF3Info *wf3, Hdr *phdr) {
 
 	if (checkBias (phdr, wf3, &missing, &nsteps))
 	    return (status);
-        
+
 	if (checkFlash (phdr, wf3, &missing, &nsteps))
 	    return (status);
-    
+
 	if (missing) {
 	    return (status = CAL_FILE_MISSING);
 	} else if (nsteps < 1) {
@@ -136,7 +136,7 @@ int *nsteps      io: incremented if this step can be performed
 	    } else {
 
 		/* Is the FILETYPE appropriate for an AtoD table? */
-		CheckTabType (&wf3->atod, "ANALOG-TO-DIGITAL", "ATODTAB", 
+		CheckTabType (&wf3->atod, "ANALOG-TO-DIGITAL", "ATODTAB",
 			      missing);
 	    }
 
@@ -183,7 +183,7 @@ int *nsteps      io: incremented if this step can be performed
         if (GetImageRef (wf3->refnames, phdr, "BIASFILE", &wf3->bias, &wf3->biascorr))
             return (status);
 
-        /* 
+        /*
             If the BIASFILE has a DUMMY pedigree, the GetImageRef command does not error.
             However, the wf3->biacorr will be set to DUMMY, and this will cause the bias
             correction to be skipped.  Due to the new implementation which uses a
@@ -214,11 +214,11 @@ int *nsteps      io: incremented if this step can be performed
         /* Save the value for recovery */
         saveBiasCorr = wf3->biascorr;
 
-        /* 
+        /*
           Also check for the new full-well saturation image which is
           applied after BLEVCORR and BIASCORR are done. Since the reference
           file is not associated with its own "calibration step keyword"
-          (e.g., SATUCORR), just using the BIASCORR key as a standin here - 
+          (e.g., SATUCORR), just using the BIASCORR key as a standin here -
           make sure the BIASCORR retains its value as set in the above code.
 
           This is a kludge.
@@ -242,7 +242,7 @@ int *nsteps      io: incremented if this step can be performed
             *missing = 0;
 	        trlmessage("A single threshold value will be used for full-well saturation flagging.");
         }
-    /* 
+    /*
       At the least BIASCORR is not set to PERFORM, so issue a message and set the scalar_satflag so
       the 2D saturation image will not be used.
     */
@@ -274,7 +274,7 @@ int *nsteps      io: incremented if this step can be performed
 
 	    if (GetSwitch (phdr, "BLEVCORR", &calswitch))
 		return (status);
-		
+
 	    if (calswitch == COMPLETE) {
 		wf3->blevcorr = OMIT;
 		return (status);
@@ -445,11 +445,11 @@ int *nsteps      io: incremented if this step can be performed
 	    if (GetImageRef (wf3->refnames, phdr, "SNKCFILE", &wf3->sink,
 			     &wf3->dqicorr))
 		    return (status);
-            
-	    if (wf3->sink.exists != EXISTS_YES) 
+
+	    if (wf3->sink.exists != EXISTS_YES)
 		    MissingFile ("SNKCFILE", wf3->sink.name, missing);
-        
-        
+
+
 	    if (GetTabRef (wf3->refnames, phdr,
 				"BPIXTAB", &wf3->bpix, &wf3->dqicorr))
 		return (status);

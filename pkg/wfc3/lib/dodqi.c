@@ -331,7 +331,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
                     }
                 }
             }
-        /* Subarray - only serial physical overscan */ 
+        /* Subarray - only serial physical overscan */
         } else  {
             if (wf3->trimx[0] > 0) {
                 xoscan_beg1 = 0;

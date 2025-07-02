@@ -21,19 +21,19 @@ static int BiasKeywords (WF3Info *);
 /* Do basic CCD calibration.
 
    Warren Hack, 1998 July 28:
-   Revised for ACS from CALSTIS1. 
-   
+   Revised for ACS from CALSTIS1.
+
    Howard Bushouse, 2000 Aug 29:
    Initial WFC3 version.
-   
+
    H. Bushouse, 2001 May 7:
    Revised to support post-flash processing (adopted equivalent
    calacs changes).
-   
+
    H. Bushouse, 2003 Oct 24:
    Added BiasKeywords routine to populate bias level keywords for
    each amp (CALACS changes).
-      
+
  */
 
 int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
@@ -70,12 +70,12 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
 
     InitCCDTrl (input, output);
     /* If we had a problem initializing the trailer files, quit... */
-    if (status != WF3_OK) 
+    if (status != WF3_OK)
         return (status);
 
     if (printtime)
         TimeStamp ("WF3CCD started", "");
-        
+
     /* Initialize structure containing calwf3 information. */
     WF3Init (&wf3);
 
@@ -87,13 +87,13 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     }
 
     /* Copy command-line arguments into wf3. */
-    /* Start by making sure input name is a full filename... 
-       
-      The input can either be _raw or _rac_tmp or rootname 
+    /* Start by making sure input name is a full filename...
+
+      The input can either be _raw or _rac_tmp or rootname
         or rootname+unexpected, check for all. This seems
         like rather strange logic, but it works.
-    
-    */    
+
+    */
     if (strstr(input,"_raw")){
         if (MkName (input, "_raw", "", "", wf3.input, CHAR_LINE_LENGTH)) {
             strcpy(wf3.input,input);
@@ -108,15 +108,15 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
         } else {
             strcpy(wf3.input,input);
         }
-        
+
     } else {
         strcpy(wf3.input,input);
         strcat(wf3.input,"_raw.fits");
-    }    
+    }
 
     /*user specified output*/
     strcpy (wf3.output, output);
-    
+
     wf3.dqicorr  = ccd_sw->dqicorr;
     wf3.atodcorr = ccd_sw->atodcorr;
     wf3.blevcorr = ccd_sw->blevcorr;
@@ -158,14 +158,14 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
     if (GetFlags (&wf3, &phdr)) {
         freeHdr (&phdr);
         return (status);
-    }		
+    }
 
     freeHdr (&phdr);
 
     /* DO BASIC CCD IMAGE REDUCTION. */
     if (wf3.printtime)
         TimeStamp ("Begin processing", wf3.rootname);
- 
+
     /* PROCESS EACH IMSET (CHIP) IN INPUT FILE */
     for (extver = 1;  extver <= wf3.nimsets;  extver++) {
         trlmessage("\n");
@@ -176,7 +176,7 @@ int WF3ccd (char *input, char *output, CCD_Switch *ccd_sw,
         PrGrpEnd ("imset", extver);
     }
 
-    
+
     /* UPDATE THE BIASLEVN KEYWORDS IN THE HEADER. THEY MUST BE UPDATED
      ** HERE BECAUSE ONLY SOME ARE COMPUTED FOR EACH SINGLEGROUP AND
      ** HSTIO WILL ONLY ALLOW ONE UPDATE TO THE PRIMARY HEADER WITH
@@ -208,7 +208,7 @@ void InitCCDTrl (char *input, char *output) {
 
 	char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
 	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
-	
+
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
@@ -220,7 +220,7 @@ void InitCCDTrl (char *input, char *output) {
 	char *trlsuffix[] = {"", ""};
 
 	int nsuffix = 2;
-	
+
 	/* Initialize internal variables */
 	trl_in[0] = '\0';
 	trl_out[0] = '\0';
@@ -237,7 +237,7 @@ void InitCCDTrl (char *input, char *output) {
 	}
 
 	/* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
-    
+
 	if (MkNewExtn (trl_in, TRL_EXTN) ) {
 	    trlerror("Error with input trailer filename %s", trl_in);
 	    WhichError (status);
@@ -247,19 +247,19 @@ void InitCCDTrl (char *input, char *output) {
 	    WhichError (status);
 	}
 
-	/* If we are working with a RAW file, then see if a TRL file 
+	/* If we are working with a RAW file, then see if a TRL file
 	   needs to be overwritten after the generic conversion comments.  */
 	if (strstr(input, isuffix[0]) != NULL) {
 	    /* Test whether the output file already exists */
-	    exist = TrlExists(trl_out);            
+	    exist = TrlExists(trl_out);
 	    if (exist == EXISTS_YES) {
-		/* The output file exists, so we want to add to them 
+		/* The output file exists, so we want to add to them
 		** the new trailer comments.  */
-		    SetTrlOverwriteMode (NO);	
+		    SetTrlOverwriteMode (NO);
 	    }
 	}
-    
-    
+
+
 
 	/* Sets up temp trailer file for output and copies input
 		trailer file into it.

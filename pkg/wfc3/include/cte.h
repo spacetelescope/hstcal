@@ -5,7 +5,9 @@
 #define TRAPS 999 /*max number of traps per column = rows in pctetab[1], valid traps are < 999999 in qlev*/
 #define CTEFLAG 9999999 /*flag to ignore value in array during cte calculation*/
 
-
+#include "hstio.h"
+#include "wf3.h"
+#include "wf3info.h"
 /* structure to hold CTE parameters from the reference files */
 typedef struct {
     double scale512[RAZ_COLS]; /*scaling appropriate at row 512 */
