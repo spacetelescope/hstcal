@@ -12,4 +12,8 @@
 #include <sys/syslimits.h>
 #endif
 
+#define HSTCAL_VERSION "@GIT_TAG@"
+#define HSTCAL_VERSION_BRANCH "@GIT_BRANCH@"
+#define HSTCAL_VERSION_COMMIT "@GIT_COMMIT@"
+
 #endif // HSTCAL_CONFIG_H
