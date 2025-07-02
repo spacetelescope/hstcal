@@ -1,7 +1,7 @@
 #ifndef HSTCALVERSION_INCL
 #define HSTCALVERSION_INCL
 
-#include "version.h"
+#include "config.h"
 
 char * getVersionInfo(char ** buffer);
 char * sprintfGitInfo(char ** buffer);
