@@ -3,6 +3,8 @@ project(hstcal)
 enable_language(C)
 set(CMAKE_C_STANDARD 99)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_ASAN_RECOVER "When ASAN reports a problem, don't halt execution" OFF)
 option(ENABLE_WARNINGS "Enable compiler warnings" ON)
@@ -11,32 +13,27 @@ set(WITH_CFITSIO "" CACHE STRING "Path to cfitsio (if empty pkg-config is used)"
 set(WITH_CFITSIO_CFLAGS "" CACHE STRING "CFITSIO compiler flags")
 set(WITH_CFITSIO_LDFLAGS "-lcfitsio" CACHE STRING "CFITSIO linker flags")
 
+include(GitVersion)
+include(Distinfo)
 
-# Use git to set package version
-# Caveat: unix-only
-execute_process(
-	COMMAND ${CMAKE_SOURCE_DIR}/.ci/bin/git_version "${CMAKE_SOURCE_DIR}"
-	OUTPUT_VARIABLE version
-)
+get_version_from_git()
+write_distinfo()
+if(NOT EXISTS ${CMAKE_SOURCE_DIR}/.git AND EXISTS ${CMAKE_SOURCE_DIR}/DISTINFO)
+	read_distinfo()
+endif()
 
-add_custom_target(distinfo ALL
-        COMMAND ${CMAKE_COMMAND} -E time ${CMAKE_SOURCE_DIR}/.ci/bin/git_version "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}"
-        BYPRODUCTS
-                "${CMAKE_CURRENT_BINARY_DIR}/version.h"
-                "${CMAKE_CURRENT_BINARY_DIR}/DISTINFO"
-)
+set(PROJECT_VERSION "${GIT_TAG}")
+message("HSTCAL Version: ${PROJECT_VERSION}")
 
 # Hack to produce autotools-like distribution archives
-# Use: make dist
-# Caveat: unix-only
 add_custom_target(dist
-	COMMAND ${CMAKE_COMMAND} -E time ${CMAKE_SOURCE_DIR}/.ci/bin/dist "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}"
-	BYPRODUCTS
-		"${CMAKE_CURRENT_BINARY_DIR}/version.h"
-		"${CMAKE_CURRENT_BINARY_DIR}/DISTINFO"
+	COMMAND ${CMAKE_COMMAND}
+		-D BDIR="${CMAKE_CURRENT_BINARY_DIR}"
+		-D PROJECT_NAME="${PROJECT_NAME}"
+		-D PROJECT_VERSION="${PROJECT_VERSION}"
+		-P ${CMAKE_SOURCE_DIR}/cmake/DistinfoArchive.cmake
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
-
-set(PROJECT_VERSION "${version}")
 
 include(CheckSymbolExists)
 check_symbol_exists(snprintf "stdio.h" HAVE_SNPRINTF)

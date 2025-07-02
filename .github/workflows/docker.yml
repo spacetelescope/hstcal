@@ -112,7 +112,7 @@ jobs:
       - name: Dump --gitinfo header
         run: |
           cd build
-          cat -n version.h
+          cat -n config.h
 
       - name: Dump --gitinfo from executable
         run: |
