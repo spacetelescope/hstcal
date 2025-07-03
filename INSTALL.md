@@ -215,3 +215,26 @@ When ASAN (aka AddressAnalyzer) encounters a bug it halts execution and dumps in
 where it occurred. When `ENABLE_ASAN_RECOVER` is enabled, and the `ASAN_OPTIONS` environment variable contains 
 `halt_on_error=0`, ASAN will continue to dump information as the program runs. This is mode is incredibly noisy, so it
 should only ever be used to test code changes in development.
+
+To show backtraces after calls to `REPORT_ERROR_STATE()` (aka `WhichError`):
+
+```
+cmake .. -DENABLE_BACKTRACE=ON
+```
+
+Example:
+
+```
+# ...
+ERROR:    Couldn't process CCD data
+ERROR:    CALACS processing NOT completed for file.fits
+ERROR:    Invalid temporary file. (status = 1021)
+DEBUG:    Location: /path/to/pkg/acs/src/mainacs.c:238
+DEBUG:    Backtrace:
+/path/to/lib/libhstcalib.so(hstcal_error_state_populate+0xa3) [0x7ddb5c635987]
+/path/to/lib/libhstcalib.so(hstcal_error_state_show+0x39) [0x7ddb5c635e8d]
+/path/to/pkg/acs/calacs.e(main+0x990) [0x5760d5ad3c4b]
+/usr/lib/libc.so.6(+0x27488) [0x7ddb5c035488]
+/usr/lib/libc.so.6(__libc_start_main+0x8c) [0x7ddb5c03554c]
+/path/to/pkg/acs/calacs.e(_start+0x25) [0x5760d5ad31c5]
+```

@@ -193,7 +193,6 @@ void InitCTETrl (char *input, char *output, const char * isuffix, const char * o
     char trlsuffix[] = "";
 
     int MkName (char *, char *, char *, char *, char *, int);
-    void WhichError (int);
     int TrlExists (char *);
 
     /* Initialize internal variables */
