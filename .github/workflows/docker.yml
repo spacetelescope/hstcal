@@ -31,11 +31,12 @@ jobs:
             version: stable
             build_type: Release
             compiler: gcc
-          - os: centos
-            repo: quay.io/centos/
-            version: stream10
-            build_type: Release
-            compiler: gcc
+          # Stream 10 packages are unstable. Revisit later.
+          #- os: centos
+          #  repo: quay.io/centos/
+          #  version: stream10
+          #  build_type: Release
+          #  compiler: gcc
           - os: centos
             repo: quay.io/centos/
             version: stream9
