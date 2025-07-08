@@ -11,7 +11,6 @@
 # include <string.h>
 # include <stdio.h>
 # include <time.h>
-# include <assert.h>
 # include <stdbool.h>
 
 #include "hstcal_memory.h"

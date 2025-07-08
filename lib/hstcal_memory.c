@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <assert.h>
 
 #include "hstio.h"
 #include "hstcal_memory.h"
@@ -16,12 +15,11 @@ void initPtrRegister(PtrRegister * reg)
     reg->cursor = 0; //points to last ptr NOT next slot
     reg->length = PTR_REGISTER_LENGTH_INC+1; //+1 to special case reg->ptrs[0] for 'this' pointer only
     reg->ptrs = malloc(reg->length*sizeof(*reg->ptrs));
-    assert(reg->ptrs);
     reg->freeFunctions = malloc(reg->length*sizeof(*reg->freeFunctions));
     if (!reg->freeFunctions)
     {
         free(reg->ptrs);
-        assert(0);
+        return;
     }
     reg->ptrs[0] = NULL; //initialize to check against later
 }
@@ -52,14 +50,14 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
         if (!tmpPtr)
         {
             freeOnExit(reg); // Note: It is ok that reg->length != length(reg->ptrs)
-            assert(0);
+            return;
         }
         reg->ptrs = tmpPtr;
         tmpPtr = realloc(reg->freeFunctions, reg->length*sizeof(*reg->freeFunctions));
         if (!tmpPtr)
         {
             freeOnExit(reg); // Note: It is ok that reg->length != length(reg->freeFunctions)
-            assert(0);
+            return;
         }
         reg->freeFunctions = tmpPtr;
     }
@@ -87,7 +85,7 @@ void freePtr(PtrRegister * reg, void * ptr)
         freeOnExit(reg); // Note: Whilst the point of this outer IF accounts for direct calls to freePtr() with unregistered ptrs,
                          // it is also called internally from freeOnExit(). A bug in the register code is liable to create an infinite
                          // recursion segfault due this call present here.
-        assert(0); //internal error: the ptr trying to be freed was not added to the register
+        return; //internal error: the ptr trying to be freed was not added to the register
     }
 
     //call function to free ptr

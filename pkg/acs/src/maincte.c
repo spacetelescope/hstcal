@@ -1,7 +1,5 @@
-
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 extern int doMainCTE (int argc, char **argv);
 

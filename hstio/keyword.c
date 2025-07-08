@@ -4,7 +4,6 @@
 # include <string.h>
 # include <math.h>
 # include <ctype.h>
-#include <assert.h>
 
 # include <float.h>
 # include <limits.h>
@@ -1411,7 +1410,7 @@ char *comment     i: comment to add, if keyword doesn't exist
         else if(value == False)
             snprintf(strBuffer, sizeof(strBuffer), "%s F %s", keyword, comment);
         else
-            assert(0); // Unimplemented
+            return NOTHING_TO_DO; // Unimplemented
         tempStatus = addHistoryKw(hd, strBuffer);
     }
     return tempStatus;
@@ -1492,4 +1491,3 @@ char *comment     i: comment to add, if keyword doesn't exist
     }
     return tempStatus;
 }
-

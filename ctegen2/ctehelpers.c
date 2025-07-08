@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include "hstcal_memory.h"
 #include "hstcal.h"
 #include "wf3.h" //need to remove this dependency
@@ -197,11 +196,11 @@ int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn, Bool skipLoadPri
    FIXROCR  - account for cosmic ray over-subtraction?
 
    These values are now amp-dependent for the *serial* CTE correction.  This
-   means that they are read from the QPROF extension header of the amp being 
-   processed.  In contrast, there is only one set for the *parallel* CTE 
-   correction which applies to all amps.  The parallel values are also read 
+   means that they are read from the QPROF extension header of the amp being
+   processed.  In contrast, there is only one set for the *parallel* CTE
+   correction which applies to all amps.  The parallel values are also read
    from the QPROF extension header where the parallel correction is defined
-   as discussed below.  
+   as discussed below.
    CTEDATE0 - date of instrument installation in HST, in fractional years (MJD)
    CTEDATE1 - reference date of CTE model pinning, in fractional years (MJD)
    PCTENFOR - number of iterations used in CTE forward modeling
@@ -212,7 +211,7 @@ int loadPCTETAB (char *filename, CTEParamsFast *pars, int extn, Bool skipLoadPri
       CTE_VER = '3.0     '
       CTE_NAME= 'Par/Serial PixelCTE 2023'
 
-   The updated PCTETAB has a primary HDU and 20 extensions.  Extensions 1-4 
+   The updated PCTETAB has a primary HDU and 20 extensions.  Extensions 1-4
    apply to the parallel CTE and the remaining extensions apply to the serial CTE.
 
 No.    Name      Ver    Type      Cards   Dimensions   Format
@@ -335,7 +334,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /*
      Read in the remaining keywords necessary for proper processing and are
-     amp-dependent from the associated "extn". 
+     amp-dependent from the associated "extn".
 
      The variable extn contains the number of the FITS extension which is the starting
      extension for the "set" of qprof/sclbycol/rprof/cprof data.  The values for the
@@ -363,10 +362,10 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
         return status;
     }
 
-    /* 
+    /*
        First get the keywords necessary for processing from the extension header
-       All the extension headers pertaining to an amp correction have the same 
-       values for these keywords, so they only have to be read from the QPROF 
+       All the extension headers pertaining to an amp correction have the same
+       values for these keywords, so they only have to be read from the QPROF
        extension.
     */
 
@@ -487,7 +486,6 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* CLOSE CTE PARAMETERS FILE FOR QPROF EXTENSION */
     c_tbtClose((void*)&tbl_ptr);
-    assert(!tbl_ptr);
 
     /****************************************************************************/
     /****************************************************************************/
@@ -584,7 +582,6 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* close CTE parameters file for SCLBYCOL extension */
     c_tbtClose((void*)&tbl_ptr);
-    assert(!tbl_ptr);
 
     /*********************************************************************************/
     /* extensions 7, 11, 15, 19, and 3 - RPROF : differential trail profile as image */
@@ -601,7 +598,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
         trlerror("Can't allocate memory for RPROF ref data");
         return (status = 1);
     }
-   
+
     initFloatHdrData(pars->rprof);
     pars->rprof->data.storageOrder = COLUMNMAJOR;
     if (getFloatHD (filename, "RPROF", extver, pars->rprof)){
@@ -656,11 +653,11 @@ int populateImageFileWithCTEKeywordValues(SingleGroup *group, CTEParamsFast *par
 {
     extern int status;
 
-    /* 
+    /*
        HISTORY information written only one time
     */
     if (strncmp(corrType, "parallel", 6) == 0) {
-   
+
         if ((status = updateKeyOrAddAsHistKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")))
         {
             trlerror("(pctecorr) failed to update (or add as history) CTE_NAME keyword in image header");

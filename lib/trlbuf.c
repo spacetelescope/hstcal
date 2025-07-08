@@ -90,7 +90,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#include <assert.h>
 
 #include "hstcal_memory.h"
 #include "ximio.h"
@@ -348,7 +347,6 @@ static int AppendTrlFile(void)
             the old file is overwritten...
         */
         size_t newSize = (strlen(oprefix) + strlen(buf) +2 )*sizeof(*oprefix);
-        assert(newSize);
         void * ptr = realloc (oprefix, newSize);
         if (!ptr)
         {
@@ -474,10 +472,13 @@ static void AddTrlBuf (const char *message)
     */
 
     if ( ! trlbuf.init )
-        assert(0); //TRLBUF NOT INIT, YOU MAY HAVE PROBLEMS
+    {
+        status = IO_ERROR;
+        printfAndFlush ("trlbuf.init is not set: Couldn't store trailer file");
+        return;
+    }
 
     size_t newSize = (strlen(trlbuf.buffer) + strlen(message) +2)*sizeof(*trlbuf.buffer);
-    assert(newSize);
     void * ptr = realloc (trlbuf.buffer, newSize);
     if (!ptr)
     {
@@ -497,7 +498,6 @@ void InitTrlPreface (void)
         This function will copy contents of the buffer into the preface
     */
     size_t newSize = (strlen(trlbuf.buffer) +2)*sizeof(*trlbuf.preface);
-    assert(newSize);
     void * ptr = realloc (trlbuf.preface, newSize);
     if (!ptr)
     {
@@ -513,7 +513,6 @@ void InitTrlPreface (void)
 void ResetTrlPreface (void)
 {
     size_t newSize = initLength*sizeof(*trlbuf.preface);
-    assert(newSize);
     void * ptr = realloc(trlbuf.preface, newSize);
     if (!ptr)
     {
@@ -529,7 +528,6 @@ void ResetTrlPreface (void)
 static void ResetTrlBuf (void)
 {
     size_t newSize = initLength*sizeof(*trlbuf.buffer);
-    assert(newSize);
     void * ptr = realloc(trlbuf.buffer, newSize);
     if (!ptr)
     {
