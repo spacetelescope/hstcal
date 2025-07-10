@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -10,7 +9,7 @@ char * sprintfGitInfo(char ** buffer)
     if (!buffer)
         return NULL;
     if (*buffer)
-        assert(0); // Incorrect usage - NULL ptr must be passed in.
+        return NULL; // Incorrect usage - NULL ptr must be passed in.
 
     const char * format = "git tag: %s\ngit branch: %s\nHEAD @: %s";
     size_t length = strlen(format)

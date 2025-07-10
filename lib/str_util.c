@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <string.h>
 #include <fitsio.h>
 
@@ -34,8 +33,10 @@ void upperCase(char * str)
 
 bool isStrInLanguage(const char * str, const char * alphabet)
 {
-    assert(str); // Not an empty string, use "" or '\0' instead
-    assert(alphabet && *alphabet!='\0'); // alphabet := non-empty finite set
+    // Not an empty str, use "" or '\0' instead.
+    // alphabet := non-empty finite set.
+    if (!str || !alphabet || *alphabet=='\0')
+        return false;
 
     // For any set A the empty set is a subset of A
     if (*str=='\0')
@@ -49,4 +50,3 @@ bool isStrInLanguage(const char * str, const char * alphabet)
     }}
     return true;
 }
-

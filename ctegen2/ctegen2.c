@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -45,8 +44,9 @@ int forwardModel(const SingleGroup * input, SingleGroup * output, SingleGroup * 
        return (status = ALLOCATION_PROBLEM);
 
    //WARNING - assumes column major storage order
-   assert(trapPixelMap->sci.data.storageOrder == COLUMNMAJOR);
-   assert(input->sci.data.storageOrder == COLUMNMAJOR);
+   if ((trapPixelMap->sci.data.storageOrder != COLUMNMAJOR) ||
+           (input->sci.data.storageOrder != COLUMNMAJOR))
+       return (status = ALLOCATION_PROBLEM);
    output->sci.data.storageOrder = COLUMNMAJOR;
 
    const unsigned nRows = output->sci.data.ny;
@@ -128,8 +128,9 @@ int inverseCTEBlur(const SingleGroup * input, SingleGroup * output, SingleGroup 
         return (status = ALLOCATION_PROBLEM);
 
     //WARNING - assumes column major storage order
-    assert(trapPixelMap->sci.data.storageOrder == COLUMNMAJOR);
-    assert(input->sci.data.storageOrder == COLUMNMAJOR);
+    if ((trapPixelMap->sci.data.storageOrder != COLUMNMAJOR) ||
+            (input->sci.data.storageOrder != COLUMNMAJOR))
+        return (status = ALLOCATION_PROBLEM);
     output->sci.data.storageOrder = COLUMNMAJOR;
 
     const unsigned nRows = output->sci.data.ny;
@@ -639,7 +640,8 @@ int cteSmoothImage(const SingleGroup * input, SingleGroup * output, CTEParamsFas
         return (status = ALLOCATION_PROBLEM);
 
     //WARNING - assumes column major storage order
-    assert(input->sci.data.storageOrder == COLUMNMAJOR);
+    if (input->sci.data.storageOrder != COLUMNMAJOR)
+        return (status = ALLOCATION_PROBLEM);
     output->sci.data.storageOrder = COLUMNMAJOR;
 
     extern int status;

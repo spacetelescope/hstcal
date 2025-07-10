@@ -109,7 +109,6 @@
 # include <sys/stat.h>
 # include <time.h>
 # include <unistd.h>
-# include <assert.h>
 # include <stdlib.h>
 # include <stdbool.h>
 
@@ -189,7 +188,6 @@ char *hstio_errmsg(void) {
 int getNumHDUs(const char * fileName, int * hduNum)
 {
     *hduNum = 0;
-    assert(fileName && *fileName!='\0');
 
     fitsfile * fptr = NULL;
     int tmpStatus = HSTCAL_OK;
@@ -217,7 +215,6 @@ int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtNa
 int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtName, const int hduType, int * total)
 {
     *total = 0;
-    assert(fileName && *fileName!='\0');
 
     int hduNum = 0;
     int tmpStatus = HSTCAL_OK;
@@ -1074,7 +1071,11 @@ void copyOffsetSingleGroup(SingleGroup * output, const SingleGroup * input,
     if (!output || !input)
         return;
     //WARNING - assumes row major storage
-    assert(output->sci.data.storageOrder == ROWMAJOR && output->sci.data.storageOrder == ROWMAJOR);
+    if (output->sci.data.storageOrder != ROWMAJOR ||
+            input->sci.data.storageOrder != ROWMAJOR) {
+        status = ALLOCATION_PROBLEM;
+        return;
+    }
 
     //sci data
     if (output->sci.data.data && input->sci.data.data)
@@ -1451,7 +1452,6 @@ void closeSingleGroupLine (SingleGroupLine *x) {
 
 int getFloatHD(char *fname, char *ename, int ever, FloatHdrData *x) {
         IODesc *xio;
-        assert(x);
         x->iodesc = openInputImage(fname,ename,ever);
         xio = (IODesc *)(x->iodesc);
         if (hstio_err()) return -1;

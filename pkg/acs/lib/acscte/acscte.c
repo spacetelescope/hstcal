@@ -7,7 +7,6 @@
 # include <time.h>
 # include <string.h>
 # include <stdbool.h>
-# include <assert.h>
 
 #include "hstcal.h"
 # include "hstio.h"
@@ -187,9 +186,6 @@ void InitCTETrl (char *input, char *output, const char * isuffix, const char * o
 
     char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
     char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
-
-    assert(isuffix);
-    assert(osuffix);
     char trlsuffix[] = "";
 
     int MkName (char *, char *, char *, char *, char *, int);
