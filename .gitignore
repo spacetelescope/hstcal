@@ -10,14 +10,12 @@ _CPack_Packages/
 Testing
 Makefile
 cmake_install.cmake
+cmake-build-debug/
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
-.lock-waf*
-.waf*
 bin.*
 *build
-build
 build.*
 Makefile
 __pycache__
@@ -26,3 +24,4 @@ __pycache__
 *.a
 *.so
 hstcal-*.sh
+.idea/
