@@ -22,7 +22,6 @@ add_library(${PROJECT_NAME} SHARED
 	acsccd/doatod.c
 	acsccd/dobias.c
 	acsccd/doblev.c
-	#acsccd/doblev_v504.c # ... what??
 	acsccd/doccd.c
 	acsccd/dofwsat.c
 	acsccd/dosink.c
@@ -125,6 +124,7 @@ add_library(${PROJECT_NAME} SHARED
 	ucalver.c
 	ufilename.c
 	unbinline.c
+        wfcsubapertures.c
 	whicherror.c
 )
 target_include_directories(${PROJECT_NAME}
