@@ -1073,6 +1073,7 @@ void copyOffsetSingleGroup(SingleGroup * output, const SingleGroup * input,
     //WARNING - assumes row major storage
     if (output->sci.data.storageOrder != ROWMAJOR ||
             input->sci.data.storageOrder != ROWMAJOR) {
+        status = ALLOCATION_PROBLEM;
         return;
     }
 
