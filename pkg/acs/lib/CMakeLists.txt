@@ -21,9 +21,10 @@ add_library(${PROJECT_NAME} SHARED
 	acsccd/blevfit.c
 	acsccd/doatod.c
 	acsccd/dobias.c
+	acsccd/dobiasshift.c
 	acsccd/doblev.c
-	#acsccd/doblev_v504.c # ... what??
 	acsccd/doccd.c
+	acsccd/dodarktime.c
 	acsccd/dofwsat.c
 	acsccd/dosink.c
 	acsccd/findblev.c
