@@ -3,17 +3,15 @@
  FitToOverscan
  */
 
-# include <stdio.h>
-# include <math.h>		/* sqrt */
-# include <string.h>
+#include <math.h>		/* sqrt */
+#include <string.h>
 
-#include "hstcal.h"
-# include "hstio.h"
+#include "acs.h"
+#include "acsdq.h"		/* for CALIBDEFECT */
+#include "acsinfo.h"
+#include "hstio.h"
+#include "hstcalerr.h"
 
-# include "acs.h"
-# include "acsinfo.h"
-# include "hstcalerr.h"
-# include "acsdq.h"		/* for CALIBDEFECT */
 
 static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
 
@@ -91,6 +89,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   int FindBlev (SingleGroup *, int, int *, short, double *, int *);
   void parseWFCamps (char *, int, char *);
   int selectBias(char *);
+  int PutKeyFlt (Hdr *, char *, float, char *);
 
   /* Allocate space for ccdamp... */
   ccdamp = (char *) calloc (NAMPS+1, sizeof(char));
@@ -169,7 +168,6 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
 
   /* How many amps are used for this chip */
   numamps = strlen (ccdamp);
-
 
   /* Are we going to calculate drift in bias from virtual overscan? */
   /* If the end points of vx and vy are zero, no section was specified */
@@ -308,11 +306,14 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   /* This is the mean value of all the bias levels subtracted. */
   *meanblev = sumblev / numamps;
 
-
   /* free ccdamp space allocated here... */
   free (ccdamp);
 
-  return (status);
+  trlmessage("Bias level from overscan has been subtracted;\n"
+             "     mean of bias levels subtracted was %.6g electrons.", *meanblev);
+  status = PutKeyFlt(&x->sci.hdr, "MEANBLEV", *meanblev, "mean of bias levels subtracted in electrons");
+
+  return status;
 }
 
 /* This function determines the bias level from the overscan in the input
@@ -496,4 +497,18 @@ int selectBias (char *ccdamp) {
   i = loc - ampstr;
 
   return i;
+}
+
+
+/* Provide immediate feedback to the user on the values computed
+   for each AMP, but only for those amps used for the chip being processed.
+*/
+void blevSubTrlMessage(ACSInfo *acs_info, ACSInfo *acs) {
+    for (unsigned int j = 0; j < NAMPS; j++) {
+        if (acs->blev[j] != 0.) {
+            trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.",
+                       acs->blev[j], AMPSORDER[j]);
+            acs_info->blev[j] = acs->blev[j];
+        }
+    }
 }
