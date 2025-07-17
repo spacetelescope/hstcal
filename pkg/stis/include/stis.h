@@ -286,8 +286,6 @@ int streq_ic (char *s1, char *s2);
 
 void TimeStamp6 (int prittime, char* msg, char *rootname);
 
-void WhichError (int status);
-
 /* An array of complex values is stored as an array of pairs of floats,
    each pair consisting of the real part followed by the imaginary part.
    The array can be 1-D or 2-D, and the lengths of the first and second

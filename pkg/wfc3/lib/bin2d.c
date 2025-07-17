@@ -152,16 +152,16 @@ SingleGroup *b        o: output data
 	/* Copy the headers. */
 	copyHdr (b->globalhdr, a->globalhdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->sci.hdr, &a->sci.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->err.hdr, &a->err.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->dq.hdr, &a->dq.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 
 	/* Update the coordinate parameters that depend on the binning. */
 	if (BinCoords (&a->sci.hdr, block, offset,
@@ -357,22 +357,22 @@ SingleGroup *b        o: output data
 	/* Copy the headers. */
 	copyHdr (b->globalhdr, a->globalhdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->sci.hdr, &a->sci.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->err.hdr, &a->err.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->dq.hdr, &a->dq.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->smpl.hdr, &a->smpl.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	copyHdr (&b->intg.hdr, &a->intg.hdr);
 	if (hstio_err())
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 
 	/* Update the coordinate parameters that depend on the binning. */
 	if (BinCoordsIR (&a->sci.hdr, block, offset, &b->sci.hdr, &b->err.hdr,

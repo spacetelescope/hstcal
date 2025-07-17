@@ -438,7 +438,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 
 	     putSingleGroup (wf3->output, extver, &x, 0);
 	     if (hstio_err())
-		 return (status = 1001);
+		 return (status = INVALID_EXPTIME);
 	     freeSingleGroup (&x);
 
 	     PrGrpEnd ("imset", extver);
@@ -615,7 +615,6 @@ static void InitSumTrl (char *input, char *output) {
 	
 	int MkOutName (const char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
-	void WhichError (int);
 
 	trl_in = realloc (NULL, (CHAR_LINE_LENGTH));
 	trl_len = CHAR_LINE_LENGTH;
