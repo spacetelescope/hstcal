@@ -57,9 +57,8 @@ SingleGroup *b    o: output data
     }
 
     /* i,j = pixel indices in input array, m,n = pixel idices in output array */
-    {unsigned int i, j, m, n;
-    for (n = 0, j = ystart; n < ny; n++, j++) {
-        for (m = 0, i = xstart;  m < nx;  m++, i++) {
+    for (size_t n = 0, j = ystart; n < ny; n++, j++) {
+        for (size_t m = 0, i = xstart;  m < nx;  m++, i++) {
             /* Extract the science array */
             Pix(b->sci.data, m, n) = Pix(a->sci.data, i, j);
 
@@ -69,7 +68,7 @@ SingleGroup *b    o: output data
             /* Extract the data quality array */
             DQSetPix (b->dq.data, m, n, DQPix(a->dq.data, i, j));
         }
-    }}
+    }
 
     /* Copy header info only if requested... */
     int retStatus = 0;

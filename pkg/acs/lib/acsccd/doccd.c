@@ -141,11 +141,10 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr(&ptrReg, acs, &free);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         initSingleGroup(&x[i]);
         acs[i] = *acs_info;
-    }}
+    }
 
     if (acs_info->printtime)
         TimeStamp ("Open SingleGroup now...", "");
@@ -156,15 +155,14 @@ int DoCCD (ACSInfo *acs_info) {
        processing step functions and pass along modified input image
        from one step to the next...
     */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         getSingleGroup(acs[i].input, i+1, &x[i]);
         if (hstio_err()) {
             freeOnExit (&ptrReg);
             return (status = OPEN_FAILED);
         }
         addPtr(&ptrReg, &x[i], &freeSingleGroup);
-    }}
+    }
 
     if (acs_info->printtime)
         TimeStamp ("Input read into memory", acs_info->rootname);
@@ -173,8 +171,7 @@ int DoCCD (ACSInfo *acs_info) {
        for reading CCDTAB.
     */
     Bool subarray = False;
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
             freeOnExit (&ptrReg);
             return (status);
@@ -200,7 +197,7 @@ int DoCCD (ACSInfo *acs_info) {
             freeOnExit (&ptrReg);
             return (status);
         }
-    }}
+    }
 
     int primaryIdx = 0;
     if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNA", acs[primaryIdx].atodgain[0], "")) {
@@ -263,29 +260,27 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr (&ptrReg, virtOverscan, &free);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (FindOverscan(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny,
                          &overscan[i], &virtOverscan[i])) {
             freeOnExit (&ptrReg);
             return (status);
         }
-    }}
+    }
 
     /************************************************************************/
     /* Data quality initialization and (for the CCDs) check saturation. */
     const int nextver = 1;
     dqiMsg(&acs[primaryIdx], nextver);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].dqicorr == PERFORM || acs[i].dqicorr == DUMMY) {
             if (doDQI(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return (status);
             }
         }
-    }}
+    }
 
     PrSwitch("dqicorr", COMPLETE);
 
@@ -304,15 +299,14 @@ int DoCCD (ACSInfo *acs_info) {
     /* Subtract bias image. */
     BiasMsg(&acs[primaryIdx], nextver);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM) {
             if (doBias(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return (status);
             }
         }
-    }}
+    }
 
     PrSwitch("biascorr", COMPLETE);
 
@@ -329,8 +323,7 @@ int DoCCD (ACSInfo *acs_info) {
 
     /************************************************************************/
     /* convert data to electrons */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (to_electrons(&acs[i], &x[i])) {
             freeOnExit (&ptrReg);
             return (status);
@@ -344,7 +337,7 @@ int DoCCD (ACSInfo *acs_info) {
             freeOnExit (&ptrReg);
             return (status);
         }
-    }}
+    }
     /************************************************************************/
 
     /************************************************************************/
@@ -359,10 +352,9 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr (&ptrReg, blevcorr, free);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         blevcorr[i] = PERFORM;
-    }}
+    }
 
     /* The logic here has been re-written (1) to accommodate the new subarrays
        (Ref: ISR ACS 2017-03) which can be bias shift corrected ("*-2K" data only at
@@ -403,8 +395,7 @@ int DoCCD (ACSInfo *acs_info) {
              correction can be applied.
           */
           if (acs_info->subarray == YES) {
-             {unsigned int i;
-             for (i = 0; i < numSupportedSubApertures; i++) {
+             for (size_t i = 0; i < numSupportedSubApertures; i++) {
                  if (strcmp(acs_info->aperture, subApertures[i]) == 0) {
 
                     /* If this is polarization or ramp data, then the size of the science
@@ -422,14 +413,13 @@ int DoCCD (ACSInfo *acs_info) {
                        trlmessage("This subarray data is supported for the bias shift correction.");
                     }
                  }
-             }}
+             }
           }
 
           /* Only Pre-SM4 WFC data - this is the original bias level subtraction */
           if (acs_info->expstart < SM4MJD) {
 
-             {unsigned int i;
-             for (i = 0; i < acs_info->nimsets; i++) {
+             for (size_t i = 0; i < acs_info->nimsets; i++) {
 
                  /* The variable done is set to the results of FindOver indicating there is
                     physical overscan. */
@@ -460,19 +450,18 @@ int DoCCD (ACSInfo *acs_info) {
                     for each AMP, but only for those amps used for the chip being
                     processed.
                  */
-                 {unsigned int j;
-                 for (j = 0; j < NAMPS; j++) {
+                 for (size_t j = 0; j < NAMPS; j++) {
                      if (acs[i].blev[j] != 0.) {
                          trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
 
                          acs_info->blev[j] = acs[i].blev[j];
                      }
-                 }}
+                 }
 
                  /* Set this to complete so overscan-trimmed image will be written out. */
                  blevcorr[i] = COMPLETE;
 
-             }} /* End loop over imsets */
+             } /* End loop over imsets */
 
              PrSwitch("blevcorr", COMPLETE);
 
@@ -512,10 +501,9 @@ int DoCCD (ACSInfo *acs_info) {
                          return status;
                       }
 
-                      {unsigned int i;
-                      for (i = 0; i < acs_info->nimsets; i++) {
+                      for (size_t i = 0; i < acs_info->nimsets; i++) {
                           cross_talk_corr(&acs[i], &x[i]);
-                      }}
+                      }
                    } else {
                       trlmessage("WFC readout type/gain not set as needed, no bias shift nor cross talk correction done for full frame data.");
                    }
@@ -527,10 +515,9 @@ int DoCCD (ACSInfo *acs_info) {
                       return status;
                    }
 
-                   {unsigned int i;
-                   for (i = 0; i < acs_info->nimsets; i++) {
+                   for (size_t i = 0; i < acs_info->nimsets; i++) {
                        blevcorr[i] = COMPLETE;
-                   }}
+                   }
 
                    PrSwitch("blevcorr", COMPLETE);
 
@@ -585,8 +572,7 @@ int DoCCD (ACSInfo *acs_info) {
                    trlmessage("WFC readout is not a supported subarray or type/gain not set as needed for new bias level algorithm for subarray data.");
                    trlmessage("Data to be processed with original bias level algorithm.");
 
-                   {unsigned int i;
-                   for (i = 0; i < acs_info->nimsets; i++) {
+                   for (size_t i = 0; i < acs_info->nimsets; i++) {
 
                        /* This is set based on results of FindOver */
                        done = overscan[i];
@@ -615,18 +601,17 @@ int DoCCD (ACSInfo *acs_info) {
                           for each AMP, but only for those amps used for the chip being
                           processed.
                        */
-                       {unsigned int j;
-                       for (j = 0; j < NAMPS; j++) {
+                       for (size_t j = 0; j < NAMPS; j++) {
                            if (acs[i].blev[j] != 0.) {
                                trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
 
                                acs_info->blev[j] = acs[i].blev[j];
                            }
-                       }}
+                       }
 
                        /* Set this to complete so overscan-trimmed image will be written out. */
                        blevcorr[i] = COMPLETE;
-                   }}
+                   }
 
                    PrSwitch("blevcorr", COMPLETE);
 
@@ -643,8 +628,7 @@ int DoCCD (ACSInfo *acs_info) {
 
        /* All HRC data - use the original bias level subtraction correction */
        else {
-            {unsigned int i;
-            for (i = 0; i < acs_info->nimsets; i++) {
+            for (size_t i = 0; i < acs_info->nimsets; i++) {
                 /* This is set based on results of FindOver */
                 done = overscan[i];
 
@@ -672,17 +656,16 @@ int DoCCD (ACSInfo *acs_info) {
                    for each AMP, but only for those amps used for the chip being
                    processed.
                 */
-                {unsigned int j;
-                for (j = 0; j < NAMPS; j++) {
+                for (size_t j = 0; j < NAMPS; j++) {
                     if (acs[i].blev[j] != 0.) {
                         trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
                         acs_info->blev[j] = acs[i].blev[j];
                     }
-                }}
+                }
 
                 /* Set this to complete so overscan-trimmed image will be written out. */
                 blevcorr[i] = COMPLETE;
-            }}
+            }
 
             PrSwitch("blevcorr", COMPLETE);
 
@@ -724,8 +707,7 @@ int DoCCD (ACSInfo *acs_info) {
        BIASCORR and BLEVCORR have been performed, and the data has been
        converted to electrons.  This flagging is only applicable for the
        two CCDs (WFC and HRC). */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
             trlmessage("\nFull-well saturation flagging being performed for imset %d.\n", i+1);
             if (doFullWellSat(&acs[i], &x[i])) {
@@ -735,19 +717,18 @@ int DoCCD (ACSInfo *acs_info) {
         } else {
             trlwarn("\nNo Full-well saturation flagging being performed for imset %d.\n", i+1);
         }
-    }}
+    }
     /************************************************************************/
 
     /************************************************************************/
     /* Fill in the error array, if it initially contains all zeros. */
     if (acs->noisecorr == PERFORM) {
-        {unsigned int i;
-        for (i = 0; i < acs_info->nimsets; i++) {
+        for (size_t i = 0; i < acs_info->nimsets; i++) {
             if (doNoise(&acs[i], &x[i], &done)) {
                 freeOnExit (&ptrReg);
                 return (status);
             }
-        }}
+        }
 
         if (done) {
             if (noiseHistory(x[primaryIdx].globalhdr)) {
@@ -759,13 +740,12 @@ int DoCCD (ACSInfo *acs_info) {
             buff[0] = '\0';
 
             snprintf(MsgText, sizeof(MsgText), "    readnoise =");
-            {unsigned int i;
-            for (i=0; i < NAMPS-1; i++) {
+            for (size_t i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].readnoise[i] > 0) {
                     snprintf(buff, sizeof(buff), "%.5g,", acs[primaryIdx].readnoise[i]);
                     strcat(MsgText, buff);
                 }
-            }}
+            }
 
             if (acs[primaryIdx].readnoise[NAMPS-1] > 0) {
                 snprintf(buff, sizeof(buff), "%.5g", acs[primaryIdx].readnoise[NAMPS-1]);
@@ -774,13 +754,12 @@ int DoCCD (ACSInfo *acs_info) {
             trlmessage(MsgText);
 
             snprintf(MsgText, sizeof(MsgText), "    gain =");
-            {unsigned int i;
-            for (i=0; i < NAMPS-1; i++) {
+            for (size_t i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].atodgain[i] > 0) {
                     snprintf(buff, sizeof(buff), "%.5g,", acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
-            }}
+            }
 
             if (acs[primaryIdx].atodgain[NAMPS-1] > 0) {
                 snprintf(buff, sizeof(buff), "%.5g", acs[primaryIdx].atodgain[NAMPS-1]);
@@ -789,14 +768,13 @@ int DoCCD (ACSInfo *acs_info) {
             trlmessage(MsgText);
 
             snprintf(MsgText, sizeof(MsgText), "   default bias levels =");
-            {unsigned int i;
-            for (i=0; i < NAMPS-1; i++) {
+            for (size_t i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].ccdbias[i] > 0) {
                     snprintf(buff, sizeof(buff), "%.5g,",
                             acs[primaryIdx].ccdbias[i] * acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
-            }}
+            }
 
             if (acs[primaryIdx].ccdbias[NAMPS-1] > 0) {
                 snprintf(buff, sizeof(buff), "%.5g",
@@ -816,13 +794,12 @@ int DoCCD (ACSInfo *acs_info) {
     SinkMsg (&acs[primaryIdx], nextver);
 
     if (acs->sinkcorr == PERFORM) {
-        {unsigned int i;
-        for (i = 0; i < acs_info->nimsets; i++) {
+        for (size_t i = 0; i < acs_info->nimsets; i++) {
             if (SinkDetect(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return (status);
             }
-        }}
+        }
 
         PrSwitch("sinkcorr", COMPLETE);
 
@@ -848,8 +825,7 @@ int DoCCD (ACSInfo *acs_info) {
     */
     int option = 0; /* Write data to disk */
     int sizex = 0, sizey = 0;  /* size of output image */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (blevcorr[i] == COMPLETE || acs[i].blevcorr == COMPLETE) {
             /* BLEVCORR was completed, so overscan regions can be trimmed... */
             if (acs_info->verbose) {
@@ -901,7 +877,7 @@ int DoCCD (ACSInfo *acs_info) {
             TimeStamp ("Output written to disk", acs_info->rootname);
 
         /* x[i] memory will be freed on exit */
-    }}
+    }
 
     freeOnExit (&ptrReg);
 
@@ -957,7 +933,7 @@ void computeDarktime(ACSInfo *acs, float *darktime) {
     /* Subarray data */
     } else {
       if (acs->expstart >= CYCLE24) {
-        for (unsigned int i = 0; i < numSupportedDarkSubApertures; i++) {
+        for (size_t i = 0; i < numSupportedDarkSubApertures; i++) {
             if (strcmp(acs->aperture, darkSubApertures[i]) == 0) {
                 *darktime = darktimeFromHeader + darktimeOffset;
                 trlmessage("Supported Subarray adjusted Darktime: %f for aperture: %s", *darktime, darkSubApertures[i]);
