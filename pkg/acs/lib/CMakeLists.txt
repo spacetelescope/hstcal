@@ -16,6 +16,7 @@ add_library(${PROJECT_NAME} SHARED
 	acs2d/photmode.c
 	acs2d/sanity2d.c
 	acsccd/acsccd.c
+        acsccd/blev_func_main.c
 	acsccd/blev_funcs_postsm4.c
 	acsccd/blevdrift.c
 	acsccd/blevfit.c

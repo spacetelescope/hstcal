@@ -7,10 +7,8 @@
 #include <string.h>
 
 #include "acs.h"
-#include "acsdq.h"		/* for CALIBDEFECT */
 #include "acsinfo.h"
 #include "hstio.h"
-#include "hstcalerr.h"
 
 
 static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
@@ -39,14 +37,13 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
  where the column id was being incremented twice.
  */
 
-int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
+int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
             int *overscan, int *driftcorr) {
 
   /* arguments:
    ACSInfo *acs    i: calibration switches, etc
    SingleGroup *x    io: image to be calibrated
    int chip        i: chip number
-   float meanblev   o: mean value of bias levels that were subtracted
    int *overscan     io: true if bias determined from an overscan region in x
    int *driftcorr    o: true means correction for drift along lines was applied
    */
@@ -79,6 +76,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   double rn;
   double ampslope, ampintercept;  /* values from the bias level fit*/
   float ccdbias;      /* default bias level from CCDTAB */
+  float meanblev = 0;   /* mean value of overscan bias (for history) */
 
   /* Function definitions */
   int BlevDrift (SingleGroup *, int *, int *, int, int *, int *, short);
@@ -96,7 +94,6 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
 
   /* initial values */
   *driftcorr = 0;
-  *meanblev = 0.;
 
   binx = acs->bin[0];
   biny = acs->bin[1];
@@ -139,10 +136,9 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
 		    Pix (x->sci.data,i,j) = Pix (x->sci.data,i,j) - ccdbias;
     }
 
-    *meanblev = ccdbias;
     acs->blev[biasnum] = ccdbias;
     free (ccdamp);
-    return (status);
+    return status;
   }
 
   /* Determine bias levels from BIASSECT columns specified in OSCNTAB */
@@ -182,7 +178,6 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   /* For each amp used, determine bias level and subtract from
    appropriate region of chip */
   for (amp = 0; amp < numamps; amp++) {
-    bias_loc = 0;
     /* determine which section goes with the amp */
     /* bias_amp = 0 for BIASSECTA, = 1 for BIASSECTB */
     amploc = strchr (AMPSORDER, ccdamp[amp]);
@@ -250,7 +245,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
       if (BlevDrift (x, acs->vx, acs->vy, trimx1, biassect, driftcorr,
                      acs->sdqflags)) {
         free (ccdamp);
-        return (status);
+        return status;
       }
 
       /* Evaluate the fit for each line, and subtract from the data. */
@@ -304,14 +299,14 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   *overscan = YES;
 
   /* This is the mean value of all the bias levels subtracted. */
-  *meanblev = sumblev / numamps;
+  meanblev = (float)(sumblev / numamps);
 
   /* free ccdamp space allocated here... */
   free (ccdamp);
 
   trlmessage("Bias level from overscan has been subtracted;\n"
-             "     mean of bias levels subtracted was %.6g electrons.", *meanblev);
-  status = PutKeyFlt(&x->sci.hdr, "MEANBLEV", *meanblev, "mean of bias levels subtracted in electrons");
+             "     mean of bias levels subtracted was %.6g electrons.", meanblev);
+  status = PutKeyFlt(&x->sci.hdr, "MEANBLEV", meanblev, "mean of bias levels subtracted in electrons");
 
   return status;
 }
@@ -418,14 +413,15 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
 
 void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
   int j;
-  double bsum, bmean, sdev, svar;
+  double bsum=0.0;
+  double bmean=0.0;
+  double sdev=0.0;
+  double svar=0.0;
   double s;
-  int nsum;
-  float clip = 3.0;
+  int nsum=0;
+  float clip = 3;
   int nrej=0;
 
-  bsum = bmean = sdev = svar = 0.0;
-  nsum = 0;
 	for (j = 0;  j < ny;  j++) {
     if (bmask[j] == 1){
       bsum += barray[j];
