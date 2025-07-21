@@ -1368,10 +1368,7 @@ int sub_ctecor_v2c(float *pixz_raz,
 
       extern int status;
 
-      int i;
-      int j;
-      int jj;
-      int jmax;
+      size_t jmax;
 
       int    NITFOR, NITFORs;
       int    NITPAR, NITPARs;
@@ -1409,14 +1406,14 @@ int sub_ctecor_v2c(float *pixz_raz,
               NITPARs,NITFORs,                         \
               q_w,dpde_w,                              \
               rprof_wt,cprof_wt,Ws,NDONE)              \
-       private(i,j,ret,NCRX, DONE, NITFOR,NITPAR,      \
+       private(ret,NCRX, DONE, NITFOR,NITPAR,      \
                pixj_fff, pixj_raz, pixj_mod, pixj_rnz, \
                pixj_rsz, pixj_org, pixj_obs, pixj_chg)
 
       #pragma omp for
 
 
-      for(i=0;i<RAZ_COLS;i++) {
+      for(size_t i=0;i<RAZ_COLS;i++) {
 
          pixj_fff = malloc(RAZ_ROWS*8);
          pixj_raz = malloc(RAZ_ROWS*8);
@@ -1427,7 +1424,7 @@ int sub_ctecor_v2c(float *pixz_raz,
          pixj_obs = malloc(RAZ_ROWS*8);
          pixj_chg = malloc(RAZ_ROWS*8);
 
-         for(j=0;j<RAZ_ROWS;j++) {
+         for(size_t j=0;j<RAZ_ROWS;j++) {
             pixj_raz[j] = pixz_raz[i+j*RAZ_COLS];
             pixj_fff[j] = pixz_fff[i+j*RAZ_COLS];
          }
@@ -1437,13 +1434,13 @@ int sub_ctecor_v2c(float *pixz_raz,
          while(!DONE) {
              NCRX = NCRX + 1;
              DONE = 1;
-             for (j=0;j<RAZ_ROWS;j++) {
+             for (size_t j=0;j<RAZ_ROWS;j++) {
                 pixj_mod[j] = pixj_raz[j];
                 pixj_chg[j] = 0.0;
              }
              for(NITFOR=0;NITFOR<NITFORs;NITFOR++) {
                  ret = rm_rnZ_colj(pixj_mod,pixj_rnz,pixj_rsz,RNOI);
-                 for(j=0;j<RAZ_ROWS;j++) {
+                 for(size_t j=0;j<RAZ_ROWS;j++) {
                     pixj_org[j] = pixj_rsz[j];
                  }
                  for(NITPAR=1;NITPAR<=NITPARs;NITPAR++) {
@@ -1453,23 +1450,23 @@ int sub_ctecor_v2c(float *pixz_raz,
                                                    1,RAZ_ROWS,RAZ_ROWS,
                                                    q_w,dpde_w,NITPARs,
                                                    rprof_wt,cprof_wt,Ws);
-                     for (j=0;j<RAZ_ROWS;j++) {
+                     for (size_t j=0;j<RAZ_ROWS;j++) {
                         pixj_org[j] = pixj_obs[j];
                      }
                  }
-                 for(j=0;j<RAZ_ROWS;j++) {
+                 for(size_t j=0;j<RAZ_ROWS;j++) {
                      pixj_chg[j] = pixj_obs[j] - pixj_rsz[j];
                      pixj_mod[j] = pixj_raz[j] - pixj_chg[j];
                  }
              }
              if (FIX_ROCR<0) {
-                 for(j=15;j<=2060;j++) {
+                 for(size_t j=15;j<=2060;j++) {
                      if (pixj_mod[j] < FIX_ROCR &&
                          pixj_mod[j]-pixj_raz[j] < FIX_ROCR &&
                          pixj_mod[j] < pixj_mod[j+1] &&
                          pixj_mod[j] < pixj_mod[j-1]) {
                          jmax = j;
-                         for(jj=j-2;jj<j;jj++) {
+                         for(size_t jj=j-2;jj<j;jj++) {
                              if (pixj_mod[jj  ]-pixj_raz[jj  ] >
                                  pixj_mod[jmax]-pixj_raz[jmax]) {
                                  jmax = jj;
@@ -1484,7 +1481,7 @@ int sub_ctecor_v2c(float *pixz_raz,
              }
          }
 
-         for(j=0;j<RAZ_ROWS;j++) {
+         for(size_t j=0;j<RAZ_ROWS;j++) {
              pixz_rzc[i+j*RAZ_COLS] = pixj_mod[j];
              pixz_fff[i+j*RAZ_COLS] = pixj_fff[j];
          }

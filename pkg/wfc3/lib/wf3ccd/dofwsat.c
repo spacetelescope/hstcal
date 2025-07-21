@@ -69,13 +69,12 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     int DetCCDChip (char *, int, int, int *);
     void ComputeLimits(WF3Info *, int, int, int *, int *, int *, int *);
 
-    {unsigned int i;
-    for (i = 0; i < 2; i++) {
+    for (size_t i = 0; i < 2; i++) {
         xbeg[i] = -1;
         xend[i] = -1;
         ybeg[i] = -1;
         yend[i] = -1;
-    }}
+    }
 
     /* Initialize local variables */
     rx = 1;
@@ -223,29 +222,26 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     if (same_size) {
 
         /* Loop over the lines in the science image */
-        {unsigned int  j;
-        for (j=ybeg[0]; j < yend[0]; j++) {
+        for (size_t j=ybeg[0]; j < yend[0]; j++) {
 
             /* Loop over the indices in the line in the science image */
-            {unsigned int  i;
-            for (i = xbeg[0];  i < xend[0];  i++) {
+            for (size_t i = xbeg[0];  i < xend[0];  i++) {
                 /* Flag full-well saturated pixels with 256 dq bit*/             
                 if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, i, j) / wf3->mean_gain)) {
                     sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);
                 }
-            }}
+            }
 
             /* If there is a second Amp in play, complete the processing of the line */ 
-            {unsigned int  i;
-            for (i = xbeg[1];  i < xend[1];  i++) {
+            for (size_t i = xbeg[1];  i < xend[1];  i++) {
                 /* Flag full-well saturated pixels with 256 dq bit*/             
                 if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, i, j) / wf3->mean_gain)) {
                     sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);
                 }
-            }}
-        }}
+            }
+        }
         trlmessage("Full-frame full-well saturation image flagging step done.\n");
 
     /* Subarray */
@@ -260,15 +256,13 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
            l - line in reference image
         */
 
-        {unsigned int j, l;
-        for (j = 0, l = y0; j < ydim; j++, l++) {
+        for (size_t j = 0, l = y0; j < ydim; j++, l++) {
 
             /* Working with a subarray so need to apply the proper 
                section from the reference image to the science image.
             */
 
-            {unsigned int i, k;
-            for (i = 0, k = x0; i < xdim; i++, k++) {
+            for (size_t i = 0, k = x0; i < xdim; i++, k++) {
 
                 /* Increase the value of l to jump over the virtual overscan */
                 if (i == overstart)
@@ -279,8 +273,8 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 			        sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);
 		        }
-            }}
-        }}
+            }
+        }
         trlmessage("Subarray full-well saturation image flagging step done.\n");
     }
 
