@@ -29,12 +29,12 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
         return;
 
     //check ptr isn't already registered? - go on then.
-    {int i;
-    for (i = reg->cursor; i >= 0 ; --i)// i >= 0 prevents adding self again
+    // i >= 0 prevents adding self again
+    for (ssize_t i = reg->cursor; i >= 0 ; --i)
     {
         if (reg->ptrs[i] == ptr)
             return;
-    }}
+    }
 
     if (ptr == reg)
     {
@@ -70,18 +70,15 @@ void freePtr(PtrRegister * reg, void * ptr)
     if (!reg || !ptr || !reg->cursor)
         return;
 
-    int i;
     Bool found = False;
-    for (i = reg->cursor; i > 0 ; --i)
-    {
-        if (reg->ptrs[i] == ptr)
-        {
+    size_t i = 0;
+    for (i = reg->cursor; i > 0 ; --i) {
+        if (reg->ptrs[i] == ptr) {
             found = True;
             break;
         }
     }
-    if (!found)
-    {
+    if (!found) {
         freeOnExit(reg); // Note: Whilst the point of this outer IF accounts for direct calls to freePtr() with unregistered ptrs,
                          // it is also called internally from freeOnExit(). A bug in the register code is liable to create an infinite
                          // recursion segfault due this call present here.
@@ -91,13 +88,10 @@ void freePtr(PtrRegister * reg, void * ptr)
     //call function to free ptr
     reg->freeFunctions[i](ptr);
 
-    if (i == reg->cursor)
-    {
+    if (i == reg->cursor) {
         reg->ptrs[i] = NULL;
         reg->freeFunctions[i] = NULL;
-    }
-    else
-    {
+    } else {
         //move last one into gap to close - not a stack so who cares
         reg->ptrs[i] = reg->ptrs[reg->cursor];
         reg->ptrs[reg->cursor] = NULL;
