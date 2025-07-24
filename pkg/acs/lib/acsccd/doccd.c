@@ -30,61 +30,28 @@
      of the reference of the output data unnecessarily. Return type of the
      computeDarktime() is void.  Mods triggered by routine failing under the
      condaforge compilation.
+ 23-Jul-2025 PLL: Moved some code out of doccd.c in order to lessen
+     its complexity .
 
 ** This code is a trimmed down version of CALSTIS1 do2d.c.
 */
-# include <string.h>
-# include <stdio.h>
-
+#include <string.h>
+#include "acs.h"
+#include "acsinfo.h"
 #include "hstcal_memory.h"
-#include "hstcal.h"
-# include "hstio.h"
-
-# include "acs.h"
-# include "acsinfo.h"
-# include "hstcalerr.h"
-
+#include "hstcalerr.h"
+#include "hstio.h"
 
 static void dqiMsg (ACSInfo *, const int);
 static void BiasMsg (ACSInfo *, const int);
 static void BlevMsg (ACSInfo *, const int);
 static void SinkMsg (ACSInfo *, const int);
 
-/* This variable contains the subarray aperture names for the officially supported
-   subarrays since ~Cycle 24.  The polarizer and ramp subarray apertures did NOT
-   change aperture names, even though the dimensions of the data changed to accommodate
-   overscan.  In addition to checking the aperture name, the dimensions will also need
-   to be checked for pol/ramp data to determine if the bias shift correction
-   can be applied.
-
-   The non-pol and non-ramp data adopted new aperture names for easy identification.
-   These apertures contain physical overscan.  The new "-2K" subarrays also have virtual
-   overscan so the bias shift correction can be applied to this data. At this time,
-   bias shift correction can only be applied to data with both physical and virtual
-   overscan so the "fat zero" value can be computed.
-*/
-static const char *subApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
-                                     "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-MRAMPQ", "WFC2-ORAMPQ",
-                                     "WFC1-POL0UV", "WFC1-POL0V", "WFC2-POL0UV", "WFC2-POL0V",
-                                     "WFC1-POL60UV", "WFC1-POL60V", "WFC2-POL60UV", "WFC2-POL60V",
-                                     "WFC1-POL120UV", "WFC1-POL120V", "WFC2-POL120UV", "WFC2-POL120V"};
-static const int numSupportedSubApertures = sizeof(subApertures) / sizeof(subApertures[0]);
-
-static const char *darkSubApertures[] = {"WFC1A-2K", "WFC1B-2K", "WFC2C-2K", "WFC2D-2K",
-                                     "WFC1A-1K", "WFC1B-1K", "WFC2C-1K", "WFC2D-1K",
-                                     "WFC1A-512", "WFC1B-512", "WFC2C-512", "WFC2D-512",
-                                     "WFC1-IRAMPQ", "WFC1-MRAMPQ", "WFC2-ORAMPQ",
-                                     "WFC1-POL0UV", "WFC1-POL0V",
-                                     "WFC1-POL60UV", "WFC1-POL60V",
-                                     "WFC1-POL120UV", "WFC1-POL120V",
-                                     "WFC1-SMFL"};
-
-static const int numSupportedDarkSubApertures = sizeof(darkSubApertures) / sizeof(darkSubApertures[0]);
 
 int DoCCD (ACSInfo *acs_info) {
 
     /* arguments:
-       acs   i: calibration switches and info
+       acs_info   i: calibration switches and info
     */
 
     extern int status;
@@ -95,10 +62,7 @@ int DoCCD (ACSInfo *acs_info) {
     void computeDarktime(ACSInfo *, float *);
     int doBias (ACSInfo *, SingleGroup *);
     int biasHistory (ACSInfo *, Hdr *);
-    int doBlev (ACSInfo *, SingleGroup *, int, float *, int *, int *);
-    int bias_shift_corr(ACSInfo *, int, ...);
-    void cross_talk_corr(ACSInfo *, SingleGroup *);
-    int doDestripe(ACSInfo *, SingleGroup *, SingleGroup *);
+    int performBlevCorr(ACSInfo *, ACSInfo *, SingleGroup *, int *, int *, int *, int * , int *);
     int blevHistory (ACSInfo *, Hdr *, int, int);
     int CCDHistory (ACSInfo *, Hdr *);
     int doDQI (ACSInfo *, SingleGroup *);
@@ -177,14 +141,14 @@ int DoCCD (ACSInfo *acs_info) {
     for (i = 0; i < acs_info->nimsets; i++) {
         if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
 
         /* Read in keywords from primary header... */
 
         if (GetKeyBool(x[i].globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray)) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
 
         if (subarray)
@@ -198,42 +162,42 @@ int DoCCD (ACSInfo *acs_info) {
         /* Get values from tables, using same function used in ACSCCD. */
         if (GetCCDTab(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny)) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
     }}
 
     int primaryIdx = 0;
     if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNA", acs[primaryIdx].atodgain[0], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNB", acs[primaryIdx].atodgain[1], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNC", acs[primaryIdx].atodgain[2], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGND", acs[primaryIdx].atodgain[3], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSEA", acs[primaryIdx].readnoise[0], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSEB", acs[primaryIdx].readnoise[1], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSEC", acs[primaryIdx].readnoise[2], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     if (PutKeyFlt(x[primaryIdx].globalhdr, "READNSED", acs[primaryIdx].readnoise[3], "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
 
     trlmessage("\n");
@@ -243,7 +207,7 @@ int DoCCD (ACSInfo *acs_info) {
 
     if (CCDHistory(&acs[primaryIdx], x[primaryIdx].globalhdr)) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
 
     /* Get overscan region information from OSCNTAB */
@@ -268,7 +232,7 @@ int DoCCD (ACSInfo *acs_info) {
         if (FindOverscan(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny,
                          &overscan[i], &virtOverscan[i])) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
     }}
 
@@ -282,7 +246,7 @@ int DoCCD (ACSInfo *acs_info) {
         if (acs[i].dqicorr == PERFORM || acs[i].dqicorr == DUMMY) {
             if (doDQI(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
         }
     }}
@@ -295,7 +259,7 @@ int DoCCD (ACSInfo *acs_info) {
     if (!OmitStep(acs[primaryIdx].dqicorr)) {
         if (dqiHistory(&acs[primaryIdx], x[primaryIdx].globalhdr)) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
     }
     /************************************************************************/
@@ -309,7 +273,7 @@ int DoCCD (ACSInfo *acs_info) {
         if (acs[i].biascorr == PERFORM) {
             if (doBias(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
         }
     }}
@@ -322,7 +286,7 @@ int DoCCD (ACSInfo *acs_info) {
     if (!OmitStep(acs[primaryIdx].biascorr)) {
         if (biasHistory(&acs[primaryIdx], x[primaryIdx].globalhdr)) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
        }
     }
     /************************************************************************/
@@ -333,16 +297,16 @@ int DoCCD (ACSInfo *acs_info) {
     for (i = 0; i < acs_info->nimsets; i++) {
         if (to_electrons(&acs[i], &x[i])) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
 
         if (PutKeyStr(&x[i].sci.hdr, "BUNIT", "ELECTRONS", "")) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
         if (PutKeyStr(&x[i].err.hdr, "BUNIT", "ELECTRONS", "")) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
     }}
     /************************************************************************/
@@ -364,339 +328,18 @@ int DoCCD (ACSInfo *acs_info) {
         blevcorr[i] = PERFORM;
     }}
 
-    /* The logic here has been re-written (1) to accommodate the new subarrays
-       (Ref: ISR ACS 2017-03) which can be bias shift corrected ("*-2K" data only at
-       this time), and (2) the head of the ACS team requested the logic be clarified.
-       This code is verbose and potentially harder to maintain, but the logic is clearer
-       for the scientist reading the code.
-
-       NOTE: The variable "done" is overloaded.  When done = overscan[i], this means
-       a column was matched in the OSCNTAB for the image and there is physical overscan
-       in the image.  Variable "done" is updated in doblev() to indicate the bias has
-       been determined from the overscan region rather than using a default bias obtained
-       from CCDTAB.
-    */
-
     int done = NO;
     int driftcorr = NO;     /* true means bias level was corrected for drift */
-    Bool isSupportedSubAperture = NO;
-    float meanblev = 0.0;   /* mean value of overscan bias (for history) */
-    if (acs_info->blevcorr == PERFORM) {
 
-       /* This block handles only the WFC detector */
-       if (acs_info->detector == WFC_CCD_DETECTOR) {
-
-          /* If this is subarray data, determine if it is supported for the bias shift
-             correction.  Compare the aperture name against the array of supported
-             apertures.  Use the aperture name and not the date as the discriminant
-             as the date is fuzzy - some supported subarrays were acquired before the
-             official name change, and some old style subarrays were acquired after the
-             change.  This scheme works fine for non-polarization and non-ramp data as the
-             "*-2K" apertures have both physical and virtual overscan.  These are needed
-             to compute the "fat zero" (aka magic square) value needed for the bias
-             shift correction.  The "*-1K and *-512" subarrays do not have virtual
-             overscan which is needed at this time for fat zero.
-
-             For polarization and ramp subarrays, the aperture names did not change.  For
-             this data, the dimensions of the image also have to be checked to determine
-             if there are both physical and virtual overscan sections so the bias shift
-             correction can be applied.
-          */
-          if (acs_info->subarray == YES) {
-             {unsigned int i;
-             for (i = 0; i < numSupportedSubApertures; i++) {
-                 if (strcmp(acs_info->aperture, subApertures[i]) == 0) {
-
-                    /* If this is polarization or ramp data, then the size of the science
-                       array must also be checked to make sure there is physical and
-                       virtual overscan data.  This does not need to be checked explicitly
-                       for non-polarization or non-ramp data, but the comparison works for
-                       this data too.  Only need to check one virtOverscan value in the array.
-
-                       NOTE:Just because the aperture is supported does not mean the bias
-                       shift correction will be applied.  The DS_int and gain criteria also
-                       have to be satisfied.
-                    */
-                    if (virtOverscan[0]) {
-                       isSupportedSubAperture = YES;
-                       trlmessage("This subarray data is supported for the bias shift correction.");
-                    }
-                 }
-             }}
-          }
-
-          /* Only Pre-SM4 WFC data - this is the original bias level subtraction */
-          if (acs_info->expstart < SM4MJD) {
-
-             {unsigned int i;
-             for (i = 0; i < acs_info->nimsets; i++) {
-
-                 /* The variable done is set to the results of FindOver indicating there is
-                    physical overscan. */
-                 done = overscan[i];
-
-                 if (doBlev(&acs[i], &x[i], acs[i].chip, &meanblev, &done, &driftcorr)) {
-                    freeOnExit (&ptrReg);
-                    return (status);
-                 }
-
-                 /* Variable done is overwritten in doBlev if bias is determined from overscan region */
-                 if (done) {
-                    trlmessage("Bias level from overscan has been subtracted;");
-
-                    if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
-                                   "mean of bias levels subtracted in electrons")) {
-                       freeOnExit (&ptrReg);
-                       return (status);
-                    }
-
-                    trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);
-
-                 } else {
-                       trlmessage("Default bias level from CCDTAB was subtracted.");
-                 }
-
-                 /* Provide immediate feedback to the user on the values computed
-                    for each AMP, but only for those amps used for the chip being
-                    processed.
-                 */
-                 {unsigned int j;
-                 for (j = 0; j < NAMPS; j++) {
-                     if (acs[i].blev[j] != 0.) {
-                         trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
-
-                         acs_info->blev[j] = acs[i].blev[j];
-                     }
-                 }}
-
-                 /* Set this to complete so overscan-trimmed image will be written out. */
-                 blevcorr[i] = COMPLETE;
-
-             }} /* End loop over imsets */
-
-             PrSwitch("blevcorr", COMPLETE);
-
-             if (acs_info->printtime)
-                TimeStamp("BLEVCORR complete", acs_info->rootname);
-
-          /* End Pre-SM4 WFC data */
-          } else {
-
-             /* Post-SM4 WFC data - Fullframe data with DS_int and gain of 2 will
-                have bias shift, cross talk, and destripe corrections applied.  Supported
-                subarray data with DS_int and gain of 2 will have the bias shift applied as
-                cross talk and destripe do not apply to subarray data.
-             */
-
-             /* The variable done is set based on results of FindOver */
-             done = NO;
-             if ((overscan[0] == YES) && (overscan[1] == YES))
-                done = YES;
-
-             /* Process full frame data */
-             if (acs_info->subarray == NO) {
-
-                if (done) {
-                   PrSwitch("blevcorr", PERFORM);
-
-                   /* Only do bias-shift and cross talk corrections of images taken
-                      with gain = 2 and in dual-slope integrator mode.  These corrections
-                      are done on a per chip basis (one chip per imset).
-                   */
-                   if (strcmp(acs_info->jwrotype, "DS_INT") == 0 &&
-                           acs_info->ccdgain == 2) {
-                      trlmessage("Performing bias-shift and cross talk corrections for full frame data.");
-
-                      if (bias_shift_corr(acs_info, acs_info->nimsets, &x[0], &x[1])) {
-                         freeOnExit (&ptrReg);
-                         return status;
-                      }
-
-                      {unsigned int i;
-                      for (i = 0; i < acs_info->nimsets; i++) {
-                          cross_talk_corr(&acs[i], &x[i]);
-                      }}
-                   } else {
-                      trlmessage("WFC readout type/gain not set as needed, no bias shift nor cross talk correction done for full frame data.");
-                   }
-
-                   trlmessage("Performing stripe removal and bias level subtraction for full frame data.");
-
-                   if (doDestripe(acs_info, &x[0], &x[1])) {
-                      freeOnExit (&ptrReg);
-                      return status;
-                   }
-
-                   {unsigned int i;
-                   for (i = 0; i < acs_info->nimsets; i++) {
-                       blevcorr[i] = COMPLETE;
-                   }}
-
-                   PrSwitch("blevcorr", COMPLETE);
-
-                   if (acs_info->printtime) {
-                       TimeStamp("BLEVCORR complete", acs->rootname);
-                   }
-                } else {
-                   trlmessage("Overscan missing, no destriping or bias level subtraction possible for full frame data.");
-                }
-
-                driftcorr = NO;
-
-             /* Process subarray data */
-             } else {
-
-                /* Supported subarray data with physical and virtual overscan can be
-                   processed in the same manner as full frame data.  The data must
-                   also be DS_int with a gain of 2.
-
-                   No need to check "done" here as the isSupportedSubAperture has been set based upon
-                   tha array names of supported subarrays AND the determination they have virtual overscan
-                   according to the image size (e.g., WFC1A-2K with size 2072x2068).
-                */
-                if ((isSupportedSubAperture == YES) && (strcmp(acs_info->jwrotype, "DS_INT") == 0) &&
-                              (acs_info->ccdgain == 2)) {
-                   PrSwitch("blevcorr", PERFORM);
-
-                   trlmessage("Performing bias-shift correction for subarray data.");
-
-                   /* Only bias shift correction is done for subarray data. For a supported
-                      subarray, there is only one amp on a single chip in use.
-                   */
-                   if (bias_shift_corr(acs_info, 1, &x[0])) {
-                      freeOnExit (&ptrReg);
-                      return status;
-                   }
-
-                   /* There is only one imset for supported subarrays */
-                   blevcorr[primaryIdx] = COMPLETE;
-                   PrSwitch("blevcorr", COMPLETE);
-
-                   if (acs_info->printtime) {
-                      TimeStamp("BLEVCORR complete", acs->rootname);
-                   }
-
-                   driftcorr = NO;
-
-                   /* Unsupported subarray apertures and other oddities.  These
-                      are processed using the original/old bias correction algorithm.
-                   */
-                } else {
-                   trlmessage("WFC readout is not a supported subarray or type/gain not set as needed for new bias level algorithm for subarray data.");
-                   trlmessage("Data to be processed with original bias level algorithm.");
-
-                   {unsigned int i;
-                   for (i = 0; i < acs_info->nimsets; i++) {
-
-                       /* This is set based on results of FindOver */
-                       done = overscan[i];
-
-                       if (doBlev(&acs[i], &x[i], acs[i].chip, &meanblev, &done, &driftcorr)) {
-                          freeOnExit (&ptrReg);
-                          return (status);
-                       }
-
-                       /* Variable done is overwritten in doBlev if bias is determined from overscan region */
-                       if (done) {
-                          trlmessage("Bias level from overscan has been subtracted;");
-
-                          if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
-                                         "mean of bias levels subtracted in electrons")) {
-                             freeOnExit (&ptrReg);
-                             return (status);
-                          }
-
-                          trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);
-                       } else {
-                          trlmessage("Default bias level from CCDTAB was subtracted.");
-                       }
-
-                       /* Provide immediate feedback to the user on the values computed
-                          for each AMP, but only for those amps used for the chip being
-                          processed.
-                       */
-                       {unsigned int j;
-                       for (j = 0; j < NAMPS; j++) {
-                           if (acs[i].blev[j] != 0.) {
-                               trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
-
-                               acs_info->blev[j] = acs[i].blev[j];
-                           }
-                       }}
-
-                       /* Set this to complete so overscan-trimmed image will be written out. */
-                       blevcorr[i] = COMPLETE;
-                   }}
-
-                   PrSwitch("blevcorr", COMPLETE);
-
-                   if (acs_info->printtime)
-                      TimeStamp("BLEVCORR complete", acs_info->rootname);
-
-                } /* End subarray processing */
-
-             } /* End of full frame/subarray data */
-
-          } /* End of Pre-/Post-SM4 data */
-
-       } /* End of only WFC detector */
-
-       /* All HRC data - use the original bias level subtraction correction */
-       else {
-            {unsigned int i;
-            for (i = 0; i < acs_info->nimsets; i++) {
-                /* This is set based on results of FindOver */
-                done = overscan[i];
-
-                if (doBlev(&acs[i], &x[i], acs[i].chip, &meanblev, &done, &driftcorr)) {
-                   freeOnExit (&ptrReg);
-                   return (status);
-                }
-
-                /* Variable done is overwritten in doBlev if bias is determined from overscan region */
-                if (done) {
-                   trlmessage("Bias level from overscan has been subtracted;");
-
-                   if (PutKeyFlt(&x[i].sci.hdr, "MEANBLEV", meanblev,
-                                  "mean of bias levels subtracted in electrons")) {
-                      freeOnExit (&ptrReg);
-                      return (status);
-                   }
-
-                   trlmessage("     mean of bias levels subtracted was %.6g electrons.", meanblev);
-                } else {
-                   trlmessage("Default bias level from CCDTAB was subtracted.");
-                }
-
-                /* Provide immediate feedback to the user on the values computed
-                   for each AMP, but only for those amps used for the chip being
-                   processed.
-                */
-                {unsigned int j;
-                for (j = 0; j < NAMPS; j++) {
-                    if (acs[i].blev[j] != 0.) {
-                        trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.", acs[i].blev[j], AMPSORDER[j]);
-                        acs_info->blev[j] = acs[i].blev[j];
-                    }
-                }}
-
-                /* Set this to complete so overscan-trimmed image will be written out. */
-                blevcorr[i] = COMPLETE;
-            }}
-
-            PrSwitch("blevcorr", COMPLETE);
-
-            if (acs_info->printtime)
-               TimeStamp("BLEVCORR complete", acs_info->rootname);
-
-       } /* End for HRC data */
-
-    } /* End of BLEVCORR = PERFORM */
+    if (performBlevCorr(acs_info, acs, x, overscan, virtOverscan, blevcorr, &driftcorr, &done)) {
+        freeOnExit (&ptrReg);
+        return status;
+    }
 
     if (!OmitStep(acs[primaryIdx].blevcorr)) {
         if (blevHistory(&acs[primaryIdx], x[primaryIdx].globalhdr, done, driftcorr)) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
     }
     /************************************************************************/
@@ -710,7 +353,7 @@ int DoCCD (ACSInfo *acs_info) {
     computeDarktime(&acs[0], &darktime);
     if (PutKeyFlt(x[0].globalhdr, "DARKTIME", darktime, "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     /************************************************************************/
 
@@ -730,7 +373,7 @@ int DoCCD (ACSInfo *acs_info) {
             trlmessage("\nFull-well saturation flagging being performed for imset %d.\n", i+1);
             if (doFullWellSat(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
         } else {
             trlwarn("\nNo Full-well saturation flagging being performed for imset %d.\n", i+1);
@@ -745,14 +388,14 @@ int DoCCD (ACSInfo *acs_info) {
         for (i = 0; i < acs_info->nimsets; i++) {
             if (doNoise(&acs[i], &x[i], &done)) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
         }}
 
         if (done) {
             if (noiseHistory(x[primaryIdx].globalhdr)) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
 
             trlmessage("\n    Uncertainty array initialized,");
@@ -820,7 +463,7 @@ int DoCCD (ACSInfo *acs_info) {
         for (i = 0; i < acs_info->nimsets; i++) {
             if (SinkDetect(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
         }}
 
@@ -832,7 +475,7 @@ int DoCCD (ACSInfo *acs_info) {
 
     if ((status = sinkHistory(&acs[primaryIdx], x[primaryIdx].globalhdr))) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     /************************************************************************/
 
@@ -869,11 +512,11 @@ int DoCCD (ACSInfo *acs_info) {
             /* Update SIZAXIS keywords to reflect the new trimmed image size. */
             if (PutKeyInt(&x[i].sci.hdr, "SIZAXIS1", sizex,"")) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
             if (PutKeyInt(&x[i].sci.hdr, "SIZAXIS2", sizey,"")) {
                 freeOnExit (&ptrReg);
-                return (status);
+                return status;
             }
 
             /* Now, write out updated trimmed data to disk... */
@@ -905,68 +548,7 @@ int DoCCD (ACSInfo *acs_info) {
 
     freeOnExit (&ptrReg);
 
-    return (status);
-}
-
-/*
- * This routine updates the DARKTIME value such that every BLV_TMP file will
- * have the correct DARKTIME keyword.
- */
-void computeDarktime(ACSInfo *acs, float *darktime) {
-
-    float darktimeFromHeader;  /* base darktime value from FITS keyword DARKTIME in image header */
-    float darktimeOffset;      /* overhead offset time (s) based upon full-frame/subarray and post-flashed/unflashed */
-
-    /* Get the DARKTIME FITS keyword value stored in the ACSInfo structure */
-    darktimeFromHeader = (float)acs->darktime;
-
-    /*
-       The overhead offset time is a function of full-frame vs subarray and post-flash vs unflashed
-       and has been determined empirically for CCD data.  Both the unflashed and post-flash
-       overhead values for full-frame or subarray were extracted from the calibration file
-       during the table read.  Now it is just necessary to determine which offset actually
-       applies.
-    */
-
-    /* Unflashed observation */
-    darktimeOffset = acs->overhead_unflashed;
-
-    /* Post-flashed observation */
-    if ((acs->flashdur > 0.0) && (strcmp(acs->flashstatus, "SUCCESSFUL") == 0)) {
-          darktimeOffset = acs->overhead_postflashed;
-    }
-
-    /*
-       Compute the final darktime based upon the date of full-frame or subarray data.
-       The full-frame overhead offset is applicable to all data post-SM4.  The subarray
-       overhead offset is applicable to all data post-CYCLE24 and ONLY for supported
-       subarrays.
-
-       Effectively the additive factor only applies to ACS/WFC as the HRC was no longer
-       operational by SM4MJD or CYCLE24, and SBC is a MAMA detector.
-    */
-    *darktime = darktimeFromHeader;  /* Default */
-
-    /* Full-frame data */
-    if (acs->subarray == NO) {
-      if (acs->expstart >= SM4MJD) {
-        *darktime = darktimeFromHeader + darktimeOffset;
-      }
-      trlmessage("Full Frame adjusted Darktime: %f", *darktime);
-
-    /* Subarray data */
-    } else {
-      if (acs->expstart >= CYCLE24) {
-        for (unsigned int i = 0; i < numSupportedDarkSubApertures; i++) {
-            if (strcmp(acs->aperture, darkSubApertures[i]) == 0) {
-                *darktime = darktimeFromHeader + darktimeOffset;
-                trlmessage("Supported Subarray adjusted Darktime: %f for aperture: %s", *darktime, darkSubApertures[i]);
-                break;
-            }
-        }
-      }
-    }
-    trlmessage("DARKTIME from SCI header: %f  Offset from CCDTAB: %f  Final DARKTIME: %f", darktimeFromHeader, darktimeOffset, *darktime);
+    return status;
 }
 
 
