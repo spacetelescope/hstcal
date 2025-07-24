@@ -242,9 +242,9 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
     int encounteredList[hduNum]; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
     unsigned encounteredListCursor = 0; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
     // open each HDU and count
-    {unsigned i;
-    for (i = 1; i <= hduNum; ++i) // HDUs are 1 based
-    {
+
+    // HDUs are 1 based
+    for (int i = 1; i <= hduNum; ++i) {
         int loopStatus = HSTCAL_OK; // decl here to auto reset
         int extHDUType = ANY_HDU; // This is populated by fits_movabs_hdu() but init anyhow
         if (fits_movabs_hdu(fptr, i, &extHDUType, &loopStatus))
@@ -277,7 +277,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
             int match = FALSE;
             int exact = FALSE;
             int caseSensitive = TRUE;
-            fits_compare_str(setContainsExtName, keyValue, caseSensitive, &match, &exact);
+            fits_compare_str((char *) setContainsExtName, keyValue, caseSensitive, &match, &exact);
             if (match || exact)
                 (*total)++;
         }
@@ -287,15 +287,12 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
             int extVer = atoi(keyValue);
             bool alreadyCounted = false;
             // Ugly, but list size should be small so who cares
-            {unsigned j;
-            for (j = 0; j < encounteredListCursor; ++j)
-            {
-                if (extVer == encounteredList[j])
-                {
+            for (size_t j = 0; j < encounteredListCursor; ++j) {
+                if (extVer == encounteredList[j]) {
                     alreadyCounted = true;
                     break;
                 }
-            }}
+            }
             // Add to list and inc. total
             if (!alreadyCounted)
             {
@@ -303,7 +300,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
                 (*total)++;
             }
         }
-    }}
+    }
 
     fits_close_file(fptr, &tmpStatus);
     return HSTCAL_OK;
@@ -536,21 +533,18 @@ int swapFloatStorageOrder(FloatTwoDArray * target, const FloatTwoDArray * source
     if (targetStorageOrder == source->storageOrder)
         return 0;
 
-    const unsigned nRows = target->ny;
-    const unsigned nCols = target->nx;
+    const size_t nRows = target->ny;
+    const size_t nCols = target->nx;
 
-    {unsigned j;
-    for (j = 0; j < nCols; ++j)
-    {
-        {unsigned i;
-        for (i = 0; i < nRows; ++i)
+    for (size_t j = 0; j < nCols; ++j) {
+        for (size_t i = 0; i < nRows; ++i)
         {
             if (targetStorageOrder == COLUMNMAJOR)
                 target->data[j*nRows + i] = source->data[i*nCols + j];
             else
                 target->data[i*nCols + j] = source->data[j*nRows + i];
-        }}
-    }}
+        }
+    }
     return 0;
 }
 
@@ -564,21 +558,17 @@ int swapShortStorageOrder(ShortTwoDArray * target, const ShortTwoDArray * source
     if (targetStorageOrder == source->storageOrder)
         return 0;
 
-    const unsigned nRows = target->ny;
-    const unsigned nCols = target->nx;
+    const size_t nRows = target->ny;
+    const size_t nCols = target->nx;
 
-    {unsigned j;
-    for (j = 0; j < nCols; ++j)
-    {
-        {unsigned i;
-        for (i = 0; i < nRows; ++i)
-        {
+    for (size_t j = 0; j < nCols; ++j) {
+        for (size_t i = 0; i < nRows; ++i) {
             if (targetStorageOrder == COLUMNMAJOR)
                 target->data[j*nRows + i] = source->data[i*nCols + j];
             else
                 target->data[i*nCols + j] = source->data[j*nRows + i];
-        }}
-    }}
+        }
+    }
     return 0;
 }
 
@@ -1037,28 +1027,26 @@ void setStorageOrder(SingleGroup * group, enum StorageOrder storageOrder)
 void copyOffsetFloatData(float * output, const float * input,
         unsigned nRows, unsigned nColumns,
         unsigned outputOffset, unsigned inputOffset,
-        unsigned outputSkipLength, unsigned inputSkipLength)
-{
+        unsigned outputSkipLength, unsigned inputSkipLength) {
     //WARNING - assumes row major storage
-    {unsigned ithRow;
 #ifdef _OPENMP
-    #pragma omp parallel for shared(output, input) private(ithRow) schedule(static)
+#pragma omp parallel for shared(output, input) schedule(static)
 #endif
-    for (ithRow = 0; ithRow < nRows; ++ithRow)
+    for (size_t ithRow = 0; ithRow < nRows; ++ithRow) {
         memcpy(output + outputOffset + ithRow*outputSkipLength, input + inputOffset + ithRow*inputSkipLength, nColumns*sizeof(*output));
     }
 }
+
 void copyOffsetShortData(short * output, const short * input,
         unsigned nRows, unsigned nColumns,
         unsigned outputOffset, unsigned inputOffset,
         unsigned outputSkipLength, unsigned inputSkipLength)
 {
     //WARNING - assumes row major storage
-    {unsigned ithRow;
 #ifdef _OPENMP
-    #pragma omp parallel for shared(output, input) private(ithRow) schedule(static)
+    #pragma omp parallel for shared(output, input) schedule(static)
 #endif
-    for (ithRow = 0; ithRow < nRows; ++ithRow)
+    for (size_t ithRow = 0; ithRow < nRows; ++ithRow) {
         memcpy(output + outputOffset + ithRow*outputSkipLength, input + inputOffset + ithRow*inputSkipLength, nColumns*sizeof(*output));
     }
 }
@@ -2676,7 +2664,7 @@ int putHeader(IODescPtr iodesc_) {
 
 int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
         IODesc *iodesc = (IODesc *)iodesc_;
-        int no_dims, i, j;
+        int no_dims;
         long fpixel[2];
         int anynul;
         int type;
@@ -2717,8 +2705,8 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             }
 
             if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], False)) return -1;
-            for (j = 0; j < iodesc->dims[1]; ++j) {
-                for (i = 0; i < iodesc->dims[0]; ++i) {
+            for (size_t j = 0; j < iodesc->dims[1]; ++j) {
+                for (size_t i = 0; i < iodesc->dims[0]; ++i) {
                     PPix(da, i, j) = val;
                 }
             }
@@ -2746,7 +2734,7 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             fpixel[0] = 1;
             if (da->storageOrder == ROWMAJOR)
             {
-                for (i = 0; i < iodesc->dims[1]; ++i) {
+                for (ssize_t i = 0; i < iodesc->dims[1]; ++i) {
                     fpixel[1] = i + 1;
                     if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
                             &(PPix(da, 0, i)), &anynul, &status)) {
@@ -2761,16 +2749,14 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
                 float * row = malloc(nColumns*sizeof(float));
                 if (!row)
                     return OUT_OF_MEMORY;
-                for (i = 0; i < iodesc->dims[1]; ++i)
-                {
+                for (ssize_t i = 0; i < iodesc->dims[1]; ++i) {
                     fpixel[1] = i + 1;
                     if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, nColumns, 0,
                             row, &anynul, &status)) {
                         ioerr(BADREAD,iodesc, status);
                         return -1;
                     }
-                    {unsigned j;
-                    for (j = 0; j < nColumns; ++j)
+                    for (size_t j = 0; j < nColumns; ++j) {
                         PPixColumnMajor(da, i, j) = row[j];
                     }
                 }

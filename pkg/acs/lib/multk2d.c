@@ -25,9 +25,8 @@ float k          i: multiply a by this constant
     int dimx = a->sci.data.nx;
     int dimy = a->sci.data.ny;
     
-    {unsigned int i, j;
-    for (j = 0;  j < dimy;  j++) {
-        for (i = 0;  i < dimx;  i++) {
+    for (size_t j = 0;  j < dimy;  j++) {
+        for (size_t i = 0;  i < dimx;  i++) {
 
             /* science array */
             Pix (a->sci.data, i, j) = k * Pix (a->sci.data, i, j);
@@ -35,7 +34,7 @@ float k          i: multiply a by this constant
             /* error array */
             Pix (a->err.data, i, j) = k * Pix (a->err.data, i, j);
         }
-    }}
+    }
 
 	return (status);
 }
@@ -52,9 +51,8 @@ void AvgSciVal (SingleGroup *y, short sdqflags, double *mean, double *weight) {
     int dimx = y->sci.data.nx;
     int dimy = y->sci.data.ny;
 
-    {unsigned int i, j;
-    for (j = 0; j < dimy; j++) {
-        for (i = 0;  i < dimx;  i++) {
+    for (size_t j = 0; j < dimy; j++) {
+        for (size_t i = 0;  i < dimx;  i++) {
             flagval = DQPix (y->dq.data, i, j);
 
             /* no serious flag bit set */
@@ -63,7 +61,7 @@ void AvgSciVal (SingleGroup *y, short sdqflags, double *mean, double *weight) {
                numgood++;
             }
         }
-    }}
+    }
 
     *mean   = 0.0;
     *weight = 0.0;

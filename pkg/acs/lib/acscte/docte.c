@@ -98,11 +98,9 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     x = (SingleGroup *) malloc(acs_info->nimsets * sizeof(SingleGroup));
     acs = (ACSInfo *) malloc(acs_info->nimsets * sizeof(ACSInfo));
 
-    {   unsigned i;
-        for (i = 0; i < acs_info->nimsets; i++) {
-            initSingleGroup(&x[i]);
-            acs[i] = *acs_info;
-        }
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
+        initSingleGroup(&x[i]);
+        acs[i] = *acs_info;
     }
 
     if (acs_info->printtime)
@@ -114,14 +112,12 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
        processing step functions and pass along modified input image
        from one step to the next...
     */
-    {   unsigned i;
-        for (i = 0; i < acs_info->nimsets; i++) {
-            getSingleGroup(acs[i].input, i+1, &x[i]);
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
+        getSingleGroup(acs[i].input, i+1, &x[i]);
 
-            if (hstio_err()) {
-                freeSingleGroup(&x[i]);
-                return (status = OPEN_FAILED);
-            }
+        if (hstio_err()) {
+            freeSingleGroup(&x[i]);
+            return (status = OPEN_FAILED);
         }
     }
 
@@ -134,37 +130,35 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
        Probably redundant here but does not hurt.
     */
-    {   unsigned i;
-        for (i = 0; i < acs_info->nimsets; i++) {
-            if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
-                freeSingleGroup(&x[i]);
-                return (status);
-            }
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
+        if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
+            freeSingleGroup(&x[i]);
+            return (status);
+        }
 
-            /* Has the CCD image been overscan trimmed? */
-            if (OscnTrimmed (x[i].globalhdr, &x[i].sci.hdr)) {
-                freeSingleGroup (&x[i]);
-                return (status);
-            }
+        /* Has the CCD image been overscan trimmed? */
+        if (OscnTrimmed (x[i].globalhdr, &x[i].sci.hdr)) {
+            freeSingleGroup (&x[i]);
+            return (status);
+        }
 
-            /* Read in keywords from primary header... */
+        /* Read in keywords from primary header... */
 
-            if (GetKeyBool(x[i].globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
-                return (status);
+        if (GetKeyBool(x[i].globalhdr, "SUBARRAY", NO_DEFAULT, 0, &subarray))
+            return (status);
 
-            if (subarray)
-                acs[i].subarray = YES;
-            else
-                acs[i].subarray = NO;
+        if (subarray)
+            acs[i].subarray = YES;
+        else
+            acs[i].subarray = NO;
 
-            /* For the CCD, update primary header keywords.
-               Also reset CRCORR if there's only one image set.
-            */
-            /* Get values from tables, using same function used in ACSCTE. */
-            if (GetCCDTab(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny)) {
-                freeSingleGroup(&x[i]);
-                return (status);
-            }
+        /* For the CCD, update primary header keywords.
+           Also reset CRCORR if there's only one image set.
+        */
+        /* Get values from tables, using same function used in ACSCTE. */
+        if (GetCCDTab(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny)) {
+            freeSingleGroup(&x[i]);
+            return (status);
         }
     }
 
@@ -336,138 +330,136 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         */
         char ccdamp[strlen(AMPSTR1)+1]; // string to hold amps on current chip
         addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
-        {   unsigned i;
-            for (i = 0; i < acs_info->nimsets; i++) {
+        for (size_t i = 0; i < acs_info->nimsets; i++) {
 
-                // Determine which amps are on the current chip of the input image
-                ccdamp[0] = '\0'; // "reset" the string for reuse
+            // Determine which amps are on the current chip of the input image
+            ccdamp[0] = '\0'; // "reset" the string for reuse
 
-                // Amps on this chip
-                parseWFCamps(acs[i].ccdamp, acs[i].chip, ccdamp);
-                numamps = strlen(ccdamp);
+            // Amps on this chip
+            parseWFCamps(acs[i].ccdamp, acs[i].chip, ccdamp);
+            numamps = strlen(ccdamp);
 
-                char corrType[20];
-                corrType[0] = '\0';
-                for (unsigned nthAmp = 0; nthAmp < numamps; ++nthAmp)
-                {
-                    /* Get the amp letter and number where A:0, B:1, etc. as defined in acs.h */
-                    amploc = strchr(AMPSORDER, ccdamp[nthAmp]);
-                    ampID = amploc - AMPSORDER;
+            char corrType[20];
+            corrType[0] = '\0';
+            for (unsigned nthAmp = 0; nthAmp < numamps; ++nthAmp)
+            {
+                /* Get the amp letter and number where A:0, B:1, etc. as defined in acs.h */
+                amploc = strchr(AMPSORDER, ccdamp[nthAmp]);
+                ampID = amploc - AMPSORDER;
+
+                /*
+                   Get the amp letter and number where C:0, D:1, etc. as defined in this file.
+                   This order is based upon the arrangement of the chips in the input science
+                   image (chip 2 with amps C and D in the first imset, and then chip 1 with
+                   amps A and B in the second imset.
+                */
+                amplocInCalib = strchr(AMPCALIBORDER, ccdamp[nthAmp]); // This is a full string.
+                ampIDInCalib = amplocInCalib - AMPCALIBORDER; // This is a number.
+
+                /*
+                   Only perform the serial CTE correction for full-frame, post-SM4 data
+                */
+                if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
+
+                    startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
+                    strcpy(corrType, "serial");
+                    trlmessage("(pctecorr) Collecting data for Correction Type: %s \n", corrType);
 
                     /*
-                       Get the amp letter and number where C:0, D:1, etc. as defined in this file.
-                       This order is based upon the arrangement of the chips in the input science
-                       image (chip 2 with amps C and D in the first imset, and then chip 1 with
-                       amps A and B in the second imset.
+                       Loop to control the application of the CTE corrections - the serial
+                       (Extensions 5-8 [A], 9-12 [B], 13-16 [C], 17-20 [D]) correction for each
+                       Amp will be done first, then the parallel (Extensions 1-4) correction will
+                       be done.  The "Extensions" refer to the set of extensions in the calibration
+                       reference file pertaining to a particular amp correction.
+
+                       As noted at the top of this file, the typical order of processing is
+                       Chip 2 (Amps C and D) and then Chip 1 (Amps A and B).
                     */
-                    amplocInCalib = strchr(AMPCALIBORDER, ccdamp[nthAmp]); // This is a full string.
-                    ampIDInCalib = amplocInCalib - AMPCALIBORDER; // This is a number.
 
-                    /*
-                       Only perform the serial CTE correction for full-frame, post-SM4 data
-                    */
-                    if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
+                    if (!skipLoadPrimary) {
+                        initCTEParamsFast(&ctePars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
 
-                        startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
-                        strcpy(corrType, "serial");
-                        trlmessage("(pctecorr) Collecting data for Correction Type: %s \n", corrType);
-
-                        /*
-                           Loop to control the application of the CTE corrections - the serial
-                           (Extensions 5-8 [A], 9-12 [B], 13-16 [C], 17-20 [D]) correction for each
-                           Amp will be done first, then the parallel (Extensions 1-4) correction will
-                           be done.  The "Extensions" refer to the set of extensions in the calibration
-                           reference file pertaining to a particular amp correction.
-
-                           As noted at the top of this file, the typical order of processing is
-                           Chip 2 (Amps C and D) and then Chip 1 (Amps A and B).
-                        */
-
-                        if (!skipLoadPrimary) {
-                            initCTEParamsFast(&ctePars, TRAPS, 0, 0, nScaleTableColumns, acs_info->nThreads);
-
-                            ctePars.refAndIamgeBinsIdenticle = True;
-                            ctePars.verbose = acs->verbose = 0 ? False : True;
-                            if ((status = allocateCTEParamsFast(&ctePars)))
-                            {
-                                freeOnExit(&ptrReg);
-                                freeOnExit(&ptrParallelReg);
-                                return (status);
-                            }
-                        }
-
-                        if ((status = loadPCTETAB(cteTabFilename, &ctePars, startOfSetInCalib, skipLoadPrimary)))
+                        ctePars.refAndIamgeBinsIdenticle = True;
+                        ctePars.verbose = acs->verbose = 0 ? False : True;
+                        if ((status = allocateCTEParamsFast(&ctePars)))
                         {
                             freeOnExit(&ptrReg);
                             freeOnExit(&ptrParallelReg);
                             return (status);
                         }
-                        skipLoadPrimary = True;
+                    }
 
-                        if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
-                        {
-                            freeOnExit(&ptrReg);
-                            freeOnExit(&ptrParallelReg);
-                            return (status);
-                        }
+                    if ((status = loadPCTETAB(cteTabFilename, &ctePars, startOfSetInCalib, skipLoadPrimary)))
+                    {
+                        freeOnExit(&ptrReg);
+                        freeOnExit(&ptrParallelReg);
+                        return (status);
+                    }
+                    skipLoadPrimary = True;
 
-                        ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
+                    if ((status = getCTEParsFromImageHeader(&x[0], &ctePars)))
+                    {
+                        freeOnExit(&ptrReg);
+                        freeOnExit(&ptrParallelReg);
+                        return (status);
+                    }
 
-                        /*
-                           Write the amp-dependent serial HISTORY information here.
-                        */
-                        char amp_corrType[20] = "serial - Amp ";
-                        strcat(amp_corrType, &ccdamp[nthAmp]);
-                        amp_corrType[14] = '\0';
-                        if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars, amp_corrType)))
-                        {
-                            freeOnExit(&ptrReg);
-                            freeOnExit(&ptrParallelReg);
-                            return (status);
-                        }
-
-                        trlwarn("(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
-                        trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i\n"
-                                   "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i\n"
-                                   "(pctecorr) CTE_FRAC: %f\n"
-                                   "(pctecorr) The %s CTE processing parameters have been read.",
-                                   ctePars.n_forward, ctePars.n_par, ctePars.scale_frac, corrType);
-                    } // End if block for collecting and reporting serial CTE correction
+                    ctePars.scale_frac = (acs->expstart - ctePars.cte_date0) / (ctePars.cte_date1 - ctePars.cte_date0);
 
                     /*
-                       The number of acs_info->nimsets represents the number of chips to process for the
-                       input file, and each chip can contain two amps. Since the CTE correction is done on
-                       an amp basis, only the serial correction information for that amp is available,
-                       in addition to the parallel correction information which is the same for all amps.
+                       Write the amp-dependent serial HISTORY information here.
                     */
+                    char amp_corrType[20] = "serial - Amp ";
+                    strcat(amp_corrType, &ccdamp[nthAmp]);
+                    amp_corrType[14] = '\0';
+                    if ((status = populateImageFileWithCTEKeywordValues(&x[0], &ctePars, amp_corrType)))
+                    {
+                        freeOnExit(&ptrReg);
+                        freeOnExit(&ptrParallelReg);
+                        return (status);
+                    }
 
-                    clock_t begin = (double)clock();
+                    trlwarn("(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", ctePars.rn_amp);
+                    trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i\n"
+                               "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i\n"
+                               "(pctecorr) CTE_FRAC: %f\n"
+                               "(pctecorr) The %s CTE processing parameters have been read.",
+                               ctePars.n_forward, ctePars.n_par, ctePars.scale_frac, corrType);
+                } // End if block for collecting and reporting serial CTE correction
 
-                    /* Perform the serial CTE correction for only full-frame, post-SM4 data */
-                    if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
-                        /* Serial correction */
-                        strcpy(corrType, "serial");
-                        if ((status = doPCTEGen3(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, ccdamp, nthAmp, amploc, ampID)))
-                        {
-                            freeOnExit(&ptrReg);
-                            freeOnExit(&ptrParallelReg);
-                            return status;
-                        }
-                    } // End short block for applying serial CTE correction
+                /*
+                   The number of acs_info->nimsets represents the number of chips to process for the
+                   input file, and each chip can contain two amps. Since the CTE correction is done on
+                   an amp basis, only the serial correction information for that amp is available,
+                   in addition to the parallel correction information which is the same for all amps.
+                */
 
-                    /* Parallel correction */
-                    strcpy(corrType, "parallel");
-                    if ((status = doPCTEGen3(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, ccdamp, nthAmp, amploc, ampID)))
+                clock_t begin = (double)clock();
+
+                /* Perform the serial CTE correction for only full-frame, post-SM4 data */
+                if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
+                    /* Serial correction */
+                    strcpy(corrType, "serial");
+                    if ((status = doPCTEGen3(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, ccdamp, nthAmp, amploc, ampID)))
                     {
                         freeOnExit(&ptrReg);
                         freeOnExit(&ptrParallelReg);
                         return status;
                     }
+                } // End short block for applying serial CTE correction
 
-                    double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
-                    trlmessage("(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
-                }  // End loop to accommodate both the serial and parallel CTE corrections
-            }
+                /* Parallel correction */
+                strcpy(corrType, "parallel");
+                if ((status = doPCTEGen3(&acs[i], &cteParallelPars, &x[i], forwardModelOnly, corrType, ccdamp, nthAmp, amploc, ampID)))
+                {
+                    freeOnExit(&ptrReg);
+                    freeOnExit(&ptrParallelReg);
+                    return status;
+                }
+
+                double time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
+                trlmessage("(pctecorr) CTE run time for current chip: %.2f(s) with %i procs/threads\n", time_spent/acs_info->nThreads, acs_info->nThreads);
+            }  // End loop to accommodate both the serial and parallel CTE corrections
         }
 
         PrSwitch("pctecorr", COMPLETE);
@@ -499,26 +491,24 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     UCalVer(x[0].globalhdr);
     UFilename(acs_info->output, x[0].globalhdr);
 
-    {   unsigned i;
-        for (i = 0; i < acs_info->nimsets; i++) {
-            if (acs_info->verbose) {
-                trlmessage("Outputting chip %d", acs[i].chip);
-            }
-
-            putSingleGroup(acs_info->output, i+1, &x[i], option);
-
-            if (hstio_err()) {
-                trlerror("Couldn't write imset %d.", i+1);
-                return (status = WRITE_FAILED);
-            }
-
-            if (acs_info->printtime)
-                TimeStamp ("Output written to disk", acs_info->rootname);
-
-            /* Free x, which still has memory allocated. */
-            freeSingleGroup (&x[i]);
-
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
+        if (acs_info->verbose) {
+            trlmessage("Outputting chip %d", acs[i].chip);
         }
+
+        putSingleGroup(acs_info->output, i+1, &x[i], option);
+
+        if (hstio_err()) {
+            trlerror("Couldn't write imset %d.", i+1);
+            return (status = WRITE_FAILED);
+        }
+
+        if (acs_info->printtime)
+            TimeStamp ("Output written to disk", acs_info->rootname);
+
+        /* Free x, which still has memory allocated. */
+        freeSingleGroup (&x[i]);
+
     }
 
     free(x);

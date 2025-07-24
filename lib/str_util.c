@@ -42,11 +42,9 @@ bool isStrInLanguage(const char * str, const char * alphabet)
     if (*str=='\0')
         return true;
 
-    {unsigned i;
-    for (i = 0; i < strlen(str) ; ++i)
-    {
+    for (size_t i = 0; i < strlen(str) ; ++i) {
         if (!strchr(alphabet, str[i]))
             return false;
-    }}
+    }
     return true;
 }

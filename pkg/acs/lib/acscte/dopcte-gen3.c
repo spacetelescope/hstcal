@@ -248,31 +248,26 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
         float threadCounts = 0;
         float threadRawCounts = 0;
         float delta;
-        {   unsigned k;
 #ifdef _OPENMP
-            #pragma omp for schedule(static)
+#pragma omp for schedule(static)
 #endif
-            //This loop order is row major as more row major storage is accessed than column.
-            //MORE: look into worth splitting out ops, prob needs a order swap (copy) so perhaps not worth it.
-            for (k = 0; k < nRows; ++k)
+        //This loop order is row major as more row major storage is accessed than column.
+        //MORE: look into worth splitting out ops, prob needs a order swap (copy) so perhaps not worth it.
+        for (size_t k = 0; k < nRows; ++k)
+        {
+            for (size_t m = 0; m < nColumns; ++m)
             {
-                {   unsigned m;
-                    for (m = 0; m < nColumns; ++m)
-                    {
-                        delta = (PixColumnMajor(cteCorrectedImage->sci.data,k,m) - PixColumnMajor(smoothedImage.sci.data,k,m));
-                        threadCounts += delta;
-                        threadRawCounts += Pix(ampImage.sci.data, m, k);
-                        temp_err = 0.1 * fabs(delta);
-                        Pix(ampImage.sci.data, m, k) += delta;
+                delta = (PixColumnMajor(cteCorrectedImage->sci.data,k,m) - PixColumnMajor(smoothedImage.sci.data,k,m));
+                threadCounts += delta;
+                threadRawCounts += Pix(ampImage.sci.data, m, k);
+                temp_err = 0.1 * fabs(delta);
+                Pix(ampImage.sci.data, m, k) += delta;
 
-                        float err2 = Pix(ampImage.err.data, m, k);
-                        err2 *= err2;
-                        Pix(ampImage.err.data, m, k) = sqrt(err2 + temp_err*temp_err);
-                    }
-                }
+                float err2 = Pix(ampImage.err.data, m, k);
+                err2 *= err2;
+                Pix(ampImage.err.data, m, k) = sqrt(err2 + temp_err*temp_err);
             }
         }
-
 #ifdef _OPENMP
         #pragma omp critical(deltaAggregate)
 #endif
@@ -592,10 +587,10 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
 static void top2bottomFlip(FloatTwoDArray * amp)
 {
 
-    const unsigned nColumns = amp->nx;
-    const unsigned nRows = amp->ny;
+    const size_t nColumns = amp->nx;
+    const size_t nRows = amp->ny;
 
-    Bool allocationFail = False;
+    bool allocationFail = false;
 #ifdef _OPENMP
     #pragma omp parallel shared(amp, allocationFail)
 #endif
@@ -609,7 +604,7 @@ static void top2bottomFlip(FloatTwoDArray * amp)
             #pragma omp critical(allocationCheck) // This really isn't needed
 #endif
             {
-                allocationFail = True;
+                allocationFail = true;
             }
         }
 
@@ -618,25 +613,22 @@ static void top2bottomFlip(FloatTwoDArray * amp)
 #endif
         if (!allocationFail)
         {
-            {   unsigned i;
 #ifdef _OPENMP
-                #pragma omp for schedule(static)
+            #pragma omp for schedule(static)
 #endif
-                for (i = 0; i < nRows/2; ++i)
-                {
-                    float * topRow = amp->data + i*nColumns;
-                    float * bottomRow = amp->data + (nRows-1-i)*nColumns;
-                    memcpy(tempRow, topRow, rowSize);
-                    memcpy(topRow, bottomRow, rowSize);
-                    memcpy(bottomRow, tempRow, rowSize);
-                }
+            for (size_t i = 0; i < nRows/2; ++i)
+            {
+                float * topRow = amp->data + i*nColumns;
+                float * bottomRow = amp->data + (nRows-1-i)*nColumns;
+                memcpy(tempRow, topRow, rowSize);
+                memcpy(topRow, bottomRow, rowSize);
+                memcpy(bottomRow, tempRow, rowSize);
             }
+        }
+        else {
+            trlerror("Out of memory for 'tempRow' in 'alignAmpData'");
         }
         if (tempRow)
             free(tempRow);
     }//close parallel block
-    if (allocationFail)
-    {
-        trlerror("Out of memory for 'tempRow' in 'alignAmpData'");
-    }
 }

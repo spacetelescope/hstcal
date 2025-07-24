@@ -143,22 +143,21 @@ argument:
 IRAFPointer imt         i: file name template descriptor
 */
 
-        if (!imt)
-            return;
+    if (!imt)
+        return;
 
-        ImtDescr * imt_descr = (ImtDescr *)imt;
-        if (imt_descr->pattern)
-            free (imt_descr->pattern);
-        {unsigned i;
-        for (i = 0;  i < imt_descr->nfiles;  i++)
-        {
+    ImtDescr * imt_descr = imt;
+    if (imt_descr->pattern)
+        free (imt_descr->pattern);
+
+    if (imt_descr->files) {
+        for (size_t i = 0; i < imt_descr->nfiles;  i++) {
             if (imt_descr->files[i])
                 free (imt_descr->files[i]);
-        }}
-        if (imt_descr->files)
-            free (imt_descr->files);
-        if (imt_descr)
-            free (imt_descr);
+        }
+        free (imt_descr->files);
+    }
+    free (imt_descr);
 }
 
 static void findFiles (ImtDescr *imt_descr) {
