@@ -28,13 +28,16 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
  in output which still has the overscan regions.
 
  2-June-1998 WJH: Initial Version. Revised for ACS data...
-
  29-Oct-2001 WJH: Revised to use CCDOFST[A,B,C,D] to select default
- bias levels from CCDBIAS[A,B,C,D] (which are new to CCDTAB) in
- this version. Updated to use VY values of <=0 to detect lack of
- virtual overscan use and NOT apply BlevDrift().
+     bias levels from CCDBIAS[A,B,C,D] (which are new to CCDTAB) in
+     this version. Updated to use VY values of <=0 to detect lack of
+     virtual overscan use and NOT apply BlevDrift().
  27-Feb-2002 WJH/RB: Fixed a bug in evaluating virtual overscan drift
- where the column id was being incremented twice.
+     where the column id was being incremented twice.
+ 23-Jul-2025 PLL: Moved some code here in order to simplify the complexity
+     of doccd.c, particularly added a new blevSubTrlMessage() function
+     and calculat/report MEANBLEV entirely in doBlev() instead of
+     passing it in/out as function input.
  */
 
 int doBlev (ACSInfo *acs, SingleGroup *x, int chip,

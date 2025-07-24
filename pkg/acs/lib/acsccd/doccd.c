@@ -30,6 +30,8 @@
      of the reference of the output data unnecessarily. Return type of the
      computeDarktime() is void.  Mods triggered by routine failing under the
      condaforge compilation.
+ 23-Jul-2025 PLL: Moved some code out of doccd.c in order to lessen
+     its complexity .
 
 ** This code is a trimmed down version of CALSTIS1 do2d.c.
 */

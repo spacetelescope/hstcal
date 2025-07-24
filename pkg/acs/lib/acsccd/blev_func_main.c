@@ -3,6 +3,10 @@
 #include "acsinfo.h"
 
 
+/*
+ 23-Jul-2025 PLL: Created performBlevCorr() in order to move code out of
+     doccd.c to simplify the complexity of doccd.c
+*/
 int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                     int *overscan, int *virtOverscan,
                     int *blevcorr, int *driftcorr, int *done) {

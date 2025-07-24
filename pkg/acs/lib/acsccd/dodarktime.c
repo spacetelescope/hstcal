@@ -8,6 +8,9 @@
 
    DARKTIME has to be calculated in ACSCDD step and not where DARKCORR happens in ACS2D.
    See 24-May-2021 MDD note in doccd.c file.
+
+   23-Jul-2025 PLL: Moved computeDarktime function out of doccd.c
+       in order to lessen complexity of doccd.c
 */
 void computeDarktime(ACSInfo *acs, float *darktime) {
     const char *darkSubApertures[] = {
