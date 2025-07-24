@@ -3,17 +3,13 @@
  FitToOverscan
  */
 
-# include <stdio.h>
-# include <math.h>		/* sqrt */
-# include <string.h>
+#include <math.h>		/* sqrt */
+#include <string.h>
 
-#include "hstcal.h"
-# include "hstio.h"
+#include "acs.h"
+#include "acsinfo.h"
+#include "hstio.h"
 
-# include "acs.h"
-# include "acsinfo.h"
-# include "hstcalerr.h"
-# include "acsdq.h"		/* for CALIBDEFECT */
 
 static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
 
@@ -32,23 +28,25 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
  in output which still has the overscan regions.
 
  2-June-1998 WJH: Initial Version. Revised for ACS data...
-
  29-Oct-2001 WJH: Revised to use CCDOFST[A,B,C,D] to select default
- bias levels from CCDBIAS[A,B,C,D] (which are new to CCDTAB) in
- this version. Updated to use VY values of <=0 to detect lack of
- virtual overscan use and NOT apply BlevDrift().
+     bias levels from CCDBIAS[A,B,C,D] (which are new to CCDTAB) in
+     this version. Updated to use VY values of <=0 to detect lack of
+     virtual overscan use and NOT apply BlevDrift().
  27-Feb-2002 WJH/RB: Fixed a bug in evaluating virtual overscan drift
- where the column id was being incremented twice.
+     where the column id was being incremented twice.
+ 23-Jul-2025 PLL: Moved some code here in order to simplify the complexity
+     of doccd.c, particularly added a new blevSubTrlMessage() function
+     and calculate/report MEANBLEV entirely in doBlev() instead of
+     passing it in/out as function input.
  */
 
-int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
+int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
             int *overscan, int *driftcorr) {
 
   /* arguments:
    ACSInfo *acs    i: calibration switches, etc
    SingleGroup *x    io: image to be calibrated
    int chip        i: chip number
-   float meanblev   o: mean value of bias levels that were subtracted
    int *overscan     io: true if bias determined from an overscan region in x
    int *driftcorr    o: true means correction for drift along lines was applied
    */
@@ -81,6 +79,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   double rn;
   double ampslope, ampintercept;  /* values from the bias level fit*/
   float ccdbias;      /* default bias level from CCDTAB */
+  float meanblev = 0;   /* mean value of overscan bias (for history) */
 
   /* Function definitions */
   int BlevDrift (SingleGroup *, int *, int *, int, int *, int *, short);
@@ -91,13 +90,13 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   int FindBlev (SingleGroup *, int, int *, short, double *, int *);
   void parseWFCamps (char *, int, char *);
   int selectBias(char *);
+  int PutKeyFlt (Hdr *, char *, float, char *);
 
   /* Allocate space for ccdamp... */
   ccdamp = (char *) calloc (NAMPS+1, sizeof(char));
 
   /* initial values */
   *driftcorr = 0;
-  *meanblev = 0.;
 
   binx = acs->bin[0];
   biny = acs->bin[1];
@@ -140,10 +139,9 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
 		    Pix (x->sci.data,i,j) = Pix (x->sci.data,i,j) - ccdbias;
     }
 
-    *meanblev = ccdbias;
     acs->blev[biasnum] = ccdbias;
     free (ccdamp);
-    return (status);
+    return status;
   }
 
   /* Determine bias levels from BIASSECT columns specified in OSCNTAB */
@@ -170,7 +168,6 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   /* How many amps are used for this chip */
   numamps = strlen (ccdamp);
 
-
   /* Are we going to calculate drift in bias from virtual overscan? */
   /* If the end points of vx and vy are zero, no section was specified */
   if (acs->vy[0] <= 0 && acs->vy[1] <= 0 ){
@@ -184,7 +181,6 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   /* For each amp used, determine bias level and subtract from
    appropriate region of chip */
   for (amp = 0; amp < numamps; amp++) {
-    bias_loc = 0;
     /* determine which section goes with the amp */
     /* bias_amp = 0 for BIASSECTA, = 1 for BIASSECTB */
     amploc = strchr (AMPSORDER, ccdamp[amp]);
@@ -252,7 +248,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
       if (BlevDrift (x, acs->vx, acs->vy, trimx1, biassect, driftcorr,
                      acs->sdqflags)) {
         free (ccdamp);
-        return (status);
+        return status;
       }
 
       /* Evaluate the fit for each line, and subtract from the data. */
@@ -306,13 +302,16 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip, float *meanblev,
   *overscan = YES;
 
   /* This is the mean value of all the bias levels subtracted. */
-  *meanblev = sumblev / numamps;
-
+  meanblev = (float)(sumblev / numamps);
 
   /* free ccdamp space allocated here... */
   free (ccdamp);
 
-  return (status);
+  trlmessage("Bias level from overscan has been subtracted;\n"
+             "     mean of bias levels subtracted was %.6g electrons.", meanblev);
+  status = PutKeyFlt(&x->sci.hdr, "MEANBLEV", meanblev, "mean of bias levels subtracted in electrons");
+
+  return status;
 }
 
 /* This function determines the bias level from the overscan in the input
@@ -417,14 +416,15 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
 
 void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
   int j;
-  double bsum, bmean, sdev, svar;
+  double bsum=0.0;
+  double bmean=0.0;
+  double sdev=0.0;
+  double svar=0.0;
   double s;
-  int nsum;
-  float clip = 3.0;
+  int nsum=0;
+  float clip = 3;
   int nrej=0;
 
-  bsum = bmean = sdev = svar = 0.0;
-  nsum = 0;
 	for (j = 0;  j < ny;  j++) {
     if (bmask[j] == 1){
       bsum += barray[j];
@@ -496,4 +496,18 @@ int selectBias (char *ccdamp) {
   i = loc - ampstr;
 
   return i;
+}
+
+
+/* Provide immediate feedback to the user on the values computed
+   for each AMP, but only for those amps used for the chip being processed.
+*/
+void blevSubTrlMessage(ACSInfo *acs_info, ACSInfo *acs) {
+    for (unsigned int j = 0; j < NAMPS; j++) {
+        if (acs->blev[j] != 0.) {
+            trlmessage("     bias level of %.6g electrons was subtracted for AMP %c.",
+                       acs->blev[j], AMPSORDER[j]);
+            acs_info->blev[j] = acs->blev[j];
+        }
+    }
 }

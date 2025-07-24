@@ -16,14 +16,16 @@ add_library(${PROJECT_NAME} SHARED
 	acs2d/photmode.c
 	acs2d/sanity2d.c
 	acsccd/acsccd.c
+        acsccd/blev_func_main.c
 	acsccd/blev_funcs_postsm4.c
 	acsccd/blevdrift.c
 	acsccd/blevfit.c
 	acsccd/doatod.c
 	acsccd/dobias.c
+	acsccd/dobiasshift.c
 	acsccd/doblev.c
-	#acsccd/doblev_v504.c # ... what??
 	acsccd/doccd.c
+	acsccd/dodarktime.c
 	acsccd/dofwsat.c
 	acsccd/dosink.c
 	acsccd/findblev.c
