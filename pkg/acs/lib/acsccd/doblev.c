@@ -36,7 +36,7 @@ static void FitToOverscan (SingleGroup *, int, int, int *, float, short, float);
      where the column id was being incremented twice.
  23-Jul-2025 PLL: Moved some code here in order to simplify the complexity
      of doccd.c, particularly added a new blevSubTrlMessage() function
-     and calculat/report MEANBLEV entirely in doBlev() instead of
+     and calculate/report MEANBLEV entirely in doBlev() instead of
      passing it in/out as function input.
  */
 
