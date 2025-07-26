@@ -53,7 +53,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                  }
 
                  /* Variable done is overwritten in doBlev if bias is determined from overscan region */
-                 if (!done) {
+                 if (!*done) {
                      trlmessage("Default bias level from CCDTAB was subtracted.");
                  }
 
@@ -80,13 +80,13 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
 
              /* The variable done is set based on results of FindOver */
              *done = NO;
-             if ((overscan[0] == YES) && (overscan[1] == YES))
-                *done = YES;
 
              /* Process full frame data */
              if (acs_info->subarray == NO) {
+                if ((overscan[0] == YES) && (overscan[1] == YES))
+                   *done = YES;
 
-                if (done) {
+                if (*done) {
                    PrSwitch("blevcorr", PERFORM);
 
                    /* Only do bias-shift and cross talk corrections of images taken
@@ -150,6 +150,9 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
 
                    trlmessage("Performing bias-shift correction for subarray data.");
 
+                   if (overscan[0] == YES)  /* Not used as BLEVCORR switch, just informational */
+                      *done = YES;
+
                    /* Only bias shift correction is done for subarray data. For a supported
                       subarray, there is only one amp on a single chip in use.
                    */
@@ -185,7 +188,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                        }
 
                        /* Variable done is overwritten in doBlev if bias is determined from overscan region */
-                       if (!done) {
+                       if (!*done) {
                           trlmessage("Default bias level from CCDTAB was subtracted.");
                        }
 
@@ -220,7 +223,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                 }
 
                 /* Variable done is overwritten in doBlev if bias is determined from overscan region */
-                if (!done) {
+                if (!*done) {
                    trlmessage("Default bias level from CCDTAB was subtracted.");
                 }
 
