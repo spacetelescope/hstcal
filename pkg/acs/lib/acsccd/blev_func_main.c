@@ -41,8 +41,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
           /* Only Pre-SM4 WFC data - this is the original bias level subtraction */
           if (acs_info->expstart < SM4MJD) {
 
-             {int i;
-             for (i = 0; i < acs_info->nimsets; i++) {
+             for (size_t i = 0; i < acs_info->nimsets; i++) {
 
                  /* The variable done is set to the results of FindOver indicating there is
                     physical overscan. */
@@ -62,7 +61,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                  /* Set this to complete so overscan-trimmed image will be written out. */
                  blevcorr[i] = COMPLETE;
 
-             }} /* End loop over imsets */
+             } /* End loop over imsets */
 
              PrSwitch("blevcorr", COMPLETE);
 
@@ -101,10 +100,9 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                          return status;
                       }
 
-                      {int i;
-                      for (i = 0; i < acs_info->nimsets; i++) {
+                      for (size_t i = 0; i < acs_info->nimsets; i++) {
                           cross_talk_corr(&acs[i], &x[i]);
-                      }}
+                      }
                    } else {
                       trlmessage("WFC readout type/gain not set as needed, no bias shift nor cross talk correction done for full frame data.");
                    }
@@ -115,10 +113,9 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                       return status;
                    }
 
-                   {int i;
-                   for (i = 0; i < acs_info->nimsets; i++) {
+                   for (size_t i = 0; i < acs_info->nimsets; i++) {
                        blevcorr[i] = COMPLETE;
-                   }}
+                   }
 
                    PrSwitch("blevcorr", COMPLETE);
 
@@ -177,8 +174,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                    trlmessage("WFC readout is not a supported subarray or type/gain not set as needed for new bias level algorithm for subarray data.");
                    trlmessage("Data to be processed with original bias level algorithm.");
 
-                   {int i;
-                   for (i = 0; i < acs_info->nimsets; i++) {
+                   for (size_t i = 0; i < acs_info->nimsets; i++) {
 
                        /* This is set based on results of FindOver */
                        *done = overscan[i];
@@ -196,7 +192,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
 
                        /* Set this to complete so overscan-trimmed image will be written out. */
                        blevcorr[i] = COMPLETE;
-                   }}
+                   }
 
                    PrSwitch("blevcorr", COMPLETE);
 
@@ -213,8 +209,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
 
        /* All HRC data - use the original bias level subtraction correction */
        else {
-            {int i;
-            for (i = 0; i < acs_info->nimsets; i++) {
+            for (size_t i = 0; i < acs_info->nimsets; i++) {
                 /* This is set based on results of FindOver */
                 *done = overscan[i];
 
@@ -231,7 +226,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
 
                 /* Set this to complete so overscan-trimmed image will be written out. */
                 blevcorr[i] = COMPLETE;
-            }}
+            }
 
             PrSwitch("blevcorr", COMPLETE);
 
