@@ -51,8 +51,11 @@ int splint_nr (double *xa, double *ya, int n,
 	    /* Evaluate. */
 
 	    h = xa[khi] - xa[klo];
-	    if (h == 0.)
-		return (113);
+	    if (h == 0.) {
+		    free(ua);
+			free(y2a);
+	    	return (113);
+	    }
 
 	    a = (xa[khi] - x[i]) / h;
 	    b = (x[i] - xa[klo]) / h;
