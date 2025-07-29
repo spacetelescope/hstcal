@@ -36,8 +36,6 @@ SingleGroup *b        o: output data
 	float sum_err;		/* for summing error array */
 	short sum_dq;		/* for ORing data quality array */
 	int nx, ny;		/* size of output array */
-	int m, n;		/* pixel index in output array */
-	int i, j;		/* pixel index in input array */
 	int i0, j0;		/* starting location of (m,n) in input */
 
 	int BinCoords (Hdr *, double *, double *, Hdr *, Hdr *, Hdr *);
@@ -70,18 +68,18 @@ SingleGroup *b        o: output data
 
 	if (binx == 1 && biny == 1) {
 
-	    for (n = 0, j = ycorner;  n < ny;  n++, j++)
-		for (m = 0, i = xcorner;  m < nx;  m++, i++)
+	    for (int n = 0, j = ycorner;  n < ny;  n++, j++)
+		for (int m = 0, i = xcorner;  m < nx;  m++, i++)
 		    Pix (b->sci.data, m, n) = Pix (a->sci.data, i, j);
 
 	    /* Extract the error array. */
-	    for (n = 0, j = ycorner;  n < ny;  n++, j++)
-		for (m = 0, i = xcorner;  m < nx;  m++, i++)
+	    for (int n = 0, j = ycorner;  n < ny;  n++, j++)
+		for (int m = 0, i = xcorner;  m < nx;  m++, i++)
 		    Pix (b->err.data, m, n) = Pix (a->err.data, i, j);
 
 	    /* Extract the data quality array. */
-	    for (n = 0, j = ycorner;  n < ny;  n++, j++)
-		for (m = 0, i = xcorner;  m < nx;  m++, i++)
+	    for (int n = 0, j = ycorner;  n < ny;  n++, j++)
+		for (int m = 0, i = xcorner;  m < nx;  m++, i++)
 		    DQSetPix (b->dq.data, m, n, DQPix(a->dq.data,i,j));
 
 	} else {
@@ -90,14 +88,14 @@ SingleGroup *b        o: output data
 
 	    j0 = ycorner;				/* zero indexed */
 	    /* for each line of output ... */
-	    for (n = 0;  n < ny;  n++) {
+	    for (int n = 0;  n < ny;  n++) {
 		i0 = xcorner;				/* zero indexed */
 		/* for each sample in current output line ... */
-		for (m = 0;  m < nx;  m++) {
+		for (int m = 0;  m < nx;  m++) {
 		    /* loop over each pixel in input for current output pixel */
 		    sum = 0.;
-		    for (j = j0;  j < j0+biny;  j++)
-			for (i = i0;  i < i0+binx;  i++)
+		    for (int j = j0;  j < j0+biny;  j++)
+			for (int i = i0;  i < i0+binx;  i++)
 			    sum += Pix (a->sci.data, i, j);
 		    if (avg)
 			Pix (b->sci.data, m, n) = sum / weight;
@@ -111,12 +109,12 @@ SingleGroup *b        o: output data
 	    /* Average the error array (square root of sum of squares). */
 
 	    j0 = ycorner;
-	    for (n = 0;  n < ny;  n++) {
+	    for (int n = 0;  n < ny;  n++) {
 		i0 = xcorner;
-		for (m = 0;  m < nx;  m++) {
+		for (int m = 0;  m < nx;  m++) {
 		    sum_err = 0.;
-		    for (j = j0;  j < j0+biny;  j++)
-			for (i = i0;  i < i0+binx;  i++)
+		    for (int j = j0;  j < j0+biny;  j++)
+			for (int i = i0;  i < i0+binx;  i++)
 			    sum_err += Pix (a->err.data, i, j) *
 				       Pix (a->err.data, i, j);
 		    if (avg)
@@ -130,12 +128,12 @@ SingleGroup *b        o: output data
 
 	    /* Bitwise OR the data quality array. */
 	    j0 = ycorner;
-	    for (n = 0;  n < ny;  n++) {
+	    for (int n = 0;  n < ny;  n++) {
 		i0 = xcorner;
-		for (m = 0;  m < nx;  m++) {
+		for (int m = 0;  m < nx;  m++) {
 		    sum_dq = 0;				/* zero is OK */
-		    for (j = j0;  j < j0+biny;  j++)
-			for (i = i0;  i < i0+binx;  i++)
+		    for (int j = j0;  j < j0+biny;  j++)
+			for (int i = i0;  i < i0+binx;  i++)
 			    sum_dq |= DQPix (a->dq.data, i, j);
 		    DQSetPix (b->dq.data, m, n, sum_dq);
 		    i0 += binx;
