@@ -10,7 +10,6 @@ SingleGroupLine *a   io: input data; output sum
 float k          	  i: constant to be added to a
 */
 
-	int i;
     int dimx;
 
 	if (k == 0.)
@@ -20,7 +19,7 @@ float k          	  i: constant to be added to a
     dimx = a->sci.tot_nx;
     
 	/* Only the science data are modified. */
-	for (i = 0;  i < dimx;  i++)
+	for (int i = 0;  i < dimx;  i++)
 		a->sci.line[i] = k + a->sci.line[i];
 
 	return (0);
@@ -34,13 +33,11 @@ float k          	  i: constant to be added to a
 int dimx              i: size of array
 */
 
-	int i;
-
 	if (k == 0.)
 	    return (0);
 
 	/* Only the science data are modified. */
-	for (i = 0;  i < dimx;  i++)
+	for (int i = 0;  i < dimx;  i++)
 		a[i] = k + a[i];
 
 	return (0);
