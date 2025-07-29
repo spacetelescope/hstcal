@@ -35,7 +35,7 @@ int splint_nr (double *xa, double *ya, int n,
 	spline_nr (xa, ya, y2a, ua, n);
 
 	/* Evaluate the fit at each element of x. */
-	for (i = 0;  i < nelem;  i++) {
+	for (size_t i = 0;  i < nelem;  i++) {
 
 	    /* Find the segment containing x[i]. */
 	    klo = 0;
