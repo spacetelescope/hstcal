@@ -85,12 +85,10 @@ void get_nsegn (int detector, int chip, int ampx, int ampy, float *hdrgain, floa
    float   *rn2            o: readnoise - array of valid values 
    */
   
-  int j;
-  
   /* Set default values for MAMA */
-  for (j = 0; j < NAMPS; j++) {
+  for (size_t j = 0; j < NAMPS; j++) {
     rn2[j] = 0.0;
-    gain[j] = 1.0;	
+    gain[j] = 1.0;
   }
   
   if (detector != MAMA_DETECTOR) { 
@@ -120,7 +118,7 @@ void get_nsegn (int detector, int chip, int ampx, int ampy, float *hdrgain, floa
       /* Find the 1 HRC AMP that is used and set it to AMP_B.
        This corresponds to the case for ampx && ampy == 0. 
        */
-      for (j = 0; j < NAMPS; j++) {
+      for (size_t j = 0; j < NAMPS; j++) {
         if (hdrgain[j] > 0.) {
           rn2[1] = hdrnoise[j];
           gain[1] = hdrgain[j];
@@ -158,7 +156,7 @@ void get_nsegn (int detector, int chip, int ampx, int ampy, float *hdrgain, floa
 			} else { 
 				/* We have an AMP situation which can simply 
          be used as is with AMPX/AMPY... */
-        for (j = 0; j < NAMPS; j++) {
+        for (size_t j = 0; j < NAMPS; j++) {
           rn2[j] = hdrnoise[j];
           gain[j] = hdrgain[j];	
         }
