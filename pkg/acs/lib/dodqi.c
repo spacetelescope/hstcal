@@ -133,7 +133,6 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
     double ri_m[2], ri_v[2];	/* reference to image */
     int npix_x, npix_y;			/* size of current image */
 
-    int i, j;					/* indexes for scratch array ydq */
     short sum_dq;				/* for binning data quality array */
     int atod_sat;
 
@@ -159,8 +158,8 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
     if (acs->detector != MAMA_DETECTOR) {
         dimx = x->sci.data.nx;
         dimy = x->sci.data.ny;
-        for (j = 0;  j < dimy;  j++) {
-            for (i = 0;  i < dimx;  i++) {
+        for (int j = 0;  j < dimy;  j++) {
+            for (int i = 0;  i < dimx;  i++) {
                 /* Flag a-to-d saturated pixels with 2048 dq bit */
                 if (Pix (x->sci.data, i, j) >= atod_sat) {
                     sum_dq = DQPix (x->dq.data, i, j) | ATODSAT;
