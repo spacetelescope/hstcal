@@ -188,8 +188,6 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     int npix[2];		/* size of current image */
 
     int in_place;		/* true if same bin size */
-    int i, j, i0, j0;	/* indexes for scratch array ydq */
-    int m, n;		/* indexes for data quality array in x */
     short sum_dq;		/* for binning data quality array */
     float sat;			/* saturation threshold */
 
@@ -216,13 +214,11 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     dimy = x->sci.data.ny;
 
     /* Initialize limits which indicate the regions of science data */
-    {   unsigned int i;
-        for (i = 0; i < 2; i++) {
-            xbeg[i] = -1;
-            xend[i] = -1;
-            ybeg[i] = -1;
-            yend[i] = -1;
-        }
+    for (size_t i = 0; i < 2; i++) {
+        xbeg[i] = -1;
+        xend[i] = -1;
+        ybeg[i] = -1;
+        yend[i] = -1;
     }
 
     /* We could still flag saturation even if the bpixtab was dummy. */
@@ -233,8 +229,8 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
        This is only the a-to-d saturation flagging which should be done in all cases.
     */
     if (wf3->detector != IR_DETECTOR) {
-        for (j = 0;  j < dimy;  j++) {
-            for (i = 0;  i < dimx;  i++) {
+        for (size_t j = 0;  j < dimy;  j++) {
+            for (size_t i = 0;  i < dimx;  i++) {
                 /* Flag a-to-d saturated pixels with 2048 dq bit */
                 if (Pix (x->sci.data, i, j) > ATOD_SATURATE) {
                     sum_dq = DQPix (x->dq.data, i, j) | ATODSAT;
@@ -257,8 +253,8 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     sat = wf3->saturate;
     if ((wf3->detector != IR_DETECTOR) && (wf3->scalar_satflag == True)) {
         trlmessage("Full-well saturation flagging being applied during doDQI using a single threshold value.");
-        for (j = 0;  j < dimy;  j++) {
-            for (i = 0;  i < dimx;  i++) {
+        for (size_t j = 0;  j < dimy;  j++) {
+            for (size_t i = 0;  i < dimx;  i++) {
                 // Flag full-well or a-to-d saturated pixels with 256 bit
                 if (Pix (x->sci.data, i, j) > sat || Pix (x->sci.data, i, j) > ATOD_SATURATE) {
                     sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
@@ -312,8 +308,8 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
             */
             if ((wf3->detector != IR_DETECTOR) && (wf3->scalar_satflag == False)) {
 
-                for (j = 0;  j < dimy;  j++) {
-                    for (i = 0;  i < dimx;  i++) {
+                for (size_t j = 0;  j < dimy;  j++) {
+                    for (size_t i = 0;  i < dimx;  i++) {
                         // Flag full rows for the parallel virtual overscan
                         if ( ((j >= yoscan_beg1) && (j <=yoscan_end1)) ||
                                 // Flag leading serial physical overscan
@@ -346,8 +342,8 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
             }
 
             if ((wf3->detector != IR_DETECTOR) && (wf3->scalar_satflag == False)) {
-                for (j = 0;  j < dimy;  j++) {
-                    for (i = xoscan_beg;  i < xoscan_end;  i++) {
+                for (size_t j = 0;  j < dimy;  j++) {
+                    for (size_t i = xoscan_beg;  i < xoscan_end;  i++) {
                         // Flag full-well or a-to-d saturated pixels with 256 bit
                         if (Pix (x->sci.data, i, j) > sat || Pix (x->sci.data, i, j) > ATOD_SATURATE) {
                             sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
@@ -414,8 +410,8 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
             trlerror("doDQI couldn't allocate data quality array.");
             return (status = OUT_OF_MEMORY);
         }
-        for (j=0; j < snpix[1]; j++)
-            for (i=0; i < snpix[0]; i++)
+        for (size_t j=0; j < snpix[1]; j++)
+            for (size_t i=0; i < snpix[0]; i++)
                 DQSetPix (ydq.data, i, j, 0);	/* initially OK */
     }
 
@@ -485,15 +481,16 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
         /* We have been writing to a scratch array ydq. Now copy
            or bin the values down to the actual size of image x */
 
-        j0 = sfirst[1];
-        for (n = first[1]; n <= last[1]; n++) {
-            i0 = sfirst[0];
-            for (m = first[0]; m <= last[0]; m++) {
+        int j0 = sfirst[1];
+        for (int n = first[1]; n <= last[1]; n++) {
+            int i0 = sfirst[0];
+            for (int m = first[0]; m <= last[0]; m++) {
                 sum_dq = DQPix (x->dq.data, m, n);
-                for (j = j0; j < MIN(j0+rbin[1], ydq.data.ny); j++) {
-                    for (i = i0; i < MIN(i0+rbin[0], ydq.data.nx); i++) {
-                        if (i >= 0 && j >= 0)
+                for (int j = j0; j < MIN(j0+rbin[1], ydq.data.ny); j++) {
+                    for (int i = i0; i < MIN(i0+rbin[0], ydq.data.nx); i++) {
+                        if (i >= 0 && j >= 0) {
                             sum_dq |= DQPix (ydq.data, i, j);
+                        }
                     }
                 }
                 DQSetPix (x->dq.data, m, n, sum_dq);
