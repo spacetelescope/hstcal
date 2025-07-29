@@ -36,8 +36,7 @@ short sdqflags    i: "serious" data quality flags
 	int numgood;			/* number of good pixels */
 	int num_bad_stddev;		/* number of pixels with err = 0 */
 	int area;			/* total number of pixels */
-	int i, j;
-    int dimx, dimy;
+	int dimx, dimy;
     
 	short flagval;			/* data quality flag value */
 	int PutKeyFlt (Hdr *, char *, float, char *);
@@ -58,8 +57,8 @@ short sdqflags    i: "serious" data quality flags
 	snrsum = 0.;
     dimx = out->sci.data.nx;
     dimy = out->sci.data.ny;
-	for (j = 0;  j < dimy;  j++) {
-	    for (i = 0;  i < dimx;  i++) {
+	for (int j = 0;  j < dimy;  j++) {
+	    for (int i = 0;  i < dimx;  i++) {
 		    flagval = DQPix (out->dq.data, i, j);
 		    if ( ! (sdqflags & flagval) ) {
 		        /* no serious flag bit set */
