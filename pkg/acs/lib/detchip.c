@@ -34,7 +34,7 @@ int *extver				o: extension (IMSET) from file corresponding
 	
 	extern int status;
 	int ccdchip;		/* CHIP id from reference header */
-	int n, foundit;
+	int foundit;
     int nextend, ngrps;
 	
 	int GetKeyInt (Hdr *, char *, int, int, int *);
@@ -57,7 +57,7 @@ int *extver				o: extension (IMSET) from file corresponding
         to search for the extension which corresponds to the desired 
         CCDCHIP id of the exposure.
     */
-	for (n=1; n <= ngrps; n++) {
+	for (int n=1; n <= ngrps; n++) {
 		ip = openInputImage (fname, "SCI", n);
 
 		getHeader (ip, &scihdr);
