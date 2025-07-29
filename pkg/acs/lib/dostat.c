@@ -48,7 +48,13 @@ short sdqflags    i: "serious" data quality flags
 	numgood = 0;
 	num_bad_stddev = 0;
 	valsum = 0.;
+	valmin = 0.;
+	valmax = 0.;
+	errmin = 0;
+	errmax = 0;
 	errsum = 0.;
+	snrmin = 0.;
+	snrmax = 0.;
 	snrsum = 0.;
     dimx = out->sci.data.nx;
     dimy = out->sci.data.ny;
