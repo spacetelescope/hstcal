@@ -8,8 +8,7 @@
 
 void FindAsnRoot (const char *input, char *root) {
 
-	int i;
-	int in_len;
+	size_t in_len;
 	char filename[CHAR_FNAME_LENGTH+1];
 	
 	/* names of ACS product suffixes */
@@ -29,7 +28,7 @@ void FindAsnRoot (const char *input, char *root) {
 	strcpy (filename, input);
 	
 	/* Look for each suffix recognized by ACS in filename... */
-	for (i = 0; i < NSUF+3 ; i++){
+	for (size_t i = 0; i < NSUF+3 ; i++){
 		/* Is this suffix in filename? 
 		**	If so, set in_len to the length of filename up to that point
 		**	If not, set in_len to the length of filename
