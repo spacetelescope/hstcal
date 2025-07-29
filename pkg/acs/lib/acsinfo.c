@@ -31,8 +31,6 @@ void ACSInit (ACSInfo *acs) {
     void InitRefTab (RefTab *tab);
     void InitRefImg (RefImage *img);
 
-    int i;
-
     /* Assign default values. */
 
     acs->input[0] = '\0';
@@ -81,7 +79,7 @@ void ACSInit (ACSInfo *acs) {
     acs->ccdgain = 1.;
     acs->binaxis[0] = 1;
     acs->binaxis[1] = 1;
-    for (i=0; i < NAMPS; i++) {
+    for (size_t i=0; i < NAMPS; i++) {
         acs->ccdoffset[i] = 0;
         acs->ccdbias[i] = 0.;
         acs->atodgain[i] = 0.;
