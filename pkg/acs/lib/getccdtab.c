@@ -121,8 +121,6 @@ int     dimy      i: number of lines in exposure
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
-	int i;
 	char amp[5] = "ABCD";
     int samegain;
 
@@ -141,7 +139,7 @@ int     dimy      i: number of lines in exposure
 	*/
 
 	foundit = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
 	    /* Read the current row into tabrow. */
 	    if (ReadCCDTab (&tabinfo, row, &tabrow))
@@ -179,7 +177,7 @@ int     dimy      i: number of lines in exposure
         acs->overhead_postflashed = tabrow.overhead_postflashed;
         acs->overhead_unflashed = tabrow.overhead_unflashed;
 
-		for (i = 0; i < NAMPS; i++){
+		for (size_t i = 0; i < NAMPS; i++){
 			/* If the amp is used, keep the value, otherwise set to zero*/
 			if (strchr(acs->ccdamp, amp[i]) != NULL) {
 				acs->atodgain[i] = tabrow.atodgain[i];
@@ -245,7 +243,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 
 	int PrintMissingCols (int, int, int *, char **, char *, IRAFPointer);
 
-	for (j = 0; j < NUMCOLS; j++)
+	for (size_t j = 0; j < NUMCOLS; j++)
 		nocol[j] = NO;
 
 
