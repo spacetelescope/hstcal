@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.11)
 project(hstcal)
 enable_language(C)
 set(CMAKE_C_STANDARD 99)
-add_compile_definitions(_GNU_SOURCE)
+if(APPLE)
+    add_compile_definitions(__DARWIN_C_LEVEL=9000000L)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
