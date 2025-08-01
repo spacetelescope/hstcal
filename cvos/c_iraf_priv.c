@@ -4,8 +4,10 @@
 */
 const char CVOS_VERSION[] = {"CVOS Version 3.5 (10-April-2001)"};
 
+# include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <stdarg.h>
 
 /* Error Handling */
 static int cvos_errcode = 0;
@@ -15,7 +17,6 @@ c_IRAFErrHandler errhandler[32];
 static int max_err_handlers = 32;
 static int cvos_errtop = -1;
 
-# include <stdio.h>
 void clear_cvoserr(void) { cvos_errcode = 0; cvos_errmsg[0] = '\0'; }
 char *c_iraferrmsg(void) { return cvos_errmsg; }
 int c_iraferr(void) { return cvos_errcode; }
