@@ -67,6 +67,8 @@ jobs:
       run: |
         mkdir -p build
         cd build
+
+        export SDKROOT="$(xcrun --show-sdk-path)"
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
           -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} ${{ matrix.cmake_options }}
