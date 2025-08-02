@@ -22,11 +22,13 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-15, macos-14]
-        gcc: [12, 13, 12]
+        gcc: [12, 14]
         cmake_options: ["", "-DENABLE_ASAN=ON"]
         exclude:
           - os: macos-15
             cmake_options: "-DENABLE_ASAN=ON"
+          - os: macos-15
+            gcc: 12
           - os: macos-14
             cmake_options: "-DENABLE_ASAN=ON"
     runs-on: ${{ matrix.os }}
