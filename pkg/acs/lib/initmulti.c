@@ -3,9 +3,7 @@
 
 /* Initialize multiamp structure to ZERO */
 void initmulti (multiamp *amp) {
-	int i;
-	
-	for (i=0; i < NAMPS; i++) 
+	for (size_t i=0; i < NAMPS; i++)
 		amp->val[i] = 0.;
 		
 	amp->colx = 0;
