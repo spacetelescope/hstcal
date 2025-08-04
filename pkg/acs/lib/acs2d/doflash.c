@@ -59,7 +59,6 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     int same_size;         /* true if no binning of ref image required */
     int avg = 0;           /* bin2d should sum values within each bin */
     int scilines;          /* number of lines in science image */
-    int i, j;
     float mean, flash;
     float weight, wflash;  /* weights for line averages */
     int update;
@@ -146,7 +145,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
   
     initSingleGroupLine(&z);
     allocSingleGroupLine(&z, x->sci.data.nx);
-    for (i=0, j=y0; i < scilines; i++,j++) {
+    for (int i=0, j=y0; i < scilines; i++,j++) {
 
         /* We are working with a sub-array and need to apply the
            proper section from the reference image to the science image.
