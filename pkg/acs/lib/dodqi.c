@@ -136,7 +136,6 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
     short sum_dq;				/* for binning data quality array */
     int atod_sat;
 
-    int row;					/* loop index for row number */
     int dimx, dimy;
     int nrows;   				/* number of rows applied to DQ array */
     short dq_fill = 64;         /* default fill value when no rows are applied*/
@@ -196,7 +195,7 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
     nrows = 0;
     /* Read each row of the table, and fill in data quality values. */
 
-    for (row = 1;  row <= tabinfo.nrows;  row++) {
+    for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
         if (ReadBpixTab (&tabinfo, row, &tabrow)) {
             trlerror ("Error reading BPIXTAB.");
@@ -424,7 +423,6 @@ static void DQINormal (DQHdrData *ydq, double *ltv, TblRow *tabrow) {
     int xstart, ystart;	/* from tabrow, but scaled and shifted */
     int xlow, xhigh;	/* limits for loop on i */
     int ylow, yhigh;	/* limits for loop on j */
-    int i, j;		/* indexes for scratch array ydq */
     short sum_dq;		/* for binning data quality array */
 
     /* Take account of possible subarray or overscan.  We use ltv,
@@ -448,8 +446,8 @@ static void DQINormal (DQHdrData *ydq, double *ltv, TblRow *tabrow) {
         if (xhigh >= ydq->data.nx)
             xhigh = ydq->data.nx - 1;
 
-        j = ystart;
-        for (i = xlow;  i <= xhigh;  i++) {
+        int j = ystart;
+        for (int i = xlow;  i <= xhigh;  i++) {
             sum_dq = tabrow->flag | PDQPix (&ydq->data, i, j);
             PDQSetPix (&ydq->data, i, j, sum_dq);
         }
@@ -469,8 +467,8 @@ static void DQINormal (DQHdrData *ydq, double *ltv, TblRow *tabrow) {
         if (yhigh >= ydq->data.ny)
             yhigh = ydq->data.ny - 1;
 
-        i = xstart;
-        for (j = ylow;  j <= yhigh;  j++) {
+        int i = xstart;
+        for (int j = ylow;  j <= yhigh;  j++) {
             sum_dq = tabrow->flag | PDQPix (&ydq->data, i, j);
             PDQSetPix (&ydq->data, i, j, sum_dq);
         }
