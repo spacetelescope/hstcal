@@ -56,7 +56,6 @@ int Do2D (ACSInfo *acs2d, int extver) {
         float meanflash; /* mean value of post-flash image (for history) */
 	int gsat, lsat;		/* > 0 if saturated pixels found */
 	int done;	/* true means error array was initialized in donoise */
-	int i;
 
   int logit;
 	char buff[ACS_FITS_REC+1];
@@ -238,7 +237,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	    if (acs2d->detector != MAMA_DETECTOR) {
         snprintf(MsgText, sizeof(MsgText), "    readnoise =");
 
-        for (i=0; i < NAMPS-1; i++) {
+        for (size_t i=0; i < NAMPS-1; i++) {
           if (acs2d->readnoise[i] > 0) {
             snprintf (buff, sizeof(buff), "%.5g,",acs2d->readnoise[i]);
             strcat (MsgText, buff);
@@ -253,7 +252,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
         trlmessage(MsgText);
 
         snprintf(MsgText, sizeof(MsgText), "    gain =");
-        for (i=0; i < NAMPS-1; i++) {
+        for (size_t i=0; i < NAMPS-1; i++) {
           if (acs2d->atodgain[i] > 0) {
             snprintf(buff, sizeof(buff), "%.5g,",acs2d->atodgain[i]);
             strcat (MsgText, buff);
