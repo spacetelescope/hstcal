@@ -119,13 +119,11 @@ int doPhot (ACSInfo *acs2d, SingleGroup *x) {
  */
 static void Phot2Obs(char *photmode, char *obsmode)
 {
-  char blank = 32, comma = 44;
-  int i, len, c1;
+  const char blank = 32, comma = 44;
+  const size_t len = strlen(photmode);
 
-  len = strlen(photmode);
-
-  for (i=0; i < len; i++) {
-    c1 = photmode[i];
+  for (size_t i=0; i < len; i++) {
+    const int c1 = photmode[i];
     if (c1 == blank) {
       obsmode[i] = comma;
     } else
