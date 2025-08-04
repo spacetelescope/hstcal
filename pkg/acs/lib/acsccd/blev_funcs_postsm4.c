@@ -904,7 +904,6 @@ static int calc_mean_std(const int len, const double array[], const double sig,
   extern int status;
 
   /* iteration variables */
-  int i,j;
   int clip_it = 4;
 
   double sum_mean;
@@ -915,7 +914,7 @@ static int calc_mean_std(const int len, const double array[], const double sig,
 
   /* calculate the initial mean */
   sum_mean = 0.0;
-  for (i=0; i < len; i++) {
+  for (int i=0; i < len; i++) {
     sum_mean += array[i];
   }
 
@@ -923,19 +922,19 @@ static int calc_mean_std(const int len, const double array[], const double sig,
 
   /* calculate initial standard deviation */
   sum_std = 0.0;
-  for (i=0; i < len; i++) {
+  for (int i=0; i < len; i++) {
     sum_std += pow(array[i] - temp_mean,2);
   }
 
   temp_std = sqrt(sum_std / (double) (len - 1));
 
   /* do sigma clipping iterations */
-  for (j = 0; j < clip_it; j++) {
+  for (int j = 0; j < clip_it; j++) {
     nused = 0;
     sum_mean = 0.0;
     sum_std = 0.0;
 
-    for (i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (fabs(array[i] - temp_mean) <= sig*temp_std) {
         sum_mean += array[i];
         sum_std += pow(array[i] - temp_mean, 2);
@@ -958,11 +957,8 @@ static int sub_bias_col_means(const int arr_rows, const int arr_cols, const int 
                               const double bias_means[], double array[]) {
   extern int status;
 
-  /* iteration variables */
-  int i,j;
-
-  for (j = 0; j < bias_cols; j++) {
-    for (i = 0; i < arr_rows; i++) {
+  for (int j = 0; j < bias_cols; j++) {
+    for (int i = 0; i < arr_rows; i++) {
       array[arr_cols*i + j] = array[arr_cols*i + j] - bias_means[j];
     }
   }
@@ -1018,14 +1014,11 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
 
   extern int status;
 
-  /* iteration variables */
-  int i, j;
-
   /* variables for the image row/column we want */
   int r,c;
 
-  for (i = 0; i < arr_rows; i++) {
-    for (j = 0; j < arr_cols; j++) {
+  for (int i = 0; i < arr_rows; i++) {
+    for (int j = 0; j < arr_cols; j++) {
       if (amp == AMP_A) {
         r = im->sci.data.ny - i - 1;
         c = j;
