@@ -73,9 +73,8 @@ int maxch          i: maximum size of output
 
 	char *extn;		/* extension on input (or default) */
 
-	int is_len;		/* length of current isuffix */
-	int tr_len;		/* length of truncated input name */
-	int i;			/* loop index */
+	size_t is_len;		/* length of current isuffix */
+	size_t tr_len;		/* length of truncated input name */
 	int dotlocn;		/* location of '.' in input name */
 
 	if (output[0] == '\0') {
@@ -104,7 +103,8 @@ int maxch          i: maximum size of output
 		chop it off of the output name before appending the output
 		suffix and extension.
 	    */
-	    for (i = 0;  i < nsuffix;  i++) {
+		int last_i = 0;
+	    for (int i = 0;  i < nsuffix;  i++) {
 			is_len = strlen (isuffix[i]);
 			tr_len = strlen (output);	/* length of truncated name */
 			if (tr_len >= is_len) {
@@ -114,6 +114,7 @@ int maxch          i: maximum size of output
                         free(extn);
 			    		return (status);
                     }
+		    		last_i = i;
 					break;
 		    	}
 			}
@@ -121,7 +122,7 @@ int maxch          i: maximum size of output
 	    /* Append first output suffix if none of the input suffixes
 		was found.
 	    */
-	    if (i >= nsuffix) {
+	    if (last_i >= nsuffix) {
 			if (strcatN (output, osuffix[0], maxch)) {
                 free(extn);
 		    	return (status);
