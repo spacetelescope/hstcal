@@ -30,8 +30,7 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
 
     //check ptr isn't already registered? - go on then.
     // i >= 0 prevents adding self again
-    for (ssize_t i = reg->cursor; i >= 0 ; --i)
-    {
+    for (unsigned i = reg->cursor; i != 0 ; --i) {
         if (reg->ptrs[i] == ptr)
             return;
     }
@@ -71,10 +70,11 @@ void freePtr(PtrRegister * reg, void * ptr)
         return;
 
     Bool found = False;
-    size_t i = 0;
-    for (i = reg->cursor; i > 0 ; --i) {
+    size_t pos = 0;
+    for (unsigned i = reg->cursor; i > 0 ; --i) {
         if (reg->ptrs[i] == ptr) {
             found = True;
+            pos = i;
             break;
         }
     }
@@ -86,16 +86,16 @@ void freePtr(PtrRegister * reg, void * ptr)
     }
 
     //call function to free ptr
-    reg->freeFunctions[i](ptr);
+    reg->freeFunctions[pos](ptr);
 
-    if (i == reg->cursor) {
-        reg->ptrs[i] = NULL;
-        reg->freeFunctions[i] = NULL;
+    if (pos == reg->cursor) {
+        reg->ptrs[pos] = NULL;
+        reg->freeFunctions[pos] = NULL;
     } else {
         //move last one into gap to close - not a stack so who cares
-        reg->ptrs[i] = reg->ptrs[reg->cursor];
+        reg->ptrs[pos] = reg->ptrs[reg->cursor];
         reg->ptrs[reg->cursor] = NULL;
-        reg->freeFunctions[i] = reg->freeFunctions[reg->cursor];
+        reg->freeFunctions[pos] = reg->freeFunctions[reg->cursor];
         reg->freeFunctions[reg->cursor] = NULL;
     }
     --reg->cursor;
