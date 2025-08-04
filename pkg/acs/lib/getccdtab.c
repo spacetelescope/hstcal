@@ -360,11 +360,10 @@ IRAFPointer tp		i: pointer to table, close it if necessary
 */
 
 	extern int status;
-	int j;
 	/* If any columns are missing... */
 	if (missing) {
  	    trlerror("%d columns not found in %s.", missing, tabname);
-		for (j=0; j< numcols; j++) {
+		for (int j=0; j< numcols; j++) {
 			/* Recall which ones were marked missing... */
 			if (nocol[j]) {
 				/*... and print out that column's name */
