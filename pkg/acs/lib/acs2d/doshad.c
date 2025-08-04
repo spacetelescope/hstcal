@@ -36,7 +36,6 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	int x0, y0;		/* offsets of sci image */
 	int same_size;		/* true if no binning of ref image required */
 	int avg = 1;		/* bin2d should average within each bin */
-	int i,j, zline;
 	int chipext;
 	int update = NO;
     int zsecty, zsectx;
@@ -99,7 +98,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
         
 	    initSingleGroupLine (&z);
 	    allocSingleGroupLine (&z, x->sci.data.nx);
-		for (i=0,j=y0; i < x->sci.data.ny; i++,j++) {
+		for (int i=0,j=y0; i < x->sci.data.ny; i++,j++) {
 		
 			getSingleGroupLine (acs2d->shad.name, j, &y);
 				
@@ -152,11 +151,11 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 		}
 
 		/* Initialize row counter for input image 	*/
-		i = 0;
+		int i = 0;
 		
 		/* Initialize row counter for shadfile, based on offset
 			calculated by FindLine.					*/
-		j = y0;
+		int j = y0;
 		
 		/* Read in shadfile and apply to input image here */
 		while (i < x->sci.data.ny) {
@@ -171,7 +170,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 			
 			/* For each line in expanded section, copy out a 
 				SingleGroupLine and apply it to the science image. */
-			for (zline=0; zline < zsecty; zline++) {
+			for (int zline=0; zline < zsecty; zline++) {
 				
 				/* Copy out individual expanded lines from reference data */
 				copySectLine (&zsect, zline, &zl); 
