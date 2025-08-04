@@ -93,8 +93,6 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
     PhtCols tabinfo;    /* pointer to table descriptor, etc */
     PhtRow tabrow;        /* values read from a table row */
 
-    int row;        /* loop index */
-    int extn;
     char phdrname[CHAR_FNAME_LENGTH];
     IODescPtr im;        /* descriptor for primary header unit */
     Hdr tphdr;        /* primary header */
@@ -192,7 +190,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
        different photometry keyword values, one from each
        extension.
      */
-    for (extn = 1; extn <= numkeys; extn++){
+    for (size_t extn = 1; extn <= numkeys; extn++){
         strcpy(pname,photnames[extn]);
         /* Open the photometry parameters table and find columns. */
         if (OpenPhotTab (obs->name, pname, &tabinfo)) {
@@ -204,7 +202,7 @@ int GetPhotTab (PhotPar *obs, char *photmode) {
          */
 
         foundit = 0;
-        for (row = 1;  row <= tabinfo.nrows;  row++) {
+        for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
             /* Read the current row into tabrow. */
             if (ReadPhotTab (&tabinfo, row, &tabrow)) {
@@ -292,9 +290,8 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     char **colnames, **ecolnames, **pncolnames, **pvcolnames;
 
     int *nocol;
-    int i, j, missing;
-    int parnum;
-    
+    int missing;
+
     int PrintMissingCols_IMPHTTAB (int, int, int *, char **, char *, IRAFPointer);
     int buildTabName (char *, char *, char *);
 
@@ -303,7 +300,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     ecolnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
     pncolnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
     pvcolnames = (char **)calloc(tabinfo->parnum+1, sizeof(char *));
-    for (i=0;i <= tabinfo->parnum; i++){
+    for (int i=0;i <= tabinfo->parnum; i++){
         colnames[i] = (char *)calloc(SZ_COLNAME, sizeof(char));
         ecolnames[i] = (char *)calloc(SZ_COLNAME, sizeof(char));
         pncolnames[i] = (char *)calloc(SZ_COLNAME, sizeof(char));
@@ -311,7 +308,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     }
     /* Copy in the column names now */
     strcpy(colnames[0],photvar);
-    for (parnum=1;parnum <= tabinfo->parnum; parnum++){
+    for (int parnum=1;parnum <= tabinfo->parnum; parnum++){
         snprintf(colnames[parnum], SZ_COLNAME, "%s%i", photvar, parnum);
         snprintf(ecolnames[parnum], SZ_COLNAME, "NELEM%i", parnum);
         snprintf(pncolnames[parnum], SZ_COLNAME, "PAR%iNAMES", parnum);
@@ -337,7 +334,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 
     /* Initialize missing column array */
     nocol = (int *)calloc(tabinfo->ncols+1,sizeof(int));
-    for (j = 0; j < tabinfo->ncols; j++){
+    for (int j = 0; j < tabinfo->ncols; j++){
         nocol[j] = NO;
     }
 
@@ -346,8 +343,8 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     c_tbcfnd1 (tabinfo->tp, "DATACOL", &tabinfo->cp_datacol);
     c_tbcfnd1 (tabinfo->tp, photvar,   &tabinfo->cp_result[0]);
     missing = 0;
-    i=0;
-    for (parnum = 1;parnum <= tabinfo->parnum; parnum++){
+    int col = 0;
+    for (int parnum = 1;parnum <= tabinfo->parnum; parnum++){
         /*
            Read in NELEM<parnum> columns
          */
@@ -364,15 +361,26 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
            Read in the PHOT*<parnum> columns
          */
         c_tbcfnd1 (tabinfo->tp, colnames[parnum], &tabinfo->cp_result[parnum]);
-        if (tabinfo->cp_result[parnum] == 0 ) { missing++; nocol[i] = YES;} i++;
+        if (tabinfo->cp_result[parnum] == 0 ) {
+            nocol[col] = YES;
+            missing++;
+        }
+        col++;
     }
     /* Initialize counters here... */
 
     /* Increment i for every column, mark only missing columns in
        nocol as YES.  WJH 27 July 1999
      */
-    if (tabinfo->cp_obsmode == 0 ) { missing++; nocol[i] = YES;} i++;
-    if (tabinfo->cp_datacol == 0 ) { missing++; nocol[i] = YES;} i++;
+    if (tabinfo->cp_obsmode == 0 ) {
+        missing++; nocol[col] = YES;
+    }
+    col++;
+
+    if (tabinfo->cp_datacol == 0 ) {
+        missing++; nocol[col] = YES;
+    }
+    col++;
 
     if (PrintMissingCols_IMPHTTAB(missing, tabinfo->ncols, nocol, colnames,
                 "IMPHTTAB", tabinfo->tp) )
@@ -383,7 +391,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
 
     /* Free memory */
-    for (i=0; i <= tabinfo->parnum; i++){
+    for (size_t i=0; i <= tabinfo->parnum; i++){
         free(colnames[i]);
         free(ecolnames[i]);
         free(pncolnames[i]);
@@ -405,7 +413,6 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
    variable values from the PHOTMODE string as outputs parnames, parvalues.
 */
 static int InterpretPhotmode(char *photmode, PhotPar *obs){
-    int i;
     int numpar, n;
     int tok;
     int indx;
@@ -476,7 +483,7 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
 
         /* Now, parse each of the stored parameter strings from the obsmode
            into parnames and  parvalues. */
-        for (i=0;i<numpar;i++) {
+        for (size_t i=0;i<numpar;i++) {
             chtmp = (char *) calloc(strlen(obs->parnames[i]) + 1, sizeof(char));
             strcpy(chtmp, obs->parnames[i]);
 
@@ -498,7 +505,7 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
            Initialize intermediate variable
          */
         obsnames = calloc(obselems + 1,sizeof(*obsnames));
-        for (i=0;i<obselems;i++)
+        for (size_t i=0;i<obselems;i++)
             obsnames[i] = (char *) calloc(SZ_COLNAME + 1,sizeof(char));
         /* Start adding elements to the intermediate variable */
         strcpy(tempmode,photmode);
@@ -518,14 +525,14 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
             tok++;
         }
         /* build up new obsmode string */
-        for (i=0;i<obselems;i++){
+        for (int i=0;i<obselems;i++){
             strcat(obs->obsmode,obsnames[i]);
             if (i < obselems-1)
                 strcat(obs->obsmode,",");
         }
 
         /* Free memory */
-        for (i=0;i<obselems;i++)
+        for (int i=0;i<obselems;i++)
             free(obsnames[i]);
         free(obsnames);
     } else {
@@ -546,8 +553,6 @@ static int CompareObsModes(char *obsmode1, char *obsmode2) {
 
     char * chtok;
 
-    int i;
-
     /* regardless of order or case they should be the same length */
     if (strlen(obsmode1) != strlen(obsmode2))
         return 1;
@@ -556,7 +561,7 @@ static int CompareObsModes(char *obsmode1, char *obsmode2) {
     strcpy(temp1, obsmode1);
     strcpy(temp2, obsmode2);
 
-    for (i = 0; obsmode1[i]; i++) {
+    for (size_t i = 0; obsmode1[i]; i++) {
         temp1[i] = tolower(obsmode1[i]);
         temp2[i] = tolower(obsmode2[i]);
     }
@@ -586,13 +591,13 @@ int PrintMissingCols_IMPHTTAB (int missing, int numcols, int *nocol,
     */
 
     extern int status;
-    int j;
+
     /* If any columns are missing... */
     if (missing) {
         printf ("\n==>ERROR: %d columns not found in %s.\n", missing, tabname);
         /*trlerror (MsgText); */
 
-        for (j=0; j< numcols; j++) {
+        for (size_t j=0; j< numcols; j++) {
             /* Recall which ones were marked missing... */
             if (nocol[j]) {
                 /*... and print out that column's name */
@@ -631,11 +636,6 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
     char col_nelem[SZ_COLNAME];
     char col_parval[SZ_COLNAME]="PAR";
     int nret;
-    int n, col, i;
-    
-    n=0;
-    col=0;
-    i=0;
 
     extern int status;
 
@@ -675,7 +675,7 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
         tabrow->nelem = (int *) malloc((tabrow->parnum+1) * sizeof(int));
         tabrow->parvals = (double **) malloc(tabrow->parnum * sizeof(double *));
         tabrow->parnames = (char **) malloc(tabrow->parnum * sizeof(char *));
-        for (i=0,n=1; i<tabrow->parnum; i++,n++){
+        for (int i=0,n=1; i<tabrow->parnum; i++,n++){
             tabrow->parnames[i] = (char *) malloc (SZ_COLNAME * sizeof(char));
             /*
                Copy name of parameterized value as defined in PRIMARY header
@@ -692,7 +692,7 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
         if (tabrow->nelem == NULL || tabrow->parvals == NULL || tabrow->parnames == NULL)
             return (OUT_OF_MEMORY);
 
-        for (n=1,col=0; n<=tabrow->parnum; n++,col++){
+        for (int n=1,col=0; n<=tabrow->parnum; n++,col++){
             /* Build up names of columns for parameterized values
                which need to be read in */
             snprintf(col_nelem, sizeof(col_nelem), "NELEM%d",n);    /* col name: NELEMn */
@@ -744,14 +744,15 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
      */
 
     double value;
-    int n,p, nx, ndim;
+    int nx, ndim;
     double *out;
     double *obsindx; /* index of each obsmode par value in tabrow->parvals */
     double *obsvals; /* value for each obsmode par in the same order as tabrow */
 
     int *ndpos;
     int **bounds; /* [ndim,2] array for bounds around obsvals values */
-    int indx,pdim,ppos,xdim,xpos;
+    long indx;
+    int pdim,ppos,xdim,xpos;
     int tabparlen;
    
     xdim=0;
@@ -792,7 +793,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     ndpos = (int *)calloc(ndim, sizeof(int));
     ndposd = (double *)calloc(ndim, sizeof(double));
     bounds = (int **) calloc(ndim, sizeof(int *));
-    for (p=0; p < ndim; p++)
+    for (size_t p=0; p < ndim; p++)
         bounds[p] = (int *) calloc(2, sizeof(int));
 
     /* We have parameterized values, so linear interpolation
@@ -804,9 +805,9 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
        Start by matching up the obsmode parameters with those in the table row
        These are the values along each dimension of the interpolation
      */
-    for (p=0;p<ndim;p++){
+    for (int p=0;p<ndim;p++){
         tabparlen = strlen(tabrow->parnames[p]);
-        for(n=0;n<obs->npar;n++){
+        for(int n=0;n<obs->npar;n++){
             if (strneq_ic(tabrow->parnames[p],obs->parnames[n],tabparlen)){
                 obsvals[p] = obs->parvalues[n];
                 break;
@@ -820,8 +821,8 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
             free(obsvals);
             free(ndpos);
             free(ndposd);
-            for (p=0; p < ndim; p++)
-                free(bounds[p]);
+            for (size_t j=0; j < ndim; j++)
+                free(bounds[j]);
             free(bounds);
 
             return ('\0');
@@ -840,8 +841,8 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 free(obsvals);
                 free(ndpos);
                 free(ndposd);
-                for (p=0; p < ndim; p++)
-                    free(bounds[p]);
+                for (size_t j=0; j < ndim; j++)
+                    free(bounds[j]);
                 free(bounds);
                 return -9999.0;
             } else {
@@ -859,12 +860,12 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
        into each parameterized value array
        Equivalent to getting positions in each dimension (x,y,...).
      */
-    for (p=0; p < ndim; p++){
+    for (int p=0; p < ndim; p++){
         nx = tabrow->nelem[p+1];
 
         out = (double *) calloc(nx, sizeof(double));
 
-        for (n=0; n < nx; n++)
+        for (int n=0; n < nx; n++)
             out[n] = n;
 
         /* Special index if extrapolating, otherwise interpolate as usual. */
@@ -881,8 +882,8 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
             free(obsvals);
             free(ndpos);
             free(ndposd);
-            for (p=0; p < ndim; p++)
-                free(bounds[p]);
+            for (int k=0; k < ndim; k++)
+                free(bounds[k]);
             free(bounds);
             free(out);
             return('\0');
@@ -921,7 +922,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     */
     for (iter=ndim; iter > 0; iter--) {
         iterpow = pow(2, iter);
-        for (p=0; p < iterpow; p++) {
+        for (int p=0; p < iterpow; p++) {
             pdim = floor(p / 2);
             ppos = p % 2;
 
@@ -931,7 +932,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
 
                    Create a bitmask for each dimension for each position. */
                 byteconvert(p, ndpos, ndim);
-                for (n=0; n < ndim; n++) {
+                for (size_t n=0; n < ndim; n++) {
                     pindx = bounds[n][ndpos[n]];
                     points[pdim][ppos].index[n] = (double)pindx;
                     points[pdim][ppos].pos[n] = tabrow->parvals[n][pindx];
@@ -954,8 +955,8 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                     free(obsvals);
                     free (ndpos);
                     free (ndposd);
-                    for (p=0;p<ndim;p++)
-                        free(bounds[p]);
+                    for (int k=0;k<ndim;k++)
+                        free(bounds[k]);
                     free(bounds);
 
                     return('\0');
@@ -982,7 +983,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
                 /* update bpos and bindx for iteration over next dimension
                  */
                 points[xdim][xpos].value = rinterp;
-                for (n=0;n<ndim;n++) {
+                for (size_t n=0;n<ndim;n++) {
                     points[xdim][xpos].index[n] = points[pdim][0].index[n];
                     points[xdim][xpos].pos[n] = points[pdim][0].pos[n];
                 }
@@ -1003,7 +1004,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     free(obsvals);
     free (ndpos);
     free (ndposd);
-    for (p=0;p<tabrow->parnum;p++)
+    for (size_t p=0;p<tabrow->parnum;p++)
         free(bounds[p]);
     free(bounds);
 
@@ -1077,11 +1078,10 @@ void computebounds (double *x, int nx, double val, int *i0, int *i1) {
    of values in pos[]
  */
 long computeindex(int *nelem, double *pos, int ndim) {
-    int n;
     int szaxis = 1;
     long indx = 0;
 
-    for (n=0; n < ndim; n++) {
+    for (size_t n=0; n < ndim; n++) {
         indx += szaxis * pos[n];
         szaxis *= nelem[n+1];
     }
@@ -1095,10 +1095,9 @@ long computeindex(int *nelem, double *pos, int ndim) {
    integer value.
  */
 void byteconvert(int val, int *result, int ndim) {
-    int i;
     int bval = 1;
 
-    for (i=0; i < ndim; i++) {
+    for (int i=0; i < ndim; i++) {
         if ((val & bval) > 0){
             result[i] = 1;
         } else {
@@ -1116,11 +1115,10 @@ void byteconvert(int val, int *result, int ndim) {
    This assumes that the positions only change in 1 dimension at a time.
 */
 int computedeltadim(BoundingPoint *pos1, BoundingPoint *pos2){
-    int p;
     int xdim=0;
     double diff;
 
-    for (p=0; p < pos1->ndim; p++) {
+    for (int p=0; p < pos1->ndim; p++) {
         diff = pos2->index[p] - pos1->index[p];
         if ( diff != 0) {
             xdim = p;
@@ -1137,9 +1135,7 @@ int computedeltadim(BoundingPoint *pos1, BoundingPoint *pos2){
  */
 static void ClosePhotRow (PhtRow *tabrow) {
 
-    int i;
-
-    for (i=0; i<tabrow->parnum; i++){
+    for (size_t i=0; i<tabrow->parnum; i++){
         free(tabrow->parvals[i]);
         free(tabrow->parnames[i]);
     }
@@ -1166,14 +1162,13 @@ static int ClosePhotTab (PhtCols *tabinfo){
 
 /* Initialize the array of BoundingPoint objects */
 BoundingPoint **InitBoundingPointArray(int npoints, int ndim){
-    int i;
     int pdim;
     void InitBoundingPoint(BoundingPoint *, int);
     BoundingPoint **points;
 
     pdim = npoints/2;
     points = (BoundingPoint **)calloc(pdim,sizeof(BoundingPoint *));
-    for (i=0;i<pdim;i++) {
+    for (size_t i=0;i<pdim;i++) {
         points[i] = (BoundingPoint *)calloc(2,sizeof(BoundingPoint));
         InitBoundingPoint(&points[i][0],ndim);
         InitBoundingPoint(&points[i][1],ndim);
@@ -1192,12 +1187,11 @@ void InitBoundingPoint(BoundingPoint *point, int ndim){
 
 /* Free the memory allocated to an array of BoundingPoint objects */
 void FreeBoundingPointArray(BoundingPoint **points, int npoints){
-    int i;
     int pdim;
     void FreeBoundingPoint(BoundingPoint *);
     pdim = npoints/2;
 
-    for (i=0;i<pdim;i++) {
+    for (size_t i=0;i<pdim;i++) {
         FreeBoundingPoint(&points[i][0]);
         FreeBoundingPoint(&points[i][1]);
         free(points[i]);
@@ -1298,12 +1292,11 @@ void InitPhotPar(PhotPar *obs, char *name, char *pedigree) {
 
 int AllocPhotPar(PhotPar *obs, int npar){
     extern int status;
-    int i;
 
     obs->npar = npar;
 
     obs->parnames = (char **)calloc(npar, sizeof(char *));
-    for (i=0;i<npar;i++) {
+    for (size_t i=0;i<npar;i++) {
         obs->parnames[i] = (char *)calloc(SZ_FITS_REC, sizeof(char));
         obs->parnames[i][0] = '\0';
     }
@@ -1318,9 +1311,7 @@ int AllocPhotPar(PhotPar *obs, int npar){
 
 
 void FreePhotPar(PhotPar *obs){
-    int n;
-
-    for (n=0;n<obs->npar;n++){
+    for (size_t n=0;n<obs->npar;n++){
         free(obs->parnames[n]);
     }
     free(obs->parnames);
@@ -1336,13 +1327,11 @@ void FreePhotPar(PhotPar *obs){
  */
 int streq_ic_IMPHTTAB (char *s1, char *s2) {
     int c1, c2;
-    int i;
 
     c1 = 1;
-    for (i = 0;  c1 != 0;  i++) {
-
-        c1 = s1[i];
-        c2 = s2[i];
+    for (size_t i = 0;  c1 != 0;  i++) {
+        c1 = (unsigned char) s1[i];
+        c2 = (unsigned char) s2[i];
         if (isupper(c1))
             c1 = tolower (c1);
         if (isupper(c2))
@@ -1356,16 +1345,14 @@ int streq_ic_IMPHTTAB (char *s1, char *s2) {
 
 int strneq_ic (char *s1, char *s2, int n) {
     int c1, c2;
-    int i;
 
     if (n == 0)
         return 0;
 
     c1 = 1;
-    for (i = 0;  i < n;  i++) {
-
-        c1 = s1[i];
-        c2 = s2[i];
+    for (size_t i = 0;  i < n;  i++) {
+        c1 = (unsigned char) s1[i];
+        c2 = (unsigned char) s2[i];
         if (isupper(c1))
             c1 = tolower (c1);
         if (isupper(c2))
