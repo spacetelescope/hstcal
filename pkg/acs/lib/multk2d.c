@@ -25,8 +25,8 @@ float k          i: multiply a by this constant
     int dimx = a->sci.data.nx;
     int dimy = a->sci.data.ny;
     
-    for (size_t j = 0;  j < dimy;  j++) {
-        for (size_t i = 0;  i < dimx;  i++) {
+    for (int j = 0;  j < dimy;  j++) {
+        for (int i = 0;  i < dimx;  i++) {
 
             /* science array */
             Pix (a->sci.data, i, j) = k * Pix (a->sci.data, i, j);
@@ -51,8 +51,8 @@ void AvgSciVal (SingleGroup *y, short sdqflags, double *mean, double *weight) {
     int dimx = y->sci.data.nx;
     int dimy = y->sci.data.ny;
 
-    for (size_t j = 0; j < dimy; j++) {
-        for (size_t i = 0;  i < dimx;  i++) {
+    for (int j = 0; j < dimy; j++) {
+        for (int i = 0;  i < dimx;  i++) {
             flagval = DQPix (y->dq.data, i, j);
 
             /* no serious flag bit set */
