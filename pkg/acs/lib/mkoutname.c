@@ -10,8 +10,9 @@
 #include "hstcal.h"
 # include "hstcalerr.h"
 # include "acs.h"	/* for message output */
+#include "str_util.h"
 
-static int FindExtn (char *);
+static int FindExtn (const char *);
 static int strcatN (char *, char *, int);
 
 /* This routine constructs the output file name based on the input name
@@ -168,28 +169,32 @@ int DefaultExtn (char *input, int maxch) {
 
 /* This function returns the index of '.' in fname, or -1 if it wasn't
   found.  The searching starts at the end of fname and works backward.
-  Note that searching for '.' will stop if '$', '/', or ']' is
+  Note that searching for '.' will stop if '$', '\', '/', or ']' is
   encountered, as these could be used as parts of a directory name.
   Note also that we do not require the extension to have any particular
   value.  fname may begin with '.'.
 */
 
-static int FindExtn (char *fname) {
-
+int FindExtn (const char *fname) {
 	int dotlocn = -1;
-	int i;
+	const char *ext = ".";
+	const char *path_element = ".\\/$";
+	const size_t len = fname ? strlen(fname) : 0;
 
-	for (i = strlen(fname)-1;  i >= 0;  i--) {
-	    if (fname[i] == '.') {
-		dotlocn = i;
-		break;
-	    }
-	    /* Have we reached a directory prefix? */
-	    if (fname[i] == '$' || fname[i] == '/' || fname[i] == ']')
-		break;
+	for (size_t i = len; i != 0; --i) {
+		const size_t pos = i - 1;
+
+		const int ch_status = delim_check(fname[pos], ext, path_element);
+		if (ch_status == DELIM_FOUND && pos != 0) {
+			dotlocn = (int) pos;
+			break;
+		} else if (ch_status == DELIM_REJECTED) {
+			// path element
+			break;
+		}
 	}
 
-	return (dotlocn);
+	return dotlocn;
 }
 
 /* This routine concatenates instr to outstr, but only if the sum of
