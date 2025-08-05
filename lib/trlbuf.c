@@ -132,7 +132,7 @@ char *output        i: full filename of output (final) trailer file
     IRAFPointer tpin = NULL;
     FILE * ip = NULL;
     FILE * tp = NULL;
-    int n, td;
+    int td;
     char trldata[CHAR_LINE_LENGTH+1];
     static char uniq_outtemplate[] = "tmp_hstcal_XXXXXX";
     char uniq_outname[CHAR_FNAME_LENGTH+1];
@@ -189,7 +189,7 @@ char *output        i: full filename of output (final) trailer file
             input trailer files to create a new trailer file, ...
         */
         /* loop all input files */
-        for (n = 0; n < c_imtlen(tpin); n++) {
+        for (int n = 0; n < c_imtlen(tpin); n++) {
 
             /* read the next input image name in the template list */
             c_imtgetim (tpin, trldata, CHAR_FNAME_LENGTH);
