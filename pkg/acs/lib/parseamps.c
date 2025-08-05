@@ -19,12 +19,9 @@ int chip                i: value of CCDCHIP from image header
 char *ccdamp            o: string with amps used by chip
 */
 
-	int i,j,k;
     int out_max;
     char wfcamps[3];
 
-		i = 0;
-		k = 0;
         out_max = 2;
         wfcamps[0] = '\n';
         
@@ -35,8 +32,7 @@ char *ccdamp            o: string with amps used by chip
             strcpy (wfcamps,AMPSTR2);
         
         /* Pick out only those amps actually used... */
-		for (j = 0; j < out_max; j++) {
-            
+		for (int j = 0; j < out_max; j++) {
 			if (strchr (acsamps, *(wfcamps+j)) != NULL) {
 				strncat(ccdamp,&wfcamps[j],1);
             }
