@@ -57,7 +57,7 @@ SingleGroup *b    o: output data
     }
 
     /* i,j = pixel indices in input array, m,n = pixel idices in output array */
-    for (size_t n = 0, j = ystart; n < ny; n++, j++) {
+    for (int n = 0, j = ystart; n < ny; n++, j++) {
         for (size_t m = 0, i = xstart;  m < nx;  m++, i++) {
             /* Extract the science array */
             Pix(b->sci.data, m, n) = Pix(a->sci.data, i, j);
