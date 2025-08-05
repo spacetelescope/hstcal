@@ -1,4 +1,6 @@
 # include <ctype.h>
+#include <stddef.h>
+#include <string.h>
 
 /* This function compares two strings without regard to case, returning
    one if the strings are equal.
@@ -8,21 +10,20 @@
 */
 
 int streq_ic (char *s1, char *s2) {
+	if (!s1 || !s2)
+		return 0;
 
-	int c1, c2;
-	int i;
-
-	c1 = 1;
-	for (i = 0;  c1 != 0;  i++) {
-
-	    c1 = s1[i];
-	    c2 = s2[i];
-	    if (isupper(c1))
-		c1 = tolower (c1);
-	    if (isupper(c2))
-		c2 = tolower (c2);
-	    if (c1 != c2)
-		return (0);
+	const size_t s1_len = strlen(s1);
+	const size_t s2_len = strlen(s2);
+	if (s1_len != s2_len) {
+		return 0;
 	}
-	return (1);
+
+	for (size_t i = 0; i < s1_len; i++) {
+		const char c1 = (char) tolower((unsigned char) s1[i]);
+		const char c2 = (char) tolower((unsigned char) s2[i]);
+		if (c1 != c2)
+			return 0;
+	}
+	return 1;
 }
