@@ -53,8 +53,7 @@ ACSsect *b        o: output expanded data
 	int inx, iny;		/* size of input array */
 	int onx, ony;		/* size of output array */
 	int binx, biny;		/* number of output pixels per input pixel */
-	int m, n;		/* pixel index in output array */
-	int i, j;		/* pixel index in input array */
+	int i, j;
 	int i1, i2, num_i;	/* for ORing data quality */
 	int j1, j2, num_j;	/* for ORing data quality */
 	short dq;		/* OR of the data quality arrays */
@@ -85,8 +84,8 @@ ACSsect *b        o: output expanded data
 	    /* Copy the science data. */
 	    /* Copy the error array. */
 	    /* Copy the data quality array. */
-	    for (n = 0;  n < ony;  n++) {
-		    for (m = 0;  m < onx;  m++) {
+	    for (int n = 0;  n < ony;  n++) {
+		    for (int m = 0;  m < onx;  m++) {
 		        b->sci[n].line[m] = a->sci[n].line[m];
 		        b->err[n].line[m] = a->err[n].line[m];
 		        b->dq[n].line[m] = a->dq[n].line[m];
@@ -96,12 +95,12 @@ ACSsect *b        o: output expanded data
 	} else if (binx == 1) {
 
 	    /* Interpolate in Y. */
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;  n < ony;  n++) {
 			aj = ((float)n - yoffset) / (float)biny;
 			InterpInfo (aj, iny, &j, &r, &s);
 			InterpDQInfo (aj, iny, &j1, &j2, &num_j);
 
-			for (m = 0;  m < onx;  m++) {
+			for (int m = 0;  m < onx;  m++) {
         	    /* Science data array. */
 		    	value = r * a->sci[j].line[m] + s * a->sci[j+1].line[m];
 		    	b->sci[n].line[m] = value;
@@ -126,8 +125,8 @@ ACSsect *b        o: output expanded data
 	    /* Interpolate in X. */
 
 
-	    for (n = 0;  n < ony;  n++) {
-			for (m = 0;  m < onx;  m++) {
+	    for (int n = 0;  n < ony;  n++) {
+			for (int m = 0;  m < onx;  m++) {
 		    	ai = ((float)m - xoffset) / (float)binx;
 		    	InterpInfo (ai, inx, &i, &p, &q);
 
@@ -153,11 +152,11 @@ ACSsect *b        o: output expanded data
 
 	} else {
 
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;  n < ony;  n++) {
 			aj = ((float)n - yoffset) / (float)biny;
 			InterpInfo (aj, iny, &j, &r, &s);
 			InterpDQInfo (aj, iny, &j1, &j2, &num_j);
-			for (m = 0;  m < onx;  m++) {
+			for (int m = 0;  m < onx;  m++) {
 		    	ai = ((float)m - xoffset) / (float)binx;
 		    	InterpInfo (ai, inx, &i, &p, &q);
                 
