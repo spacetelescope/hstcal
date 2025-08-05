@@ -17,18 +17,17 @@ void UFilename (char *filename, Hdr *phdr) {
 char *filename  i: file name, but may begin with directory specification
 Hdr *phdr       io: pointer to header; FILENAME will be updated
 */
-
+    // TODO: Reduce complexity -- use strrchr instead
 	int ch;			/* one character in filename */
-	int namelen;		/* length of filename */
-	int start = 0;		/* start of file name */
-	int i;
+	size_t namelen;		/* length of filename */
+	size_t start = 0;		/* start of file name */
 	int PutKeyStr(Hdr *, char *, char *, char *);
 
 	namelen = strlen (filename);
 
 	/* If there's a directory prefix, skip over it. */
-	for (i = 0;  i < namelen;  i++) {
-	    ch = filename[i];
+	for (size_t i = 0;  i < namelen;  i++) {
+	    ch = (unsigned char) filename[i];
 	    if (isalnum(ch) || ch == '_' || ch == '.')
 			continue;			/* ordinary character */
 	    else if (ch == '\\' && i+1 < namelen)
