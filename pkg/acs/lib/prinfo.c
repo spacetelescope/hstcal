@@ -251,27 +251,27 @@ char *outstr  o: string converted to upper case
 int maxch     i: allocated length of outstr (including EOS)
 */
 
-	int i;
-
 	/* maxch should be larger than PAD_SIZE */
 	if (PAD_SIZE >= maxch) {
 	    strcpy (outstr, "*****");
 	    return;
 	}
 
-	for (i = 0;  i < maxch-1;  i++) {
+	int pad = 0;
+	for (int i = 0;  i < maxch-1;  i++) {
+		pad = i;
 	    if (instr[i] == '\0')
 			break;
 	    else if (islower (instr[i]))
-			outstr[i] = toupper (instr[i]);
+			outstr[i] = (char) toupper(instr[i]);
 	    else
 			outstr[i] = instr[i];
 	}
-	while (i < PAD_SIZE) {
-	    outstr[i] = ' ';
-	    i++;
+	while (pad < PAD_SIZE) {
+	    outstr[pad] = ' ';
+	    pad++;
 	}
-	outstr[i] = '\0';
+	outstr[pad] = '\0';
 }
 
 /* Convert the first character of a string to upper case, convert the rest
@@ -286,31 +286,31 @@ char *outstr  o: string with only the first letter capitalized
 int maxch     i: allocated length of outstr (including EOS)
 */
 
-	int i = 0;
-
 	if (PAD_SIZE >= maxch) {
 	    strcpy (outstr, "*****");
 	    return;
 	}
 
+	int pad = 0;
 	if (instr[0] != '\0') {
 	    if (islower (instr[0]))
-			outstr[0] = toupper (instr[0]);
+			outstr[0] = (char) toupper(instr[0]);
 	    else
 			outstr[0] = instr[0];
 
-		for (i = 1;  i < maxch-1;  i++) {
+		for (int i = 1;  i < maxch-1;  i++) {
+			pad = i;
 			if (instr[i] == '\0')
 		    	break;
 			else if (isupper (instr[i]))
-		    	outstr[i] = tolower (instr[i]);
+		    	outstr[i] = (char) tolower(instr[i]);
 			else
 		    	outstr[i] = instr[i];
 	    }
 	}
-	while (i < PAD_SIZE) {
-	    outstr[i] = ' ';
-	    i++;
+	while (pad < PAD_SIZE) {
+	    outstr[pad] = ' ';
+	    pad++;
 	}
-	outstr[i] = '\0';
+	outstr[pad] = '\0';
 }
