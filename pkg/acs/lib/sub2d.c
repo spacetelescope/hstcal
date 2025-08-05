@@ -34,8 +34,8 @@ SingleGroup *b   i: second input data
     int dimx = a->sci.data.nx;
     int dimy = a->sci.data.ny;
 
-    for (size_t j = 0; j < dimy; j++) {
-        for (size_t i = 0;  i < dimx;  i++) {
+    for (int j = 0; j < dimy; j++) {
+        for (int i = 0;  i < dimx;  i++) {
             /* science array */
             Pix(a->sci.data, i, j) -= Pix(b->sci.data, i, j);
 
