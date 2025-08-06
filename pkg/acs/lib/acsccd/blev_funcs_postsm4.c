@@ -77,7 +77,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
   va_start (arguments, nGroups);
   {
        /* sg[0] is chip2 and sg[1] is chip 1 for a full frame image */
-       for (size_t i = 0; i < nGroups; i++) {
+       for (int i = 0; i < nGroups; i++) {
            sg[i] = NULL;
            sg[i] = va_arg (arguments, SingleGroup *);
            if (!sg[i]) {
@@ -155,7 +155,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
    * the single amp value corresponding to the supported subarray (1 amp, value defined in acs.h).
    */
   size_t ampInUse = 0;
-  for (size_t i = 0; i < numAmpsInUse; i++) {
+  for (int i = 0; i < numAmpsInUse; i++) {
       ampInUse = i;
       if ((i == 0) && (acs->subarray == YES)) {
          if (strcmp (acs->ccdamp, "A") == 0)
@@ -217,8 +217,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (before correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* make amp + gap array */
-      for (size_t j = 0; j < arr_rows; j++) {
-          for (size_t k = 0; k < (arr_cols + ngap_pix); k++) {
+      for (int j = 0; j < arr_rows; j++) {
+          for (int k = 0; k < (arr_cols + ngap_pix); k++) {
               if (k < arr_cols) {
                  ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
               } else {
@@ -233,20 +233,20 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       /* calculate true DC bias levels */
       dc_bias_levels[0] = magic_square_mean * dc_ratio[ampInUse];
 
-      for (size_t j = 1; j < nquad_pix + 1; j++) {
+      for (int j = 1; j < nquad_pix + 1; j++) {
           dc_bias_levels[j] = ampdata_gap[j-1] * factor * dc_ratio[ampInUse] +
                             (1.0 - factor) * dc_bias_levels[j-1];
       }
 
       /* calculate correction to data */
-      for (size_t j = 0; j < nquad_pix; j++) {
+      for (int j = 0; j < nquad_pix; j++) {
           ampdata_gap[j] = (ampdata_gap[j] - dsi_sens[ampInUse] * dc_bias_levels[j+1]) -
                           (10./22.) * (dc_bias_levels[j+1] - dc_bias_levels[j]);
       }
 
       /* copy corrected data back to ampdata */
-      for (size_t j = 0; j < arr_rows; j++) {
-          for (size_t k = 0; k < arr_cols; k++) {
+      for (int j = 0; j < arr_rows; j++) {
+          for (int k = 0; k < arr_cols; k++) {
               ampdata[arr_cols*j + k] = ampdata_gap[(arr_cols + ngap_pix)*j + k];
           }
       }
@@ -274,8 +274,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (after correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* subtract "magic square mean" from data*/
-      for (size_t j = 0; j < arr_rows; j++) {
-          for (size_t k = 0; k < arr_cols; k++) {
+      for (int j = 0; j < arr_rows; j++) {
+          for (int k = 0; k < arr_cols; k++) {
               ampdata[arr_cols*j + k] -= magic_square_mean;
           }
       }

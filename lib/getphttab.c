@@ -391,7 +391,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
 
     /* Free memory */
-    for (size_t i=0; i <= tabinfo->parnum; i++){
+    for (int i=0; i <= tabinfo->parnum; i++){
         free(colnames[i]);
         free(ecolnames[i]);
         free(pncolnames[i]);

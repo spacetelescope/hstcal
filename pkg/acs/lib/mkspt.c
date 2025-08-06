@@ -34,7 +34,6 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 
     extern int  status;
     IRAFPointer tpin;
-    int         n;
 	Hdr         header;		                /* SPT header */
 	FILE        *fp;		                /* file pointer */
 	IODescPtr   im;		           /* descriptor for input image */
@@ -141,7 +140,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	            return (status = 1);
 
 	        /* NOW, update the ROOTNAME header keyword */
-	        for (n = 0; n < strlen(rootname)-1; n++)
+	        for (size_t n = 0; n < strlen(rootname)-1; n++)
 	             rootname[n] = toupper(rootname[n]);
 	        if (PutKeyStr (&header, "ROOTNAME", rootname, ""))
 	            return (status = 1);
