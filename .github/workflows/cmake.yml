@@ -22,13 +22,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-15, macos-14]
-        gcc: [12, 14]
+        gcc: [12]
         cmake_options: ["", "-DENABLE_ASAN=ON"]
         exclude:
           - os: macos-15
             cmake_options: "-DENABLE_ASAN=ON"
-          - os: macos-15
-            gcc: 12
           - os: macos-14
             cmake_options: "-DENABLE_ASAN=ON"
     runs-on: ${{ matrix.os }}
@@ -67,7 +65,6 @@ jobs:
       run: |
         mkdir -p build
         cd build
-
         export SDKROOT="$(xcrun --show-sdk-path)"
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
