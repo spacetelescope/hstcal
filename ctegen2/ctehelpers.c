@@ -50,13 +50,15 @@ void initCTEParamsFast(CTEParamsFast * pars, const unsigned _nTraps,
     //alignment relative to old RAZ format, both chips side by side ordered CDAB
     pars->razColumnOffset = 0;
 
-    for (size_t i = 0; i < 2; ++i) {
+    {unsigned i;
+    for (i = 0; i < 2; ++i)
+    {
         pars->imageColumnsStart[i] = 0;
         pars->imageColumnsEnd[i] = 0;
         pars->hasPrescan[i] = False;
         pars->hasPostscan[i] = False;
         pars->quadExists[i] = False;
-    }
+    }}
 
     pars->iz_data = NULL;
     pars->wcol_data = NULL;
@@ -440,7 +442,8 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     // LOOP OVER TABLE ROWS UP TO SIZE TRAPS
     int ctraps = 0; // actual usable traps, i.e. see if more traps were added to reference file
-    for (size_t j = 0; j < pars->nTraps; ++j) {
+    {unsigned j;
+    for (j = 0; j < pars->nTraps; ++j) {
 
         /* GET W FROM THIS ROW */
     	pars->wcol_data[j] = c_tbeGetInt(tbl_ptr, w_ptr, j+1);
@@ -471,7 +474,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
         if (ctraps > pars->nTraps){
             trlmessage("More TRAPS in reference file than available, update TRAPS: %i -> %i",pars->nTraps,(int)ctraps);
         }
-    }
+    }}
 
     /*IF CTRAPS EVER OVERFLOWS INT THIS NEEDS TO BE CHANGED*/
     pars->cte_traps = ctraps;
@@ -538,7 +541,9 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* read data from table */
     /* loop over table rows */
-    for (size_t j = 0; j < pars->nScaleTableColumns; ++j) {
+    {unsigned j;
+    for (j = 0; j < pars->nScaleTableColumns; ++j)
+    {
         /* get trap from this row */
         pars->iz_data[j] = c_tbeGetInt(tbl_ptr, iz_ptr, j+1);
         if (c_iraferr()) {
@@ -566,7 +571,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
             trlerror(MsgText,"(pctecorr) Error reading row %d of column %s in PCTETAB",j+1, sens2048);
             return (status = TABLE_ERROR);
         }
-    }
+    }}
     // for testing
     /*{
     unsigned j = pars->nColumns;
