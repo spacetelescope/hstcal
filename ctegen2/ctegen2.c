@@ -76,7 +76,7 @@ int forwardModel(const SingleGroup * input, SingleGroup * output, SingleGroup * 
 #ifdef _OPENMP
        #pragma omp barrier
 #endif
-       if (!allocationFail)
+       if (!allocationFail && model)
        {
            {unsigned j;
 #ifdef _OPENMP
