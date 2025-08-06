@@ -2705,8 +2705,8 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             }
 
             if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], False)) return -1;
-            for (size_t j = 0; j < iodesc->dims[1]; ++j) {
-                for (size_t i = 0; i < iodesc->dims[0]; ++i) {
+            for (long j = 0; j < iodesc->dims[1]; ++j) {
+                for (long i = 0; i < iodesc->dims[0]; ++i) {
                     PPix(da, i, j) = val;
                 }
             }
