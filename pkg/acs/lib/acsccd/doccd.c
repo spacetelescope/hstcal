@@ -331,7 +331,7 @@ int DoCCD (ACSInfo *acs_info) {
     if (!OmitStep(acs[primaryIdx].blevcorr)) {
         if (blevHistory(&acs[primaryIdx], x[primaryIdx].globalhdr, done, driftcorr)) {
             freeOnExit (&ptrReg);
-            return (status);
+            return status;
         }
     }
     /************************************************************************/
@@ -345,7 +345,7 @@ int DoCCD (ACSInfo *acs_info) {
     computeDarktime(&acs[0], &darktime);
     if (PutKeyFlt(x[0].globalhdr, "DARKTIME", darktime, "")) {
         freeOnExit (&ptrReg);
-        return (status);
+        return status;
     }
     /************************************************************************/
 
@@ -530,6 +530,7 @@ int DoCCD (ACSInfo *acs_info) {
 
         /* x[i] memory will be freed on exit */
     }
+
 
     freeOnExit (&ptrReg);
 

@@ -36,12 +36,14 @@ add_custom_target(dist
 )
 
 include(CheckSymbolExists)
-check_symbol_exists(snprintf "stdio.h" HAVE_SNPRINTF)
-check_symbol_exists(strdup "string.h" HAVE_STRDUP)
 check_symbol_exists(INT_MAX "limits.h" HAVE_INT_MAX)
 check_symbol_exists(PATH_MAX "limits.h" HAVE_LIMITS__PATH_MAX)
 check_symbol_exists(PATH_MAX "sys/limits.h" HAVE_SYS_LIMITS__PATH_MAX)
 check_symbol_exists(PATH_MAX "sys/syslimits.h" HAVE_SYS_SYSLIMITS__PATH_MAX)
+
+include(CheckFunctionExists)
+check_function_exists(snprintf HAVE_SNPRINTF)
+check_function_exists(strdup HAVE_STRDUP)
 
 configure_file(config.h.in config.h @ONLY)
 

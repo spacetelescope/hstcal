@@ -103,6 +103,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                       for (size_t i = 0; i < acs_info->nimsets; i++) {
                           cross_talk_corr(&acs[i], &x[i]);
                       }
+
                    } else {
                       trlmessage("WFC readout type/gain not set as needed, no bias shift nor cross talk correction done for full frame data.");
                    }
