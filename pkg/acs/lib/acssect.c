@@ -32,9 +32,7 @@ void initACSsect (ACSsect *x) {
  
 int allocACSsect (ACSsect *x, int npix, int nlines) {
 
-		int i;
-		
-        if (x->globalhdr == NULL) {     
+        if (x->globalhdr == NULL) {
             x->globalhdr = (Hdr *) calloc (1,sizeof(Hdr));
             if (x->globalhdr == NULL) return (-1);
         }
@@ -43,7 +41,7 @@ int allocACSsect (ACSsect *x, int npix, int nlines) {
 		x->err = (ErrHdrLine *) calloc(nlines, sizeof(ErrHdrLine));
 		x->dq = (DQHdrLine *) calloc(nlines, sizeof(DQHdrLine));
 		
-		for (i=0; i < nlines; i++) {
+		for (size_t i=0; i < nlines; i++) {
         	if (allocFloatHdrLine (&(x->sci[i]),npix)) return (-1);
         	if (allocFloatHdrLine (&(x->err[i]),npix)) return (-1);
         	if (allocShortHdrLine (&(x->dq[i]),npix))  return (-1);
@@ -54,9 +52,7 @@ int allocACSsect (ACSsect *x, int npix, int nlines) {
         return (0);
 }
 void freeACSsect (ACSsect *x) {
-		int i;
-
-		for (i=0;i < x->nlines; i++) {
+		for (int i=0;i < x->nlines; i++) {
         	freeFloatHdrLine (&(x->sci[i]));
         	freeFloatHdrLine (&(x->err[i]));
         	freeShortHdrLine (&(x->dq[i]));
@@ -120,9 +116,8 @@ int y0				i: y offset in input image
 int nlines			i: number of lines to read
 ACSsect *x			o: output section
 */
-	int i;
-	
-	for (i = 0; i < nlines; i++) {
+
+	for (int i = 0; i < nlines; i++) {
 		getSingleGroupLine (fname, i+y0, y);
 		
 		x->line_num = i;

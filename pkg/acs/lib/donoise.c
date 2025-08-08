@@ -53,7 +53,6 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
   float gain[NAMPS];          /* gain values for observation */
 	float value;                /* signal in e- */
   float err_val;              /* error value in e- */
-	int i, j;
 	int ampx;		/* border column for 2amp readout regions */
 	int ampy;		/* Boundary values corrected for trim regions */
   int dimx, dimy;
@@ -103,7 +102,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
 		if (ampy >= (dimy - acs->offsety) || ampy > dimy ) ampy = dimy;
 
     /* Set up gain and readnoise arrays for use with chip's data */
-    for (i=0; i < NAMPS; i++) {
+    for (size_t i=0; i < NAMPS; i++) {
       gain[i] = 0.;
       rn[i] = 0.;
       rn2[i] = 0.;
@@ -112,14 +111,14 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
     get_nsegn(acs->detector, acs->chip, acs->ampx, acs->ampy, acs->atodgain, acs->readnoise, gain, rn);
 
     /* Now square the readnoise */
-    for (i = 0; i < NAMPS; i++) rn2[i] = rn[i] * rn[i];
+    for (size_t i = 0; i < NAMPS; i++) rn2[i] = rn[i] * rn[i];
 
     if (acs->ncombine > 1) {
       trlwarn ("NCOMBINE > 1 before the error array was initialized.");
     }
 
     /* Now apply the initilalization for each AMP used */
-    for (j = 0; j < ampy; j++) {
+    for (int j = 0; j < ampy; j++) {
 
       /*
        This region corresponds to AMP_C,
@@ -134,7 +133,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
         return (status = ERROR_RETURN);
       }
 
-      for (i = 0;  i < ampx;  i++) {
+      for (int i = 0;  i < ampx;  i++) {
         value = Pix(x->sci.data, i, j);
         err_val = Pix(x->err.data, i, j);
 
@@ -163,7 +162,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
         return (status = ERROR_RETURN);
       }
 
-      for (i = ampx;  i < dimx;  i++) {
+      for (int i = ampx;  i < dimx;  i++) {
         value = Pix(x->sci.data, i, j);
         err_val = Pix(x->err.data, i, j);
         
@@ -181,7 +180,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
     }
 
 
-    for (j = ampy; j < dimy; j++) {
+    for (int j = ampy; j < dimy; j++) {
       /*
        This region corresponds to AMP_A,
        if it is even used for this observation.
@@ -195,7 +194,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
       }
 
       /* Only execute this loop for AMP > 0 (multi-amp for line) */
-      for (i = 0;  i < ampx;  i++) {
+      for (int i = 0;  i < ampx;  i++) {
         value = Pix(x->sci.data, i, j);
         err_val = Pix(x->err.data, i, j);
         
@@ -225,7 +224,7 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
         return (status = ERROR_RETURN);
       }
 
-      for (i = ampx;  i < dimx;  i++) {
+      for (int i = ampx;  i < dimx;  i++) {
         value = Pix(x->sci.data, i, j);
         err_val = Pix(x->err.data, i, j);
         
@@ -246,8 +245,8 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
   } else {
     /* MAMA initialization */
     /* Set error to max of 1 or sqrt(counts) */
-    for (j = 0; j < dimy; j++) {
-      for (i = 0; i < dimx; i++) {
+    for (int j = 0; j < dimy; j++) {
+      for (int i = 0; i < dimx; i++) {
         val = Pix(x->sci.data, i, j);
         if (val < 0.0){
           trlwarn("Negative value found at (%d,%d) in input MAMA data!",(i+1),(j+1));
@@ -269,13 +268,13 @@ int doNoise (ACSInfo *acs, SingleGroup *x, int *done) {
 int check_zero_noise(SingleGroup *x) {
   int all_zeros = YES;
   
-  int i, j, dimx, dimy;
+  int dimx, dimy;
   
   dimx = x->err.data.nx;
   dimy = x->err.data.ny;
   
-  for (i = 0; i < dimx; i++) {
-    for (j = 0; j < dimy; j++) {
+  for (int i = 0; i < dimx; i++) {
+    for (int j = 0; j < dimy; j++) {
       if (Pix(x->err.data, i, j) != 0.) {
         all_zeros = NO;
         return all_zeros;

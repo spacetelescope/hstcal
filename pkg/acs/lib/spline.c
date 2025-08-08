@@ -23,7 +23,6 @@ int splint_nr (double *xa, double *ya, int n,
 	double *ua;		/* scratch space */
 	double *y2a;		/* array of second derivatives at xa */
 	double a, b, h;
-	int i;
 	int k, klo, khi;
 
 	ua = calloc (n, sizeof (double));
@@ -35,7 +34,7 @@ int splint_nr (double *xa, double *ya, int n,
 	spline_nr (xa, ya, y2a, ua, n);
 
 	/* Evaluate the fit at each element of x. */
-	for (i = 0;  i < nelem;  i++) {
+	for (int i = 0;  i < nelem;  i++) {
 
 	    /* Find the segment containing x[i]. */
 	    klo = 0;
@@ -51,8 +50,11 @@ int splint_nr (double *xa, double *ya, int n,
 	    /* Evaluate. */
 
 	    h = xa[khi] - xa[klo];
-	    if (h == 0.)
-		return (113);
+	    if (h == 0.) {
+		    free(ua);
+			free(y2a);
+	    	return (113);
+	    }
 
 	    a = (xa[khi] - x[i]) / h;
 	    b = (x[i] - xa[klo]) / h;
@@ -78,7 +80,6 @@ int n            i: size of arrays
 */
 
 	double sig, p;
-	int i;
 
 	/* "natural" spline */
 	y2a[0] = 0.;
@@ -87,7 +88,7 @@ int n            i: size of arrays
 	/* This is the decomposition loop of the tridiagonal algorithm.
 	   y2a and ua are used for temporary storage of the decomposed factors.
 	*/
-	for (i = 1;  i < n-1;  i++) {
+	for (int i = 1;  i < n-1;  i++) {
 	    sig = (xa[i] - xa[i-1]) / (xa[i+1] - xa[i-1]);
 	    p = sig * y2a[i-1] + 2.;
 	    y2a[i] = (sig - 1.) / p;
@@ -98,6 +99,6 @@ int n            i: size of arrays
 	}
 
 	/* This is the backsubstitution loop of the tridiagonal algorithm. */
-	for (i = n-2;  i >= 0;  i--)
+	for (int i = n-2;  i >= 0;  i--)
 	    y2a[i] = y2a[i] * y2a[i+1] + ua[i];
 }

@@ -10,10 +10,9 @@
 
 int DefSwitch (char *keyword) {
 
-	int i;
 	char lckey[SIZE_KEYWORD];	/* keyword converted to lower case */
 
-	for (i = 0;  i < SIZE_KEYWORD;  i++) {
+	for (size_t i = 0;  i < SIZE_KEYWORD;  i++) {
 	    if (isupper (keyword[i]))
 		lckey[i] = tolower (keyword[i]);
 	    else
@@ -22,7 +21,7 @@ int DefSwitch (char *keyword) {
 		break;
 	}
 
-	for (i = 0;  i < ACS_N_OMIT;  i++) {
+	for (size_t i = 0;  i < ACS_N_OMIT;  i++) {
 	    if (strcmp (lckey, omitsw[i]) == 0)
 		return (OMIT);
 	}

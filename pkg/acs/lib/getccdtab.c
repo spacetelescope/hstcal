@@ -12,6 +12,11 @@
 /* The two additional columns, PEDIGREE and DESCRIP, are optional */
 # define NUMCOLS 27			/* Defined locally to be specific to CCDTAB */
 
+struct Parameter {
+    const char *id;
+    IRAFPointer *data;
+};
+
 typedef struct {
 	IRAFPointer tp;			/* pointer to table descriptor */
 	IRAFPointer cp_amp;		/* column descriptors */
@@ -121,8 +126,6 @@ int     dimy      i: number of lines in exposure
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
-	int i;
 	char amp[5] = "ABCD";
     int samegain;
 
@@ -141,7 +144,7 @@ int     dimy      i: number of lines in exposure
 	*/
 
 	foundit = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
 	    /* Read the current row into tabrow. */
 	    if (ReadCCDTab (&tabinfo, row, &tabrow))
@@ -179,7 +182,7 @@ int     dimy      i: number of lines in exposure
         acs->overhead_postflashed = tabrow.overhead_postflashed;
         acs->overhead_unflashed = tabrow.overhead_unflashed;
 
-		for (i = 0; i < NAMPS; i++){
+		for (size_t i = 0; i < NAMPS; i++){
 			/* If the amp is used, keep the value, otherwise set to zero*/
 			if (strchr(acs->ccdamp, amp[i]) != NULL) {
 				acs->atodgain[i] = tabrow.atodgain[i];
@@ -236,18 +239,46 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
     char *colfmt;
 
 	int nocol[NUMCOLS];
-	int i, j, missing;
+	int missing;
 
-	char *colnames[NUMCOLS] ={"CCDAMP", "CCDCHIP", "CCDGAIN", "BINAXIS1",
-    "BINAXIS2", "CCDOFSTA", "CCDOFSTB", "CCDOFSTC", "CCDOFSTD","CCDBIASA",
-    "CCDBIASB","CCDBIASC","CCDBIASD","ATODGNA", "ATODGNB", "ATODGNC", "ATODGND", "READNSEA", "READNSEB",
-    "READNSEC", "READNSED", "AMPX", "AMPY", "ATODSAT", "SATURATE", "OVRHFLS", "OVRHUFLS"};
+	const struct Parameter param[NUMCOLS] = {
+		{"CCDAMP", &tabinfo->cp_amp},
+		{"CCDCHIP", &tabinfo->cp_ccdchip},
+		{"CCDGAIN", &tabinfo->cp_ccdgain},
+		{"BINAXIS1", &tabinfo->cp_bin1},
+		{"BINAXIS2", &tabinfo->cp_bin2},
+		{"CCDOFSTA", &tabinfo->cp_ccdoffset[0]},
+		{"CCDOFSTB", &tabinfo->cp_ccdoffset[1]},
+		{"CCDOFSTC", &tabinfo->cp_ccdoffset[2]},
+		{"CCDOFSTD", &tabinfo->cp_ccdoffset[3]},
+		{"CCDBIASA", &tabinfo->cp_bias[0]},
+		{"CCDBIASB", &tabinfo->cp_bias[1]},
+		{"CCDBIASC", &tabinfo->cp_bias[2]},
+		{"CCDBIASD", &tabinfo->cp_bias[3]},
+		{"ATODGNA", &tabinfo->cp_atodgain[0]},
+		{"ATODGNB", &tabinfo->cp_atodgain[1]},
+		{"ATODGNC", &tabinfo->cp_atodgain[2]},
+		{"ATODGND", &tabinfo->cp_atodgain[3]},
+		{"READNSEA", &tabinfo->cp_readnoise[0]},
+		{"READNSEB", &tabinfo->cp_readnoise[1]},
+		{"READNSEC", &tabinfo->cp_readnoise[2]},
+		{"READNSED", &tabinfo->cp_readnoise[3]},
+		{"AMPX", &tabinfo->cp_ampx},
+		{"AMPY", &tabinfo->cp_ampy},
+		{"ATODSAT", &tabinfo->cp_atod_saturate},
+		{"SATURATE", &tabinfo->cp_saturate},
+		{"OVRHFLS", &tabinfo->cp_overhead_postflashed},
+		{"OVRHUFLS", &tabinfo->cp_overhead_unflashed},
+	};
+	const struct Parameter param_optional[2] = {
+		{"PEDIGREE", &tabinfo->cp_pedigree},
+		{"DESCRIP", &tabinfo->cp_descrip},
+	};
 
-	int PrintMissingCols (int, int, int *, char **, char *, IRAFPointer);
+	int PrintMissingCols (int, int, int *, const struct Parameter *, char *, IRAFPointer);
 
-	for (j = 0; j < NUMCOLS; j++)
+	for (size_t j = 0; j < NUMCOLS; j++)
 		nocol[j] = NO;
-
 
 	if ((colname = calloc (SZ_COLNAME+1, sizeof(char))) == NULL) {
 	    trlerror ("Out of memory.\n");
@@ -270,76 +301,36 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->nrows = c_tbpsta (tabinfo->tp, TBL_NROWS);
 
-	/* Find the columns. */
-	c_tbcfnd1 (tabinfo->tp, "CCDAMP", &tabinfo->cp_amp);
-	c_tbcfnd1 (tabinfo->tp, "CCDCHIP", &tabinfo->cp_ccdchip);
-	c_tbcfnd1 (tabinfo->tp, "CCDGAIN", &tabinfo->cp_ccdgain);
-	c_tbcfnd1 (tabinfo->tp, "BINAXIS1", &tabinfo->cp_bin1);
-	c_tbcfnd1 (tabinfo->tp, "BINAXIS2", &tabinfo->cp_bin2);
-	c_tbcfnd1 (tabinfo->tp, "CCDOFSTA", &tabinfo->cp_ccdoffset[0]);
-	c_tbcfnd1 (tabinfo->tp, "CCDOFSTB", &tabinfo->cp_ccdoffset[1]);
-	c_tbcfnd1 (tabinfo->tp, "CCDOFSTC", &tabinfo->cp_ccdoffset[2]);
-	c_tbcfnd1 (tabinfo->tp, "CCDOFSTD", &tabinfo->cp_ccdoffset[3]);
-	c_tbcfnd1 (tabinfo->tp, "CCDBIASA", &tabinfo->cp_bias[0]);
-	c_tbcfnd1 (tabinfo->tp, "CCDBIASB", &tabinfo->cp_bias[1]);
-	c_tbcfnd1 (tabinfo->tp, "CCDBIASC", &tabinfo->cp_bias[2]);
-	c_tbcfnd1 (tabinfo->tp, "CCDBIASD", &tabinfo->cp_bias[3]);
-	c_tbcfnd1 (tabinfo->tp, "ATODGNA", &tabinfo->cp_atodgain[0]);
-	c_tbcfnd1 (tabinfo->tp, "ATODGNB", &tabinfo->cp_atodgain[1]);
-	c_tbcfnd1 (tabinfo->tp, "ATODGNC", &tabinfo->cp_atodgain[2]);
-	c_tbcfnd1 (tabinfo->tp, "ATODGND", &tabinfo->cp_atodgain[3]);
-	c_tbcfnd1 (tabinfo->tp, "READNSEA", &tabinfo->cp_readnoise[0]);
-	c_tbcfnd1 (tabinfo->tp, "READNSEB", &tabinfo->cp_readnoise[1]);
-	c_tbcfnd1 (tabinfo->tp, "READNSEC", &tabinfo->cp_readnoise[2]);
-	c_tbcfnd1 (tabinfo->tp, "READNSED", &tabinfo->cp_readnoise[3]);
-	c_tbcfnd1 (tabinfo->tp, "AMPX", &tabinfo->cp_ampx);
-	c_tbcfnd1 (tabinfo->tp, "AMPY", &tabinfo->cp_ampy);
-	c_tbcfnd1 (tabinfo->tp, "ATODSAT", &tabinfo->cp_atod_saturate);
-	c_tbcfnd1 (tabinfo->tp, "SATURATE", &tabinfo->cp_saturate);
-	c_tbcfnd1 (tabinfo->tp, "OVRHFLS", &tabinfo->cp_overhead_postflashed);
-	c_tbcfnd1 (tabinfo->tp, "OVRHUFLS", &tabinfo->cp_overhead_unflashed);
-
 	/* Initialize counters here... */
 	missing = 0;
-	i=0;
 
-    /* Increment i for every column, mark only missing columns in
-        nocol as YES.  WJH 27 July 1999
-    */
-	if (tabinfo->cp_amp == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ccdchip == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ccdgain == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_bin1 == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_bin2 == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ccdoffset[0] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ccdoffset[1] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ccdoffset[2] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ccdoffset[3] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_bias[0] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_bias[1] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_bias[2] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_bias[3] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_atodgain[0] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_atodgain[1] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_atodgain[2] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_atodgain[3] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_readnoise[0] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_readnoise[1] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_readnoise[2] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_readnoise[3] == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ampx == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_ampy == 0 ) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_atod_saturate == 0) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_saturate == 0) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_overhead_postflashed == 0) { missing++; nocol[i] = YES;} i++;
-	if (tabinfo->cp_overhead_unflashed == 0) { missing++; nocol[i] = YES;} i++;
+	for (size_t j = 0; j < sizeof(param) / sizeof(param[0]); j++) {
+		const char *id = param[j].id;
+		IRAFPointer *data = param[j].data;
 
-	if (PrintMissingCols (missing, NUMCOLS, nocol, colnames, "CCDTAB", tabinfo->tp) )
+		/* Find the column. */
+		c_tbcfnd1(tabinfo->tp, id, data);
+
+		/* Mark only missing columns in nocol as YES.
+		   WJH 27 July 1999
+		*/
+		if (data == NULL) {
+			nocol[j] = YES;
+			missing++;
+		}
+	}
+
+	if (PrintMissingCols (missing, NUMCOLS, nocol, param, "CCDTAB", tabinfo->tp) )
 		return(status);
 
 	/* Pedigree and descrip are optional columns. */
-	c_tbcfnd1 (tabinfo->tp, "PEDIGREE", &tabinfo->cp_pedigree);
-	c_tbcfnd1 (tabinfo->tp, "DESCRIP", &tabinfo->cp_descrip);
+	for (size_t i = 0; i < sizeof(param_optional) / sizeof(param_optional[0]); i++) {
+		const char *id = param_optional[i].id;
+		IRAFPointer *data = param_optional[i].data;
+
+		/* Find the column. */
+		c_tbcfnd1(tabinfo->tp, id, data);
+	}
 
     /* get info on ccdgain column to determine whether we
        have int or float values to read in.
@@ -357,7 +348,7 @@ static int OpenCCDTab (char *tname, TblInfo *tabinfo) {
 	return (status);
 }
 
-int PrintMissingCols (int missing, int numcols, int *nocol, char *colnames[], char *tabname, IRAFPointer tp) {
+int PrintMissingCols (int missing, int numcols, int *nocol, const struct Parameter *columns, char *tabname, IRAFPointer tp) {
 
 /* Parameters:
 int missing			i: number of missing columns
@@ -369,15 +360,14 @@ IRAFPointer tp		i: pointer to table, close it if necessary
 */
 
 	extern int status;
-	int j;
 	/* If any columns are missing... */
 	if (missing) {
  	    trlerror("%d columns not found in %s.", missing, tabname);
-		for (j=0; j< numcols; j++) {
+		for (int j=0; j< numcols; j++) {
 			/* Recall which ones were marked missing... */
 			if (nocol[j]) {
 				/*... and print out that column's name */
-	    		trlerror("Column %s not found in %s.", colnames[j], tabname);
+	    		trlerror("Column %s not found in %s.", columns[j].id, tabname);
 			}
 		}
 	    c_tbtclo (tp);

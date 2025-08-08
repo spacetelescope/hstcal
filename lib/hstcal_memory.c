@@ -29,12 +29,11 @@ void addPtr(PtrRegister * reg, void * ptr, void * freeFunc)
         return;
 
     //check ptr isn't already registered? - go on then.
-    {int i;
-    for (i = reg->cursor; i >= 0 ; --i)// i >= 0 prevents adding self again
-    {
+    // i >= 0 prevents adding self again
+    for (unsigned i = reg->cursor; i != 0 ; --i) {
         if (reg->ptrs[i] == ptr)
             return;
-    }}
+    }
 
     if (ptr == reg)
     {
@@ -70,18 +69,16 @@ void freePtr(PtrRegister * reg, void * ptr)
     if (!reg || !ptr || !reg->cursor)
         return;
 
-    int i;
     Bool found = False;
-    for (i = reg->cursor; i > 0 ; --i)
-    {
-        if (reg->ptrs[i] == ptr)
-        {
+    size_t pos = 0;
+    for (unsigned i = reg->cursor; i > 0 ; --i) {
+        if (reg->ptrs[i] == ptr) {
             found = True;
+            pos = i;
             break;
         }
     }
-    if (!found)
-    {
+    if (!found) {
         freeOnExit(reg); // Note: Whilst the point of this outer IF accounts for direct calls to freePtr() with unregistered ptrs,
                          // it is also called internally from freeOnExit(). A bug in the register code is liable to create an infinite
                          // recursion segfault due this call present here.
@@ -89,19 +86,16 @@ void freePtr(PtrRegister * reg, void * ptr)
     }
 
     //call function to free ptr
-    reg->freeFunctions[i](ptr);
+    reg->freeFunctions[pos](ptr);
 
-    if (i == reg->cursor)
-    {
-        reg->ptrs[i] = NULL;
-        reg->freeFunctions[i] = NULL;
-    }
-    else
-    {
+    if (pos == reg->cursor) {
+        reg->ptrs[pos] = NULL;
+        reg->freeFunctions[pos] = NULL;
+    } else {
         //move last one into gap to close - not a stack so who cares
-        reg->ptrs[i] = reg->ptrs[reg->cursor];
+        reg->ptrs[pos] = reg->ptrs[reg->cursor];
         reg->ptrs[reg->cursor] = NULL;
-        reg->freeFunctions[i] = reg->freeFunctions[reg->cursor];
+        reg->freeFunctions[pos] = reg->freeFunctions[reg->cursor];
         reg->freeFunctions[reg->cursor] = NULL;
     }
     --reg->cursor;

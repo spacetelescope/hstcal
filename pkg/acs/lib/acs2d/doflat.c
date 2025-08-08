@@ -197,7 +197,6 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d) {
   
   int pchipext;
   SingleGroupLine y, ytrim;                  /* scratch space */
-	int i,line;		            /* counters for science and ref image lines */
 	int y_rx, y_ry;		        /* for binning dark down to size of x */
 	int y_x0, y_y0;		        /* offsets of sci image */
 	int ysame_size;		/* true if no binning of ref image required */
@@ -275,7 +274,7 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d) {
    whether it is the same size or not...
    */
   if (ysame_size) {
-    for (line = 0; line < scilines; line++) {
+    for (int line = 0; line < scilines; line++) {
       
       getSingleGroupLine (flatname, line, &y);
       
@@ -303,7 +302,7 @@ static int divFlat (SingleGroup *x, char *flatname, ACSInfo *acs2d) {
       allocSingleGroupLine (&strim, x->sci.data.nx);
     }
     
-    for (i=0,line=y_y0; i < scilines; i++,line++) {
+    for (int i=0,line=y_y0; i < scilines; i++,line++) {
       
       getSingleGroupLine (flatname, line, &y);
       
