@@ -20,7 +20,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
     void cross_talk_corr(ACSInfo *, SingleGroup *);
     int doDestripe(ACSInfo *, SingleGroup *, SingleGroup *);
     int isValidBiasShiftSubArrWithVirtOscn(int, char *, int);
-    int isValidBiasShiftSubArrWithNoVirtOscn(int, char *);
+    int isValidBiasShiftSubArrWithNoVirtOscn(int, char *, int);
     void PrSwitch (char *, int);
 
     /* The logic here has been re-written (1) to accommodate the new subarrays
@@ -146,7 +146,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                    See comments in dobiasshift.c fo this function for more info.
                 */
                 if (((isValidBiasShiftSubArrWithVirtOscn(acs_info->subarray, acs_info->aperture, virtOverscan[0]) == YES)
-                        || (isValidBiasShiftSubArrWithNoVirtOscn(acs_info->subarray, acs_info->aperture) == YES)) &&
+                        || (isValidBiasShiftSubArrWithNoVirtOscn(acs_info->subarray, acs_info->aperture, YES) == YES)) &&
                         (strcmp(acs_info->jwrotype, "DS_INT") == 0) &&
                         (acs_info->ccdgain == 2)) {
                    PrSwitch("blevcorr", PERFORM);

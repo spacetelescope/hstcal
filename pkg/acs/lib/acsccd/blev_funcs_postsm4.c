@@ -90,7 +90,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
   extern int status;
 
-  int isValidBiasShiftSubArrWithNoVirtOscn(int, char *);
+  int isValidBiasShiftSubArrWithNoVirtOscn(int, char *, int);
 
   const double serial_freq = 1000./22.;    /* serial pixel frequency */
   const double parallel_shift = 3.212;     /* parallel shift time */
@@ -189,7 +189,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       /* Values from ACS ISR 2012-02 and are valid for full-frame and 2K subarrays
        * with both physical and virtual overscans.
        */
-      if (isValidBiasShiftSubArrWithNoVirtOscn(acs->subarray, acs->aperture) != YES) {
+      if (isValidBiasShiftSubArrWithNoVirtOscn(acs->subarray, acs->aperture, NO) != YES) {
           j_beg = 2057;
           j_end = 2066;
           k_beg = 13;

@@ -75,10 +75,10 @@ int isValidBiasShiftSubArrWithVirtOscn(const int is_subarray, char *aperture, in
    no magic square. So we need this function to make a new logic
    route for the bias shift correction code.
 
-   05-Aug-2025 PLL: Created isValidBiasShiftSubArrWithNoVirtOscn() to
+   08-Aug-2025 PLL: Created isValidBiasShiftSubArrWithNoVirtOscn() to
        support bias shift correction for 512 and 1k subarrays.
 */
-int isValidBiasShiftSubArrWithNoVirtOscn(const int is_subarray, char *aperture) {
+int isValidBiasShiftSubArrWithNoVirtOscn(const int is_subarray, char *aperture, const int verbose) {
     if (is_subarray != YES)
         return NO;
 
@@ -103,7 +103,9 @@ int isValidBiasShiftSubArrWithNoVirtOscn(const int is_subarray, char *aperture) 
         */
         if (strcmp(aperture, subApertures[i]) == 0) {
             isSupportedSubAperture = YES;
-            trlmessage("This subarray data is supported for the bias shift correction without virtual overscan.");
+            if (verbose == YES) {
+                trlmessage("This subarray data is supported for the bias shift correction without virtual overscan.");
+            }
             break;
         }
     }
