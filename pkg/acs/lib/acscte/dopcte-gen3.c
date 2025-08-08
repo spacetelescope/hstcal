@@ -590,7 +590,7 @@ static void top2bottomFlip(FloatTwoDArray * amp)
     const size_t nColumns = amp->nx;
     const size_t nRows = amp->ny;
 
-    bool allocationFail = false;
+    Bool allocationFail = False;
 #ifdef _OPENMP
     #pragma omp parallel shared(amp, allocationFail)
 #endif
@@ -604,7 +604,7 @@ static void top2bottomFlip(FloatTwoDArray * amp)
             #pragma omp critical(allocationCheck) // This really isn't needed
 #endif
             {
-                allocationFail = true;
+                allocationFail = True;
             }
         }
 
