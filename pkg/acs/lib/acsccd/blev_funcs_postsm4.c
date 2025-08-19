@@ -201,8 +201,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
        * https://github.com/spacetelescope/hstcal/issues/329 .
        */
       } else {
-          j_beg = 0;
-          j_end = arr_rows - 2;  // Exclude last row
+          j_beg = 1;  // Exclude first row
+          j_end = arr_rows - 1;
           k_beg = 5;
           k_end = NBIAS_COLS - 1;
       }
