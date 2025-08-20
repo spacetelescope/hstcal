@@ -216,6 +216,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       }}
 
       magic_square_mean = sum / (double) num;
+      trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (before correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* make amp + gap array */
       {unsigned int j, k;
@@ -277,7 +278,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       /* Report to the user the contribution to the bias level correction
          made by this processing step.
       */
-      trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[ampInUse], magic_square_mean);
+      trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (after correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* subtract "magic square mean" from data*/
       {unsigned int j, k;
