@@ -1368,12 +1368,14 @@ int sub_ctecor_v2c(float *pixz_raz,
 
       extern int status;
 
-      size_t jmax;
+      int i;
+      int j;
+      int jj;
+      int jmax;
 
       int    NITFOR, NITFORs;
       int    NITPAR, NITPARs;
       double RNOI;
-      int ret;
 
       double *pixj_fff;
       double *pixj_raz;
@@ -1401,19 +1403,20 @@ int sub_ctecor_v2c(float *pixz_raz,
       printf("          --->  NITPARs: %5d \n",NITPARs);
       printf("                             \n");
 
+      int ret = 0;
       #pragma omp parallel \
        shared(pixz_raz,pixz_fff,pixz_rzc,              \
               NITPARs,NITFORs,                         \
               q_w,dpde_w,                              \
               rprof_wt,cprof_wt,Ws,NDONE)              \
-       private(ret,NCRX, DONE, NITFOR,NITPAR,      \
+       private(i,j,ret,NCRX, DONE, NITFOR,NITPAR,      \
                pixj_fff, pixj_raz, pixj_mod, pixj_rnz, \
                pixj_rsz, pixj_org, pixj_obs, pixj_chg)
 
       #pragma omp for
 
 
-      for(size_t i=0;i<RAZ_COLS;i++) {
+      for(i=0;i<RAZ_COLS;i++) {
 
          pixj_fff = malloc(RAZ_ROWS*8);
          pixj_raz = malloc(RAZ_ROWS*8);
@@ -1424,7 +1427,7 @@ int sub_ctecor_v2c(float *pixz_raz,
          pixj_obs = malloc(RAZ_ROWS*8);
          pixj_chg = malloc(RAZ_ROWS*8);
 
-         for(size_t j=0;j<RAZ_ROWS;j++) {
+         for(j=0;j<RAZ_ROWS;j++) {
             pixj_raz[j] = pixz_raz[i+j*RAZ_COLS];
             pixj_fff[j] = pixz_fff[i+j*RAZ_COLS];
          }
@@ -1434,13 +1437,13 @@ int sub_ctecor_v2c(float *pixz_raz,
          while(!DONE) {
              NCRX = NCRX + 1;
              DONE = 1;
-             for (size_t j=0;j<RAZ_ROWS;j++) {
+             for (j=0;j<RAZ_ROWS;j++) {
                 pixj_mod[j] = pixj_raz[j];
                 pixj_chg[j] = 0.0;
              }
              for(NITFOR=0;NITFOR<NITFORs;NITFOR++) {
                  ret = rm_rnZ_colj(pixj_mod,pixj_rnz,pixj_rsz,RNOI);
-                 for(size_t j=0;j<RAZ_ROWS;j++) {
+                 for(j=0;j<RAZ_ROWS;j++) {
                     pixj_org[j] = pixj_rsz[j];
                  }
                  for(NITPAR=1;NITPAR<=NITPARs;NITPAR++) {
@@ -1450,23 +1453,23 @@ int sub_ctecor_v2c(float *pixz_raz,
                                                    1,RAZ_ROWS,RAZ_ROWS,
                                                    q_w,dpde_w,NITPARs,
                                                    rprof_wt,cprof_wt,Ws);
-                     for (size_t j=0;j<RAZ_ROWS;j++) {
+                     for (j=0;j<RAZ_ROWS;j++) {
                         pixj_org[j] = pixj_obs[j];
                      }
                  }
-                 for(size_t j=0;j<RAZ_ROWS;j++) {
+                 for(j=0;j<RAZ_ROWS;j++) {
                      pixj_chg[j] = pixj_obs[j] - pixj_rsz[j];
                      pixj_mod[j] = pixj_raz[j] - pixj_chg[j];
                  }
              }
              if (FIX_ROCR<0) {
-                 for(size_t j=15;j<=2060;j++) {
+                 for(j=15;j<=2060;j++) {
                      if (pixj_mod[j] < FIX_ROCR &&
                          pixj_mod[j]-pixj_raz[j] < FIX_ROCR &&
                          pixj_mod[j] < pixj_mod[j+1] &&
                          pixj_mod[j] < pixj_mod[j-1]) {
                          jmax = j;
-                         for(size_t jj=j-2;jj<j;jj++) {
+                         for(jj=j-2;jj<j;jj++) {
                              if (pixj_mod[jj  ]-pixj_raz[jj  ] >
                                  pixj_mod[jmax]-pixj_raz[jmax]) {
                                  jmax = jj;
@@ -1481,7 +1484,7 @@ int sub_ctecor_v2c(float *pixz_raz,
              }
          }
 
-         for(size_t j=0;j<RAZ_ROWS;j++) {
+         for(j=0;j<RAZ_ROWS;j++) {
              pixz_rzc[i+j*RAZ_COLS] = pixj_mod[j];
              pixz_fff[i+j*RAZ_COLS] = pixj_fff[j];
          }
@@ -1518,7 +1521,7 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       int       ih, iih;
       long      dhist[NUM_BINS], dcum[NUM_BINS], vtot;
       long      vhist[NUM_BINS], vcum[NUM_BINS], dtot;
-      int       ivmin, id1, id2;
+      int       ivmin;
       int       idmin, iv1, iv2;
       long long vsum;
       long long nsum;
@@ -1536,8 +1539,6 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
 
       iv1 = 1;
       iv2 = 999;
-      id1 = 1;
-      id2 = 999;
 
       /*
        * Distill the image variation information and background into quick histograms
@@ -1632,11 +1633,13 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
        * Find the closest 75% of the points and use them to determine the noise
        * and the background
        */
+      int id1 = 0;
+      int id2 = 0;
       for (ih=1; ih<=NUM_BINS-1; ih++) {
           for (iih=ih+1; iih<=NUM_BINS-1; iih++) {
               if (dcum[iih-1]-dcum[ih-1] > 0.75*dtot && iih-ih < idmin) {
-                  id1   = ih;
-                  id2   = iih;
+                  id1   = ih;  // TODO: not used for anything
+                  id2   = iih; // TODO: not used for anything
                   idmin = iih-ih;
               }
 
