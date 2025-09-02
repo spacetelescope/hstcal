@@ -54,7 +54,7 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
  * *** This routine should be modified according to issues discussed in PR #312 and #329 and noted in IT #334. ***
  *
  * 16-May-2018 M.D. De La Pena: Generalized bias_shift_corr() to handle subarray data.
- * 08-Aug-2025 P.L. Lim: Added support for 512 and 1k subarrays.
+ * 08-Aug-2025 P.L. Lim: Added support for 512 and 1k subarrays. Also populate MEANBLEV for post-SM4 subarrays.
  */
 int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
@@ -91,6 +91,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
   extern int status;
 
   int isValidBiasShiftSubArrWithNoVirtOscn(int, char *, int);
+  int PutKeyFlt(Hdr *, char *, float, char *);
 
   const double serial_freq = 1000./22.;    /* serial pixel frequency */
   const double parallel_shift = 3.212;     /* parallel shift time */
@@ -292,6 +293,11 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
       if (acs->subarray == YES) {
          unmake_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
+         /* Post-SM4 fullframe MEANBLEV gets populated during destriping,
+            which is not done for subarray. MEANBLEV is set to zero in RAW,
+            so we should populate it here to avoid confusion.
+         */
+         status = PutKeyFlt(&sg[0]->sci.hdr, "MEANBLEV", magic_square_mean, "mean of bias levels subtracted in electrons");
       } else {
          if (i < 2) {
             unmake_amp_array(arr_rows, arr_cols, sg[1], ampInUse, ampdata);

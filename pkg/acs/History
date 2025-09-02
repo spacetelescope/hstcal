@@ -2,7 +2,8 @@
     Bias shift correction is now applied to WFC 512 and 1K subarrays
     that follow readout patterns in ISR 2017-03; However, the
     "fat zero" is determined from physical overscan only due to the
-    lack of virtual overscan.
+    lack of virtual overscan. Post-SM4 subarrays now have MEANBLEV
+    populated with "fat zero" or its approximate.
 
 ### 07-May-2024 - MDD - Version 10.4.0
     Implementation of the "Parallel and Serial CTE correction". This
