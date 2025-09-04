@@ -185,8 +185,9 @@ static int FindExtn (char *fname) {
 static int strcatN (char *outstr, char *instr, int maxch) {
 
 	int status;
+    const int len = (int)(strlen(instr) + strlen(outstr));
 
-	if (strlen (instr) + strlen (outstr) > maxch) {
+	if (len > maxch) {
 	    trlerror("(MkOutName) strings are too long:");
 	    trlerror("`%s' + `%s'", outstr, instr);
 	    status = 2011;
