@@ -45,7 +45,7 @@ RowContents rowc       io: row contents
 	double m=1.;		/* spectral order */
 	double tolerance=0.001;	/* wavelength error that is acceptable */
         int disp_type;          /* disperser is grating or prism */
-	int    i, stopped;
+	int stopped;
 	int status=0;		/* return code from evalInvDisp */
 
 	/* Find disperser type. */
@@ -59,7 +59,7 @@ RowContents rowc       io: row contents
 	/* Loop over wavelength array. */
         stopped = 0;
 	wl_estimate = (double)(sts->cenwave);
-	for (i = 0;  i < rowc->npts;  i++) {
+	for (int i = 0;   i < rowc->npts;   i++) {
 
 	    /* Translate image pixel index into reference pixel index. */
 	    rpix = (i - sts->ltv[0]) / sts->ltm[0];

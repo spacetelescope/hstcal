@@ -73,7 +73,6 @@ ApInfo *slit     o: description of slit
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* number of rows, and loop index */
 	int foundit = 0;	/* true if aperture found in table */
 
 	/* Open the aperture description table. */
@@ -82,7 +81,7 @@ ApInfo *slit     o: description of slit
 
 	/* Check each row for a match with aperture. */
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadApTab (&tabinfo, row, &tabrow)))
 		return (status);

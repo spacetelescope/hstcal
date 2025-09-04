@@ -310,13 +310,13 @@ double  rejf          i;  the k-sigma rejection factor
 */
 	double av;		/* average  */
 	double sig;		/* standard deviation */
-	int i, j, np;
+	int j, np;
 
 	/* Compute sums. */
 	av  = 0.0;
 	sig = 0.0;
 	np  = 0;
-	for (i =  0;  i < ndata; i++) {
+	for (int i =  0;   i < ndata;  i++) {
 	    if (flag[i] == 0) {
 	        av  += data[i];
 	        sig += data[i] * data[i];
@@ -335,7 +335,7 @@ double  rejf          i;  the k-sigma rejection factor
 	    *sigma = sig;
 
 	    /* flag deviant data */
-	    for (i =  0;  i < ndata; i++) {
+	    for (int i =  0;   i < ndata;  i++) {
 	        if (fabs (data[i] - av) > (sig * rejf))
 	            flag[i] = 1;
 	    }
@@ -344,7 +344,7 @@ double  rejf          i;  the k-sigma rejection factor
 	    av = 0.0;
 	    sig = 0.0;
 	    j = 0;
-	    for (i =  0;  i < ndata; i++) {
+	    for (int i =  0;   i < ndata;  i++) {
 	        if (flag[i] == 0) {
 	            av  += data[i];
 	            sig += data[i] * data[i];
@@ -375,11 +375,11 @@ double  rejf          i;  the k-sigma rejection factor
 static void ReportCrossCorr (StisInfo6 *sts, int norder, double gcc,
                              double sigma) {
 
-	int i, c;
+	int c;
 
 trlmessage("\n         Sporder Rej.  Offset");
 
-	for (i = 0; i < norder; i++) {
+	for (int i = 0;  i < norder;  i++) {
 	    if (sts->cc_rej[i])
 	        c = '*';
 	    else

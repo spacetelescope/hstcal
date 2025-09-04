@@ -174,7 +174,6 @@ SpTrace **output  o: the spectrum trace interpolated to a2center
 
 	SpTrace *current, *next;
 	double p;
-	int i;
 	int done;
 
 	current = *trace;
@@ -217,11 +216,11 @@ SpTrace **output  o: the spectrum trace interpolated to a2center
 		(*output)->a2center = a2center;
 		(*output)->a1center = current->a1center;
 		(*output)->nelem = MAX (current->nelem, next->nelem);
-		for (i = 0;  i < (*output)->nelem;  i++) {
+		for (int i = 0;   i < (*output)->nelem;   i++) {
 		    (*output)->a2displ[i] =
 			(1. - p) * current->a2displ[i] + p * next->a2displ[i];
 		}
-		for (i = (*output)->nelem;  i < MAX_SP_TRACE;  i++)
+		for (int i = (*output)->nelem;   i < MAX_SP_TRACE;   i++)
 		    (*output)->a2displ[i] = 0.;
 		(*output)->next = NULL;
 		done = 1;
@@ -276,14 +275,12 @@ SpTrace *current   i: the current SpTrace record
 SpTrace *output    o: receives a copy of current
 */
 
-	int i;
-
 	output->a2center = current->a2center;
 	output->a1center = current->a1center;
 	output->nelem = current->nelem;
-	for (i = 0;  i < current->nelem;  i++)
+	for (int i = 0;   i < current->nelem;   i++)
 	    output->a2displ[i] = current->a2displ[i];
-	for (i = current->nelem;  i < MAX_SP_TRACE;  i++)
+	for (int i = current->nelem;   i < MAX_SP_TRACE;   i++)
 	    output->a2displ[i] = 0.;
 	output->next = NULL;
 }

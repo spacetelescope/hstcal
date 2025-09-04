@@ -247,7 +247,6 @@ static void CopyXtract (XtractInfo *current, XtractInfo *output) {
 XtractInfo *current  i: the current XtractInfo record
 XtractInfo *output   o: receives a copy of current
 */
-	int i;
 
 	output->sporder     = current->sporder;
 	output->extrsize    = current->extrsize;
@@ -257,9 +256,9 @@ XtractInfo *output   o: receives a copy of current
 	output->bkoffset[1] = current->bkoffset[1];
 	output->ncoeffsl    = current->ncoeffsl;
 	output->ncoeffbk    = current->ncoeffbk;
-	for (i = 0;  i < current->ncoeffsl;  i++)
+	for (int i = 0;   i < current->ncoeffsl;   i++)
 	    output->sltcoeff[i] = current->sltcoeff[i];
-	for (i = 0;  i < current->ncoeffbk;  i++)
+	for (int i = 0;   i < current->ncoeffbk;   i++)
 	    output->bktcoeff[i] = current->bktcoeff[i];
 	output->backord     = current->backord;
 	output->maxsearch   = current->maxsearch;

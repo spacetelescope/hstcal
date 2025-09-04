@@ -195,7 +195,7 @@ double *xoffset;	o: offset in dispersion direction for slitless data
 	    PrFullVersion();
 	    exit (0);
 	}
-	for (ctoken = 1;  ctoken < argc;  ctoken++) {
+	for (int ctoken = 1;   ctoken < argc;   ctoken++) {
 	    if (strcmp (argv[ctoken], "--version") == 0) {
 	        PrVersion();
 	        exit (0);

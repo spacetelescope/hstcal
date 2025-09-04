@@ -87,7 +87,6 @@ DispRelation **disp  o: size and coordinate info for output
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int CheckDisp6 (DispRelation **);
 	void FreeDisp6 (DispRelation **);
 
@@ -95,7 +94,7 @@ DispRelation **disp  o: size and coordinate info for output
 	if ((status = OpenDSPTab (sts->disptab.name, &tabinfo)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadDSPTab (&tabinfo, row, &tabrow)))
 		return (status);

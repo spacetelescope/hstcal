@@ -78,7 +78,7 @@ int avoid1b, avoid2b;
 
 	float *image, *crosscor, norm, pval;
 	int centera, centerb, width, pindex, offset;
-	int i, j, image_index, box_index;
+	int image_index;
 
 	/* Initialize to default. */
 	*avoid1a = 0;
@@ -120,8 +120,8 @@ int avoid1b, avoid2b;
 
 	/* Build collapsed version of image data. */
 	image = (float *) calloc (in->sci.data.nx, sizeof (float));
-	for (j = 0; j < in->sci.data.ny; j++) {
-	    for (i = 0; i < in->sci.data.nx; i++) {
+	for (int j = 0;  j < in->sci.data.ny;  j++) {
+	    for (int i = 0;  i < in->sci.data.nx;  i++) {
                 if (!(DQPix (in->dq.data, i, j) & sts->cc_sdqflags))
 	            image[i] += Pix (in->sci.data, i, j);
 	    }
@@ -129,9 +129,9 @@ int avoid1b, avoid2b;
 
 	/* Cross-correlate. */
 	crosscor = (float *) calloc (in->sci.data.nx, sizeof (float));
-	for (i = 0; i < in->sci.data.nx; i++) {
+	for (int i = 0;  i < in->sci.data.nx;  i++) {
 	    norm = 0.0;
-	    for (box_index = 0; box_index < width; box_index++) {
+	    for (int box_index = 0;  box_index < width;  box_index++) {
 	        image_index = box_index - width/2 + i;
                 if (image_index > -1 && image_index < in->sci.data.nx) {
 	            crosscor[i] += image[image_index];
@@ -145,9 +145,9 @@ int avoid1b, avoid2b;
 	free (image);
 
 	/* Find Lya peak. */
-	for (j = 1; j <= 5; j++) {
+	for (int j = 1;  j <= 5;  j++) {
 	    pval = - FLT_MAX;
-	    for (i = 0; i < in->sci.data.nx; i++) {
+	    for (int i = 0;  i < in->sci.data.nx;  i++) {
 	        if (crosscor[i] > pval) {
 	            pval = crosscor[i];
 	            pindex = i;

@@ -116,14 +116,13 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int RangeXtract (XtractInfo **, int *, int *);
 
 	/* Open the 1-D extraction table. */
 	if ((status = OpenXtractTab (sts->xtrctab.name, &tabinfo)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadXtractTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -278,7 +277,6 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 
 	int status;
 
-	int ncoeff;		/* number of coefficients read from table */
 	XtractInfo *newd;
 	int NewXtract (XtractInfo **, XtractInfo *);
 
@@ -304,8 +302,7 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 		newd->ncoeffsl);
 	    return (TABLE_ERROR);
 	}
-	ncoeff = c_tbagtd (tabinfo->tp, tabinfo->cp_sltcoeff, row,
-                           newd->sltcoeff, 1, newd->ncoeffsl);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_sltcoeff, row, newd->sltcoeff, 1, newd->ncoeffsl);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 
@@ -315,8 +312,8 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 		newd->ncoeffbk);
 	    return (TABLE_ERROR);
 	}
-	ncoeff = c_tbagtd (tabinfo->tp, tabinfo->cp_bktcoeff, row,
-                           newd->bktcoeff, 1, newd->ncoeffbk);
+
+	c_tbagtd (tabinfo->tp, tabinfo->cp_bktcoeff, row, newd->bktcoeff, 1, newd->ncoeffbk);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 

@@ -96,7 +96,6 @@ SpTrace **trace   o: size and coordinate info for output
 
 	int i;
 	int found_trace;
-	int row;		/* loop index */
 	int CheckTrace6 (SpTrace **);
 	void FreeTrace6 (SpTrace **);
 
@@ -105,7 +104,7 @@ SpTrace **trace   o: size and coordinate info for output
 	    return (status);
 
 	found_trace = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadTraceTab (&tabinfo, row, &tabrow)))
 		return (status);

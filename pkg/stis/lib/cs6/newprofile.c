@@ -193,7 +193,7 @@ double *offset;       o: offset corresponding to position X
 
 	ProfileArray *current, *next;
 	float p;
-	int i, done;
+	int done;
 
 	current = *profa;
 
@@ -258,7 +258,7 @@ double *offset;       o: offset corresponding to position X
 		(*output)->npts    = current->npts;
 		(*output)->nptsoff = current->nptsoff;
 
-		for (i = 0;  i < (*output)->npts;  i++)
+		for (int i = 0;   i < (*output)->npts;   i++)
 		    (*output)->prof[i] =
 			(1. - p) * current->prof[i] + p * next->prof[i];
 
@@ -294,7 +294,6 @@ ProfileArray *current   i: the current ProfileArray record
 ProfileArray *output    o: receives a copy of current
 */
 
-	int i;
 	output->npts    = current->npts;
 	output->nptsoff = current->nptsoff;
 	output->minw    = current->minw;
@@ -302,9 +301,9 @@ ProfileArray *output    o: receives a copy of current
 	output->minp    = current->minp;
 	output->maxp    = current->maxp;
 	output->sn      = current->sn;
-	for (i = 0;  i < current->npts;  i++)
+	for (int i = 0;   i < current->npts;   i++)
 	    output->prof[i]  = current->prof[i];
-	for (i = 0;  i < current->nptsoff;  i++)
+	for (int i = 0;   i < current->nptsoff;   i++)
 	    output->profoff[i] = current->profoff[i];
 	output->next = NULL;
 }

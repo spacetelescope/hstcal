@@ -58,13 +58,11 @@ int *ihigh_end;	        that maps into the convolution buffer
 
 	int status;
 
-        SpTrace *trace_y;       /* interpolated spectrum trace */
-	int	ipix;		/* index of image pixel in the A1 direction */
+    SpTrace *trace_y;       /* interpolated spectrum trace */
 	int	rpix;		/* index of reference pixel in the A1 dir. */
 	int	jpix;		/* index of array element */
 	double	*sum;		/* accumulators */
 	double	*wei;
-	double	y_nom;		/* nominal coordinate in the A2 direction */
 	double	iy_nom;		/* above quantity in image pixel units */
 	double	y_trc;		/* trace-corrected coordinate */
 	double	low_end; 	/* nominal endpoints of profile function*/
@@ -85,10 +83,8 @@ int *ihigh_end;	        that maps into the convolution buffer
 	int	imax;		/* index of peak value in array */
 	int	size;		/* size of region in A2 direction */
 	int	i1, i2;		/* used to define the central 40% of profile */
-	int	l1, l2;		/* internal end points of profile wings */
 	double	sz1, sz2;	/* computed background boxes */
 	double	offst1, offst2;
-	int	i, j, k, l;	/* generic indices indices */
 	int	npix;
 
 	int InterpTrace6 (SpTrace **, double, SpTrace **);
@@ -120,7 +116,7 @@ int *ihigh_end;	        that maps into the convolution buffer
 	jpix = 0;
 	trace_y = NULL;
 
-	for (y_nom = low_end; y_nom <= high_end; y_nom += 1.0) {
+	for (int y_nom = low_end;  y_nom <= high_end;  y_nom += 1.0) {
 
 	    /* Interpolate in trace table. */
 
@@ -128,7 +124,7 @@ int *ihigh_end;	        that maps into the convolution buffer
 	        return (status);
 
 	    /* Loop over image pixels in the A1 direction. */
-	    for (ipix = 0; ipix < npix ; ipix++) {
+	    for (int ipix = 0;  ipix < npix ;  ipix++) {
 
 	        /* Translate image pixel index into reference pixel index. */
 	        rpix = (int)((ipix - sts->ltv[0]) / sts->ltm[0]);
@@ -201,13 +197,13 @@ int *ihigh_end;	        that maps into the convolution buffer
 	    return (OUT_OF_MEMORY);
 
 	ndata = 0;
-	for (i = 0; i < i1; i++) {
+	for (int i = 0;  i < i1;  i++) {
 	    px[ndata] = (double)i;
 	    py[ndata] = sum[i];
 	    pw[ndata] = 1.0;
 	    ndata++;
 	}
-	for (i = i2; i < jpix; i++) {
+	for (int i = i2;  i < jpix;  i++) {
 	    px[ndata] = (double)i;
 	    py[ndata] = sum[i];
 	    pw[ndata] = 1.0;
@@ -219,12 +215,12 @@ int *ihigh_end;	        that maps into the convolution buffer
 	/* Now we subtract this polynomial from the raw data, including
            the central region that was previously skipped.
         */
-	for (i = 0; i < jpix; i++)
+	for (int i = 0;  i < jpix;  i++)
 	    px[i] = (float)i;
 
 	ComputePoly (px, jpix, coeff, PDEGREE, py);
 
-	for (i = 0; i < jpix; i++)
+	for (int i = 0;  i < jpix;  i++)
 	    py[i] = sum[i] - py[i];
 
 	/* Look for the peak in the profile, and then find the two
@@ -232,22 +228,27 @@ int *ihigh_end;	        that maps into the convolution buffer
         */
 	imax = - jpix;
         ymax = - FLT_MAX;
-        for (i = 0; i < jpix; i++) {
+        for (int i = 0;  i < jpix;  i++) {
             if (py[i] > ymax) {
                 ymax = py[i];
 	        imax = i;
 	    }
         }
-	if (imax < 0)
+
+    int l1 = 0;
+    int l2 = 0;
+
+    if (imax < 0)
 	    return (ERROR_RETURN);
+
 	ymax *= 0.035;
-        for (l1 = 1; l1 < imax; l1++) {
-            if (py[l1] > ymax) {
+    for (l1 = 1;  l1 < imax;  l1++) {
+        if (py[l1] > ymax) {
 	        l1--;
 	        break;
 	    }
 	}
-        for (l2 = jpix-1; l2 > imax; l2--) {
+        for (l2 = jpix-1;  l2 > imax;  l2--) {
             if (py[l2] > ymax) {
 	        l2++;
 	        break;
@@ -300,7 +301,7 @@ int *ihigh_end;	        that maps into the convolution buffer
 	    return (OUT_OF_MEMORY);
 	if ((buffere = (float **) malloc (bufy * sizeof (float *))) == NULL)
 	    return (OUT_OF_MEMORY);
-	for (i = 0; i < bufy; i++) {
+	for (int i = 0;  i < bufy;  i++) {
 	    if ((buffers[i] = (float *) calloc (bufx, sizeof (float))) == NULL)
 	        return (OUT_OF_MEMORY);
 	    if ((buffere[i] = (float *) calloc (bufx, sizeof (float))) == NULL)
@@ -319,18 +320,15 @@ int *ihigh_end;	        that maps into the convolution buffer
            filled such that zero padding results in the A2 direction.
         */
 	jpix = boff;
-	for (j = *ilow_end; j < *ihigh_end; j++) {
-	    for (i = 0; i < npix; i++) {
-	        for (k = 0; k < ksize; k++) {
-	            l = i - ksize/2 + k;
+	for (int j = *ilow_end;  j < *ihigh_end;  j++) {
+	    for (int i = 0;  i < npix;  i++) {
+	        for (int k = 0;  k < ksize;  k++) {
+	            int l = i - ksize/2 + k;
 	            /* We do not normalize for rejected pixels yet. */
 	            if (l >=0 && l < npix) {
-	                if (!(DQPix (in->dq.data, l, j) & sts->sdqflags))
-	                    buffers[jpix][i] += Pix(in->sci.data, l, j) *
-                                                kernel[k];
-	                    buffere[jpix][i] += Pix(in->err.data, l, j) *
-                                                Pix(in->err.data, l, j) *
-                                                kernel[k];
+                    if (!(DQPix(in->dq.data, l, j) & sts->sdqflags))
+                        buffers[jpix][i] += Pix(in->sci.data, l, j) * kernel[k];
+                    buffere[jpix][i] += Pix(in->err.data, l, j) * Pix(in->err.data, l, j) * kernel[k];
 	            }
 	        }
 	    }
@@ -348,13 +346,13 @@ int *ihigh_end;	        that maps into the convolution buffer
            the original image array. Now the data source (buffer) is
            zero-padded so there is no need to check for out-of-bounds.
         */
-	for (i = 0; i < npix; i++) {
+	for (int i = 0;  i < npix;  i++) {
 	    jpix = boff;
-	    for (j = *ilow_end; j < *ihigh_end; j++) {
+	    for (int j = *ilow_end;  j < *ihigh_end;  j++) {
 	        Pix(in->sci.data, i, j) = 0.0;
 	        Pix(in->err.data, i, j) = 0.0;
-	        for (k = 0; k < ksize; k++) {
-	            l = jpix - ksize/2 + k;
+	        for (int k = 0;  k < ksize;  k++) {
+	            int l = jpix - ksize/2 + k;
 	            Pix(in->sci.data, i, j) += buffers[l][i] * kernel[k];
 	            Pix(in->err.data, i, j) += buffere[l][i] * kernel[k];
 	        }
@@ -362,15 +360,15 @@ int *ihigh_end;	        that maps into the convolution buffer
 	    }
 	}
 	free (kernel);
-	for (i = 0; i < npix; i++) {
-	    for (j = *ilow_end; j < *ihigh_end; j++) {
+	for (int i = 0;  i < npix;  i++) {
+	    for (int j = *ilow_end;  j < *ihigh_end;  j++) {
 	        if (Pix(in->err.data, i, j) > 0.0)
 	            Pix(in->err.data, i, j) = sqrt (Pix(in->err.data, i, j));
 	    }
 	}
 
-	for (i = 0; i < bufy; free (buffers[i++]));
-	for (i = 0; i < bufy; free (buffere[i++]));
+	for (int i = 0;  i < bufy;  free (buffers[i++]));
+	for (int i = 0;  i < bufy;  free (buffere[i++]));
 	free (buffers);
 	free (buffere);
 
@@ -390,13 +388,12 @@ double	fwhm;			i: FWHM of Gaussian
 int	size;			i: size of output array
 float	*array;			o: array with Gaussian values
 */
-	int	i;
 	float	amax;
 
-	for (i = 0; i < size; i++)
+	for (int i = 0;  i < size;  i++)
 	    array[i] = exp (-2.70927 *
                        pow((double)((i - size/2) / fwhm), 2.));
 	amax = 0.0;
-	for (i = 0; i < size; amax += array[i++]);
-	for (i = 0; i < size; array[i++] /= amax);
+	for (int i = 0;  i < size;  amax += array[i++]);
+	for (int i = 0;  i < size;  array[i++] /= amax);
 }

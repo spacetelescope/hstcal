@@ -44,7 +44,7 @@ void swap(double *a, double *b) {
 
 void poly (double x, double values[], int n) {
 
-	for (int i = 1; i <= n; i++)
+	for (int i = 1;  i <= n;  i++)
 	    values[i] = pow ((double)x, (double)(i-1));
 }
 
@@ -85,7 +85,7 @@ double coeff[];		o:  output coefficients
 	avx = 0.0;
 	avy = 0.0;
 	nav = 0;
-	for (int i = 0; i < ndat; i++) {
+	for (int i = 0;  i < ndat;  i++) {
 	    if (iw[i] > 0.0) {
 	        avx += ix[i];
 	        avy += iy[i];
@@ -109,7 +109,7 @@ double coeff[];		o:  output coefficients
 	covar = dmatrix ((long)1, (long)nterm, (long)1, (long)nterm);
 
 	/* Initialize data arrays for fitting routine. */
-	for (int i = 1; i <= ndat; i++) {
+	for (int i = 1;  i <= ndat;  i++) {
 	    x[i]   = ix[i-1] - avx;
 	    y[i]   = iy[i-1] - avy;
 	    if (iw[i-1] > 0.0)
@@ -117,7 +117,7 @@ double coeff[];		o:  output coefficients
 	    else
 	        sig[i] = 1.0;
 	}
-	for (int i = 1; i <= nterm; ia[i++] = 1);
+	for (int i = 1;  i <= nterm;  ia[i++] = 1);
 
 	/* Solve. */
     trlmessage("******** Calling Slfit ***********");
@@ -127,7 +127,7 @@ double coeff[];		o:  output coefficients
 	/* Store coefficients. */
 	coeff[0] = avx;
 	coeff[1] = avy;
-	for (int i = 1; i <= nterm; i++)
+	for (int i = 1;  i <= nterm;  i++)
 	    coeff[i+1] = a[i];
 
 	/* Free memory. */
@@ -156,9 +156,9 @@ double coeff[];		i:  coefficients
 int degree;		i:  degree of polynomial
 double oy[];		o:  output values
 */
-	for (int i = 0; i < ndat; i++) {
+	for (int i = 0;  i < ndat;  i++) {
 	    oy[i] = 0.0;
-	    for (int j = 0; j <= degree; j++)
+	    for (int j = 0;  j <= degree;  j++)
 	        oy[i] += coeff[j+2] * pow (ix[i] - coeff[0], (double)j);
 	    oy[i] += coeff[1];
 	}
@@ -183,7 +183,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 	beta = dmatrix((long)1, (long)ndim, (long)1, (long)1);
 	basisFunc = dblVector((long)1, (long)ndim);
 
-	for (int j = 1; j <= ndim; j++)
+	for (int j = 1;  j <= ndim;  j++)
 		if (coeffMask[j]) 
             mfit++;
 
@@ -192,8 +192,8 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 	    return (1);
 	}
 
-	for (int j = 1; j <= mfit; j++) {
-		for (int k = 1; k <= mfit; k++) 
+	for (int j = 1;  j <= mfit;  j++) {
+		for (int k = 1;  k <= mfit;  k++)
             covar[j][k] = 0.0;
 		beta[j][1] = 0.0;
 	}
@@ -201,35 +201,35 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
     /* Declare this for the remainder of the routine to avoid
      * confusion for the reader.
      */
-    int j, k, l, m;
-	for (int i = 1; i <= ndat; i++) {
+	for (int i = 1;  i <= ndat;  i++) {
 		(*funcs)(xdat[i], basisFunc, ndim);
 		ym = ydat[i];
 		if (mfit < ndim) {
-			for (j = 1; j <= ndim; j++)
+			for (int j = 1;  j <= ndim;  j++)
 				if (!coeffMask[j]) 
                     ym -= coeff[j] * basisFunc[j];
 		}
 		sig2i = 1.0 / sqrt(sigma[i]);
-		for (j = 0, l = 1; l <= ndim; l++) {
+		for (int j = 0, l = 1;  l <= ndim;  l++) {
 			if (coeffMask[l]) {
 				weight = basisFunc[l] * sig2i;
-				for (j++, k = 0, m = 1; m <= l; m++)
-					if (coeffMask[m]) 
+			    j++;
+				for (int k = 0, m = 1;  m <= l;  m++)
+					if (coeffMask[m])
                         covar[j][++k] += weight * basisFunc[m];
 				beta[j][1] += ym * weight;
 			}
 		}
 	}
 
-	for (j = 2; j <= mfit; j++)
-		for (k = 1; k < j; k++)
+	for (int j = 2;  j <= mfit;  j++)
+		for (int k = 1;  k < j;  k++)
 			covar[k][j] = covar[j][k];
 
 	if ((status = Sgaussj(covar, mfit, beta, 1)))
 	    return (status);
 
-	for (j = 0, l = 1; l <= ndim; l++)
+	for (int j = 0, l = 1;  l <= ndim;  l++)
 		if (coeffMask[l]) 
             coeff[l] = beta[++j][1];
 
@@ -249,18 +249,18 @@ static void Scovsrt (double **covar, int ndim, int data[], int mfit)
 {
 	int k = mfit;
 
-	for (int i = mfit + 1; i <= ndim; i++) {
-		for (int j = 1; j <= i; j++) {
+	for (int i = mfit + 1;  i <= ndim;  i++) {
+		for (int j = 1;  j <= i;  j++) {
             covar[i][j] = 0.0;
             covar[j][i] = 0.0;
         }
     }
 
-	for (int j = ndim; j >= 1; j--) {
+	for (int j = ndim;  j >= 1;  j--) {
 		if (data[j]) {
-			for (int i = 1; i <= ndim; i++) 
+			for (int i = 1;  i <= ndim;  i++)
                 swap(&covar[i][k], &covar[i][j]);
-			for (int i = 1; i <= ndim; i++) 
+			for (int i = 1;  i <= ndim;  i++)
                 swap(&covar[k][i], &covar[j][i]);
 			k--;
 		}
@@ -283,17 +283,17 @@ static int Sgaussj (double **a, int n, double **b, int m)
 	index_row = intVector((long)1, (long)n);
 	index_pivot = intVector((long)1, (long)n);
 
-	for (int j = 1; j <= n; j++) 
+	for (int j = 1;  j <= n;  j++)
         index_pivot[j] = 0;
 
     /*
      * Choose the largest element as the pivot which is overall a good choice.
      */
-	for (int i = 1; i <= n; i++) {
+	for (int i = 1;  i <= n;  i++) {
 		maxElement = 0.0;
-		for (int j = 1; j <= n; j++) {
+		for (int j = 1;  j <= n;  j++) {
 			if (index_pivot[j] != 1)
-				for (int k = 1; k <= n; k++) {
+				for (int k = 1;  k <= n;  k++) {
 					if (index_pivot[k] == 0) {
 						if (fabs(a[j][k]) >= maxElement) {
 							maxElement = fabs(a[j][k]);
@@ -312,9 +312,9 @@ static int Sgaussj (double **a, int n, double **b, int m)
          * Exchange the rows to put the pivot on the diagonal
          */
 		if (row != col) {
-			for (int l = 1; l <= n; l++) 
+			for (int l = 1;  l <= n;  l++)
                 swap(&a[row][l], &a[col][l]);
-			for (int l = 1; l <= m; l++) 
+			for (int l = 1;  l <= m;  l++)
                 swap(&b[row][l], &b[col][l]);
 		}
  
@@ -332,22 +332,22 @@ static int Sgaussj (double **a, int n, double **b, int m)
 		pivot_element = 1.0 / a[col][col];
 		a[col][col] = 1.0;
 
-		for (int l = 1; l <= n; l++) 
+		for (int l = 1;  l <= n;  l++)
             a[col][l] *= pivot_element;
 
-		for (int l = 1; l <= m; l++) 
+		for (int l = 1;  l <= m;  l++)
             b[col][l] *= pivot_element;
 
         /*
          * Reduce the rows, except for the pivot row.
          */
-		for (int j = 1; j <= n; j++) {
+		for (int j = 1;  j <= n;  j++) {
 			if (j != col) {
 				temp = a[j][col];
 				a[j][col] = 0.0;
-				for (int l = 1; l <= n; l++) 
+				for (int l = 1;  l <= n;  l++)
                    a[j][l] -= a[col][l] * temp;
-				for (int l = 1; l <= m; l++) 
+				for (int l = 1;  l <= m;  l++)
                    b[j][l] -= b[col][l] * temp;
 			}
         }
@@ -357,9 +357,9 @@ static int Sgaussj (double **a, int n, double **b, int m)
      * Fix up the inverse matrix by re-arranging the columns in the 
      * reverse order the initial matrix was built.
      */
-	for (int l = n; l >= 1; l--) {
+	for (int l = n;  l >= 1;  l--) {
 		if (index_row[l] != index_col[l])
-			for (int k = 1; k <= n; k++)
+			for (int k = 1;  k <= n;  k++)
 				swap(&a[k][index_row[l]], &a[k][index_col[l]]);
 	}
 
@@ -403,7 +403,7 @@ static double **dmatrix(long lowRow, long highRow, long lowCol, long highCol) {
 	m[lowRow] += 1;
 	m[lowRow] -= lowCol;
 
-	for (long i = lowRow + 1; i <= highRow; i++) 
+	for (int long i = lowRow + 1;  i <= highRow;  i++)
         m[i] = m[i-1] + ncol;
 
 	return m;

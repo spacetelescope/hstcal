@@ -33,7 +33,7 @@ StisInfo6 *sts         i:  calibration switches and info
 RowContents *row_cont  i:  output row arrays
 */
 	short	mask;
-	int	ipix, npix, lfilt;
+	int	lpix, npix, lfilt;
 	double	sum, sum2, *hold;
 
 	mask = sts->sdqflags & DETECTORPROB;
@@ -48,23 +48,25 @@ RowContents *row_cont  i:  output row arrays
 	/* Initialize sums. */
 	sum  = 0.0;
 	sum2 = 0.0;
+    lpix = 0;
 	npix = 0;
-	for (ipix = 0; ipix <= lfilt; ipix++)
+	for (int ipix = 0;  ipix <= lfilt;  ipix++) {
 	    AddPixel (ipix, row_cont, mask, &sum, &sum2, &npix);
+	    lpix = ipix;
+	}
 
 	/* Compute first filtered value. */
-	hold[0] = LSF (sum, sum2, row_cont->back[0], row_cont->error[ipix],
-                       npix);
+	hold[0] = LSF (sum, sum2, row_cont->back[0], row_cont->error[lpix], npix);
 
 	/* Compute filtered values at first edge. */
-	for (ipix = 1; ipix <= lfilt; ipix++) {
+	for (int ipix = 1;  ipix <= lfilt;  ipix++) {
 	    AddPixel (ipix + lfilt, row_cont, mask, &sum, &sum2, &npix);
 	    hold[ipix] = LSF (sum, sum2, row_cont->back[ipix], 
                               row_cont->error[ipix], npix);
 	}
 
 	/* Compute filtered values at "internal" region. */
-	for (ipix = lfilt+1; ipix <= row_cont->npts-1-lfilt; ipix++) {
+	for (int ipix = lfilt+1;  ipix <= row_cont->npts-1-lfilt;  ipix++) {
 	    AddPixel    (ipix + lfilt,     row_cont, mask, &sum, &sum2, &npix);
 	    RemovePixel (ipix - lfilt - 1, row_cont, mask, &sum, &sum2, &npix);
 	    hold[ipix] = LSF (sum, sum2, row_cont->back[ipix], 
@@ -72,14 +74,14 @@ RowContents *row_cont  i:  output row arrays
 	}
 
 	/* Compute filtered values at second edge. */
-	for (ipix = row_cont->npts-lfilt; ipix <row_cont->npts; ipix++) {
+	for (int ipix = row_cont->npts-lfilt;  ipix <row_cont->npts;  ipix++) {
 	    RemovePixel (ipix - lfilt - 1, row_cont, mask, &sum, &sum2, &npix);
 	    hold[ipix] = LSF (sum, sum2, row_cont->back[ipix], 
                               row_cont->error[ipix], npix);
 	}
 
 	/* Recompute background and net arrays. */
-	for (ipix = 0; ipix < row_cont->npts; ipix++) {
+	for (int ipix = 0;  ipix < row_cont->npts;  ipix++) {
 	    row_cont->back[ipix] = hold[ipix];
 	    row_cont->net[ipix] = row_cont->gross[ipix] - row_cont->back[ipix];
 	}
