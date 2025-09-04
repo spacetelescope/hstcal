@@ -167,7 +167,7 @@ static int CheckPedigree (TblInfo *tabinfo, int row, int *pedigree) {
 
 	char *str_pedigree;
 
-	if (tabinfo->cp_pedigree > 0) {
+	if (tabinfo->cp_pedigree != NULL) {
 
 	    if ((str_pedigree = calloc (STIS_LINE+1, sizeof(char))) == NULL) {
 		trlerror("Out of memory.");
