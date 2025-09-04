@@ -100,7 +100,6 @@ PhotInfo *phot  o: phot->pcorr is the array of factors to correct
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;	/* true if parameters found in table */
 
 	/* x2dcorr for the current order may have already been turned off
@@ -131,7 +130,7 @@ PhotInfo *phot  o: phot->pcorr is the array of factors to correct
 	   the arrays of wavelength and throughput if there's a match.
 	*/
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadPCTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -318,13 +317,11 @@ static int ClosePCTab (TblInfo *tabinfo) {
 
 static int PCDummy (PhotInfo *phot) {
 
-	int i;
-
 	phot->pcorr = malloc (phot->nelem * sizeof(double));
 	if (phot->pcorr == NULL)
 	    return (OUT_OF_MEMORY);
 
-	for (i = 0;  i < phot->nelem;  i++)
+	for (int i = 0;   i < phot->nelem;   i++)
 	    phot->pcorr[i] = 1.;
 
 	return (0);

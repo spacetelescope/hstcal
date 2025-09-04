@@ -112,7 +112,7 @@ int debug;             i: debug control
 	double  *xval;
 	double  *wval;
 	int    ndata;		/* # of data points in polynomial fit */
-	int    backord, iclip, maxclip, i;
+	int    backord, maxclip;
 
 	int FitPoly (double *, double *, double *, int, int, double *);
 
@@ -120,7 +120,7 @@ int debug;             i: debug control
            in case the scatterd light correction algorithm is active.
         */
 	if (!(sts->scatter)) {
-	    for (i = 0; i < 2; i++) {
+	    for (int i = 0;  i < 2;  i++) {
 	        if (sts->bksize[i] == NO_SIZE)
 	            bksize[i] = xtr->bksize[i];
 	        else
@@ -138,7 +138,7 @@ int debug;             i: debug control
 	    /* Size and offset values are supposed to be re-defined by
                previous call to DefineBackRegions function.
             */
-	    for (i = 0; i < 2; i++) {
+	    for (int i = 0;  i < 2;  i++) {
 	        bksize[i]   = sts->bksize[i];
 	        bkoffset[i] = sts->bkoffset[i];
 	    }
@@ -162,7 +162,7 @@ int debug;             i: debug control
 	/* Main sigma-clip loop. */
 	maxclip = (sts->scatter) ? 1 : MAX_CLIP;
 
-	for (iclip = 1; iclip <= maxclip; iclip++) {
+	for (int iclip = 1;  iclip <= maxclip;  iclip++) {
 
 	    /* Clear all accumulators. */
 	    npts   = 0.0;
@@ -251,16 +251,16 @@ int debug;             i: debug control
                 */
 	        if (ndata > BACKP) {
 	            if (!FitPoly (xval, yval, wval, ndata, BACKP, sts->bck)) {
-	                for (i = 0; i < BACKP+3; i++)
+	                for (int i = 0;  i < BACKP+3;  i++)
 	                    sts->vbck[i] = 0.0;
 	            } else {
-	                for (i = 0; i < BACKP+3; i++) {
+	                for (int i = 0;  i < BACKP+3;  i++) {
 	                    sts->bck[i]  = 0.0;
 	                    sts->vbck[i] = 0.0;
 	                }
 	            }
 	        } else {
-	            for (i = 0; i < BACKP+3; i++) {
+	            for (int i = 0;  i < BACKP+3;  i++) {
 	                sts->bck[i]  = 0.0;
 	                sts->vbck[i] = 0.0;
 	            }
@@ -341,7 +341,7 @@ int debug;             i: debug control
 	double residual;	/* residual background */
 	double tcent;		/* center of trace in image coordinates */
 	double hold;
-        int k, isize;           /* loop index and limit */
+    int isize;           /* limit */
 
 	/* Compute endpoints of background extraction box. Notice that
            the 0.5 pixel offsets below, used to make the endpoint coordinates
@@ -364,7 +364,7 @@ int debug;             i: debug control
         xx = x1;
         yy = y1;
         isize = NINT(size);
-	for (k = 0;  k < isize;  k++) {
+	for (int k = 0;   k < isize;   k++) {
 
 	    /* Interpolate, checking for out of bounds. */
 	    Interp2D (in, sts->sdqflags, xx, yy, 1.0, WGT_VARIANCE,
@@ -444,7 +444,7 @@ int debug;             i: debug control
 
 int SmoothBack (StisInfo6 *sts, RowContents *row_contents) {
 
-	int i, status;
+	int status;
 
 	if (sts->bks_mode == BKS_OFF) {
 	    return (status = 0);
@@ -494,7 +494,7 @@ int SmoothBack (StisInfo6 *sts, RowContents *row_contents) {
 
 	/* Re-compute net array. */
 
-	for (i = 0; i < row_contents->npts; i++) {
+	for (int i = 0;  i < row_contents->npts;  i++) {
 	    row_contents->net[i] = row_contents->gross[i] -
                                    row_contents->back[i];
 	}
@@ -508,7 +508,7 @@ static int PolynomialFilter (float *array, int size, int order,
                              int avoid2b) {
 
 	double *ax, *ay, *aw, *coeff;
-	int i, k, status;
+	int k, status;
 
 	int FitPoly (double *, double *, double *, int, int, double *);
 	void ComputePoly (double *, int, double *, int, double *);
@@ -541,7 +541,7 @@ static int PolynomialFilter (float *array, int size, int order,
            in the fit functions for that.
 	*/
 	k = 0;
-	for (i = 0; i < size; i++) {
+	for (int i = 0;  i < size;  i++) {
 	    if (isValid (i, size, avoid1a, avoid2a, avoid1b, avoid2b)) {
 	        ax[k] = (double)i;
 	        ay[k] = (double)array[i];
@@ -564,7 +564,7 @@ static int PolynomialFilter (float *array, int size, int order,
            are left with the original input data.
         */
 	k = 0;
-	for (i = 0; i < size; i++) {
+	for (int i = 0;  i < size;  i++) {
 	    if (isValid (i, size, avoid1a, avoid2a, avoid1b, avoid2b))
 	        array[i] = (float)ay[k++];
 	}
@@ -581,12 +581,12 @@ static void BoxcarFilter (float *input_array, int size, int wsize, int mode) {
 
 	float *array;
 	double sum;
-	int i, j, w1, w2, vw2, npts;
+	int w1, w2, vw2, npts;
 
 	array = (float *) malloc (size * sizeof (float));
 	copyArray (input_array, array, size);
 
-	for (i = 0; i < size; i++) {
+	for (int i = 0;  i < size;  i++) {
 	    switch (mode) {
 	        case BKS_AVERAGE:
 
@@ -595,7 +595,7 @@ static void BoxcarFilter (float *input_array, int size, int wsize, int mode) {
 	                 npts = 0;
 	                 w1   = 0;
 	                 w2   = wsize / 2;
-	                 for (j = 0; j < w2; j++) {
+	                 for (int j = 0;  j < w2;  j++) {
 	                     sum += array[j];
 	                     npts++;
 	                 }
@@ -650,9 +650,7 @@ static void BoxcarFilter (float *input_array, int size, int wsize, int mode) {
 
 static void copyArray (float *input_array, float *array, int size) {
 
-	int i;
-
-	for (i = 0; i < size; i++) {
+	for (int i = 0;  i < size;  i++) {
 	    array[i] = input_array[i];
 	}
 }

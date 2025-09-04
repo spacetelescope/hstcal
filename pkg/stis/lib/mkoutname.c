@@ -70,7 +70,6 @@ int maxch          i: maximum size of output
 
 	int is_len;		/* length of current isuffix */
 	int tr_len;		/* length of truncated input name */
-	int i;			/* loop index */
 	int dotlocn;		/* location of '.' in input name */
 
 	if (output[0] == '\0') {
@@ -97,7 +96,8 @@ int maxch          i: maximum size of output
 		chop it off of the output name before appending the output
 		suffix and extension.
 	    */
-	    for (i = 0;  i < nsuffix;  i++) {
+		int i;
+	    for (i = 0;   i < nsuffix;   i++) {
 		is_len = strlen (isuffix[i]);
 		tr_len = strlen (output);	/* length of truncated name */
 		if (tr_len >= is_len) {
@@ -164,9 +164,8 @@ int DefaultExtn (char *input, int maxch) {
 static int FindExtn (char *fname) {
 
 	int dotlocn = -1;
-	int i;
 
-	for (i = strlen(fname)-1;  i >= 0;  i--) {
+	for (int i = strlen(fname)-1;   i >= 0;   i--) {
 	    if (fname[i] == '.') {
 		dotlocn = i;
 		break;
@@ -186,8 +185,9 @@ static int FindExtn (char *fname) {
 static int strcatN (char *outstr, char *instr, int maxch) {
 
 	int status;
+    const int len = (int)(strlen(instr) + strlen(outstr));
 
-	if (strlen (instr) + strlen (outstr) > maxch) {
+	if (len > maxch) {
 	    trlerror("(MkOutName) strings are too long:");
 	    trlerror("`%s' + `%s'", outstr, instr);
 	    status = 2011;

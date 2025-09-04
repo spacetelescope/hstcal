@@ -48,8 +48,6 @@ SingleGroup *out     io: output data
 	double ends[2];		/* start and end locations of slit */
 	double bar[2];		/* start and end of a bar */
 	int bottom, top;	/* loop limits, dispaxis = 1 */
-	int i, j;		/* loop indexes for pixel number */
-	int k;			/* loop index for occulting bar */
 	short dq;		/* data quality flag */
 
 	/* Values from ApInfo struct, converted from arcsec to pixels. */
@@ -63,7 +61,7 @@ SingleGroup *out     io: output data
 	scale = coords->cdelt[1];		/* cdelt2, arcsec/pixel */
 	length = slit->width[1] / scale;
 
-	for (k = 0;  k < slit->nbars;  k++) {
+	for (int k = 0;   k < slit->nbars;   k++) {
 	    barlocn[k] = slit->barlocn[k] / scale;
 	    barwidth[k] = slit->barwidth[k] / scale;
 	}
@@ -86,14 +84,14 @@ SingleGroup *out     io: output data
 		top = -1;
 
 	    /* Flag the regions off the bottom and top of the slit. */
-	    for (j = 0;  j < bottom;  j++) {
-		for (i = 0;  i < out->dq.data.nx;  i++) {
+	    for (int j = 0;   j < bottom;   j++) {
+		for (int i = 0;   i < out->dq.data.nx;   i++) {
 		    dq = DQPix (out->dq.data, i, j) | DATAMASKED;
 		    DQSetPix (out->dq.data, i, j, dq);
 		}
 	    }
-	    for (j = top+1;  j < out->dq.data.ny;  j++) {
-		for (i = 0;  i < out->dq.data.nx;  i++) {
+	    for (int j = top+1;   j < out->dq.data.ny;   j++) {
+		for (int i = 0;   i < out->dq.data.nx;   i++) {
 		    dq = DQPix (out->dq.data, i, j) | DATAMASKED;
 		    DQSetPix (out->dq.data, i, j, dq);
 		}
@@ -101,7 +99,7 @@ SingleGroup *out     io: output data
 	}
 
 	/* Flag the bars. */
-	for (k = 0;  k < slit->nbars;  k++) {
+	for (int k = 0;   k < slit->nbars;   k++) {
 
 	    bar[0] = center + barlocn[k] - barwidth[k] / 2.;
 	    bar[1] = center + barlocn[k] + barwidth[k] / 2.;
@@ -115,8 +113,8 @@ SingleGroup *out     io: output data
 		if (top >= out->dq.data.ny)
 		    top = out->dq.data.ny - 1;
 
-		for (j = bottom;  j <= top;  j++) {
-		    for (i = 0;  i < out->dq.data.nx;  i++) {
+		for (int j = bottom;   j <= top;   j++) {
+		    for (int i = 0;   i < out->dq.data.nx;   i++) {
 			dq = DQPix (out->dq.data, i, j) | DATAMASKED;
 			DQSetPix (out->dq.data, i, j, dq);
 		    }

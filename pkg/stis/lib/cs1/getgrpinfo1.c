@@ -297,7 +297,6 @@ int UpdateCCDTemperature(StisInfo1 *sts, Hdr *hdr) {
        Hdr *hdr i: header of current extension */
 
     int status = 0;
-    int row;
     int row_start = -1;            /*  beginning row of EPC table data  */
     int row_end = -1;              /*  ending row of EPC table data  */
     double ccd_temperature = -1.;  /*  average from EPC table  */
@@ -309,7 +308,7 @@ int UpdateCCDTemperature(StisInfo1 *sts, Hdr *hdr) {
     /*  Finding starting and ending row of EPC table data for this
         image extension ONLY if the EPC data bounds the exposure data.
     */
-    for (row = 0; row < sts->epc_rows; row++) {
+    for (int row = 0;  row < sts->epc_rows;  row++) {
         if (sts->epc_mjd[row] < sts->expstart)
             row_start = row;
         if (sts->epc_mjd[row] > sts->expend) {
@@ -328,7 +327,7 @@ int UpdateCCDTemperature(StisInfo1 *sts, Hdr *hdr) {
         /*  From time-averaged CCD temperatures in EPC table.  */
         double avtemp = 0.;
 
-        for (row = row_start; row < row_end; row++) {
+        for (int row = row_start;  row < row_end;  row++) {
             double fmjd, ftemp;
 
             if (row_start == row_end-1) {

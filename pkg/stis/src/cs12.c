@@ -67,12 +67,10 @@ int main (int argc, char **argv) {
 	int verbose = 0;	/* print additional info? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int w_option;		/* which option for selecting wavecal */
-	int i, j;		/* loop indexes */
 
 	IRAFPointer w_imt, s_imt;	/* imt list pointers */
 	char *inwav, *insci;	/* wavecal and science file names */
 	int n_wav, n_sci;	/* number of files in each list */
-	int n;
 
 	c_irafinit (argc, argv);
 
@@ -102,7 +100,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* Get names of input files. */
-	for (i = 1;  i < argc;  i++) {
+	for (int i = 1;   i < argc;   i++) {
 	    if (strcmp (argv[i], "--version") == 0) {
 		PrVersion();
 		exit (0);
@@ -125,7 +123,7 @@ int main (int argc, char **argv) {
 		exit (0);
 	    }
 	    if (argv[i][0] == '-') {
-		for (j = 1;  argv[i][j] != '\0';  j++) {
+		for (int j = 1;   argv[i][j] != '\0';   j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;
 		    } else if (argv[i][j] == 'v') {
@@ -179,10 +177,9 @@ int main (int argc, char **argv) {
 	}
 
 	/* Loop over the list of input files. */
-	for (n = 0;  n < n_wav;  n++) {
-
-	    j = c_imtgetim (w_imt, inwav, STIS_LINE);
-	    j = c_imtgetim (s_imt, insci, STIS_LINE);
+	for (int n = 0;   n < n_wav;   n++) {
+	    c_imtgetim (w_imt, inwav, STIS_LINE);
+	    c_imtgetim (s_imt, insci, STIS_LINE);
 
 	    status = 0;
 	    if ((status = CalStis12 (inwav, insci,

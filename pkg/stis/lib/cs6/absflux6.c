@@ -163,7 +163,7 @@ int AbsFlux6 (StisInfo6 *sts, RowContents *out,
         wl_no_blaze = malloc (phot->nelem * sizeof (double));
         if (wl_no_blaze == NULL)
             return (OUT_OF_MEMORY);
-        for (i = 0;  i < phot->nelem;  i++)
+        for (int i = 0;   i < phot->nelem;   i++)
             wl_no_blaze[i] = phot->wl[i];
 
         if (phot->wpos != 0.0 || sts->blazeshift != NO_VALUE) {
@@ -177,7 +177,7 @@ int AbsFlux6 (StisInfo6 *sts, RowContents *out,
         }
 
         /* Loop over flux array. */
-        for (i = 0; i < out->npts; i++) {
+        for (int i = 0;  i < out->npts;  i++) {
 
             /* Convert back to observed wavelength. */
             wl = out->wave[i] / hfactor;
@@ -310,7 +310,6 @@ CTICorrInfo *cti        io: nelem and haloterm will be assigned
         PhotInfo phot_200;      /* PCT info for extrheight = 200 */
         double extrheight = 200.;       /* 200 pixel extraction height */
         double net_to_electrons;
-        int i;
         int warn = WARN;        /* yes, print a warning if appropriate */
         int status;
         void FreePhot6 (PhotInfo *);
@@ -344,7 +343,7 @@ CTICorrInfo *cti        io: nelem and haloterm will be assigned
             return (OUT_OF_MEMORY);
         }
         /* copy the wavelengths, converting back to observed wavelength */
-        for (i = 0;  i < nelem;  i++)
+        for (int i = 0;   i < nelem;   i++)
             phot_200.wl[i] = wavelength[i] / sts->hfactor;
 
         /* This function will get the PC factors and interpolate them onto
@@ -356,7 +355,7 @@ CTICorrInfo *cti        io: nelem and haloterm will be assigned
         }
 
         net_to_electrons = sts->atodgain * sts->exptime / sts->ncombine;
-        for (i = 0;  i < nelem;  i++) {
+        for (int i = 0;   i < nelem;   i++) {
             cti->haloterm[i] =
                 ((phot_200.pcorr[i] - 1.) / 2. - cti->halominfrac) *
                                 net[i] * net_to_electrons;

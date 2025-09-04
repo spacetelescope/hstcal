@@ -21,18 +21,18 @@ int maxch          i: maximum size of output
 	char fitsext[] = ".fits";	/* default extension */
 	char *extn;		/* extension on input (or default) */
 
-	int i_len;		/* length of input name */
-	int is_len;		/* length of isuffix */
-	int fits_len;		/* length of fitsext */
-	int tr_len;		/* length of truncated input name */
-	int i;			/* loop index */
-	int dotlocn;		/* location of '.' in input name */
+	size_t i_len;		/* length of input name */
+	size_t is_len;		/* length of isuffix */
+	size_t fits_len;	/* length of fitsext */
+	size_t tr_len;		/* length of truncated input name */
+	size_t dotlocn;		/* location of '.' in input name */
 
 	i_len = strlen (input);
 	is_len = strlen (isuffix);
 	fits_len = strlen (fitsext);
 
-	if (i_len > maxch) {
+	// TODO: maxch should be an unsigned type
+	if (i_len > (size_t) maxch) {
 	    trlerror ("(MkName) Input name is too long.");
 	    return (status = INVALID_FILENAME);
 	}
@@ -43,7 +43,7 @@ int maxch          i: maximum size of output
 
 	/* Find the extension (if any) on the input name. */
 	dotlocn = 0;
-	for (i = i_len-1;  i >= 0;  i--) {
+	for (size_t i = i_len ? i_len - 1 : 0;  i != 0;  i--) {
 	    if (input[i] == '.') {
 		dotlocn = i;
 		break;
@@ -74,7 +74,7 @@ int maxch          i: maximum size of output
 	/* If the input name ends in the expected suffix, chop it off of
 	   the output name before appending the output suffix and extension.
 	*/
-	tr_len = strlen (output);		/* length of truncated name */	
+	tr_len = (int)strlen (output);		/* length of truncated name */
 	if (tr_len >= is_len) {
 	    if (strcmp (output+tr_len-is_len, isuffix) == 0)
 		output[tr_len-is_len] = '\0';

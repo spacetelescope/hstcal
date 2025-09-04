@@ -163,8 +163,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     initHdr(&scihdr);
 
     float readNoise = 0.0;
-
-    int ret;
+    int ret = 0;
 
     /*check if this is a subarray image.
       This is necessary because the CTE routine will start with the raw images
@@ -1376,7 +1375,6 @@ int sub_ctecor_v2c(float *pixz_raz,
       int    NITFOR, NITFORs;
       int    NITPAR, NITPARs;
       double RNOI;
-      int ret;
 
       double *pixj_fff;
       double *pixj_raz;
@@ -1404,6 +1402,7 @@ int sub_ctecor_v2c(float *pixz_raz,
       printf("          --->  NITPARs: %5d \n",NITPARs);
       printf("                             \n");
 
+      int ret = 0;
       #pragma omp parallel \
        shared(pixz_raz,pixz_fff,pixz_rzc,              \
               NITPARs,NITFORs,                         \
@@ -1521,7 +1520,7 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       int       ih, iih;
       long      dhist[NUM_BINS], dcum[NUM_BINS], vtot;
       long      vhist[NUM_BINS], vcum[NUM_BINS], dtot;
-      int       ivmin, id1, id2;
+      int       ivmin;
       int       idmin, iv1, iv2;
       long long vsum;
       long long nsum;
@@ -1539,8 +1538,6 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
 
       iv1 = 1;
       iv2 = 999;
-      id1 = 1;
-      id2 = 999;
 
       /*
        * Distill the image variation information and background into quick histograms
@@ -1635,11 +1632,13 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
        * Find the closest 75% of the points and use them to determine the noise
        * and the background
        */
+      int id1 = 0;
+      int id2 = 0;
       for (ih=1; ih<=NUM_BINS-1; ih++) {
           for (iih=ih+1; iih<=NUM_BINS-1; iih++) {
               if (dcum[iih-1]-dcum[ih-1] > 0.75*dtot && iih-ih < idmin) {
-                  id1   = ih;
-                  id2   = iih;
+                  id1   = ih;  // TODO: not used for anything below
+                  id2   = iih; // TODO: not used for anything below
                   idmin = iih-ih;
               }
 

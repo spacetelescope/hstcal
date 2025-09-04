@@ -56,7 +56,6 @@ FILE *dbg          i: file handle for debug output
 	double *med;		/* array of medians */
 	double *med_ok;		/* medians after replacing negative values */
 	int nmed;		/* size of xmed and med arrays */
-	int i;
 	int status;
 
 	qvtemp = malloc (nv * sizeof(short));
@@ -72,7 +71,7 @@ FILE *dbg          i: file handle for debug output
 	   be 32767.  qvtemp is set to 1 instead, to make it easier to
 	   plot in case debug output was specified.)
 	*/
-	for (i = 0;  i < nv;  i++) {
+	for (int i = 0;   i < nv;   i++) {
 	    xslit[i] = (double) i;
 	    if (qv[i] == 0)
 		qvtemp[i] = 0;
@@ -83,13 +82,13 @@ FILE *dbg          i: file handle for debug output
 	/* Find the first and last values that are not flagged as bad. */
 	first_good = -1;
 	last_good = -1;
-	for (i = 0;  i < nv;  i++) {
+	for (int i = 0;   i < nv;   i++) {
 	    if (qv[i] == 0) {
 		first_good = i;
 		break;
 	    }
 	}
-	for (i = nv-1;  i >= 0;  i--) {
+	for (int i = nv-1;   i >= 0;   i--) {
 	    if (qv[i] == 0) {
 		last_good = i;
 		break;
@@ -138,7 +137,7 @@ FILE *dbg          i: file handle for debug output
 	   qvtemp, since we expect that qvtemp will be flagged at the
 	   occulting bars, and we need the actual v values there.
 	*/
-	for (i = 0;  i < nv;  i++) {
+	for (int i = 0;   i < nv;   i++) {
 	    if (qv[i] == 0 && sm_slit[i] > 0.)
 		inv[i] = (sm_slit[i] - v[i]) / sm_slit[i];
 	    else
@@ -150,14 +149,14 @@ FILE *dbg          i: file handle for debug output
 
 	    fprintf (dbg,
 "# (InvertSlit) pixel, median of slit illumination, corrected median:\n");
-	    for (i = 0;  i < nmed;  i++) {
+	    for (int i = 0;   i < nmed;   i++) {
 		fprintf (dbg, "%6.1f %.6g %.6g\n",
 			xmed[i] + 1., med[i], med_ok[i]);
 	    }
 
 	    fprintf (dbg,
 "# pixel, slit illumination, smoothed slit, inverted slit, dq, dq_local:\n");
-	    for (i = 0;  i < nv;  i++) {
+	    for (int i = 0;   i < nv;   i++) {
 		fprintf (dbg, "%d %.6g %.6g %.6g %d %d\n",
 			i+1, v[i], sm_slit[i], inv[i], qv[i], qvtemp[i]);
 	    }
@@ -197,7 +196,7 @@ double *median  o: median of v, excluding bad data
 	    return (OUT_OF_MEMORY);
 
 	ngood = 0;
-	for (i = 0;  i < nv;  i++) {
+	for (int i = 0;   i < nv;   i++) {
 	    if (qv[i] == 0) {
 		vt[ngood] = v[i];
 		ngood++;
@@ -264,14 +263,13 @@ double med_ok[]        o: copy of med, but with non-positive values replaced
 
 	double previous_value;		/* previous value from med array */
 	int first;
-	int i;
 
-	for (i = 0;  i < nmed;  i++)
+	for (int i = 0;   i < nmed;   i++)
 	    med_ok[i] = med[i];
 	previous_value = med[nmed/2];
 
 	first = 1;
-	for (i = nmed / 2;  i < nmed;  i++) {
+	for (int i = nmed / 2;   i < nmed;   i++) {
 	    if (med[i] <= 0.) {
 		if (first)
 		    med_ok[i] = global_median;
@@ -283,7 +281,7 @@ double med_ok[]        o: copy of med, but with non-positive values replaced
 	}
 
 	first = 1;
-	for (i = nmed / 2 - 1;  i >= 0;  i--) {
+	for (int i = nmed / 2 - 1;   i >= 0;   i--) {
 	    if (med[i] <= 0.) {
 		if (first)
 		    med_ok[i] = global_median;
@@ -321,7 +319,6 @@ int *nmed          o: number of elements of xmed & med that are actually used
 	int nvals;	/* nominal number of elements in each section */
 	int n;		/* actual number of values in current section */
 	int start;	/* offset to start of current section */
-	int i;
 	int status;
 
 	nvals = (last_good - first_good + 1) / nparts;
@@ -331,7 +328,7 @@ int *nmed          o: number of elements of xmed & med that are actually used
 
 	*nmed = 0;
 	start = first_good;
-	for (i = 0;  i < nparts;  i++) {
+	for (int i = 0;   i < nparts;   i++) {
 
 	    if (start >= last_good)
 		break;
@@ -374,14 +371,13 @@ double *mad        o: median of absolute values of deviations from fit
 */
 
 	double *diff;		/* abs difference between data and fit */
-	int i;
 	int status;
 
 	diff = malloc (nv * sizeof(double));
 	if (diff == NULL)
 	    return (OUT_OF_MEMORY);
 
-	for (i = 0;  i < nv;  i++)
+	for (int i = 0;   i < nv;   i++)
 	    diff[i] = fabs (v[i] - sm_slit[i]);
 
 	if ((status = QMedian (diff, qv, nv, mad)))
@@ -409,9 +405,8 @@ double mad         i: median of absolute values of deviations from fit
 */
 
 	double diff;		/* abs difference between data and fit */
-	int i;
 
-	for (i = 0;  i < nv;  i++) {
+	for (int i = 0;   i < nv;   i++) {
 	    diff = fabs (v[i] - sm_slit[i]);
 	    if (diff > MAX_MAD * mad)
 		qvtemp[i] = 1;

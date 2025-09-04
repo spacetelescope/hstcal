@@ -46,7 +46,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	int offsety=0;
 
 	dimx = x->sci.data.nx;
-	dimy = x->sci.data.ny;
+	dimy = x->sci.data.ny;  // TODO: Unused, why?
 
 	trlmessage("CTE: Subtracting BIACFILE: %s for imset %d",wf3->biac.name, x->group_num);
 

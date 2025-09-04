@@ -22,7 +22,6 @@ SingleGroupLine *b   i: second input data
 
 	extern int status;
 
-	int i;
 	float da, db;		/* errors for a and b */
 	short dqa, dqb, dqab;	/* data quality for a, b, combined */
     int dimx;
@@ -32,7 +31,7 @@ SingleGroupLine *b   i: second input data
 
 	/* science, error, and DQ data */
     dimx = a->sci.data.nx;
-	for (i = 0;  i < dimx;  i++) {
+	for (int i = 0;  i < dimx;  i++) {
     	/* science array */
 		Pix(a->sci.data, i, line) =
 			Pix (a->sci.data, i, line) - b->sci.line[i];

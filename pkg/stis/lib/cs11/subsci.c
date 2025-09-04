@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
+#include <string.h>
 
 # include "c_iraf.h"
 # include "hstio.h"
@@ -40,13 +41,12 @@ StisInfo11 *scidata  i: info for science data
 	IODescPtr im;		/* descriptor for an image */
 	Hdr hdr;		/* header for SCI extension */
 	SingleGroup wav, sci;
-	char history[STIS_LINE+1];
+	char history[4096];
 	double ratio;		/* ratio of exposure times and gains */
 	double exptime, midpt;	/* temporary variables */
 	int imset_ok;		/* value of header keyword IMSET_OK */
 	int n;
 	int k;			/* loop index for number of good sci images */
-	int extverWav;		/* imset number for wavecal */
 	int extverSci;		/* imset number for science data */
 	int index;		/* extverSci-1 (index into arrays) */
 	int option;		/* selection option for best science imset */
@@ -75,23 +75,24 @@ StisInfo11 *scidata  i: info for science data
 	*/
 	initHdr (&hdr);
 	k = 0;
-	for (extverSci = 1;  extverSci <= scidata->nimages;  extverSci++) {
-	    im = openInputImage (scidata->input, "SCI", extverSci);
-	    if (hstio_err())
-		return (OPEN_FAILED);
-	    getHeader (im, &hdr);
-	    if (hstio_err())
-		return (OPEN_FAILED);
-	    closeImage (im);
-	    if ((status = GetTimes11 (&hdr, &exptime, &midpt, &imset_ok)) != 0)
-		return (status);
-	    if (imset_ok) {
-		scidata->exptime[k] = exptime;
-		scidata->midpt[k] = midpt;
-		k++;
-	    }
-	    freeHdr (&hdr);
-	}
+    for (int i = 1; i <= scidata->nimages; i++) {
+        im = openInputImage(scidata->input, "SCI", i);
+        if (hstio_err())
+            return (OPEN_FAILED);
+        getHeader(im, &hdr);
+        if (hstio_err())
+            return (OPEN_FAILED);
+        closeImage(im);
+        if ((status = GetTimes11(&hdr, &exptime, &midpt, &imset_ok)) != 0)
+            return (status);
+        if (imset_ok) {
+            scidata->exptime[k] = exptime;
+            scidata->midpt[k] = midpt;
+            k++;
+        }
+        freeHdr(&hdr);
+        extverSci = i;
+    }
 	scidata->nimages = k;	/* update to be the number with imset_ok */
 
 	initSingleGroup (&wav);
@@ -99,7 +100,7 @@ StisInfo11 *scidata  i: info for science data
 
 	/* Process each wavecal. */
 
-	for (extverWav = 1;  extverWav <= wavecal->nimages;  extverWav++) {
+	for (int extverWav = 1;   extverWav <= wavecal->nimages;   extverWav++) {
 
 	    PrGrpBegin ("imset", extverWav);
 
@@ -142,18 +143,15 @@ StisInfo11 *scidata  i: info for science data
 	    freeSingleGroup (&sci);
 
 	    if (extverWav == 1) {
-		sprintf (history, "Science file %s was subtracted.\n",
-			scidata->input);
+		snprintf (history, sizeof(history), "Science file %s was subtracted.\n", scidata->input);
 		addHistoryKw (wav.globalhdr, history);
 		if (hstio_err())
 		    return (HEADER_PROBLEM);
 	    }
 
-	    trlmessage("         %s[EXTVER=%d] was subtracted.",
-			scidata->input, extverSci);
+	    trlmessage("         %s[EXTVER=%d] was subtracted.", scidata->input, extverSci);
 
-	    sprintf (history, "%s[EXTVER=%d] was subtracted\n",
-			scidata->input, extverSci);
+	    snprintf (history, sizeof(history), "%s[EXTVER=%d] was subtracted\n", scidata->input, extverSci);
 	    addHistoryKw (&wav.sci.hdr, history);
 	    if (hstio_err())
 		return (HEADER_PROBLEM);

@@ -104,7 +104,6 @@ DistInfo *dist      o: distortion coefficients
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;	/* true if parameters found in table */
 
 	/* Open the distortion information table. */
@@ -113,7 +112,7 @@ DistInfo *dist      o: distortion coefficients
 
 	/* Find the row for the inverse mapping. */
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadDistTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -256,7 +255,6 @@ static int ReadCoefficients (TblInfo *tabinfo, int row,
 
 	char colname[SZ_COLNAME];	/* a column name */
 	IRAFPointer cp;		/* for getting coefficients */
-	int i, j, k;
 	int kx, ky;		/* indexes for coefficients of x and y */
 	int npix[2];		/* the size of the output image */
 	int status;
@@ -308,7 +306,7 @@ static int ReadCoefficients (TblInfo *tabinfo, int row,
 	   missing columns result in default values for coefficients.
 	*/
 
-	for (k = 0;  k < MAX_NCOEFF;  k++) {
+	for (int k = 0;   k < MAX_NCOEFF;   k++) {
 	    dist->xcoeff[k] = 0.;
 	    dist->ycoeff[k] = 0.;
 	}
@@ -367,11 +365,11 @@ static int ReadCoefficients (TblInfo *tabinfo, int row,
 
 	/* Get the coefficients. */
 
-	for (i = 0;  i <= dist->norder;  i++) {
+	for (int i = 0;   i <= dist->norder;   i++) {
 
-	    for (j = 0;  j <= i;  j++) {
+	    for (int j = 0;   j <= i;   j++) {
 
-		k = WHICH_COEFF (i, j);
+		int k = WHICH_COEFF (i, j);
 
 		/* CX coefficient for x coordinate. */
 

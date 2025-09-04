@@ -77,14 +77,12 @@ int main (int argc, char **argv) {
 	int verbose = 0;	/* print additional info? */
 	int center_target = 0;	/* center target in output image? */
 	int too_many = 0;	/* too many command-line arguments? */
-	int i, j;		/* loop indexes */
 	double blazeshift = NO_VALUE;
 
 	IRAFPointer i_imt, o_imt;	/* imt list pointers */
 	char *input;		/* name of input science file */
 	char *output;		/* optional name of output file */
 	int n_in, n_out;	/* number of files in each list */
-	int n;
 
 	/* Input and output suffixes. */
 	char *isuffix[] =
@@ -121,7 +119,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* Get command-line arguments. */
-	for (i = 1;  i < argc;  i++) {
+	for (int i = 1;   i < argc;   i++) {
 	    if (strcmp (argv[i], "-x2d") == 0 ||
 		strcmp (argv[i], "-geo") == 0) {
 		switch_on = 1;
@@ -161,7 +159,7 @@ int main (int argc, char **argv) {
 		    PrFullVersion();
 		    exit (0);
 		}
-		for (j = 1;  argv[i][j] != '\0';  j++) {
+		for (int j = 1;   argv[i][j] != '\0';   j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;
 		    } else if (argv[i][j] == 'v') {
@@ -221,11 +219,11 @@ int main (int argc, char **argv) {
 	trlGitInfo();
 
 	/* Loop over the list of input files. */
-	for (n = 0;  n < n_in;  n++) {
+	for (int n = 0;   n < n_in;   n++) {
 
-	    j = c_imtgetim (i_imt, input, STIS_LINE);
+	    c_imtgetim (i_imt, input, STIS_LINE);
 	    if (n_out > 0)
-		j = c_imtgetim (o_imt, output, STIS_LINE);
+		c_imtgetim (o_imt, output, STIS_LINE);
 	    else
 		output[0] = '\0';
 

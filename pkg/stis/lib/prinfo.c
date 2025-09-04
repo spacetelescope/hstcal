@@ -86,7 +86,6 @@ void PrFullVersion (void) {
 
 void PrVersion (void) {
 
-	int i;
 	int len;
 	char *vstring;
 
@@ -94,7 +93,7 @@ void PrVersion (void) {
 	vstring = (char *) calloc (len + 1, sizeof(char));
 	if (vstring == NULL)
 	    exit (OUT_OF_MEMORY);
-	for (i = 0;  i <= len;  i++) {
+	for (int i = 0;   i <= len;   i++) {
 	    if (STIS_CAL_VER[i] == ' ') {
 		vstring[i] = '\0';
 		break;
@@ -296,7 +295,7 @@ int maxch     i: allocated length of outstr (including EOS)
 	    return;
 	}
 
-	for (i = 0;  i < maxch-1;  i++) {
+	for (int i = 0;   i < maxch-1;   i++) {
 	    if (instr[i] == '\0')
 		break;
 	    else if (islower (instr[i]))
@@ -335,7 +334,7 @@ int maxch     i: allocated length of outstr (including EOS)
 		outstr[0] = toupper (instr[0]);
 	    else
 		outstr[0] = instr[0];
-	    for (i = 1;  i < maxch-1;  i++) {
+	    for (int i = 1;   i < maxch-1;   i++) {
 		if (instr[i] == '\0')
 		    break;
 		else if (isupper (instr[i]))

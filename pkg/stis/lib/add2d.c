@@ -21,7 +21,6 @@ SingleGroup *a   io: input data; output sum
 SingleGroup *b   i: second input data
 */
 
-	int i, j;
 	float da, db;		/* errors for a and b */
 	short dqa, dqb, dqab;	/* data quality for a, b, combined */
 
@@ -30,16 +29,16 @@ SingleGroup *b   i: second input data
 	    return (SIZE_MISMATCH);
 
 	/* science data */
-	for (j = 0;  j < a->sci.data.ny;  j++) {
-	    for (i = 0;  i < a->sci.data.nx;  i++) {
+	for (int j = 0;   j < a->sci.data.ny;   j++) {
+	    for (int i = 0;   i < a->sci.data.nx;   i++) {
 		Pix (a->sci.data, i, j) =
 			Pix (a->sci.data, i, j) + Pix (b->sci.data, i, j);
 	    }
 	}
 
 	/* error array */
-	for (j = 0;  j < a->err.data.ny;  j++) {
-	    for (i = 0;  i < a->err.data.nx;  i++) {
+	for (int j = 0;   j < a->err.data.ny;   j++) {
+	    for (int i = 0;   i < a->err.data.nx;   i++) {
 		da = Pix (a->err.data, i, j);
 		db = Pix (b->err.data, i, j);
 		Pix (a->err.data, i, j) = sqrt (da * da + db * db);
@@ -47,8 +46,8 @@ SingleGroup *b   i: second input data
 	}
 
 	/* data quality */
-	for (j = 0;  j < a->dq.data.ny;  j++) {
-	    for (i = 0;  i < a->dq.data.nx;  i++) {
+	for (int j = 0;   j < a->dq.data.ny;   j++) {
+	    for (int i = 0;   i < a->dq.data.nx;   i++) {
 		dqa = DQPix (a->dq.data, i, j);
 		dqb = DQPix (b->dq.data, i, j);
 		dqab = dqa | dqb;

@@ -25,12 +25,11 @@ Hdr *phdr       io: pointer to header; FILENAME will be updated
 	int ch;			/* one character in filename */
 	int namelen;		/* length of filename */
 	int start = 0;		/* start of file name */
-	int i;
 
 	namelen = strlen (filename);
 
 	/* If there's a directory prefix, skip over it. */
-	for (i = 0;  i < namelen;  i++) {
+	for (int i = 0;   i < namelen;   i++) {
 	    ch = filename[i];
 	    if (isalnum(ch) || ch == '_' || ch == '.')
 		continue;		/* ordinary character */

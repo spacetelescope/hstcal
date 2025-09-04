@@ -107,7 +107,6 @@ int warn	i: warning message control
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = -1;	/* status of found entry */
 	int mheight;		/* the height to look for */
 	int mindist;		/* minimum distance in set of matching rows */
@@ -141,7 +140,7 @@ int warn	i: warning message control
 	   the arrays of wavelength and throughput if there's a match.
 	*/
 	mindist = 2000;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadPCTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -362,13 +361,11 @@ static int ClosePCTab (TblInfo *tabinfo) {
 
 static int PCDummy (PhotInfo *phot) {
 
-	int i;
-
 	phot->pcorr = malloc (phot->nelem * sizeof(double));
 	if (phot->pcorr == NULL)
 	    return (OUT_OF_MEMORY);
 
-	for (i = 0;  i < phot->nelem;  phot->pcorr[i++] = 1.);
+	for (int i = 0;   i < phot->nelem;   phot->pcorr[i++] = 1.);
 
 	return (0);
 }

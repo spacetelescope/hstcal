@@ -39,7 +39,6 @@ double *shift      o: pixel shift from tspec to v
 	int i;
 	double peak;		/* index of peak in xc */
 	int middle;		/* index of xc corresponding to zero shift */
-	int ii;			/* loop index for writing to debug file */
 
 	int PeakQuad3 (double *, double *);
 
@@ -57,7 +56,7 @@ double *shift      o: pixel shift from tspec to v
 	/* Find the peak in the cross correlation.  First find max. */
 	imax = 0;				/* initial values */
 	maxval = xc[0];
-	for (i = 1;  i < range;  i++) {
+	for (int i = 1;   i < range;   i++) {
 	    if (xc[i] > maxval) {
 		imax = i;
 		maxval = xc[i];
@@ -99,7 +98,7 @@ double *shift      o: pixel shift from tspec to v
 	if (sts->dbg != NULL) {
 	    fprintf (sts->dbg, "\n");
 	    fprintf (sts->dbg, "# (XCPeak) cross correlation:\n");
-	    for (ii = 0;  ii < range;  ii++) {
+	    for (int ii = 0;   ii < range;   ii++) {
 		fprintf (sts->dbg, "%.6g", xc[ii]);
 		if (ii == middle)
 		    fprintf (sts->dbg, " <-- nominal peak is here");
@@ -152,7 +151,6 @@ int range          i: size of xc (must be odd)
 	int skip;		/* skip this many at beginning and end */
 	double sum;		/* sum of products */
 	int ngood;		/* number of pixels not flagged as bad */
-	int i, j;
 
 	if (range < 3 ||
 	    range / 2 * 2 == range ||
@@ -167,7 +165,7 @@ int range          i: size of xc (must be odd)
 	if ((tx = (double *) calloc (nv, sizeof (double))) == NULL)
 	    return (OUT_OF_MEMORY);
 	ngood = 0;
-	for (i = skip;  i < nv-skip;  i++) {
+	for (int i = skip;   i < nv-skip;   i++) {
 	    if ( ! (qx[i] & sdqflags) ) {
 		tx[i] = x[i];
 		ngood++;
@@ -179,9 +177,9 @@ int range          i: size of xc (must be odd)
 	}
 
 	/* Do the cross correlation. */
-	for (j = 0;  j < range;  j++) {
+	for (int j = 0;   j < range;   j++) {
 	    sum = 0.;
-	    for (i = skip;  i < nv-skip;  i++)
+	    for (int i = skip;   i < nv-skip;   i++)
 		sum += tx[i] * y[i+skip-j];
 	    xc[j] = sum;
 	}

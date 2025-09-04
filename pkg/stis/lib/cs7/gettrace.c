@@ -98,7 +98,6 @@ SpTrace **trace   o: size and coordinate info for output
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int CheckTrace (SpTrace **);
 	void FreeTrace (SpTrace **);
 
@@ -106,7 +105,7 @@ SpTrace **trace   o: size and coordinate info for output
 	if ((status = OpenTraceTab (sts->sptrctab.name, &tabinfo)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadTraceTab (&tabinfo, row, &tabrow)))
 		return (status);

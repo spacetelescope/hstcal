@@ -31,7 +31,7 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	float	hwidth;		/* histogram resolution */
 	float	hmin;		/* minimum histogram value */
 	float	sum;
-	int	i, j, k, h;
+	int	h;
 	short	OK = 0;
 	FloatTwoDArray	a;
 	ShortTwoDArray	b;
@@ -42,7 +42,7 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 
 	/* decide what to do according to sky */
 	if (strcmp (sky, "none") == 0) {
-	    for (k = 0; k < nimgs; ++k) {
+	    for (int k = 0;  k < nimgs;  ++k) {
 	        skyval[k] = 0.;
 	    }
 	    return (0);
@@ -56,7 +56,7 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	initFloatData (&a);
 	initShortData (&b);
 
-	for (k = 0; k < nimgs; ++k) {
+	for (int k = 0;  k < nimgs;  ++k) {
 
 	    /* read the data in */
 	    getFloatData (ipsci[k], &a);
@@ -73,8 +73,8 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    amin = 0.;
 	    npt = 0;
 	    sum = 0;
-	    for (j = 0; j < a.ny; ++j) {
-	        for (i = 0; i < a.nx; ++i) {
+	    for (int j = 0;  j < a.ny;  ++j) {
+	        for (int i = 0;  i < a.nx;  ++i) {
 		    if (DQPix(b,i,j) == OK) {
 		    	sum += Pix(a,i,j);
 			npt++;
@@ -109,8 +109,8 @@ int crrej_sky (char *sky, IODescPtr ipsci[], IODescPtr ipdq[],
 	    }
 
 	    /* construct the histogram */
-	    for (j = 0; j < a.ny; ++j) {
-	        for (i = 0; i < a.nx; ++i) {
+	    for (int j = 0;  j < a.ny;  ++j) {
+	        for (int i = 0;  i < a.nx;  ++i) {
 		    if (DQPix(b,i,j) == OK) {
 		    	h = (int) Pix(a,i,j) - min;
 			if (h >= 0 && h < nbins)

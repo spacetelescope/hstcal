@@ -38,7 +38,6 @@ SingleGroupLine *b    o: output data
 
 	double block[2];	/* number of input pixels for one output */
 	double offset[2];	/* offset of binned image */
-	float weight;		/* binx * biny (or sqrt for errors) */
 	/*float sum;*/		/* for summing data values */
 	/*float sum_err;*/		/* for summing error array */
 	/*short sum_dq;*/		/* for ORing data quality array */
@@ -51,7 +50,6 @@ SingleGroupLine *b    o: output data
 
 	/* Initialize internal variables... */
 	nx = b->sci.tot_nx;
-	weight = binx;
 	block[0] = binx;
 	block[1] = 1;
 	offset[0] = xstart;

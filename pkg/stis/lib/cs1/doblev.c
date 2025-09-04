@@ -84,7 +84,6 @@ int *driftcorr    o: true means correction for drift along lines was applied
 	int trimy1, trimy2;	/* amount to trim off ends of each column */
 	int biassect[2];	/* section to use for finding bias level */
 	int vx[2], vy[2];	/* location of virtual overscan region */
-	int i, j;
 	int avg = 0;		/* used by bin2d, but not signficant */
 	FILE *ofp;		/* output file fp for bias levels */
 
@@ -125,8 +124,8 @@ int *driftcorr    o: true means correction for drift along lines was applied
 	    trlwarn("Image size is too small to do BLEVCORR;");
 	    trlwarn("bias from CCDTAB will be subtracted.");
 	    biaslevel = sts->ccdbias;
-	    for (j = 0;  j < in->sci.data.ny;  j++) {
-		for (i = 0;  i < in->sci.data.nx;  i++)
+	    for (int j = 0;   j < in->sci.data.ny;   j++) {
+		for (int i = 0;   i < in->sci.data.nx;   i++)
 		    Pix (in->sci.data,i,j) = Pix (in->sci.data,i,j) - biaslevel;
 	    }
 	    *meanblev = biaslevel;
@@ -172,11 +171,11 @@ int *driftcorr    o: true means correction for drift along lines was applied
 
 	/* Evaluate the fit for each line, and subtract from the data. */
 	averagedrift = DriftMean (out->sci.data.nx);
-	for (j = 0;  j < out->sci.data.ny;  j++) {
+	for (int j = 0;   j < out->sci.data.ny;   j++) {
 	    biaslevel = BlevEval (j);
 	    /* bias for current line plus average drift (constant) */
 	    sumbias += (biaslevel + averagedrift);
-	    for (i = 0;  i < out->sci.data.nx;  i++)
+	    for (int i = 0;   i < out->sci.data.nx;   i++)
 		Pix (out->sci.data,i,j) =
 			Pix (out->sci.data,i,j) - biaslevel - DriftEval (i);
 	    if (ofp != NULL)
@@ -261,7 +260,6 @@ double ccdbias    i: bias level to subtract if we can't get it from overscan
 	double biaslevel;	/* bias level in one line of input image */
 	int too_few = 0;	/* number of lines with too few good pixels */
 	int npix;		/* number of pixels used to compute bias */
-	int j;
 	void BlevInit (int);
 	void BlevAccum (int, double);
 	int BlevFit (void);
@@ -275,7 +273,7 @@ double ccdbias    i: bias level to subtract if we can't get it from overscan
 	   The argument j+trimy1 to FindBlev is the line number in the
 	   input image x, with trimy1 the offset to the illuminated region.
 	*/
-	for (j = 0;  j < ny;  j++) {
+	for (int j = 0;   j < ny;   j++) {
 	    if (FindBlev (x, sdqflags, j+trimy1, biassect, &biaslevel, &npix)) {
 		too_few++;			/* not fatal */
 	    } else {

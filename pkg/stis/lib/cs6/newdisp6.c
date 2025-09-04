@@ -188,7 +188,6 @@ DispRelation **output o: the dispersion relation interpolated to a2center
 
 	DispRelation *current, *next;
 	double p;
-	int i;
 	int done;
 
 	current = *disp;
@@ -230,11 +229,11 @@ DispRelation **output o: the dispersion relation interpolated to a2center
 
 		(*output)->a2center = a2center;
 		(*output)->ncoeff = MAX (current->ncoeff, next->ncoeff);
-		for (i = 0;  i < (*output)->ncoeff;  i++) {
+		for (int i = 0;   i < (*output)->ncoeff;   i++) {
 		    (*output)->coeff[i] =
 			(1. - p) * current->coeff[i] + p * next->coeff[i];
 		}
-		for (i = (*output)->ncoeff;  i < MAX_DISP_COEFF;  i++)
+		for (int i = (*output)->ncoeff;   i < MAX_DISP_COEFF;   i++)
 		    (*output)->coeff[i] = 0.;
 		strcpy ((*output)->ref_aper, current->ref_aper);
 		(*output)->next = NULL;
@@ -265,13 +264,11 @@ DispRelation *current   i: the current DispRelation record
 DispRelation *output    o: receives a copy of current
 */
 
-	int i;
-
 	output->a2center = current->a2center;
 	output->ncoeff = current->ncoeff;
-	for (i = 0;  i < current->ncoeff;  i++)
+	for (int i = 0;   i < current->ncoeff;   i++)
 	    output->coeff[i] = current->coeff[i];
-	for (i = current->ncoeff;  i < MAX_DISP_COEFF;  i++)
+	for (int i = current->ncoeff;   i < MAX_DISP_COEFF;   i++)
 	    output->coeff[i] = 0.;
 	strcpy (output->ref_aper, current->ref_aper);
 	output->next = NULL;

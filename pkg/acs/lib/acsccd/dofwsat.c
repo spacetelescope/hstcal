@@ -39,7 +39,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 
     extern int status;
 
-    SingleGroupLine y, z;	/* y and z are scratch space */
+    SingleGroupLine y;	/* y and z are scratch space */
     SingleGroup satimage;   /* storage for entire saturation image */
     int extver = 1;			/* get this imset from bias image */
     int rx, ry;				/* for binning bias image down to size of x */
@@ -48,7 +48,6 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     int avg = 0;			/* bin2d should sum within each bin */
     int xdim;
     int ydim;				/* number of lines in science image */
-    int i, j, k;
 	short sum_dq;
     int xbeg, ybeg;			/* Beginning pixels for saturation image overlay */
     int xend, yend;			/* Beginning pixels for saturation image overlay */
@@ -106,10 +105,10 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 
     /* Get the bin factor and "corner" (xpixel and ypixel) where science data actually
        begins (versus overscan) in the science and the saturation image data */
-	if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
-	    return (status);
-	if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner))
-	    return (status);
+    if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+        return (status);
+    if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner))
+        return (status);
 
     /* Clean up the SingleGroupLine object */
     closeSingleGroupLine (&y);
@@ -137,18 +136,16 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         yend = ybeg + ydim;
 
         /* Loop over the lines in the science image, excluding the overscan lines */
-        {unsigned int  j;
-        for (j = ybeg; j < yend; j++) {
-            {unsigned int  i;
-            for (i = xbeg;  i < xend;  i++) {
+        for (size_t j = ybeg; j < yend; j++) {
+            for (size_t i = xbeg;  i < xend;  i++) {
 
                 /* Flag full-well saturated pixels with 256 dq bit*/
 		        if (Pix (x->sci.data, i, j) > Pix(satimage.sci.data, i, j)) {
 			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix (x->dq.data, i, j, sum_dq);
                 }
-            }}
-        }}
+            }
+        }
         trlmessage("Full-frame full-well saturation image flagging step done.");
     } else {  /* subarray */
         trlmessage("Subarray full-well saturation image flagging step being performed.");
@@ -164,23 +161,21 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
            k - index for line in reference image
            y0 - line in reference image corresponding to line in input image
         */
-        {unsigned int j, k;
-        for (j = 0, k = y0; j < ydim; j++, k++) {
+        for (size_t j = 0, k = y0; j < ydim; j++, k++) {
 
             /*
                Working with a sub-array so need to apply the proper
                section from the reference image to the science image.
             */
 
-            {unsigned int i, l;
-            for (i = 0, l = x0; i < xdim; i++, l++) {
+            for (size_t i = 0, l = x0; i < xdim; i++, l++) {
                 /* Flag full-well saturated pixels with 256 dq bit*/
 		        if (Pix (x->sci.data, i, j) > Pix(satimage.sci.data, l, k)) {
 			        sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix (x->dq.data, i, j, sum_dq);
 		        }
-            }}
-        }}
+            }
+        }
         trlmessage("Subarray full-well saturation image flagging step done.");
     }
 

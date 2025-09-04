@@ -69,7 +69,7 @@ void SetRanges (StisInfo6 *sts, RowContents *row) {
 	        }
 
 	        /* Set all flags in range. */
-	        for (i = index1-1; i < index2; i++) {
+	        for (int i = index1-1;  i < index2;  i++) {
 	        /*  if (i >= 1 && i <= row->npts)  not required anymore */
 	                sts->profile_rej[i-1] = 1;
 	        }
@@ -96,10 +96,10 @@ void SetRanges (StisInfo6 *sts, RowContents *row) {
 
 static void RemoveBlanks (char *in, char *out) {
 
-	int i, k;
+	int k;
 
 	k = 0;
-	for (i = 0; i < strlen (in); i++) {
+	for (int i = 0;  i < (int)strlen(in);  i++) {
 	    if (in[i] != ' ')
 	        out[k++] = in[i];
 	}

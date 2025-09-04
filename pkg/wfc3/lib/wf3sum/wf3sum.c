@@ -650,11 +650,12 @@ static void InitSumTrl (char *input, char *output) {
 		 trlerror("Error with input trailer filename %s", out_name);
 		 WhichError (status);
 	     }
-		
-	     if ((strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
+
+ 	     int len = (int)(strlen(out_name) + strlen(trl_in));
+	     if (len + 1 >= trl_len) {
 	     /* Add 1 to out_name to account for comma to be appended */
-		 trl_len += strlen(out_name) + 1;
-		 trl_in = realloc (trl_in, trl_len);
+		 trl_len += (int)strlen(out_name) + 1;
+		 trl_in = realloc(trl_in, trl_len);
 	     }
 
 	     /* Append each filename to create list of input trailer files */

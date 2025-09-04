@@ -147,7 +147,7 @@ SingleGroup *x    io: image to be calibrated; primary header is modified
 
 static int removeA2D (char *photmode, char *tempphot) {
 
-	int i, j, k, n, len;
+	int i, j, k, len;
 	int foundit;		/* found "A2D"? */
 	int found_space;	/* found a space following "A2D<digit>"? */
 
@@ -156,36 +156,36 @@ static int removeA2D (char *photmode, char *tempphot) {
 	j = len;
 	k = len;
 	foundit = 0;
-	for (n = 0;  n < len-2;  n++) {
+	for (int n = 0;   n < len-2;   n++) {
 	    if (toupper(photmode[n])   == 'A' &&
 		photmode[n+1]          == '2' &&
 		toupper(photmode[n+2]) == 'D') {
 		foundit = 1;
 		/* look for a space following "A2D" and digit(s) */
 		found_space = 0;
-		for (k = n + 3;  k < len;  k++) {
+		for (int k = n + 3;   k < len;   k++) {
 		    if (photmode[k] == ' ') {
 			found_space = 1;
 			break;
 		    }
 		}
-		if (n == 0) {
-		    j = 0;
-		    k++;		/* start copying past the space */
-		} else if (found_space) {
-		    j = n - 1;		/* skip the previous space */
-		} else {
-		    j = n - 1;
-		}
+        if (n == 0) {
+            j = 0;
+            k++; /* start copying past the space */
+        } else if (found_space) {
+            j = n - 1; /* skip the previous space */
+        } else {
+            j = n - 1;
+        }
 	   }
 	}
 
 	i = 0;
-	for (n = 0;  n < j;  n++) {
+	for (int n = 0;   n < j;   n++) {
 	    tempphot[i] = photmode[n];
 	    i++;
 	}
-	for (n = k;  n < len;  n++) {
+	for (int n = k;   n < len;   n++) {
 	    tempphot[i] = photmode[n];
 	    i++;
 	}
@@ -228,11 +228,11 @@ factor                  divide photflam by this factor
 static void Phot2Obs (char *photmode, char *obsmode) {
 
 	char blank = ' ', comma = ',';
-	int i, len, c1;
+	int len, c1;
 
 	len = strlen(photmode);
 
-	for (i=0;  i < len;  i++) {
+	for (int i=0;   i < len;   i++) {
 	    c1 = photmode[i];
 	    if (c1 == blank) {
 		obsmode[i] = comma;

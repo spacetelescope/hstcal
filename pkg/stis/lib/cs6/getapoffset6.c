@@ -73,7 +73,6 @@ double *delta    o: offset in dispersion direction, arcseconds
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* number of rows, and loop index */
 	int pedigree;		/* for selected row */
 	int foundit = 0;	/* true if aperture found in table */
 
@@ -83,7 +82,7 @@ double *delta    o: offset in dispersion direction, arcseconds
 
 	/* Check each row for a match with ref_aper. */
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadApTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -178,7 +177,7 @@ static int CheckPedigree (TblInfo *tabinfo, int row, int *pedigree) {
 
 	char *str_pedigree;
 
-	if (tabinfo->cp_pedigree > 0) {
+	if (tabinfo->cp_pedigree != NULL) {
 
 	    if ((str_pedigree = (char *) calloc (STIS_LINE+1,
                                          sizeof(char))) == NULL) {

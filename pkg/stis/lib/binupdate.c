@@ -43,7 +43,7 @@ double crpix[2]         io: reference pixel
 	   of the image with smaller pixels.  So we need a local variable
 	   for a copy of offset, possibly scaled by bin.
 	*/
-	double off[2];
+	double off[2]; // TODO: never used
 
 	if (block[0] == 0. || block[1] == 0.) {
 	    trlerror("(binupdate) block size of zero");

@@ -103,7 +103,6 @@ CTICorrInfo *cti   io: CTI correction constants
     TblInfo tabinfo;	        /* pointer to table descriptor, etc */
     TblRow tabrow;		/* values read from a table row */
 
-    int row;		        /* loop index */
     int foundit;		/* has the correct row been found? */
 
     /* Open the CCD parameters table and find columns. */
@@ -115,7 +114,7 @@ CTICorrInfo *cti   io: CTI correction constants
     */
 
     foundit = 0;
-    for (row = 1; row <= tabinfo.nrows; row++) {
+    for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
         /* Read the current row into tabrow. */
         if ((status = ReadCCDTab6(&tabinfo, row, &tabrow)))
@@ -282,7 +281,7 @@ static int ReadCCDTab6(TblInfo *tabinfo, int row, TblRow *tabrow)
     if (c_iraferr())
         return (TABLE_ERROR);
 
-    if (tabinfo->cp_halofac > 0) {
+    if (tabinfo->cp_halofac != NULL) {
         c_tbegtr(tabinfo->tp, tabinfo->cp_halofac, row, &tabrow->halofac);
         if (c_iraferr())
             return (TABLE_ERROR);
@@ -290,7 +289,7 @@ static int ReadCCDTab6(TblInfo *tabinfo, int row, TblRow *tabrow)
         tabrow->halofac = 0.;
     }
 
-    if (tabinfo->cp_halominfrac > 0) {
+    if (tabinfo->cp_halominfrac != NULL) {
         c_tbegtr(tabinfo->tp, tabinfo->cp_halominfrac, row,
 			&tabrow->halominfrac);
         if (c_iraferr())

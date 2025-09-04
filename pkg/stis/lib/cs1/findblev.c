@@ -27,7 +27,6 @@ int *npix           o: number of pixels used to compute bias level
 
 	double *over;	/* values extracted from overscan region */
 	int nvals;	/* number of good pixels extracted from overscan */
-	int i;
 	int inplace = 1;	/* sort the array in-place */
 
 	/* Allocate space for the overscan, and copy out good data. */
@@ -35,7 +34,7 @@ int *npix           o: number of pixels used to compute bias level
 	over = calloc (biassect[1]-biassect[0]+1, sizeof (double));
 
 	nvals = 0;
-	for (i = biassect[0];  i <= biassect[1];  i++) {
+	for (int i = biassect[0];   i <= biassect[1];   i++) {
 	    if (!(sdqflags & DQPix (x->dq.data, i, j))) {
 		over[nvals] = Pix (x->sci.data, i, j);
 		nvals++;

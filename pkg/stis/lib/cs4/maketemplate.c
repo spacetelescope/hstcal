@@ -62,15 +62,14 @@ int writedebug      i: if true, a debug image could be written
 
 	SpTrace *trace_o;	/* spectral trace for current spectral order */
 	double slitwidth[2];	/* aperture size in image pixels */
-	int i, j;
 	int status;
 
 	/* Read the aperture size and convert to pixels. */
 	ReadWidth (sts, slitwidth);
 
 	/* Initialize the template image to zero. */
-	for (j = 0;  j < clamp->ny;  j++) {
-	    for (i = 0;  i < clamp->nx;  i++) {
+	for (int j = 0;   j < clamp->ny;   j++) {
+	    for (int i = 0;   i < clamp->nx;   i++) {
 		RPIX2D (clamp, i, j) = 0.F;
 		IPIX2D (clamp, i, j) = 0.F;
 	    }
@@ -147,7 +146,7 @@ CmplxArray *clamp   o: 2-D complex array, values will be assigned
 	/* Add the convolved, integrated template spectrum to the
 	   template image.
 	*/
-	for (i = 0;  i < sts->nx;  i++) {
+	for (int i = 0;   i < sts->nx;   i++) {
 
 	    x_ref = (i - sts->ltv[0]) / sts->ltm[0];
 	    ix_ref = NINT (x_ref);
@@ -169,7 +168,7 @@ CmplxArray *clamp   o: 2-D complex array, values will be assigned
 	    if (y_high >= sts->ny)
 		y_high = sts->ny - 1;
 
-	    for (j = y_low;  j <= y_high;  j++) {
+	    for (int j = y_low;   j <= y_high;   j++) {
 		if (sts->slit_angle == 0.) {
 		    RPIX2D (clamp, i, j) += tspec[i];
 		} else {
@@ -227,13 +226,12 @@ double slitwidth[]  o: slit width and height, in image pixels
 static void debugimg (char *dbgfile, CmplxArray *z) {
 
 	SciHdrData x;
-	int i, j;
 
 	initFloatHdrData (&x);
 	allocFloatHdrData (&x, z->nx, z->ny, True);
 
-	for (j = 0;  j < z->ny;  j++) {
-	    for (i = 0;  i < z->nx;  i++)
+	for (int j = 0;   j < z->ny;   j++) {
+	    for (int i = 0;   i < z->nx;   i++)
 		Pix (x.data, i, j) = RPIX2D (z, i, j);
 	}
 
@@ -277,7 +275,6 @@ int nwl             i: size of tspec array
 	   wl_left, wl_right */
 	int jl, jr;
 
-	int i, j;
 	void FindWL (double, double [], int, int *);
 
 	m = (double)sporder;
@@ -292,7 +289,7 @@ int nwl             i: size of tspec array
 	FindWL (wl_left, wl, nelem, &jl);
 	jr = jl;				/* updated in loop */
 
-	for (i = 0;  i < nwl;  i++) {
+	for (int i = 0;   i < nwl;   i++) {
 
 	    wl_right = PixToWl (disp, m, i + 0.5, wl_estimate, ltm, ltv);
 	    wl_estimate = wl_right;
@@ -309,7 +306,7 @@ int nwl             i: size of tspec array
 		    tspec[i] = flux[jl] * (wl_right - wl_left);
 		} else {
 		    tspec[i] = flux[jl] * (wl[jl+1] - wl_left);
-		    for (j = jl+1;  j < jr;  j++)
+		    for (int j = jl+1;   j < jr;   j++)
 			tspec[i] += flux[j] * (wl[j+1] - wl[j]);
 		    tspec[i] += flux[jr] * (wl_right - wl[jr]);
 		}

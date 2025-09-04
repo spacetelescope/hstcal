@@ -616,12 +616,11 @@ static void top2bottomFlip(FloatTwoDArray * amp)
 #ifdef _OPENMP
         #pragma omp barrier
 #endif
-        if (!allocationFail)
-        {
+        if (!allocationFail) {
             {   unsigned i;
-#ifdef _OPENMP
+                #ifdef _OPENMP
                 #pragma omp for schedule(static)
-#endif
+                #endif
                 for (i = 0; i < nRows/2; ++i)
                 {
                     float * topRow = amp->data + i*nColumns;
@@ -631,12 +630,10 @@ static void top2bottomFlip(FloatTwoDArray * amp)
                     memcpy(bottomRow, tempRow, rowSize);
                 }
             }
+        } else {
+            trlerror("Out of memory for 'tempRow' in 'alignAmpData'");
         }
         if (tempRow)
             free(tempRow);
     }//close parallel block
-    if (allocationFail)
-    {
-        trlerror("Out of memory for 'tempRow' in 'alignAmpData'");
-    }
 }

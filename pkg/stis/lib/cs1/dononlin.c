@@ -63,7 +63,6 @@ int *lsat         o: > 0 if locally saturated pixels found
 
 	double local_limit;	/* max local rate * exposure time */
 	double ratio;		/* ratio of true to observed count rate */
-	int i, j;
 
 	/* Assign initial values. */
 	*gsat = 0;
@@ -109,8 +108,8 @@ int *lsat         o: > 0 if locally saturated pixels found
 	    local_limit *= (float)(sts->bin[0] * sts->bin[1]) / 4.;
 
 	    /* If a value is nonlinear, flag it as well as pixels near it. */
-	    for (j = 0;  j < x->sci.data.ny;  j++) {
-		for (i = 0;  i < x->sci.data.nx;  i++) {
+	    for (int j = 0;   j < x->sci.data.ny;   j++) {
+		for (int i = 0;   i < x->sci.data.nx;   i++) {
 		    if (Pix(x->sci.data,i,j) > local_limit) {
 			ExpandDQ (x, sts->expand, sts->bin, i, j);
 			(*lsat)++;
@@ -135,11 +134,10 @@ double exptime    i: exposure time
 */
 
 	double sum;		/* the sum of all pixel values in the image */
-	int i, j;
 
 	sum = 0.;
-	for (j = 0;  j < x->sci.data.ny;  j++) {
-	    for (i = 0;  i < x->sci.data.nx;  i++) {
+	for (int j = 0;   j < x->sci.data.ny;   j++) {
+	    for (int i = 0;   i < x->sci.data.nx;   i++) {
 		sum += Pix(x->sci.data, i, j);
 	    }
 	}
@@ -206,7 +204,6 @@ int i0, j0          i: center pixel of region to flag
 	int iexpand;			/* expand rounded up */
 	float radius2;			/* expand squared */
 	int dx, dy;			/* offsets from (i0,j0) */
-	int i, j;
 
 	if (i0 < 0 || i0 >= x->dq.data.nx || j0 < 0 || j0 >= x->dq.data.ny) {
 	    trlwarn("(ExpandDQ) (%d,%d) is out of range.", i0, j0);
@@ -245,9 +242,9 @@ int i0, j0          i: center pixel of region to flag
 	    jhigh = x->dq.data.ny - 1;
 
 	/* Flag pixels within expand high-res pixels of (i0,j0). */
-	for (j = jlow;  j <= jhigh;  j++) {
+	for (int j = jlow;   j <= jhigh;   j++) {
 	    dy = j - j0;
-	    for (i = ilow;  i <= ihigh;  i++) {
+	    for (int i = ilow;   i <= ihigh;   i++) {
 		dx = i - i0;
 		if ((float)(dx * dx * binx2 + dy * dy * biny2) <= radius2) {
 		    dq = SATPIXEL | DQPix(x->dq.data,i,j);

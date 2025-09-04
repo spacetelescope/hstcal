@@ -183,7 +183,6 @@ double *factor          o: NUV correction factor for dark image
 	double ta;
 	double tb;
 	double tc;
-	int row;			/* loop index for row number */
 	int read_this_row = -1;		/* number of row of table to read */
 	double min_date0 = 0.;		/* min value of data0 */
 	double best_date0 = 0.;		/* date0 in row to use */
@@ -223,7 +222,7 @@ double *factor          o: NUV correction factor for dark image
 	}
 
 	/* Find the minimum value in the DATE0 column. */
-	for (row = 1;  row <= nrows;  row++) { /* row number is one-indexed */
+	for (int row = 1;   row <= nrows;   row++) { /* row number is one-indexed */
 	    c_tbegtd(tp, cp_date0, row, &date0);
 	    if (c_iraferr()) {
 		c_tbtclo(tp);
@@ -245,7 +244,7 @@ double *factor          o: NUV correction factor for dark image
 	   the exposure start time.
 	*/
 	best_date0 = min_date0;			/* initial value */
-	for (row = 1;  row <= nrows;  row++) {
+	for (int row = 1;   row <= nrows;   row++) {
 	    c_tbegtd(tp, cp_date0, row, &date0);
 	    if (c_iraferr()) {
 		c_tbtclo(tp);
@@ -365,7 +364,6 @@ double *factor          o: NUV correction factor for dark image
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int nrows;		/* # of rows */
 
 	double* mjd;		/* values from table are stored here   */
@@ -403,7 +401,7 @@ double *factor          o: NUV correction factor for dark image
 
 	/* Read rows into arrays. */
 
-	for (row = 1; row <= tabinfo.nrows; row++) {
+	for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
 	    if ((status = ReadTdcTab (&tabinfo, row, &tabrow)))
 		return status;

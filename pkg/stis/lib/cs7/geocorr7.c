@@ -76,7 +76,6 @@ SingleGroup *out           o: output data
 	double ox, oy;		/* pixel coordinates in output image */
 	double crpix[2];	/* corrected for distortion */
 
-	int i, j;		/* pixel coordinates in output array */
 	double jacobian;	/* for conserving flux */
 	short dq;		/* an interpolated data quality value */
 	short sdqflags;		/* local value, set to zero */
@@ -84,8 +83,8 @@ SingleGroup *out           o: output data
 	jacobian = 1.;		/* do not conserve flux */
 
 	/* Fill each pixel of the output array. */
-	for (j = 0;  j < out->sci.data.ny;  j++) {
-	    for (i = 0;  i < out->sci.data.nx;  i++) {
+	for (int j = 0;   j < out->sci.data.ny;   j++) {
+	    for (int i = 0;   i < out->sci.data.nx;   i++) {
 
 		ox = (double) i;
 		oy = (double) j;
@@ -195,7 +194,6 @@ double *ix, *iy   o: pixel coordinates (reference pixels), distorted
 
 	double x, y;		/* difference from reference pixel */
 	double xpow[MAX_ORDER+1], ypow[MAX_ORDER+1];
-	int i, j, k;
 
 	/* Subtract the reference point, and scale to arcseconds. */
 	x = (ox - dist->cxref) * dist->scale;
@@ -204,7 +202,7 @@ double *ix, *iy   o: pixel coordinates (reference pixels), distorted
 	/* set up arrays of powers of x and y */
 	xpow[0] = 1.;
 	ypow[0] = 1.;
-	for (i = 1;  i <= dist->norder;  i++) {
+	for (int i = 1;   i <= dist->norder;   i++) {
 	    xpow[i] = xpow[i-1] * x;
 	    ypow[i] = ypow[i-1] * y;
 	}
@@ -216,11 +214,11 @@ double *ix, *iy   o: pixel coordinates (reference pixels), distorted
 	*ix = dist->xref;
 	*iy = dist->yref;
 
-	for (i = 0;  i <= dist->norder;  i++) {
+	for (int i = 0;   i <= dist->norder;   i++) {
 
-	    for (j = 0;  j <= i;  j++) {
+	    for (int j = 0;   j <= i;   j++) {
 
-		k = WHICH_COEFF (i, j);
+		int k = WHICH_COEFF (i, j);
 
 		*ix += dist->xcoeff[k] * xpow[j] * ypow[i-j];
 		*iy += dist->ycoeff[k] * xpow[j] * ypow[i-j];

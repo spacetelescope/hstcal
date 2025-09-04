@@ -72,7 +72,6 @@ double *shift       o: the shift, in pixels
 	short *qv;		/* data quality for v */
 	int nv;			/* length of cross dispersion axis */
 	int slittype;		/* code for type of slit */
-	int i, j;		/* loop indexes */
 	int ifirst, ilast;	/* loop limits for summing in first axis */
 	int jfirst, jlast;	/* loop limits in second axis */
 	short flagval;		/* data quality flag for a pixel */
@@ -127,10 +126,10 @@ double *shift       o: the shift, in pixels
 
 	} else {		/* already 2-D rectified data */
 
-	    for (j = jfirst;  j <= jlast;  j++) {	/* loop over rows */
+	    for (int j = jfirst;   j <= jlast;   j++) {	/* loop over rows */
 
 		sumw = 0.;
-		for (i = ifirst;  i <= ilast;  i++) {	/* sum current row */
+		for (int i = ifirst;   i <= ilast;   i++) {	/* sum current row */
 		    flagval = DQPix (in->dq.data, i, j);
 		    if ( ! (flagval & sts->sdqflags) ) {
 			v[j] += Pix (in->sci.data, i, j) * specweight[i];
@@ -143,9 +142,9 @@ double *shift       o: the shift, in pixels
 		    qv[j] = sts->sdqflags;	/* this row is all bad */
 	    }
 	}
-	for (j = 0;  j < jfirst;  j++)
+	for (int j = 0;   j < jfirst;   j++)
 	    qv[j] = sts->sdqflags;
-	for (j = jlast + 1;  j < nv;  j++)
+	for (int j = jlast + 1;   j < nv;   j++)
 	    qv[j] = sts->sdqflags;
 
 	/* Now we have the data in v, its flags in qv, and the 1-D
@@ -169,7 +168,7 @@ double *shift       o: the shift, in pixels
 	    if (slittype != LONG_SLIT) {
 		fprintf (sts->dbg,
 		"# (SpatialShift) pixel, slit illumination, DQ:\n");
-		for (i = 0;  i < nv;  i++)
+		for (int i = 0;   i < nv;   i++)
 		    fprintf (sts->dbg, "%d %.6g %d\n", i + 1, v[i], qv[i]);
 	    }
 	}
@@ -211,7 +210,6 @@ static int CollapsePrism (SpTrace *trace, SingleGroup *in,
 
 	SpTrace *trace_y;	/* spectrum trace interpolated at y */
 	double ydispl;		/* offset of spectrum in y direction */
-	int i, j;		/* loop indexes */
 	double x, y;		/* i & j in reference pixels */
 	int i_r;		/* nearest int to x */
 	double y_im;		/* j + trace, image pixel coords */
@@ -230,7 +228,7 @@ static int CollapsePrism (SpTrace *trace, SingleGroup *in,
 	in_ref_coords = (ltm[0] == 1. && ltm[1] == 1. &&
 			 ltv[0] == 0. && ltv[1] == 0.);
 
-	for (j = jfirst;  j <= jlast;  j++) {	/* loop over rows */
+	for (int j = jfirst;   j <= jlast;   j++) {	/* loop over rows */
 
 	    ngood = 0;
 
@@ -243,7 +241,7 @@ static int CollapsePrism (SpTrace *trace, SingleGroup *in,
 	    if ((status = InterpTrace4 (&trace, y, &trace_y)))
 		return (status);
 
-	    for (i = ifirst;  i <= ilast;  i++) {	/* sum current row */
+	    for (int i = ifirst;   i <= ilast;   i++) {	/* sum current row */
 
 		if (in_ref_coords) {
 		    ydispl = trace_y->a2displ[i];

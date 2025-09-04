@@ -24,7 +24,6 @@ int nelem           i: nelem+1 is size of wl array
 int *index         io: starting index; location of wavelength in wl array
 */
 
-	int i;
 	int start;
 
 	if (wavelength < wl[0]) {
@@ -52,12 +51,12 @@ int *index         io: starting index; location of wavelength in wl array
 		if (wavelength <= wl[start]) {
 		    *index = BinarySearch (wavelength, wl, nelem+1);
 		} else {
-		    for (i = start;  i < nelem;  i++) {
+		    for (int i = start;   i < nelem;   i++) {
 			if (wavelength > wl[i] && wavelength <= wl[i+1]) {
+		        *index = i;
 			    break;
 			}
 		    }
-		    *index = i;
 		}
 	    }
 	}

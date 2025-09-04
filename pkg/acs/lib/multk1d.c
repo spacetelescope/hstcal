@@ -12,7 +12,6 @@ SingleGroupLine *a   io: input data; output product
 float k          	  i: multiply a by this constant
 */
 
-	int i;
     int dimx;
 
 	if (k == 1.)
@@ -22,7 +21,7 @@ float k          	  i: multiply a by this constant
 	/* error array */
     dimx = a->sci.tot_nx;
 
-    for (i = 0;  i < dimx;  i++) {
+    for (int i = 0;  i < dimx;  i++) {
 		a->sci.line[i] = k * a->sci.line[i];
 		a->err.line[i] = k * a->err.line[i];
     }
@@ -37,12 +36,11 @@ float   *a              io: input data; output product
 float   k            	 i: multiply a by this constant
 int     dimx             i: size of array
 */
-	int i;
 
 	if (k == 1.)
 	    return (0);
 
-    for (i = 0;  i < dimx;  i++)
+    for (int i = 0;  i < dimx;  i++)
 		a[i] = k * a[i];
 
 	return (0);
@@ -58,7 +56,6 @@ void AvgSciValLine (SingleGroupLine *y, short sdqflags,
 
 	double sum;
 	int numgood;			/* number of good pixels */
-	int i;
 	short flagval;			/* data quality flag value */
     int dimx;
 
@@ -66,7 +63,7 @@ void AvgSciValLine (SingleGroupLine *y, short sdqflags,
 	sum = 0.;
     dimx = y->sci.tot_nx;
     
-	for (i = 0;  i < dimx;  i++) {
+	for (int i = 0;  i < dimx;  i++) {
 		flagval = y->dq.line[i];
 		if ( ! (sdqflags & flagval) ) {
 		    /* no serious flag bit set */
@@ -94,7 +91,6 @@ float *gain
 float k0            i: value for scaling image data 
                     (exptime or flashdur or ...)
 */
-    int i;
     float k;
     int dimx;
 
@@ -115,7 +111,7 @@ float k0            i: value for scaling image data
         } 
         /* This line has 2-AMP readout */
         /* Apply gain for first amp to first part of line */
-        for (i = 0;  i < ampx;  i++) {
+        for (int i = 0;  i < ampx;  i++) {
             a->sci.line[i] = k * a->sci.line[i];
             a->err.line[i] = k * a->err.line[i];        
         }
@@ -125,7 +121,7 @@ float k0            i: value for scaling image data
         */
         if (ampx < dimx) {
             k = k0 / gain[AMP_D];
-            for (i = ampx;  i < dimx;  i++) {
+            for (int i = ampx;  i < dimx;  i++) {
                 a->sci.line[i] = k * a->sci.line[i];
                 a->err.line[i] = k * a->err.line[i];        
             }
@@ -139,7 +135,7 @@ float k0            i: value for scaling image data
         }
         /* This line has 2-AMP readout */
         /* Apply gain for first amp to first part of line */
-        for (i = 0;  i < ampx;  i++) {
+        for (int i = 0;  i < ampx;  i++) {
             a->sci.line[i] = k * a->sci.line[i];
             a->err.line[i] = k * a->err.line[i];        
         }
@@ -149,7 +145,7 @@ float k0            i: value for scaling image data
         */
         if (ampx < dimx) {
             k = k0 / gain[AMP_B];
-            for (i = ampx;  i < dimx;  i++) {
+            for (int i = ampx;  i < dimx;  i++) {
                 a->sci.line[i] = k * a->sci.line[i];
                 a->err.line[i] = k * a->err.line[i];        
             }

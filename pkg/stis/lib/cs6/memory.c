@@ -82,7 +82,7 @@ int AllocOutArrays (RowContents *row) {
 
 int AllocProfile (StisInfo6 *sts, int imxsize, double extrsz) {
 
-	int extrsize, nalloc, i;
+	int extrsize, nalloc;
 
 	extrsize = (int)extrsz;
 
@@ -162,17 +162,17 @@ int AllocProfile (StisInfo6 *sts, int imxsize, double extrsz) {
 	    sts->subprof_size = 1;
 	}
 
-	for (i = 0; i < imxsize; i++) {
+	for (int i = 0;  i < imxsize;  i++) {
 	    if ((sts->profile[i] = (double *) calloc (nalloc,
                                    sizeof (double))) == NULL)
 	        return (OUT_OF_MEMORY);
 	}
-	for (i = 0; i < imxsize; i++) {
+	for (int i = 0;  i < imxsize;  i++) {
 	    if ((sts->profile_dq[i] = (short *) calloc (nalloc,
                                       sizeof (short))) == NULL)
 	        return (OUT_OF_MEMORY);
 	}
-	for (i = 0; i < imxsize; i++) {
+	for (int i = 0;  i < imxsize;  i++) {
 	    if ((sts->subprof[i] = (double *) calloc (sts->subprof_size,
                                     sizeof (double))) == NULL)
 	        return (OUT_OF_MEMORY);
@@ -190,11 +190,9 @@ int AllocProfile (StisInfo6 *sts, int imxsize, double extrsz) {
 
 void FreeProfile (StisInfo6 *sts, int imxsize) {
 
-	int i;
-
-	for (i = 0; i < imxsize; free (sts->profile[i++]));
-	for (i = 0; i < imxsize; free (sts->profile_dq[i++]));
-	for (i = 0; i < imxsize; free (sts->subprof[i++]));
+	for (int i = 0;  i < imxsize;  free (sts->profile[i++]));
+	for (int i = 0;  i < imxsize;  free (sts->profile_dq[i++]));
+	for (int i = 0;  i < imxsize;  free (sts->subprof[i++]));
 	free (sts->profile);
 	free (sts->profile_dq);
 	free (sts->subprof);

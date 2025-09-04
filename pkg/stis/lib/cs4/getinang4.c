@@ -73,7 +73,6 @@ double angle         i: incidence angle
 	TblRow tabrow;		/* values read from a table row */
 	InangInfo iac;		/* incidence-angle info */
 
-	int row;		/* loop index */
 	int foundit = 0;
 
 	/* Open the incidence-angle coefficients table. */
@@ -81,7 +80,7 @@ double angle         i: incidence angle
 	    return (status);
 
 	iac.allocated = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadIACTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -258,7 +257,6 @@ InangInfo *iac        i: incidence-angle correction coefficients
 */
 
 	int ncoeff;
-	int i;
 
 	if (disp->ncoeff < iac->ncoeff1) {
 	    ncoeff = disp->ncoeff;
@@ -269,7 +267,7 @@ InangInfo *iac        i: incidence-angle correction coefficients
 	}
 
 	/* first coefficients */
-	for (i = 0;  i < ncoeff;  i++)
+	for (int i = 0;   i < ncoeff;   i++)
 	    disp->coeff[i] += iac->coeff1[i] * angle;
 
 	/* second coefficients */

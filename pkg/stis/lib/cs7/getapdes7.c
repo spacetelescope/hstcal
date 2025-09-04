@@ -74,22 +74,20 @@ ApInfo *slit     o: description of slit
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* number of rows, and loop index */
-	int k;			/* loop index for occulting bars */
 	int foundit = 0;	/* true if aperture found in table */
 
 	/* Open the aperture description table. */
 	if ((status = OpenApTab (sts->apdestab.name, &tabinfo)))
 	    return (status);
 
-	for (k = 0;  k < MAX_BARS;  k++) {	/* initial values */
+	for (int k = 0;   k < MAX_BARS;   k++) {	/* initial values */
 	    slit->barlocn[k] = 0.;
 	    slit->barwidth[k] = 0.;
 	}
 
 	/* Check each row for a match with aperture. */
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadApTab (&tabinfo, row, &tabrow)))
 		return (status);

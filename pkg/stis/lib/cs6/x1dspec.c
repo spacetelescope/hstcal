@@ -114,7 +114,6 @@ FloatHdrData ssgy;     i:  small-scale distortion in Y (not used)
 IntensArray *inta;     i:  array with intensities for optimal extraction
 RowContents *row_cont  o:  output row arrays
 */
-	int	ipix;		/* index of image pixel in the A1 direction */
 	int	rpix;		/* index of reference pixel in the A1 dir. */
 	short	oDQ;		/* output DQ flag */
 	double	sum;		/* accumulators */
@@ -137,44 +136,43 @@ RowContents *row_cont  o:  output row arrays
 	double	*iprofile;	/* interpolated profile for opt. extraction */
 	double  *profile_yabs;	/* positions corresponding to profile pixels */
         double  pix_back;       /* extracted value corrected for background */
-	int	j, k, debug;
+	int	debug;
 	short	pmask = 0;
 	int	status;
 	double	j0, centroid, centnorm, offset;
 	double x1, x2;
-	int ix1, ix2, ix;
+	int ix1, ix2;
 
 	int CalcBack (StisInfo6 *, XtractInfo *, SingleGroup *,
                        FloatHdrData *, FloatHdrData *, int, double, int);
 
 	/* Output extraction info (in image, not reference, pixels) */
 
-	if (sts->extrloc) {
-	    row_cont->a2center = sts->cc_a2center *
-                                 sts->ltm[1] + sts->ltv[1] + 1.0;
-	    row_cont->extrsize = extrsize * sts->ltm[1];
-	    /* See if there are command-line overrides. */
-	    if (sts->bksize[0] == NO_SIZE)
-	        row_cont->bk1size = xtr->bksize[0] * sts->ltm[1];
-            else
-	        row_cont->bk1size = sts->bksize[0] * sts->ltm[1];
-	    if (sts->bksize[1] == NO_SIZE)
-	        row_cont->bk2size = xtr->bksize[1] * sts->ltm[1];
-            else
-	        row_cont->bk2size = sts->bksize[1] * sts->ltm[1];
-	    if (sts->bkoffset[0] == NO_SIZE)
-	        row_cont->bk1offset = xtr->bkoffset[0] * sts->ltm[1];
-	    else
-	        row_cont->bk1offset = sts->bkoffset[0] * sts->ltm[1];
-	    if (sts->bkoffset[1] == NO_SIZE)
-	        row_cont->bk2offset = xtr->bkoffset[1] * sts->ltm[1];
-	    else
-	        row_cont->bk2offset = sts->bkoffset[1] * sts->ltm[1];
-	    if (sts->maxsearch == NO_RANGE)
-	        row_cont->maxsearch = xtr->maxsearch * sts->ltm[1];
-	    else
-	        row_cont->maxsearch = sts->maxsearch * sts->ltm[1];
-	}
+    if (sts->extrloc) {
+        row_cont->a2center = sts->cc_a2center * sts->ltm[1] + sts->ltv[1] + 1.0;
+        row_cont->extrsize = extrsize * sts->ltm[1];
+        /* See if there are command-line overrides. */
+        if (sts->bksize[0] == NO_SIZE)
+            row_cont->bk1size = xtr->bksize[0] * sts->ltm[1];
+        else
+            row_cont->bk1size = sts->bksize[0] * sts->ltm[1];
+        if (sts->bksize[1] == NO_SIZE)
+            row_cont->bk2size = xtr->bksize[1] * sts->ltm[1];
+        else
+            row_cont->bk2size = sts->bksize[1] * sts->ltm[1];
+        if (sts->bkoffset[0] == NO_SIZE)
+            row_cont->bk1offset = xtr->bkoffset[0] * sts->ltm[1];
+        else
+            row_cont->bk1offset = sts->bkoffset[0] * sts->ltm[1];
+        if (sts->bkoffset[1] == NO_SIZE)
+            row_cont->bk2offset = xtr->bkoffset[1] * sts->ltm[1];
+        else
+            row_cont->bk2offset = sts->bkoffset[1] * sts->ltm[1];
+        if (sts->maxsearch == NO_RANGE)
+            row_cont->maxsearch = xtr->maxsearch * sts->ltm[1];
+        else
+            row_cont->maxsearch = sts->maxsearch * sts->ltm[1];
+    }
 
 	/* Alloc memory for interpolated profile. This must be always
            done, to avoid a rui exception.
@@ -187,8 +185,8 @@ RowContents *row_cont  o:  output row arrays
            raw array must be reset.
         */
 	if (sts->do_profile) {
-	for (ipix = 0; ipix < in->sci.data.nx ; ipix++)
-	    for (j = 0; j < sts->profile_y; j++)
+	for (int ipix = 0;  ipix < in->sci.data.nx ;  ipix++)
+	    for (int j = 0;  j < sts->profile_y;  j++)
                 sts->profile_dq[ipix][j] = STIS_OK;
 	}
 
@@ -204,7 +202,7 @@ RowContents *row_cont  o:  output row arrays
 	}
 
 	/* Loop over physical image pixels in the A1 direction. */
-	for (ipix = 0; ipix < in->sci.data.nx ; ipix++) {
+	for (int ipix = 0;  ipix < in->sci.data.nx ;  ipix++) {
             float extrlocy;            /* output extraction location */
 
 	    /* Debug control. */
@@ -294,7 +292,7 @@ RowContents *row_cont  o:  output row arrays
                    to be used at current image column.
                 */
 	        sum = 0.0;
-	        for (j = 0; j < sts->profile_y; j++) {
+	        for (int j = 0;  j < sts->profile_y;  j++) {
 
 	            offset = j0;
 
@@ -320,14 +318,14 @@ RowContents *row_cont  o:  output row arrays
 	            /* Add contributions from subpixels in between. */
 
 	            if ((ix2 - ix1) > 1) {
-	                for (ix = ix1 + 1; ix < ix2; ix++) {
+	                for (int ix = ix1 + 1;  ix < ix2;  ix++) {
 	                    iprofile[j] += sts->subprof[ipix][ix];
 	                 }
 	            }
 	            sum += iprofile[j];
 	        }
                 if (sum > 0.0)
-                    for (j = 0; j <= sts->profile_y; j++)
+                    for (int j = 0;  j <= sts->profile_y;  j++)
                         iprofile[j] /= sum;
 
 	        /* Clean up pixels based on the expected profile. */
@@ -396,8 +394,8 @@ RowContents *row_cont  o:  output row arrays
 	    if (j2 > (j1 + 1)) {
 	        j1++;
 	        j2--;
-	        k = 1;
-	        for (j = j1; j <= j2; j++, k++) {
+	        int k = 1;
+	        for (int j = j1;  j <= j2;  j++, k++) {
 	            if (j > 0 && j < in->sci.data.ny) {
 	                if (sts->optimal)
 	                    pmask = DQPix (outw->dq.data, ipix, j);
@@ -427,7 +425,7 @@ RowContents *row_cont  o:  output row arrays
 	        if (j2 > (j1 + 1)) {
 	            centroid = 0.0;
 	            centnorm = 0.0;
-	            for (j = j1, k = 0; j <= j2; j++, k++) {
+	            for (int j = j1, k = 0;  j <= j2;  j++, k++) {
 	                if (j > 0 && j < in->sci.data.ny) {
                             profile_yabs[k] -= y_box;
 	                    if (sts->profile[ipix][k] != PIX_FILL) {
@@ -510,13 +508,13 @@ RowContents *row_cont  o:  output row arrays
 	    if (sts->do_profile) {
 	        if (j2 > (j1 + 1)) {
 	            norm     = 0.0;
-	            for (j = j1, k = 0; j <= j2; j++, k++) {
+	            for (int j = j1, k = 0;  j <= j2;  j++, k++) {
 	                if (j > 0 && j < in->sci.data.ny) {
 	                    norm += sts->profile[ipix][k];
 	                }
 	            }
 	            if (norm != 0.0) {
-	                for (j = j1, k = 0; j <= j2; j++, k++) {
+	                for (int j = j1, k = 0;  j <= j2;  j++, k++) {
 	                    if (j > 0 && j < in->sci.data.ny)
                                 sts->profile[ipix][k] /= norm;
 	                }
@@ -866,7 +864,7 @@ double intens;         i:  intensity value used in optimal extraction
 SingleGroup *outw      o:  output weight image in optimal extr. mode
 int debug;             i:  debug control
 */
-	int j, j3, j4;
+	int j3, j4;
 
 	/* First clean the two extreme pixels. */
 	if (j1 > 0 && j1 < in->sci.data.ny)
@@ -885,7 +883,7 @@ int debug;             i:  debug control
 	if (j4 > (j3 + 1)) {
 	    j3++;
 	    j4--;
-	    for (j = j3; j <= j4; j++)
+	    for (int j = j3;  j <= j4;  j++)
 	        CleanPixel (sts, in, ipix, j, iprofile, ilow_end, intens,
                             outw, debug);
 	}
@@ -1049,11 +1047,9 @@ static void ReplaceBack (StisInfo6 *sts, double back, double backerr,
 static double BoxTilt (XtractInfo *xtr, int pix) {
 
 	double angle;
-	int    i;
-
 	angle = 0.0;
 
-	for (i = 0; i < xtr->ncoeffbk; i++)
+	for (int i = 0;  i < xtr->ncoeffbk;  i++)
 	    angle += xtr->bktcoeff[i] * pow ((double)(pix+1), (double)i);
 
 	return (angle);

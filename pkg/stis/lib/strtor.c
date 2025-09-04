@@ -29,7 +29,7 @@ int strtor (char *str, float arr[])
 	   which a numerical value will be read) runs from ip0 to ip
 	*/
 	int	ip0, ip;
-	int	n, i;
+	int	n;
 	int	done;
 	char	tmp[100];
 
@@ -48,7 +48,7 @@ int strtor (char *str, float arr[])
 	while (!done) {
 	    if (str[ip] == ',' || str[ip] == ';' || str[ip] == '/' || 
 		str[ip] == ' ' || str[ip] == '\0') {
-		for (i = 0; i < (ip-ip0); ++i)
+		for (int i = 0;  i < (ip-ip0);  ++i)
 	    	    tmp[i] = str[ip0+i];
 		tmp[ip-ip0] = '\0';
 		if (!(isdigit (tmp[0]) || tmp[0] == '-' || tmp[0] == '.')) {

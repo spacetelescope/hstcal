@@ -47,15 +47,15 @@ Hdr scihdr, errhdr, dqhdr   o: headers to receive modified coord parameters
 	double cd[4];		/* cd1_1, cd1_2, cd2_1, cd2_2 */
 	double crpix[2];
     int status_arr[NUM_KEYWORDS];
-    int i;
-    
+
 	int GetKeyDbl (Hdr *, char *, int, double, double *);
 	int BinUpdate (double *, double *,
 		double *, double *, double *, double *);
         
     /* Initialize array of status values for keywords */
-    for (i = 0; i < NUM_KEYWORDS; i++ ) 
+    for (size_t i = 0; i < NUM_KEYWORDS; i++) {
         status_arr[i] = 0;
+    }
 
 	/* Get the coordinate parameters from the input header. */
 
@@ -71,7 +71,7 @@ Hdr scihdr, errhdr, dqhdr   o: headers to receive modified coord parameters
 	status_arr[8] = GetKeyDbl (inhdr, "LTV1", USE_DEFAULT, 0., &ltv[0]);
 	status_arr[9] = GetKeyDbl (inhdr, "LTV2", USE_DEFAULT, 0., &ltv[1]);
 
-    for (i = 0; i < NUM_KEYWORDS; i++) {
+    for (size_t i = 0; i < NUM_KEYWORDS; i++) {
 	    if (status_arr[i]) {
             status = status_arr[i];
 	        return (status);
@@ -100,7 +100,7 @@ Hdr scihdr, errhdr, dqhdr   o: headers to receive modified coord parameters
 	status_arr[9] = addkeyd (scihdr, "LTM2_2", ltm[1],
 			"reciprocal of sampling rate in Y");
 
-    for (i = 0; i < NUM_KEYWORDS; i++) {
+    for (size_t i = 0; i < NUM_KEYWORDS; i++) {
 	    if (status_arr[i]) {
             status = status_arr[i];
 	        return (status);
@@ -123,7 +123,7 @@ Hdr scihdr, errhdr, dqhdr   o: headers to receive modified coord parameters
 	status_arr[9] = addkeyd (errhdr, "LTM2_2", ltm[1],
 			"reciprocal of sampling rate in Y");
 
-    for (i = 0; i < NUM_KEYWORDS; i++) {
+    for (size_t i = 0; i < NUM_KEYWORDS; i++) {
 	    if (status_arr[i]) {
             status = status_arr[i];
 	        return (status);
@@ -146,7 +146,7 @@ Hdr scihdr, errhdr, dqhdr   o: headers to receive modified coord parameters
 	status_arr[9] = addkeyd (dqhdr, "LTM2_2", ltm[1],
 			"reciprocal of sampling rate in Y");
 
-    for (i = 0; i < NUM_KEYWORDS; i++) {
+    for (size_t i = 0; i < NUM_KEYWORDS; i++) {
 	    if (status_arr[i]) {
             status = status_arr[i];
 	        return (status);

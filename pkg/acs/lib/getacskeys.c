@@ -34,8 +34,6 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
   
 	extern int status;
   
-	Bool subarray;
-  
 	int GetKeyInt (Hdr *, char *, int, int, int *);
 	int GetKeyStr (Hdr *, char *, int, char *, char *, int);
 	int GetKeyFlt (Hdr *, char *, int, float, float *);
@@ -123,8 +121,6 @@ int getACSKeys (ACSInfo *acs, Hdr *phdr) {
 
 int checkACSKeys(ACSInfo *acs)
 {
-    int tmpStatus = HSTCAL_OK;
-
     if (strcmp (acs->det, "SBC") == 0)
         acs->detector = MAMA_DETECTOR;
     else if (strcmp (acs->det, "HRC") == 0)

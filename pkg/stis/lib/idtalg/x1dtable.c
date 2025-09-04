@@ -25,7 +25,6 @@ int GetX1DTable (TblDesc *tabptr, RowContents **x1d) {
 TblDesc *tabptr;	o: _x1d temporary table
 RowContents **x1d;	o: row contents
 */
-	int irow, i;
 	int nwave, ngross, nnet, nextrlocy;
 
 	void FreeX1DTable (RowContents **, int);
@@ -54,7 +53,7 @@ RowContents **x1d;	o: row contents
            tabptr->npts length.
         */
 
-	for (irow = 0; irow < tabptr->nrows; irow++) {
+	for (int irow = 0;  irow < tabptr->nrows;  irow++) {
 	    c_tbegts (tabptr->tp, tabptr->sporder, irow+1,
                       &(x1d[irow]->sporder));
 	    c_tbegts (tabptr->tp, tabptr->npts, irow+1,
@@ -95,7 +94,7 @@ RowContents **x1d;	o: row contents
 
 	    /* Compatibilize extrlocy with 0-indexed image arrays. */
 
-	    for (i = 0; i < x1d[irow]->npts; x1d[irow]->extrlocy[i++] -= 1.0);
+	    for (int i = 0;  i < x1d[irow]->npts;  x1d[irow]->extrlocy[i++] -= 1.0);
 
 	}
 
@@ -141,14 +140,13 @@ RowContents **AllocX1DTable (int nrows) {
 int nrows;		i: number of rows
 */
 	RowContents **x1d;
-	int i;
 
 	x1d = (RowContents **) malloc (nrows * sizeof(RowContents *));
 	if (x1d == NULL) {
             trlerror("Not enough memory to allocate row pointer.");
 	    return (NULL);
 	}
-	for (i = 0; i < nrows; i++) {
+	for (int i = 0;  i < nrows;  i++) {
 	    x1d[i] = (RowContents *) calloc (1, sizeof(RowContents));
 	    if (x1d[i] == NULL) {
                 trlerror("Not enough memory to allocate row pointer.");
@@ -169,10 +167,9 @@ void FreeX1DTable (RowContents **x1d, int nrows) {
 /* arguments
 RowContents **x1d;	i: row contents
 */
-	int i;
 
 	if (x1d != NULL) {
-	    for (i = 0; i < nrows; i++) {
+	    for (int i = 0;  i < nrows;  i++) {
 	        if (x1d[i]->gross != NULL)
 	            free (x1d[i]->gross);
 	        if (x1d[i]->wave != NULL) {

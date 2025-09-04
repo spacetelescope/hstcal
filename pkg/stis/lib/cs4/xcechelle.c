@@ -46,7 +46,6 @@ double *shift      o: the shift, in pixels
 	int ilow, ihigh;	/* portion that is fully within slit */
 	int range;		/* size of xc */
 	double c7_shift;	/* shift in units of calstis7 pixels */
-	int i;
 
 	int XCPeak (StisInfo4 *, double *, short *, double *,
 		int, int, short, double *);
@@ -78,7 +77,7 @@ double *shift      o: the shift, in pixels
 
 	/* Make a model of the slit. */
 
-	for (i = ilow+1;  i <= ihigh-1;  i++)
+	for (int i = ilow+1;   i <= ihigh-1;   i++)
 	    tslit[i] = 1.;
 
 	/* Now assign a fraction at each end. */

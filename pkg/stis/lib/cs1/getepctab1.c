@@ -63,12 +63,12 @@ StisInfo1 *sts     io: calibration switches, etc
     TblInfo tabinfo;	/* pointer to table descriptor, etc */
     TblRow  tabrow;	/* values read from a table row */
 
-    int row;		/* loop index */
     double *mjd;        /* MJD field of table */
     double *temp;       /* temperature field of table */
 
     sts->epc_rows = 0;
 
+    // TODO: Can never be NULL. Remove condition.
     if (sts->epctab.name == NULL)
         return (0);
 
@@ -90,7 +90,7 @@ StisInfo1 *sts     io: calibration switches, etc
 
     /*  Read each row.  */
 
-    for (row = 1; row <= tabinfo.nrows; row++) {
+    for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
         /* Read the current row into tabrow. */
         if ((status = ReadEPCTab(&tabinfo, row, &tabrow)))
@@ -102,7 +102,7 @@ StisInfo1 *sts     io: calibration switches, etc
     /*
      *  Simple filtering procedure for discrepant temperatures.
      */
-    for (row = 0; row < tabinfo.nrows; row++) {
+    for (int row = 0;  row < tabinfo.nrows;  row++) {
         double d1, d2, p1, p2;
         /*  Calculate difference between adjacent temperatures. */
         d1 = temp[row] - ((row < 1) ? temp[row]: temp[row-1]);

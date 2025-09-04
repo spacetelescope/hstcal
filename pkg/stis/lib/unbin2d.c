@@ -62,7 +62,6 @@ SingleGroup *b        o: output data
 	int inx, iny;		/* size of input array */
 	int onx, ony;		/* size of output array */
 	int binx, biny;		/* number of output pixels per input pixel */
-	int m, n;		/* pixel index in output array */
 	int i, j;		/* pixel index in input array */
 	int i1, i2, num_i;	/* for ORing data quality */
 	int j1, j2, num_j;	/* for ORing data quality */
@@ -88,18 +87,18 @@ SingleGroup *b        o: output data
 	    /* Same size, so just copy. */
 
 	    /* Copy the science data. */
-	    for (n = 0;  n < ony;  n++)
-		for (m = 0;  m < onx;  m++)
+	    for (int n = 0;   n < ony;   n++)
+		for (int m = 0;   m < onx;   m++)
 		    Pix (b->sci.data, m, n) = Pix (a->sci.data, m, n);
 
 	    /* Copy the error array. */
-	    for (n = 0;  n < ony;  n++)
-		for (m = 0;  m < onx;  m++)
+	    for (int n = 0;   n < ony;   n++)
+		for (int m = 0;   m < onx;   m++)
 		    Pix (b->err.data, m, n) = Pix (a->err.data, m, n);
 
 	    /* Copy the data quality array. */
-	    for (n = 0;  n < ony;  n++)
-		for (m = 0;  m < onx;  m++)
+	    for (int n = 0;   n < ony;   n++)
+		for (int m = 0;   m < onx;   m++)
 		    DQSetPix (b->dq.data, m, n, DQPix(a->dq.data,m,n));
 
 	} else if (binx == 1) {
@@ -107,10 +106,10 @@ SingleGroup *b        o: output data
 	    /* Interpolate in Y. */
 
 	    /* Science data array. */
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;   n < ony;   n++) {
 		aj = ((float)n - yoffset) / (float)biny;
 		InterpInfo (aj, iny, &j, &r, &s);
-		for (m = 0;  m < onx;  m++) {
+		for (int m = 0;   m < onx;   m++) {
 		    value = r * Pix (a->sci.data, m, j) +
 			    s * Pix (a->sci.data, m, j+1);
 		    Pix (b->sci.data, m, n) = value;
@@ -118,10 +117,10 @@ SingleGroup *b        o: output data
 	    }
 
 	    /* Error array. */
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;   n < ony;   n++) {
 		aj = ((float)n - yoffset) / (float)biny;
 		InterpInfo (aj, iny, &j, &r, &s);
-		for (m = 0;  m < onx;  m++) {
+		for (int m = 0;   m < onx;   m++) {
 		    e1 = Pix (a->err.data, m, j);
 		    e2 = Pix (a->err.data, m, j+1);
 		    value = r * e1*e1 + s * e2*e2;
@@ -130,10 +129,10 @@ SingleGroup *b        o: output data
 	    }
 
 	    /* Data quality array. */
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;   n < ony;   n++) {
 		aj = ((float)n - yoffset) / (float)biny;
 		InterpDQInfo (aj, iny, &j1, &j2, &num_j);
-		for (m = 0;  m < onx;  m++) {
+		for (int m = 0;   m < onx;   m++) {
 		    if (num_j == 1)
 			dq = DQPix (a->dq.data, m, j1);
 		    else
@@ -148,8 +147,8 @@ SingleGroup *b        o: output data
 	    /* Interpolate in X. */
 
 	    /* Science data array. */
-	    for (n = 0;  n < ony;  n++) {
-		for (m = 0;  m < onx;  m++) {
+	    for (int n = 0;   n < ony;   n++) {
+		for (int m = 0;   m < onx;   m++) {
 		    ai = ((float)m - xoffset) / (float)binx;
 		    InterpInfo (ai, inx, &i, &p, &q);
 		    value = p * Pix (a->sci.data, i, n) +
@@ -159,8 +158,8 @@ SingleGroup *b        o: output data
 	    }
 
 	    /* Error array. */
-	    for (n = 0;  n < ony;  n++) {
-		for (m = 0;  m < onx;  m++) {
+	    for (int n = 0;   n < ony;   n++) {
+		for (int m = 0;   m < onx;   m++) {
 		    ai = ((float)m - xoffset) / (float)binx;
 		    InterpInfo (ai, inx, &i, &p, &q);
 		    e1 = Pix (a->err.data, i, n);
@@ -171,8 +170,8 @@ SingleGroup *b        o: output data
 	    }
 
 	    /* Data quality array. */
-	    for (n = 0;  n < ony;  n++) {
-		for (m = 0;  m < onx;  m++) {
+	    for (int n = 0;   n < ony;   n++) {
+		for (int m = 0;   m < onx;   m++) {
 		    ai = ((float)m - xoffset) / (float)binx;
 		    InterpDQInfo (ai, inx, &i1, &i2, &num_i);
 		    if (num_i == 1)
@@ -187,10 +186,10 @@ SingleGroup *b        o: output data
 	} else {
 
 	    /* Science data array. */
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;   n < ony;   n++) {
 		aj = ((float)n - yoffset) / (float)biny;
 		InterpInfo (aj, iny, &j, &r, &s);
-		for (m = 0;  m < onx;  m++) {
+		for (int m = 0;   m < onx;   m++) {
 		    ai = ((float)m - xoffset) / (float)binx;
 		    InterpInfo (ai, inx, &i, &p, &q);
 		    value = p * r * Pix (a->sci.data, i,   j) +
@@ -202,10 +201,10 @@ SingleGroup *b        o: output data
 	    }
 
 	    /* Error array. */
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;   n < ony;   n++) {
 		aj = ((float)n - yoffset) / (float)biny;
 		InterpInfo (aj, iny, &j, &r, &s);
-		for (m = 0;  m < onx;  m++) {
+		for (int m = 0;   m < onx;   m++) {
 		    ai = ((float)m - xoffset) / (float)binx;
 		    InterpInfo (ai, inx, &i, &p, &q);
 		    e1 = Pix (a->err.data, i,   j);
@@ -219,9 +218,9 @@ SingleGroup *b        o: output data
 	    }
 
 	    /* Data quality array. */
-	    for (n = 0;  n < ony;  n++) {
+	    for (int n = 0;   n < ony;   n++) {
 		InterpDQInfo (aj, iny, &j1, &j2, &num_j);
-		for (m = 0;  m < onx;  m++) {
+		for (int m = 0;   m < onx;   m++) {
 		    ai = ((float)m - xoffset) / (float)binx;
 		    InterpDQInfo (ai, inx, &i1, &i2, &num_i);
 		    if (num_i == 1 && num_j == 1)

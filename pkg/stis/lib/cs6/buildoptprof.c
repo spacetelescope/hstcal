@@ -37,7 +37,7 @@ ProfileArray **profa i:  list with profiles read from OPROFTAB
 	int status;
 
 	ProfileArray *profa_x;		/* profile interpolated at x */
-	int i, j, negflag, outerflag;
+	int negflag, outerflag;
 	double sum;
 
 	int InterpProfile (ProfileArray **, int, ProfileArray **, double *);
@@ -49,7 +49,7 @@ ProfileArray **profa i:  list with profiles read from OPROFTAB
 
 	negflag = 0;
 	outerflag = 0;
-	for (i = 0; i < sts->profile_x ; i++) {
+	for (int i = 0;  i < sts->profile_x ;  i++) {
 
 	    /* Get interpolated profile at current X coordinate. */
 
@@ -57,13 +57,13 @@ ProfileArray **profa i:  list with profiles read from OPROFTAB
                                          &(sts->profile_offset[i]))))
 	        return (status);
 
-	    for (j = 0; j < profa_x->npts; j++)
+	    for (int j = 0;  j < profa_x->npts;  j++)
 	        sts->subprof[i][j] += profa_x->prof[j];
 
 	    /* Normalize to unit area and enforce positivity. */
 
 	    sum = 0.0;
-	    for (j = 0; j < sts->subprof_size; j++) {
+	    for (int j = 0;  j < sts->subprof_size;  j++) {
 	        if (sts->subprof[i][j] < 0.0) {
 	            sts->subprof[i][j] = 0.0;
 	            negflag = 1;
@@ -71,7 +71,7 @@ ProfileArray **profa i:  list with profiles read from OPROFTAB
 	        sum += sts->subprof[i][j];
 	    }
 	    if (sum > 0.0)
-	        for (j = 0; j < sts->subprof_size; sts->subprof[i][j++] /= sum);
+	        for (int j = 0;  j < sts->subprof_size;  sts->subprof[i][j++] /= sum);
 	    /* this test must be revised to account for subsampling. */
 	    if ((sts->subprof[i][0] > 0.1) ||
 	        (sts->subprof[i][(sts->subprof_size)-1] > 0.1))

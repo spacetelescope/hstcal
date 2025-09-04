@@ -204,14 +204,14 @@ RowContents row         i:  row contents
 int *row_number         io: row where to write in output table
 */
 
-        int i, count;
+        int count;
 
         /* If spectrum is empty, do not write it. Note that the specific
            values used to detect an empty pixel must be the same used by
            routine Interp2D.
         */
         count = 0;
-        for (i = 0; i < row->npts; i++) {
+        for (int i = 0;  i < row->npts;  i++) {
             if (row->gross[i] != 0.0F        ||
                 row->error[i] != 1.0F        ||
                 row->dq[i]    != DETECTORPROB)
@@ -292,7 +292,7 @@ int *row_number         io: row where to start writing in output table.
                             This parameter is updated so when this function
                              returns it points to the last written row.
 */
-        int i, ii, j, asize, k, k_off;
+        int ii, asize, k_off;
         short shold, asize_off;
         float *profile, *profile_off, *profile_cent;
 
@@ -321,7 +321,7 @@ int *row_number         io: row where to start writing in output table.
         if (profile == NULL || profile_off == NULL || profile_cent == NULL)
             return (OUT_OF_MEMORY);
 
-        for (i = 0; i < sts->profile_msize; i++) {
+        for (int i = 0;  i < sts->profile_msize;  i++) {
 
             /* Increment row number. */
             (*row_number)++;
@@ -351,14 +351,13 @@ int *row_number         io: row where to start writing in output table.
             /* Move profile array data to output float arrays so they
                can be written with a single call to the table routines.
             */
-            k     = 0;
             k_off = 0;
             for (ii =  sts->profile_minp[i] - 1;
                  ii <= sts->profile_maxp[i] - 1; ii++) {
                 profile_off[k_off]  = (float)sts->profile_offset[ii];
                 profile_cent[k_off] = (float)sts->profile_centroid[ii];
                 k_off++;
-                for (j =  0; j < sts->subprof_size; j++)
+                for (int j =  0;  j < sts->subprof_size;  j++)
                     profile[j]  = (float)sts->subprof[i][j];
             }
 
@@ -564,9 +563,7 @@ static int isInvalid (char *kw) {
             "CRVAL1", "CRVAL2", "CD1_1", "CD1_2", "CD2_1", "CD2_2",
             "CUNIT1", "CUNIT2", NULL};
 
-        int j;
-
-        for (j=0; invalid_kwds[j] != NULL; j++) {
+        for (int j=0;  invalid_kwds[j] != NULL;  j++) {
             if (strcmp(kw, invalid_kwds[j]) == 0)
                 return (1);
         }

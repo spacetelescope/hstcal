@@ -34,7 +34,6 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 
     extern int  status;
     IRAFPointer tpin;
-    int         n;
 	Hdr         header;		                /* SPT header */
 	FILE        *fp;		                /* file pointer */
 	IODescPtr   im;		           /* descriptor for input image */
@@ -45,8 +44,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
     char        rootname[CHAR_FNAME_LENGTH+1];       /* output SPT rootname */
     char        obsnum[4];                  /* Observation number string */
     ShortHdrData  stmp;
-    int         nimgs, i;
-    int         nx;
+    int         nimgs;
 	int 		extnum,nextn;
 
 
@@ -92,7 +90,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
         SPT file.
     */
 	extnum = 0;
-    for (i = 0; i < nimgs; i++) {
+    for (int i = 0; i < nimgs; i++) {
         /* Get first name from input (list?) */
         in_name[0] = '\0';
         c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
@@ -142,7 +140,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	            return (status = 1);
 
 	        /* NOW, update the ROOTNAME header keyword */
-	        for (n = 0; n < strlen(rootname)-1; n++)
+	        for (size_t n = 0; n < strlen(rootname)-1; n++)
 	             rootname[n] = toupper(rootname[n]);
 	        if (PutKeyStr (&header, "ROOTNAME", rootname, ""))
 	            return (status = 1);
@@ -173,7 +171,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 
         /* Uncomment this section to copy input SPT files into output
             when HSTIO is fixed to work with 1-D data... */
-		for (nx = 0; nx < nextn; nx++){
+		for (int nx = 0; nx < nextn; nx++){
 			extnum = extnum + 1;
         	initShortHdrData(&stmp);
         	getShortHD(in_spt, "UDL", (nx+1), &stmp);

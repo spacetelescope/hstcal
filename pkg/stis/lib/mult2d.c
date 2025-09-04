@@ -21,7 +21,6 @@ SingleGroup *a   io: input data; output product
 SingleGroup *b   i: second input data
 */
 
-	int i, j;
 	float a_sci, b_sci;	/* science data values from a and b */
 	float a_db;		/* a value * b error */
 	float b_da;		/* b value * a error */
@@ -32,8 +31,8 @@ SingleGroup *b   i: second input data
 	    return (SIZE_MISMATCH);
 
 	/* error array and science data */
-	for (j = 0;  j < a->err.data.ny;  j++) {
-	    for (i = 0;  i < a->err.data.nx;  i++) {
+	for (int j = 0;   j < a->err.data.ny;   j++) {
+	    for (int i = 0;   i < a->err.data.nx;   i++) {
 
 		a_sci = Pix (a->sci.data, i, j);
 		b_sci = Pix (b->sci.data, i, j);
@@ -46,8 +45,8 @@ SingleGroup *b   i: second input data
 	}
 
 	/* data quality */
-	for (j = 0;  j < a->dq.data.ny;  j++) {
-	    for (i = 0;  i < a->dq.data.nx;  i++) {
+	for (int j = 0;   j < a->dq.data.ny;   j++) {
+	    for (int i = 0;   i < a->dq.data.nx;   i++) {
 		dqa = DQPix (a->dq.data, i, j);
 		dqb = DQPix (b->dq.data, i, j);
 		dqab = dqa | dqb;

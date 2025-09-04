@@ -41,8 +41,6 @@ int w_option         i: option for selecting wavecal
 	double exptime, midpt;	/* values from science data SCI header */
 	double shift1, shift2;	/* average shift in each axis */
 	int n;
-	int extverSci;		/* imset number for science data */
-	int extverWav;		/* imset number for wavecal */
 	/* these are the good shifts and their times */
 	double *wav_midpt1, *wav_shift1, *wav_midpt2, *wav_shift2;
 	int n1, n2;		/* number of good shift1 and shift2 */
@@ -64,7 +62,7 @@ int w_option         i: option for selecting wavecal
 
 	/* Get and save info from each SCI extension in the wavecal file. */
 	initHdr (&hdr);
-	for (extverWav = 1;  extverWav <= wavecal->nimages;  extverWav++) {
+	for (int extverWav = 1;   extverWav <= wavecal->nimages;   extverWav++) {
 	    im = openInputImage (wavecal->input, "SCI", extverWav);
 	    if (hstio_err())
 		return (OPEN_FAILED);
@@ -80,7 +78,7 @@ int w_option         i: option for selecting wavecal
 	/* Check that the wavecal images are sorted. */
 	if (w_option != STIS_NEAREST) {
 	    midpt = wavecal->midpt[0];
-	    for (n = 1;  n < wavecal->nimages;  n++) {
+	    for (int n = 1;   n < wavecal->nimages;   n++) {
 		if (midpt >= wavecal->midpt[n]) {
 		    trlwarn("Times of wavecal exposures are not strictly increasing; ");
 		    trlwarn("interpolation option will be reset to nearest neighbor.");
@@ -100,7 +98,7 @@ int w_option         i: option for selecting wavecal
 	    return (OUT_OF_MEMORY);
 	n1 = 0;
 	n2 = 0;
-	for (n = 0;  n < wavecal->nimages;  n++) {
+	for (int n = 0;   n < wavecal->nimages;   n++) {
 	    if (fabs (wavecal->shift1[n]) < UNREASONABLE_SHIFT) {
 		wav_midpt1[n1] = wavecal->midpt[n];
 		wav_shift1[n1] = wavecal->shift1[n];
@@ -122,7 +120,7 @@ int w_option         i: option for selecting wavecal
 
 	/* Process each imset in the science data file. */
 
-	for (extverSci = 1;  extverSci <= scidata->nimages;  extverSci++) {
+	for (int extverSci = 1;   extverSci <= scidata->nimages;   extverSci++) {
 
 	    PrGrpBegin ("imset", extverSci);
 

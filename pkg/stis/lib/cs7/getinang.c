@@ -83,14 +83,13 @@ InangInfo *iac     o: incidence-angle info
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;
 
 	/* Open the incidence-angle coefficients table. */
 	if ((status = OpenIACTab (table->name, &tabinfo)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadIACTab (&tabinfo, row, &tabrow)))
 		return (status);

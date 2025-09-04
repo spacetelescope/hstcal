@@ -102,8 +102,8 @@ RefFileInfo *sciref  io: list of keyword,filename pairs
 	    wf3->sci_basic_ccd = PERFORM;
         if (GetNewRef (phdr, "SNKCFILE", sciref))
             return (status);
-	    if (GetNewRef (phdr, "BPIXTAB", sciref))
-		    return (status);
+        if (GetNewRef (phdr, "BPIXTAB", sciref))
+            return (status);
 	}
 
 	if (sci_sw->crcorr == PERFORM) {

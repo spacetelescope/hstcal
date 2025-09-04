@@ -10,7 +10,7 @@
 
 float cr_mode (int *histgrm, int nbins, float hwidth, float hmin)
 {
-	int	i, bpeak;
+	int	bpeak;
 	float	mode, hpeak, dh1, dh2, denom;
 
 	/* If there is a single bin return the midpoint of that bin. */
@@ -31,7 +31,7 @@ float cr_mode (int *histgrm, int nbins, float hwidth, float hmin)
 	/* Find the bin containing the histogram maximum. */
 	hpeak = histgrm[0];
 	bpeak = 0;
-	for (i = 1; i < nbins; ++i) {
+	for (int i = 1;  i < nbins;  ++i) {
 	    if (histgrm[i] > hpeak) {
 		hpeak = histgrm[i];
 		bpeak = i;

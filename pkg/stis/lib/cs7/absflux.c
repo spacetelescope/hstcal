@@ -129,7 +129,6 @@ double *blazeshift;    o: blaze shift value actually used
 	float correction;	/* combined correction factor */
 	float diff_pt;		/* conversion from diffuse source to point */
 	float cont_eml;		/* conversion from continuum to emission line */
-	int i, j;
 	int abs_starti;		/* index to begin search in interp1d */
 	int pct_starti;
 	int thr_starti;
@@ -179,7 +178,7 @@ double *blazeshift;    o: blaze shift value actually used
 	wlt = (double *) malloc (phot->nelem * sizeof (double));
 	if (wlt == NULL)
 	    return (OUT_OF_MEMORY);
-	for (i = 0;  i < phot->nelem; i++)
+	for (int i = 0;   i < phot->nelem;  i++)
 	    wlt[i] = phot->wl[i];
 
 	/* Get dispersion from data. This is required in the case the
@@ -188,10 +187,10 @@ double *blazeshift;    o: blaze shift value actually used
 	   we use the dispersion at the mid point in the current spectral
 	   order.
 	*/
-	i = out->sci.data.nx / 2;
-	wl         = (((double)i     - coord_o->crpix[0]) * coord_o->cdelt[0] +
+	int n = out->sci.data.nx / 2;
+	wl         = (((double)n     - coord_o->crpix[0]) * coord_o->cdelt[0] +
 			coord_o->crval[0]);
-	dispersion = (((double)(i+1) - coord_o->crpix[0]) * coord_o->cdelt[0] +
+	dispersion = (((double)(n+1) - coord_o->crpix[0]) * coord_o->cdelt[0] +
 			coord_o->crval[0]) - wl;
 	dispersion /= hfactor;
 
@@ -201,13 +200,13 @@ double *blazeshift;    o: blaze shift value actually used
 	}
 
 	/* for each pixel in the dispersion direction ... */
-	for (i = 0;  i < out->sci.data.nx; i++) {
+	for (int i = 0;   i < out->sci.data.nx;  i++) {
 
 	    /* convert back to observed wavelength */
 	    wl = (((double)i - coord_o->crpix[0]) * coord_o->cdelt[0] +
 			coord_o->crval[0]) / hfactor;	/* Angstroms */
 	    if (wl <= 0.) {
-		for (j = 0;  j < out->dq.data.ny;  j++) {
+		for (int j = 0;   j < out->dq.data.ny;   j++) {
 		    DQSetPix (out->dq.data, i, j,
 				DQPix(out->dq.data,i,j) | CALIBDEFECT);
 		}
@@ -241,12 +240,12 @@ double *blazeshift;    o: blaze shift value actually used
 
 	    /* for each pixel along the slit ... */
 	    if (correction <= 0.) {
-		for (j = 0;  j < out->dq.data.ny;  j++) {
+		for (int j = 0;   j < out->dq.data.ny;   j++) {
 		    DQSetPix (out->dq.data, i, j,
 				DQPix(out->dq.data,i,j) | CALIBDEFECT);
 		}
 	    } else {
-		for (j = 0;  j < out->sci.data.ny;  j++) {
+		for (int j = 0;   j < out->sci.data.ny;   j++) {
 		    Pix (out->sci.data, i, j) *= correction;
 		    Pix (out->err.data, i, j) *= correction;
 		}

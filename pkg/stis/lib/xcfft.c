@@ -33,16 +33,15 @@ void FFTShift (CmplxArray *z) {
 /* arguments:
 CmplxArray *z       io: FT array to be shifted
 */
-	int i, j;
 
-        for (j = 1; j < z->ny; j+=2) {
-            for (i = 0; i < z->nx-1; i+=2) {
+        for (int j = 1;  j < z->ny;  j+=2) {
+            for (int i = 0;  i < z->nx-1;  i+=2) {
 	        RPIX2D (z, i, j) = - RPIX2D (z, i, j);
 	        IPIX2D (z, i, j) = - IPIX2D (z, i, j);
 	    }
         }
-        for (j = 0; j < z->ny-1; j+=2) {
-            for (i = 1; i < z->nx; i+= 2) {
+        for (int j = 0;  j < z->ny-1;  j+=2) {
+            for (int i = 1;  i < z->nx;  i+= 2) {
 	        RPIX2D (z, i, j) = - RPIX2D (z, i, j);
 	        IPIX2D (z, i, j) = - IPIX2D (z, i, j);
 	    }
@@ -125,7 +124,6 @@ CmplxArray *z       io: complex array
 */
 
 	CmplxArray scr;		/* scratch space for FT of columns */
-	int i, j;		/* loop indexes */
 	int nx, ny;		/* image size */
 	int status;
 
@@ -137,17 +135,17 @@ CmplxArray *z       io: complex array
 	if ((status = AllocCmplxArray (&scr, ny, 1)))
 	    return (status);
 
-	for (j = 0;  j < ny;  j++)	/* transform each line */
+	for (int j = 0;   j < ny;   j++)	/* transform each line */
 	    CFFTF (&nx, &(RPIX2D(z,0,j)), z->workx);
 
-	for (i = 0;  i < nx;  i++) {	/* transform each column */
+	for (int i = 0;   i < nx;   i++) {	/* transform each column */
 
-	    for (j = 0;  j < ny;  j++) {
+	    for (int j = 0;   j < ny;   j++) {
 		RPIX1D (&scr, j) = RPIX2D (z, i, j);
 		IPIX1D (&scr, j) = IPIX2D (z, i, j);
 	    }
 	    CFFTF (&scr.nx, scr.data, scr.workx);
-	    for (j = 0;  j < ny;  j++) {
+	    for (int j = 0;   j < ny;   j++) {
 		RPIX2D (z, i, j) = RPIX1D (&scr, j);
 		IPIX2D (z, i, j) = IPIX1D (&scr, j);
 	    }
@@ -169,7 +167,6 @@ CmplxArray *z       io: complex array
 */
 
 	CmplxArray scr;		/* scratch space for FT of columns */
-	int i, j;		/* loop indexes */
 	int nx, ny;		/* image size */
 	int status;
 
@@ -181,17 +178,17 @@ CmplxArray *z       io: complex array
 	if ((status = AllocCmplxArray (&scr, ny, 1)))
 	    return (status);
 
-	for (j = 0;  j < ny;  j++)	/* transform each line */
+	for (int j = 0;   j < ny;   j++)	/* transform each line */
 	    CFFTB (&nx, &(RPIX2D(z,0,j)), z->workx);
 
-	for (i = 0;  i < nx;  i++) {	/* transform each column */
+	for (int i = 0;   i < nx;   i++) {	/* transform each column */
 
-	    for (j = 0;  j < ny;  j++) {
+	    for (int j = 0;   j < ny;   j++) {
 		RPIX1D (&scr, j) = RPIX2D (z, i, j);
 		IPIX1D (&scr, j) = IPIX2D (z, i, j);
 	    }
 	    CFFTB (&scr.nx, scr.data, scr.workx);
-	    for (j = 0;  j < ny;  j++) {
+	    for (int j = 0;   j < ny;   j++) {
 		RPIX2D (z, i, j) = RPIX1D (&scr, j) / (nx * ny);
 		IPIX2D (z, i, j) = IPIX1D (&scr, j) / (nx * ny);
 	    }
@@ -204,10 +201,8 @@ CmplxArray *z       io: complex array
 
 void CpyCmplx (CmplxArray *zin, CmplxArray *zout) {
 
-	int i,j;
-
-	for (j = 0;  j < zout->ny;  j++) {
-	    for (i = 0; i < zout->nx;  i++) {
+	for (int j = 0;   j < zout->ny;   j++) {
+	    for (int i = 0;  i < zout->nx;   i++) {
 		RPIX2D (zout, i, j) = RPIX2D (zin, i, j);
 		IPIX2D (zout, i, j) = IPIX2D (zin, i, j);
 	    }

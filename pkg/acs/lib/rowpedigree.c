@@ -30,7 +30,7 @@ int RowPedigree (RefTab *ref, int row,
 	/* Get pedigree and descrip.  If either or both are missing,
 	   that's not an error in this case.
 	*/
-	if (cp_pedigree > 0) {
+	if (cp_pedigree != NULL) {
 	    c_tbegtt (tp, cp_pedigree, row, ref->pedigree, ACS_FITS_REC);
 	    if (c_iraferr())
 		return (status = TABLE_ERROR);
@@ -41,7 +41,7 @@ int RowPedigree (RefTab *ref, int row,
 		ref->goodPedigree = GOOD_PEDIGREE;
 	}
 
-	if (cp_descrip > 0) {
+	if (cp_descrip != NULL) {
 	    c_tbegtt (tp, cp_descrip, row, ref->descrip2, ACS_FITS_REC);
 	    if (c_iraferr())
 		return (status = TABLE_ERROR);

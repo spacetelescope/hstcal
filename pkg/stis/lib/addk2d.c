@@ -15,14 +15,12 @@ SingleGroup *a   io: input data; output sum
 float k          i: constant to be added to a
 */
 
-	int i, j;
-
 	if (k == 0.)
 	    return (0);
 
 	/* Only the science data are modified. */
-	for (j = 0;  j < a->sci.data.ny;  j++)
-	    for (i = 0;  i < a->sci.data.nx;  i++)
+	for (int j = 0;   j < a->sci.data.ny;   j++)
+	    for (int i = 0;   i < a->sci.data.nx;   i++)
 		Pix (a->sci.data, i, j) = k + Pix (a->sci.data, i, j);
 
 	return (0);

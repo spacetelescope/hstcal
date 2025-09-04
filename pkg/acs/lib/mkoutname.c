@@ -10,8 +10,9 @@
 #include "hstcal.h"
 # include "hstcalerr.h"
 # include "acs.h"	/* for message output */
+#include "str_util.h"
 
-static int FindExtn (char *);
+static int FindExtn (const char *);
 static int strcatN (char *, char *, int);
 
 /* This routine constructs the output file name based on the input name
@@ -73,9 +74,8 @@ int maxch          i: maximum size of output
 
 	char *extn;		/* extension on input (or default) */
 
-	int is_len;		/* length of current isuffix */
-	int tr_len;		/* length of truncated input name */
-	int i;			/* loop index */
+	size_t is_len;		/* length of current isuffix */
+	size_t tr_len;		/* length of truncated input name */
 	int dotlocn;		/* location of '.' in input name */
 
 	if (output[0] == '\0') {
@@ -104,7 +104,8 @@ int maxch          i: maximum size of output
 		chop it off of the output name before appending the output
 		suffix and extension.
 	    */
-	    for (i = 0;  i < nsuffix;  i++) {
+		int last_i = 0;
+	    for (int i = 0;  i < nsuffix;  i++) {
 			is_len = strlen (isuffix[i]);
 			tr_len = strlen (output);	/* length of truncated name */
 			if (tr_len >= is_len) {
@@ -114,6 +115,7 @@ int maxch          i: maximum size of output
                         free(extn);
 			    		return (status);
                     }
+		    		last_i = i;
 					break;
 		    	}
 			}
@@ -121,7 +123,7 @@ int maxch          i: maximum size of output
 	    /* Append first output suffix if none of the input suffixes
 		was found.
 	    */
-	    if (i >= nsuffix) {
+	    if (last_i >= nsuffix) {
 			if (strcatN (output, osuffix[0], maxch)) {
                 free(extn);
 		    	return (status);
@@ -167,28 +169,32 @@ int DefaultExtn (char *input, int maxch) {
 
 /* This function returns the index of '.' in fname, or -1 if it wasn't
   found.  The searching starts at the end of fname and works backward.
-  Note that searching for '.' will stop if '$', '/', or ']' is
+  Note that searching for '.' will stop if '$', '\', '/', or ']' is
   encountered, as these could be used as parts of a directory name.
   Note also that we do not require the extension to have any particular
   value.  fname may begin with '.'.
 */
 
-static int FindExtn (char *fname) {
-
+int FindExtn (const char *fname) {
 	int dotlocn = -1;
-	int i;
+	const char *ext = ".";
+	const char *path_element = ".\\/$";
+	const size_t len = fname ? strlen(fname) : 0;
 
-	for (i = strlen(fname)-1;  i >= 0;  i--) {
-	    if (fname[i] == '.') {
-		dotlocn = i;
-		break;
-	    }
-	    /* Have we reached a directory prefix? */
-	    if (fname[i] == '$' || fname[i] == '/' || fname[i] == ']')
-		break;
+	for (size_t i = len; i != 0; --i) {
+		const size_t pos = i - 1;
+
+		const int ch_status = delim_check(fname[pos], ext, path_element);
+		if (ch_status == DELIM_FOUND && pos != 0) {
+			dotlocn = (int) pos;
+			break;
+		} else if (ch_status == DELIM_REJECTED) {
+			// path element
+			break;
+		}
 	}
 
-	return (dotlocn);
+	return dotlocn;
 }
 
 /* This routine concatenates instr to outstr, but only if the sum of
@@ -199,7 +205,8 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 
 	extern int status;
 
-	if (strlen (instr) + strlen (outstr) > maxch) {
+    int len = (int)(strlen(instr) + strlen(outstr));
+	if (len > maxch) {
 	    trlerror("(MkOutName) strings are too long:\n"
                      "`%s' + `%s'", outstr, instr);
 		status = INVALID_FILENAME;

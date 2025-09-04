@@ -142,7 +142,7 @@ int nelem               i: number of elements to write
         fits_write_col_int (tbl_descr->fptr, col_descr->colnum,
                 (long)row, (long)first, (long)nelem, buffer, &status);
         for (i = 0;  i < nelem;  i++) {
-            if (buffer[i] == IRAF_INDEFI) {
+            if (buffer[i] == (int)IRAF_INDEFI) {
                 firstelem = i + first;
                 fits_write_col_null (tbl_descr->fptr, col_descr->colnum,
                         (long)row, firstelem, one_elem, &status);

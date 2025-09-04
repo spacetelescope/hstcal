@@ -42,7 +42,6 @@ int main (int argc, char **argv) {
 	int printtime = 0;	/* print time after each step? */
 	int verbose = 0;	/* print additional info? */
 	int too_many = 0;	/* too many command-line arguments? */
-	int i, j;		/* loop indexes */
 
 	c_irafinit (argc, argv);
 
@@ -64,7 +63,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* Get names of input and output files. */
-	for (i = 1;  i < argc;  i++) {
+	for (int i = 1;   i < argc;   i++) {
 	    if (argv[i][0] == '-') {
 		if (strcmp (argv[i], "--version") == 0) {
 		    PrVersion();
@@ -88,7 +87,7 @@ int main (int argc, char **argv) {
 		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
-		for (j = 1;  argv[i][j] != '\0';  j++) {
+		for (int j = 1;   argv[i][j] != '\0';   j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;
 		    } else if (argv[i][j] == 'v') {

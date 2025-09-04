@@ -141,14 +141,12 @@ StisInfo7 *sts    i: calibration switches and info
 	int fluxcorr_extver;	/* local to each imset */
 	int extver;		/* loop index for extension version number */
 	int o_extver;		/* extension version number for output */
-	int sporder;		/* current spectral order number */
 	int minorder, maxorder;	/* min & max spectral order */
 	int disp_type;		/* grating or prism ? */
 	int mref;		/* MSM/blaze correction reference order */
 	double ypos;		/* MSM/blaze correction reference position */
 	double wpos;		/* MSM/blaze correction reference wavelength */
 	double ddisp;		/* MSM/blaze correction reference dispersion*/
-	int i;
 	double blazeshift;	/* MSM/blaze shift from command line */
 	double delta;
 	double v_helio;		/* radial velocity in direction of target */
@@ -273,7 +271,7 @@ StisInfo7 *sts    i: calibration switches and info
 	    return (NOTHING_TO_DO);
 	}
 
-	for (extver = 1;  extver <= sts->nimages;  extver++) {
+	for (extver = 1;   extver <= sts->nimages;   extver++) {
 
 	    PrGrpBegin ("imset", extver);
 
@@ -355,7 +353,7 @@ StisInfo7 *sts    i: calibration switches and info
 	        sts->fluxcorr == PERFORM) {
 
 	        /* Get reference order number. */
-	        for (i = minorder; i <= maxorder; i++) {
+	        for (int i = minorder;  i <= maxorder;  i++) {
 	            status = GetAbsPhot (sts, i, &photb, 0, &warn);
 	            if (status == ROW_NOT_FOUND) {
 	                FreePhot (&photb);
@@ -416,7 +414,7 @@ StisInfo7 *sts    i: calibration switches and info
 	    }
 
 	    /* Do for each spectral order in input image. */
-	    for (sporder = minorder;  sporder <= maxorder;  sporder++) {
+	    for (int sporder = minorder;   sporder <= maxorder;   sporder++) {
 
 		if (sts->obstype == SPECTROSCOPIC_TYPE) {
 		    trlmessage("");

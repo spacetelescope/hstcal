@@ -321,7 +321,7 @@ int ProcessCCD (AsnInfo *asn, CALWF3Info *wf3hdr, int *save_tmp, int printtime, 
                         return (status);
 
                         /* RESET SWITCHES */
-                        ResetSwitch(&sci_sw, &wf3ccd_sci_sw);
+                    ResetSwitch(&sci_sw, &wf3ccd_sci_sw);
 
                 } else {
 

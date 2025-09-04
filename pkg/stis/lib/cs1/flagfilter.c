@@ -66,7 +66,6 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	int ylow, yhigh;	/* aperture limits rounded to int */
 	int det_xlow, det_xhigh;	/* detector limits in image coords */
 	int det_ylow, det_yhigh;
-	int i, j;		/* loop indexes */
 	int peculiar = 0;	/* true if image is outside aperture */
 	short dq_flag;
 
@@ -206,8 +205,8 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	/* Assign data quality outside the region passed by the aperture. */
 
 	/* Flag entire lines below the aperture. */
-	for (j = det_ylow;  j < ylow;  j++) {
-	    for (i = det_xlow;  i <= det_xhigh;  i++) {
+	for (int j = det_ylow;   j < ylow;   j++) {
+	    for (int i = det_xlow;   i <= det_xhigh;   i++) {
 		dq_flag = DETECTORPROB | PDQPix (dq, i, j);
 		PDQSetPix (dq, i, j, dq_flag);
 	    }
@@ -217,12 +216,12 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	   for imaging observations.
 	*/
 	if (strcmp (sts->obstype, "IMAGING") == 0) {
-	    for (j = ylow;  j <= yhigh;  j++) {
-		for (i = det_xlow;  i < xlow;  i++) {	/* left columns */
+	    for (int j = ylow;   j <= yhigh;   j++) {
+		for (int i = det_xlow;   i < xlow;   i++) {	/* left columns */
 		    dq_flag = DETECTORPROB | PDQPix (dq, i, j);
 		    PDQSetPix (dq, i, j, dq_flag);
 		}
-		for (i = xhigh+1;  i <= det_xhigh;  i++) {	/* right */
+		for (int i = xhigh+1;   i <= det_xhigh;   i++) {	/* right */
 		    dq_flag = DETECTORPROB | PDQPix (dq, i, j);
 		    PDQSetPix (dq, i, j, dq_flag);
 		}
@@ -230,8 +229,8 @@ double ri_m[], ri_v[]  i: linear transformation from reference to image coords
 	}
 
 	/* Flag entire lines above the aperture. */
-	for (j = yhigh+1;  j <= det_yhigh;  j++) {
-	    for (i = det_xlow;  i <= det_xhigh;  i++) {
+	for (int j = yhigh+1;   j <= det_yhigh;   j++) {
+	    for (int i = det_xlow;   i <= det_xhigh;   i++) {
 		dq_flag = DETECTORPROB | PDQPix (dq, i, j);
 		PDQSetPix (dq, i, j, dq_flag);
 	    }

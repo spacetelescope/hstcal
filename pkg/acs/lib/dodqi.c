@@ -131,13 +131,10 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
 
     /* mappings from one coordinate system to another */
     double ri_m[2], ri_v[2];	/* reference to image */
-    int npix_x, npix_y;			/* size of current image */
 
-    int i, j;					/* indexes for scratch array ydq */
     short sum_dq;				/* for binning data quality array */
     int atod_sat;
 
-    int row;					/* loop index for row number */
     int dimx, dimy;
     int nrows;   				/* number of rows applied to DQ array */
     short dq_fill = 64;         /* default fill value when no rows are applied*/
@@ -159,8 +156,8 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
     if (acs->detector != MAMA_DETECTOR) {
         dimx = x->sci.data.nx;
         dimy = x->sci.data.ny;
-        for (j = 0;  j < dimy;  j++) {
-            for (i = 0;  i < dimx;  i++) {
+        for (int j = 0;  j < dimy;  j++) {
+            for (int i = 0;  i < dimx;  i++) {
                 /* Flag a-to-d saturated pixels with 2048 dq bit */
                 if (Pix (x->sci.data, i, j) >= atod_sat) {
                     sum_dq = DQPix (x->dq.data, i, j) | ATODSAT;
@@ -175,8 +172,8 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
         return (status);
 
     /* size of current image */
-    npix_x = x->dq.data.nx;
-    npix_y = x->dq.data.ny;
+    int npix_x = x->dq.data.nx;  // TODO: Unused. Why?
+    int npix_y = x->dq.data.ny;  // TODO: Unused. Why?
 
     /* Flag regions beyond the bounderies of the aperture, for
     CCD imaging type observations.
@@ -197,7 +194,7 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
     nrows = 0;
     /* Read each row of the table, and fill in data quality values. */
 
-    for (row = 1;  row <= tabinfo.nrows;  row++) {
+    for (int row = 1;  row <= tabinfo.nrows;  row++) {
 
         if (ReadBpixTab (&tabinfo, row, &tabrow)) {
             trlerror ("Error reading BPIXTAB.");
@@ -425,7 +422,6 @@ static void DQINormal (DQHdrData *ydq, double *ltv, TblRow *tabrow) {
     int xstart, ystart;	/* from tabrow, but scaled and shifted */
     int xlow, xhigh;	/* limits for loop on i */
     int ylow, yhigh;	/* limits for loop on j */
-    int i, j;		/* indexes for scratch array ydq */
     short sum_dq;		/* for binning data quality array */
 
     /* Take account of possible subarray or overscan.  We use ltv,
@@ -449,8 +445,8 @@ static void DQINormal (DQHdrData *ydq, double *ltv, TblRow *tabrow) {
         if (xhigh >= ydq->data.nx)
             xhigh = ydq->data.nx - 1;
 
-        j = ystart;
-        for (i = xlow;  i <= xhigh;  i++) {
+        int j = ystart;
+        for (int i = xlow;  i <= xhigh;  i++) {
             sum_dq = tabrow->flag | PDQPix (&ydq->data, i, j);
             PDQSetPix (&ydq->data, i, j, sum_dq);
         }
@@ -470,8 +466,8 @@ static void DQINormal (DQHdrData *ydq, double *ltv, TblRow *tabrow) {
         if (yhigh >= ydq->data.ny)
             yhigh = ydq->data.ny - 1;
 
-        i = xstart;
-        for (j = ylow;  j <= yhigh;  j++) {
+        int i = xstart;
+        for (int j = ylow;  j <= yhigh;  j++) {
             sum_dq = tabrow->flag | PDQPix (&ydq->data, i, j);
             PDQSetPix (&ydq->data, i, j, sum_dq);
         }

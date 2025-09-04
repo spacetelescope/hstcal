@@ -49,15 +49,14 @@ int *done         o: true if we actually did assign error array values
 	float gain;		/* electrons per dn */
 	float rn2;		/* readnoise^2 (in el^2) */
 	float value;		/* dn - bias * gain (i.e. signal in el) */
-	int i, j;
 
 	*done = 0;				/* initial value */
 
 	/* First check for a dummy error array.  If it's not dummy,
 	   we just return without doing anything.
 	*/
-	for (j = 0;  j < x->err.data.ny;  j++) {
-	    for (i = 0;  i < x->err.data.nx;  i++) {
+	for (int j = 0;   j < x->err.data.ny;   j++) {
+	    for (int i = 0;   i < x->err.data.nx;   i++) {
 		if (Pix (x->err.data, i, j) != 0.) {
 		    return (0);		/* not a dummy error array */
 		}
@@ -78,8 +77,8 @@ int *done         o: true if we actually did assign error array values
 	    /* Subtract the bias and convert to electrons,
 	       then include readout noise and convert back to dn.
 	    */
-	    for (j = 0;  j < x->sci.data.ny;  j++) {
-		for (i = 0;  i < x->sci.data.nx;  i++) {
+	    for (int j = 0;   j < x->sci.data.ny;   j++) {
+		for (int i = 0;   i < x->sci.data.nx;   i++) {
 		    value = (Pix (x->sci.data, i, j) - bias) * gain;
 		    if (value > 0.)
 			Pix (x->err.data, i, j) = sqrt (value + rn2) / gain;
@@ -90,8 +89,8 @@ int *done         o: true if we actually did assign error array values
 
 	} else {				/* either MAMA detector */
 
-	    for (j = 0;  j < x->sci.data.ny;  j++) {
-		for (i = 0;  i < x->sci.data.nx;  i++) {
+	    for (int j = 0;   j < x->sci.data.ny;   j++) {
+		for (int i = 0;   i < x->sci.data.nx;   i++) {
 		    value = Pix (x->sci.data, i, j);
 		    if (value > 0.)
 			Pix (x->err.data, i, j) = sqrt (value);

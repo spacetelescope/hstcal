@@ -268,7 +268,6 @@ int *maxorder    o: maximum value of sporder
 	int sporder;		/* value of keyword in an extension */
 	int delta_sporder;	/* +1 or -1 indicates direction of change */
 	int diff;		/* difference between adjacent sporders */
-	int i;
 	int use_default = 1;	/* use default if missing keyword */
 
 	if (!sts->echelle) {
@@ -277,7 +276,7 @@ int *maxorder    o: maximum value of sporder
 	}
 
 	/* Loop over all imsets in input image. */
-	for (i = 0;  i < sts->nimages;  i++) {
+	for (int i = 0;   i < sts->nimages;   i++) {
 
 	    /* read extension header */
 	    initHdr (&hdr);
@@ -332,7 +331,7 @@ int *maxorder    o: maximum value of sporder
 	   direction from the usual.
 	*/
 	sts->nrptexp = 1;
-	for (i = 1;  i < sts->nimages;  i++) {
+	for (int i = 1;   i < sts->nimages;   i++) {
 	    diff = orders[i] - orders[i-1];
 	    if (diff * delta_sporder < 0)
 		sts->nrptexp++;
@@ -348,9 +347,7 @@ int *maxorder    o: maximum value of sporder
 static void NotMultiOrder (StisInfo8 *sts,
 		int *orders, int *minorder, int *maxorder) {
 
-	int i;
-
-	for (i = 0;  i < sts->nimages;  i++)
+	for (int i = 0;   i < sts->nimages;   i++)
 	    orders[i] = 1;
 	*minorder = 1;
 	*maxorder = 1;
@@ -365,12 +362,10 @@ static void NotMultiOrder (StisInfo8 *sts,
 static int SumGrps (StisInfo8 *sts, int *orders, int minorder, int maxorder) {
 
 	int status;
-
-	int sporder;		/* current spectral order number */
 	int oextver;		/* output imset number */
 
 	oextver = 0;
-	for (sporder = minorder;  sporder <= maxorder;  sporder++) {
+	for (int sporder = minorder;   sporder <= maxorder;   sporder++) {
 
 	    oextver++;
 	    PrGrpBegin ("imset", oextver);
@@ -577,12 +572,10 @@ int startextver   i: EXTVER number at which seach is to begin
 int sporder       i: spectral order number to be found in orders
 */
 
-	int i;
-
 	if (startextver < 1)
 	    startextver = 1;
 
-	for (i = startextver - 1;  i < nimages;  i++) {
+	for (int i = startextver - 1;   i < nimages;   i++) {
 	    if (orders[i] == sporder)
 		return (i + 1);
 	}
@@ -698,10 +691,8 @@ int nrptexp       i: the number of imsets that were combined
 
 static void SquareErr (SingleGroup *x) {
 
-	int i, j;
-
-	for (j = 0;  j < x->err.data.ny;  j++) {
-	    for (i = 0;  i < x->err.data.nx;  i++) {
+	for (int j = 0;   j < x->err.data.ny;   j++) {
+	    for (int i = 0;   i < x->err.data.nx;   i++) {
 		Pix (x->err.data, i, j) =
 			Pix (x->err.data, i, j) * Pix (x->err.data, i, j);
 	    }
@@ -712,10 +703,8 @@ static void SquareErr (SingleGroup *x) {
 
 static void SqrtErr (SingleGroup *x) {
 
-	int i, j;
-
-	for (j = 0;  j < x->err.data.ny;  j++) {
-	    for (i = 0;  i < x->err.data.nx;  i++) {
+	for (int j = 0;   j < x->err.data.ny;   j++) {
+	    for (int i = 0;   i < x->err.data.nx;   i++) {
 		Pix (x->err.data, i, j) = sqrt (Pix (x->err.data, i, j));
 	    }
 	}
@@ -741,7 +730,6 @@ SingleGroup *a   io: input data; output sum
 SingleGroup *b   i: second input data
 */
 
-	int i, j;
 	short dqa, dqb, dqab;	/* data quality for a, b, combined */
 
 	if (a->sci.data.nx != b->sci.data.nx ||
@@ -749,24 +737,24 @@ SingleGroup *b   i: second input data
 	    return (SIZE_MISMATCH);
 
 	/* science data */
-	for (j = 0;  j < a->sci.data.ny;  j++) {
-	    for (i = 0;  i < a->sci.data.nx;  i++) {
+	for (int j = 0;   j < a->sci.data.ny;   j++) {
+	    for (int i = 0;   i < a->sci.data.nx;   i++) {
 		Pix (a->sci.data, i, j) =
 			Pix (a->sci.data, i, j) + Pix (b->sci.data, i, j);
 	    }
 	}
 
 	/* error array (actually contains variance) */
-	for (j = 0;  j < a->err.data.ny;  j++) {
-	    for (i = 0;  i < a->err.data.nx;  i++) {
+	for (int j = 0;   j < a->err.data.ny;   j++) {
+	    for (int i = 0;   i < a->err.data.nx;   i++) {
 		Pix (a->err.data, i, j) =
 			Pix (a->err.data, i, j) + Pix (b->err.data, i, j);
 	    }
 	}
 
 	/* data quality */
-	for (j = 0;  j < a->dq.data.ny;  j++) {
-	    for (i = 0;  i < a->dq.data.nx;  i++) {
+	for (int j = 0;   j < a->dq.data.ny;   j++) {
+	    for (int i = 0;   i < a->dq.data.nx;   i++) {
 		dqa = DQPix (a->dq.data, i, j);
 		dqb = DQPix (b->dq.data, i, j);
 		dqab = dqa | dqb;

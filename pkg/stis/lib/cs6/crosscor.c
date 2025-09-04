@@ -62,12 +62,10 @@ int avoid1, avoid2; i:  Lya region to avoid (in physical pixels)
 	int status;
 
         SpTrace *trace_y;       /* interpolated spectrum trace */
-	int	ipix;		/* index of image pixel in the A1 direction */
 	int	rpix;		/* index of reference pixel in the A1 dir. */
 	int	jpix;		/* index of crosscor array element */
 	double	*sum;		/* accumulators */
 	double	*wei;
-	double	y_nom;		/* nominal coordinate in the A2 direction */
 	double	iy_nom;		/* above quantity in image pixel units */
 	double	y_trc;		/* trace-corrected coordinate */
 	double	low_end; 	/* nominal endpoints of the crosscor function*/
@@ -76,7 +74,7 @@ int avoid1, avoid2; i:  Lya region to avoid (in physical pixels)
 	short	oDQ;
 	double	hold;
 	double	hwei;
-	int	i, imax;
+	int	imax;
 
 	int InterpTrace6 (SpTrace **, double, SpTrace **);
 	void FreeTrace6 (SpTrace **);
@@ -104,14 +102,14 @@ int avoid1, avoid2; i:  Lya region to avoid (in physical pixels)
 	jpix = 0;
 	trace_y = NULL;
 
-	for (y_nom = low_end; y_nom <= high_end; y_nom += 1.0) {
+	for (int y_nom = low_end;  y_nom <= high_end;  y_nom += 1.0) {
 
 	    /* Interpolate in trace table. */
 	    if ((status = InterpTrace6 (&trc, y_nom, &trace_y)))
 	        return (status);
 
 	    /* Loop over image pixels in the A1 direction. */
-	    for (ipix = 0; ipix < in->sci.data.nx ; ipix++) {
+	    for (int ipix = 0;  ipix < in->sci.data.nx ;  ipix++) {
 
 	        /* Translate image pixel index into reference pixel index. */
 	        rpix = (int)((ipix - sts->ltv[0]) / sts->ltm[0]);
@@ -156,7 +154,7 @@ int avoid1, avoid2; i:  Lya region to avoid (in physical pixels)
 	sts->cc_peakf = - DBL_MAX;
 	sts->cc_minf  =   DBL_MAX;
 	imax = 0;
-	for (i = 0; i < jpix; i++) {
+	for (int i = 0;  i < jpix;  i++) {
             /* Modified on 11/7/00 to account for too small weights at
                the image top and bottom. They may combine with non-rejected
                cosmic rays and throw off the detected signal peak.

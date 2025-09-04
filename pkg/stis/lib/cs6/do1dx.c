@@ -167,7 +167,6 @@ StisInfo6 *sts    i: calibration switches and info
 	FloatHdrData ssgy;	/* small-scale distortion in Y */
         CTICorrInfo cti;        /* for CCD CTE correction */
 
-	int extver;		/* loop index for extension version number */
 	int o_ext;		/* extension number in output file */
 	int o_row;		/* current row in current output extension*/
 	int minorder, maxorder;	/* min & max spectral order */
@@ -187,7 +186,6 @@ StisInfo6 *sts    i: calibration switches and info
 	int imset_ok;		/* value of header keyword IMSET_OK */
 	int first_extver;	/* true when processing first imset */
 	double extrsize;	/* size of spectrum extraction box */
-	int i, j;
 	double bksize[2];       /* sizes of background boxes */
 	double bkoffset[2];     /* offsets of background boxes */
 	double avcrscroff;	/* average cross correlation offset */
@@ -209,7 +207,7 @@ StisInfo6 *sts    i: calibration switches and info
 	double n_blazeshift;	/* number of blaze shift values in the sum */
 	double d1, d2, radvel;
 	double hold;
-	int dum, warn;
+	int warn;
 	char str[50];		/* temporary string area */
 
 	int AbsFlux6 (StisInfo6 *, RowContents *, PhotInfo *,
@@ -417,7 +415,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    extver2 = sts->imset;
 	}
 	first_extver = 1;		/* true */
-	for (extver = extver1;  extver <= extver2;  extver++) {
+	for (int extver = extver1;   extver <= extver2;   extver++) {
 
 	    photb.mref  = 0;
 
@@ -586,7 +584,7 @@ StisInfo6 *sts    i: calibration switches and info
 	    bcorr_l = OMIT;
 	    warn = 1;
 	    if (sts->fluxcorr == PERFORM && sts->echelle) {
-	        for (i = minorder; i <= maxorder; i++) {
+	        for (int i = minorder;  i <= maxorder;  i++) {
 	            status = GetAbsPhot6 (sts, i, &photb, 0, &warn);
 	            if (status == ROW_NOT_FOUND) {
 	                FreePhot6 (&photb);
@@ -649,8 +647,8 @@ StisInfo6 *sts    i: calibration switches and info
 	        if (allocSingleGroup (&holdraw, in.sci.data.nx,
                                       in.sci.data.ny, True) == ALLOCATION_PROBLEM)
 	            return (OUT_OF_MEMORY);
-	        for (i = 0; i < holdraw.sci.data.nx; i++) {
-	            for (j = 0; j < holdraw.sci.data.ny; j++) {
+	        for (int i = 0;  i < holdraw.sci.data.nx;  i++) {
+	            for (int j = 0;  j < holdraw.sci.data.ny;  j++) {
 	                Pix (holdraw.sci.data,i,j) = Pix (in.sci.data,i,j);
 	                Pix (holdraw.err.data,i,j) = Pix (in.sci.data,i,j);
 	            }
@@ -703,9 +701,9 @@ StisInfo6 *sts    i: calibration switches and info
 	            row_contents.sporder = mref;
 	            row_contents.npts = in.sci.data.nx;
 	            Wave (sts, disp_y, &row_contents);
-		    dshift = orbitalDopp (sts->expstart, sts->expend,
-			sts->doppzero, sts->orbitper, sts->doppmag);
-	            i = row_contents.npts / 2;
+		        dshift = orbitalDopp (sts->expstart, sts->expend,
+			    sts->doppzero, sts->orbitper, sts->doppmag);
+	            int i = row_contents.npts / 2;
 	            if (row_contents.npts > 1024) {	/* high-res? */
 			/* add 0.5 to get the point corresponding to the
 			   center of low-res pixel 512
@@ -966,7 +964,7 @@ StisInfo6 *sts    i: calibration switches and info
                            croscor offset analysis.
                         */
 	                norder = 0;
-	                for (i = 0; i < sts->cc_size; i++) {
+	                for (int i = 0;  i < sts->cc_size;  i++) {
 	                    if (row_contents.sporder == sts->cc_spord[i]) {
 	                        norder = i;
 	                        break;
@@ -1254,7 +1252,7 @@ StisInfo6 *sts    i: calibration switches and info
 	        }
 	        if (sts->verbose == 2 && !sts->do_profile) {
 	            /* See if there are command-line overrides. */
-	            for (i = 0; i < 2; i++) {
+	            for (int i = 0;  i < 2;  i++) {
 	                if (sts->bksize[i] == NO_SIZE)
 	                    bksize[i] = extract_o->bksize[i];
 	                else
@@ -1434,7 +1432,7 @@ StisInfo6 *sts    i: calibration switches and info
                         */
 	                if (sts->x1d_o == DUMMY) {
 	                    warnDummy ("PHOTTAB", row_contents.sporder, 0);
-			    for (i = 0; i < row_contents.npts; i++) {
+			    for (int i = 0;  i < row_contents.npts;  i++) {
 				row_contents.flux[i]  = 0.0F;
 				row_contents.error[i] = 0.0F;
 			    }
@@ -1458,7 +1456,7 @@ StisInfo6 *sts    i: calibration switches and info
                                auxiliary phot structure. This is a temporary
                                solution to the problem of PCT interpolation.
                             */
-	                    dum = GetAbsPhot6 (sts, row_contents.sporder,
+	                    GetAbsPhot6 (sts, row_contents.sporder,
                                                &photc, 1, &warn);
 
 		            /* Get PCT info. A zeroed height means to get
@@ -1635,8 +1633,8 @@ StisInfo6 *sts    i: calibration switches and info
                    by scattered light correction algorithm.
                 */
 	        if (sts->scatter) {
-	            for (i = 0; i < holdraw.sci.data.nx; i++) {
-	                for (j = ilow_end; j <= ihigh_end; j++) {
+	            for (int i = 0;  i < holdraw.sci.data.nx;  i++) {
+	                for (int j = ilow_end;  j <= ihigh_end;  j++) {
 	                    Pix (in.sci.data,i,j) = Pix (holdraw.sci.data,i,j);
 	                    Pix (in.err.data,i,j) = Pix (holdraw.err.data,i,j);
 	                }

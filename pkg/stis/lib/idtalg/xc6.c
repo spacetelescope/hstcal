@@ -43,20 +43,20 @@ int inx           i: X axis dimension of input array
 int iny           i: Y axis dimension of input array
 CmplxArray *z     o: complex data, copied from input
 */
-	int i, j, i1, j1, ik, jk;
+	int i1, j1;
 
 	i1 = (z->nx - inx) / 2;
 	j1 = (z->ny - iny) / 2;
 
-	for (j = 0;  j < z->ny;  j++) {
-	    for (i = 0;  i < z->nx;  i++) {
+	for (int j = 0;   j < z->ny;   j++) {
+	    for (int i = 0;   i < z->nx;   i++) {
 		RPIX2D (z, i, j) = 0.0;
 		IPIX2D (z, i, j) = 0.0;
 	    }
 	}
 
-	for (j = j1, jk = 0;  jk < iny;  j++, jk++) {
-	    for (i = i1, ik = 0;  ik < inx;  i++, ik++)
+	for (int j = j1, jk = 0;   jk < iny;   j++, jk++) {
+	    for (int i = i1, ik = 0;   ik < inx;   i++, ik++)
 		RPIX2D (z, i, j) = in[jk][ik];
 	}
 }
@@ -77,13 +77,13 @@ float **out       o: output data
 int onx           i: X axis dimension of output array
 int ony           i: Y axis dimension of output array
 */
-	int i, j, i1, j1, ik, jk;
+	int i1, j1;
 
 	i1 = (z->nx - onx) / 2;
 	j1 = (z->ny - ony) / 2;
 
-	for (j = j1, jk = 0;  jk < ony;  j++, jk++) {
-	    for (i = i1, ik = 0;  ik < onx;  i++, ik++)
+	for (int j = j1, jk = 0;   jk < ony;   j++, jk++) {
+	    for (int i = i1, ik = 0;   ik < onx;   i++, ik++)
 	        out[jk][ik] = RPIX2D (z, i, j);
 	}
 }
@@ -100,7 +100,6 @@ CmplxArray *z2    o: FT of input z2
 */
 
 	float temp;
-	int i, j;		/* loop indexes */
 	int nx, ny;		/* image size */
 	int status;
 
@@ -114,8 +113,8 @@ CmplxArray *z2    o: FT of input z2
 	    return (status);
 
 	/* Multiply the two complex arrays, leaving the product in z1. */
-	for (j = 0;  j < ny;  j++) {
-	    for (i = 0;  i < nx;  i++) {
+	for (int j = 0;   j < ny;   j++) {
+	    for (int i = 0;   i < nx;   i++) {
 		temp =	RPIX2D (z1, i, j) * RPIX2D (z2, i, j) -
 			IPIX2D (z1, i, j) * IPIX2D (z2, i, j);
 		IPIX2D (z1, i, j) =
@@ -144,7 +143,6 @@ CmplxArray *z2    i: FT of input data 2
 CmplxArray *z1    o: convolution of 1 and 2 in real part of array
 */
 	float temp;
-	int i, j;		/* loop indexes */
 	int nx, ny;		/* image size */
 	int status;
 
@@ -158,8 +156,8 @@ CmplxArray *z1    o: convolution of 1 and 2 in real part of array
 
 	/* Multiply the two complex arrays, leaving the product in z1. */
 
-	for (j = 0;  j < ny;  j++) {
-	    for (i = 0;  i < nx;  i++) {
+	for (int j = 0;   j < ny;   j++) {
+	    for (int i = 0;   i < nx;   i++) {
 		temp =	RPIX2D (z1, i, j) * RPIX2D (z2, i, j) -
 			IPIX2D (z1, i, j) * IPIX2D (z2, i, j);
 		IPIX2D (z1, i, j) =
@@ -194,8 +192,8 @@ static int CDebug (char *name, CmplxArray *z) {
 	initSingleGroup (&out);
 	if (allocSingleGroup (&out, z->nx, z->ny) == -1)
 	    return (OUT_OF_MEMORY);
-	for (j = 0; j < z->ny; j++) {
-	    for (i = 0; i < z->nx; i++) {
+	for (int j = 0;  j < z->ny;  j++) {
+	    for (int i = 0;  i < z->nx;  i++) {
 	        Pix (out.sci.data, i, j) = RPIX2D (z, i, j);
 	        Pix (out.err.data, i, j) = IPIX2D (z, i, j);
 	    }

@@ -74,15 +74,12 @@ int main (int argc, char **argv) {
 	int printtime = 0;	/* print time after each step? */
 	int verbose = 0;	/* print additional info? */
 	int too_many = 0;	/* too many command-line arguments? */
-	int i, j;		/* loop indexes */
-	int junk;
 
 	IRAFPointer i_imt, o_imt, b_imt;	/* imt list pointers */
 	char *input;		/* name of input science file */
 	char *output;		/* optional name of output file */
 	char *outblev;		/* optional file for blev values */
 	int n_in, n_out, n_blev;	/* number of files in each list */
-	int n;
 
 	/* Input and output suffixes. */
 	char *isuffix[] = {"_raw", "_blv_tmp", "_crj_tmp", "_wav"};
@@ -144,7 +141,7 @@ int main (int argc, char **argv) {
 
 	strcpy (cs1_sw.darkscale_string, "");
 
-	for (i = 1;  i < argc;  i++) {
+	for (int i = 1;   i < argc;   i++) {
 
 	    if (strcmp (argv[i], "--version") == 0) {
 		PrVersion();
@@ -212,7 +209,7 @@ int main (int argc, char **argv) {
 		strcpy (cs1_sw.darkscale_string, argv[++i]);
 		switch_on = 1;
 	    } else if (argv[i][0] == '-') {
-		for (j = 1;  argv[i][j] != '\0';  j++) {
+		for (int j = 1;   argv[i][j] != '\0';   j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;
 		    } else if (argv[i][j] == 'v') {
@@ -303,15 +300,14 @@ int main (int argc, char **argv) {
 	}
 
 	/* Loop over the list of input files. */
-	for (n = 0;  n < n_in;  n++) {
-
-	    junk = c_imtgetim (i_imt, input, STIS_LINE);
+	for (int n = 0;   n < n_in;   n++) {
+	    c_imtgetim (i_imt, input, STIS_LINE);
 	    if (n_out > 0)
-		junk = c_imtgetim (o_imt, output, STIS_LINE);
+		c_imtgetim (o_imt, output, STIS_LINE);
 	    else
 		output[0] = '\0';
 	    if (n_blev > 0)
-		junk = c_imtgetim (b_imt, outblev, STIS_LINE);
+		c_imtgetim (b_imt, outblev, STIS_LINE);
 	    else
 		outblev[0] = '\0';
 

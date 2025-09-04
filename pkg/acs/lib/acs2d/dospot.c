@@ -31,12 +31,11 @@ void copySpotLine(SingleGroup *spot, int line, SingleGroupLine *spotline) {
     SingleGroupLine object.
 */    
     int dimx;
-    int j;
-    
+
     dimx = spot->sci.data.nx;
         
     /* Copy data from SingleGroup into SingleGroupLine */ 
-    for (j=0;j<dimx;j++) {   
+    for (int j=0;j<dimx;j++) {
      spotline->sci.line[j] = Pix(spot->sci.data,j,line);
      spotline->err.line[j] = Pix(spot->err.data,j,line);
      spotline->dq.line[j] = Pix(spot->dq.data,j,line);

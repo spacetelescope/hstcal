@@ -40,7 +40,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	char		fdata[STIS_FNAME];
 	char		ccdamp[STIS_FITS_REC+1], ccdamp0[STIS_FITS_REC+1];
 	float		gn, ron;
-	int		k, n, nk;
+	int		nk;
 	int		status, imset_ok;
 
 /* -------------------------------- begin ---------------------------------- */
@@ -59,7 +59,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	/* loop all input files */
 	*nimgs = 0;
 	ccdamp0[0] = '\0';
-	for (n = 0; n < c_imtlen(tpin); ++n) {
+	for (int n = 0;  n < c_imtlen(tpin);  ++n) {
 
 	    /* read the next input image name in the template list */
 	    c_imtgetim (tpin, fdata, STIS_FNAME);
@@ -124,7 +124,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    }
 
 	    /* loop through the groups */
-	    for (k = 1; k <= nk; ++k) {
+	    for (int k = 1;  k <= nk;  ++k) {
 		/* ignore if IMSET_OK is F */
 		if ((status = checkImsetOK (fdata, k, &imset_ok)) != 0) {
 		    trlerror("HSTIO error %s", hstio_errmsg());
@@ -158,7 +158,7 @@ int crrej_check (IRAFPointer tpin, clpar *par, int newpar[],
 	    return (2);
 	}
 		
-	for (k = 0; k < *nimgs; ++k) {
+	for (int k = 0;  k < *nimgs;  ++k) {
 
 	    /* use the first image's attributes to compare with the rest of
 	     the files */

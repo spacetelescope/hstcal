@@ -110,14 +110,13 @@ int *minorder, *maxorder   o: minimum and maximum values of SPORDER
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int RangeCoord (CoordInfo **, int *, int *);
 
 	/* Open the spectroscopic distortion information table. */
 	if ((status = OpenSDistTab (sts->distntab.name, &tabinfo)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadSDistTab (&tabinfo, row, &tabrow)))
 		return (status);

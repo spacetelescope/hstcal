@@ -1084,6 +1084,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
         float gain, float flat_uncert,
         float *a, float *b, float *siga, float *sigb,
         int i, int j) {
+    // TODO: Why are 'flat_uncert`, 'i' and 'j' not used?
 
     /* Local variables */
     int k;

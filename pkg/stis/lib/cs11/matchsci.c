@@ -29,7 +29,6 @@ int *extver          o: imset number of best science image to use (one indexed)
 
 	double dt;	/* difference in times */
 	double min_dt;	/* minimum value of dt */
-	int i;		/* array index */
 	int min_i;	/* value of i that gives minimum dt */
 
 	if (option != STIS_NEAREST)
@@ -43,7 +42,7 @@ int *extver          o: imset number of best science image to use (one indexed)
 
 	    min_dt = fabs (wavecal->midpt[0] - scidata->midpt[0]);
 	    min_i = 0;
-	    for (i = 0;  i < scidata->nimages;  i++) {
+	    for (int i = 0;   i < scidata->nimages;   i++) {
 
 		dt = fabs (wavecal->midpt[0] - scidata->midpt[i]);
 		if (dt < min_dt) {

@@ -19,7 +19,7 @@ int maxch               i: maximum length of 'tablename' string (not
 
         tbl_descr = (TableDescr *)tp;
 
-        len = strlen (tbl_descr->filename);
+        len = (int)strlen (tbl_descr->filename);
         tablename[0] = '\0';
         strncat (tablename, tbl_descr->filename, maxch);
 
@@ -29,7 +29,7 @@ int maxch               i: maximum length of 'tablename' string (not
         else
             strncpy (hdu_string, tbl_descr->brackets, sizeof(hdu_string) - 1);
 
-        if (len + strlen (hdu_string) <= maxch) {
+        if ((int)(len + strlen (hdu_string)) <= maxch) {
             strcat (tablename, hdu_string);
         } else {
             setError (ERR_STRING_TOO_LONG,

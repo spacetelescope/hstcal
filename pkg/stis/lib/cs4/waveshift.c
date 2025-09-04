@@ -62,7 +62,6 @@ double *shift       o: the shift, in pixels
 	double median;		/* median of v */
 	int nwl;		/* length of dispersion axis */
 	int ngood;		/* number included in sum */
-	int i, j;		/* loop indexes */
 	int ifirst, ilast;	/* loop limits for summing in first axis */
 	int jfirst, jlast;	/* loop limits in second axis */
 	short flagval;		/* data quality flag for a pixel */
@@ -115,10 +114,10 @@ double *shift       o: the shift, in pixels
 	   in the sum are flagged as bad.
 	*/
 
-	for (i = ifirst;  i <= ilast;  i++) {	/* loop over columns */
+	for (int i = ifirst;   i <= ilast;   i++) {	/* loop over columns */
 
 	    ngood = 0;
-	    for (j = jfirst;  j <= jlast;  j++) {	/* sum current column */
+	    for (int j = jfirst;   j <= jlast;   j++) {	/* sum current column */
 		flagval = DQPix (in->dq.data, i, j);
 		if ( ! (flagval & sts->sdqflags) ) {
 		    v[i] += Pix (in->sci.data, i, j);
@@ -130,16 +129,16 @@ double *shift       o: the shift, in pixels
 	    else
 		qv[i] = sts->sdqflags;	/* this column is all bad */
 	}
-	for (i = 0;  i < ifirst;  i++)
+	for (int i = 0;   i < ifirst;   i++)
 	    qv[i] = sts->sdqflags;
-	for (i = ilast + 1;  i < nwl;  i++)
+	for (int i = ilast + 1;   i < nwl;   i++)
 	    qv[i] = sts->sdqflags;
 
 	/* Find the median of the spectrum, subtract the median from the
 	   spectrum, then replace negative values with zero.
 	*/
 	median = MedianDouble (v, nwl, 0);	/* 0 ==> DON'T sort in-place */
-	for (i = 0;  i < nwl;  i++)
+	for (int i = 0;   i < nwl;   i++)
 	    v[i] = (v[i] < median) ? 0. : (v[i] - median);
 
 	/* Write info to the debug file. */

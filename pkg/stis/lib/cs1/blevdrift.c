@@ -94,7 +94,6 @@ int *driftcorr       o: true if correction can be applied
 	double value;		/* median of values in column */
 	double zerocol;		/* zero point for fit */
 	int midcol;		/* middle column of overscan region */
-	int i;			/* X pixel in input image */
 	char nodriftcorr[] =
 		{"Warning  no correction for slope will be applied.\n"};
 
@@ -127,7 +126,7 @@ int *driftcorr       o: true if correction can be applied
 	/* For each column, determine the value of the virtual overscan,
 	   and accumulate sums.
 	*/
-	for (i = vx[0];  i <= vx[1];  i++) {
+	for (int i = vx[0];   i <= vx[1];   i++) {
 	    /* median of column */
 	    if (VMedianY (in, sdqflags, i, vy, &value, scratch))
 		continue;
@@ -182,11 +181,9 @@ float blev_clip    i: criterion for clipping in virtual overscan region
 	double median;		/* median of the entire virtual overscan */
 	double mad;		/* median of absolute values of deviations */
 	float replacement;	/* replacement value for outliers */
-	int i, j;		/* loop indices for column and row */
 	int k;			/* index in scratch */
 	int inplace = 1;	/* sort in-place */
 	int i0, i1;		/* for finding replacement */
-	int ii;
 	double sumsq, n;	/* for finding sigma (rms) */
 	double sigma;
 
@@ -197,15 +194,15 @@ float blev_clip    i: criterion for clipping in virtual overscan region
 	    return (OUT_OF_MEMORY);
 	}
 	k = 0;
-	for (j = vy[0];  j <= vy[1];  j++) {
-	    for (i = vx[0];  i <= vx[1];  i++) {
+	for (int j = vy[0];   j <= vy[1];   j++) {
+	    for (int i = vx[0];   i <= vx[1];   i++) {
 		scratch[k] = Pix (in->sci.data, i, j);
 		k++;
 	    }
 	}
 	/* Compute the median and MAD. */
 	median = MedianDouble (scratch, nscratch, inplace);
-	for (k = 0;  k < nscratch;  k++)
+	for (int k = 0;   k < nscratch;   k++)
 	    scratch[k] = fabs (scratch[k] - median);
 	mad = MedianDouble (scratch, k, inplace);
 
@@ -215,7 +212,7 @@ float blev_clip    i: criterion for clipping in virtual overscan region
 	*/
 	n = 0.;
 	sumsq = 0.;
-	for (k = 0;  k < nscratch;  k++) {
+	for (int k = 0;   k < nscratch;   k++) {
 	    if (scratch[k] <= 4.5 * mad) {		/* approx 3 sigma */
 		sumsq += scratch[k] * scratch[k];
 		n += 1.;
@@ -224,8 +221,8 @@ float blev_clip    i: criterion for clipping in virtual overscan region
 	sigma = sqrt (sumsq / n);
 
 	/* Reject outliers.  */
-	for (j = vy[0];  j <= vy[1];  j++) {
-	    for (i = vx[0];  i <= vx[1];  i++) {
+	for (int j = vy[0];   j <= vy[1];   j++) {
+	    for (int i = vx[0];   i <= vx[1];   i++) {
 		if (Pix (in->sci.data, i, j) > median + blev_clip * sigma) {
 		    i0 = i - 10;
 		    i0 = i0 < vx[0] ? vx[0] : i0;
@@ -234,7 +231,7 @@ float blev_clip    i: criterion for clipping in virtual overscan region
 			i1 = vx[1];
 			i0 = i1 - 20;
 		    }
-		    for (ii = i0, k = 0;  ii <= i1;  ii++, k++)
+		    for (int ii = i0, k = 0;   ii <= i1;   ii++, k++)
 			scratch[k] = Pix (in->sci.data, ii, j);
 		    replacement = MedianDouble (scratch, k, inplace);
 		    Pix (in->sci.data, i, j) = replacement;
@@ -268,12 +265,11 @@ double *median     o: median of values in column
 double scratch[]  io: scratch space
 */
 
-	int j;			/* loop index */
 	int nvals;		/* number of good pixels */
 	int inplace = 1;	/* OK to sort in-place */
 
 	nvals = 0;
-	for (j = vy[0];  j <= vy[1];  j++) {
+	for (int j = vy[0];   j <= vy[1];   j++) {
 	    if (!(sdqflags & DQPix (in->dq.data, i, j))) {
 		scratch[nvals] = Pix (in->sci.data, i, j);
 		nvals++;
@@ -300,9 +296,7 @@ double zerocol     i: fit will be forced to zero at this column number
 int midcol         i: middle column of image
 */
 
-	int i;
-
-	for (i = 0;  i < NELEM_SUMS;  i++)
+	for (int i = 0;   i < NELEM_SUMS;   i++)
 	    sums[i] = 0.;
 	slope = 0.;
 	zero_column = zerocol;

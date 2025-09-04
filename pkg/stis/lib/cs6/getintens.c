@@ -88,10 +88,8 @@ IntensArray *inta     o: description of inta
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;	/* true if parameters found in table */
 	double exptime;		/* exposure time */
-	int i;
 
 	/* Open the intensity/wavelength table. */
 	exptime = 1.0;
@@ -99,7 +97,7 @@ IntensArray *inta     o: description of inta
                                      &tabinfo, &exptime, sts->fflux)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadIntensTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -129,7 +127,7 @@ IntensArray *inta     o: description of inta
 	}
 
 	/* Convert to counts. */
-	for (i = 0;  i < inta->nelem; inta->intens[i++] *= exptime);
+	for (int i = 0;   i < inta->nelem;  inta->intens[i++] *= exptime);
 
 	return (0);
 }
@@ -292,7 +290,7 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	double photfactor, throughput, response, dispersion;
 	double atodgain, readnoise;
 	float correction;
-	int i, dispc, helc, status;
+	int dispc, helc, status;
 	int abs_starti, thr_starti;
 	int dummy;
 
@@ -388,7 +386,7 @@ static int FluxToNet (StisInfo6 *sts, IntensArray *inta, int sporder) {
 	thr_starti = 1;
 
 	/* Loop over flux array. */
-	for (i = 0;  i < inta->nelem;  i++) {
+	for (int i = 0;   i < inta->nelem;   i++) {
 	    response   = interp1d (inta->wave[i], phot.wl, phot.thru,
                                    phot.nelem, &abs_starti);
 	    throughput = interp1d (inta->wave[i], slit.wl, slit.thr,

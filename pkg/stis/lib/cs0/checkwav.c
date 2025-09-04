@@ -35,7 +35,6 @@ StisInfo *sts         i: calibration flags and other info
 	double exptime;		/* exposure time */
 	int nextend;		/* number of FITS extensions in wavecal file */
 	int nimsets;		/* number of image sets */
-	int extver;		/* loop index over image sets */
 	int all_bad;		/* true if no imset has good data (boolean) */
 	int use_default = 1;	/* use default if keyword is missing */
 
@@ -77,7 +76,7 @@ StisInfo *sts         i: calibration flags and other info
 	*/
 
 	all_bad = 1;			/* pessimistic initial value */
-	for (extver = 1;  extver <= nimsets;  extver++) {
+	for (int extver = 1;   extver <= nimsets;   extver++) {
 	    /* Get the current image set. */
 	    initSingleGroup (&x);
 	    getSingleGroup (sts->wavfile, extver, &x);
@@ -107,15 +106,14 @@ StisInfo *sts         i: calibration flags and other info
 static int goodImage (SingleGroup *x) {
 
 	int nx, ny;
-	int i, j;
 	int good;
 
 	nx = x->sci.data.nx;
 	ny = x->sci.data.ny;
 
 	good = 0;
-	for (i = 0;  i < nx;  i++) {
-	    for (j = 0;  j < ny;  j++) {
+	for (int i = 0;   i < nx;   i++) {
+	    for (int j = 0;   j < ny;   j++) {
 		if (Pix (x->sci.data, i, j) > 0.) {
 		    good = 1;
 		    break;

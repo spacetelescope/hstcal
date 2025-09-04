@@ -46,7 +46,6 @@ Hdr *phdr       i: primary header
 	char propaper[STIS_CBUF+1];
 	int nextend;			/* number of FITS extensions */
 	int ccdgain;
-	int i, ch;
 	int no_def = 0;			/* missing keyword is fatal error */
 	int use_default = 1;		/* use default if keyword is missing */
 
@@ -89,7 +88,7 @@ Hdr *phdr       i: primary header
 	if ((status = Get_KeyS (phdr, "FILTER",
                                 use_default, "CLEAR", sts->filter, STIS_CBUF)))
 	    return (status);
-	for (i = 0, ch = 1;  ch != 0;  i++) {
+	for (int i = 0, ch = 1;   ch != 0;   i++) {
 	    ch = sts->filter[i];
 	    if (islower(ch))
 		sts->filter[i] = toupper (ch);

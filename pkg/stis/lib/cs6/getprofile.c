@@ -99,8 +99,6 @@ ProfileArray *profa;  o: list with profile arrays for current sporder
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
-
 	int CheckProfile (ProfileArray **);
 	void FreeProfileArray (ProfileArray **);
 
@@ -108,7 +106,7 @@ ProfileArray *profa;  o: list with profile arrays for current sporder
 	if ((status = OpenProfileTab (sts->pftab.name, &tabinfo)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadProfileTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -215,7 +213,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
                              double *subscale) {
 	int status;
 
-	int npts1, npts2;
+	int npts1;
 	ProfileArray *newp;
 	int NewProfile (ProfileArray **, ProfileArray *);
 
@@ -248,8 +246,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 			 newp->profoff, 1, newp->nptsoff);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
-	npts2 = c_tbagtd (tabinfo->tp, tabinfo->cp_prof, row,
-			 newp->prof, 1, newp->npts);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_prof, row, newp->prof, 1, newp->npts);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 

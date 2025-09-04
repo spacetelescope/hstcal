@@ -97,7 +97,6 @@ LampInfo *lamp    o: spectrum of calibration lamp
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit;		/* true if lamp name found in table */
 
 	/* Open the LAMPTAB table. */
@@ -105,7 +104,7 @@ LampInfo *lamp    o: spectrum of calibration lamp
 	    return (status);
 
 	foundit = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadLampTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -228,7 +227,6 @@ static int ReadLampArray (TblInfo *tabinfo, int row, LampInfo *lamp) {
 
 	double wsave, wlast, wnext;
 	int nwl, nflux;		/* actual number of elements read */
-	int j;
 
 	c_tbegti (tabinfo->tp, tabinfo->cp_nelem, row, &lamp->nelem);
 	if (c_iraferr())
@@ -258,7 +256,7 @@ static int ReadLampArray (TblInfo *tabinfo, int row, LampInfo *lamp) {
 	*/
 	wsave = lamp->wl[0] - (lamp->wl[1] - lamp->wl[0]) / 2.;
 	wlast = lamp->wl[nwl-1] + (lamp->wl[nwl-1] - lamp->wl[nwl-2]) / 2.;
-	for (j = 1;  j < nwl;  j++) {
+	for (int j = 1;   j < nwl;   j++) {
 	    wnext = (lamp->wl[j-1] + lamp->wl[j]) / 2.;
 	    lamp->wl[j-1] = wsave;	/* left edge of pixel j-1 */
 	    wsave = wnext;		/* left edge of pixel j */

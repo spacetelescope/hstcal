@@ -186,5 +186,5 @@ int doFlux (WF3Info *wf32d){
     if (wf32d->subarray == NO)
         freeSingleGroup(&chip1);
 
-	return (status);
+    return (status);
 }

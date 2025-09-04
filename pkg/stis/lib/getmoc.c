@@ -77,7 +77,6 @@ double *a4corr     o: correction factor read from table
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;
 
 	/* initial values, in case of a non-fatal error */
@@ -92,7 +91,7 @@ double *a4corr     o: correction factor read from table
 	    return (status);
 	}
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadMOCTab (&tabinfo, row, &tabrow)) != 0) {
 		if (status < 0)

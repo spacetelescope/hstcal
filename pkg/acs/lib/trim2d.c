@@ -57,9 +57,8 @@ SingleGroup *b    o: output data
     }
 
     /* i,j = pixel indices in input array, m,n = pixel idices in output array */
-    {unsigned int i, j, m, n;
-    for (n = 0, j = ystart; n < ny; n++, j++) {
-        for (m = 0, i = xstart;  m < nx;  m++, i++) {
+    for (int n = 0, j = ystart; n < ny; n++, j++) {
+        for (int m = 0, i = xstart;  m < nx;  m++, i++) {
             /* Extract the science array */
             Pix(b->sci.data, m, n) = Pix(a->sci.data, i, j);
 
@@ -69,7 +68,7 @@ SingleGroup *b    o: output data
             /* Extract the data quality array */
             DQSetPix (b->dq.data, m, n, DQPix(a->dq.data, i, j));
         }
-    }}
+    }
 
     /* Copy header info only if requested... */
     int retStatus = 0;
@@ -77,22 +76,22 @@ SingleGroup *b    o: output data
        /* Copy the headers. */
        status = copyHdr (b->globalhdr, a->globalhdr);
        if (status || hstio_err()) {
-          retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+          retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
           return (retStatus);
        }
        status = copyHdr (&b->sci.hdr, &a->sci.hdr);
        if (status || hstio_err()) {
-           retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+           retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
            return (retStatus);
        }
        status = copyHdr (&b->err.hdr, &a->err.hdr);
        if (status || hstio_err()) {
-           retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+           retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
            return (retStatus);
         }
        status = copyHdr (&b->dq.hdr, &a->dq.hdr);
        if (status || hstio_err()) {
-           retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+           retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
            return (retStatus);
         }
 

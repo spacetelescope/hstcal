@@ -26,8 +26,6 @@ int nwl             i: size of tspec array
 	double sum;	/* sum of template spectrum over slit at one pixel */
 	int iwidth;	/* slit width, odd integer */
 	int half;	/* half of iwidth, truncated down */
-	int i;		/* loop index in buf */
-	int j;		/* loop index in tspec */
 
 	/* iwidth should be the nearest odd integer to slitwidth. */
 	iwidth = (int) slitwidth;
@@ -45,15 +43,15 @@ int nwl             i: size of tspec array
 	memcpy (&buf[half], tspec, nwl*sizeof(double));
 
 	sum = 0.;
-	for (i = 0;  i < iwidth;  i++)
+	for (int i = 0;   i < iwidth;   i++)
 	    sum += buf[i];
 	tspec[0] = sum / (double)iwidth;
 
 	/* Convolve with the slit.  The normalization results in the ends
 	   being tapered off, but that should be OK.
 	*/
-	for (j = 1;  j < nwl;  j++) {
-	    i = j + half;
+for (int j = 1;   j < nwl;   j++) {
+	    int i = j + half;
 	    sum += (buf[i+half] - buf[i-half-1]);
 	    tspec[j] = sum / (double)iwidth;
 	}

@@ -192,6 +192,8 @@ void InitCCDTrl (char *input, char *output) {
 
     char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
     char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
+    // TODO: This unused 'exist' variable should go away.
+    //       InitTrlFile opens in append mode.
     int exist;
 
     char isuffix[] = "_raw";

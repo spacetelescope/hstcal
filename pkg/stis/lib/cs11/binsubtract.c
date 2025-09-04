@@ -245,15 +245,14 @@ int sci_start[2]         i: first sci pixel corresponding to lower_left
 */
 
 	int off[2];		/* offsets of science from wavecal */
-	int i, j;		/* loop indices in wavecal */
 
 	/* Simple expression because the binning is the same. */
 	off[0] = sci_start[0] - lower_left[0];
 	off[1] = sci_start[1] - lower_left[1];
 
 	/* SCI extension (don't modify ERR or DQ extension) */
-	for (j = lower_left[1];  j <= upper_right[1];  j++) {
-	    for (i = lower_left[0];  i <= upper_right[0];  i++) {
+	for (int j = lower_left[1];   j <= upper_right[1];   j++) {
+	    for (int i = lower_left[0];   i <= upper_right[0];   i++) {
 		Pix (wav->sci.data, i, j) = Pix (wav->sci.data, i, j) -
 		ratio * Pix (sci->sci.data, i+off[0], j+off[1]);
 	    }
@@ -267,8 +266,6 @@ static int BinSumBin (SingleGroup *wav, SingleGroup *sci, double ratio,
 
 	double x0, y0;		/* starting pixel in sci before roundoff */
 	int i0, j0;		/* actual starting pixel in science */
-	int m, n;		/* loop indices in wavecal */
-	int i, j;		/* loop indices in science image */
 	int range[2];		/* range of sci pixels to sum over */
 	double sum;		/* for summing pixel values */
 	short dqsum;		/* combined data quality */
@@ -282,7 +279,7 @@ static int BinSumBin (SingleGroup *wav, SingleGroup *sci, double ratio,
 	   Also set range = bin, with 1 as a lower limit.
 	*/
 	combined_ratio = ratio;
-	for (i = 0;  i < 2;  i++) {
+	for (int i = 0;   i < 2;   i++) {
 	    if (bin[i] < 1.) {
 		combined_ratio *= bin[i];
 		range[i] = 1;
@@ -296,15 +293,15 @@ static int BinSumBin (SingleGroup *wav, SingleGroup *sci, double ratio,
 	j0 = sci_start[1];
 	y0 = (double) j0 + SMALL_AMOUNT;
 	/* for each line of wavecal ... */
-	for (n = lower_left[1];  n <= upper_right[1];  n++) {
+	for (int n = lower_left[1];   n <= upper_right[1];   n++) {
 	    i0 = sci_start[0];
 	    x0 = (double) i0 + SMALL_AMOUNT;
 	    /* for each sample in current wavecal line ... */
-	    for (m = lower_left[0];  m <= upper_right[0];  m++) {
+	    for (int m = lower_left[0];   m <= upper_right[0];   m++) {
 		sum = 0.;
 		dqsum = 0;
-		for (j = j0;  j < j0+range[1];  j++) {
-		    for (i = i0;  i < i0+range[0];  i++) {
+		for (int j = j0;   j < j0+range[1];   j++) {
+		    for (int i = i0;   i < i0+range[0];   i++) {
 			sum += Pix (sci->sci.data, i, j);
 			dqsum |= DQPix (wav->dq.data, m, n);
 		    }

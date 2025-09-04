@@ -38,7 +38,6 @@ int y_sect[]      i: first and last pixels in the Y axis
 CmplxArray *z     o: complex data, copied from input
 */
 	int nx, ny;
-	int i, j;
 
 	nx = in->sci.data.nx;
 	ny = in->sci.data.ny;
@@ -49,8 +48,8 @@ CmplxArray *z     o: complex data, copied from input
 	/* Copy to the complex array.  The data portion of z was initialized
 	   to zero when z was allocated.
 	*/
-	for (j = y_sect[0];  j <= y_sect[1];  j++) {
-	    for (i = x_sect[0];  i <= x_sect[1];  i++) {
+	for (int j = y_sect[0];   j <= y_sect[1];   j++) {
+	    for (int i = x_sect[0];   i <= x_sect[1];   i++) {
 		RPIX2D (z, i, j) = Pix (in->sci.data, i, j);
 	    }
 	}
@@ -79,7 +78,6 @@ CmplxArray *crosscorr    o: cross correlation of clamp and cwave
 double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 */
 
-	int i, j;		/* loop indexes */
 	int nx, ny;		/* image size */
 	float max;		/* maximum value in cross correlation */
 	int lmaxx, lmaxy;	/* location of maximum */
@@ -90,8 +88,8 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 	ny = cwave->ny;
 
 	/* Multiply the complex conjugate of the first by the second. */
-	for (j = 0;  j < ny;  j++) {
-	    for (i = 0;  i < nx;  i++) {
+	for (int j = 0;   j < ny;   j++) {
+	    for (int i = 0;   i < nx;   i++) {
 		RPIX2D (crosscorr, i, j) =
 			RPIX2D (clamp, i, j) * RPIX2D (cwave, i, j) +
 			IPIX2D (clamp, i, j) * IPIX2D (cwave, i, j);
@@ -109,8 +107,8 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 	max = RPIX2D (crosscorr, 0, 0);		/* initial values */
 	lmaxx = 0;
 	lmaxy = 0;
-	for (j = 0;  j < ny;  j++) {
-	    for (i = 0;  i < nx;  i++) {
+	for (int j = 0;   j < ny;   j++) {
+	    for (int i = 0;   i < nx;   i++) {
 		if (max < RPIX2D (crosscorr, i, j)) {
 		    max = RPIX2D (crosscorr, i, j);
 		    lmaxx = i;
@@ -141,7 +139,7 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 	float cutoff;		/* include if value is greater than this */
 	float value;		/* value at a pixel */
 	double sumv, sumxv, sumyv;
-	int i, j, ii, jj;
+	int ii, jj;
 	int i1, i2, j1, j2;	/* range of pixels for getting bkg */
 	int xdir, ydir;		/* +1 or -1, indicates search direction */
 	int xrange, yrange;	/* over which to increment sums */
@@ -161,8 +159,8 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 	i1 = z->nx/2 - z->nx/8;
 	i2 = z->nx/2 + z->nx/8;
 	sumv = 0.;
-	for (j = j1;  j < j2;  j++)
-	    for (i = i1;  i < i2;  i++)
+	for (int j = j1;   j < j2;   j++)
+	    for (int i = i1;   i < i2;   i++)
 		sumv += RPIX2D (z, i, j);
 	bkg = sumv / ((j2 - j1) * (i2 - i1));
 
@@ -180,7 +178,7 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 	    xdir = -1;
 	done = 0;
 
-	for (i = lmaxx;  !done;  i += xdir) {
+	for (int i = lmaxx;   !done;   i += xdir) {
 	    if (xdir * (i - lmaxx) > too_far || i < 0 || i >= z->nx) {
 		trlwarn("peak in cross correlation is too broad");
 		return;
@@ -195,7 +193,7 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 	else
 	    ydir = -1;
 	done = 0;
-	for (j = lmaxy;  !done;  j += ydir) {
+	for (int j = lmaxy;   !done;   j += ydir) {
 	    if (ydir * (j - lmaxy) > too_far || j < 0 || j >= z->ny) {
 		trlwarn("peak in cross correlation is too broad");
 		return;
@@ -211,7 +209,7 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 	sumv = 0.;
 	sumxv = 0.;
 	sumyv = 0.;
-	for (j = lmaxy - yrange;  j <= lmaxy + yrange;  j++) {
+	for (int j = lmaxy - yrange;   j <= lmaxy + yrange;   j++) {
 
 	    /* periodic boundary condition */
 	    if (j < 0)
@@ -221,7 +219,7 @@ static void FindOffset (CmplxArray *z, int lmaxx, int lmaxy,
 	    else
 		jj = j;
 
-	    for (i = lmaxx - xrange;  i <= lmaxx + xrange;  i++) {
+	    for (int i = lmaxx - xrange;   i <= lmaxx + xrange;   i++) {
 
 		if (i < 0)
 		    ii = i + z->nx;

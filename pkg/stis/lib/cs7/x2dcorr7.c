@@ -115,7 +115,6 @@ SingleGroup *out           o: output data
         double dtor;            /* conversion of degrees to radians */
         double del_tan;         /* difference of tangent angles */
 	int disp_type;		/* disperser is grating or prism */
-	int i, j;		/* pixel number in output image */
 	short dq;		/* data quality at a pixel */
 	short sdqflags;		/* local value, set to zero */
 
@@ -213,7 +212,7 @@ SingleGroup *out           o: output data
 
 	/* Fill each pixel of the output image. */
 
-	for (j = 0;  j < out->sci.data.ny;  j++) {
+	for (int j = 0;   j < out->sci.data.ny;   j++) {
 
 	    /* approximate; in reference coordinates */
 	    line0 = (j - coord_o->crpix[1]) / sts->ltm[1] +
@@ -233,7 +232,7 @@ SingleGroup *out           o: output data
 	    if ((status = InterpTrace (&trace, line0, &trace_y)))
 		return (status);
 
-	    for (i = 0;  i < out->sci.data.nx;  i++) {
+	    for (int i = 0;   i < out->sci.data.nx;   i++) {
 
 		ox = (double) i;
 		oy = (double) j;

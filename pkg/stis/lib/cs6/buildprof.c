@@ -68,7 +68,7 @@ static void Drizzle (StisInfo6 *, int, int, int);
 
 void BuildOutputProfile (StisInfo6 *sts, RowContents *row) {
 
-        int i, j, k, i1, i2, iclip;
+        int j, i1, i2;
         int npoints;
         double wstep, pix;
         double sum, sumsq, lupper, llower, avg, stddev;
@@ -115,7 +115,7 @@ void BuildOutputProfile (StisInfo6 *sts, RowContents *row) {
         i2 = sts->profile_pstep - 1;
 
         /* Loop over ranges. */
-        for (k = 0; k < sts->profile_msize; k++) {
+        for (int k = 0;  k < sts->profile_msize;  k++) {
 
             /* Clean cosmic rays. Bin pixels in the A1 direction,
                determining the mean and stddev for each bin. Flag
@@ -125,14 +125,14 @@ void BuildOutputProfile (StisInfo6 *sts, RowContents *row) {
                X1DSpec based on DQ flags.
             */
 
-            for (j = 0; j < sts->profile_y; j++) {
+            for (int j = 0;  j < sts->profile_y;  j++) {
                 lupper =  DBL_MAX;
                 llower = -DBL_MAX;
-                for (iclip = 0; iclip <= MAX_ITER; iclip++) {
+                for (int iclip = 0;  iclip <= MAX_ITER;  iclip++) {
                     sum   = 0.0;
                     sumsq = 0.0;
                     npoints = 0;
-                    for (i = i1; i <= i2; i++) {
+                    for (int i = i1;  i <= i2;  i++) {
                         if (sts->profile_dq[i][j] != NO_GOOD_DATA &&
                             sts->profile[i][j]    <  lupper       &&
                             sts->profile[i][j]    >  llower) {
@@ -157,8 +157,8 @@ void BuildOutputProfile (StisInfo6 *sts, RowContents *row) {
             /*
             sts->profile_sn[k] = 0.0;
             empty = 1;
-            for (j = 0; j < sts->profile_y; j++) {
-                for (i = i1; i <= i2; i++) {
+            for (int j = 0;  j < sts->profile_y;  j++) {
+                for (int i = i1;  i <= i2;  i++) {
                     if (!sts->profile_rej[i] &&
                         sts->profile_dq[i][j] != NO_GOOD_DATA) {
                         sts->profile_sn[k] += sts->profile[i][j];
@@ -174,15 +174,15 @@ void BuildOutputProfile (StisInfo6 *sts, RowContents *row) {
             else
                 sts->profile_sn[k] = 0.0;
             if (sts->profile_sn[k] < sts->profile_minsn) {
-                for (j = 0; j < (sts->profile_y)-1; sts->profile[k][j++] = -1.);
+                for (int j = 0;  j < (sts->profile_y)-1;  sts->profile[k][j++] = -1.);
             }
             */
 
             /* Normalize. */
 
-            for (i = i1; i <= i2; i++) {
+            for (int i = i1;  i <= i2;  i++) {
                 sum = 0.0;
-                for (j = 0; j < sts->profile_y; j++) {
+                for (int j = 0;  j < sts->profile_y;  j++) {
                     if (!sts->profile_rej[i] &&
                         sts->profile_dq[i][j] != NO_GOOD_DATA) {
                         sum += sts->profile[i][j];
@@ -215,21 +215,18 @@ void BuildOutputProfile (StisInfo6 *sts, RowContents *row) {
 
 static void Drizzle (StisInfo6 *sts, int i1, int i2, int k) {
 
-        int i;                  /* scan columns inside bin                */
-        int j;                  /* scan pixels in column                  */
-        int ix;                 /* scan subpixels                         */
         double x1, x2;          /* edges of large pixel in subpixel array */
         int ix1, ix2;           /* and their integer counterparts         */
         double sum, npt;        /* normalization */
 
         /* Loop over columns in bin. */
 
-        for (i = i1; i < i2; i++) {
+        for (int i = i1;  i < i2;  i++) {
             if (!sts->profile_rej[i]) {
 
                 /* Loop over input pixels in column. */
 
-                for (j = 0; j < sts->profile_y; j++) {
+                for (int j = 0;  j < sts->profile_y;  j++) {
                     if (sts->profile_dq[i][j] != NO_GOOD_DATA) {
 
                         /* Compute where in subpixel array the edges of
@@ -258,7 +255,7 @@ static void Drizzle (StisInfo6 *sts, int i1, int i2, int k) {
                             /* Scan subpixels in between. */
 
                             if ((ix2 - ix1) > 1) {
-                                for (ix = ix1 + 1; ix < ix2; ix++) {
+                                for (int ix = ix1 + 1;  ix < ix2;  ix++) {
                                     sts->subprof[k][ix] += sts->profile[i][j];
                                 }
                             }
@@ -272,11 +269,11 @@ static void Drizzle (StisInfo6 *sts, int i1, int i2, int k) {
 
         sum = 0.0;
         npt = 0.0;
-        for (i = 0; i < sts->subprof_size; i++) {
+        for (int i = 0;  i < sts->subprof_size;  i++) {
             sum += sts->subprof[k][i];
             npt += 1.0;
         }
-        for (i = 0; i < sts->subprof_size; i++) {
+        for (int i = 0;  i < sts->subprof_size;  i++) {
             sts->subprof[k][i] /= sum;
         }
 }
