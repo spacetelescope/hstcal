@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>	/* malloc */
+#include <string.h>
 
 # include "c_iraf.h"
 # include "hstio.h"
@@ -46,7 +47,6 @@ StisInfo11 *scidata  i: info for science data
 	int imset_ok;		/* value of header keyword IMSET_OK */
 	int n;
 	int k;			/* loop index for number of good sci images */
-	int extverWav;		/* imset number for wavecal */
 	int extverSci;		/* imset number for science data */
 	int index;		/* extverSci-1 (index into arrays) */
 	int option;		/* selection option for best science imset */
@@ -99,7 +99,7 @@ StisInfo11 *scidata  i: info for science data
 
 	/* Process each wavecal. */
 
-	for (extverWav = 1;  extverWav <= wavecal->nimages;  extverWav++) {
+	for (int extverWav = 1;   extverWav <= wavecal->nimages;   extverWav++) {
 
 	    PrGrpBegin ("imset", extverWav);
 
