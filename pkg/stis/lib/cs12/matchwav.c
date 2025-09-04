@@ -34,7 +34,6 @@ double *shift        o: interpolated shift
 
 	double dt;	/* difference in times */
 	double min_dt;	/* minimum value of dt */
-	int i;		/* array index */
 	int min_i;	/* value of i that gives minimum dt */
 	double p, q;	/* for linear interpolation of shift */
 
@@ -63,7 +62,7 @@ double *shift        o: interpolated shift
 
 	    min_dt = fabs (wav_midpt[0] - midpt);
 	    min_i = 0;
-	    for (i = 0;  i < n;  i++) {
+	    for (int i = 0;   i < n;   i++) {
 		dt = fabs (wav_midpt[i] - midpt);
 		if (dt < min_dt) {
 		    min_dt = dt;
@@ -74,7 +73,7 @@ double *shift        o: interpolated shift
 
 	} else if (w_option == STIS_LINEAR) {
 
-	    for (i = 0;  i < n - 1;  i++) {
+	    for (int i = 0;   i < n - 1;   i++) {
 		if (midpt >= wav_midpt[i] &&
 		    midpt <= wav_midpt[i+1]) {
 		    p = (midpt - wav_midpt[i]) /
