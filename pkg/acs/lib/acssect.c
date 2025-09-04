@@ -41,7 +41,7 @@ int allocACSsect (ACSsect *x, int npix, int nlines) {
 		x->err = (ErrHdrLine *) calloc(nlines, sizeof(ErrHdrLine));
 		x->dq = (DQHdrLine *) calloc(nlines, sizeof(DQHdrLine));
 		
-		for (size_t i=0; i < nlines; i++) {
+		for (int i=0; i < nlines; i++) {
         	if (allocFloatHdrLine (&(x->sci[i]),npix)) return (-1);
         	if (allocFloatHdrLine (&(x->err[i]),npix)) return (-1);
         	if (allocShortHdrLine (&(x->dq[i]),npix))  return (-1);

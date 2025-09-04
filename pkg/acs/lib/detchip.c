@@ -67,7 +67,7 @@ int *extver				o: extension (IMSET) from file corresponding
 
     	/* Get CCD-specific parameters. */
     	if (GetKeyInt (&scihdr, "CCDCHIP", USE_DEFAULT, 1, &ccdchip))
-        	return (status);
+            return (status);
 
 
 		if (ccdchip == chip) {
