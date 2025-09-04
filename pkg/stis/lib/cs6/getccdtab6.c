@@ -281,7 +281,7 @@ static int ReadCCDTab6(TblInfo *tabinfo, int row, TblRow *tabrow)
     if (c_iraferr())
         return (TABLE_ERROR);
 
-    if (tabinfo->cp_halofac > 0) {
+    if (tabinfo->cp_halofac != NULL) {
         c_tbegtr(tabinfo->tp, tabinfo->cp_halofac, row, &tabrow->halofac);
         if (c_iraferr())
             return (TABLE_ERROR);
@@ -289,7 +289,7 @@ static int ReadCCDTab6(TblInfo *tabinfo, int row, TblRow *tabrow)
         tabrow->halofac = 0.;
     }
 
-    if (tabinfo->cp_halominfrac > 0) {
+    if (tabinfo->cp_halominfrac != NULL) {
         c_tbegtr(tabinfo->tp, tabinfo->cp_halominfrac, row,
 			&tabrow->halominfrac);
         if (c_iraferr())
