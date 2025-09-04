@@ -131,7 +131,6 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
 
     /* mappings from one coordinate system to another */
     double ri_m[2], ri_v[2];	/* reference to image */
-    int npix_x, npix_y;			/* size of current image */
 
     short sum_dq;				/* for binning data quality array */
     int atod_sat;
