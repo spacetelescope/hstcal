@@ -102,12 +102,10 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	TblArray tabarray;	/* correction array read from table row */
 
 	int foundit;		/* row found in table? */
-	int row;		/* loop index for row number */
 	int row_min;		/* row with closest temperature (min dt) */
 	double ref_key_value;	/* value gotten from image header */
 	double dt, dt_min;	/* for finding temperature in table */
 	int ival;		/* input science data value from x */
-	int i, j;
 	short dq;		/* a data quality value */
 
 	int no_default = 0;	/* missing keyword is fatal error */
@@ -127,7 +125,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* Find the row with value closest to the temperature. */
 
 	foundit = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 	    if ((status = ReadAtoDTab (&tabinfo, row, &tabrow)))
 		return (status);
 	    if (SameString (tabrow.ccdamp, sts->ccdamp) &&
@@ -173,8 +171,8 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	   stage the values should still be integers, so assigning
 	   a value to an integer (ival) should not result in truncation.
 	*/
-	for (j = 0;  j < x->sci.data.ny;  j++) {
-	    for (i = 0;  i < x->sci.data.nx;  i++) {
+	for (int j = 0;   j < x->sci.data.ny;   j++) {
+	    for (int i = 0;   i < x->sci.data.nx;   i++) {
 		ival = (int) Pix (x->sci.data, i, j);
 		if (ival >= tabarray.nelem) {
 		    Pix (x->sci.data, i, j) = tabarray.atod[tabarray.nelem-1];

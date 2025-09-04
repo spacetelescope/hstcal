@@ -330,7 +330,6 @@ static int MedSciVal (SingleGroup *y, float *meandark) {
 
 	float *dark;		/* a copy of the unflagged values in the dark */
 	int numgood;		/* number of good pixels */
-	int i, j;
 	int inplace = 1;	/* flag:  compute the median in-place */
 
 	if ((dark = (float *) calloc (y->sci.data.nx * y->sci.data.ny,
@@ -340,8 +339,8 @@ static int MedSciVal (SingleGroup *y, float *meandark) {
 	}
 
 	numgood = 0;
-	for (j = 0;  j < y->sci.data.ny;  j++) {
-	    for (i = 0;  i < y->sci.data.nx;  i++) {
+	for (int j = 0;   j < y->sci.data.ny;   j++) {
+	    for (int i = 0;   i < y->sci.data.nx;   i++) {
 		if (DQPix (y->dq.data, i, j) == 0) {
 		    dark[numgood] = Pix (y->sci.data, i, j);
 		    numgood++;
@@ -370,13 +369,12 @@ static int meanNUVDark(SingleGroup *y, double *mean_nuv_dark) {
 
     /*int status;*/
 	int numgood;		/* number of good pixels */
-	int i, j;
 	double sum, mean_value;
 
 	numgood = 0;
 	sum = 0.;
-	for (j = 0;  j < y->sci.data.ny;  j++) {
-	    for (i = 0;  i < y->sci.data.nx;  i++) {
+	for (int j = 0;   j < y->sci.data.ny;   j++) {
+	    for (int i = 0;   i < y->sci.data.nx;   i++) {
 		if (DQPix(y->dq.data, i, j) == 0) {
 		    sum += Pix(y->sci.data, i, j);
 		    numgood++;

@@ -559,7 +559,6 @@ int ngood_extver   io: incremented unless the current imset has zero
 static void getMinMax (SingleGroup *x, float *minval, float *maxval) {
 
 	int nx, ny;
-	int i, j;
 	float value;
 
 	nx = x->sci.data.nx;
@@ -567,8 +566,8 @@ static void getMinMax (SingleGroup *x, float *minval, float *maxval) {
 
 	*minval = Pix (x->sci.data, 0, 0);
 	*maxval = *minval;
-	for (i = 0;  i < nx;  i++) {
-	    for (j = 0;  j < ny;  j++) {
+	for (int i = 0;   i < nx;   i++) {
+	    for (int j = 0;   j < ny;   j++) {
 		value = Pix (x->sci.data, i, j);
 		if (value < *minval)
 		    *minval = value;

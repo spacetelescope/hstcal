@@ -73,7 +73,6 @@ int *d0            o: index in ds corresponding to zero Doppler shift;
 */
 
 	int n;			/* amplitude of ds array */
-	double t;		/* time at increments of DT during exposure */
 	double shift;		/* Doppler shift in pixels at time t */
 	float sum;		/* for normalizing smearing function */
 	int i;
@@ -107,7 +106,7 @@ int *d0            o: index in ds corresponding to zero Doppler shift;
 	   been observed if the Doppler shift were zero.
 	*/
 	sum = 0.;
-	for (t = expstart-doppzero; t <= expstart-doppzero+exptime; t += DT) {
+	for (int t = expstart-doppzero;  t <= expstart-doppzero+exptime;  t += DT) {
 
 	    if (dispsign == 1)
 		shift = -doppmag * sin (t * 2. * PI / orbitper);
@@ -121,7 +120,7 @@ int *d0            o: index in ds corresponding to zero Doppler shift;
 	}
 
 	/* Normalize ds so the sum of the values is one. */
-	for (i = 0;  i < *nds;  i++)
+	for (int i = 0;   i < *nds;   i++)
 	    ds[i] /= sum;
 
 	return (0);

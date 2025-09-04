@@ -73,7 +73,6 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;	/* true if parameters found in table */
 
 	RefTab tempreftab;	/* holding place for table name */
@@ -83,7 +82,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	if ((status = OpenTdsTab1 (tabname, &tabinfo, tds)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadTdsTab1 (&tabinfo, row, &tabrow)))
 
@@ -186,7 +185,7 @@ static int ReadTdsTab1 (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
 static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
-	int nwl, ntemp, i;
+	int nwl, ntemp;
         /*int nt, ns, ini, ndim, dim[2];*/
 	int status = 0;
 
@@ -229,7 +228,7 @@ static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	if (tabinfo->cp_reftemp == 0 || tabinfo->cp_tempsens == 0) {
 	    /* set the temperature sensitivity to zero */
 	    tds->ref_temp = -1.;
-	    for (i = 0; i < tds->nwl; i++)
+	    for (int i = 0;  i < tds->nwl;  i++)
 		tds->temp_sens[i] = 0.;
 	} else {
 	    c_tbegtd (tabinfo->tp, tabinfo->cp_reftemp, row, &tds->ref_temp);

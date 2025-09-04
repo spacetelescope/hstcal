@@ -182,16 +182,12 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 
 	float *ds;		/* Doppler smearing array */
 	int nds, d0;		/* size of ds and index in ds of zero point */
-	int k, kmin, kmax;	/* loop index; range of indexes in ds */
+	int kmin, kmax;	/* loop index; range of indexes in ds */
 	int doppmin, doppmax;	/* Doppler offsets relative to d0 */
 
 	int in_place;		/* true if same bin size and no Doppler */
 	int high_res;		/* true if Doppler or either axis is high-res */
-	int i, j, i0, j0;	/* indexes for scratch array ydq */
-	int m, n;		/* indexes for data quality array in x */
 	short sum_dq;		/* for binning data quality array */
-
-	int row;		/* loop index for row number */
 
 	void FlagFilter (StisInfo1 *, ShortTwoDArray *,
 		int, int, double *, double *);
@@ -204,8 +200,8 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 
 	/* For the CCD, check for and flag saturation. */
 	if (sts->detector == CCD_DETECTOR) {
-	    for (j = 0;  j < x->sci.data.ny;  j++) {
-		for (i = 0;  i < x->sci.data.nx;  i++) {
+	    for (int j = 0;   j < x->sci.data.ny;   j++) {
+		for (int i = 0;   i < x->sci.data.nx;   i++) {
 		    if ((int) Pix (x->sci.data, i, j) > sts->saturate) {
 			sum_dq = DQPix (x->dq.data, i, j) | SATPIXEL;
 			DQSetPix (x->dq.data, i, j, sum_dq);	/* saturated */
@@ -311,7 +307,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	    /* Find the range of non-zero elements in ds. */
 	    kmin = nds - 1;		/* initial values */
 	    kmax = 0;
-	    for (k = 0;  k < nds;  k++) {
+	    for (int k = 0;   k < nds;   k++) {
 		if (ds[k] > 0.) {	/* there will be no negative values */
 		    if (k < kmin)
 			kmin = k;
@@ -352,14 +348,14 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 		trlerror("(doDQI) couldn't allocate data quality array.");
 		return (OUT_OF_MEMORY);
 	    }
-	    for (j = 0;  j < snpix[1];  j++)
-		for (i = 0;  i < snpix[0];  i++)
+	    for (int j = 0;   j < snpix[1];   j++)
+		for (int i = 0;   i < snpix[0];   i++)
 		    DQSetPix (ydq, i, j, 0);		/* initially OK */
 	}
 
 	/* Read each row of the table, and fill in data quality values. */
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadBpixTab (&tabinfo, row, &tabrow))) {
 		trlerror("Error reading BPIXTAB.");
@@ -394,6 +390,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	    return (status);
 
 	if (!in_place) {
+	    int i0, j0;	/* indexes for scratch array ydq */
 
 	    /* Get corners of region of overlap between image and
 		scratch array.
@@ -404,12 +401,12 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 		bin the values down to the actual size of x.
 	    */
 	    j0 = sfirst[1];
-	    for (n = first[1];  n <= last[1];  n++) {
+	    for (int n = first[1];   n <= last[1];   n++) {
 		i0 = sfirst[0];
-		for (m = first[0];  m <= last[0];  m++) {
+		for (int m = first[0];   m <= last[0];   m++) {
 		    sum_dq = DQPix (x->dq.data, m, n);
-		    for (j = j0;  j < j0+rbin[1];  j++)
-			for (i = i0;  i < i0+rbin[0];  i++)
+		    for (int j = j0;   j < j0+rbin[1];   j++)
+			for (int i = i0;   i < i0+rbin[0];   i++)
 			    sum_dq |= DQPix (ydq, i, j);
 		    DQSetPix (x->dq.data, m, n, sum_dq);
 		    i0 += rbin[0];
@@ -573,7 +570,7 @@ TblRow *tabrow       i: data quality info read from one row
 		xhigh = ydq->nx - 1;
 
 	    j = ystart;
-	    for (i = xlow;  i <= xhigh;  i++) {
+	    for (int i = xlow;   i <= xhigh;   i++) {
 		sum_dq = tabrow->flag | PDQPix (ydq, i, j);
 		PDQSetPix (ydq, i, j, sum_dq);
 	    }
@@ -595,7 +592,7 @@ TblRow *tabrow       i: data quality info read from one row
 		yhigh = ydq->ny - 1;
 
 	    i = xstart;
-	    for (j = ylow;  j <= yhigh;  j++) {
+	    for (int j = ylow;   j <= yhigh;   j++) {
 		sum_dq = tabrow->flag | PDQPix (ydq, i, j);
 		PDQSetPix (ydq, i, j, sum_dq);
 	    }
@@ -625,7 +622,6 @@ int doppmin, doppmax  i: offsets for Doppler shift
 	int xlow, xhigh;	/* limits for loop on i */
 	int ylow, yhigh;	/* limits for loop on j */
 	int nx, ny;		/* size of data quality array */
-	int i, j;		/* indexes for scratch array ydq */
 	short sum_dq;		/* for binning data quality array */
 
 	/* xstart, ystart is the starting pixel in high-res coords,
@@ -688,8 +684,8 @@ int doppmin, doppmax  i: offsets for Doppler shift
 	if (yhigh >= ny)
 	    yhigh = ny - 1;
 
-	for (j = ylow;  j <= yhigh;  j++) {
-	    for (i = xlow;  i <= xhigh;  i++) {
+	for (int j = ylow;   j <= yhigh;   j++) {
+	    for (int i = xlow;   i <= xhigh;   i++) {
 		sum_dq = tabrow->flag | PDQPix (ydq, i, j);
 		PDQSetPix (ydq, i, j, sum_dq);
 	    }
@@ -712,19 +708,18 @@ int sfirst[2]           o: lower left corner of overlap, in scratch array
 */
 
 	double scr;		/* pixel coordinate in scratch array */
-	int i, k;
 
 	rbin[0] = NINT (1. / ltm[0]);
 	rbin[1] = NINT (1. / ltm[1]);
 
-	for (k = 0;  k < 2;  k++) {	/* axis number */
+	for (int k = 0;   k < 2;   k++) {	/* axis number */
 	    /* Search for the first pixel in the image array that maps to a
 		point that is completely within the scratch array.  The left
 		(lower) edge of pixel i is (i - 0.5).  Map (i - 0.5) to the
 		scratch array, and if that point is within the scratch array,
 		i is the first fully illuminated pixel.
 	    */
-	    for (i = 0;  i < npix[k];  i++) {
+	    for (int i = 0;   i < npix[k];   i++) {
 		scr = (i - 0.5 - ltv[k]) / ltm[k];
 		/* -0.5 is left (lower) edge of first pixel in scratch */
 		if (scr+TOLERANCE >= -0.5) {
@@ -736,7 +731,7 @@ int sfirst[2]           o: lower left corner of overlap, in scratch array
 	    /* Now look for the last fully illuminated pixel, using the
 		right (upper) edge of the image pixels.
 	    */
-	    for (i = npix[k]-1;  i > 0;  i--) {
+	    for (int i = npix[k]-1;   i > 0;   i--) {
 		scr = (i + 0.5 - ltv[k]) / ltm[k];
 		/* compare scr with right (upper) edge of last pixel in the
 		   scratch array

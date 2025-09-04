@@ -25,9 +25,7 @@ void BlevInit (int midline) {
 int midline        i: middle line of image, will be subtracted from line number
 */
 
-	int i;
-
-	for (i = 0;  i < NELEM_SUMS;  i++)
+	for (int i = 0;   i < NELEM_SUMS;   i++)
 	    sums[i] = 0.;
 	slope = 0.;
 	intercept = 0.;

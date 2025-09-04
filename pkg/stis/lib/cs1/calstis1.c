@@ -94,7 +94,6 @@ int CalStis1 (char *input, char *output, char *outblev,
 	int status;
 
 	StisInfo1 sts;	/* calibration switches, reference files, etc */
-	int extver;
 	int ngood_extver;	/* counter for "good" image sets (imsets) */
 
 	IODescPtr im;		/* descriptor for input image */
@@ -214,7 +213,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 	    TimeStamp ("Begin processing", sts.rootname);
 
 	ngood_extver = 0;
-	for (extver = 1;  extver <= sts.nimages;  extver++) {
+	for (int extver = 1;   extver <= sts.nimages;   extver++) {
 	    trlmessage("");
 	    PrGrpBegin ("imset", extver);
 	    if ((status = Do2D (&sts, extver, &ngood_extver)) != 0)
@@ -318,11 +317,9 @@ static void InitRefImage (RefImage *image) {
 
 static int ParseDarkscaleString (cs1_switch *cs1_sw, StisInfo1 *sts) {
 
-	int i;
-
 	int strtor (char *, float[]);
 
-	for (i = 0; i < MAX_IMSET; sts->darkscale[i++] = 0.0);
+	for (int i = 0;  i < MAX_IMSET;  sts->darkscale[i++] = 0.0);
 	sts->ndarkscale = 0;
 
 	sts->ndarkscale = strtor (cs1_sw->darkscale_string, sts->darkscale);
