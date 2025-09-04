@@ -121,7 +121,7 @@ function value          o: length of the file name, or 0 if there are no
 
         i = imt_descr->current_index;
 
-        if (strlen (imt_descr->files[i]) <= maxch) {
+        if ((int)strlen(imt_descr->files[i]) <= maxch) {
             strcpy (outstr, imt_descr->files[i]);
         } else {
             setError (ERR_STRING_TOO_LONG,
@@ -133,7 +133,7 @@ function value          o: length of the file name, or 0 if there are no
         /* point to the next name in the list */
         imt_descr->current_index += 1;
 
-        return (strlen (imt_descr->files[i]));
+        return (int)strlen(imt_descr->files[i]);
 }
 
 void c_imtclose (IRAFPointer imt) {
