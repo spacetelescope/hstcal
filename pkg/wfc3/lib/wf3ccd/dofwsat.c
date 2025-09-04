@@ -59,7 +59,6 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     int xdim;				/* number of columns in science image */
     int ydim;				/* number of lines in science image */
     short sum_dq;			/* total of the DQ bits for each pixel */
-    int is_subarray = 0;	/* identification of data as a subarray */
     int straddle = 0;		/* subarray starts in A or C and straddles the virtual overscan in the reference image */
     int overstart = -1;		/* location where the overscan starts in the cut science image */
     int xbeg[2], ybeg[2];
@@ -143,7 +142,6 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
         trlmessage("Saturation image and input are the same size.");
     /* Subarray */
     } else {
-        is_subarray = 1;
         trlmessage("Saturation image and input are NOT the same size - SUBARRAY found, amp %s", wf3->ccdamp);
 
         /*
