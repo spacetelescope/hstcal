@@ -271,17 +271,12 @@ int CalAcsRun (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 char *BuildSumInput (AsnInfo *asn, int prod, int posid) {
 
-    int nchars;
     int acssum_len;
     int i;
     char *acssum_input;
     char tmpexp[CHAR_LINE_LENGTH];
     char tmpflt[CHAR_LINE_LENGTH];
     int MkName (char *, char *, char *, char *, char *, int);
-
-    /* Determine how long this string needs to be... */
-    /*nchars = asn->spmems[posid] * CHAR_FNAME_LENGTH; */
-    nchars = 1;
 
     /* Keep track of individual filename lengths and total length*/
     acssum_len = 0;
