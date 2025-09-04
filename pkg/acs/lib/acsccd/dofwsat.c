@@ -105,10 +105,10 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 
     /* Get the bin factor and "corner" (xpixel and ypixel) where science data actually
        begins (versus overscan) in the science and the saturation image data */
-	if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
-	    return (status);
-	if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner))
-	    return (status);
+    if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
+        return (status);
+    if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner))
+        return (status);
 
     /* Clean up the SingleGroupLine object */
     closeSingleGroupLine (&y);
