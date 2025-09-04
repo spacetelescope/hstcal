@@ -163,8 +163,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     initHdr(&scihdr);
 
     float readNoise = 0.0;
-
-    int ret;
+    int ret = 0;
 
     /*check if this is a subarray image.
       This is necessary because the CTE routine will start with the raw images
@@ -1638,8 +1637,8 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       for (ih=1; ih<=NUM_BINS-1; ih++) {
           for (iih=ih+1; iih<=NUM_BINS-1; iih++) {
               if (dcum[iih-1]-dcum[ih-1] > 0.75*dtot && iih-ih < idmin) {
-                  id1   = ih;  // TODO: not used for anything
-                  id2   = iih; // TODO: not used for anything
+                  id1   = ih;  // TODO: not used for anything below
+                  id2   = iih; // TODO: not used for anything below
                   idmin = iih-ih;
               }
 
