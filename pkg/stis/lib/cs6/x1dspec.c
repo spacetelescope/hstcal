@@ -148,32 +148,31 @@ RowContents *row_cont  o:  output row arrays
 
 	/* Output extraction info (in image, not reference, pixels) */
 
-	if (sts->extrloc) {
-	    row_cont->a2center = sts->cc_a2center *
-                                 sts->ltm[1] + sts->ltv[1] + 1.0;
-	    row_cont->extrsize = extrsize * sts->ltm[1];
-	    /* See if there are command-line overrides. */
-	    if (sts->bksize[0] == NO_SIZE)
-	        row_cont->bk1size = xtr->bksize[0] * sts->ltm[1];
-            else
-	        row_cont->bk1size = sts->bksize[0] * sts->ltm[1];
-	    if (sts->bksize[1] == NO_SIZE)
-	        row_cont->bk2size = xtr->bksize[1] * sts->ltm[1];
-            else
-	        row_cont->bk2size = sts->bksize[1] * sts->ltm[1];
-	    if (sts->bkoffset[0] == NO_SIZE)
-	        row_cont->bk1offset = xtr->bkoffset[0] * sts->ltm[1];
-	    else
-	        row_cont->bk1offset = sts->bkoffset[0] * sts->ltm[1];
-	    if (sts->bkoffset[1] == NO_SIZE)
-	        row_cont->bk2offset = xtr->bkoffset[1] * sts->ltm[1];
-	    else
-	        row_cont->bk2offset = sts->bkoffset[1] * sts->ltm[1];
-	    if (sts->maxsearch == NO_RANGE)
-	        row_cont->maxsearch = xtr->maxsearch * sts->ltm[1];
-	    else
-	        row_cont->maxsearch = sts->maxsearch * sts->ltm[1];
-	}
+    if (sts->extrloc) {
+        row_cont->a2center = sts->cc_a2center * sts->ltm[1] + sts->ltv[1] + 1.0;
+        row_cont->extrsize = extrsize * sts->ltm[1];
+        /* See if there are command-line overrides. */
+        if (sts->bksize[0] == NO_SIZE)
+            row_cont->bk1size = xtr->bksize[0] * sts->ltm[1];
+        else
+            row_cont->bk1size = sts->bksize[0] * sts->ltm[1];
+        if (sts->bksize[1] == NO_SIZE)
+            row_cont->bk2size = xtr->bksize[1] * sts->ltm[1];
+        else
+            row_cont->bk2size = sts->bksize[1] * sts->ltm[1];
+        if (sts->bkoffset[0] == NO_SIZE)
+            row_cont->bk1offset = xtr->bkoffset[0] * sts->ltm[1];
+        else
+            row_cont->bk1offset = sts->bkoffset[0] * sts->ltm[1];
+        if (sts->bkoffset[1] == NO_SIZE)
+            row_cont->bk2offset = xtr->bkoffset[1] * sts->ltm[1];
+        else
+            row_cont->bk2offset = sts->bkoffset[1] * sts->ltm[1];
+        if (sts->maxsearch == NO_RANGE)
+            row_cont->maxsearch = xtr->maxsearch * sts->ltm[1];
+        else
+            row_cont->maxsearch = sts->maxsearch * sts->ltm[1];
+    }
 
 	/* Alloc memory for interpolated profile. This must be always
            done, to avoid a rui exception.
