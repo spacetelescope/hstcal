@@ -22,8 +22,6 @@ static int ReallocNames (void);
 
 int InitNames (void) {
 
-	int i;
-
 	nnames = 0;
 	fnames = malloc (MAX_NAMES_INCR * sizeof (char *));
 	if (fnames == NULL) {
@@ -32,7 +30,7 @@ int InitNames (void) {
 	}
 	maxnames = MAX_NAMES_INCR;
 
-	for (i = 0;  i < maxnames;  i++)
+	for (int i = 0;   i < maxnames;   i++)
 	    fnames[i] = NULL;
 
 	return (0);
@@ -49,7 +47,7 @@ int *oldname     o: true if name already present in list
 	int i;
 
 	/* Check whether the current filename is already in the list. */
-	for (i = 0;  i < nnames;  i++) {
+	for (int i = 0;   i < nnames;   i++) {
 	    if (strcmp (filename, fnames[i]) == 0) {
 		*oldname = 1;		/* name was found */
 		return (0);
@@ -78,7 +76,6 @@ int *oldname     o: true if name already present in list
 
 static int ReallocNames (void) {
 
-	int i;
 	int newmax;		/* new max number of names */
 
 	newmax = maxnames + MAX_NAMES_INCR;
@@ -89,7 +86,7 @@ static int ReallocNames (void) {
 	    return (OUT_OF_MEMORY);
 	}
 
-	for (i = maxnames;  i < newmax;  i++)
+	for (int i = maxnames;   i < newmax;   i++)
 	    fnames[i] = NULL;
 
 	maxnames = newmax;
@@ -99,9 +96,7 @@ static int ReallocNames (void) {
 
 void FreeNames (void) {
 
-	int i;
-
-	for (i = 0;  i < nnames;  i++)
+	for (int i = 0;   i < nnames;   i++)
 	    free (fnames[i]);
 	free (fnames);
 	nnames = 0;
