@@ -143,7 +143,7 @@ static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
 	int ref_bin[2];		/* bin size of reference image */
 	int ref_corner[2];	/* ref image corner location */
 	int nsatpix;		/* number of saturated pixels */
-	float sval, eval;	/* science and err image values */
+	float sval;	/* science and err image values */
 	float corr;		/* correction value */
 	float n1;		/* node value */
 
@@ -171,7 +171,7 @@ static int nlincorr (WF3Info *wf3, SingleNicmosGroup *input, NlinData *nlin,
 
 	     /* Get the science and error image values */
 	     sval = Pix(input->sci.data,i,j);
-	     eval = Pix(input->err.data,i,j);
+	     int eval = Pix(input->err.data,i,j); // TODO: Why is this not used?
 
 	     /* Temporarily add the MULTIACCUM zero-read signal back into the
 	     ** the pixel value, but only if ZSIG step is turned on and only
