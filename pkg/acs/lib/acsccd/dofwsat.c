@@ -39,7 +39,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 
     extern int status;
 
-    SingleGroupLine y, z;	/* y and z are scratch space */
+    SingleGroupLine y;	/* y and z are scratch space */
     SingleGroup satimage;   /* storage for entire saturation image */
     int extver = 1;			/* get this imset from bias image */
     int rx, ry;				/* for binning bias image down to size of x */
