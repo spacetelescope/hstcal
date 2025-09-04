@@ -30,7 +30,6 @@ int crrej_init (IODescPtr ipsci[], clpar *par, int nimgs, int dim_x, int dim_y,
 
 	float		rog2, exp2, scale, val, raw, raw0, signal0;
 	float		*buf;
-	int		i, j, n;
 	int		dum;
 	int		*npts;
 
@@ -49,19 +48,19 @@ int crrej_init (IODescPtr ipsci[], clpar *par, int nimgs, int dim_x, int dim_y,
 
 	/* use the stack median to construct the initial average */
 	if (strncmp(par->initial, "median", 3) == 0) {
-	    for (j = 0; j < dim_y; j++) {
-		for (i = 0; i < dim_x; i++)
+	    for (int j = 0;  j < dim_y;  j++) {
+		for (int i = 0;  i < dim_x;  i++)
 		    npts[i] = 0;
 
-		for (n = 0; n < nimgs; n++) {
+		for (int n = 0;  n < nimgs;  n++) {
 		    getFloatLine (ipsci[n], j, buf);
-		    for (i = 0; i < dim_x; i++) {
+		    for (int i = 0;  i < dim_x;  i++) {
 			PIX(work,npts[i],i,nimgs) = (buf[i] - skyval[n]) / 
 							efac[n];
 			npts[i] += 1;
 		    }
 		}
-		for (i = 0; i < dim_x; i++) {
+		for (int i = 0;  i < dim_x;  i++) {
 		    dum = npts[i];
 		    if (dum == 0)
 			PPix(ave,i,j) = 0.0F;
@@ -83,12 +82,12 @@ int crrej_init (IODescPtr ipsci[], clpar *par, int nimgs, int dim_x, int dim_y,
 			par->initial);
 		strcpy (par->initial, "minimum");
 	    }
-	    for (j = 0; j < dim_y; j++) {
-		for (n = 0; n < nimgs; n++) {
+	    for (int j = 0;  j < dim_y;  j++) {
+		for (int n = 0;  n < nimgs;  n++) {
 		    exp2 = SQ(efac[n]);
 		    rog2 = SQ(noise[n]);
 		    getFloatLine (ipsci[n], j, buf);
-		    for (i = 0; i < dim_x; i++) {
+		    for (int i = 0;  i < dim_x;  i++) {
 			raw = buf[i];
 			raw0 = (raw > 0.)? raw : 0.;
 			signal0 = ((raw - skyval[n]) > 0.) ?

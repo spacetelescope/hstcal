@@ -13,7 +13,7 @@ void piksrt (float arrayOfFloats[], int arrayLength) {
     int position;
 
     /* Loop over the full input array */
-    for (int j = 1; j < arrayLength; j++) {
+    for (int j = 1;  j < arrayLength;  j++) {
 
         /* Get the value to be sorted and the candidate position */
         value = arrayOfFloats[j];

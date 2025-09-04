@@ -48,7 +48,7 @@ float sigma[])
 {
 	IRAFPointer	tp;
 	IRAFPointer	colptr, colptr1;
-	int		i, nrows, nmatch, row;
+	int		nrows, nmatch, row;
 	int		crsplit_in, crsplit, maxcrsplit;
 	double		exp_in, meanexp, mindiff, diff;
 
@@ -85,7 +85,7 @@ float sigma[])
 	    }
 
 	    /* find the largest value in the CRSPLIT column */
-	    for (i = 1; i <= nrows; i++) {
+	    for (int i = 1;  i <= nrows;  i++) {
 	        c_tbegti (tp, colptr, i, &crsplit);
 	        if (i == 1) maxcrsplit = crsplit;
 	        if (crsplit > maxcrsplit)
@@ -95,7 +95,7 @@ float sigma[])
 
 	    /* find the matching row in CRREJTAB to use */
 	    nmatch = 0;
-	    for (i = 1; i <= nrows; i++) {
+	    for (int i = 1;  i <= nrows;  i++) {
 	        c_tbegti (tp, colptr, i, &crsplit);
 	        c_tbegtd (tp, colptr1, i, &meanexp);
 	        diff = meanexp - exp_in;

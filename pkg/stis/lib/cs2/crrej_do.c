@@ -61,7 +61,7 @@ int crrej_do (IRAFPointer tpin, char *outfile, clpar *par, int newpar[],
 	SingleGroup	sg;
 	
 	int		dim_x, dim_y;	/* image dimensions */
-	int		i, j, n;	/* loop indices */
+	int		n;	/* loop indices */
 	float		*efacsum, *work;
 	int		nrej;		/* total number of rejected pixels */
 	float		skysum;		/* total sky level */
@@ -108,7 +108,7 @@ trlmessage("Total number of input image sets = %d", max_files);
 	    trlerror("out of memory in crrej_do");
 	    return 2;
 	}
-	for (n = 0;  n < max_files;  n++) {
+	for (int n = 0;   n < max_files;   n++) {
 	    imgname[n] = calloc (STIS_FNAME+1, sizeof(char));
 	    if (imgname[n] == NULL) {
 		trlerror("out of memory in crrej_do");
@@ -130,7 +130,7 @@ trlmessage("Total number of input image sets = %d", max_files);
 	/* calculate the total exposure time */
 	exptot[0] = 0.;
 	temptot = 0.;
-	for (n = 0; n < nimgs; ++n) {
+	for (int n = 0;  n < nimgs;  ++n) {
 	    exptot[0] += efac[n];
 	    temptot += tfac[n]*efac[n];
 	}
@@ -142,7 +142,7 @@ trlmessage("Total number of input image sets = %d", max_files);
 	/* for the case of all images have zero exposure time, use equal
 	   exposure time of 1. */
 	if (exptot[0] == 0.) {
-            for (n = 0; n < nimgs; ++n) {
+            for (int n = 0;  n < nimgs;  ++n) {
                 efac[n] = 1.;
 	    }
 	    texpt = (float) nimgs;
@@ -163,7 +163,7 @@ trlmessage("Total number of input image sets = %d", max_files);
 	if (crrej_sky (par->sky, ipsci, ipdq, nimgs,   skyval))
 	    return (2);
 	if (par->verbose) {
-	    for (n = 0; n < nimgs; ++n)
+	    for (int n = 0;  n < nimgs;  ++n)
 		trlmessage("sky of '%s[sci,%d]' is %0.3f DN", imgname[n],
 			grp[n], skyval[n]);
 	}
@@ -209,13 +209,13 @@ trlmessage("Total number of input image sets = %d", max_files);
 
 	/* calculate the total sky and force it to be non-negative */
 	skysum = 0.;
-	for (n = 0; n < nimgs; ++n) {
+	for (int n = 0;  n < nimgs;  ++n) {
 	    skysum += skyval[n];
 	}
 
 	/* write to the output image */
-	for (j = 0; j < dim_y; ++j) {
-	    for (i = 0; i < dim_x; ++i) {
+	for (int j = 0;  j < dim_y;  ++j) {
+	    for (int i = 0;  i < dim_x;  ++i) {
 		PPix(&sg.sci.data,i,j) = PPix(&sg.sci.data,i,j)*texpt + skysum;
 		PPix(&sg.err.data,i,j) *= texpt;
 	    }
@@ -261,7 +261,7 @@ trlmessage("Total number of input image sets = %d", max_files);
 	free (noise);
 	free (gain);
 	free (grp);
-	for (n = 0;  n < max_files;  n++)
+	for (int n = 0;   n < max_files;   n++)
 	    free (imgname[n]);
 	free (imgname);
 
@@ -278,7 +278,6 @@ static int countImsets (IRAFPointer tpin) {
 	IODescPtr ip;		/* file handle for an input file */
 	Hdr prihdr;		/* primary header */
 	char fname[STIS_FNAME+1];
-	int n;			/* loop index */
 	int nextend;		/* number of extensions */
 	int nimsets = 0;	/* total number of image sets */
 	int status;
@@ -289,7 +288,7 @@ static int countImsets (IRAFPointer tpin) {
 	c_imtrew (tpin);
 	
 	/* loop over all input files */
-	for (n = 0;  n < c_imtlen(tpin);  n++) {
+	for (int n = 0;   n < c_imtlen(tpin);   n++) {
 
 	    /* read the next input image name in the template list */
 	    c_imtgetim (tpin, fname, STIS_FNAME);

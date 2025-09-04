@@ -26,7 +26,7 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 		int nimgs, float efac[], float tfac[], double exp_range[])
 {
 	Hdr	scihdr;
-	int	nzero, k;
+	int	nzero;
 	double	expstart, expend;	/* MJD of exposure start and stop */
 
 /* -------------------------------- begin ---------------------------------- */
@@ -35,14 +35,14 @@ int cr_scaling (char *expname, IODescPtr ipsci[], char *imgname[],
 
 	/* if the parameter scaling is null, all images have equal weight. */
 	if (expname[0] == '\0') {
-	    for (k = 0; k < nimgs; ++k)
+	    for (int k = 0;  k < nimgs;  ++k)
 		efac[k] = 1.;
 	    return (0);
 	}
 
 	/* Use exposure time as scaling factor */
 	nzero = 0;
-	for (k = 0; k < nimgs; ++k) {
+	for (int k = 0;  k < nimgs;  ++k) {
 	    getHeader (ipsci[k], &scihdr);
 
 	    if (getKeyF(&scihdr, expname, &efac[k]) != 0) {

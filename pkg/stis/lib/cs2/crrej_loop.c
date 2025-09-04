@@ -38,9 +38,8 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 	Hdr	dqhdr;			/* data quality header structure */
 	int	width;
 	int	npts;
-	int	i, j, k, n, indx, jndx;		/* loop indices */
-	int	iter;
-	int	ii, jj, j2;
+	int	indx, jndx;		/* loop indices */
+	int	j2;
 	float	rog2, sig2, psig2, rej2, exp2;	/* square of something */
 	float	scale, val, dum, pixsky;
 	short	sval, crflag, nocr, dqpat;
@@ -97,23 +96,23 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 
 	/* reset the (ouput) DQF */
 	/* set to crflag so it is easier to do the logical AND and OR later */
-	for (j = 0; j < dim_y; ++j) {
-	    for (i = 0; i < dim_x; ++i)
+	for (int j = 0;  j < dim_y;  ++j) {
+	    for (int i = 0;  i < dim_x;  ++i)
 	        PDQSetPix(dq,i,j,crflag);
 	} 
 
 	/* start the rejection iteration */
-	for (iter = 0; iter < niter; ++iter) {
+	for (int iter = 0;  iter < niter;  ++iter) {
 	    if (par->verbose) 
 		trlmessage("iteration %d", iter+1);
 
 	    sig2 = SQ(sigma[iter]);
 
 	    /* reset the sum/file count arrays */
-	    for (indx = 0; indx < dim_x*dim_y; ++indx) 
+	    for (int indx = 0;  indx < dim_x*dim_y;  ++indx)
 		sum[indx] = 0.;
-	    for (j = 0; j < dim_y; ++j) {
-		for (i = 0; i < dim_x; ++i)
+	    for (int j = 0;  j < dim_y;  ++j) {
+		for (int i = 0;  i < dim_x;  ++i)
 		    PIX(efacsum,i,j,dim_x) = 0.;
 	    }
 
@@ -121,7 +120,7 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 	    if (iter == (niter-1)) {
 
 		/* must close all images first and then reopen only one group*/
-		for (k = 0; k < nimgs; ++k) {
+		for (int k = 0;  k < nimgs;  ++k) {
 		    closeImage (ipsci[k]);
 		    closeImage (ipdq[k]);
 		}
@@ -129,7 +128,7 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 
 	    *nrej = 0;
 
-	    for (n = 0; n < nimgs; ++n) {
+	    for (int n = 0;  n < nimgs;  ++n) {
 		rog2 = SQ(noise[n]);
 		exp2 = SQ(efac[n]);
 
@@ -140,22 +139,22 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 		}
 
 	        /* reset the mask */
-		for (indx = 0; indx < npts; ++indx)
+		for (int indx = 0;  indx < npts;  ++indx)
 		    mask[indx] = OK;
 
                 /* calculate the threshold for each pixel */
 	        if (strncmp(par->initial, "minimum", 3) == 0 && iter == 0) {
-		    for (j = 0; j < dim_y; ++j) {
+		    for (int j = 0;  j < dim_y;  ++j) {
                         indx = j*dim_x;
-			for (i = 0; i < dim_x; ++i) {
+			for (int i = 0;  i < dim_x;  ++i) {
 		            thresh[indx+i] = sig2 * PPix(avevar,i,j);
 		            spthresh[indx+i] = sig2 * PPix(avevar,i,j);
 			}
                     }
 	        } else {
-		    for (j = 0; j < dim_y; ++j) {
+		    for (int j = 0;  j < dim_y;  ++j) {
                         indx = j*dim_x;
-			for (i = 0; i < dim_x; ++i) {
+			for (int i = 0;  i < dim_x;  ++i) {
                             dum = PPix(ave,i,j)*efac[n]+skyval[n];
 
 			    /* clip the data at zero */
@@ -176,12 +175,12 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 		/* read data, subtract sky and scale by the exposure factor */
 		getHeader (ipdq[n], &dqhdr);
 
-		for (j = 0; j < dim_y; ++j) {
+		for (int j = 0;  j < dim_y;  ++j) {
 		    getFloatLine (ipsci[n], j, buf);
 		    getShortLine (ipdq[n], j, bufdq);
 
 		    indx = j*dim_x;
-		    for (i = 0; i < dim_x; ++i) {
+		    for (int i = 0;  i < dim_x;  ++i) {
 
 			/* exclude points: pixels marked with SPILL will 
 			   not propagate the flagging to its neighbors */
@@ -193,9 +192,9 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 
 		freeHdr (&dqhdr);
 
-		for (j = 0; j < dim_y; ++j) {
+		for (int j = 0;  j < dim_y;  ++j) {
 		    indx = j*dim_x;
-		    for (i = 0; i < dim_x; ++i) {
+		    for (int i = 0;  i < dim_x;  ++i) {
 
 			/* find the CR by using statistical rejection */
 			if (SQ(pic[indx+i]-PPix(ave,i,j)) > 
@@ -203,11 +202,11 @@ int crrej_loop (IODescPtr ipsci[], IODescPtr ipdq[],
 			    mask[indx+i] = HIT;
 
 			    /* mark the surrounding pixels also as CR */
-			    for (jj = j-width; jj <= j+width; ++jj) {
+			    for (int jj = j-width;  jj <= j+width;  ++jj) {
 				if (jj >= dim_y || jj < 0) continue;
 				j2 = (jj-j) * (jj-j);
 				jndx = jj*dim_x;
-				for (ii = i-width; ii <= i+width; ++ii) {
+				for (int ii = i-width;  ii <= i+width;  ++ii) {
 				    if ((float)((ii-i)*(ii-i)+j2) > rej2) 
 					continue;
 				    if (ii >= dim_x || ii < 0) continue;
@@ -230,9 +229,9 @@ if (n==0)trlerror("At pixel (%d,%d) ave=%0.3g sigma=%0.3g", i+1, j+1, PPix(ave,i
 		}
 
 		/* accumulate the total counts in each pixel */
-		for (j = 0; j < dim_y; ++j) {
+		for (int j = 0;  j < dim_y;  ++j) {
 		    indx = j*dim_x;
-		    for (i = 0; i < dim_x; ++i) {
+		    for (int i = 0;  i < dim_x;  ++i) {
 			if (mask[indx+i] == OK) {
 
 			    /* add the sky-subtracted but UN-scaled counts */
@@ -265,10 +264,10 @@ if (n==0)trlerror("At pixel (%d,%d) ave=%0.3g sigma=%0.3g", i+1, j+1, PPix(ave,i
 							grp[n], &dqhdr);
 		    }
 
-		    for (j = 0; j < dim_y; ++j) {
+		    for (int j = 0;  j < dim_y;  ++j) {
 		        getShortLine (ipdq[n], j, bufdq);
 		        indx = j*dim_x;
-			for (i = 0; i < dim_x; ++i) {
+			for (int i = 0;  i < dim_x;  ++i) {
 
 			    /* need to unset the CR bit first, in case the 
 				task is rerun, otherwise the output DQ will
@@ -301,9 +300,9 @@ if (n==0)trlerror("At pixel (%d,%d) ave=%0.3g sigma=%0.3g", i+1, j+1, PPix(ave,i
 	    }
 
 	    /* calculate the new average after the rejection */
-	    for (j = 0; j < dim_y; ++j) {
+	    for (int j = 0;  j < dim_y;  ++j) {
 		indx = j*dim_x;
-		for (i = 0; i < dim_x; ++i) {
+		for (int i = 0;  i < dim_x;  ++i) {
 		    if (PIX(efacsum,i,j,dim_x) > 0.) {
 		        PPix(ave,i,j) = sum[indx+i] / PIX(efacsum,i,j,dim_x);
 		    } else {
@@ -316,9 +315,9 @@ if (n==0)trlerror("At pixel (%d,%d) ave=%0.3g sigma=%0.3g", i+1, j+1, PPix(ave,i
 	}
 
 	/* calculate the (unnormalized) error array */
-	for (j = 0; j < dim_y; ++j) {
+	for (int j = 0;  j < dim_y;  ++j) {
 	    indx = j * dim_x;
-	    for (i = 0; i < dim_x; ++i) {
+	    for (int i = 0;  i < dim_x;  ++i) {
 		if (PIX(efacsum,i,j,dim_x) > 0.) {
 	            PPix(avevar,i,j) = sqrt(sumvar[indx+i]) / 
 					PIX(efacsum,i,j,dim_x);
