@@ -169,14 +169,14 @@ static int removeA2D (char *photmode, char *tempphot) {
 			break;
 		    }
 		}
-		if (n == 0) {
-		    j = 0;
-		    k++;		/* start copying past the space */
-		} else if (found_space) {
-		    j = n - 1;		/* skip the previous space */
-		} else {
-		    j = n - 1;
-		}
+        if (n == 0) {
+            j = 0;
+            k++; /* start copying past the space */
+        } else if (found_space) {
+            j = n - 1; /* skip the previous space */
+        } else {
+            j = n - 1;
+        }
 	   }
 	}
 
