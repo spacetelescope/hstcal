@@ -173,8 +173,8 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
         return (status);
 
     /* size of current image */
-    npix_x = x->dq.data.nx;
-    npix_y = x->dq.data.ny;
+    int npix_x = x->dq.data.nx;  // TODO: Unused. Why?
+    int npix_y = x->dq.data.ny;  // TODO: Unused. Why?
 
     /* Flag regions beyond the bounderies of the aperture, for
     CCD imaging type observations.
