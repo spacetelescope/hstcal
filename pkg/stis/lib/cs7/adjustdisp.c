@@ -28,7 +28,6 @@ InangInfo *iac        i: incidence-angle correction coeff
 */
 
 	int ncoeff;
-	int i;
 
 	/* First apply the incidence-angle correction. */
 
@@ -44,7 +43,7 @@ InangInfo *iac        i: incidence-angle correction coeff
 	}
 
 	/* first coefficients */
-	for (i = 0;  i < ncoeff;  i++)
+	for (int i = 0;   i < ncoeff;   i++)
 	    disp_y->coeff[i] += iac->coeff1[i] * delta;
 
 	/* second coefficients */

@@ -108,7 +108,6 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;	/* true if parameters found in table */
 
 	/* Assign the units for the calibrated data. */
@@ -122,7 +121,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	   the arrays of wavelength and throughput if there's a match.
 	*/
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadPhotTab (&tabinfo, row, &tabrow)))
 		return (status);
