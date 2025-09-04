@@ -219,7 +219,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_sporder, cp_nelem, cp_scat;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i;
+        int nrows;
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
@@ -244,7 +244,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
         scf->scfunc = (ScFunc *) calloc (nrows , sizeof (ScFunc));
         scf->nsc = 0;
 
-        for (row = 1; row <= nrows ; row++) {
+        for (int row = 1;  row <= nrows ;  row++) {
 
             c_tbegtt (tp, cp_optelem, row, opt_elem, STIS_CBUF-1);
 
@@ -260,9 +260,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
                 scf->scfunc[(scf->nsc)].values = (double *) calloc (
                                                  scf->scfunc[(scf->nsc)].nelem,
                                                  sizeof (double));
-                i = c_tbagtd (tp, cp_scat, row,
-                                           scf->scfunc[(scf->nsc)].values, 1,
-                                           scf->scfunc[(scf->nsc)].nelem);
+                c_tbagtd (tp, cp_scat, row, scf->scfunc[(scf->nsc)].values, 1, scf->scfunc[(scf->nsc)].nelem);
                 if (c_iraferr())
                     return (TABLE_ERROR);
 
@@ -296,15 +294,15 @@ ScatterFunctions *scf;  o: data structure with reference wavelengths
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_cenwave, cp_nrw, cp_hrwlist, cp_prwlist;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i, cenwave, status;
+        int nrows, cenwave, status;
         double holdh[10], holdp[10];   /* holds a maximum of 10 wavelengths */
 
         /* This is necessary to avoid rui warnings from the debugger. */
-        for (i = 0; i < 10; i++) {
+        for (int i = 0;  i < 10;  i++) {
             holdh[i] = 0.0;
             holdp[i] = 0.0;
         }
-        for (i = 0; i <= NREFWAVE; i++) {
+        for (int i = 0;  i <= NREFWAVE;  i++) {
             scf->kernw[i] = 0.0;
             scf->psfw[i] = 0.0;
         }
@@ -333,21 +331,21 @@ ScatterFunctions *scf;  o: data structure with reference wavelengths
         }
 
         scf->nwave = 0;
-        for (row = 1; row <= nrows ; row++) {
-
-            c_tbegti (tp, cp_cenwave, row, &i);
+        for (int row = 1;  row <= nrows ;  row++) {
+            int cwi;
+            c_tbegti (tp, cp_cenwave, row, &cwi);
             c_tbegtt (tp, cp_optelem, row, opt_elem, STIS_CBUF-1);
             if (c_iraferr())
                 return (TABLE_ERROR);
-            if ((i == cenwave) && (streq_ic (opt_elem, scf->opt_elem))) {
+            if ((cwi == cenwave) && (streq_ic (opt_elem, scf->opt_elem))) {
 
                 c_tbegti (tp, cp_nrw, row, &(scf->nwave));
                 if (c_iraferr())
                     return (TABLE_ERROR);
-                i = c_tbagtd (tp, cp_hrwlist, row, holdh, 1, scf->nwave);
+                c_tbagtd (tp, cp_hrwlist, row, holdh, 1, scf->nwave);
                 if (c_iraferr())
                     return (TABLE_ERROR);
-                i = c_tbagtd (tp, cp_prwlist, row, holdp, 1, scf->nwave);
+                c_tbagtd (tp, cp_prwlist, row, holdp, 1, scf->nwave);
                 if (c_iraferr())
                     return (TABLE_ERROR);
                 c_tbtclo (tp);
@@ -388,7 +386,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
         IRAFPointer cp_optelem, cp_cenwave, cp_sporder, cp_wave,
                     cp_nelem, cp_ripple;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i, k, cenwave, status;
+        int nrows, i, k, cenwave, status;
 
         /* get reference CENWAVE. */
 
@@ -420,7 +418,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
 
         nrows = c_tbpsta (tp, TBL_NROWS);
         scf->nrp = 0;
-        for (row = 1; row <= nrows; row++) {
+        for (int row = 1;  row <= nrows;  row++) {
             c_tbegti (tp, cp_cenwave, row, &i);
             c_tbegtt (tp, cp_optelem, row, opt_elem, STIS_CBUF-1);
             if (c_iraferr())
@@ -443,7 +441,7 @@ ScatterFunctions *scf;  o: data structure with ripple functions
         /* Ingest data from matching rows. */
 
         k = 0;
-        for (row = 1; row <= nrows ; row++) {
+        for (int row = 1;  row <= nrows ;  row++) {
 
             c_tbegti (tp, cp_cenwave, row, &i);
             c_tbegtt (tp, cp_optelem, row, opt_elem, STIS_CBUF-1);
@@ -500,7 +498,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_nelem, cp_exscat;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i;
+        int nrows;
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
@@ -517,14 +515,14 @@ ScatterFunctions *scf;  o: data structure with scattering functions
             return (COLUMN_NOT_FOUND);
         }
 
-        for (row = 1; row <= nrows ; row++) {
+        for (int row = 1;  row <= nrows ;  row++) {
             c_tbegtt (tp, cp_optelem, row, opt_elem, STIS_CBUF-1);
             if (streq_ic (opt_elem, scf->opt_elem)) {
                 c_tbegti (tp, cp_nelem, row, &(scf->nspsf));
                 scf->spsf = (float *) calloc (scf->nspsf, sizeof (float));
                 if (scf->spsf == NULL )
                     return (OUT_OF_MEMORY);
-                i = c_tbagtr (tp, cp_exscat, row, scf->spsf, 1, scf->nspsf);
+                c_tbagtr (tp, cp_exscat, row, scf->spsf, 1, scf->nspsf);
                 if (c_iraferr())
                     return (TABLE_ERROR);
                 c_tbtclo (tp);
@@ -553,7 +551,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_nelem, cp_cdscat;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i;
+        int nrows;
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
@@ -570,14 +568,14 @@ ScatterFunctions *scf;  o: data structure with scattering functions
             return (COLUMN_NOT_FOUND);
         }
 
-        for (row = 1; row <= nrows ; row++) {
+        for (int row = 1;  row <= nrows ;  row++) {
             c_tbegtt (tp, cp_optelem, row, opt_elem, STIS_CBUF-1);
             if (streq_ic (opt_elem, scf->opt_elem)) {
                 c_tbegti (tp, cp_nelem, row, &(scf->nxdisp));
                 scf->xdisp = (float *) calloc (scf->nxdisp, sizeof (float));
                 if (scf->xdisp == NULL )
                     return (OUT_OF_MEMORY);
-                i = c_tbagtr (tp, cp_cdscat, row, scf->xdisp, 1, scf->nxdisp);
+                c_tbagtr (tp, cp_cdscat, row, scf->xdisp, 1, scf->nxdisp);
                 if (c_iraferr())
                     return (TABLE_ERROR);
                 c_tbtclo (tp);
@@ -609,7 +607,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_refwave, cp_haldim, cp_halo;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i, status, k, haldim;
+        int nrows, status, k, haldim;
         double rw;
 
         int Alloc2DImage (Image *, int, int);
@@ -632,7 +630,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
         }
 
         k = 0;
-        for (row = 1; row <= nrows ; row++) {
+        for (int row = 1;  row <= nrows ;  row++) {
 
             c_tbegtt (tp, cp_optelem, row, opt_elem, STIS_CBUF-1);
             c_tbegtd (tp, cp_refwave, row, &rw);
@@ -652,21 +650,21 @@ Image *halo1,2,3;       o: halo images, previously initialized
                 case 0:
                     if ((status = Alloc2DImage (halo1, haldim, haldim)))
                         return (status);
-                    i = c_tbagtr (tp, cp_halo, row, halo1->pix, 1, halo1->npix);
+                    c_tbagtr (tp, cp_halo, row, halo1->pix, 1, halo1->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
                 case 1:
                     if ((status = Alloc2DImage (halo2, haldim, haldim)))
                         return (status);
-                    i = c_tbagtr (tp, cp_halo, row, halo2->pix, 1, halo2->npix);
+                    c_tbagtr (tp, cp_halo, row, halo2->pix, 1, halo2->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
                 case 2:
                     if ((status = Alloc2DImage (halo3, haldim, haldim)))
                         return (status);
-                    i = c_tbagtr (tp, cp_halo, row, halo3->pix, 1, halo3->npix);
+                    c_tbagtr (tp, cp_halo, row, halo3->pix, 1, halo3->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
@@ -705,7 +703,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
 */
         IRAFPointer tp;
         IRAFPointer cp_refwave, cp_pscale, cp_psfdim, cp_telepsf;
-        int row, nrows, psfdim;
+        int nrows, psfdim;
         double rw, psfscale;
         Image ospsf;
         Image imtemp, psf;
@@ -716,7 +714,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         double frac1, frac2;
         float fhold;
         double sum;
-        int i, j, k, kk, ms, ml, ns, nl, s, l;
+        int k, kk, ms, ml, ns, nl, s, l;
         int ns2, nl2, s1, s2, l1, l2;
         int istart, istop;
         int status;
@@ -758,7 +756,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 status |= Alloc1DImage (psf3, ml+1);
                 if (status)
                     return (status);
-                for (i = 1; i < ml; i++) {
+                for (int i = 1;  i < ml;  i++) {
                     psf1->pix[i] = 1.0 / ml;
                     psf2->pix[i] = 1.0 / ml;
                     psf3->pix[i] = 1.0 / ml;
@@ -775,7 +773,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 status |= Alloc1DImage (psf3, ml);
                 if (status)
                     return (status);
-                for (i = 0; i < ml; i++) {
+                for (int i = 0;  i < ml;  i++) {
                     psf1->pix[i] = 1.0 / ml;
                     psf2->pix[i] = 1.0 / ml;
                     psf3->pix[i] = 1.0 / ml;
@@ -804,7 +802,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         }
 
         kk = 0;
-        for (row = 1; row <= nrows ; row++) {
+        for (int row = 1;  row <= nrows ;  row++) {
 
             c_tbegtd (tp, cp_refwave, row, &rw);
             if (c_iraferr())
@@ -822,8 +820,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 InitImage (&imtemp);
                 if ((status = Alloc2DImage (&imtemp, psfdim, psfdim)))
                     return (status);
-                i = c_tbagtr (tp, cp_telepsf, row, imtemp.pix, 1,
-                              imtemp.npix);
+                c_tbagtr (tp, cp_telepsf, row, imtemp.pix, 1, imtemp.npix);
                 if (c_iraferr())
                     return (TABLE_ERROR);
 
@@ -832,8 +829,8 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 ns = imtemp.nx;
                 nl = imtemp.ny;
                 fhold = -FLT_MAX;
-                for (i = 0; i < ns; i++) {
-                    for (j = 0; j < nl; j++) {
+                for (int i = 0;  i < ns;  i++) {
+                    for (int j = 0;  j < nl;  j++) {
                         if (PIX (imtemp, i, j) > fhold) {
                             s = i;
                             l = j;
@@ -858,8 +855,8 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                     return (status);
                 k = 0;
                 /* location of braces looks like a typo, but harmless */
-                for (j = l1; j <= l2; j++)
-                    for (i = s1; i <= s2; i++) {
+                for (int j = l1;  j <= l2;  j++)
+                    for (int i = s1;  i <= s2;  i++) {
                         ospsf.pix[k++] = PIX (imtemp, i, j);
                 }
                 FreeImage (&imtemp);
@@ -884,7 +881,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 if ((status = Alloc2DImage (&imtemp, ms, nl)))
                     return (status);
                 sbox = ns / (double)ms;
-                for (i = 0; i < ms; i++) {
+                for (int i = 0;  i < ms;  i++) {
                     rstart = i     * sbox;
                     rstop  = (i+1) * sbox;
                     istart = (int) floor (rstart);
@@ -892,7 +889,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                     istop = (istop < ns) ? istop : ns-1;
                     frac1 = rstart - istart;
                     frac2 = 1.0 - (rstop - istop);
-                    for (j = 0; j < nl; j++) {
+                    for (int j = 0;  j < nl;  j++) {
                         for (k = istart+1; k < istop;
                             PIX (imtemp, i, j) += PIX (ospsf, k++, j));
                         PIX (imtemp, i, j) += PIX (ospsf, istart, j) *
@@ -909,7 +906,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 if ((status = Alloc2DImage (&psf, ms, ml)))
                     return (status);
                 lbox = nl / (double)ml;
-                for (j = 0; j < ml; j++) {
+                for (int j = 0;  j < ml;  j++) {
                     rstart = j     * lbox;
                     rstop  = (j+1) * lbox;
                     istart = (int) floor (rstart);
@@ -917,7 +914,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                     istop = (istop < nl) ? istop : nl-1;
                     frac1 = rstart - istart;
                     frac2 = 1.0 - (rstop - istop);
-                    for (i = 0; i < ms; i++) {
+                    for (int i = 0;  i < ms;  i++) {
                         for (k = istart+1; k < istop;
                              PIX (psf, i, j) += PIX (imtemp, i, k++));
                         PIX (psf, i, j) += PIX (imtemp, i, istart) *
@@ -931,8 +928,8 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 /* Normalize PSF to unit area. */
 
                 sum = 0.0;
-                for (i = 0; i < psf.npix; sum += psf.pix[i++]);
-                for (i = 0; i < psf.npix; psf.pix[i++] /= sum);
+                for (int i = 0;  i < psf.npix;  sum += psf.pix[i++]);
+                for (int i = 0;  i < psf.npix;  psf.pix[i++] /= sum);
 
                 /* This awful code is a consequence of the
                    change in reference file format that took place
@@ -942,19 +939,19 @@ Image *psf1,2,3;        o: PSF images, previously initialized
                 case 0:
                     if ((status = Alloc2DImage (psf1, psf.nx, psf.ny)))
                         return (status);
-                    for (i= 0 ; i < psf1->npix; i++)
+                    for (int i= 0 ;  i < psf1->npix;  i++)
                         psf1->pix[i] = psf.pix[i];
                     break;
                 case 1:
                     if ((status = Alloc2DImage (psf2, psf.nx, psf.ny)))
                         return (status);
-                    for (i= 0 ; i < psf2->npix; i++)
+                    for (int i= 0 ;  i < psf2->npix;  i++)
                         psf2->pix[i] = psf.pix[i];
                     break;
                 case 2:
                     if ((status = Alloc2DImage (psf3, psf.nx, psf.ny)))
                         return (status);
-                    for (i= 0 ; i < psf3->npix; i++)
+                    for (int i= 0 ;  i < psf3->npix;  i++)
                         psf3->pix[i] = psf.pix[i];
                     break;
                 default:
@@ -993,7 +990,7 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
 */
         CmplxArray ziso, zpsf;
         float *hold;
-        int i, j, k, i1, i2, j1, j2, ki, kj, kk;
+        int i1, i2, j1, j2, kk;
         int ki1, ki2, kj1, kj2;
         int status, wsize;
 
@@ -1009,8 +1006,8 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
 
         if ((status = AllocCmplxArray (&ziso, iso->nx, iso->ny)))
             return (status);
-        for (j = 1; j < iso->ny - 1; j++) {
-            for (i = 1; i < iso->nx - 1; i++)
+        for (int j = 1;  j < iso->ny - 1;  j++) {
+            for (int i = 1;  i < iso->nx - 1;  i++)
                 RPIX2D (&ziso, i, j) = PPIX (iso, i-1, j-1);
         }
 
@@ -1052,16 +1049,16 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
 ... xxx */
 
         /* copy psf into zpsf */
-        for (j = j1, kj = kj1; j < j2 && kj < kj2; j++, kj++) {
-            for (i = i1, ki = ki1; i < i2 && ki < ki2; i++, ki++)
+        for (int j = j1, kj = kj1;  j < j2 && kj < kj2;  j++, kj++) {
+            for (int i = i1, ki = ki1;  i < i2 && ki < ki2;  i++, ki++)
                 RPIX2D (&zpsf, i, j) = PPIX (psf, ki, kj);
         }
 
 /* xxx ...
         } else {
 
-            for (j = j1, kj = 1; j < j2 - 1; j++, kj++) {
-                for (i = i1, ki = 1; i < i2 - 1; i++, ki++) {
+            for (int j = j1, kj = 1;  j < j2 - 1;  j++, kj++) {
+                for (int i = i1, ki = 1;  i < i2 - 1;  i++, ki++) {
                     RPIX2D (&zpsf, i, j) = (PPIX (psf, ki,   kj)   +
                                             PPIX (psf, ki-1, kj)   +
                                             PPIX (psf, ki,   kj-1) +
@@ -1079,19 +1076,19 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
 
         /* Now convolve column-by-column with x-disp scattering function. */
 
-        for (i = 0; i < iso->nx; i++) {
+        for (int i = 0;  i < iso->nx;  i++) {
             hold = (float *) calloc (iso->ny, sizeof (float));
             if (hold == NULL)
                 return (OUT_OF_MEMORY);
-            for (j = 0; j < iso->ny; j++) {
+            for (int j = 0;  j < iso->ny;  j++) {
                 kk = j - scf->nxdisp / 2;
-                for (k = 0; k <scf->nxdisp; k++, kk++) {
+                for (int k = 0;  k <scf->nxdisp;  k++, kk++) {
                     kk = (kk < 0) ? 0 : kk;
                     kk = (kk >= iso->ny) ? iso->ny - 1 : kk;
                     hold[j] += RPIX2D (&zpsf, i, kk) * scf->xdisp[k];
                 }
             }
-            for (j = 0; j < iso->ny; j++)
+            for (int j = 0;  j < iso->ny;  j++)
                 RPIX2D (&zpsf, i, j) = hold[j];
             free (hold);
         }
@@ -1107,8 +1104,8 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
         j1 = iso->ny / 2;
         i2 = i1 + iso->nx;
         j2 = j1 + iso->ny;
-        for (j = j1, kj = 0; j < j2; j++, kj++) {
-            for (i = i1, ki = 0; i < i2; i++, ki++)
+        for (int j = j1, kj = 0;  j < j2;  j++, kj++) {
+            for (int i = i1, ki = 0;  i < i2;  i++, ki++)
                 RPIX2D (ft, i, j) = RPIX2D (&zpsf, ki, kj);
         }
 
@@ -1129,8 +1126,8 @@ CmplxArray *fto;        o: object (central 11 X 11) FT
         i2 = iso->nx + wsize;
         j2 = iso->ny + wsize;
 
-        for (j = j1, kj = iso->ny / 2 - wsize; j <= j2; j++, kj++) {
-            for (i = i1, ki = iso->nx / 2 - wsize; i <= i2; i++, ki++)
+        for (int j = j1, kj = iso->ny / 2 - wsize;  j <= j2;  j++, kj++) {
+            for (int i = i1, ki = iso->nx / 2 - wsize;  i <= i2;  i++, ki++)
                 RPIX2D (fto, i, j) = RPIX2D (&zpsf, ki, kj);
         }
 
@@ -1158,8 +1155,8 @@ static int Debug (char *name, CmplxArray *z) {
         initSingleGroup (&out);
         if (allocSingleGroup (&out, z->nx, z->ny) == -1)
             return (OUT_OF_MEMORY);
-        for (j = 0; j < z->ny; j++) {
-            for (i = 0; i < z->nx; i++) {
+        for (int j = 0;  j < z->ny;  j++) {
+            for (int i = 0;  i < z->nx;  i++) {
                 Pix (out.sci.data, i, j) = RPIX2D (z, i, j);
                 Pix (out.err.data, i, j) = IPIX2D (z, i, j);
             }

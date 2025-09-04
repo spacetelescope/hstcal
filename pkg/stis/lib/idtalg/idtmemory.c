@@ -19,14 +19,13 @@
 float **Alloc2DArrayF (int x, int y) {
 
 	float **array;
-	int i;
 
 	array = (float **) malloc (y * sizeof (float *));
 	if (array == NULL) {
             trlerror("Not enough memory to allocate array.");
 	    return (NULL);
 	}
-	for (i = 0; i < y; i++) {
+	for (int i = 0;  i < y;  i++) {
 	    array[i] = (float *) calloc (x, sizeof (float));
 	    if (array[i] == NULL) {
                 trlerror("Not enough memory to allocate array.");
@@ -39,9 +38,7 @@ float **Alloc2DArrayF (int x, int y) {
 
 void Free2DArrayF (float **array, int y) {
 
-	int i;
-
-	for (i = 0; i < y; free (array[i++]));
+	for (int i = 0;  i < y;  free (array[i++]));
 	free (array);
 }
 
@@ -49,14 +46,13 @@ void Free2DArrayF (float **array, int y) {
 double **Alloc2DArrayD (int x, int y) {
 
 	double **array;
-	int i;
 
 	array = (double **) malloc (y * sizeof (double *));
 	if (array == NULL) {
             trlerror("Not enough memory to allocate array.");
 	    return (NULL);
 	}
-	for (i = 0; i < y; i++) {
+	for (int i = 0;  i < y;  i++) {
 	    array[i] = (double *) calloc (x, sizeof (double));
 	    if (array[i] == NULL) {
                 trlerror("Not enough memory to allocate array.");
@@ -69,9 +65,7 @@ double **Alloc2DArrayD (int x, int y) {
 
 void Free2DArrayD (double **array, int y) {
 
-	int i;
-
-	for (i = 0; i < y; free (array[i++]));
+	for (int i = 0;  i < y;  free (array[i++]));
 	free (array);
 }
 
@@ -136,12 +130,10 @@ void FreeImage (Image *image) {
 
 void FreeScatter (ScatterFunctions *scf) {
 
-	int i;
-
-	for (i = 0; i < scf->nsc; free (scf->scfunc[i++].values));
+	for (int i = 0;  i < scf->nsc;  free (scf->scfunc[i++].values));
 	free (scf->scfunc);
-	for (i = 0; i < scf->nrp; free (scf->rpfunc[i++].wavelengths));
-	for (i = 0; i < scf->nrp; free (scf->rpfunc[i++].values));
+	for (int i = 0;  i < scf->nrp;  free (scf->rpfunc[i++].wavelengths));
+	for (int i = 0;  i < scf->nrp;  free (scf->rpfunc[i++].values));
 	free (scf->rpfunc);
 	if (scf->spsf != NULL)
 	    free (scf->spsf);

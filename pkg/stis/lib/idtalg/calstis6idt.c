@@ -162,7 +162,6 @@ int bks_order;		i: backgr. smoothing polynomial order
 	double yyamp;
 	ScatterFunctions scf;		/* array with scattering functions */
 	Spliced merge;			/* spliced spectrum */
-	int iter;			/* current iteration */
 	float **im_mod;			/* scattering model */
 	float **im_mod1;
 	float **im_mod2;
@@ -177,8 +176,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	int lsf_off;			/* pixel offset in profile */
 	double *echelle_scat_offset;
 	int status, missing;
-	int nextend, nimages, extver, extver0, i, j, i1, i2, k, k1, k2;
-	int iorder, ipix, npix, mrip;
+	int nextend, nimages, extver0;
+	int npix, mrip;
 	double disp, dw, y;
 	double *hold1, *hold2, *hold3;
 	float *eblaze, *eonimage, *worder, *forder, *yorder_onimage;
@@ -332,7 +331,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	/* Loop thru IMSETS in input file. */
 
 	first_extver = 1;		/* true */
-	for (extver = 1;  extver <= nimages;  extver++) {
+	for (int extver = 1;   extver <= nimages;   extver++) {
 	    extver0 = extver - 1;
 
 	    if (verbose && (nimages > 1)) {
@@ -423,7 +422,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    if ((gx1d[extver0] = AllocX1DTable (tabptr.nrows)) == NULL)
 	        return (OUT_OF_MEMORY);
 	    gx1d_nrows[extver0] = tabptr.nrows;
-	    for (j = 0; j < tabptr.nrows; j++) {
+	    for (int j = 0;  j < tabptr.nrows;  j++) {
 	        gx1d[extver0][j]->sporder = x1d[j]->sporder;
 	        gx1d[extver0][j]->npts = x1d[j]->npts;
 	        gx1d[extver0][j]->gross = (float *) calloc (
@@ -433,7 +432,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            trlmessage("Not enough memory to allocate data arrays.");
 	            return (OUT_OF_MEMORY);
 	        }
-	        for (i = 0; i < gx1d[extver0][j]->npts; i++)
+	        for (int i = 0;  i < gx1d[extver0][j]->npts;  i++)
 	            gx1d[extver0][j]->gross[i] = x1d[j]->gross[i];
 
 	    }
@@ -501,13 +500,13 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    if ((bpos = Alloc2DArrayF (wx1d[0]->npts,
                                        tabptr.nrows + 1)) == NULL)
 	        return (OUT_OF_MEMORY);
-	    for (j = 1; j < tabptr.nrows-1; j++) {
-	        for (i = 0; i < wx1d[0]->npts; i++)
+	    for (int j = 1;  j < tabptr.nrows-1;  j++) {
+	        for (int i = 0;  i < wx1d[0]->npts;  i++)
 	            bpos[j][i] = (wx1d[j-1]->extrlocy[i] +
                                   wx1d[j+1]->extrlocy[i]) / 2.0;
 	    }
 	    /* Lines at both extremes are computed by linear extrapolation. */
-	    for (i = 0; i < wx1d[0]->npts; i++) {
+	    for (int i = 0;  i < wx1d[0]->npts;  i++) {
 	        bpos[0][i] = 2.0 * wx1d[0]->extrlocy[i] -
                                    wx1d[1]->extrlocy[i];
 	        bpos[tabptr.nrows-1][i] = 2.0 *
@@ -520,7 +519,7 @@ int bks_order;		i: backgr. smoothing polynomial order
             */
 
 	    if (streq_ic (opt_elem, "E140M")) {
-	        for (j = 0; j < tabptr.nrows; j++) {
+	        for (int j = 0;  j < tabptr.nrows;  j++) {
 	            wx1d[j]->scale = 14.5 - 0.275 * wx1d[j]->sporder +
                                      0.001435 *
                                      wx1d[j]->sporder * wx1d[j]->sporder;
@@ -530,15 +529,15 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        inc_scale = 1.4;
 	        yyamp = 1.0;
 	    } else if (streq_ic (opt_elem, "E140H")) {
-	        for (j = 0; j < tabptr.nrows; wx1d[j++]->scale = 1.5);
+	        for (int j = 0;  j < tabptr.nrows;  wx1d[j++]->scale = 1.5);
 	        inc_scale = 1.3;
 	        yyamp = 1.25;
 	    } else if (streq_ic (opt_elem, "E230M")) {
-	        for (j = 0; j < tabptr.nrows; wx1d[j++]->scale = 1.0);
+	        for (int j = 0;  j < tabptr.nrows;  wx1d[j++]->scale = 1.0);
 	        inc_scale = 1.0;
 	        yyamp = 0.0;
 	    } else if (streq_ic (opt_elem, "E230H")) {
-	        for (j = 0; j < tabptr.nrows; wx1d[j++]->scale = 1.5);
+	        for (int j = 0;  j < tabptr.nrows;  wx1d[j++]->scale = 1.5);
 	        inc_scale = 1.0;
 	        yyamp = 0.0;
 	    } else {
@@ -560,14 +559,14 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    hold3 = (double *) malloc (tabptr.nrows * sizeof (double));
 	    if (hold1 == NULL || hold2 == NULL || hold3 == NULL)
 	        return (OUT_OF_MEMORY);
-	    for (j = 0; j < tabptr.nrows; j++) {
+	    for (int j = 0;  j < tabptr.nrows;  j++) {
 	        hold1[j] = (double)(wx1d[j]->wave[(wx1d[j]->npts)/2]);
 	        hold2[j] = (double)(wx1d[j]->extrlocy[(wx1d[j]->npts)/2]);
 	        hold3[j] = (double)(wx1d[j]->sporder);
 	    }
-	    k1 = 0;
-	    k2 = 0;
-	    for (i = 0; i < 3; i++) {
+	    int k1 = 0;
+	    int k2 = 0;
+	    for (int i = 0;  i < 3;  i++) {
 	        if (scf.kernw[i] > 0.0) {
 	            linepos[i] = Interpolate (scf.kernw[i], k1, hold1, hold2,
                                               tabptr.nrows, &k1);
@@ -589,7 +588,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	    mline = (double *) malloc (win.sci.data.ny * sizeof (double));
 	    k1 = 0;
-	    for (i = 0; i < win.sci.data.ny; i++)
+	    for (int i = 0;  i < win.sci.data.ny;  i++)
 	        mline[i] = Interpolate ((double)i, k1, hold2, hold3,
                                         tabptr.nrows, &k1);
 	    free (hold3);
@@ -604,21 +603,21 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    if ((wbig = Alloc2DArrayF (NSBIG, tabptr.nrows)) == NULL)
 	        return (OUT_OF_MEMORY);
 
-	    for (j = 0; j < tabptr.nrows; j++) {
+	    for (int j = 0;  j < tabptr.nrows;  j++) {
 	        /* Limits of existing wavelength range */
-	        i1 = (NSBIG - wx1d[j]->npts) / 2;
-	        i2 = i1 + wx1d[j]->npts - 1;
+	        int i1 = (NSBIG - wx1d[j]->npts) / 2;
+	        int i2 = i1 + wx1d[j]->npts - 1;
 	        /* Average dispersion in existing wavelength range. */
 	        disp = wx1d[j]->wave[wx1d[j]->npts-1] - wx1d[j]->wave[0];
 	        disp /= (double)wx1d[j]->npts;
 	        /* Extrapolate lower end. */
-	        for (i = 0; i < i1; i++)
+	        for (int i = 0;  i < i1;  i++)
 	            wbig[j][i] = (i - i1) * disp + wx1d[j]->wave[0];
 	        /* Copy existing range into array. */
-	        for (i = i1, k = 0; i <= i2; i++, k++)
+	        for (int i = i1, k = 0;  i <= i2;  i++, k++)
 	            wbig[j][i] = wx1d[j]->wave[k];
 	        /* Extrapolate high end. */
-	        for (i = i2 + 1; i < NSBIG; i++)
+	        for (int i = i2 + 1;  i < NSBIG;  i++)
 	            wbig[j][i] = (i - i2) * disp +
                                  wx1d[j]->wave[wx1d[j]->npts-1];
 	    }
@@ -628,7 +627,7 @@ int bks_order;		i: backgr. smoothing polynomial order
             */
 	    if ((blaze = Alloc2DArrayF (NSBIG, tabptr.nrows)) == NULL)
 	        return (OUT_OF_MEMORY);
-	    for (j = 0; j < tabptr.nrows; j++) {
+	    for (int j = 0;  j < tabptr.nrows;  j++) {
 	        if ((mrip = GetMatchingOrder (wx1d[j]->sporder, &scf)) < 0) {
 	            trlmessage("No matching spectral order in ripple table.");
 	            return (ERROR_RETURN);
@@ -636,16 +635,16 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        if ((hold1 = (double *) malloc (scf.rpfunc[mrip].nelem *
                                                sizeof (double))) == NULL)
 	            return (OUT_OF_MEMORY);
-	        for (i = 0; i < scf.rpfunc[mrip].nelem; i++)
+	        for (int i = 0;  i < scf.rpfunc[mrip].nelem;  i++)
 	            hold1[i] = scf.rpfunc[mrip].wavelengths[i] *
                                ((double)scf.rpfunc[mrip].sporder /
                                 (double)wx1d[j]->sporder);
 	        /* Limits of existing wavelength range */
-	        i1 = (NSBIG - wx1d[j]->npts) / 2;
-	        i2 = i1 + wx1d[j]->npts - 1;
+	        int i1 = (NSBIG - wx1d[j]->npts) / 2;
+	        int i2 = i1 + wx1d[j]->npts - 1;
 	        /* Interpolate existing range into array. */
 	        k1 = 0;
-	        for (i = i1; i <= i2; i++)
+	        for (int i = i1;  i <= i2;  i++)
 	            blaze[j][i] = Interpolate ((double)wbig[j][i], k1, hold1,
                                                scf.rpfunc[mrip].values,
                                                scf.rpfunc[mrip].nelem, &k1);
@@ -654,7 +653,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        disp = (scf.rpfunc[mrip].values[1] -
                         scf.rpfunc[mrip].values[0]) /
                        (hold1[1] - hold1[0]);
-	        for (i = 0; i < i1; i++)
+	        for (int i = 0;  i < i1;  i++)
 	            blaze[j][i] = (wbig[j][i] - wbig[j][i1]) * disp +
                                    blaze[j][i1];
 
@@ -664,7 +663,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                   -     scf.rpfunc[mrip].values[scf.rpfunc[mrip].nelem-2]) /
                     (hold1[scf.rpfunc[mrip].nelem-1] -
                      hold1[scf.rpfunc[mrip].nelem-2]);
-	        for (i = i2 + 1; i < NSBIG; i++)
+	        for (int i = i2 + 1;  i < NSBIG;  i++)
 	            blaze[j][i] = (wbig[j][i] - wbig[j][i2]) * disp +
                                    blaze[j][i2];
 	        free (hold1);
@@ -682,10 +681,10 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        fflush (stdout);
 	    }
 	    /* Multiply by scale and divide by on-image blaze. */
-	    for (j = 0; j < tabptr.nrows; j++) {
-	        for (i = 0; i < wx1d[j]->npts;
-                     wx1d[j]->net[i++] *= wx1d[j]->scale);
-	        for (i = 0, i1 = (NSBIG - wx1d[j]->npts) / 2;
+	    for (int j = 0;  j < tabptr.nrows;  j++) {
+	        for (int i = 0; i < wx1d[j]->npts; wx1d[j]->net[i++] *= wx1d[j]->scale);
+
+	        for (int i = 0, i1 = (NSBIG - wx1d[j]->npts) / 2;
                      i < wx1d[j]->npts; i++, i1++) {
 	            if (blaze[j][i1] != 0.0)
 	                wx1d[j]->net[i] /= blaze[j][i1];
@@ -698,7 +697,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	    /* Apply threshold to counts or c/sec ? */
 
-	    for (i = 0; i < merge.npts; i++)
+	    for (int i = 0;  i < merge.npts;  i++)
 	        merge.fmerge[i] = (merge.fmerge[i] > (-20. * exptime)) ?
                                    merge.fmerge[i] : (-20. * exptime);
 
@@ -706,13 +705,13 @@ int bks_order;		i: backgr. smoothing polynomial order
                net data extracted from the input image gets restored to
                its original state.
              */
-	    for (j = 0; j < tabptr.nrows; j++) {
-	        for (i = 0, i1 = (NSBIG - wx1d[j]->npts) / 2;
+	    for (int j = 0;  j < tabptr.nrows;  j++) {
+	        for (int i = 0, i1 = (NSBIG - wx1d[j]->npts) / 2;
                      i < wx1d[j]->npts; i++, i1++) {
 	            if (blaze[j][i1] != 0.0)
 	                wx1d[j]->net[i] *= blaze[j][i1];
 	        }
-	        for (i = 0; i < wx1d[j]->npts;
+	        for (int i = 0; i < wx1d[j]->npts;
                      wx1d[j]->net[i++] /= wx1d[j]->scale);
 	    }
 
@@ -730,7 +729,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    if (o_mod == NULL || im_mod == NULL)
 	        return (OUT_OF_MEMORY);
 
-	    for (iter = 1; iter <= NITER; iter++) {
+	    for (int iter = 1;  iter <= NITER;  iter++) {
 
 	        if (verbose) {
 	            trlmessage("\nBegin iteration  %d", iter);
@@ -743,8 +742,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        im_mod2 = Alloc2DArrayF (win.sci.data.nx, win.sci.data.ny);
 	        if (im_mod1 == NULL || im_mod2 == NULL)
 	            return (OUT_OF_MEMORY);
-	        for (j = 0; j < win.sci.data.ny; j++)
-	            for (i = 0; i < win.sci.data.nx; o_mod[j][i++] = 0.0);
+	        for (int j = 0;  j < win.sci.data.ny;  j++)
+	            for (int i = 0;  i < win.sci.data.nx;  o_mod[j][i++] = 0.0);
 
 	        /* Create model spectrum on extended wavelength scale by
                    mapping spliced spectrum onto wbig array. */
@@ -756,9 +755,9 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	        if ((fbig = Alloc2DArrayF (NSBIG, tabptr.nrows)) == NULL)
 	            return (OUT_OF_MEMORY);
-	        for (j = 0; j < tabptr.nrows; j++) {
+	        for (int j = 0;  j < tabptr.nrows;  j++) {
 	            k1 = 0;
-	            for (i = 0; i < NSBIG; i++)
+	            for (int i = 0;  i < NSBIG;  i++)
 	                fbig[j][i] = Interpolate ((double)wbig[j][i], k1,
                                                    merge.wmerge,
                                                    merge.fmerge,
@@ -771,11 +770,11 @@ int bks_order;		i: backgr. smoothing polynomial order
                    the Interpolate function works...
                  */
 
-	        i1 = (NSBIG - wx1d[0]->npts) / 2;
-	        i2 = i1 + wx1d[0]->npts - 1;
-	        for (i = i2; i < NSBIG; fbig[0][i++] = fbig[0][i2-10]);
+	        int i1 = (NSBIG - wx1d[0]->npts) / 2;
+	        int i2 = i1 + wx1d[0]->npts - 1;
+	        for (int i = i2;  i < NSBIG;  fbig[0][i++] = fbig[0][i2-10]);
 	        i1 = (NSBIG - wx1d[tabptr.nrows-1]->npts) / 2;
-	        for (i = 0; i < i1; fbig[tabptr.nrows-1][i++] =
+	        for (int i = 0; i < i1; fbig[tabptr.nrows-1][i++] =
                                     fbig[tabptr.nrows-1][i1+10]);
 
 	        /* Build image containing scattered light prediction. */
@@ -787,8 +786,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	        /* Loop through orders. */
 
-	        for (iorder = 0; iorder < tabptr.nrows; iorder ++) {
-
+	        for (int iorder = 0;  iorder < tabptr.nrows;  iorder++) {
+	            int k;
 	            if ((k = GetScatterOrder (wx1d[iorder]->sporder, &scf)) ==
                         -1) {
 	                trlerror("Error: No matching order (# %d) in ECHSCTAB table.",
@@ -818,7 +817,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            hold1[4] = scf.scfunc[k].nelem;
 	            hold2[4] = 0.0;
 	            k1 = 0;
-	            for (i = 0; i < scf.scfunc[k].nelem; i++)
+	            for (int i = 0;  i < scf.scfunc[k].nelem;  i++)
 	                echelle_scat_offset[i] = Interpolate ((double)i, k1,
                                                  hold1, hold2, 5, &k1);
 	            free (hold2);
@@ -835,7 +834,7 @@ int bks_order;		i: backgr. smoothing polynomial order
                                                     sizeof (double));
 	            if (scale_lsf1 == NULL || scale_lsf2 == NULL)
 	                return (OUT_OF_MEMORY);
-	            for (i = 0; i < scf.scfunc[k].nelem; i++) {
+	            for (int i = 0;  i < scf.scfunc[k].nelem;  i++) {
 	                scale_lsf1[i] = scale_lsf[i];
 	                if (i >= (lsf_off - 5) && i <= (lsf_off + 5))
 	                    scale_lsf1[i] = scale_lsf[lsf_off - 5];
@@ -862,7 +861,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	            /* Loop through pixels istart to istop in ext. arrays. */
 
-	            for (ipix = istart; ipix <= istop; ipix++) {
+	            for (int ipix = istart;  ipix <= istop;  ipix++) {
 
 	                /* Define indices used for addressing arrays
                            while processing current pixel:
@@ -895,7 +894,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	                 /* Loop thru pixels to receive scattered light. */
 
-	                for (j = 0; j <= (image2pos - image1pos); j++) {
+	                for (int j = 0;  j <= (image2pos - image1pos);  j++) {
 
 	                    /* Translate fbig in ipix to flux elsewhere
                                in echelle blaze function.
@@ -964,18 +963,18 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        hold2 = (double *) calloc (npix, sizeof (double));
                 if (hold1 == NULL || hold2 == NULL)
 	            return (OUT_OF_MEMORY);
-	        for (i = 0; i < win.sci.data.nx; i++) {
+	        for (int i = 0;  i < win.sci.data.nx;  i++) {
 
 	            /* Get current colum into zero-padded buffer. */
 
-	            for (j = 0, k = i1; j < win.sci.data.ny; j++, k++)
+	            for (int j = 0, k = i1;  j < win.sci.data.ny;  j++, k++)
 	                hold1[k] = im_mod1[j][i];
 
 	            /* Convolve. Kernel file is norm. to unit area. */
 
-	            for (j = 0; j < npix; j++) {
+	            for (int j = 0;  j < npix;  j++) {
 		        k1 = j - scf.nspsf / 2;
-	                for (k = 0; k < scf.nspsf; k++, k1++) {
+	                for (int k = 0;  k < scf.nspsf;  k++, k1++) {
 	                    k1 = (k1 < 0) ? 0 : k1;
 	                    k1 = (k1 >= npix) ? npix - 1 : k1;
 	                    hold2[j] += hold1[k1] * scf.spsf[k];
@@ -984,12 +983,12 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	            /* Copy column back into image array. */
 
-	            for (j = 0, k = i1; j < win.sci.data.ny; j++, k++)
+	            for (int j = 0, k = i1;  j < win.sci.data.ny;  j++, k++)
 	                im_mod1[j][i] = hold2[k];
 
 	            /* Clear buffers for next column processing. */
 
-	            for (k = 0; k < npix; k++) {
+	            for (int k = 0;  k < npix;  k++) {
 	                hold1[k] = 0.0;
 	                hold2[k] = 0.0;
 	            }
@@ -1003,8 +1002,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            trlmessage("Build composite model.");
 	            fflush (stdout);
 	        }
-	        for (j = 0; j < win.sci.data.ny; j++) {
-	            for (i = 0; i < win.sci.data.nx; i++)
+	        for (int j = 0;  j < win.sci.data.ny;  j++) {
+	            for (int i = 0;  i < win.sci.data.nx;  i++)
 	                im_mod[j][i] = im_mod1[j][i] + im_mod2[j][i];
 	        }
 
@@ -1114,8 +1113,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            trlmessage("Co-add individual model images.");
 	            fflush (stdout);
 	        }
-	        for (j = 0; j < win.sci.data.ny; j++) {
-	            for (i = 0; i < win.sci.data.nx; i++)
+	        for (int j = 0;  j < win.sci.data.ny;  j++) {
+	            for (int i = 0;  i < win.sci.data.nx;  i++)
 	                im_mod[j][i] = im_mod1[j][i];
 	        }
 
@@ -1124,8 +1123,8 @@ int bks_order;		i: backgr. smoothing polynomial order
                                win.sci.data.ny,
                                linepos[0], linepos[1], mpsfpos[0], mpsfpos[1],
                                mline, in.sci.data.ny);
-	            for (j = (int)linepos[1]; j < win.sci.data.ny; j++) {
-	                for (i = 0; i < win.sci.data.nx; i++)
+	            for (int j = (int)linepos[1];  j < win.sci.data.ny;  j++) {
+	                for (int i = 0;  i < win.sci.data.nx;  i++)
 	                    im_mod[j][i] = im_mod2[j][i];
 	            }
 	        }
@@ -1134,8 +1133,8 @@ int bks_order;		i: backgr. smoothing polynomial order
                                win.sci.data.ny,
                                linepos[1], linepos[2], mpsfpos[1], mpsfpos[2],
                                mline, in.sci.data.ny);
-	            for (j = (int)linepos[2]; j < win.sci.data.ny; j++) {
-	                for (i = 0; i < win.sci.data.nx; i++)
+	            for (int j = (int)linepos[2];  j < win.sci.data.ny;  j++) {
+	                for (int i = 0;  i < win.sci.data.nx;  i++)
 	                    im_mod[j][i] = im_mod3[j][i];
 	            }
 	        }
@@ -1148,8 +1147,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                trlmessage("Co-add individual object images.");
 	                fflush (stdout);
 	            }
-	            for (j = 0; j < win.sci.data.ny; j++) {
-	                for (i = 0; i < win.sci.data.nx; i++)
+	            for (int j = 0;  j < win.sci.data.ny;  j++) {
+	                for (int i = 0;  i < win.sci.data.nx;  i++)
 	                    o_mod[j][i] = o_mod1[j][i];
 	            }
 	            if (scf.nwave > 1) {
@@ -1157,8 +1156,8 @@ int bks_order;		i: backgr. smoothing polynomial order
                                    win.sci.data.ny,
                                    linepos[0], linepos[1], mpsfpos[0],
                                    mpsfpos[1], mline, in.sci.data.ny);
-	                for (j = (int)linepos[1]; j < win.sci.data.ny; j++) {
-	                    for (i = 0; i < win.sci.data.nx; i++)
+	                for (int j = (int)linepos[1];  j < win.sci.data.ny;  j++) {
+	                    for (int i = 0;  i < win.sci.data.nx;  i++)
 	                        o_mod[j][i] = o_mod2[j][i];
 	                }
 	            }
@@ -1168,8 +1167,8 @@ int bks_order;		i: backgr. smoothing polynomial order
                                    win.sci.data.ny,
                                    linepos[1], linepos[2], mpsfpos[1],
                                    mpsfpos[2], mline, in.sci.data.ny);
-	                for (j = (int)linepos[2]; j < win.sci.data.ny; j++) {
-	                    for (i = 0; i < win.sci.data.nx; i++)
+	                for (int j = (int)linepos[2];  j < win.sci.data.ny;  j++) {
+	                    for (int i = 0;  i < win.sci.data.nx;  i++)
 	                        o_mod[j][i] = o_mod3[j][i];
 	                }
 	            }
@@ -1209,8 +1208,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        remove (temp_ima);
 	        initSingleGroup (&wout);
 	        allocSingleGroup (&wout, win.sci.data.nx, win.sci.data.ny, True);
-	        for (j = 0; j < wout.sci.data.ny; j++) {
-	            for (i = 0; i < wout.sci.data.nx; i++)
+	        for (int j = 0;  j < wout.sci.data.ny;  j++) {
+	            for (int i = 0;  i < wout.sci.data.nx;  i++)
 	                Pix (wout.sci.data, i, j) = im_mod[j][i];
 	        }
 	        copyHdr (&(wout.sci.hdr), &(win.sci.hdr));
@@ -1279,8 +1278,8 @@ int bks_order;		i: backgr. smoothing polynomial order
                    shifts caused by calstis6 recentering abilities.
                 */
 
-	        for (j = 0; j < tabptr.nrows; j++) {
-	            for (i = 0; i < wx1d2[j]->npts; i++)
+	        for (int j = 0;  j < tabptr.nrows;  j++) {
+	            for (int i = 0;  i < wx1d2[j]->npts;  i++)
                         wx1d2[j]->extrlocy[i] = wx1d[j]->extrlocy[i];
 	        }
 
@@ -1292,10 +1291,10 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            trlmessage("Update with correction term.");
 	            fflush (stdout);
 	        }
-	        for (j = 0; j < tabptr.nrows; j++) {
+	        for (int j = 0;  j < tabptr.nrows;  j++) {
 	            i1 = (NSBIG - wx1d2[j]->npts) / 2;
 	            i2 = i1 + wx1d2[j]->npts - 1;
-	            for (i = i1, k = 0; i <= i2; i++, k++)
+	            for (int i = i1, k = 0;  i <= i2;  i++, k++)
 	                wx1d2[j]->net[k] = fbig[j][i] / exptime +
                             (wx1d[j]->net[k] - wx1d2[j]->net[k]) * inc_scale;
 	        }
@@ -1303,9 +1302,9 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        /* Normalize by the blaze so the result can be spliced
                    together.
                 */
-	        for (j = 0; j < tabptr.nrows; j++) {
-	            for (i = 0, i1 = (NSBIG - wx1d2[j]->npts) / 2;
-                         i < wx1d2[j]->npts; i++, i1++) {
+	        for (int j = 0;  j < tabptr.nrows;  j++) {
+	            i1 = (NSBIG - wx1d2[j]->npts) / 2;
+	            for (int i = 0; i < wx1d2[j]->npts; i++, i1++) {
 	                if (blaze[j][i1] != 0.0)
                              wx1d2[j]->net[i] /= blaze[j][i1];
 	            }
@@ -1357,8 +1356,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 
 	    /* Construct scattered light image. */
 
-	    for (j = 0; j < win.sci.data.ny; j++) {
-	        for (i = 0; i < win.sci.data.nx; i++)
+	    for (int j = 0;  j < win.sci.data.ny;  j++) {
+	        for (int i = 0;  i < win.sci.data.nx;  i++)
 	            Pix (win.sci.data, i, j) = im_mod[j][i] - o_mod[j][i];
 	    }
 
@@ -1385,8 +1384,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    /* Copy ERR and DQ arrays to output, as RebinData doesn't do that for
 	       binned data */
 	    if (ltm[0] > 1.0) {
-	        for (j = 0; j < in.sci.data.ny; j++) {
-		    for (i = 0; i < in.sci.data.nx; i++) {
+	        for (int j = 0;  j < in.sci.data.ny;  j++) {
+		    for (int i = 0;  i < in.sci.data.nx;  i++) {
 		        Pix(wout.err.data, i, j) = Pix(in.err.data, i, j);
 		        DQPix(wout.dq.data, i, j) = DQPix(in.dq.data, i, j);
 		    }
@@ -1401,8 +1400,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	        trlmessage("Subtract scattered light from input image.");
 	        fflush (stdout);
 	    }
-	    for (j = 0; j < in.sci.data.ny; j++) {
-	        for (i = 0; i < in.sci.data.nx; i++)
+	    for (int j = 0;   j < in.sci.data.ny;   j++) {
+	        for (int i = 0;  i < in.sci.data.nx;  i++)
 	            Pix (wout.sci.data, i, j) = Pix (in.sci.data, i, j) -
                                                 Pix (wout.sci.data, i, j);
 	    }
@@ -1487,7 +1486,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    trlmessage("Update columns in final output table.");
 	    fflush (stdout);
 	}
-	for (extver = 1; extver <= nimages; extver++) {
+	for (int extver = 1;  extver <= nimages;  extver++) {
 	    extver0 = extver - 1;
 
 	    /* This will still be NULL if the imset was skipped due to
@@ -1551,10 +1550,10 @@ ScatterFunctions *scf;  i: scattering functions
 
 return: the index of the matching entry, or -1 if error.
 */
-	int i, index;
+	int index;
 
 	index = -1;
-	for (i = 0; i < scf->nsc; i++) {
+	for (int i = 0;  i < scf->nsc;  i++) {
 	    if (sporder == scf->scfunc[i].sporder) {
 	        index = i;
 	    }
@@ -1578,11 +1577,11 @@ ScatterFunctions *scf;  i: scattering functions
 
 return: the index of the matching entry, or -1 if error.
 */
-	int i, index, dist, mindist;
+	int index, dist, mindist;
 
 	mindist = 100000;
 	index = -1;
-	for (i = 0; i < scf->nrp; i++) {
+	for (int i = 0;  i < scf->nrp;  i++) {
 	    dist = abs (sporder - scf->rpfunc[i].sporder);
 	    if (dist < mindist) {
 	        mindist = dist;
@@ -1627,7 +1626,7 @@ int *index;	o: index of the bin immediately before the sought one
 
 return: the interpolated/extrapolated value.
 */
-	int i, i1, i2;
+	int i1, i2;
 
 	/* Check if beginning index is out of range. */
 
@@ -1646,7 +1645,7 @@ return: the interpolated/extrapolated value.
            sequence.
         */
 
-	for (i = 0; i < n; i++) {
+	for (int i = 0;  i < n;  i++) {
 
 	    i1 = begin + i;
 	    i2 = begin + i + 1;
@@ -1722,14 +1721,13 @@ int n;			i: number of RowContents elements in array
 
 return: the median.
 */
-	int j;
 	double *temp, median = 0.0;
 
 	temp = (double *) malloc ((n - 1) * sizeof (double));
 	if (temp == NULL)
 	    return (0.0);
 
-	for (j = 1; j < n; j++)
+	for (int j = 1;  j < n;  j++)
 	    temp[j-1] = (x1d[j]->extrlocy[(x1d[j]->npts)/2] -
                          x1d[j-1]->extrlocy[(x1d[j-1]->npts)/2]) /
                         (x1d[j]->wave[(x1d[j]->npts)/2] -
@@ -1824,12 +1822,11 @@ double mpsfpos2;
 double* mline;		i: fractional order # associated with each image row
 int msize;		i: size of mline array
 */
-	int i, j;
 	float frac1, frac2;
 
 	/* Scan array section. */
 
-	for (j = (int)linepos1; j < (int)linepos2; j++) {
+	for (int j = (int)linepos1;  j < (int)linepos2;  j++) {
 
 	    if (j >=0 && j < ny) {
 
@@ -1840,7 +1837,7 @@ int msize;		i: size of mline array
 
 	        /* Fill pixels in array row. */
 
-	        for (i = 0; i < nx; i++)
+	        for (int i = 0;  i < nx;  i++)
 	            out[j][i] = frac1 * in1[j][i] + frac2 * in2[j][i];
 	    }
 	}
@@ -1857,7 +1854,7 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	double kx[2][2], ky[2][2];	/* ghost image warp matrices */
 	double xx, yy;
 	float **ghost, **cghost;
-	int i, j, ii, jj, status;
+	int ii, jj, status;
 
 	float **Alloc2DArrayF (int, int);
 	void Free2DArrayF (float **, int);
@@ -1891,12 +1888,12 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	if ((ghost = Alloc2DArrayF (nx, ny)) == NULL)
 	    return (OUT_OF_MEMORY);
 
-	for (j = 0; j < ny; j++) {
-	    for (i = 0; i < nx; i++) {
+	for (int j = 0;  j < ny;  j++) {
+	    for (int i = 0;  i < nx;  i++) {
 	        xx = kx[0][0] + j * kx[0][1] + i * kx[1][0] + j * i * kx[1][1];
 	        yy = ky[0][0] + j * ky[0][1] + i * ky[1][0] + j * i * ky[1][1];
 	        ii = (int)NINT(xx);
-	        jj = (int)NINT(xx);
+	        jj = (int)NINT(xx); // TODO: Should this be yy?
 	        ii = (ii < 0) ? 0 : ii;
 	        jj = (jj < 0) ? 0 : jj;
 	        ii = (ii >= nx) ? (nx - 1) : ii;
@@ -1908,8 +1905,8 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	if ((cghost = Alloc2DArrayF (nx, ny)) == NULL)
 	    return (OUT_OF_MEMORY);
 
-	for (j = 1; j < ny-1; j++) {
-	    for (i = 1; i < nx-1; i++) {
+	for (int j = 1;  j < ny-1;  j++) {
+	    for (int i = 1;  i < nx-1;  i++) {
 	        cghost[j][i] = ghost[j-1][i-1] * 0.2 +
                                ghost[j-1][i]   * 0.5 +
                                ghost[j-1][i+1] * 0.2 +
@@ -1925,8 +1922,8 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 
 	Free2DArrayF (ghost, ny);
 
-	for (j = 0; j < ny; j++) {
-	    for (i = 0; i < nx; i++)
+	for (int j = 0;  j < ny;  j++) {
+	    for (int i = 0;  i < nx;  i++)
 	        im[j][i] += cghost[j][i];
 	}
 
@@ -1960,7 +1957,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 	TblDesc tabptr;
 	float *new_gross, *new_back, *new_net;
 	short npts, sporder;
-	int i, irow, jrow, nnet, status;
+	int jrow, nnet, status;
 
 	int OpenX1DTable (char *, int, TblDesc *);
 
@@ -1985,7 +1982,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 
 	/* Process each row. */
 
-	for (irow = 0; irow < tabptr.nrows; irow++) {
+	for (int irow = 0;  irow < tabptr.nrows;  irow++) {
 
 	    c_tbegts (tabptr.tp, tabptr.npts, irow+1, &npts);
 	    new_gross = (float *) calloc (npts, sizeof(float));
@@ -2011,7 +2008,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 	       current row of the output table.
 	    */
 	    jrow = -1;
-	    for (i = 0;  i < x1d_nrows;  i++) {
+	    for (int i = 0;   i < x1d_nrows;   i++) {
 		if (x1d[i]->sporder == sporder) {
 		    jrow = i;
 		    break;
@@ -2023,7 +2020,7 @@ static int RedoX1DFile (char *output, RowContents **x1d, int x1d_nrows) {
 		return (INTERNAL_ERROR);
 	    }
 
-	    for (i = 0; i < npts; i++) {
+	    for (int i = 0;  i < npts;  i++) {
 	        new_gross[i] = x1d[jrow]->gross[i];
 	        new_back[i]  = x1d[jrow]->gross[i] - new_net[i];
 	    }
@@ -2146,8 +2143,8 @@ static int Debug (char *name, float **array, int nx, int ny) {
 	initSingleGroup (&out);
 	if (allocSingleGroup (&out, nx, ny))
 	    return (OUT_OF_MEMORY);
-	for (j = 0; j < ny; j++) {
-	    for (i = 0; i < nx; i++)
+	for (int j = 0;  j < ny;  j++) {
+	    for (int i = 0;  i < nx;  i++)
 	        Pix (out.sci.data, i, j) = array[j][i];
 	}
 
@@ -2170,7 +2167,7 @@ static int DDebug (char *name, double *array, int nx) {
 	initSingleGroup (&out);
 	if (allocSingleGroup (&out, nx, 1))
 	    return (OUT_OF_MEMORY);
-	for (i = 0; i < nx; i++)
+	for (int i = 0;  i < nx;  i++)
 	    Pix (out.sci.data, i, 0) = array[i];
 
 trlmessage("Writing %s image.", name);
@@ -2192,8 +2189,8 @@ static int CDebug (char *name, CmplxArray *z) {
 	initSingleGroup (&out);
 	if (allocSingleGroup (&out, z->nx, z->ny) == -1)
 	    return (OUT_OF_MEMORY);
-	for (j = 0; j < z->ny; j++) {
-	    for (i = 0; i < z->nx; i++) {
+	for (int j = 0;  j < z->ny;  j++) {
+	    for (int i = 0;  i < z->nx;  i++) {
 	        Pix (out.sci.data, i, j) = RPIX2D (z, i, j);
 	        Pix (out.err.data, i, j) = IPIX2D (z, i, j);
 	    }
@@ -2217,8 +2214,8 @@ static void CReport (CmplxArray *z) {
 
 	sumr = 0.0;
 	sumi = 0.0;
-	for (j = 0; j < z->ny; j++) {
-	    for (i = 0; i < z->nx; i++) {
+	for (int j = 0;  j < z->ny;  j++) {
+	    for (int i = 0;  i < z->nx;  i++) {
 	        sumr += RPIX2D (z, i, j);
 	        sumi += IPIX2D (z, i, j);
 	    }
@@ -2237,8 +2234,8 @@ static void Report (float **a, int nx, int ny) {
 	double sum;
 
 	sum = 0.0;
-	for (j = 0; j < ny; j++) {
-	    for (i = 0; i < nx; i++)
+	for (int j = 0;  j < ny;  j++) {
+	    for (int i = 0;  i < nx;  i++)
 	        sum += a[j][i];
 	}
 

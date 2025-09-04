@@ -46,13 +46,13 @@ RowContents **ox1d;		o: output array with table data.
 int rebinfactor;		i: rebinning factor
 int nrows;			i: number of rows
 */
-	int i, j, i2, j2, rf;
+	int i2, j2, rf;
 	double hold;
 
 	/* Alloc memory in output x1d array. */
 
 	rf = (rebinfactor > 0) ? rebinfactor : -rebinfactor;
-	for (j = 0; j < nrows; j++) {
+	for (int j = 0;  j < nrows;  j++) {
 	    ox1d[j]->sporder = ix1d[j]->sporder;
 	    ox1d[j]->npts    = ix1d[j]->npts / rf;
 	    ox1d[j]->wave     = (double *) calloc (ox1d[j]->npts,
@@ -76,15 +76,15 @@ int nrows;			i: number of rows
 
 	    /* Just copy. */
 
-	    for (j = 0; j < iim->sci.data.ny; j++) {
-	        for (i = 0; i < iim->sci.data.nx; i++) {
+	    for (int j = 0;  j < iim->sci.data.ny;  j++) {
+	        for (int i = 0;  i < iim->sci.data.nx;  i++) {
 	            Pix (oim->sci.data, j, i)   = Pix (iim->sci.data, j, i);
 	            Pix (oim->err.data, j, i)   = Pix (iim->err.data, j, i);
 	            DQPix (oim->dq.data, j, i)  = DQPix (iim->dq.data, j, i);
 	        }
 	    }
-	    for (j = 0; j < nrows; j++) {
-	        for (i = 0; i < iim->sci.data.nx; i++) {
+	    for (int j = 0;  j < nrows;  j++) {
+	        for (int i = 0;  i < iim->sci.data.nx;  i++) {
 	            ox1d[j]->wave[i] = ix1d[j]->wave[i];
 	            ox1d[j]->gross[i] = ix1d[j]->gross[i];
 	            ox1d[j]->net[i] = ix1d[j]->net[i];
@@ -98,9 +98,9 @@ int nrows;			i: number of rows
 	    /* Squeeze by a factor 2. Only the SCI data is processed since
                the algorithm doesn't propagate ERR and DQ info anyway.
             */
-	    for (j = 0; j < oim->sci.data.ny-1; j++) {
+	    for (int j = 0;  j < oim->sci.data.ny-1;  j++) {
 	        j2 = 2 * j;
-	        for (i = 0; i < oim->sci.data.nx-1; i++) {
+	        for (int i = 0;  i < oim->sci.data.nx-1;  i++) {
 	            i2 = 2 * i;
 	            Pix (oim->sci.data, j, i) = (Pix (iim->sci.data, j2, i2) +
                         Pix (iim->sci.data, j2, i2+1) +
@@ -109,8 +109,8 @@ int nrows;			i: number of rows
 	        }
 	    }
 
-	    for (j = 0; j < nrows; j++) {
-	        for (i = 0; i < oim->sci.data.nx-1; i++) {
+	    for (int j = 0;  j < nrows;  j++) {
+	        for (int i = 0;  i < oim->sci.data.nx-1;  i++) {
 	            i2 = 2 * i;
 	            ox1d[j]->wave[i]     = (ix1d[j]->wave[i2] +
                                             ix1d[j]->wave[i2+1]) / 2.0 ;
@@ -140,9 +140,9 @@ int nrows;			i: number of rows
                the algorithm doesn't propagate ERR and DQ info anyway. It
                is assumed that the output image already stores this info.
             */
-	    for (j = 0; j < iim->sci.data.ny; j++) {
+	    for (int j = 0;  j < iim->sci.data.ny;  j++) {
 	        j2 = 2 * j;
-	        for (i = 0; i < iim->sci.data.nx; i++) {
+	        for (int i = 0;  i < iim->sci.data.nx;  i++) {
 	            i2 = 2 * i;
 	            hold = Pix (iim->sci.data,j,i) / 2.0;
 	            Pix (oim->sci.data, j2,i2)     = hold;

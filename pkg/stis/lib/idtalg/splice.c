@@ -42,7 +42,7 @@ Spliced *merge;			o: output spliced spectrum
 */
 	double **twave, **tflux, *wmerge, *fmerge;
 	double midw;
-	int i, i1, i2, i3, j, j1, j2, jstep, k, npt;
+	int j1, jstep, npt;
 
 	double **Alloc2DArrayD (int, int);
 	void Free2DArrayD (double **, int);
@@ -53,11 +53,9 @@ Spliced *merge;			o: output spliced spectrum
 
 	if (x1d[nrows-1]->wave[0] < x1d[0]->wave[0]) {
 	    j1 = nrows-1;
-	    j2 = 0;
 	    jstep = -1;
 	} else {
 	    j1 = 0;
-	    j2 = nrows-1;
 	    jstep = 1;
 	}
 
@@ -77,14 +75,14 @@ Spliced *merge;			o: output spliced spectrum
            from counts/s to counts.
         */
 
-	for (j = j1, k = 0; k < nrows; j += jstep, k++) {
+	for (int j = j1, k = 0;  k < nrows;  j += jstep, k++) {
 	    if (x1d[j]->wave[1] < x1d[j]->wave[0]) {
-	        for (i1 = 0, i2 = npt-1; i1 < npt; i1++, i2--) {
+	        for (int i1 = 0, i2 = npt-1;  i1 < npt;  i1++, i2--) {
 	            twave[k][i1] = x1d[j]->wave[i2];
 	            tflux[k][i1] = x1d[j]->net[i2] * exptime;
 	        }
 	    } else {
-	        for (i1 = 0; i1 < npt; i1++) {
+	        for (int i1 = 0;  i1 < npt;  i1++) {
 	            twave[k][i1] = x1d[j]->wave[i1];
 	            tflux[k][i1] = x1d[j]->net[i1] * exptime;
 	        }
@@ -93,9 +91,9 @@ Spliced *merge;			o: output spliced spectrum
 
 	/* Splice orders together. */
 
-	i1 = 0;
-	k  = 0;
-	for (j = 0; j < nrows-1; j++) {
+	int i1 = 0, i2 = 0;
+	int k  = 0;
+	for (int j = 0;  j < nrows-1;  j++) {
 
 	    /* Find where wavelegth in current order gets larger than
                1st wavelength in next order.
@@ -105,7 +103,7 @@ Spliced *merge;			o: output spliced spectrum
 	    /* Find where wavelegth in next order gets larger than
                last wavelength in current order.
             */
-	    i3 = FindIndex (twave[j+1], npt, twave[j][npt-1]);
+	    int i3 = FindIndex(twave[j + 1], npt, twave[j][npt - 1]);
 
 	    /* i2 and i3 define overlap region. Now compute midpoint. */
 
@@ -124,7 +122,7 @@ Spliced *merge;			o: output spliced spectrum
 	    i3 = (i3 > 3)       ? i3 : 4;
 
 	    /* Copy current order to output arrays. */
-	    for (i = i1; i <= i2; i++, k++) {
+	    for (int i = i1;  i <= i2;  i++, k++) {
 	        wmerge[k] = twave[j][i];
 	        fmerge[k] = tflux[j][i];
 	    }
@@ -134,7 +132,7 @@ Spliced *merge;			o: output spliced spectrum
 	}
 
 	/* Copy last row. */
-	for (i = i1; i < npt; i++, k++) {
+	for (int i = i1;  i < npt;  i++, k++) {
 	    wmerge[k] = twave[nrows-1][i];
 	    fmerge[k] = tflux[nrows-1][i];
 	}
@@ -150,7 +148,7 @@ Spliced *merge;			o: output spliced spectrum
 	merge->wmerge = (double *) malloc (merge->npts * sizeof (double));
 	merge->fmerge = (double *) malloc (merge->npts * sizeof (double));
 
-	for (i = 0; i < k; i++) {
+	for (int i = 0;  i < k;  i++) {
 	    merge->wmerge[i] = wmerge[i];
 	    merge->fmerge[i] = fmerge[i];
 	}
@@ -179,9 +177,8 @@ double value;		i: the value to look for
 
 returns: the index of the array element immediatley larger than 'value'
 */
-	int i;
 
-	for (i = 0; i < n; i++) {
+	for (int i = 0;  i < n;  i++) {
 	    if (array[i] > value)
 	        return (i);
 	}
