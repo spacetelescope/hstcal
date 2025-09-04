@@ -93,7 +93,6 @@ char *ref_aper       o: name of aperture used to measure dispersion relation
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int best_row;		/* read info from this row */
 	double a2diff;		/* difference between A2CENTER and middle */
 	double min_a2diff;	/* min value of a2diff */
@@ -105,7 +104,7 @@ char *ref_aper       o: name of aperture used to measure dispersion relation
 	best_row = -1;			/* initial values */
 	min_a2diff = 2. * MIDDLE_LINE;
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadDSPTab (&tabinfo, row, &tabrow)))
 		return (status);
@@ -232,9 +231,8 @@ static int ReadDSPArray (TblInfo *tabinfo, int row,
 		DispRelation *disp, char *ref_aper) {
 
 	int ncoeff;		/* number of coefficients read from table */
-	int i;
 
-	for (i = 0;  i < MAX_DISP_COEFF;  i++)
+	for (int i = 0;   i < MAX_DISP_COEFF;   i++)
 	    disp->coeff[i] = 0.;
 
 	/* Get name of aperture used to measure dispersion relation. */

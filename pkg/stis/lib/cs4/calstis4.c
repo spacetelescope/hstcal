@@ -65,7 +65,6 @@ double slit_angle      i: angle of long slit used with echelle; this is
 
 	IODescPtr im;		/* descriptor for input image */
 	Hdr phdr;		/* primary header for input image */
-	int i;
 
 	int GetFlags4 (StisInfo4 *, Hdr *);
 	int GetKeyInfo4 (StisInfo4 *, Hdr *);
@@ -87,7 +86,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 
 	sts.refnames = refnames;
 
-	for (i = 0;  i < strlen (dbgfile);  i++) {
+	for (int i = 0;   i < strlen (dbgfile);   i++) {
 	    if (dbgfile[i] != ' ') {
 		strcpy (sts.dbgfile, dbgfile+i);
 		sts.verbose = 1;	/* turn on verbose if debug specified */

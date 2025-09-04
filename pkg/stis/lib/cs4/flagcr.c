@@ -51,7 +51,6 @@ SingleGroup *in    io: input data (DQ array can be modified)
 	short *dq;		/* data quality; flag CRs here */
 
 	int nelem;		/* size of arrays */
-	int i, j;
 
 	if (sts->detector != CCD_DETECTOR)
 	    return (0);
@@ -79,26 +78,26 @@ SingleGroup *in    io: input data (DQ array can be modified)
 	   search for cosmic rays, and copy the DQ flags back into the column.
 	*/
 	if (sts->dispaxis == 1) {
-	    for (i = 0;  i < in->sci.data.nx;  i++) {	/* for each column */
-		for (j = 0;  j < nelem;  j++) {
+	    for (int i = 0;   i < in->sci.data.nx;   i++) {	/* for each column */
+		for (int j = 0;   j < nelem;   j++) {
 		    sci[j] = Pix (in->sci.data, i, j);	/* note index j */
 		    dq[j] = DQPix (in->dq.data, i, j);
 		}
 		if (FlagLine (sts, sci, dq, nelem,
 				illum, masked, absdiff) > 0) {
-		    for (j = 0;  j < nelem;  j++)
+		    for (int j = 0;   j < nelem;   j++)
 			DQSetPix (in->dq.data, i, j, dq[j]);
 		}
 	    }
 	} else if (sts->dispaxis == 2) {
-	    for (j = 0;  j < in->sci.data.ny;  j++) {	/* for each row */
-		for (i = 0;  i < nelem;  i++) {
+	    for (int j = 0;   j < in->sci.data.ny;   j++) {	/* for each row */
+		for (int i = 0;   i < nelem;   i++) {
 		    sci[i] = Pix (in->sci.data, i, j);	/* note index i */
 		    dq[i] = DQPix (in->dq.data, i, j);
 		}
 		if (FlagLine (sts, sci, dq, nelem,
 				illum, masked, absdiff) > 0) {
-		    for (i = 0;  i < nelem;  i++)
+		    for (int i = 0;   i < nelem;   i++)
 			DQSetPix (in->dq.data, i, j, dq[i]);
 		}
 	    }
@@ -151,7 +150,6 @@ float absdiff[nelem] io: for absolute values of differences
 	int n_masked = 0;	/* number of off-slit or behind bar */
 	int ncr = 0;		/* number of cosmic rays found */
 	int ni, nm;		/* number of non-rejected elements */
-	int i;
 	short sdqflags;		/* sdqflags with DATAMASKED excluded */
 	short datamasked;	/* the DATAMASKED data quality value */
 
@@ -164,7 +162,7 @@ float absdiff[nelem] io: for absolute values of differences
 	/* Separate the SCI values into two arrays, depending on whether
 	   the point corresponds to through the slit or off the slit.
 	*/
-	for (i = 0;  i < nelem;  i++) {
+	for (int i = 0;   i < nelem;   i++) {
 	    if (!(dq[i] & sdqflags)) {		/* no serious DQ flag */
 		if (dq[i] & datamasked) {	/* off the slit */
 		    masked[n_masked] = sci[i];
@@ -194,7 +192,7 @@ float absdiff[nelem] io: for absolute values of differences
 	/* Now find cosmic rays (outliers in the positive direction)
 	   and flag them with DATAREJECT in the dq array.
 	*/
-	for (i = 0;  i < nelem;  i++) {
+	for (int i = 0;   i < nelem;   i++) {
 	    if (dq[i] & datamasked) {
 		if (sci[i] > m_mean + sts->nsigma_cr * m_stddev &&
 		fabs (sci[i] - i_mean) > sts->nsigma_illum * i_stddev) {
@@ -241,7 +239,6 @@ double stddev        o: standard deviation of sci array
 	double sum = 0., sumsq = 0.;	/* for mean and std dev */
 	double dsum;			/* = nsum */
 	int nsum = 0;			/* number of good values */
-	int i;
 	int inplace = 1;		/* sort the array in-place */
 
 	if (nelem < 3) {
@@ -261,14 +258,14 @@ double stddev        o: standard deviation of sci array
 	median = MedianFloat (sci, nelem, inplace);
 
 	/* Find the median of the absolute values of the deviations. */
-	for (i = 0;  i < nelem;  i++)
+	for (int i = 0;   i < nelem;   i++)
 	    absdiff[i] = fabs (sci[i] - median);
 	mad = MedianFloat (absdiff, nelem, inplace);
 	/* Set a lower limit to the median deviation. */
 	mad = (mad < min_mad) ? min_mad : mad;
 
 	/* Accumulate sums, ignoring outliers. */
-	for (i = 0;  i < nelem;  i++) {
+	for (int i = 0;   i < nelem;   i++) {
 	    if (fabs (sci[i] - median) < mad_reject * mad) {
 		dsci = sci[i];
 		sum += dsci;

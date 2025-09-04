@@ -102,7 +102,6 @@ double *shift       o: the shift, in pixels
 	int range;		/* range for cross correlation */
 	double *tspec;		/* resampled reference spectrum */
 	double c7_shift;	/* shift in units of calstis7 pixels */
-	int i;			/* loop index for debug file */
 
 	int ConvSlit (double, double [], int);
 	int XCPeak (StisInfo4 *, double *, short *, double *,
@@ -149,7 +148,7 @@ double *shift       o: the shift, in pixels
 	    double wavelength;
 	    fprintf (sts->dbg,
 "# (XCWave) pixel, wavelength, convolved template, observed spectrum, DQ:\n");
-	    for (i = 0;  i < nwl;  i++) {
+	    for (int i = 0;   i < nwl;   i++) {
 		wavelength = PixToWl (sts->disp_type, disp->coeff, crpix,
 			crval, cdelt, sts->ltm[0], sts->ltv[0], (double)i);
 		fprintf (sts->dbg, "%d %.4f %.6g %.6g %d\n",
@@ -202,7 +201,6 @@ int nwl             i: size of v and qv arrays
 	   wl_left, wl_right */
 	int jl, jr;
 
-	int i, j;
 	void FindWL (double, double *, int, int *);
 
 	/* -0.5 and +0.5 are the pixel coordinates at the left and right
@@ -218,7 +216,7 @@ int nwl             i: size of v and qv arrays
 	FindWL (wl_left, wl, nelem, &jl);
 	jr = jl;				/* updated in loop */
 
-	for (i = 0;  i < nwl;  i++) {
+	for (int i = 0;   i < nwl;   i++) {
 
 	    /* integrate template spectrum over the range wl_left to wl_right */
 
@@ -232,7 +230,7 @@ int nwl             i: size of v and qv arrays
 		    tspec[i] = flux[jl] * (wl_right - wl_left);
 		} else {
 		    tspec[i] = flux[jl] * (wl[jl+1] - wl_left);
-		    for (j = jl+1;  j < jr;  j++)
+		    for (int j = jl+1;   j < jr;   j++)
 			tspec[i] += flux[j] * (wl[j+1] - wl[j]);
 		    tspec[i] += flux[jr] * (wl_right - wl[jr]);
 		}
@@ -268,11 +266,10 @@ int nwl            i: size of arrays
 short sdqflags     i: "serious" data quality flags
 */
 
-	int i;
 	int first_good, last_good;
 
 	first_good = 0;				/* initial value */
-	for (i = 0;  i < nwl;  i++) {
+	for (int i = 0;   i < nwl;   i++) {
 	    if (!(qv[i] & sdqflags)) {		/* not flagged as bad? */
 		first_good = i;
 		break;
@@ -280,7 +277,7 @@ short sdqflags     i: "serious" data quality flags
 	}
 
 	last_good = nwl - 1;
-	for (i = nwl - 1;  i >= 0;  i--) {
+	for (int i = nwl - 1;   i >= 0;   i--) {
 	    if (!(qv[i] & sdqflags)) {
 		last_good = i;
 		break;
@@ -294,9 +291,9 @@ short sdqflags     i: "serious" data quality flags
 	if (last_good < 0)
 	    return;
 
-	for (i = 0;  i < first_good;  i++)
+	for (int i = 0;   i < first_good;   i++)
 	    tspec[i] = 0.;
-	for (i = last_good + 1;  i < nwl;  i++)
+	for (int i = last_good + 1;   i < nwl;   i++)
 	    tspec[i] = 0.;
 }
 
@@ -359,7 +356,6 @@ double pixel        i: X coordinate, zero-indexed image pixel units
 static void GetMaxPixel (int disp_type, double coeff[],
 		int nwl, double ltm, double ltv) {
 
-	int i;
 	double wl;
 	double prev_wl;
 
@@ -369,7 +365,7 @@ static void GetMaxPixel (int disp_type, double coeff[],
 	/* initial value, pixel 0 */
 	prev_wl = PixToWl (disp_type, coeff, 0., 0., 0., ltm, ltv, 0.);
 
-	for (i = 1;  i < nwl;  i++) {
+	for (int i = 1;   i < nwl;   i++) {
 
 	    wl = PixToWl (disp_type, coeff, 0., 0., 0., ltm, ltv, (double)i);
 

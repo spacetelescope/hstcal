@@ -96,7 +96,6 @@ StisInfo4 *sts    i: calibration switches and info
 	Hdr phdr;		/* primary header for input image */
 	Hdr hdr;		/* a SCI extension header */
 	SingleGroup in;		/* input data */
-	int extver;		/* loop index for extension version number */
 	LampInfo lamp;		/* reference spectrum of cal lamp */
 	ApInfo slit;		/* description of slit */
 	DispRelation disp;	/* dispersion relation */
@@ -179,7 +178,7 @@ StisInfo4 *sts    i: calibration switches and info
 	}
 
 	initHdr (&hdr);
-	for (extver = 1;  extver <= sts->nimages;  extver++) {
+	for (int extver = 1;   extver <= sts->nimages;   extver++) {
 
 	    trlmessage("");
 	    PrGrpBegin ("imset", extver);
@@ -390,12 +389,10 @@ static void ScaleOne (int trim, double scale, int npix, int section[]) {
 
 static void SaveDispCoeff (DispRelation *disp) {
 
-	int i;
-
-	for (i = 0;  i < disp->ncoeff;  i++)
+	for (int i = 0;   i < disp->ncoeff;   i++)
 	    disp->coeff_save[i] = disp->coeff[i];
 
-	for (i = disp->ncoeff;  i < MAX_DISP_COEFF;  i++)
+	for (int i = disp->ncoeff;   i < MAX_DISP_COEFF;   i++)
 	    disp->coeff_save[i] = 0.;
 }
 

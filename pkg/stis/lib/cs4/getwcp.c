@@ -79,7 +79,6 @@ StisInfo4 *sts    i: calibration switches and info
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit;		/* true if detector name found in table */
 
 	/* Open the WCPTAB table. */
@@ -87,7 +86,7 @@ StisInfo4 *sts    i: calibration switches and info
 	    return (status);
 
 	foundit = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadWCPTab (&tabinfo, row, &tabrow)))
 		return (status);

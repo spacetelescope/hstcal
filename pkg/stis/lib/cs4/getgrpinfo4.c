@@ -146,7 +146,7 @@ static void GetSDC (StisInfo4 *sts) {
 	IRAFPointer cp_a2center, cp_cdelt2;
 	IRAFPointer cp_pedigree, cp_descrip;
 	char opt_elem[STIS_CBUF+1];		/* grating or prism name */
-	int nrows, row;
+	int nrows;
 	int foundit;
 
 	/* default values */
@@ -178,7 +178,7 @@ static void GetSDC (StisInfo4 *sts) {
 	c_tbcfnd1 (tp, "DESCRIP", &cp_descrip);
 
 	foundit = 0;
-	for (row = 1;  row <= nrows;  row++) {
+	for (int row = 1;   row <= nrows;   row++) {
 
 	    c_tbegtt (tp, cp_opt_elem, row, opt_elem, STIS_CBUF);
 	    if (c_iraferr()) {

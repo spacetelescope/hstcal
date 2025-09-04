@@ -113,9 +113,7 @@ double *shiftx, *shifty  o: shift from clamp to cwave, in each axis
 
 static void RestoreDispCoeff (DispRelation *disp) {
 
-	int i;
-
-	for (i = 0;  i < MAX_DISP_COEFF;  i++)
+	for (int i = 0;   i < MAX_DISP_COEFF;   i++)
 	    disp->coeff[i] = disp->coeff_save[i];
 }
 

@@ -75,7 +75,6 @@ double *shift      o: the shift, in pixels
 	double *template;	/* cross corr. slit with this to get shift */
 	double *barshift, *barweight;	/* shift and weight for each bar */
 	double *xc;		/* cross correlation of inv and template */
-	int i;
 	int status;
 	int InvertSlit (double [], short [], int, double [], FILE *);
 
@@ -103,7 +102,7 @@ double *shift      o: the shift, in pixels
 	    return (status);
 
 	/* Find each occulting bar. */
-	for (i = 0;  i < nbars;  i++) {
+	for (int i = 0;   i < nbars;   i++) {
 
 	    if (pbarwidth[i] > 0.) {
 
@@ -160,11 +159,10 @@ double pbarwidth[]  o: barwidth converted to pixels
 */
 
 	double scale;		/* arcseconds per pixel */
-	int i;
 
 	scale = cdelt * ARCSEC_PER_DEGREE;
 
-	for (i = 0;  i < nbars;  i++) {
+	for (int i = 0;   i < nbars;   i++) {
 	    pbarlocn[i] = crpix + barlocn[i] / scale;
 	    pbarwidth[i] = barwidth[i] / scale;
 	}
@@ -190,14 +188,13 @@ FILE *dbg          i: file handle for debug output
 	int i_lower, i_upper;	/* nearest integers to lower & upper */
 	int lower_ch, upper_ch;	/* loop limits, chopped off at boundaries */
 	double fraction;	/* fraction of a pixel covered by the bar */
-	int i;
 
 	lower = pbarlocn - pbarwidth / 2.;
 	upper = pbarlocn + pbarwidth / 2.;
 	i_lower = NINT (lower);
 	i_upper = NINT (upper);
 
-	for (i = 0;  i < nv;  i++) {
+	for (int i = 0;   i < nv;   i++) {
 	    template[i] = 0.;
 	}
 
@@ -205,12 +202,12 @@ FILE *dbg          i: file handle for debug output
 
 	    lower_ch = i_lower < 0 ? 0 : i_lower + 1;
 	    upper_ch = i_upper >= nv ? nv - 1 : i_upper - 1;
-	    for (i = lower_ch;  i <= upper_ch;  i++) {
+	    for (int i = lower_ch;   i <= upper_ch;   i++) {
 		template[i] = 1.;
 	    }
 	}
 
-	for (i = i_upper + 1;  i < nv;  i++) {
+	for (int i = i_upper + 1;   i < nv;   i++) {
 	    template[i] = 0.;
 	}
 
@@ -258,28 +255,27 @@ int range             i: size of xc array (an odd number)
 */
 
 	double sum;		/* for accumulating the sum at xc[j] */
-	int i, j;
 	int half;		/* (range - 1) / 2 */
 
 	half = (range - 1) / 2;
 
 	/* zero offset */
 	sum = 0.;
-	for (i = 0;  i < nv;  i++)
+	for (int i = 0;   i < nv;   i++)
 	    sum += inv[i] * template[i];
 	xc[half] = sum;
 
-	for (j = 1;  j <= half;  j++) {
+	for (int j = 1;   j <= half;   j++) {
 
 	    /* shift the template toward the left */
 	    sum = 0.;
-	    for (i = 0;  i < nv-j;  i++)
+	    for (int i = 0;   i < nv-j;   i++)
 		sum += inv[i] * template[i+j];
 	    xc[half-j] = sum;
 
 	    /* shift the template toward the right */
 	    sum = 0.;
-	    for (i = j;  i < nv;  i++)
+	    for (int i = j;   i < nv;   i++)
 		sum += inv[i] * template[i-j];
 	    xc[half+j] = sum;
 	}
@@ -313,10 +309,8 @@ FILE *dbg          i: file handle for debug output
 	double peak;		/* location of centroid in xc */
 	int middle;		/* pixel in xc corresponding to zero shift */
 	int bad;		/* true if bar was probably not found */
-	int i;
 
 	double minval;		/* lower limit when finding location */
-	double value;		/* a value below max in xc */
 	double x_left, x_right;	/* interpolated locations at which xc=value */
 	double *cent;		/* array of center values */
 	double median;		/* for rejecting outliers */
@@ -331,7 +325,7 @@ FILE *dbg          i: file handle for debug output
 	bad = BAR_OK;				/* initial values */
 	imax = 0;
 	maxval = xc[0];
-	for (i = 1;  i < range;  i++) {
+	for (int i = 1;   i < range;   i++) {
 	    if (xc[i] > maxval) {
 		imax = i;
 		maxval = xc[i];
@@ -366,7 +360,7 @@ FILE *dbg          i: file handle for debug output
 
 	    if (dbg != NULL) {
 		fprintf (dbg, "# cross correlation:\n");
-		for (i = 0;  i < range;  i++) {
+		for (int i = 0;   i < range;   i++) {
 		    fprintf (dbg, "%.6g", xc[i]);
 		    if (i == middle)
 			fprintf (dbg, " <-- nominal peak is here");
@@ -413,13 +407,16 @@ FILE *dbg          i: file handle for debug output
 	   is taken to be the shift.
 	*/
 	minval = maxval * CENTROID_CUTOFF;
-	for (value = maxval-1., n = 0;  value > minval;  value--, n++) {
+    n = 0;
+	for (int value = maxval-1.;   value > minval;   value--, n++) {
 
 	    /* find i such that xc[i] <= value and xc[i+1] > value */
 	    foundit = 0;
-	    for (i = imax;  i > 0;  i--) {
+	    int found_i = 0;
+	    for (int i = imax;   i > 0;   i--) {
 		if (xc[i] <= value && xc[i+1] > value) {
 		    foundit = 1;
+		    found_i = i;
 		    break;
 		}
 	    }
@@ -427,13 +424,15 @@ FILE *dbg          i: file handle for debug output
 		break;
 
 	    /* interpolate to get x_left */
-	    x_left = (double)i + (value - xc[i]) / (xc[i+1] - xc[i]);
+	    x_left = (double)found_i + (value - xc[found_i]) / (xc[found_i+1] - xc[found_i]);
 
 	    /* find i such that xc[i] >= value and xc[i+1] < value */
 	    foundit = 0;
-	    for (i = imax;  i < range-1;  i++) {
+	    found_i = 0;
+	    for (int i = imax;   i < range-1;   i++) {
 		if (xc[i] >= value && xc[i+1] < value) {
 		    foundit = 1;
+		    found_i = i;
 		    break;
 		}
 	    }
@@ -441,7 +440,7 @@ FILE *dbg          i: file handle for debug output
 		break;
 
 	    /* interpolate to get x_right */
-	    x_right = (double)i + (xc[i] - value) / (xc[i] - xc[i+1]);
+	    x_right = (double)found_i + (xc[found_i] - value) / (xc[found_i] - xc[found_i+1]);
 
 	    cent[n] = (x_left + x_right) / 2.;
 	}
@@ -456,7 +455,7 @@ FILE *dbg          i: file handle for debug output
 	} else {
 	    /* reject outliers from cent */
 	    median = MedianDouble (cent, n, 0);
-	    for (i = 0;  i < n;  i++) {
+	    for (int i = 0;   i < n;   i++) {
 		if (fabs (cent[i] - median) > OUTLIER_CUTOFF) {
 		    cent[i] = -1.;		/* rejected */
 		}
@@ -465,7 +464,7 @@ FILE *dbg          i: file handle for debug output
 	    /* compute the mean and stddev of the remaining elements of cent */
 	    sumv = 0.;
 	    sum = 0.;
-	    for (i = 0;  i < n;  i++) {
+	    for (int i = 0;   i < n;   i++) {
 		if (cent[i] >= 0.) {
 		    sum++;
 		    sumv += cent[i];
@@ -494,7 +493,7 @@ FILE *dbg          i: file handle for debug output
 	    fprintf (dbg, "# (FindBars) weight for current bar = %.6g\n",
 			*barweight);
 	    fprintf (dbg, "# (FindBars) cross correlation:\n");
-	    for (i = 0;  i < range;  i++) {
+	    for (int i = 0;   i < range;   i++) {
 		fprintf (dbg, "%.6g", xc[i]);
 		if (i == middle)
 		    fprintf (dbg, " <-- nominal peak is here");
@@ -528,20 +527,19 @@ double *shift        o: the average shift
 
 	double sumsw;		/* sum of (shift * weight) */
 	double sumw;		/* sum of weights */
-	int i;
 	double min_shift, max_shift, min_weight;
 	int wmin;		/* index of shift with minimum weight */
 	int ngood;		/* number of shifts with non-zero weight */
 
 	/* First check that the bars were actually found. */
 	sumw = 0.;
-	for (i = 0;  i < nbars;  i++)
+	for (int i = 0;   i < nbars;   i++)
 	    sumw += barweight[i];
 	if (sumw < MIN_BARWEIGHT)
 	    return (NO_GOOD_DATA);
 
 	ngood = 0;
-	for (i = 0;  i < nbars;  i++) {
+	for (int i = 0;   i < nbars;   i++) {
 
 	    if (barweight[i] > MIN_BARWEIGHT) {	/* the weight could be zero */
 
@@ -583,7 +581,7 @@ double *shift        o: the average shift
 	ngood = 0;
 	sumw = 0.;
 	sumsw = 0.;
-	for (i = 0;  i < nbars;  i++) {
+	for (int i = 0;   i < nbars;   i++) {
 
 	    if (i == wmin) {
 		trlwarn("bar %d excluded due to low weight", i+1);

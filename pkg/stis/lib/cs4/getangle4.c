@@ -65,7 +65,6 @@ double *angle    o: incidence angle, in arcseconds
 
 	double ap_offset;	/* offset of aperture used for observation */
 	double ref_offset;	/* offset of reference aperture */
-	int row;		/* number of rows, and loop index */
 	int ap_found;		/* true if aperture found in table */
 	int ref_found;		/* true if reference aperture found in table */
 
@@ -77,7 +76,7 @@ double *angle    o: incidence angle, in arcseconds
 
 	ap_found = 0;
 	ref_found = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadApTab (&tabinfo, row, &tabrow)))
 		return (status);

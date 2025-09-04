@@ -47,12 +47,10 @@ double *locn     o: actual location of edge
 	double extreme;		/* maximum (or min) value in xc */
 	int ilocn0;		/* nearest integer to locn0 */
 	int ipeak;		/* index of extreme in xc */
-	int i, j;
 	double sum;		/* for doing cross correlation */
 	double peak;		/* accurate location of peak in xc */
 	int first, last;	/* range of index in v for doing cross corr */
 	int i_min, i_max;	/* possibly reduced range of first, last */
-	int ii;			/* loop index for writing to debug file */
 
 	int PeakQuad3 (double *, double *);
 
@@ -87,13 +85,13 @@ double *locn     o: actual location of edge
 	   pixels were found, reduce [first,last] to the good interval.
 	*/
 	i_min = last;  i_max = first;		/* initial values */
-	for (i = ilocn0;  i <= last;  i++) {
+	for (int i = ilocn0;   i <= last;   i++) {
 	    if (qv[i])
 		break;
 	    else
 		i_max = i;
 	}
-	for (i = ilocn0;  i >= first;  i--) {
+	for (int i = ilocn0;   i >= first;   i--) {
 	    if (qv[i])
 		break;
 	    else
@@ -118,9 +116,9 @@ double *locn     o: actual location of edge
 	   If the maximum (or minimum) is at xc[ipeak], then the
 	   edge is centered at ipeak.
 	*/
-	for (i = half;  i <= nv-half-3;  i++) {
+	for (int i = half;   i <= nv-half-3;   i++) {
 	    sum = 0.;
-	    for (j = 0;  j < sizedge;  j++)
+	    for (int j = 0;   j < sizedge;   j++)
 		sum += (edge[j] * v[i+j-half]);
 	    xc[i] = sum;
 	}
@@ -132,7 +130,7 @@ double *locn     o: actual location of edge
 	extreme = xc[first];
 	if (maxmin == LOW_TO_HIGH) {
 	    /* look for a maximum */
-	    for (i = first;  i <= last;  i++) {
+	    for (int i = first;   i <= last;   i++) {
 		if (xc[i] > extreme) {
 		    ipeak = i;
 		    extreme = xc[i];
@@ -140,7 +138,7 @@ double *locn     o: actual location of edge
 	    }
 	} else {				/* high to low */
 	    /* look for a minimum */
-	    for (i = first;  i <= last;  i++) {
+	    for (int i = first;   i <= last;   i++) {
 		if (xc[i] < extreme) {
 		    ipeak = i;
 		    extreme = xc[i];
@@ -148,32 +146,33 @@ double *locn     o: actual location of edge
 	    }
 	}
 
-	if (ipeak <= first || ipeak >= last) {
+    if (ipeak <= first || ipeak >= last) {
 
-	    trlwarn("Edge not found, appears to be at end of range.");
-	    peak = 0.;
-	    status = NO_GOOD_DATA;
+        trlwarn("Edge not found, appears to be at end of range.");
+        peak = 0.;
+        status = NO_GOOD_DATA;
 
-	} else {
+    } else {
+        int i;
 
-	    if (ipeak <= first)
-		i = first;
-	    else if (ipeak >= last)
-		i = last - 2;
-	    else
-		i = ipeak - 1;
+        if (ipeak <= first)
+            i = first;
+        else if (ipeak >= last)
+            i = last - 2;
+        else
+            i = ipeak - 1;
 
-	    /* Location of peak of quadratic through xc[i], xc[i+1], xc[i+2],
-		relative to i+1.
-	    */
-	    if ((status = PeakQuad3 (xc+i, &peak)))
-		return (status);
+        /* Location of peak of quadratic through xc[i], xc[i+1], xc[i+2],
+        relative to i+1.
+        */
+        if ((status = PeakQuad3(xc + i, &peak)))
+            return (status);
 
-	    /* Add index of middle pixel to get location (zero indexed). */
-	    *locn = peak + (double)(i) + 1.0;
+        /* Add index of middle pixel to get location (zero indexed). */
+        *locn = peak + (double)(i) + 1.0;
 
-	    status = 0;
-	}
+        status = 0;
+    }
 
 	/* Write info to debug file. */
 	if (sts->dbg != NULL) {
@@ -182,7 +181,7 @@ double *locn     o: actual location of edge
 		fprintf (sts->dbg, "looking for a maximum:\n");
 	    else
 		fprintf (sts->dbg, "looking for a minimum:\n");
-	    for (ii = first;  ii <= last;  ii++) {
+	    for (int ii = first;   ii <= last;   ii++) {
 		fprintf (sts->dbg, "%.6g", xc[ii]);
 		if (ii == ilocn0) {
 		    fprintf (sts->dbg,

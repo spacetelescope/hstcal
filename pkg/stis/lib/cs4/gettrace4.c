@@ -84,7 +84,6 @@ SpTrace **trace   o: list of spectral traces
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit;		/* true if any matching row was found */
 	void FreeTrace4 (SpTrace **);
 
@@ -93,7 +92,7 @@ SpTrace **trace   o: list of spectral traces
 	    return (status);
 
 	foundit = 0;
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadTraceTab (&tabinfo, row, &tabrow)))
 		return (status);
