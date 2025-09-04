@@ -78,13 +78,11 @@ int pcteHistory (ACSInfo *acs, Hdr *phdr) {
         // read from CCDTAB.
         char strBuffer[MSG_BUFF_LENGTH];
         *strBuffer = '\0';
-        {unsigned i;
-        for (i = 0; i < strlen(AMPSORDER); ++i)
-        {
+        for (size_t i = 0; i < strlen(AMPSORDER); ++i) {
             snprintf(strBuffer, sizeof(strBuffer), "PCTERNOI " floatFormat " Amp '%c' read noise clip limit (from CCDTAB).", acs->readnoise[i], AMPSORDER[i]);
             if ((status = addHistoryKw(phdr, strBuffer)))
                 return status;
-        }}
+        }
 
 	    if (addHistoryKw (phdr, "CTE parameters table: ") ||
 	            TabHistory (&acs->pcte, phdr))

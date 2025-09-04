@@ -105,11 +105,10 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr(&ptrReg, acs, &free);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         initSingleGroup(&x[i]);
         acs[i] = *acs_info;
-    }}
+    }
 
     if (acs_info->printtime)
         TimeStamp ("Open SingleGroup now...", "");
@@ -120,15 +119,14 @@ int DoCCD (ACSInfo *acs_info) {
        processing step functions and pass along modified input image
        from one step to the next...
     */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         getSingleGroup(acs[i].input, i+1, &x[i]);
         if (hstio_err()) {
             freeOnExit (&ptrReg);
             return (status = OPEN_FAILED);
         }
         addPtr(&ptrReg, &x[i], &freeSingleGroup);
-    }}
+    }
 
     if (acs_info->printtime)
         TimeStamp ("Input read into memory", acs_info->rootname);
@@ -137,8 +135,7 @@ int DoCCD (ACSInfo *acs_info) {
        for reading CCDTAB.
     */
     Bool subarray = False;
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
             freeOnExit (&ptrReg);
             return status;
@@ -164,7 +161,7 @@ int DoCCD (ACSInfo *acs_info) {
             freeOnExit (&ptrReg);
             return status;
         }
-    }}
+    }
 
     int primaryIdx = 0;
     if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNA", acs[primaryIdx].atodgain[0], "")) {
@@ -227,29 +224,27 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr (&ptrReg, virtOverscan, &free);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (FindOverscan(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny,
                          &overscan[i], &virtOverscan[i])) {
             freeOnExit (&ptrReg);
             return status;
         }
-    }}
+    }
 
     /************************************************************************/
     /* Data quality initialization and (for the CCDs) check saturation. */
     const int nextver = 1;
     dqiMsg(&acs[primaryIdx], nextver);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].dqicorr == PERFORM || acs[i].dqicorr == DUMMY) {
             if (doDQI(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return status;
             }
         }
-    }}
+    }
 
     PrSwitch("dqicorr", COMPLETE);
 
@@ -268,15 +263,14 @@ int DoCCD (ACSInfo *acs_info) {
     /* Subtract bias image. */
     BiasMsg(&acs[primaryIdx], nextver);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM) {
             if (doBias(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return status;
             }
         }
-    }}
+    }
 
     PrSwitch("biascorr", COMPLETE);
 
@@ -293,8 +287,7 @@ int DoCCD (ACSInfo *acs_info) {
 
     /************************************************************************/
     /* convert data to electrons */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (to_electrons(&acs[i], &x[i])) {
             freeOnExit (&ptrReg);
             return status;
@@ -308,7 +301,7 @@ int DoCCD (ACSInfo *acs_info) {
             freeOnExit (&ptrReg);
             return status;
         }
-    }}
+    }
     /************************************************************************/
 
     /************************************************************************/
@@ -323,10 +316,9 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr (&ptrReg, blevcorr, free);
 
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         blevcorr[i] = PERFORM;
-    }}
+    }
 
     int done = NO;
     int driftcorr = NO;     /* true means bias level was corrected for drift */
@@ -367,8 +359,7 @@ int DoCCD (ACSInfo *acs_info) {
        BIASCORR and BLEVCORR have been performed, and the data has been
        converted to electrons.  This flagging is only applicable for the
        two CCDs (WFC and HRC). */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
             trlmessage("\nFull-well saturation flagging being performed for imset %d.\n", i+1);
             if (doFullWellSat(&acs[i], &x[i])) {
@@ -378,19 +369,18 @@ int DoCCD (ACSInfo *acs_info) {
         } else {
             trlwarn("\nNo Full-well saturation flagging being performed for imset %d.\n", i+1);
         }
-    }}
+    }
     /************************************************************************/
 
     /************************************************************************/
     /* Fill in the error array, if it initially contains all zeros. */
     if (acs->noisecorr == PERFORM) {
-        {unsigned int i;
-        for (i = 0; i < acs_info->nimsets; i++) {
+        for (size_t i = 0; i < acs_info->nimsets; i++) {
             if (doNoise(&acs[i], &x[i], &done)) {
                 freeOnExit (&ptrReg);
                 return status;
             }
-        }}
+        }
 
         if (done) {
             if (noiseHistory(x[primaryIdx].globalhdr)) {
@@ -402,13 +392,12 @@ int DoCCD (ACSInfo *acs_info) {
             buff[0] = '\0';
 
             snprintf(MsgText, sizeof(MsgText), "    readnoise =");
-            {unsigned int i;
-            for (i=0; i < NAMPS-1; i++) {
+            for (size_t i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].readnoise[i] > 0) {
                     snprintf(buff, sizeof(buff), "%.5g,", acs[primaryIdx].readnoise[i]);
                     strcat(MsgText, buff);
                 }
-            }}
+            }
 
             if (acs[primaryIdx].readnoise[NAMPS-1] > 0) {
                 snprintf(buff, sizeof(buff), "%.5g", acs[primaryIdx].readnoise[NAMPS-1]);
@@ -417,13 +406,12 @@ int DoCCD (ACSInfo *acs_info) {
             trlmessage(MsgText);
 
             snprintf(MsgText, sizeof(MsgText), "    gain =");
-            {unsigned int i;
-            for (i=0; i < NAMPS-1; i++) {
+            for (size_t i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].atodgain[i] > 0) {
                     snprintf(buff, sizeof(buff), "%.5g,", acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
-            }}
+            }
 
             if (acs[primaryIdx].atodgain[NAMPS-1] > 0) {
                 snprintf(buff, sizeof(buff), "%.5g", acs[primaryIdx].atodgain[NAMPS-1]);
@@ -432,14 +420,13 @@ int DoCCD (ACSInfo *acs_info) {
             trlmessage(MsgText);
 
             snprintf(MsgText, sizeof(MsgText), "   default bias levels =");
-            {unsigned int i;
-            for (i=0; i < NAMPS-1; i++) {
+            for (size_t i=0; i < NAMPS-1; i++) {
                 if (acs[primaryIdx].ccdbias[i] > 0) {
                     snprintf(buff, sizeof(buff), "%.5g,",
                             acs[primaryIdx].ccdbias[i] * acs[primaryIdx].atodgain[i]);
                     strcat(MsgText, buff);
                 }
-            }}
+            }
 
             if (acs[primaryIdx].ccdbias[NAMPS-1] > 0) {
                 snprintf(buff, sizeof(buff), "%.5g",
@@ -459,13 +446,12 @@ int DoCCD (ACSInfo *acs_info) {
     SinkMsg (&acs[primaryIdx], nextver);
 
     if (acs->sinkcorr == PERFORM) {
-        {unsigned int i;
-        for (i = 0; i < acs_info->nimsets; i++) {
+        for (size_t i = 0; i < acs_info->nimsets; i++) {
             if (SinkDetect(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
                 return status;
             }
-        }}
+        }
 
         PrSwitch("sinkcorr", COMPLETE);
 
@@ -491,8 +477,7 @@ int DoCCD (ACSInfo *acs_info) {
     */
     int option = 0; /* Write data to disk */
     int sizex = 0, sizey = 0;  /* size of output image */
-    {unsigned int i;
-    for (i = 0; i < acs_info->nimsets; i++) {
+    for (size_t i = 0; i < acs_info->nimsets; i++) {
         if (blevcorr[i] == COMPLETE || acs[i].blevcorr == COMPLETE) {
             /* BLEVCORR was completed, so overscan regions can be trimmed... */
             if (acs_info->verbose) {
@@ -544,7 +529,7 @@ int DoCCD (ACSInfo *acs_info) {
             TimeStamp ("Output written to disk", acs_info->rootname);
 
         /* x[i] memory will be freed on exit */
-    }}
+    }
 
     freeOnExit (&ptrReg);
 

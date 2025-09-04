@@ -34,8 +34,8 @@ static int calc_bias_mean_std(const int arr_rows, const int arr_cols,
 static int remove_stripes(const int arr_rows, const int arr_cols,
                           char * good_rows[NAMPS], double * ampdata[NAMPS],
                           int * num_fixed, int * num_skipped);
-static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
-                          int amp, double * array);
+static int make_amp_array(size_t arr_rows, size_t arr_cols, SingleGroup * im,
+                          size_t amp, double * array);
 static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup * im,
                             int amp, double * array);
 
@@ -77,14 +77,13 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
   va_start (arguments, nGroups);
   {
        /* sg[0] is chip2 and sg[1] is chip 1 for a full frame image */
-       {unsigned int i;
-       for (i = 0; i < nGroups; i++) {
+       for (size_t i = 0; i < nGroups; i++) {
            sg[i] = NULL;
            sg[i] = va_arg (arguments, SingleGroup *);
            if (!sg[i]) {
               return (status = INTERNAL_ERROR);
            }
-       }}
+       }
   }
   va_end (arguments);
 
@@ -155,9 +154,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
   /* Loop over all the amps for full frame data (total of 4 amps, 0 to 3) or just use
    * the single amp value corresponding to the supported subarray (1 amp, value defined in acs.h).
    */
-  int ampInUse = 0;
-  {unsigned int i;
-  for (i = 0; i < numAmpsInUse; i++) {
+  size_t ampInUse = 0;
+  for (size_t i = 0; i < numAmpsInUse; i++) {
       ampInUse = i;
       if ((i == 0) && (acs->subarray == YES)) {
          if (strcmp (acs->ccdamp, "A") == 0)
@@ -208,28 +206,26 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
           k_end = NBIAS_COLS - 1;
       }
 
-      {unsigned int j, k;
-      for (j = j_beg; j <= j_end; j++) {
-          for (k = k_beg; k <= k_end; k++) {
+      for (size_t j = j_beg; j <= j_end; j++) {
+          for (size_t k = k_beg; k <= k_end; k++) {
               sum += ampdata[arr_cols*j + k];
               num++;
           }
-      }}
+      }
 
       magic_square_mean = sum / (double) num;
       trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (before correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* make amp + gap array */
-      {unsigned int j, k;
-      for (j = 0; j < arr_rows; j++) {
-          for (k = 0; k < (arr_cols + ngap_pix); k++) {
+      for (size_t j = 0; j < arr_rows; j++) {
+          for (size_t k = 0; k < (arr_cols + ngap_pix); k++) {
               if (k < arr_cols) {
                  ampdata_gap[(arr_cols + ngap_pix)*j + k] = ampdata[arr_cols*j + k];
               } else {
                  ampdata_gap[(arr_cols + ngap_pix)*j + k] = magic_square_mean;
               }
         }
-      }}
+      }
 
       /* factor combining time constant and clocking frequency */
       double factor = 1.0 - exp(-1.0 / (time_const[ampInUse] * serial_freq));
@@ -237,39 +233,35 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       /* calculate true DC bias levels */
       dc_bias_levels[0] = magic_square_mean * dc_ratio[ampInUse];
 
-      {unsigned int j;
-      for (j = 1; j < nquad_pix + 1; j++) {
+      for (size_t j = 1; j < nquad_pix + 1; j++) {
           dc_bias_levels[j] = ampdata_gap[j-1] * factor * dc_ratio[ampInUse] +
                             (1.0 - factor) * dc_bias_levels[j-1];
-      }}
+      }
 
       /* calculate correction to data */
-      {unsigned int j;
-      for (j = 0; j < nquad_pix; j++) {
+      for (size_t j = 0; j < nquad_pix; j++) {
           ampdata_gap[j] = (ampdata_gap[j] - dsi_sens[ampInUse] * dc_bias_levels[j+1]) -
                           (10./22.) * (dc_bias_levels[j+1] - dc_bias_levels[j]);
-      }}
+      }
 
       /* copy corrected data back to ampdata */
-      {unsigned int j, k;
-      for (j = 0; j < arr_rows; j++) {
-          for (k = 0; k < arr_cols; k++) {
+      for (size_t j = 0; j < arr_rows; j++) {
+          for (size_t k = 0; k < arr_cols; k++) {
               ampdata[arr_cols*j + k] = ampdata_gap[(arr_cols + ngap_pix)*j + k];
           }
-      }}
+      }
 
       /* re-calculate "magic square mean" */
       sum = 0.0;
       num = 0;
       magic_square_mean = 0.0;
 
-      {unsigned int j, k;
-      for (j = j_beg; j <= j_end; j++) {
-          for (k = k_beg; k <= k_end; k++) {
+      for (size_t j = j_beg; j <= j_end; j++) {
+          for (size_t k = k_beg; k <= k_end; k++) {
               sum += ampdata[arr_cols*j + k];
               num++;
           }
-      }}
+      }
 
       magic_square_mean = sum / (double) num;
 
@@ -282,12 +274,11 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (after correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* subtract "magic square mean" from data*/
-      {unsigned int j, k;
-      for (j = 0; j < arr_rows; j++) {
-          for (k = 0; k < arr_cols; k++) {
+      for (size_t j = 0; j < arr_rows; j++) {
+          for (size_t k = 0; k < arr_cols; k++) {
               ampdata[arr_cols*j + k] -= magic_square_mean;
           }
-      }}
+      }
 
       /* copy modified data back to SingleGroup structs */
 
@@ -305,7 +296,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
             unmake_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
          }
       }
-  }}
+  }
 
   freeOnExit(&ptrReg);
 
@@ -984,19 +975,15 @@ static int sub_bias_col_means(const int arr_rows, const int arr_cols, const int 
  * specified amp in which the amp is at the lower left hand corner.
  * based on make_amp_array from dopcte.c.
  */
-static int make_amp_array(const int arr_rows, const int arr_cols, SingleGroup *im,
-                          int amp, double * array) {
-
+static int make_amp_array(const size_t arr_rows, const size_t arr_cols, SingleGroup *im,
+                          size_t amp, double *array) {
   extern int status;
 
-  /* iteration variables */
-  int i, j;
-
   /* variables for the image row/column we want */
-  int r,c;
+  size_t r, c;
 
-  for (i = 0; i < arr_rows; i++) {
-    for (j = 0; j < arr_cols; j++) {
+  for (size_t i = 0; i < arr_rows; i++) {
+    for (size_t j = 0; j < arr_cols; j++) {
       if (amp == AMP_A) {
         r = im->sci.data.ny - i - 1;
         c = j;

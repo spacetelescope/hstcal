@@ -30,9 +30,6 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
   /* status variable for return */
   extern int status;
 
-  /* iteration variables */
-  int i, i2, j, n;
-
   /* arrays to hold columns of data */
   double pix_obs[arrx];
   double pix_cur[arrx];
@@ -45,12 +42,12 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
   double new_cte_frac, ncf_top, ncf_bot;
 
   /* flag for whether we've found a pixel with added charge */
-  short int high_found;
-  int high_location;
+  short int high_found = 0;
+  int high_location = 0;
 
   /* track how many times we run the column. */
   short int redo_col = 0;
-  int num_redo;
+  int num_redo = 0;
 
   /* Only use OpenMP, if specified by user and OpenMP was available for compilation */
   if (onecpu == 1) {
@@ -58,9 +55,9 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
     trlmessage("Using single-CPU processing for YCTE correction.");
 
     /* loop over columns. columns are independent of each other. */
-    for (j = 0; j < arry; j++) {
+    for (size_t j = 0; j < arry; j++) {
       /* copy column data */
-      for (i = 0; i < arrx; i++) {
+      for (size_t i = 0; i < arrx; i++) {
         pix_obs[i] = sig_cte[i*arry + j];//This is row major storage.
         pix_cur[i] = pix_obs[i];
         pix_read[i] = 0.0;
@@ -71,12 +68,12 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
       num_redo = 0;
 
       do {
-        for (n = 0; n < sim_nit; n++) {
+        for (size_t n = 0; n < sim_nit; n++) {
           status = sim_readout_nit(arrx, pix_cur, pix_read, shft_nit, cte_frac_col,
                                    levels, dpde_l, chg_leak_lt, chg_open_lt);
 
           if (status == 0) {
-            for (i = 0; i < arrx; i++) {
+            for (size_t i = 0; i < arrx; i++) {
               pix_cur[i] += pix_obs[i] - pix_read[i];
             }
           }
@@ -87,13 +84,13 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
           redo_col = 0;
 
           /* check this column for over subtracted pixels and maybe fix them. */
-          for (i = 2; i < arrx-2; i++) {
+          for (size_t i = 2; i < arrx-2; i++) {
             if (pix_cur[i] - pix_obs[i] < too_low &&
                 pix_cur[i] < too_low && !redo_col) {
               high_found = 0;
 
               /* search for an upstream pixel with added charge */
-              for (i2 = i-1; i2 > 0; i2--) {
+              for (size_t i2 = i-1; i2 > 0; i2--) {
                 if (pix_cur[i2] - pix_obs[i2-1] < 0) {
                   high_found = 1;
                   high_location = i2 - 1;
@@ -122,7 +119,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
               }
 
               /* distribute the new scaling factor */
-              for (i2 = high_location; i2 <= i; i2++) {
+              for (size_t i2 = high_location; i2 <= i; i2++) {
                 cte_frac_col[i2] *= new_cte_frac;
 
                 if (cte_frac_col[i2] < 0) {
@@ -155,7 +152,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
 
       if (status == 0) {
         /* copy fixed column to output */
-        for (i = 0; i < arrx; i++) {
+        for (size_t i = 0; i < arrx; i++) {
           sig_cor[i*arry + j] = pix_cur[i];
           cte_frac[i*arry + j] = cte_frac_col[i];
         }
@@ -171,13 +168,13 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
       trlmessage("Parallel processing for YCTE correction not used... OpenMP missing.");
 #   endif
 #   pragma omp parallel for schedule(dynamic) \
-      private(i,j,n,status,cte_frac_col,new_cte_frac,ncf_top,ncf_bot,\
+      private(status,cte_frac_col,new_cte_frac,ncf_top,ncf_bot,\
               high_found,high_location,redo_col,num_redo,pix_obs,pix_cur,pix_read) \
       shared(sig_cte,sig_cor,cte_frac)
     /* loop over columns. columns are independent of each other. */
-    for (j = 0; j < arry; j++) {
+    for (size_t j = 0; j < arry; j++) {
       /* copy column data */
-      for (i = 0; i < arrx; i++) {
+      for (size_t i = 0; i < arrx; i++) {
         pix_obs[i] = sig_cte[i*arry + j];
         pix_cur[i] = pix_obs[i];
         pix_read[i] = 0.0;
@@ -188,12 +185,12 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
       num_redo = 0;
 
       do {
-        for (n = 0; n < sim_nit; n++) {
+        for (size_t n = 0; n < sim_nit; n++) {
           status = sim_readout_nit(arrx, pix_cur, pix_read, shft_nit, cte_frac_col,
                                    levels, dpde_l, chg_leak_lt, chg_open_lt);
 
           if (status == 0) {
-            for (i = 0; i < arrx; i++) {
+            for (size_t i = 0; i < arrx; i++) {
               pix_cur[i] += pix_obs[i] - pix_read[i];
             }
           }
@@ -204,13 +201,13 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
           redo_col = 0;
 
           /* check this column for over subtracted pixels and maybe fix them. */
-          for (i = 2; i < arrx-2; i++) {
+          for (size_t i = 2; i < arrx-2; i++) {
             if (pix_cur[i] - pix_obs[i] < too_low &&
                 pix_cur[i] < too_low && !redo_col) {
               high_found = 0;
 
               /* search for an upstream pixel with added charge */
-              for (i2 = i-1; i2 > 0; i2--) {
+              for (size_t i2 = i-1; i2 > 0; i2--) {
                 if (pix_cur[i2] - pix_obs[i2-1] < 0) {
                   high_found = 1;
                   high_location = i2 - 1;
@@ -239,7 +236,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
               }
 
               /* distribute the new scaling factor */
-              for (i2 = high_location; i2 <= i; i2++) {
+              for (size_t i2 = high_location; i2 <= i; i2++) {
                 cte_frac_col[i2] *= new_cte_frac;
 
                 if (cte_frac_col[i2] < 0) {
@@ -272,7 +269,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
 
       if (status == 0) {
         /* copy fixed column to output */
-        for (i = 0; i < arrx; i++) {
+        for (size_t i = 0; i < arrx; i++) {
           sig_cor[i*arry + j] = pix_cur[i];
           cte_frac[i*arry + j] = cte_frac_col[i];
         }
