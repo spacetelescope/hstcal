@@ -32,7 +32,7 @@ int maxch          i: maximum size of output
 	fits_len = strlen (fitsext);
 
 	// TODO: maxch should be an unsigned type
-	if (i_len > (int) maxch) {
+	if (i_len > (size_t) maxch) {
 	    trlerror ("(MkName) Input name is too long.");
 	    return (status = INVALID_FILENAME);
 	}
@@ -74,7 +74,7 @@ int maxch          i: maximum size of output
 	/* If the input name ends in the expected suffix, chop it off of
 	   the output name before appending the output suffix and extension.
 	*/
-	tr_len = strlen (output);		/* length of truncated name */	
+	tr_len = (int)strlen (output);		/* length of truncated name */
 	if (tr_len >= is_len) {
 	    if (strcmp (output+tr_len-is_len, isuffix) == 0)
 		output[tr_len-is_len] = '\0';
