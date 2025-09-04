@@ -75,23 +75,24 @@ StisInfo11 *scidata  i: info for science data
 	*/
 	initHdr (&hdr);
 	k = 0;
-	for (extverSci = 1;  extverSci <= scidata->nimages;  extverSci++) {
-	    im = openInputImage (scidata->input, "SCI", extverSci);
-	    if (hstio_err())
-		return (OPEN_FAILED);
-	    getHeader (im, &hdr);
-	    if (hstio_err())
-		return (OPEN_FAILED);
-	    closeImage (im);
-	    if ((status = GetTimes11 (&hdr, &exptime, &midpt, &imset_ok)) != 0)
-		return (status);
-	    if (imset_ok) {
-		scidata->exptime[k] = exptime;
-		scidata->midpt[k] = midpt;
-		k++;
-	    }
-	    freeHdr (&hdr);
-	}
+    for (int i = 1; i <= scidata->nimages; i++) {
+        im = openInputImage(scidata->input, "SCI", i);
+        if (hstio_err())
+            return (OPEN_FAILED);
+        getHeader(im, &hdr);
+        if (hstio_err())
+            return (OPEN_FAILED);
+        closeImage(im);
+        if ((status = GetTimes11(&hdr, &exptime, &midpt, &imset_ok)) != 0)
+            return (status);
+        if (imset_ok) {
+            scidata->exptime[k] = exptime;
+            scidata->midpt[k] = midpt;
+            k++;
+        }
+        freeHdr(&hdr);
+        extverSci = i;
+    }
 	scidata->nimages = k;	/* update to be the number with imset_ok */
 
 	initSingleGroup (&wav);
