@@ -53,10 +53,10 @@ int *index         io: starting index; location of wavelength in wl array
 		} else {
 		    for (int i = start;   i < nelem;   i++) {
 			if (wavelength > wl[i] && wavelength <= wl[i+1]) {
+		        *index = i;
 			    break;
 			}
 		    }
-		    *index = i;
 		}
 	    }
 	}
