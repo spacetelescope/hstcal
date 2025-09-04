@@ -106,6 +106,11 @@
 
  */
 
+/* Because DTH had this hard coded and it varies with UVIS for CTE*/
+static const char *suffix_flt = "_flt.fits";
+static const char *suffix_flc = "_flc.fits";
+
+
 int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug, int onecpu) {
 
 	/* arguments:
@@ -139,11 +144,6 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	char* BuildDthInput (AsnInfo *, int, char *);
 	int updateAsnTable (AsnInfo *, int, int);
 	void InitDthTrl (const char *, char *);
-
-    /*because DTH had this hard coded and it varies with UVIS for CTE*/
-   char suffix_flt[]="_flt.fits";
-   char suffix_flc[]="_flc.fits";
-
 
 	/* Post error handler */
 	push_hstioerr (errchk);
@@ -243,7 +243,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
             wf3dth_input=NULL;
 
 	        for (prod = 0; prod < asn.numprod; prod++) {
-		        wf3dth_input = BuildDthInput (&asn, prod,suffix_flt );
+                wf3dth_input = BuildDthInput(&asn, prod, (char *)suffix_flt);
 
 		        /* Skip this product if the input list is empty */
 		        if (wf3dth_input == NULL) {
@@ -295,7 +295,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	        }
 
 	        for (prod = 0; prod < asn.numprod; prod++) {
-		        wf3dth_input=BuildDthInput (&asn, prod, suffix_flt);
+                wf3dth_input = BuildDthInput(&asn, prod, (char *)suffix_flt);
 		        /* Skip this product if the input list is empty */
 		        if (wf3dth_input == NULL) {
                     printf("\nProduct %i input list empty, continuing..\n",prod);
@@ -355,6 +355,7 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 
+
 	int i, j;
 	int MkName (char *, char *, char *, char *, char *, int);
     extern int status;
@@ -396,7 +397,7 @@ char* BuildDthInput (AsnInfo *asn, int prod, char *suffix_name) {
 		} else {
 			/* Otherwise just use the sub-product name */
 
-            if (strcmp(suffix_name,"_flc.fits")){
+            if (strcmp(suffix_name, suffix_flc) != 0){
 			    char *t = asn->product[prod].subprod[i].spname;
 			    wf3dth_input = realloc( wf3dth_input, (strlen(wf3dth_input) + strlen(t) + 10 ) );
 			    strcat(wf3dth_input, t);
