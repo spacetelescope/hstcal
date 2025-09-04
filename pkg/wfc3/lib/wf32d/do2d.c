@@ -334,10 +334,10 @@ int extver       i: "imset" number, the current set of extensions
             return(status);
 
 	/* Compute min, max, mean, etc. of good science data. */
-	if (doStat (&x, wf32d->sdqflags))
-	    return (status);
-	if (wf32d->printtime)
-	    TimeStamp ("Image statistics computed", wf32d->rootname);
+    if (doStat (&x, wf32d->sdqflags))
+        return (status);
+    if (wf32d->printtime)
+        TimeStamp ("Image statistics computed", wf32d->rootname);
 
 	/* Write this imset to the output file.  If extver is one, the
 	   CAL_VER and FILENAME keywords will be updated, and the primary
