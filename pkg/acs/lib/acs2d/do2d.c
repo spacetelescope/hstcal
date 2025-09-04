@@ -290,9 +290,9 @@ int Do2D (ACSInfo *acs2d, int extver) {
 			TimeStamp ("DARKCORR complete", acs2d->rootname);
 	}
 
-  if (extver == 1 && !OmitStep (acs2d->darkcorr))
-    if (darkHistory (acs2d, x.globalhdr))
-      return (status);
+    if (extver == 1 && !OmitStep (acs2d->darkcorr))
+        if (darkHistory (acs2d, x.globalhdr))
+            return (status);
 
     /**************************************************************************/
     /* Subtract post-flash image. */
