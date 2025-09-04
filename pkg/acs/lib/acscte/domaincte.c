@@ -65,13 +65,11 @@ int doMainCTE (int argc, char **argv) {
     char pcteTabNameFromCmd[CHAR_LINE_LENGTH];
     *pcteTabNameFromCmd = '\0';
     int too_many = 0;	/* too many command-line arguments? */
-    int i, j;		/* loop indexes */
 
     IRAFPointer i_imt, o_imt;	/* imt list pointers */
     char *input;		/* name of input science file */
     char *output;		/* name of output file */
     int n_in, n_out;	/* number of files in each list */
-    int n;
 
     /* Input and output suffixes. */
     char isuffix[CHAR_FNAME_LENGTH] = "_blv_tmp";
@@ -152,7 +150,7 @@ int doMainCTE (int argc, char **argv) {
         forwardModelOnly = true;
     }
 
-    for (i = 1;  i < argc;  i++) {
+    for (int i = 1;  i < argc;  i++) {
 
         if (argv[i][0] == '-') {
             if (!(strcmp(argv[i],"--version")))
@@ -236,7 +234,7 @@ int doMainCTE (int argc, char **argv) {
                     freeOnExit(&ptrReg);
                     exit (ERROR_RETURN);
                 }
-                for (j = 1;  argv[i][j] != '\0';  j++) {
+                for (int j = 1;  argv[i][j] != '\0';  j++) {
                     if (argv[i][j] == 't') {
                         printtime = YES;
                     } else if (argv[i][j] == 'v') {
@@ -344,7 +342,7 @@ int doMainCTE (int argc, char **argv) {
     }
 
     /* Loop over the list of input files. */
-    for (n = 0;  n < n_in;  n++) {
+    for (int n = 0;  n < n_in;  n++) {
 
         c_imtgetim (i_imt, input, CHAR_LINE_LENGTH);
 
