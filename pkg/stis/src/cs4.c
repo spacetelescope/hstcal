@@ -61,15 +61,12 @@ int main (int argc, char **argv) {
 	int dbg_next = 0;	/* debug file name must be next argument? */
 	int angle_next = 0;	/* slit angle must be next argument? */
 	double slit_angle = 0.;	/* (degrees) angle of long slit for echelle */
-	int i, j;		/* loop indexes */
 
 	IRAFPointer i_imt;	/* imt list pointer for input files */
 	IRAFPointer d_imt;	/* imt list pointer for output debug files */
 	char *input;		/* name of input science file */
 	char *dbgfile;		/* name of file for debug output */
 	int n_in, n_dbg;	/* number of names in lists */
-	int n;
-	int junk;
 
 	/* reference file keywords and names */
 	RefFileInfo refnames;
@@ -99,7 +96,7 @@ int main (int argc, char **argv) {
 	}
 
 	/* Get command-line arguments. */
-	for (i = 1;  i < argc;  i++) {
+	for (int i = 1;   i < argc;   i++) {
 	    if (dbg_next) {
 		if (argv[i][0] == '-') {
 		    printf (
@@ -139,7 +136,7 @@ int main (int argc, char **argv) {
 		    /* next argument must be slit angle */
 		    angle_next = 1;
 		} else {
-		    for (j = 1;  argv[i][j] != '\0';  j++) {
+		    for (int j = 1;   argv[i][j] != '\0';   j++) {
 			if (argv[i][j] == 't') {
 			    printtime = 1;
 			} else if (argv[i][j] == 'v') {
@@ -188,11 +185,11 @@ int main (int argc, char **argv) {
 	}
 
 	/* Loop over the list of input files. */
-	for (n = 0;  n < n_in;  n++) {
+	for (int n = 0;   n < n_in;   n++) {
 
-	    junk = c_imtgetim (i_imt, input, STIS_LINE);
+	    c_imtgetim (i_imt, input, STIS_LINE);
 	    if (n_dbg > 0)
-		junk = c_imtgetim (d_imt, dbgfile, STIS_LINE);
+		c_imtgetim (d_imt, dbgfile, STIS_LINE);
 	    else
 		dbgfile[0] = '\0';
 

@@ -107,7 +107,6 @@ int main (int argc, char **argv) {
 	int bks_mode;		/* back. smooth mode */
 	int bks_order;		/* back. smooth polynomila order */
 	/*int bks_size;*/	/* back. smooth box size */
-	int ifile;
 
 	char *isuffix[]  = {"_flt"};  /* default suffixes */
 	char *osuffix[]  = {"_x1d"};
@@ -173,7 +172,7 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 
-	for (ifile = 0; ifile < innf; ifile++) {
+	for (int ifile = 0;  ifile < innf;  ifile++) {
 	    c_imtgetim (inlist,  finput,  STIS_FNAME);
 	    if (outnf != 0)
 	        c_imtgetim (outlist, foutput, STIS_FNAME);

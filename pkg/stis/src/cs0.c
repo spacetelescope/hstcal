@@ -56,7 +56,6 @@ int main (int argc, char **argv) {
 	int verbose = 0;	/* print info in individual calstisN? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int wavecal_next = 0;	/* next argument is wavecal name? */
-	int i, j;		/* loop indexes */
 
 	IRAFPointer r_imt, w_imt, o_imt;	/* imt list pointers */
 	char *rawfile;		/* name of input science file */
@@ -65,7 +64,6 @@ int main (int argc, char **argv) {
 	int many_wavfiles;	/* do we have more than one wavfile? */
 	int many_outroots;	/* do we have more than one outroot? */
 	int n_raw, n_wav, n_out;	/* number of files in each list */
-	int n;
 
 	c_irafinit (argc, argv);
 
@@ -95,7 +93,7 @@ int main (int argc, char **argv) {
 	    exit (ERROR_RETURN);
 	}
 
-	for (i = 1;  i < argc;  i++) {
+	for (int i = 1;   i < argc;   i++) {
 	    if (wavecal_next) {
 		if (argv[i][0] == '-') {
 		    printf("`%s' encountered when wavecal file name was expected\n", argv[i]);
@@ -134,7 +132,7 @@ int main (int argc, char **argv) {
 		    freeOnExit(&ptrReg);
 		    exit (0);
 		}
-		for (j = 1;  argv[i][j] != '\0';  j++) {
+		for (int j = 1;   argv[i][j] != '\0';   j++) {
 		    if (argv[i][j] == 't') {
 			printtime = 1;
 		    } else if (argv[i][j] == 's') {
@@ -207,7 +205,7 @@ int main (int argc, char **argv) {
 	} else {
 	    many_wavfiles = 0;
 	    if (n_wav == 1)
-		j = c_imtgetim (w_imt, wavfile, STIS_LINE);
+		c_imtgetim (w_imt, wavfile, STIS_LINE);
 	    else
 		wavfile[0] = '\0';
 	}
@@ -226,7 +224,7 @@ int main (int argc, char **argv) {
 	} else {
 	    many_outroots = 0;
 	    if (n_out == 1) {
-		j = c_imtgetim (o_imt, outroot, STIS_LINE);
+		c_imtgetim (o_imt, outroot, STIS_LINE);
 		/* If we have only one outroot, and there is more than one
 			raw files, outroot must be a directory.
 		*/
@@ -249,12 +247,12 @@ int main (int argc, char **argv) {
 	}
 
 	/* Loop over the list of input files. */
-	for (n = 0;  n < n_raw;  n++) {
-	    j = c_imtgetim (r_imt, rawfile, STIS_LINE);
+	for (int n = 0;   n < n_raw;   n++) {
+	    c_imtgetim (r_imt, rawfile, STIS_LINE);
 	    if (many_wavfiles)
-			j = c_imtgetim (w_imt, wavfile, STIS_LINE);
+			c_imtgetim (w_imt, wavfile, STIS_LINE);
 	    if (many_outroots)
-			j = c_imtgetim (o_imt, outroot, STIS_LINE);
+			c_imtgetim (o_imt, outroot, STIS_LINE);
 
 	    /* Calibrate the current input file. */
 	    status = 0;

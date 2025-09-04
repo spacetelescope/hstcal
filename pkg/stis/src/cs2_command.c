@@ -43,7 +43,7 @@ int newpar;		o: parameter been set by the user?
 	/* reset the parameters */
 	cs2_reset (par, newpar); 
 
-	for (ctoken = 1;  ctoken < argc;  ctoken++) {
+	for (int ctoken = 1;   ctoken < argc;   ctoken++) {
 	    if (strcmp (argv[ctoken], "--version") == 0) {
 	        PrVersion();
 	        exit (0);
