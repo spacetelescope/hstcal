@@ -66,13 +66,13 @@ int pcteHistory (ACSInfo *acs, Hdr *phdr) {
 	int UpdateSwitch (char *, int, Hdr *, int *);
 
 	if (OmitStep (acs->pctecorr))		/* nothing to do */
-    return (status);
+        return (status);
 
     if (UpdateSwitch ("PCTECORR", acs->pctecorr, phdr, &logit))
         return (status);
 
 	/* Write history records for the PCTE table. */
-	if (logit)
+    if (logit)
 	{
         // Add amp dependent readnoise (PCTERNOI) values used for PCTECORR
         // read from CCDTAB.
