@@ -41,7 +41,7 @@ StisInfo11 *scidata  i: info for science data
 	IODescPtr im;		/* descriptor for an image */
 	Hdr hdr;		/* header for SCI extension */
 	SingleGroup wav, sci;
-	char history[STIS_LINE+1];
+	char history[4096];
 	double ratio;		/* ratio of exposure times and gains */
 	double exptime, midpt;	/* temporary variables */
 	int imset_ok;		/* value of header keyword IMSET_OK */
