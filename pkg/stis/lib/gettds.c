@@ -254,7 +254,8 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	tds->intercept = (double **) calloc (tds->nt, sizeof(double *));
 	if (tds->temp_sens == NULL || tds->wl == NULL || tds->time == NULL ||
 	    tds->slope == NULL || tds->intercept == NULL) {
-	    status = CloseTdsTab (tabinfo);
+        extern int status;
+        status = CloseTdsTab (tabinfo);
 	    return (OUT_OF_MEMORY);
 	}
 	for (int i = 0;  i < tds->nt;  i++) {
