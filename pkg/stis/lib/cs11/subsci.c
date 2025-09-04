@@ -143,8 +143,7 @@ StisInfo11 *scidata  i: info for science data
 	    freeSingleGroup (&sci);
 
 	    if (extverWav == 1) {
-		sprintf (history, "Science file %s was subtracted.\n",
-			scidata->input);
+		snprintf (history, sizeof(history), "Science file %s was subtracted.\n", scidata->input);
 		addHistoryKw (wav.globalhdr, history);
 		if (hstio_err())
 		    return (HEADER_PROBLEM);
