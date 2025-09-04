@@ -53,8 +53,9 @@ Hdr scihdr, errhdr, dqhdr   o: headers to receive modified coord parameters
 		double *, double *, double *, double *);
         
     /* Initialize array of status values for keywords */
-    for (size_t i = 0; i < NUM_KEYWORDS; i++ )
+    for (size_t i = 0; i < NUM_KEYWORDS; i++) {
         status_arr[i] = 0;
+    }
 
 	/* Get the coordinate parameters from the input header. */
 
