@@ -149,11 +149,9 @@ StisInfo11 *scidata  i: info for science data
 		    return (HEADER_PROBLEM);
 	    }
 
-	    trlmessage("         %s[EXTVER=%d] was subtracted.",
-			scidata->input, extverSci);
+	    trlmessage("         %s[EXTVER=%d] was subtracted.", scidata->input, extverSci);
 
-	    sprintf (history, "%s[EXTVER=%d] was subtracted\n",
-			scidata->input, extverSci);
+	    snprintf (history, sizeof(history), "%s[EXTVER=%d] was subtracted\n", scidata->input, extverSci);
 	    addHistoryKw (&wav.sci.hdr, history);
 	    if (hstio_err())
 		return (HEADER_PROBLEM);
