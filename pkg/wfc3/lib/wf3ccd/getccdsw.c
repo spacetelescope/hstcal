@@ -31,7 +31,7 @@ int GetccdSw (WF3Info *wf3, Hdr *phdr) {
     if (GetSw (phdr, "PCTECORR", &wf3->pctecorr))
         return(status);
 
-	return (status);
+    return (status);
 }
 
 /* This routine just calls GetSwitch to get the value of the switch,
