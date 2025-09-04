@@ -56,6 +56,9 @@ double crpix[2]         io: reference pixel
 	    off[1] = offset[1];
 	else
 	    off[1] = offset[1] * block[1];
+
+    // TODO: 'off' is not used below
+
 	cd[1] *= block[1];		/* CD1_2 */
 	cd[3] *= block[1];		/* CD2_2 */
 	ltm[1] /= block[1];
