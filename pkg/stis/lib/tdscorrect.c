@@ -24,7 +24,7 @@ double t;            i: time of exposure (MJD)
 double temperature;  i: detector temperature (degrees Celsius)
 double *factor;      o: array with correction factors (size = tds->nwl)
 */
-	int i, j;
+	int j;
 	int nt = tds->nt;	/* number of times in the time array */
 
 	if (tds->format == COS_TDS_FORMAT) {
@@ -37,7 +37,7 @@ double *factor;      o: array with correction factors (size = tds->nwl)
 	    if (nt == 1 || t >= tds->time[nt-1]) {
 		j = nt - 1;
 	    } else {
-		for (j = 0;  j < nt-1;  j++) {
+		for (int j = 0;   j < nt-1;   j++) {
 		    if (t < tds->time[j+1])
 			break;
 		}
@@ -48,7 +48,7 @@ double *factor;      o: array with correction factors (size = tds->nwl)
 	    */
 	    delta_t = (t - tds->ref_time) / DAYS_PER_YEAR;
 
-	    for (i = 0;  i < tds->nwl;  i++) {
+	    for (int i = 0;   i < tds->nwl;   i++) {
 		factor[i] = delta_t * tds->slope[j][i] / 100.0
 				    + tds->intercept[j][i];
 	    }
@@ -57,11 +57,11 @@ double *factor;      o: array with correction factors (size = tds->nwl)
 
 	    double slope_j;
 
-	    for (i = 0;  i < tds->nwl;  i++) {
+	    for (int i = 0;   i < tds->nwl;   i++) {
 
 		factor[i] = 1.;			/* initial value */
 
-		for (j = 0;  j < nt;  j++) {
+		for (int j = 0;   j < nt;   j++) {
 
 		    /* slopes are expressed in percentage. */
 
@@ -77,7 +77,7 @@ double *factor;      o: array with correction factors (size = tds->nwl)
 	}
 
 	/* Include temperature dependence. */
-	for (i = 0;  i < tds->nwl;  i++) {
+	for (int i = 0;   i < tds->nwl;   i++) {
 	    if (tds->ref_temp > 0. && temperature > 0.) {
 		factor[i] *= (1. +
 			tds->temp_sens[i] * (temperature - tds->ref_temp));

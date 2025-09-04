@@ -6,13 +6,12 @@
 
 double rotatetrace(double expstart, double mjd, double degperyr, double *a2displ, int nelem) {
   
-  int i;
   double temp;
   double angle = degperyr * (expstart - mjd) / 365.25;
   double radians_coef = PI / 180;
  
   temp = tan(angle * radians_coef);
-  for (i = 0; i < nelem; i++){
+  for (int i = 0;  i < nelem;  i++){
    a2displ[i] -= (i - nelem/2) * temp;
   }    
 

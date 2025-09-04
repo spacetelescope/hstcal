@@ -23,7 +23,6 @@ SingleGroup *a   io: input data; output quotient
 SingleGroup *b   i: second input data
 */
 
-	int i, j;
 	float a_sci, b_sci;	/* science data values from a and b */
 	float a_expr, b_expr;	/* expressions involving errors in a and b */
 	short dqa, dqb, dqab;	/* data quality for a, b, combined */
@@ -33,8 +32,8 @@ SingleGroup *b   i: second input data
 	    return (SIZE_MISMATCH);
 
 	/* error array and science data */
-	for (j = 0;  j < a->sci.data.ny;  j++) {
-	    for (i = 0;  i < a->sci.data.nx;  i++) {
+	for (int j = 0;   j < a->sci.data.ny;   j++) {
+	    for (int i = 0;   i < a->sci.data.nx;   i++) {
 
 		a_sci = Pix (a->sci.data, i, j);
 		b_sci = Pix (b->sci.data, i, j);
@@ -54,8 +53,8 @@ SingleGroup *b   i: second input data
 	}
 
 	/* data quality */
-	for (j = 0;  j < a->dq.data.ny;  j++) {
-	    for (i = 0;  i < a->dq.data.nx;  i++) {
+	for (int j = 0;   j < a->dq.data.ny;   j++) {
+	    for (int i = 0;   i < a->dq.data.nx;   i++) {
 
 		dqa = DQPix (a->dq.data, i, j);
 		dqb = DQPix (b->dq.data, i, j);

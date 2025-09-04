@@ -23,7 +23,6 @@ int maxch          i: maximum size of output
 	int is_len;		/* length of isuffix */
 	int fits_len;		/* length of fitsext */
 	int tr_len;		/* length of truncated input name */
-	int i;			/* loop index */
 	int dotlocn;		/* location of '.' in input name */
 
 	i_len = strlen (input);
@@ -41,7 +40,7 @@ int maxch          i: maximum size of output
 
 	/* Find the extension (if any) on the input name. */
 	dotlocn = 0;
-	for (i = i_len-1;  i >= 0;  i--) {
+	for (int i = i_len-1;   i >= 0;   i--) {
 	    if (input[i] == '.') {
 		dotlocn = i;
 		break;

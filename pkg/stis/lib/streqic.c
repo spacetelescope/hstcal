@@ -12,10 +12,9 @@
 int streq_ic (char *s1, char *s2) {
 
 	int c1, c2;
-	int i;
 
 	c1 = 1;
-	for (i = 0;  c1 != 0;  i++) {
+	for (int i = 0;   c1 != 0;   i++) {
 
 	    c1 = s1[i];
 	    c2 = s2[i];

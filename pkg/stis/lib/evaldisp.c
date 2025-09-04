@@ -235,7 +235,6 @@ The function value is status:
         double save_x_test;     /* x_test at min of x_diff */
 	int niter;		/* iteration count */
 	int done;		/* boolean flag for terminating a loop */
-        int i;
 
 	*wl = -1.;		/* initial value (bad) */
 
@@ -279,7 +278,7 @@ The function value is status:
 	    else
 		min_x_diff = x_diff;
 	    wl_min_x_diff = wl_estimate;
-	    for (i = 0;  i < 2;  i++) {		/* just two iterations */
+	    for (int i = 0;   i < 2;   i++) {		/* just two iterations */
 		for (wl_test = wl_low;  wl_test <= wl_high;
 			wl_test += wl_step) {
 		    slope = evalDerivDisp (coeff, ncoeff, m, wl_test);

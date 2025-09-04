@@ -46,7 +46,6 @@ short sdqflags    i: "serious" data quality flags
 	int numgood;			/* number of good pixels */
 	int num_bad_stddev;		/* number of pixels with err = 0 */
 	int area;			/* total number of pixels */
-	int i, j;
 	short flagval;			/* data quality flag value */
 
 	/* Statistics for the science data. */
@@ -56,8 +55,8 @@ short sdqflags    i: "serious" data quality flags
 	valsum = 0.;
 	errsum = 0.;
 	snrsum = 0.;
-	for (j = 0;  j < out->sci.data.ny;  j++) {
-	    for (i = 0;  i < out->sci.data.nx;  i++) {
+	for (int j = 0;   j < out->sci.data.ny;   j++) {
+	    for (int i = 0;   i < out->sci.data.nx;   i++) {
 		flagval = DQPix (out->dq.data, i, j);
 		if ( ! (sdqflags & flagval) ) {
 		    /* no serious flag bit set */

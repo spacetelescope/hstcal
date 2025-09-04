@@ -43,7 +43,6 @@ The function value is the radial velocity in km/s.
 	double velocity[3];	/* velocity vector of earth around sun */
 	double target[3];	/* unit vector pointing toward target */
 	double vel_r;		/* component of velocity toward target */
-	int i;
 
 	/* Convert target position to rectangular coord unit vector. */
 	ra = ra_targ * DEG_RAD;
@@ -60,7 +59,7 @@ The function value is the radial velocity in km/s.
 
 	/* Dot product. */
 	vel_r = 0.;
-	for (i = 0;  i < 3;  i++)
+	for (int i = 0;   i < 3;   i++)
 	    vel_r += (velocity[i] * target[i]);
 
 	return (-vel_r);

@@ -89,7 +89,6 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	int row;		/* loop index */
 	int foundit = 0;	/* true if parameters found in table */
 
 	RefTab tempreftab;	/* holding place for table name */
@@ -98,7 +97,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	if ((status = OpenTdsTab (tabname, &tabinfo, tds)))
 	    return (status);
 
-	for (row = 1;  row <= tabinfo.nrows;  row++) {
+	for (int row = 1;   row <= tabinfo.nrows;   row++) {
 
 	    if ((status = ReadTdsTab (&tabinfo, row, &tabrow)))
 
@@ -235,10 +234,9 @@ static int ReadTdsTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
 static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
-	int nwl, nt, ns, ntemp, dim[2], ini, ndim, i;
-	int status = 0;
+	int nwl, nt, ntemp, dim[2], ini, ndim;
 
-	/* Find out how many elements there are in the arrays. */
+    /* Find out how many elements there are in the arrays. */
 
 	c_tbegti (tabinfo->tp, tabinfo->cp_nwl, row, &tds->nwl);
 	if (c_iraferr())
@@ -259,7 +257,7 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	    status = CloseTdsTab (tabinfo);
 	    return (OUT_OF_MEMORY);
 	}
-	for (i = 0; i < tds->nt; i++) {
+	for (int i = 0;  i < tds->nt;  i++) {
 	    tds->slope[i] = (double *) calloc (tds->nwl, sizeof(double));
 	    tds->intercept[i] = (double *) calloc (tds->nwl, sizeof(double));
 	    if (tds->slope[i] == NULL || tds->intercept[i] == NULL) {
@@ -285,8 +283,8 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	*/
 	c_tbciga (tabinfo->tp, tabinfo->cp_slope, &ndim, dim, 2);
 	ini = 1;	/* Arrays are 1-indexed in spp */
-	for (i = 0; i < tds->nt; i++) {
-	    ns = c_tbagtd (tabinfo->tp, tabinfo->cp_slope, row,
+	for (int i = 0;  i < tds->nt;  i++) {
+	    c_tbagtd (tabinfo->tp, tabinfo->cp_slope, row,
 	                   tds->slope[i], ini, tds->nwl);
 	    if (c_iraferr())
 	        return (TABLE_ERROR);
@@ -295,8 +293,8 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	}
 	if (tabinfo->cp_intercept != 0) {
 	    ini = 1;
-	    for (i = 0; i < tds->nt; i++) {
-		ns = c_tbagtd (tabinfo->tp, tabinfo->cp_intercept, row,
+	    for (int i = 0;  i < tds->nt;  i++) {
+		    c_tbagtd (tabinfo->tp, tabinfo->cp_intercept, row,
 			       tds->intercept[i], ini, tds->nwl);
 		if (c_iraferr())
 		    return (TABLE_ERROR);
@@ -319,7 +317,7 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	if (tabinfo->cp_reftemp == 0 || tabinfo->cp_tempsens == 0) {
 	    /* set the temperature sensitivity to zero */
 	    tds->ref_temp = -1.;
-	    for (i = 0; i < tds->nwl; i++)
+	    for (int i = 0;  i < tds->nwl;  i++)
 		tds->temp_sens[i] = 0.;
 	} else {
 	    c_tbegtd (tabinfo->tp, tabinfo->cp_reftemp, row, &tds->ref_temp);
@@ -354,14 +352,12 @@ static int CloseTdsTab (TblInfo *tabinfo) {
 
 void FreeTds (TdsInfo *tds) {
 
-        int i;
-
         if (tds->allocated) {
             free (tds->wl);
             free (tds->temp_sens);
             free (tds->time);
-            for (i = 0; i < tds->nt; free (tds->slope[i++]));
-            for (i = 0; i < tds->nt; free (tds->intercept[i++]));
+            for (int i = 0;  i < tds->nt;  free (tds->slope[i++]));
+            for (int i = 0;  i < tds->nt;  free (tds->intercept[i++]));
             free (tds->slope);
             free (tds->intercept);
             tds->allocated = 0;

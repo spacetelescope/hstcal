@@ -190,7 +190,6 @@ int maxch         i: allocated size of string
 */
 
 	FitsKw key;		/* location of keyword in header */
-	int i;
 
 	key = findKw (hd, keyword);
 	if (key == NotFound) {
@@ -208,7 +207,7 @@ int maxch         i: allocated size of string
 	    }
 	}
 
-	for (i = strlen (value) - 1;  i >= 0;  i--) {
+	for (int i = strlen (value) - 1;   i >= 0;   i--) {
 	    if (isspace (value[i]))
 		value[i] = '\0';
 	    else
