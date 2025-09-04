@@ -76,22 +76,22 @@ SingleGroup *b    o: output data
        /* Copy the headers. */
        status = copyHdr (b->globalhdr, a->globalhdr);
        if (status || hstio_err()) {
-          retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+          retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
           return (retStatus);
        }
        status = copyHdr (&b->sci.hdr, &a->sci.hdr);
        if (status || hstio_err()) {
-           retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+           retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
            return (retStatus);
        }
        status = copyHdr (&b->err.hdr, &a->err.hdr);
        if (status || hstio_err()) {
-           retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+           retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
            return (retStatus);
         }
        status = copyHdr (&b->dq.hdr, &a->dq.hdr);
        if (status || hstio_err()) {
-           retStatus = (hstio_err() != HSTOK) ? hstio_err() : status;
+           retStatus = (hstio_err() != HSTOK) ? (int)hstio_err() : status;
            return (retStatus);
         }
 
