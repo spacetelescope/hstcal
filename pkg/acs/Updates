@@ -58,7 +58,7 @@ Update - 12-Feb-2021 (JH)
     pkg/acs/calacs/acssum/mainsum.c
     pkg/acs/calacs/calacs/acsmain.c
     pkg/acs/calacs/calacs/wscript
-   
+
 Update for version 10.3.0 - 31-Dec-2020 (MDD)
 	pkg/acs/calacs/Dates
 	pkg/acs/calacs/History
@@ -791,4 +791,3 @@ Updates for Version 3.3 - 6-Aug-2001 (WJH):
             and accept arbitrary scaling factor instead of being hardwired
             to 'exptime'. This fixed the problem with scaling the POSTFLSH
             image by the flash-time instead of exptime.
-

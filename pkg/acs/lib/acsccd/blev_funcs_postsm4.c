@@ -40,10 +40,10 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
                             int amp, double * array);
 
 /* Remove the signal dependent bias shift from post-SM4 full frame WFC data
- * (based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1202.pdf),
+ * (based on ISR https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/acs/documentation/instrument-science-reports-isrs/_documents/isr1202.pdf),
  * as well as from supported subarray data (~post-mid-2016) as identified by
  * specific aperture names
- * (based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1703.pdf).
+ * (based on ISR https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/acs/documentation/instrument-science-reports-isrs/_documents/isr1703.pdf).
  *
  * chip2 consists of amps C & D, chip1 consists of amps A & B.
  *

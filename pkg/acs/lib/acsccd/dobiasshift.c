@@ -19,10 +19,10 @@
    if there are both physical and virtual overscan sections so the bias shift
    correction can be applied.
 
-   23-Jul-2025 PLL: Created isValidBiasShiftSubArrWithVirt() in order to
+   23-Jul-2025 PLL: Created isValidBiasShiftSubArrWithVirtOscn() in order to
        move code out of doccd.c to simplify the complexity of doccd.c
 */
-int isValidBiasShiftSubArrWithVirtOscn(int is_subarray, char *aperture, int virt_oscn_value) {
+int isValidBiasShiftSubArrWithVirtOscn(const int is_subarray, char *aperture, int virt_oscn_value) {
     if (is_subarray != YES)
         return NO;
 

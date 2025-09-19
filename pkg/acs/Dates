@@ -1,7 +1,7 @@
  07-May-2024   CALACS 10.4.0 Implementation of the "Parallel and Serial CTE correction". This
-                             version of the CTE correction (Generation 3) is based upon the 
+                             version of the CTE correction (Generation 3) is based upon the
                              algorithm of Generation 2, but includes the additional correction
-                             for the serial direction which is amp-dependent.  Previous 
+                             for the serial direction which is amp-dependent.  Previous
                              generations of CTE correction are no longer supported, and
                              obsolete code has been removed.  Note the PCTETAB has changed
                              substantially to accommodate the amp-dependent serial corrections.
@@ -10,12 +10,12 @@
                              will need to have the PCTETAB keyword updated with the Generation 3
                              Parallel/Serial Pixel CTE 2023 file.
  08-Feb-2022   CALACS 10.3.5 Update to the cosmic ray rejection algorithm as to the way
-                             the output ERR extension is computed for the CRJ file. The 
+                             the output ERR extension is computed for the CRJ file. The
                              output ERR is now propagated from the usable input ERR extensions
                              versus being computed by a model.
  11-Jan-2022   CALACS 10.3.4 Fixed a bug which was triggered ONLY when executing the condaforge
                              distribution on MacOS where failure was due to a missing return statement.
-                             Only call computeDarktime() once to compute the updated 
+                             Only call computeDarktime() once to compute the updated
                              DARKTIME primary keyword and function return is now void. Update
                              the keyword in main to avoid passing extra data by reference.
  24-May-2021   CALACS 10.3.3 Fixed a bug associated with the FLASHDUR computation.  The FLASHDUR
@@ -51,25 +51,25 @@
                              routines and wscript files (predominantly) to eliminate
                              some circular dependency.
  24-Jun-2020:  CALACS 10.2.4 Removed/modified/updated routines which used copyrighted
-                             code. Updates implemented Oct 2019, but installation delayed 
+                             code. Updates implemented Oct 2019, but installation delayed
                              for higher priority updates.
- 29-Apr-2020   CALACS 10.2.3 Modified "dodqi" to accommodate the A-to-D saturation threshold 
-                             which is now defined in the CCDTAB. The threshold is no longer 
+ 29-Apr-2020   CALACS 10.2.3 Modified "dodqi" to accommodate the A-to-D saturation threshold
+                             which is now defined in the CCDTAB. The threshold is no longer
                              a constant and has different behavior pre- and post-SM4.
- 10-Jan-2020   CALACS 10.2.2 Removed hard-coded darktime scaling value and read new 
-                             post-flashed and unflashed columns from updated CCDTAB reference 
-                             file to use for the offset to the DARKTIME FITS keyword value 
-                             under appropropriate date and supported subarray criteria.  The 
-                             DARKTIME keyword value is now the default scaling factor for the 
-                             superdarks, with the offset being an additive correction to DARKTIME 
+ 10-Jan-2020   CALACS 10.2.2 Removed hard-coded darktime scaling value and read new
+                             post-flashed and unflashed columns from updated CCDTAB reference
+                             file to use for the offset to the DARKTIME FITS keyword value
+                             under appropropriate date and supported subarray criteria.  The
+                             DARKTIME keyword value is now the default scaling factor for the
+                             superdarks, with the offset being an additive correction to DARKTIME
                              under appropriate circumstances.  The offset only applies to WFC and HRC.
  25-Sep-2019   CALACS 10.2.1 CALACS has been modified to allow the PHOTMODE keyword
                              to be updated with the MJDUTC for the SBC, in addition to
                              the HRC and WFC. This will allow time-dependent sensitivity
                              to be applied properly to SBC.
  06-Mar-2019:  CALACS 10.2.0 ACSREJ treats Bias and Dark image combination
-                             differently than other data.  ACSREJ ignores the 
-                             bad pixels (BPIXTAB flag of 4) during the combination 
+                             differently than other data.  ACSREJ ignores the
+                             bad pixels (BPIXTAB flag of 4) during the combination
                              (i.e. treat bad pixels as normal pixels).
  09-Aug-2018:  CALACS 10.1.0 ACS2D/DARKCORR step works directly on the full 2D
                              data rather than on a line-by-line basis PR#315.
