@@ -266,6 +266,11 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
       if (acs->subarray == YES) {
          unmake_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
+         /* Post-SM4 fullframe MEANBLEV gets populated during destriping,
+            which is not done for subarray. MEANBLEV is set to zero in RAW,
+            so we should populate it here to avoid confusion.
+         */
+         status = PutKeyFlt(&sg[0]->sci.hdr, "MEANBLEV", magic_square_mean, "mean of bias levels subtracted in electrons");
       } else {
          if (i < 2) {
             unmake_amp_array(arr_rows, arr_cols, sg[1], ampInUse, ampdata);
