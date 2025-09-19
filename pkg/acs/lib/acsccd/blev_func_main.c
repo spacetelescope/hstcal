@@ -6,7 +6,6 @@
 /*
  23-Jul-2025 PLL: Created performBlevCorr() in order to move code out of
      doccd.c to simplify the complexity of doccd.c
- 08-Aug-2025 PLL: Added bias shift support for 512 and 1k subarrays.
 */
 int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
                     int *overscan, int *virtOverscan,
@@ -20,7 +19,6 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
     void cross_talk_corr(ACSInfo *, SingleGroup *);
     int doDestripe(ACSInfo *, SingleGroup *, SingleGroup *);
     int isValidBiasShiftSubArrWithVirtOscn(int, char *, int);
-    int isValidBiasShiftSubArrWithNoVirtOscn(int, char *, int);
     void PrSwitch (char *, int);
 
     /* The logic here has been re-written (1) to accommodate the new subarrays
@@ -136,17 +134,16 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
              /* Process subarray data */
              } else {
 
-                /* Supported subarray data with "new" timing patterns as per ACS ISR 2017-03
-                   can be processed in the same manner as full frame data.
-                   The data must also be DS_int with a gain of 2.
+                /* Supported subarray data with physical and virtual overscan can be
+                   processed in the same manner as full frame data.  The data must
+                   also be DS_int with a gain of 2.
 
                    No need to check "done" here as we will decide based upon
                    tha array names of supported subarrays AND the determination they have virtual overscan
                    according to the image size (e.g., WFC1A-2K with size 2072x2068).
                    See comments in dobiasshift.c fo this function for more info.
                 */
-                if (((isValidBiasShiftSubArrWithVirtOscn(acs_info->subarray, acs_info->aperture, virtOverscan[0]) == YES)
-                        || (isValidBiasShiftSubArrWithNoVirtOscn(acs_info->subarray, acs_info->aperture, YES) == YES)) &&
+                if ((isValidBiasShiftSubArrWithVirtOscn(acs_info->subarray, acs_info->aperture, virtOverscan[0]) == YES) &&
                         (strcmp(acs_info->jwrotype, "DS_INT") == 0) &&
                         (acs_info->ccdgain == 2)) {
                    PrSwitch("blevcorr", PERFORM);

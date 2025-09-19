@@ -51,10 +51,9 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
  * is only from a single amp (therefore, a portion of a single chip), this
  * routine has a variable number of input SingleGroups.
  *
- * *** This routine should be modified according to issues discussed in PR #312 and #329 and noted in IT #334. ***
+ * *** This routine should be modified according to issues discussed in PR #312 and noted in IT #334. ***
  *
  * 16-May-2018 M.D. De La Pena: Generalized bias_shift_corr() to handle subarray data.
- * 08-Aug-2025 P.L. Lim: Added support for 512 and 1k subarrays. Also populate MEANBLEV for post-SM4 subarrays.
  */
 int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
@@ -90,7 +89,6 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
   extern int status;
 
-  int isValidBiasShiftSubArrWithNoVirtOscn(int, char *, int);
   int PutKeyFlt(Hdr *, char *, float, char *);
 
   const double serial_freq = 1000./22.;    /* serial pixel frequency */
@@ -185,32 +183,10 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       double sum = 0.0;
       int num = 0;
       double magic_square_mean = 0.0;
-      unsigned int j_beg, j_end, k_beg, k_end;
-
-      /* Values from ACS ISR 2012-02 and are valid for full-frame and 2K subarrays
-       * with both physical and virtual overscans.
-       */
-      if (isValidBiasShiftSubArrWithNoVirtOscn(acs->subarray, acs->aperture, NO) != YES) {
-          j_beg = 2057;
-          j_end = 2066;
-          k_beg = 13;
-          k_end = 22;
-
-      /* For 512 and 1k subarrays, there is no virtual overscan, and thus
-       * no magic square. So we need to adapt "magic square" calculations
-       * to use just the physical overscan as discussed in
-       * https://github.com/spacetelescope/hstcal/issues/329 .
-       */
-      } else {
-          j_beg = 1;  // Exclude first row
-          j_end = arr_rows - 1;
-          k_beg = 5;
-          k_end = NBIAS_COLS - 1;
-      }
 
       {unsigned int j, k;
-      for (j = j_beg; j <= j_end; j++) {
-          for (k = k_beg; k <= k_end; k++) {
+      for (j = 2057; j <= 2066; j++) {
+          for (k = 13; k <= 22; k++) {
               sum += ampdata[arr_cols*j + k];
               num++;
           }
@@ -264,8 +240,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       magic_square_mean = 0.0;
 
       {unsigned int j, k;
-      for (j = j_beg; j <= j_end; j++) {
-          for (k = k_beg; k <= k_end; k++) {
+      for (j = 2057; j <= 2066; j++) {
+          for (k = 13; k <= 22; k++) {
               sum += ampdata[arr_cols*j + k];
               num++;
           }
