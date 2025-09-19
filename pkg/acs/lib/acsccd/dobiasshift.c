@@ -19,10 +19,10 @@
    if there are both physical and virtual overscan sections so the bias shift
    correction can be applied.
 
-   23-Jul-2025 PLL: Created isValidBiasShiftSubArrWithVirtOscn() in order to
+   23-Jul-2025 PLL: Created isValidBiasShiftSubArrWithVirt() in order to
        move code out of doccd.c to simplify the complexity of doccd.c
 */
-int isValidBiasShiftSubArrWithVirtOscn(const int is_subarray, char *aperture, int virt_oscn_value) {
+int isValidBiasShiftSubArrWithVirtOscn(int is_subarray, char *aperture, int virt_oscn_value) {
     if (is_subarray != YES)
         return NO;
 
@@ -63,49 +63,6 @@ int isValidBiasShiftSubArrWithVirtOscn(const int is_subarray, char *aperture, in
         if ((strcmp(aperture, subApertures[i]) == 0) && virt_oscn_value) {
             isSupportedSubAperture = YES;
             trlmessage("This subarray data is supported for the bias shift correction.");
-            break;
-        }
-    }
-
-    return isSupportedSubAperture;
-}
-
-
-/* For 512 and 1k subarrays, there is no virtual overscan, and thus
-   no magic square. So we need this function to make a new logic
-   route for the bias shift correction code.
-
-   08-Aug-2025 PLL: Created isValidBiasShiftSubArrWithNoVirtOscn() to
-       support bias shift correction for 512 and 1k subarrays.
-*/
-int isValidBiasShiftSubArrWithNoVirtOscn(const int is_subarray, char *aperture, const int verbose) {
-    if (is_subarray != YES)
-        return NO;
-
-    /* Listing as per
-       https://hst-docs.stsci.edu/acsihb/chapter-7-observing-techniques/7-7-acs-apertures#id-7.7ACSApertures-table7.7
-       but we exclude the following because they are available but unsupported modes:
-
-       WFC1-512
-       WFC1-1K
-    */
-    const char *subApertures[] = {
-        "WFC1A-1K", "WFC1B-1K", "WFC1A-512", "WFC1B-512",
-        "WFC2C-1K", "WFC2D-1K", "WFC2C-512", "WFC2D-512"
-    };
-    const size_t numSupportedSubApertures = sizeof(subApertures) / sizeof(subApertures[0]);
-    Bool isSupportedSubAperture = NO;
-
-    for (size_t i = 0; i < numSupportedSubApertures; i++) {
-        /* NOTE: Just because the aperture is supported does not mean the bias
-           shift correction will be applied.  The DS_int and gain criteria also
-           have to be satisfied.
-        */
-        if (strcmp(aperture, subApertures[i]) == 0) {
-            isSupportedSubAperture = YES;
-            if (verbose == YES) {
-                trlmessage("This subarray data is supported for the bias shift correction without virtual overscan.");
-            }
             break;
         }
     }

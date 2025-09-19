@@ -40,10 +40,10 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
                             int amp, double * array);
 
 /* Remove the signal dependent bias shift from post-SM4 full frame WFC data
- * (based on ISR https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/acs/documentation/instrument-science-reports-isrs/_documents/isr1202.pdf),
+ * (based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1202.pdf),
  * as well as from supported subarray data (~post-mid-2016) as identified by
  * specific aperture names
- * (based on ISR https://www.stsci.edu/files/live/sites/www/files/home/hst/instrumentation/acs/documentation/instrument-science-reports-isrs/_documents/isr1703.pdf).
+ * (based on ISR http://www.stsci.edu/hst/acs/documents/isrs/isr1703.pdf).
  *
  * chip2 consists of amps C & D, chip1 consists of amps A & B.
  *
@@ -51,10 +51,9 @@ static int unmake_amp_array(const int arr_rows, const int arr_cols, SingleGroup 
  * is only from a single amp (therefore, a portion of a single chip), this
  * routine has a variable number of input SingleGroups.
  *
- * *** This routine should be modified according to issues discussed in PR #312 and #329 and noted in IT #334. ***
+ * *** This routine should be modified according to issues discussed in PR #312 and noted in IT #334. ***
  *
  * 16-May-2018 M.D. De La Pena: Generalized bias_shift_corr() to handle subarray data.
- * 08-Aug-2025 P.L. Lim: Added support for 512 and 1k subarrays. Also populate MEANBLEV for post-SM4 subarrays.
  */
 int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
@@ -89,9 +88,6 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
   va_end (arguments);
 
   extern int status;
-
-  int isValidBiasShiftSubArrWithNoVirtOscn(int, char *, int);
-  int PutKeyFlt(Hdr *, char *, float, char *);
 
   const double serial_freq = 1000./22.;    /* serial pixel frequency */
   const double parallel_shift = 3.212;     /* parallel shift time */
@@ -185,39 +181,16 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       double sum = 0.0;
       int num = 0;
       double magic_square_mean = 0.0;
-      unsigned int j_beg, j_end, k_beg, k_end;
-
-      /* Values from ACS ISR 2012-02 and are valid for full-frame and 2K subarrays
-       * with both physical and virtual overscans.
-       */
-      if (isValidBiasShiftSubArrWithNoVirtOscn(acs->subarray, acs->aperture, NO) != YES) {
-          j_beg = 2057;
-          j_end = 2066;
-          k_beg = 13;
-          k_end = 22;
-
-      /* For 512 and 1k subarrays, there is no virtual overscan, and thus
-       * no magic square. So we need to adapt "magic square" calculations
-       * to use just the physical overscan as discussed in
-       * https://github.com/spacetelescope/hstcal/issues/329 .
-       */
-      } else {
-          j_beg = 1;  // Exclude first row
-          j_end = arr_rows - 1;
-          k_beg = 5;
-          k_end = NBIAS_COLS - 1;
-      }
 
       {unsigned int j, k;
-      for (j = j_beg; j <= j_end; j++) {
-          for (k = k_beg; k <= k_end; k++) {
+      for (j = 2057; j <= 2066; j++) {
+          for (k = 13; k <= 22; k++) {
               sum += ampdata[arr_cols*j + k];
               num++;
           }
       }}
 
       magic_square_mean = sum / (double) num;
-      trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (before correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* make amp + gap array */
       {unsigned int j, k;
@@ -264,8 +237,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       magic_square_mean = 0.0;
 
       {unsigned int j, k;
-      for (j = j_beg; j <= j_end; j++) {
-          for (k = k_beg; k <= k_end; k++) {
+      for (j = 2057; j <= 2066; j++) {
+          for (k = 13; k <= 22; k++) {
               sum += ampdata[arr_cols*j + k];
               num++;
           }
@@ -279,7 +252,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       /* Report to the user the contribution to the bias level correction
          made by this processing step.
       */
-      trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (after correction).", AMPSORDER[ampInUse], magic_square_mean);
+      trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons.",AMPSORDER[ampInUse], magic_square_mean);
 
       /* subtract "magic square mean" from data*/
       {unsigned int j, k;
@@ -293,11 +266,6 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
       if (acs->subarray == YES) {
          unmake_amp_array(arr_rows, arr_cols, sg[0], ampInUse, ampdata);
-         /* Post-SM4 fullframe MEANBLEV gets populated during destriping,
-            which is not done for subarray. MEANBLEV is set to zero in RAW,
-            so we should populate it here to avoid confusion.
-         */
-         status = PutKeyFlt(&sg[0]->sci.hdr, "MEANBLEV", magic_square_mean, "mean of bias levels subtracted in electrons");
       } else {
          if (i < 2) {
             unmake_amp_array(arr_rows, arr_cols, sg[1], ampInUse, ampdata);
