@@ -170,9 +170,9 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
 
                    driftcorr = NO;
 
-                   /* Unsupported subarray apertures and other oddities.  These
-                      are processed using the original/old bias correction algorithm.
-                   */
+                /* Unsupported subarray apertures and other oddities.  These
+                   are processed using the original/old bias correction algorithm.
+                */
                 } else {
                    trlmessage("WFC readout is not a supported subarray or type/gain not set as needed for new bias level algorithm for subarray data.");
                    trlmessage("Data to be processed with original bias level algorithm.");
