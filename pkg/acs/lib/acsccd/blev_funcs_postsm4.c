@@ -89,6 +89,8 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 
   extern int status;
 
+  int PutKeyFlt(Hdr *, char *, float, char *);
+
   const double serial_freq = 1000./22.;    /* serial pixel frequency */
   const double parallel_shift = 3.212;     /* parallel shift time */
 
