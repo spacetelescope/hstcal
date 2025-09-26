@@ -19,8 +19,12 @@ class TestWFCSubarray(BaseACS):
     # jb2t11seq = Post-SM4 data with overscan, was wfc_sub2
     # j8c103xaq = Pre-SM4 data withOUT overscan, was wfc_sub3
     # jb2t11se2 = Post-SM4 data with overscan and FLSHCORR, was wfc_sub4
+    # jfit03svq = Post-SM4 WFC1-POL120V bias shift
+    # jf9709jeq = Post-SM4 WFC1-IRAMPQ bias shift
+    # jbsja7w4q = Post-SM4 WFC1-512 but use pre-SM4 BLEVCORR
     @pytest.mark.parametrize(
-        'rootname', ['j9j902b6q', 'jb2t11seq', 'j8c103xaq', 'jb2t11se2'])
+        'rootname', ['j9j902b6q', 'jb2t11seq', 'j8c103xaq', 'jb2t11se2',
+                     'jfit03svq', 'jf9709jeq', 'jbsja7w4q'])
     def test_subarray(self, rootname):
         raw_file = '{}_raw.fits'.format(rootname)
 
