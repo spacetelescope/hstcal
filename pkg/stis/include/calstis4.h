@@ -156,7 +156,10 @@ typedef struct {
 	int sp_sect1[2];	/* first axis */
 	int sp_sect2[2];	/* second axis */
 
-        double trace_rotation;  /* trace rotation angle */       
+        double trace_rotation;  /* trace rotation angle */
+
+	/* use the E aperture location image section? */
+	int use_e_aperture;  /* 1=yes, 0=no */
         
 
 } StisInfo4;

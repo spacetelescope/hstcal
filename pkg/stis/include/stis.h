@@ -179,7 +179,7 @@ int CalStis1 (char *input, char *output, char *outblev,
 
 int CalStis2 (char *input, char *fout, clpar *par, int newpar[]);
 
-int CalStis4 (char *input, char *dbgfile,
+int CalStis4 (char *input, char *dbgfile, int use_e_aperture,
 	RefFileInfo *refnames, int printtime, int verbose, double slit_angle);
 
 int CalStis6 (char *input, char *output,

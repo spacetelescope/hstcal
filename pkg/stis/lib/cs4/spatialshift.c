@@ -52,14 +52,13 @@ static void LinearInterp (SingleGroup *, int, double, double *, short *);
 */
 
 int SpatialShift (StisInfo4 *sts, ApInfo *slit, SpTrace *trace,
-		SingleGroup *in, double *specweight, double *shift) {
+		SingleGroup *in, double *shift) {
 
 /* arguments:
 StisInfo4 *sts      i: calibration switches and info
 ApInfo *slit        i: description of slit
 SpTrace *trace      i: list of spectral traces
 SingleGroup *in     i: input data
-double specweight[] i: the observed spectrum, used as weights
 double *shift       o: the shift, in pixels
 */
 
@@ -70,12 +69,17 @@ double *shift       o: the shift, in pixels
 	double sumw;		/* sum of weights */
 	double *v;		/* 1-D data */
 	short *qv;		/* data quality for v */
+	double *specweight;     /* weight value in the spectral direction */
+	short *specdq;          /* dq value used in calculating specweight */
 	int nv;			/* length of cross dispersion axis */
 	int slittype;		/* code for type of slit */
 	int i, j;		/* loop indexes */
 	int ifirst, ilast;	/* loop limits for summing in first axis */
 	int jfirst, jlast;	/* loop limits in second axis */
 	short flagval;		/* data quality flag for a pixel */
+	int nwl;                /* number of wavelength bins */
+	double median;          /* median of spectrum flux */
+	int ngood;              /* number of good samples */
 
 	void WhichSlit (char *, int, int *);
 	int XCEchelle (StisInfo4 *, double,
@@ -127,6 +131,59 @@ double *shift       o: the shift, in pixels
 
 	} else {		/* already 2-D rectified data */
 
+	    /* Average the data values in the direction perpendicular to
+	       the dispersion to make a 1-D array.  The data quality flag
+	       for the sum will be zero (good) unless all pixels included
+	       in the sum are flagged as bad.
+	    */
+
+	    /* nwl is the full width of the image, not just ilast-ifirst+1,
+	       for convenience in indexing.
+	    */
+	    nwl = in->sci.data.nx;
+
+	    if (nwl <= 0) {
+	        trlwarn("No data for shift in dispersion direction.");
+	        *shift = UNDEFINED_SHIFT;
+	        return (0);
+	    }
+	    specweight = calloc (nwl, sizeof(double));
+	    specdq = calloc (nwl, sizeof(short));
+	    if (specweight == NULL || specdq == NULL) {
+	        return (OUT_OF_MEMORY);
+	    }
+
+	    for (i = ifirst;  i <= ilast;  i++) {	/* loop over columns */
+
+	        ngood = 0;
+	        for (j = sts->wl_sect2[0];  j <= sts->wl_sect2[1];  j++) {	/* sum current column */
+		    flagval = DQPix (in->dq.data, i, j);
+		    if ( ! (flagval & sts->sdqflags) ) {
+		        specweight[i] += Pix (in->sci.data, i, j);
+		        ngood++;
+		    }
+	        }
+	        if (ngood > 0) {
+		    specweight[i] /= (double) ngood;
+		} else{
+		    specdq[i] = sts->sdqflags;	/* this column is all bad */
+		}
+	    }
+	    for (i = 0;  i < ifirst;  i++)
+	        specdq[i] = sts->sdqflags;
+	    for (i = ilast + 1;  i < nwl;  i++)
+	        specdq[i] = sts->sdqflags;
+
+	    /* Find the median of the spectrum, subtract the median from the
+	       spectrum, then replace negative values with zero.
+	    */
+	    median = MedianDouble (specweight, nwl, 0);	/* 0 ==> DON'T sort in-place */
+	    for (i = 0;  i < nwl;  i++) {
+	        specweight[i] = (specweight[i] < median) ? 0.0 : (specweight[i] - median);
+	    }
+	    /* Now accumulate the sums in the cross-dispersion direction, using the
+	       weights calculated above
+	    */
 	    for (j = jfirst;  j <= jlast;  j++) {	/* loop over rows */
 
 		sumw = 0.;
@@ -142,6 +199,9 @@ double *shift       o: the shift, in pixels
 		else
 		    qv[j] = sts->sdqflags;	/* this row is all bad */
 	    }
+            free (specweight);
+	    free (specdq);
+
 	}
 	for (j = 0;  j < jfirst;  j++)
 	    qv[j] = sts->sdqflags;
@@ -200,7 +260,7 @@ double *shift       o: the shift, in pixels
 
 	free (qv);
 	free (v);
-
+	
 	return (status);
 }
 

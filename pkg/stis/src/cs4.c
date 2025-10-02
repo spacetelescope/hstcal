@@ -57,6 +57,7 @@ int main (int argc, char **argv) {
 	char *dbglist;		/* list of files for debug output */
 	int printtime = 0;	/* print time after each step? */
 	int verbose = 0;	/* print additional info? */
+	int use_e_aperture = 0; /* use e aperture location? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int dbg_next = 0;	/* debug file name must be next argument? */
 	int angle_next = 0;	/* slit angle must be next argument? */
@@ -144,6 +145,8 @@ int main (int argc, char **argv) {
 			    printtime = 1;
 			} else if (argv[i][j] == 'v') {
 			    verbose = 1;
+			} else if (argv[i][j] == 'e') {
+			    use_e_aperture = 1;
 			} else if (argv[i][j] == 'd') {
 			    /* next argument must be debug file name */
 			    dbg_next = 1;
@@ -198,7 +201,7 @@ int main (int argc, char **argv) {
 
 	    /* Calibrate the current input file. */
 	    status = 0;
-	    if ((status = CalStis4 (input, dbgfile, &refnames,
+	    if ((status = CalStis4 (input, dbgfile, use_e_aperture, &refnames,
                                     printtime, verbose, slit_angle))) {
 		printf("Error processing %s.\n", input);
 		WhichError (status);

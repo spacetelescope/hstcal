@@ -123,6 +123,7 @@ static void StisDefaults (StisInfo *sts) {
 	sts->nimages = 1;
 	sts->echelle = 0;
 	sts->prism = 0;
+	sts->use_e_aperture = 0;
 
 	/* Initialize flags to not perform the step. */
 	sts->sci_basic_2d_a = OMIT;

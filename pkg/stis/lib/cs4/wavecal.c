@@ -106,7 +106,6 @@ StisInfo4 *sts    i: calibration switches and info
 	/* The 1-D spectrum computed by WaveShift by adding along the
 	    spatial direction is used as weights by SpatialShift.
 	*/
-	double *specweight;	/* data collapsed to make a 1-D spectrum */
 	/* set to true after the ref file names have been printed */
 	int ref_names_printed = 0;
 
@@ -125,10 +124,10 @@ StisInfo4 *sts    i: calibration switches and info
 		double *, double *);
 	void ScaleRef (StisInfo4 *, double *, double *);
 	int SpatialShift (StisInfo4 *, ApInfo *, SpTrace *,
-		SingleGroup *, double *, double *);
+		SingleGroup *, double *);
 	int UpdateShift (StisInfo4 *, int, double, double);
 	int WaveShift (StisInfo4 *, ApInfo *, DispRelation *, LampInfo *,
-		SingleGroup *, double **, double *);
+		SingleGroup *, double *);
 
 	SpTrace *trace;		/* list of spectrum traces */
 	void FreeTrace4 (SpTrace **);
@@ -247,20 +246,19 @@ StisInfo4 *sts    i: calibration switches and info
 
 		    /* Determine the shifts in each direction separately. */
 		    if ((status = WaveShift (sts, &slit, &disp, &lamp, &in,
-                                             &specweight, &w_shift))) {
+                                             &w_shift))) {
 			if (status != NO_GOOD_DATA)
 			    return (status);
 			status = 0;
 			w_shift = UNDEFINED_SHIFT;
 		    }
 		    if ((status = SpatialShift (sts, &slit, trace, &in,
-                                                specweight, &s_shift))) {
+                                                &s_shift))) {
 			if ((status != NO_GOOD_DATA))
 			    return (status);
 			status = 0;			/* not fatal */
 			s_shift = UNDEFINED_SHIFT;
 		    }
-		    free (specweight);		/* allocated by WaveShift */
 		}
 
 		if (w_shift == UNDEFINED_SHIFT) {
