@@ -79,8 +79,8 @@ double *shift       o: the shift, in pixels
 	jlast  = sts->wl_sect2[1];
 
 	if (sts->use_e_aperture == 1) {
-	    jfirst = 850;
-            jlast = 950;
+	    jfirst = 970;
+            jlast = 1010;
 	    printf ("Using E aperture location for waveshift determination:\n");
 	    printf("Starting row = %d\n", jfirst);
 	    printf("Ending row = %d\n", jlast);
