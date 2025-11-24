@@ -82,7 +82,6 @@ int main (int argc, char **argv) {
 		   float, float, int);
 	int DefSwitch (char *);
 	int MkName (char *, char *, char *, char *, char *, int);
-	void WhichError (int);
 	int CompareNumbers (int, int, char *);
 
 /*===========================================================================*/

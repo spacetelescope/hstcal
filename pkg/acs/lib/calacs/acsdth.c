@@ -191,7 +191,6 @@ void InitDthTrl (char *inlist, char *output) {
 
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
-	void WhichError (int);
 
 	/* Allocate space for trailer file input list */
 	trl_in = realloc(NULL, (CHAR_LINE_LENGTH+1));
