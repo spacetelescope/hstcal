@@ -786,8 +786,8 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                                 if (readnoise_only == 0) {
                                     /* Variance term like DHB without SCALENSE
                   https://trac.stsci.edu/ssb/stsci_python/ticket/1223#comment:13
-                                nse is e^2
-                                val is e (with sky)
+                                * nse is e^2
+                                * val is e (with sky) but here, it is used as Poisson noise squared where Poisson noise is sqrt(val)
                                     */
                                     sumvar[i] += nse[0] + val;
                                 } else {
