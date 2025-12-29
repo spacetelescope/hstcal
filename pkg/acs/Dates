@@ -1,3 +1,6 @@
+ 08-May-2025   CALACS 10.5.0 FLSHCORR now applies scaling to account for linear decrease of
+                             flash rate with time, because no more new reference image will
+                             be delivered going forward.
  07-May-2024   CALACS 10.4.0 Implementation of the "Parallel and Serial CTE correction". This
                              version of the CTE correction (Generation 3) is based upon the
                              algorithm of Generation 2, but includes the additional correction
