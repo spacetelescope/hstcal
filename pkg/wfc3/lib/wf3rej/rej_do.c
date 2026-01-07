@@ -20,7 +20,7 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
   This is mostly a file bookkeeping routine for the cosmic ray rejection task.
   It takes care of input/output files open/close, check for dimensions, read/
   write data from/to files, allocate memory spaces etc.
-  
+
     Date          Author          Description
     ----          ------          -----------
     06-May-1996   J.-C. Hsu       Adapt from the SPP code crrej_do.x
@@ -42,7 +42,7 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
 				  (CALACS changes).
     16-May-2008   H. Bushouse     Pass detector to cr_history, for identifying
                                   WFC3 IR images.
-    26-Aug-2008   H. Bushouse     Set non_zero=nimgs when resetting efrac for 
+    26-Aug-2008   H. Bushouse     Set non_zero=nimgs when resetting efrac for
                                   the case where all inputs have 0 exptime.
                                   This will allow bias images to process.
     14-Dec-2011   H. Bushouse     Upgraded to pass new bunit array to and from
@@ -54,6 +54,7 @@ static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
                             the value as MIXED in the output crj header. PR #72001
 
   11-Aug-15      M. Sosey  REJ_RATE was being reported wrong because nrej wasn't initialized
+  07-Jan-2026    P.L. Lim  Bug fix to remove per-second in BUNIT for CRREJ output for IR data.
 */
 
 int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
@@ -74,7 +75,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     SingleGroup sg;
     int         niter = 0;
     float       sigma[MAX_ITER];
-    
+
     Hdr         phdr;               /* primary header */
     int         extver;             /* Current extension being processed*/
     int         numext;             /* Number of extensions in each image */
@@ -83,7 +84,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     char        fimage[CHAR_FNAME_LENGTH+1];  /* Name of first image in list */
     char        root[CHAR_FNAME_LENGTH+1];    /* ROOTNAME for output CRJ file */
     char        uroot[CHAR_FNAME_LENGTH+1];   /* Upper case version of rootname */
-    char        *shadrefname;  
+    char        *shadrefname;
 
     int         ext[MAX_FILES];
     int         dim_x, dim_y;       /* image dimensions */
@@ -139,9 +140,9 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     void    FindAsnRoot (char *, char *);
     void    initmulti (multiamp *);
     char    expflagFinal[]="NORMAL"; /*24 char keyword max in header */
-    
+
     nrej=0;
-    
+
     /* -------------------------------- begin ------------------------------- */
 
     /* Initialize necessary structures */
@@ -153,12 +154,12 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     numext = 0;
     nextend = 0;
 
-    /* Since CR-SPLIT images are in separate files, we need to 
+    /* Since CR-SPLIT images are in separate files, we need to
         combine the same chip's exposure from each file.  Therefore
         we will loop over each extension in the first image, determine
         what chip that corresponds to, and get the same chip from the
-        rest of the images (which could be in any arbitrary 
-        extension in each of the images).  
+        rest of the images (which could be in any arbitrary
+        extension in each of the images).
     */
 
     /* First, let's determine how many extensions/chips in each file */
@@ -166,25 +167,25 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     if (LoadHdr (fimage, &phdr) )
         return (status = ERROR_RETURN);
-        
-    if (GetKeyInt (&phdr, "NEXTEND", NO_DEFAULT, 0, &nextend) == 0) 
+
+    if (GetKeyInt (&phdr, "NEXTEND", NO_DEFAULT, 0, &nextend) == 0)
         numext = nextend / EXT_PER_GROUP;
-    else 
+    else
         numext = 1;
 
     /* Check to see if SHADCORR was set to PERFORM in image header */
     shadswitch = 0;
-    if (GetSwitch (&phdr, "SHADCORR", &shadswitch) ) 
+    if (GetSwitch (&phdr, "SHADCORR", &shadswitch) )
         return(status);
 
     /* If shadcorr was set either by the user on the command line
         or in the image header, initialize shadcorr processing.  */
     if (par->shadcorr == PERFORM || shadswitch == PERFORM) {
-    
+
         /* Use par->shadcorr as switch for performing shading correction */
         par->shadcorr = PERFORM;
         shadrefname = calloc(CHAR_FNAME_LENGTH+1, sizeof(char));
-    
+
         if (GetKeyStr (&phdr, "SHADFILE", NO_DEFAULT, "", shadrefname,CHAR_FNAME_LENGTH))
             return(status);
         strcpy (shadref.name, shadrefname);
@@ -194,7 +195,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
             return (status);
 
         /* If a DUMMY shadfile was specified, turn off shadcorr */
-        if (shadref.goodPedigree == DUMMY) 
+        if (shadref.goodPedigree == DUMMY)
             par->shadcorr = OMIT;
         free (shadrefname);
     }
@@ -203,7 +204,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
     /* Initialize efac */
     for (n = 0; n < MAX_FILES; n++) efac[n] = 1.0;
-    
+
     /* Calculate the scaling factors due to different exposure time */
     strcpy (par->expname, "EXPTIME");
     if (cr_scaling (par->expname, tpin, efac, &nimgs, &expend, &expstart,
@@ -221,7 +222,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     /* Calculate the total exposure time */
     exptot = 0.;
     texpt = 0.;
-    
+
     non_zero = 0;
     for (n = 0; n < nimgs; ++n) {
         exptot += efac[n];
@@ -229,7 +230,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 	if (efac[n] > 0.) non_zero++;
     }
 
-    /* For the case of all images have zero exposure time, use equal 
+    /* For the case of all images have zero exposure time, use equal
         exposure time of 1. */
     if (exptot == 0.) {
         for (n = 0; n < nimgs; ++n) {
@@ -242,7 +243,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     }
 
     /* Now, start the loop over all extensions in first input image. */
-    for (extver = 1; extver <= numext; extver++) { 
+    for (extver = 1; extver <= numext; extver++) {
 
         if (par->printtime) {
             TimeStamp ("Start cosmic ray rejection","");
@@ -305,7 +306,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
             /* Compute the initial pixel values to be used to compare against
 	    ** all images. */
-            if (rej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y, 
+            if (rej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y,
 			  noise, gain, efac, skyval, bunit, &sg, work)) {
                 WhichError(status);
                 closeSciDq(nimgs, ipsci, ipdq, par);
@@ -336,18 +337,18 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		trlwarn("Output product will be BLANK!");
 	    } */
 	} /* End if(non_zero) block */
-        
+
         /* Must close all images, now that we are done reading them */
         closeSciDq (nimgs, ipsci, ipdq, par);
 
-        /* Calculate the total sky ... */ 
+        /* Calculate the total sky ... */
         skysum = 0.;
         for (n = 0; n < nimgs; ++n) {
              skysum += skyval[n];
         }
         /* ... and force it to be non-negative */
         if (skysum < 0.) skysum = 0.;
-        
+
         if (par->printtime) {
 	    if (non_zero > 1) {
                 TimeStamp ("Finished detecting cosmic rays on extension", "");
@@ -383,14 +384,14 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         /* Update the exposure time of the output images */
         PutKeyFlt (sg.globalhdr, "TEXPTIME", exptot, "");
         PutKeyFlt (sg.globalhdr, "SKYSUM", skysum, "Total sky level (DN)");
-        PutKeyDbl (sg.globalhdr, "EXPSTART", expstart, 
+        PutKeyDbl (sg.globalhdr, "EXPSTART", expstart,
 		   "computed exposure start time (Modified Julian Date)");
         PutKeyDbl (sg.globalhdr, "EXPEND", expend,
 		   "exposure end time (Modified Julian Date)");
-           
+
 	/* Upgraded to use 'texpt' as a safe value when EXPTIME=0 for
 	** all members. */
-        PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej/texpt, 
+        PutKeyFlt (sg.globalhdr, "REJ_RATE", (float)nrej/texpt,
 		   "Cosmic ray impact rate (pixels/sec)");
         PutKeyFlt (sg.globalhdr, "EXPTIME", exptot, "");
         PutKeyStr (sg.globalhdr, "EXPFLAG", expflagFinal,
@@ -411,6 +412,18 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         /* Record parameters to the output file */
         cr_history (&sg, par, nextend, detector);
         PutKeyInt (&sg.sci.hdr, "NCOMBINE", nimgs, "");
+        if ((detector == IR_DETECTOR) && (bunit[0] == COUNTRATE)) {
+            char oldunit[12];
+            char newunit[12];
+            oldunit[0] = '\0';
+            newunit[0] = '\0';
+            getKeyS (&sg.sci.hdr, "BUNIT", oldunit);
+            size_t oldunitsize = strlen(oldunit);
+            strncpy(newunit, oldunit, oldunitsize - 2);
+            newunit[oldunitsize - 1] = '\0';
+            PutKeyStr (&sg.sci.hdr, "BUNIT", newunit, "");
+            PutKeyStr (&sg.err.hdr, "BUNIT", newunit, "");
+        }
         UFilename (outfile, sg.globalhdr);
         UMemType (mtype, sg.globalhdr);
         FindAsnRoot (outfile, root);
@@ -448,7 +461,7 @@ static void closeSciDq (int nimgs, IODescPtr ipsci[], IODescPtr ipdq[],
 			clpar *par) {
 
     int n;
-    
+
     /* Must close all images, now that we are done reading them */
     for (n = 0; n < nimgs; ++n) {
         closeImage (ipsci[n]);
@@ -456,4 +469,3 @@ static void closeSciDq (int nimgs, IODescPtr ipsci[], IODescPtr ipdq[],
 
     }
 }
-

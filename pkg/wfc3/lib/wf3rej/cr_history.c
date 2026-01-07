@@ -7,7 +7,7 @@
 
     Description:
     ------------
- 
+
     Date            Author            Description
     ----            ------            -----------
     02-May-1996     J.-C. Hsu         Adapted from the SPP code cr_history.x
@@ -21,7 +21,7 @@ void cr_history (SingleGroup *sg, clpar *par, int nextend, int detector) {
 
     int     PutKeyBool (Hdr *, char *, Bool, char *);
     void    UCalVer (Hdr *);
-    int     PutKeyFlt (Hdr *, char *, float, char *);	
+    int     PutKeyFlt (Hdr *, char *, float, char *);
     int     PutKeyInt (Hdr *, char *, int, char *);
     int     PutKeyStr (Hdr *, char *, char *, char *);
 
