@@ -1,14 +1,17 @@
-15-Apr-2024 - MDD = Version 3.7.2
+07-Jan-2026 - PLL - Version 3.7.3
+    - Bug fix to remove per-second in BUNIT for CRREJ output for IR data.
+
+15-Apr-2024 - MDD - Version 3.7.2
     - Allow MJD as a parameterized variable for the PHOTMODE keyword to
       enable a time-dependent photometric correction for the IR detector.
       This supplements the change done for the UVIS in 2020 (Version 3.5.2).
 
 18-Oct-2023 - MDD - Version 3.7.1
-    - Updates to reconcile the old and new algorithms for flagging full-well saturated pixels.  
+    - Updates to reconcile the old and new algorithms for flagging full-well saturated pixels.
       The new algorithm uses a saturation image which is applied after BLECORR/BIASCORR, and
       the image is already trimmed of the overscan regions. The old algorithm used a single
-      scalar value applied to the ENTIRE readout (science data and overscan).  Added flagging 
-      in DQICORR of the overscan regions when the saturation image of the new algorithm is to 
+      scalar value applied to the ENTIRE readout (science data and overscan).  Added flagging
+      in DQICORR of the overscan regions when the saturation image of the new algorithm is to
       be applied later in the processing.
 
 08-June-2023 - MDD - Version 3.7.0
@@ -18,7 +21,7 @@
       to accommodate.  The detection/flagging occurs after blev and bias corrections while the output is
       still in counts.  If the SATUFILE keyword is missing from the FITS header, or the keyword does
       not have a valid filename as a value, the code will revert to using the original method of flagging
-      full-well saturation.  The flagging will be done in doDQI and use a single value as the saturation 
+      full-well saturation.  The flagging will be done in doDQI and use a single value as the saturation
       threshold.
 
 27-May-2021 - MDD - Version 3.6.2
@@ -38,7 +41,7 @@
 12-Aug-2020 - MDD - Version 3.5.2
     - Added MJD as a parameterized variable for the PHOTMODE keyword to
       enable a time-dependent photometric correction for the UVIS only.
-    - Fixed a bug in the IMPHTTAB package to support properly data with 
+    - Fixed a bug in the IMPHTTAB package to support properly data with
       multiple imsets, in conjunction with a parameterized value.
 
 24-Jun-2020 - MDD - Version 3.5.1
