@@ -35,6 +35,8 @@ add_custom_target(dist
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
+add_compile_definitions(_GNU_SOURCE=1)
+
 include(CheckSymbolExists)
 check_symbol_exists(INT_MAX "limits.h" HAVE_INT_MAX)
 check_symbol_exists(PATH_MAX "limits.h" HAVE_LIMITS__PATH_MAX)
