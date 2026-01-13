@@ -105,7 +105,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
 	    (biny != 1 && biny != 2 && biny != 4)) {
     trlerror("(doBlev) bin size must be 1, 2, or 4.");
     free (ccdamp);
-    return (status = 1001);
+    return (status = INVALID_EXPTIME);
   }
 
   /* Get biassect, the location of the region to use for determining
