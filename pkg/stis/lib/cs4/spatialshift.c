@@ -140,69 +140,69 @@ double *shift       o: the shift, in pixels
 	    /* nwl is the full width of the image, not just ilast-ifirst+1,
 	       for convenience in indexing.
 	    */
-	    nwl = in->sci.data.nx;
+            nwl = in->sci.data.nx;
 
-	    if (nwl <= 0) {
-	        trlwarn("No data for shift in dispersion direction.");
-	        *shift = UNDEFINED_SHIFT;
-	        return (0);
-	    }
-	    specweight = calloc (nwl, sizeof(double));
-	    specdq = calloc (nwl, sizeof(short));
-	    if (specweight == NULL || specdq == NULL) {
-	        return (OUT_OF_MEMORY);
-	    }
+            if (nwl <= 0) {
+                trlwarn("No data for shift in dispersion direction.");
+                *shift = UNDEFINED_SHIFT;
+                return (0);
+            }
+            specweight = calloc (nwl, sizeof(double));
+            specdq = calloc (nwl, sizeof(short));
+            if (specweight == NULL || specdq == NULL) {
+                return (OUT_OF_MEMORY);
+            }
 
-	    for (i = ifirst;  i <= ilast;  i++) {	/* loop over columns */
+            for (i = ifirst;  i <= ilast;  i++) {	/* loop over columns */
 
-	        ngood = 0;
-	        for (j = sts->wl_sect2[0];  j <= sts->wl_sect2[1];  j++) {	/* sum current column */
-		    flagval = DQPix (in->dq.data, i, j);
-		    if ( ! (flagval & sts->sdqflags) ) {
-		        specweight[i] += Pix (in->sci.data, i, j);
-		        ngood++;
-		    }
-	        }
-	        if (ngood > 0) {
-		    specweight[i] /= (double) ngood;
-		} else{
-		    specdq[i] = sts->sdqflags;	/* this column is all bad */
-		}
-	    }
-	    for (i = 0;  i < ifirst;  i++)
-	        specdq[i] = sts->sdqflags;
-	    for (i = ilast + 1;  i < nwl;  i++)
-	        specdq[i] = sts->sdqflags;
+                ngood = 0;
+                for (j = sts->wl_sect2[0];  j <= sts->wl_sect2[1];  j++) {	/* sum current column */
+                    flagval = DQPix (in->dq.data, i, j);
+                    if ( ! (flagval & sts->sdqflags) ) {
+                        specweight[i] += Pix (in->sci.data, i, j);
+                        ngood++;
+                    }
+                }
+                if (ngood > 0) {
+                    specweight[i] /= (double) ngood;
+                } else {
+                    specdq[i] = sts->sdqflags;  /* this column is all bad */
+                }
+            }
+            for (i = 0;  i < ifirst;  i++)
+                specdq[i] = sts->sdqflags;
+            for (i = ilast + 1;  i < nwl;  i++)
+                specdq[i] = sts->sdqflags;
 
-	    /* Find the median of the spectrum, subtract the median from the
-	       spectrum, then replace negative values with zero.
-	    */
-	    median = MedianDouble (specweight, nwl, 0);	/* 0 ==> DON'T sort in-place */
-	    for (i = 0;  i < nwl;  i++) {
-	        specweight[i] = (specweight[i] < median) ? 0.0 : (specweight[i] - median);
-	    }
-	    /* Now accumulate the sums in the cross-dispersion direction, using the
-	       weights calculated above
-	    */
-	    for (j = jfirst;  j <= jlast;  j++) {	/* loop over rows */
+            /* Find the median of the spectrum, subtract the median from the
+               spectrum, then replace negative values with zero.
+            */
+            median = MedianDouble (specweight, nwl, 0);	/* 0 ==> DON'T sort in-place */
+            for (i = 0;  i < nwl;  i++) {
+                specweight[i] = (specweight[i] < median) ? 0.0 : (specweight[i] - median);
+            }
+            /* Now accumulate the sums in the cross-dispersion direction, using the
+               weights calculated above
+            */
+            for (j = jfirst;  j <= jlast;  j++) {	/* loop over rows */
 
-		sumw = 0.;
-		for (i = ifirst;  i <= ilast;  i++) {	/* sum current row */
-		    flagval = DQPix (in->dq.data, i, j);
-		    if ( ! (flagval & sts->sdqflags) ) {
-			v[j] += Pix (in->sci.data, i, j) * specweight[i];
-			sumw += specweight[i];
-		    }
-		}
-		if (sumw > 0.)
-		    v[j] /= sumw;
-		else
-		    qv[j] = sts->sdqflags;	/* this row is all bad */
-	    }
+                sumw = 0.;
+                for (i = ifirst;  i <= ilast;  i++) {	/* sum current row */
+                    flagval = DQPix (in->dq.data, i, j);
+                    if ( ! (flagval & sts->sdqflags) ) {
+                        v[j] += Pix (in->sci.data, i, j) * specweight[i];
+                        sumw += specweight[i];
+                    }
+                }
+                if (sumw > 0.)
+                    v[j] /= sumw;
+                else
+                    qv[j] = sts->sdqflags;	/* this row is all bad */
+            }
             free (specweight);
-	    free (specdq);
+            free (specdq);
 
-	}
+        }
 	for (j = 0;  j < jfirst;  j++)
 	    qv[j] = sts->sdqflags;
 	for (j = jlast + 1;  j < nv;  j++)
@@ -260,7 +260,7 @@ double *shift       o: the shift, in pixels
 
 	free (qv);
 	free (v);
-	
+
 	return (status);
 }
 

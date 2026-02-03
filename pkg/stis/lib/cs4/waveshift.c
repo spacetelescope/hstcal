@@ -71,7 +71,7 @@ double *shift       o: the shift, in pixels
 		double,
 		DispRelation *,
 		double, double, double, double *);
-		
+
 	/* image section to use */
 	ifirst = sts->wl_sect1[0];
 	ilast  = sts->wl_sect1[1];
