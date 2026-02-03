@@ -81,9 +81,9 @@ double *shift       o: the shift, in pixels
 	if (sts->use_e_aperture == 1) {
 	    jfirst = 970;
             jlast = 1010;
-	    printf ("Using E aperture location for waveshift determination:\n");
-	    printf("Starting row = %d\n", jfirst);
-	    printf("Ending row = %d\n", jlast);
+	    trlmessage("Using E aperture location for waveshift determination:");
+	    trlmessage("Starting row = %d", jfirst);
+	    trlmessage("Ending row = %d", jlast);
 	}
 	/* Get info on coordinates.
 	   We need the slit width (in the dispersion direction) in pixels,

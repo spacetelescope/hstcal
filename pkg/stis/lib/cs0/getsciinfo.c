@@ -177,8 +177,8 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    }
 	    if (!strcmptail(propaper, "E1") || !strcmptail(propaper, "E2")) {
 		sts->use_e_aperture = 1;
-		printf ("PROPAPER = %s\n", propaper);
-		printf ("Using E aperture location in wavecal\n");
+		trlmessage("PROPAPER = %s", propaper);
+		trlmessage("Using E aperture location in wavecal");
 	    }
 	}
 

@@ -264,12 +264,12 @@ StisInfo4 *sts    i: calibration switches and info
 		if (w_shift == UNDEFINED_SHIFT) {
 		    trlwarn("Shift in dispersion direction could not be determined.");
 		} else {
-		    trlwarn("         Shift in dispersion direction is %.3f pixels.", w_shift);
+		    trlmessage("         Shift in dispersion direction is %.3f pixels.", w_shift);
 		}
 		if (s_shift == UNDEFINED_SHIFT) {
 		    trlwarn("Shift in spatial direction could not be determined.");
 		} else {
-		    trlwarn("         Shift in spatial direction is %.3f pixels.", s_shift);
+		    trlmessage("         Shift in spatial direction is %.3f pixels.", s_shift);
 		}
 
 	    } else {
