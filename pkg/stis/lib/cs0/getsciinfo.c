@@ -56,6 +56,7 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	int nextend;		/* number of FITS extensions in rawfile */
 	int no_def = 0;		/* missing keyword is fatal error */
 	int use_default = 1;	/* use default if keyword is missing */
+	char propaper[STIS_LINE+1];  /* PROPAPER keyword */
 
 	int GetFlags (CalSwitch *, Hdr *);
 	int SciFlags (StisInfo *, CalSwitch *, Hdr *, RefFileInfo *);
@@ -168,6 +169,16 @@ RefFileInfo *sciref  io: list of keyword,filename pairs for science file
 	    if (strcmp (sts->wavfile, "N/A") == 0) {
 		trlwarn("WAVECORR will be skipped because WAVECAL is N/A.");
 		sci_sw->wavecorr = SKIPPED;
+	    }
+            /* Decide whether to use E aperture location in wavecal */
+	    if ((status = Get_KeyS (&phdr, "PROPAPER", no_def, "",
+		                    propaper, STIS_LINE))) {
+		return (status);
+	    }
+	    if (!strcmptail(propaper, "E1") || !strcmptail(propaper, "E2")) {
+		sts->use_e_aperture = 1;
+		trlmessage("PROPAPER = %s", propaper);
+		trlmessage("Using E aperture location in wavecal");
 	    }
 	}
 

@@ -41,7 +41,7 @@
 
 int WaveShift (StisInfo4 *sts, ApInfo *slit, DispRelation *disp,
 		LampInfo *lamp, SingleGroup *in,
-		double **specweight, double *shift) {
+		double *shift) {
 
 /* arguments:
 StisInfo4 *sts      i: calibration switches and info
@@ -49,7 +49,6 @@ ApInfo *slit        i: description of slit
 DispRelation *disp  i: dispersion relation (currently only used for prism)
 LampInfo *lamp      i: spectrum of calibration lamp
 SingleGroup *in     i: input data
-double **specweight o: summed 1-D spectrum, negative values clipped
 double *shift       o: the shift, in pixels
 */
 
@@ -79,6 +78,13 @@ double *shift       o: the shift, in pixels
 	jfirst = sts->wl_sect2[0];
 	jlast  = sts->wl_sect2[1];
 
+	if (sts->use_e_aperture == 1) {
+	    jfirst = 970;
+            jlast = 1010;
+	    trlmessage("Using E aperture location for waveshift determination:");
+	    trlmessage("Starting row = %d", jfirst);
+	    trlmessage("Ending row = %d", jlast);
+	}
 	/* Get info on coordinates.
 	   We need the slit width (in the dispersion direction) in pixels,
 	   but we have it in arcseconds.  cdelt in the cross dispersion
@@ -105,9 +111,6 @@ double *shift       o: the shift, in pixels
 	qv = calloc (nwl, sizeof(short));
 	if (v == NULL || qv == NULL)
 	    return (OUT_OF_MEMORY);
-
-	/* Copy pointer to output for use by SpatialShift. */
-	*specweight = v;
 
 	/* Average the data values in the direction perpendicular to
 	   the dispersion to make a 1-D array.  The data quality flag

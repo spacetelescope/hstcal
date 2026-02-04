@@ -46,12 +46,14 @@ static void StisInit4 (StisInfo4 *);
 	Remove InitRefTab from this file.
 */
 
-int CalStis4 (char *input, char *dbgfile,
+int CalStis4 (char *input, char *dbgfile, int use_e_aperture,
 	RefFileInfo *refnames, int printtime, int verbose, double slit_angle) {
 
 /* arguments:
 char *input            i: name of input (modified in-place)
 char *dbgfile          i: output text file for debug info
+int use_e_aperture.    i: true means that the wavecal should be extracted from the
+                          E aperture position
 RefFileInfo *refnames  i: reference file keywords and names
 int printtime          i: true means that TimeStamp should be called
 int verbose            i: print extra info?
@@ -86,6 +88,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 	sts.slit_angle = DEGREES_TO_RADIANS * slit_angle;
 
 	sts.refnames = refnames;
+	sts.use_e_aperture = use_e_aperture;
 
 	for (i = 0;  i < strlen (dbgfile);  i++) {
 	    if (dbgfile[i] != ' ') {

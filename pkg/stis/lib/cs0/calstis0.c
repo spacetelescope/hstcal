@@ -136,7 +136,7 @@
 */
 
 static int CalStis2_0 (char *, char *, int, int);
-static int CalStis4_0 (char *, RefFileInfo *, int, int);
+static int CalStis4_0 (char *, RefFileInfo *, int, int, int);
 static int CalStis6_0 (char *, char *, CalSwitch *, int, int);
 static int CalStis7_0 (char *, char *, CalSwitch *, RefFileInfo *, int, int);
 static int CalStis12_0 (char *, char *, int, int);
@@ -159,7 +159,7 @@ int verbose      i: true --> print info in individual csN
 */
 
 	int status;
-
+        int use_e_aperture=0;   /* Use E aperture location in wavecal? */
 	StisInfo sts;		/* calibration switches, etc */
 	RefFileInfo sciref, wavref;	/* ref file keywords and names */
 	CalSwitch sci_sw;	/* all cal switches for science file */
@@ -379,8 +379,10 @@ trlmessage("");
 		else
 		    wavecal_file = sts.w2d_tmp;
 
+		use_e_aperture = sts.use_e_aperture;
+
 		if ((status = CalStis4_0 (wavecal_file, &sciref,
-                                          printtime, verbose)))
+                                          printtime, use_e_aperture, verbose)))
 		    return (status);
 		if (sts.sci_crcorr == PERFORM) {
 		    /* Update header of crjfile. */
@@ -761,13 +763,13 @@ static int CalStis2_0 (char *input, char *output, int printtime, int verbose) {
 /* This function is an interface for calling calstis4. */
 
 static int CalStis4_0 (char *input, RefFileInfo *refnames,
-	int printtime, int verbose) {
+	int printtime, int use_e_aperture, int verbose) {
 
 	int status;
 	char dbgfile[] = "";		/* (not used by pipeline) */
 	double slit_angle = 0.;		/* (not used by pipeline) */
 
-	if ((status = CalStis4 (input, dbgfile,
+	if ((status = CalStis4 (input, dbgfile, use_e_aperture,
                                 refnames, printtime, verbose, slit_angle)))
 	    return (status);
 

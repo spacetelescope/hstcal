@@ -54,6 +54,7 @@ typedef struct {
 	int nimages;			/* number of "groups" in file */
 	int echelle;			/* true if echelle data */
 	int prism;			/* true if prism data */
+	int use_e_aperture;             /* Use E aperture location in wavecal */
 
 	/* Info for comparing the binning and gain of the science file
 	   and wavecal.  If they're the same (only relevant for the CCD),
