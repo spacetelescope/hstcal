@@ -293,6 +293,10 @@ int DoCCD (WF3Info *wf3, int extver) {
             }
         }
 
+        /* Crosstalk correction */
+        if (cross_talk_corr(wf3, &x))
+            return (status);
+
         PrSwitch ("blevcorr", COMPLETE);
 
         /* Set this to complete so overscan-trimmed image will be
