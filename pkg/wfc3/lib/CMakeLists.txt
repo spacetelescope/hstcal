@@ -85,6 +85,7 @@ add_library(${PROJECT_NAME} SHARED
 	wf32d/wf32d.c
 	wf3ccd/blevdrift.c
 	wf3ccd/blevfit.c
+	wf3ccd/crosstalk.c
 	wf3ccd/doatod.c
 	wf3ccd/dobias.c
 	wf3ccd/doblev.c
