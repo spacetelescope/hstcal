@@ -1,4 +1,5 @@
 #include "hstio.h"
+#include "wf3.h"
 #include "wf3info.h"
 
 /* remove amplifier cross-talk */
