@@ -9,43 +9,52 @@ static void e_to_dn (SingleGroup *, int, int, int, float *);
 
 
 /* remove amplifier cross-talk */
-void cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
+int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
+    extern int status;
     const int arr_rows = x->sci.data.ny;
     const int arr_cols = x->sci.data.nx;
-    int i, j;  /* iteration variables */
+    int i, j, cur_amp;  /* iteration variables */
+    float corr_fac, cur_err, *y;
+
+    /* Correction coefficients (ABCD) from WFC3 ISR 2012-02 */
+    const float intercept[NAMPS] = {0.0180206, 0.15501201,-0.038376406, 0.19124641};
+    const float slope[NAMPS] = {-0.060494304, -0.20746221, -0.079701178, -0.23177171};
 
     /* Convert to electrons */
     for (i = 0; i < arr_rows; i++) {
         dn_to_e(x, i, wf3->ampx, wf3->ampy, wf3->atodgain);
     }
 
-    /* WFC3 ISR 2012-02 */
+    /* Crosstalk correction */
     for (i = 0; i < arr_rows; i++) {
-        if (i < wf3->ampy) {
-            for (j = 0; j < wf3->ampx; j++) {
-                // c_corr = c - (-0.038376406 + np.flip(d, 1) * -0.079701178)
-                Pix(x->sci.data, j, i) -= -0.038376406 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.079701178;
-            }
-            for (j = wf3->ampx; j < arr_cols; j++) {
-                // d_corr = d - (0.19124641 + np.flip(c, 1) * -0.23177171)
-                Pix(x->sci.data, j, i) -= 0.19124641 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.23177171;
-            }
-        } else {
-            for (j = 0; j < wf3->ampx; j++) {
-                // a_corr = a - (0.0180206 + np.flip(b, 1) * -0.060494304)
-                Pix(x->sci.data, j, i) -= 0.0180206 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.060494304;
-            }
-            for (j = wf3->ampx; j < arr_cols; j++) {
-                // b_corr = b - (0.15501201 + np.flip(a, 1) * -0.20746221)
-                Pix(x->sci.data, j, i) -= 0.15501201 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.20746221;
-            }
+        /* Copy out original row for corr_fac calculation. */
+        if ((y = calloc(arr_cols, sizeof(float))) == NULL) {
+            return (status = OUT_OF_MEMORY);
         }
-    }
-
-    /* Propagate error */
-    for (i = 0; i < arr_rows; i++) {
         for (j = 0; j < arr_cols; j++) {
-            Pix(x->err.data, j, i) = (float) sqrt(fabs(Pix(x->sci.data, j, i)));
+            y[j] = Pix(x->sci.data, j, i);
+        }
+
+        for (j = 0; j < arr_cols; j++) {
+            if (i < wf3->ampy) {
+                if (j < wf3->ampx) {
+                    cur_amp = AMP_C;
+                } else {
+                    cur_amp = AMP_D;
+                }
+            } else {
+                if (j < wf3->ampx) {
+                    cur_amp = AMP_A;
+                } else {
+                    cur_amp = AMP_B;
+                }
+            }
+            corr_fac = intercept[cur_amp] + y[arr_cols - j - 1] * slope[cur_amp];
+            Pix(x->sci.data, j, i) = y[j] - corr_fac;
+
+            /* Propagate error; assume ERR of correction is sqrt(corr_fac) */
+            cur_err = Pix(x->err.data, j, i);
+            Pix(x->err.data, j, i) = (float) sqrt(cur_err * cur_err + fabs(corr_fac));
         }
     }
 
@@ -53,6 +62,8 @@ void cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     for (i = 0; i < arr_rows; i++) {
         e_to_dn(x, i, wf3->ampx, wf3->ampy, wf3->atodgain);
     }
+
+    return status;
 }
 
 
