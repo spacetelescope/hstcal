@@ -325,7 +325,9 @@ int DoCCD (WF3Info *wf3, int extver) {
     /* Apply crosstalk correction after BIASCORR but before everything else. */
     if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM && !is_binned & !wf3->subarray) {
         trlmessage("\nCrosstalk correction is being performed.");
-        cross_talk_corr(wf3, &x);
+        if (cross_talk_corr(wf3, &x)) {
+            return (status);
+        }
     }
 
     /* Apply the saturation image.
