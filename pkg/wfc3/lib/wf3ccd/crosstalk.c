@@ -45,7 +45,7 @@ void cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     /* Propagate error */
     for (i = 0; i < arr_rows; i++) {
         for (j = 0; j < arr_cols; j++) {
-            Pix(x->err.data, j, i) = (float) sqrt(Pix(x->sci.data, j, i));
+            Pix(x->err.data, j, i) = (float) sqrt(fabs(Pix(x->sci.data, j, i)));
         }
     }
 
