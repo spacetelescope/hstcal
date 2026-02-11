@@ -10,25 +10,41 @@ static void e_to_dn (SingleGroup *, int, int, int, float *);
 
 /* remove amplifier cross-talk */
 void cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
-    double temp;
     const int arr_rows = x->sci.data.ny;
     const int arr_cols = x->sci.data.nx;
     int i, j;  /* iteration variables */
-
-    /* cross talk scaling constant */
-    double cross_scale = 9.1e-5;
 
     /* Convert to electrons */
     for (i = 0; i < arr_rows; i++) {
         dn_to_e(x, i, wf3->ampx, wf3->ampy, wf3->atodgain);
     }
 
+    /* WFC3 ISR 2012-02 */
+    for (i = 0; i < arr_rows; i++) {
+        if (i < wf3->ampy) {
+            for (j = 0; j < wf3->ampx; j++) {
+                // c_corr = c - (-0.038376406 + np.flip(d, 1) * -0.079701178)
+                Pix(x->sci.data, j, i) -= -0.038376406 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.079701178;
+            }
+            for (j = wf3->ampx; j < arr_cols; j++) {
+                // d_corr = d - (0.19124641 + np.flip(c, 1) * -0.23177171)
+                Pix(x->sci.data, j, i) -= 0.19124641 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.23177171;
+            }
+        } else {
+            for (j = 0; j < wf3->ampx; j++) {
+                // a_corr = a - (0.0180206 + np.flip(b, 1) * -0.060494304)
+                Pix(x->sci.data, j, i) -= 0.0180206 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.060494304;
+            }
+            for (j = wf3->ampx; j < arr_cols; j++) {
+                // b_corr = b - (0.15501201 + np.flip(a, 1) * -0.20746221)
+                Pix(x->sci.data, j, i) -= 0.15501201 + Pix(x->sci.data, arr_cols - j - 1, i) * -0.20746221;
+            }
+        }
+    }
+
+    /* Propagate error */
     for (i = 0; i < arr_rows; i++) {
         for (j = 0; j < arr_cols; j++) {
-            temp = Pix(x->sci.data, arr_cols-j-1, i) * cross_scale;
-            Pix(x->sci.data, j, i) += (float) temp;
-
-            /* Propagate error */
             Pix(x->err.data, j, i) = (float) sqrt(Pix(x->sci.data, j, i));
         }
     }
