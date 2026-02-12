@@ -15,7 +15,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     double corr_fac, cur_err;
 
     /* Correction coefficients (ABCD) from WFC3 ISR 2012-02 */
-    const double intercept[NAMPS] = {0.0180206, 0.15501201,-0.038376406, 0.19124641};
+    const double intercept[NAMPS] = {0, 0, 0, 0};
     const double slope[NAMPS] = {-6.0494304e-5, -2.0746221e-4, -7.9701178e-5, -2.3177171e-4};
 
     /* Crosstalk correction in electrons but then converted back to DN */
