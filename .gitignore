@@ -25,3 +25,4 @@ __pycache__
 *.so
 hstcal-*.sh
 .idea/
+testphot_out.txt
