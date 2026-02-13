@@ -58,7 +58,8 @@ jobs:
         cd build
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} ${{ matrix.cmake_options }}
+          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} ${{ matrix.cmake_options }} \
+          -DTESTS=ON
         make
 
     - name: MacOS build
@@ -74,7 +75,8 @@ jobs:
         export SDKROOT="$(xcrun --show-sdk-path)"
         cmake .. \
           -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
-          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} ${{ matrix.cmake_options }}
+          -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_PREFIX }} ${{ matrix.cmake_options }} \
+          -DTESTS=ON
         make
 
 
@@ -97,4 +99,4 @@ jobs:
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: ctest -V --output-on-failure

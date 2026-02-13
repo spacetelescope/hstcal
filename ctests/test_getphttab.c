@@ -101,7 +101,6 @@ void compute_values(char photmode[CHAR_LINE_LENGTH], char test_title[CHAR_LINE_L
     char refname[CHAR_LINE_LENGTH], refpedigree[SZ_FITS_REC];
     double diff_photflam, diff_photplam, diff_photbw;
 
-    /*strcpy(refname,"/grp/hst/cdbs/jref/w3m17171j_imp.fits");*/  /* -9999 */
     strcpy(refname, "w3m17171j_extrap_imp.fits");  /* Extrapolate */
     strcpy(refpedigree, "Inflight calibrations");
 

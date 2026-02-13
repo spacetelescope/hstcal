@@ -19,4 +19,3 @@ target_include_directories(${PROJECT_NAME}
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION lib
 )
-

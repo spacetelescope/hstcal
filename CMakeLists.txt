@@ -140,3 +140,14 @@ add_subdirectory(lib)
 add_subdirectory(tables)
 add_subdirectory(pkg)
 
+# Toggle testing
+option(TESTS OFF)
+message(CHECK_START "Run C unit tests")
+if (TESTS)
+	message(CHECK_PASS "yes")
+	enable_testing()
+
+	add_subdirectory(ctests)
+else()
+	message(CHECK_PASS "no")
+endif()
