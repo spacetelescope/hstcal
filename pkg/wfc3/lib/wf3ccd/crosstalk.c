@@ -43,11 +43,14 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
                 }
             }
             corr_fac = intercept[cur_amp] + y[arr_cols - j - 1] * wf3->atodgain[cur_amp] * slope[cur_amp];
-            Pix(x->sci.data, j, i) = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
+            /* Only fix when we can recover the signal, not removing more signal */
+            if (corr_fac < 0) {
+                Pix(x->sci.data, j, i) = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
 
-            /* Propagate error; assume ERR of correction is sqrt(corr_fac) */
-            cur_err = Pix(x->err.data, j, i) * wf3->atodgain[cur_amp];
-            Pix(x->err.data, j, i) = sqrt(cur_err * cur_err + fabs(corr_fac)) / wf3->atodgain[cur_amp];
+                /* Propagate error; assume ERR of correction is sqrt(corr_fac) */
+                cur_err = Pix(x->err.data, j, i) * wf3->atodgain[cur_amp];
+                Pix(x->err.data, j, i) = sqrt(cur_err * cur_err + fabs(corr_fac)) / wf3->atodgain[cur_amp];
+            }
         }
     }
 
