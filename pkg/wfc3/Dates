@@ -1,3 +1,6 @@
+07-Feb-2026 - PLL - Version 3.8.0
+    - New crosstalk correction for WFC3/UVIS fullframe unbinned exposures.
+
 07-Jan-2026 - PLL - Version 3.7.3
     - Bug fix to remove per-second in BUNIT for CRREJ output for IR data.
 
