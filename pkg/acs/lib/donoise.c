@@ -82,8 +82,9 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
         offsety = (int)(acs->offsety > 0) ? acs->offsety : 0;
 
         if (GetKeyStr(x->globalhdr, "TARGNAME", USE_DEFAULT, "", targname,
-                      CHAR_LINE_LENGTH))
+                      CHAR_LINE_LENGTH)) {
             return (status);
+        }
 
         /* Correct the AMP readout boundaries for this offset */
         ampx = ((acs->ampx == 0) ? 0 : (int)(acs->ampx + offsetx));
@@ -101,10 +102,12 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
          values to be specified in CCDTAB in trimmed coordinates.
          WJH 27 Oct 2000
          */
-        if (ampx >= (dimx - acs->offsetx) || ampx > dimx)
+        if (ampx >= (dimx - acs->offsetx) || ampx > dimx) {
             ampx = dimx;
-        if (ampy >= (dimy - acs->offsety) || ampy > dimy)
+        }
+        if (ampy >= (dimy - acs->offsety) || ampy > dimy) {
             ampy = dimy;
+        }
 
         /* Set up gain and readnoise arrays for use with chip's data */
         for (i = 0; i < NAMPS; i++) {
@@ -117,8 +120,9 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                   acs->readnoise, gain, rn);
 
         /* Now square the readnoise */
-        for (i = 0; i < NAMPS; i++)
+        for (i = 0; i < NAMPS; i++) {
             rn2[i] = rn[i] * rn[i];
+        }
 
         if (acs->ncombine > 1) {
             trlwarn("NCOMBINE > 1 before the error array was initialized.");
@@ -144,8 +148,9 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 value = Pix(x->sci.data, i, j);
                 err_val = Pix(x->err.data, i, j);
 
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
 
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */
@@ -174,8 +179,9 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 value = Pix(x->sci.data, i, j);
                 err_val = Pix(x->err.data, i, j);
 
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
 
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */
@@ -206,8 +212,9 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 value = Pix(x->sci.data, i, j);
                 err_val = Pix(x->err.data, i, j);
 
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
 
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */
@@ -237,8 +244,9 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 value = Pix(x->sci.data, i, j);
                 err_val = Pix(x->err.data, i, j);
 
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
 
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */

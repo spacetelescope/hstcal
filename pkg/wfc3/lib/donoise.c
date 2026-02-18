@@ -115,10 +115,12 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
         */
 
         /*if (ampx >= (dimx - wf3->offsetx) || ampx > dimx ) ampx = dimx;*/
-        if (ampx >= (dimx - wf3->trimx[1]) || ampx > dimx)
+        if (ampx >= (dimx - wf3->trimx[1]) || ampx > dimx) {
             ampx = dimx;
-        if (ampy >= (dimy - wf3->offsety) || ampy > dimy)
+        }
+        if (ampy >= (dimy - wf3->offsety) || ampy > dimy) {
             ampy = dimy;
+        }
 
         /* Set up gain and readnoise arrays for use with chip's data */
         for (i = 0; i < NAMPS; i++) {
@@ -137,13 +139,15 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
             ccdbias[2] = wf3->ccdbias[2];
             ccdbias[3] = wf3->ccdbias[3];
         } else {
-            for (i = 0; i < NAMPS; i++)
+            for (i = 0; i < NAMPS; i++) {
                 ccdbias[i] = wf3->ccdbias[i];
+            }
         }
 
         /* Now square the readnoise */
-        for (i = 0; i < NAMPS; i++)
+        for (i = 0; i < NAMPS; i++) {
             rn2[i] = rn2[i] * rn2[i];
+        }
 
         if (wf3->ncombine > 1) {
             trlwarn("NCOMBINE > 1 before the error array was initialized.");
@@ -166,8 +170,9 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
             for (i = 0; i < ampx; i++) {
                 /* subtract bias and convert to electrons */
                 value = (Pix(x->sci.data, i, j) - bias) * gain[AMP_C];
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
                 /* include readout noise and convert back to dn */
                 Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_C]) / gain[AMP_C];
             }
@@ -186,8 +191,9 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
             for (i = ampx; i < dimx; i++) {
                 /* subtract bias and convert to electrons */
                 value = (Pix(x->sci.data, i, j) - bias) * gain[AMP_D];
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
                 /* include readout noise and convert back to dn */
                 Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_D]) / gain[AMP_D];
             }
@@ -210,8 +216,9 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
             for (i = 0; i < ampx; i++) {
                 /* subtract bias and convert to electrons */
                 value = (Pix(x->sci.data, i, j) - bias) * gain[AMP_A];
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
                 /* include readout noise and convert back to dn */
                 Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_A]) / gain[AMP_A];
             }
@@ -233,8 +240,9 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
 
                 /* subtract bias and convert to electrons */
                 value = (Pix(x->sci.data, i, j) - bias) * gain[AMP_B];
-                if (value < 0.)
+                if (value < 0.) {
                     value = 0.; /* sigma = 0 if signal = 0 */
+                }
                 /* include readout noise and convert back to dn */
                 Pix(x->err.data, i, j) = sqrt(value + rn2[AMP_B]) / gain[AMP_B];
             }

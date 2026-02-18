@@ -1,4 +1,8 @@
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
 IndentWidth: 4
+InsertBraces: true
 SortIncludes: false
 TabWidth: 4
 UseTab: Never
