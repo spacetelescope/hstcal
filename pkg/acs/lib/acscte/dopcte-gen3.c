@@ -15,6 +15,7 @@
 #include "trlbuf.h"
 
 #include "pcte.h"
+#include "pcte_gen3_funcs.h"  /* rotateAmpData_acscte and derotateAmpData_acscte */
 
 # ifdef _OPENMP
 #  include <omp.h>
@@ -31,8 +32,6 @@ static int insertAmp(SingleGroup * amp, const SingleGroup * image, const unsigne
 static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
 static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, char ccdamp);
-static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
-static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID);
 
 static void transpose(FloatTwoDArray *amp);
 static void side2sideFlip(FloatTwoDArray *amp);
@@ -370,14 +369,14 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, cha
         if (amp->sci.data.data)
         {
             trlmessage("(pctecorr) Rotation for Amp: %c", ccdamp);
-            if ((status = rotateAmpData(&amp->sci.data, ampID)))
+            if ((status = rotateAmpData_acscte(&amp->sci.data, ampID)))
                 return status;
         }
 
         //err data
         if (amp->err.data.data)
         {
-            if ((status = rotateAmpData(&amp->err.data, ampID)))
+            if ((status = rotateAmpData_acscte(&amp->err.data, ampID)))
                 return status;
         }
     }
@@ -388,14 +387,14 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, cha
         if (amp->sci.data.data)
         {
             trlmessage("(pctecorr) Derotation for Amp: %c", ccdamp);
-            if ((status = derotateAmpData(&amp->sci.data, ampID)))
+            if ((status = derotateAmpData_acscte(&amp->sci.data, ampID)))
                 return status;
         }
 
         //err data
         if (amp->err.data.data)
         {
-            if ((status = derotateAmpData(&amp->err.data, ampID)))
+            if ((status = derotateAmpData_acscte(&amp->err.data, ampID)))
                 return status;
         }
     }
@@ -403,7 +402,7 @@ static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, cha
     return status;
 }
 
-static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
+int rotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID)
 {
     extern int status;
     if (!amp || !amp->data)
@@ -431,7 +430,7 @@ static int rotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
     return status;
 }
 
-static int derotateAmpData(FloatTwoDArray * amp, const unsigned ampID)
+int derotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID)
 {
     extern int status;
     if (!amp || !amp->data)
