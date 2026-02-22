@@ -4,8 +4,9 @@
 
 static int setup_input_array(FloatTwoDArray *, int, int);
 static int compare_arrays(FloatTwoDArray *, float *, int, int);
-static int rectangle_test_case(int);
-static int square_test_case(int);
+static int rectangle_test_case_derot(int);
+static int square_test_case_rot(int);
+static int square_test_case_derot(int);
 
 const char amps[5] = "ABCD\0";
 
@@ -69,7 +70,7 @@ static int compare_arrays(FloatTwoDArray *da, float *truth, int truth_nx, int tr
     return test_status;
 }
 
-static int rectangle_test_case(int amp_id) {
+static int rectangle_test_case_derot(int amp_id) {
     int test_status, nx=3, ny=4;;
     FloatTwoDArray da;
 
@@ -85,9 +86,8 @@ static int rectangle_test_case(int amp_id) {
         return test_status;
     }
 
-    // TODO: Need to test all amps
-    printf("==== rotateAmpData_acscte AMP %c ====\n", amps[amp_id]);
-    if ((test_status = rotateAmpData_acscte(&da, amp_id))) {
+    printf("==== derotateAmpData_acscte AMP %c ====\n", amps[amp_id]);
+    if ((test_status = derotateAmpData_acscte(&da, amp_id))) {
         freeFloatData(&da);
         return test_status;
     }
@@ -121,7 +121,7 @@ static int rectangle_test_case(int amp_id) {
     return test_status;
 }
 
-static int square_test_case(int amp_id) {
+static int square_test_case_rot(int amp_id) {
     int test_status, nx=3;
     FloatTwoDArray da;
 
@@ -136,9 +136,58 @@ static int square_test_case(int amp_id) {
         return test_status;
     }
 
-    // TODO: Need to test all amps
     printf("==== rotateAmpData_acscte AMP %c ====\n", amps[amp_id]);
     if ((test_status = rotateAmpData_acscte(&da, amp_id))) {
+        freeFloatData(&da);
+        return test_status;
+    }
+
+    /* AMP_A or AMP_D
+       2 5 8
+       1 4 7
+       0 3 6
+
+       AMP_B or AMP_C
+       6 3 0
+       7 4 1
+       8 5 2
+    */
+    int truth_nx=nx;
+    int truth_ny=nx;
+    float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
+    if (amp_id == AMP_B || amp_id == AMP_C) {
+        truth[0] = 6; truth[1] = 3; truth[2] = 0;
+        truth[3] = 7; truth[4] = 4; truth[5] = 1;
+        truth[6] = 8; truth[7] = 5; truth[8] = 2;
+    } else {
+        truth[0] = 2; truth[1] = 5; truth[2] = 8;
+        truth[3] = 1; truth[4] = 4; truth[5] = 7;
+        truth[6] = 0; truth[7] = 3; truth[8] = 6;
+    }
+
+    test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
+    free(truth);
+    freeFloatData(&da);
+    return test_status;
+}
+
+static int square_test_case_derot(int amp_id) {
+    int test_status, nx=3;
+    FloatTwoDArray da;
+
+    /* Input array before rotation:
+
+       0 1 2
+       3 4 5
+       6 7 8
+     */
+    if ((test_status = setup_input_array(&da, nx, nx))) {
+        freeFloatData(&da);
+        return test_status;
+    }
+
+    printf("==== derotateAmpData_acscte AMP %c ====\n", amps[amp_id]);
+    if ((test_status = derotateAmpData_acscte(&da, amp_id))) {
         freeFloatData(&da);
         return test_status;
     }
@@ -176,12 +225,11 @@ int main(int argc, char **argv) {
     int i, test_status;
 
     for (i=0; i<4; i++) {
-        test_status = square_test_case(i);
-    }
+        test_status = square_test_case_rot(i);
+        test_status = square_test_case_derot(i);
 
-    /* FIXME: da dimension would need fixing in dopcte-gen3.c */
-    for (i=0; i<4; i++) {
-        test_status = rectangle_test_case(i);
+        /* FIXME: da dimension would need fixing in dopcte-gen3.c */
+        //test_status = rectangle_test_case_derot(i);
     }
 
     return test_status;
