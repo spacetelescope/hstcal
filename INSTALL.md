@@ -57,6 +57,13 @@ GCC may be supplemented by Clang under the following conditions:
     cmake .. -DENABLE_OPENMP=OFF
     ```
 
+### C unit tests
+
+- If you want to be able to run unit tests written in C.
+
+    ```
+    cmake .. -DTESTS=ON
+    ```
 
 ## Build on Linux
 
