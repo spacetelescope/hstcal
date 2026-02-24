@@ -3,6 +3,8 @@
 #cmakedefine HAVE_LIMITS__PATH_MAX
 #cmakedefine HAVE_SYS_LIMITS__PATH_MAX
 #cmakedefine HAVE_SYS_SYSLIMITS__PATH_MAX
+#cmakedefine HAVE_BACKTRACE
+#cmakedefine ENABLE_BACKTRACE
 
 #if defined(HAVE_LIMITS__PATH_MAX)
 #include <limits.h>
@@ -10,6 +12,11 @@
 #include <sys/limits.h>
 #elif defined(HAVE_SYS_SYSLIMITS__PATH_MAX)
 #include <sys/syslimits.h>
+#endif
+
+#if defined(HAVE_BACKTRACE) && defined(ENABLE_BACKTRACE)
+#include <execinfo.h>
+#cmakedefine MAX_BACKTRACE @MAX_BACKTRACE@
 #endif
 
 #define HSTCAL_VERSION "@GIT_TAG@"

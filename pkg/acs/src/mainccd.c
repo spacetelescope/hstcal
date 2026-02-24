@@ -87,7 +87,6 @@ int main (int argc, char **argv) {
     int ACSccd (char *, char *, CalSwitch *, RefFileInfo *, int, int);
     int DefSwitch (char *);
     int MkName (char *, char *, char *, char *, char *, int);
-    void WhichError (int);
     int CompareNumbers (int, int, char *);
 
     /* For image header access */

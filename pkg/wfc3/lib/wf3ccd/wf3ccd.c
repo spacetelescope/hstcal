@@ -211,7 +211,6 @@ void InitCCDTrl (char *input, char *output) {
 
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
-	void WhichError (int);
 	int TrlExists (char *);
 
 	/* Input and output suffixes. */

@@ -47,7 +47,6 @@ int main(int argc, char **argv) {
 	/* Function definitions */
 	void c_irafinit (int, char **);
 	int CalAcsRun (char *, int, int, int, int, const unsigned nThreads, const int gen1cte, const char * pcteTabNameFromCmd);
-    void WhichError (int);
 
 	/* Initialize status to OK and MsgText to null */
 	status = ACS_OK;
