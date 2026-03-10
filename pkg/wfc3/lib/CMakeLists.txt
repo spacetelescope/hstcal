@@ -98,6 +98,7 @@ add_library(${PROJECT_NAME} SHARED
 	wf3ccd/sink.c
 	wf3ccd/wf3ccd.c
 	wf3cte/cte_dobias.c
+	wf3cte/cte_serial_corr.c
 	wf3cte/getcteflags.c
 	wf3cte/getctepars.c
 	wf3cte/getctesw.c
