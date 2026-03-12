@@ -1,6 +1,6 @@
 /* WFC3 -- CTE loss correction for UVIS
 
-   M. sosey  Aug-2014  Adapted for the pipeline from Jay Andersons CTE correction code for wfc3 UVIS
+   M. Sosey Aug-2014  Adapted for the pipeline from Jay Andersons CTE correction code for wfc3 UVIS
    raw2raz_wfc3uv.F , an edited file was delivered december 2014, and both are different from the
    fortran code currently served on the wfc3 website.
 
@@ -20,6 +20,9 @@
 
    M.D. De La Pena Apr-2021: Fix to address a problem detected when processing a Tungsten flat with a high
    background.  Uninitialized values were used for further computation causing an eventual exception.
+
+   P.L. Lim Mar-2026: Added serial (X) CTE correction using C functions provided by
+   Dr. Jay Anderson. See WFC3 ISR 2024-07.
 */
 
 # include <time.h>
@@ -27,7 +30,6 @@
 # include <math.h>
 # include <stdlib.h>
 # include <stdio.h>
-# include <float.h>
 
 # ifdef _OPENMP
 #  include <omp.h>
@@ -80,8 +82,7 @@ float find_raz2rnoival(float *,
                        float *);
 
 int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
-        RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
-
+            RefFileInfo *refnames, int printtime, int verbose, int onecpu) {
     /*
     input: filename
     output: filename
@@ -150,8 +151,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     float hardset=0.0;
 
     /* These are used to find subarrays with physical overscan */
-    int sci_bin[2];			/* bin size of science image */
-    int sci_corner[2];		/* science image corner location */
+    int sci_bin[2];            /* bin size of science image */
+    int sci_corner[2];        /* science image corner location */
     int ref_bin[2];
     int ref_corner[2];
     int rsize = 1;          /* reference pixel size */
@@ -162,9 +163,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     initHdr(&phdr);
     initHdr(&scihdr);
 
-    float readNoise = 0.0;
-
-    int ret;
+    float readNoise=0.0;
 
     /*check if this is a subarray image.
       This is necessary because the CTE routine will start with the raw images
@@ -194,7 +193,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     /*CONTAIN PARALLEL PROCESSING TO A SINGLE THREAD AS USER OPTION*/
 #   ifdef _OPENMP
     trlmessage("Using parallel processing provided by OpenMP inside CTE routine");
-    if (onecpu){
+    if (onecpu) {
         omp_set_dynamic(0);
         max_threads=1;
         trlmessage("onecpu == TRUE, Using only %i threads/cpu", max_threads);
@@ -206,20 +205,20 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     omp_set_num_threads(max_threads);
 #   endif
 
-
     /* COPY COMMAND-LINE ARGUMENTS INTO WF3. */
     WF3Init (&wf3); /*sets default information*/
     strcpy (wf3.input, input);
     strcpy (wf3.output, output);
 
     PrBegin ("WFC3CTE");
-    if (wf3.printtime)
+    if (wf3.printtime) {
         TimeStamp("WFC3CTE Started: ",wf3.rootname);
+    }
 
     /* CHECK WHETHER THE OUTPUT FILE ALREADY EXISTS. */
-    if (FileExists (wf3.output)){
+    if (FileExists(wf3.output)) {
         WhichError(status);
-        return (ERROR_RETURN);
+        return status;
     }
 
     wf3.pctecorr = cte_sw->pctecorr;
@@ -233,43 +232,43 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     PrFileName ("input", wf3.input);
     PrFileName ("output", wf3.output);
 
-    if (wf3.biascorr == COMPLETE){
-        trlmessage("BIASCORR complete for input image, CTE can't be performed");
-        return(ERROR_RETURN);
+    if (wf3.biascorr == COMPLETE) {
+        trlerror("BIASCORR complete for input image, CTE can't be performed");
+        return (status=ERROR_RETURN);
     }
-    if (wf3.darkcorr == COMPLETE){
-        trlmessage("DARKCORR complete for input image, CTE can't be performed");
-        return(ERROR_RETURN);
+    if (wf3.darkcorr == COMPLETE) {
+        trlerror("DARKCORR complete for input image, CTE can't be performed");
+        return (status=ERROR_RETURN);
     }
-    if (wf3.blevcorr == COMPLETE){
-        trlmessage("BLEVCORR complete for input image, CTE can't be performed");
-        return(ERROR_RETURN);
+    if (wf3.blevcorr == COMPLETE) {
+        trlerror("BLEVCORR complete for input image, CTE can't be performed");
+        return (status=ERROR_RETURN);
     }
 
     /* DETERMINE THE NAMES OF THE TRAILER FILES BASED ON THE INPUT
        AND OUTPUT FILE NAMES, THEN INITIALIZE THE TRAILER FILE BUFFER
        WITH THOSE NAMES.
        */
-    if (initCTETrl (input, output))
-        return (status);
+    if (initCTETrl(input, output)) {
+        return status;
+    }
 
     /* OPEN INPUT IMAGE IN ORDER TO READ ITS PRIMARY HEADER. */
-    if (LoadHdr (wf3.input, &phdr) ){
+    if (LoadHdr(wf3.input, &phdr)) {
         WhichError(status);
-        return (ERROR_RETURN);
+        return status;
     }
 
     /* GET KEYWORD VALUES FROM PRIMARY HEADER. */
-    if (GetKeys (&wf3, &phdr)) {
+    if (GetKeys(&wf3, &phdr)) {
         freeHdr (&phdr);
-        return (status);
+        return status;
     }
 
-    if (GetCTEFlags (&wf3, &phdr)) {
+    if (GetCTEFlags(&wf3, &phdr)) {
         freeHdr(&phdr);
-        return (status);
+        return status;
     }
-
 
     /*SET UP THE ARRAYS WHICH WILL BE PASSED AROUND*/
     initSingleGroup(&raz);
@@ -291,8 +290,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     allocSingleGroup(&chg, RAZ_COLS, RAZ_ROWS, True);
 
     /*hardset the science arrays*/
-    for (i=0;i<RAZ_COLS;i++){
-        for(j=0;j<RAZ_ROWS;j++){
+    for(j=0;j<RAZ_ROWS;j++) {
+        for (i=0;i<RAZ_COLS;i++) {
             Pix(raw.sci.data,i,j)=hardset;
             Pix(raz.sci.data,i,j)=hardset;
             Pix(rsz.sci.data,i,j)=hardset;
@@ -304,76 +303,80 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     /*READ IN THE CTE PARAMETER TABLE*/
     initCTEParams(&cte_pars);
-    if (GetCTEPars (wf3.pctetab.name, &cte_pars))
-        return (status);
+    if (GetCTEPars(wf3.pctetab.name, &cte_pars)) {
+        return status;
+    }
 
-    if (verbose){
-        PrRefInfo ("pctetab", wf3.pctetab.name, wf3.pctetab.pedigree,
-                wf3.pctetab.descrip, wf3.pctetab.descrip2);
+    if (verbose) {
+        PrRefInfo("pctetab", wf3.pctetab.name, wf3.pctetab.pedigree,
+                  wf3.pctetab.descrip, wf3.pctetab.descrip2);
     }
 
     /* Full frame and subarrays always have group 1
        If it's a subarray, the group can be from either chip
-       and will still be labled group 1 because it's the FIRST
+       and will still be labeled group 1 because it's the FIRST
        and only group, so look at the ccdchip instead.
 
        amps ab are in chip1, sci,2
        amps cd are in chip2, sci,1
-
     */
     if (wf3.subarray) {
         /* OPEN INPUT IMAGE IN ORDER TO READ ITS SCIENCE HEADER. */
-        ip = openInputImage (wf3.input, "SCI", 1);
+        ip = openInputImage(wf3.input, "SCI", 1);
         if (hstio_err()) {
             trlerror("Image: \"%s\" is not present", wf3.input);
             return (status = OPEN_FAILED);
         }
-        getHeader (ip, &scihdr);
-        if (ip != NULL)
-            closeImage (ip);
+        getHeader(ip, &scihdr);
+        if (ip != NULL) {
+            closeImage(ip);
+        }
 
         /* Get CCD-specific parameters. */
-        if (GetKeyInt (&scihdr, "CCDCHIP", USE_DEFAULT, 1, &wf3.chip)){
+        if (GetKeyInt(&scihdr, "CCDCHIP", USE_DEFAULT, 1, &wf3.chip)) {
             freeHdr(&scihdr);
-            return (status);
+            return status;
         }
         freeHdr(&scihdr);
 
-        if (wf3.chip == 2){ /*sci1,cd*/
+        if (wf3.chip == 2) { /*sci1,cd*/
             start=0;
             finish=0;
             /*get CD subarray from first extension*/
-            initSingleGroup (&subcd);
-            getSingleGroup (wf3.input, 1, &subcd);
-            if (hstio_err()){
+            initSingleGroup(&subcd);
+            getSingleGroup(wf3.input, 1, &subcd);
+            if (hstio_err()) {
                 freeSingleGroup(&subcd);
                 return (status = OPEN_FAILED);
             }
 
             /*create an empty full size chip for pasting*/
             initSingleGroup(&cd);
-            allocSingleGroup(&cd,RAZ_COLS/2,RAZ_ROWS, True);
+            allocSingleGroup(&cd, RAZ_COLS/2, RAZ_ROWS, True);
             cd.group_num=1;
             CreateEmptyChip(&wf3, &cd);
 
-            if (GetCorner(&subcd.sci.hdr, rsize, sci_bin, sci_corner))
-                return (status);
-            if (GetCorner(&cd.sci.hdr, rsize, ref_bin, ref_corner))
-                return (status);
+            if (GetCorner(&subcd.sci.hdr, rsize, sci_bin, sci_corner)) {
+                return status;
+            }
+            if (GetCorner(&cd.sci.hdr, rsize, ref_bin, ref_corner)) {
+                return status;
+            }
 
             start = sci_corner[0] - ref_corner[0];
             finish = start + subcd.sci.data.nx;
-            if ( start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN){
-                trlmessage("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
-                return(ERROR_RETURN);
+            if (start >= P_OVRSCN && finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN) {
+                trlerror("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction", start, finish);
+                return (status=ERROR_RETURN);
             }
 
             /*SAVE THE PCTETABLE INFORMATION TO THE HEADER OF THE SCIENCE IMAGE
               AFTER CHECKING TO SEE IF THE USER HAS SPECIFIED ANY CHANGES TO THE
               CTE CODE VARIABLES.
               */
-            if (CompareCTEParams(&subcd, &cte_pars))
-                return (status);
+            if (CompareCTEParams(&subcd, &cte_pars)) {
+                return status;
+            }
 
             /*Put the subarray data into full frame*/
             Sub2Full(&wf3, &subcd, &cd, 0, 1, 1);
@@ -390,22 +393,20 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             /* Subtract the BIAC file from the subarray before continuing
                The bias routine will take care of cutting out the correct
                image location for the subarray.*/
-
-            if (doCteBias(&wf3,&subcd)){
+            if (doCteBias(&wf3,&subcd)) {
                 freeSingleGroup(&subcd);
-                return(status);
+                return status;
             }
 
             /*reset the array after bias subtraction*/
             Sub2Full(&wf3, &subcd, &cd, 0, 1, 1);
-
 
         } else { /*chip is 1, ab, sci2*/
             start=0;
             finish=0;
             initSingleGroup(&subab);
             getSingleGroup(wf3.input, 1, &subab);
-            if (hstio_err()){
+            if (hstio_err()) {
                 freeSingleGroup(&subab);
                 return (status = OPEN_FAILED);
             }
@@ -416,17 +417,19 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             ab.group_num=2;
             CreateEmptyChip(&wf3, &ab);
 
-            if ( GetCorner(&subab.sci.hdr, rsize, sci_bin, sci_corner))
-                return (status);
+            if (GetCorner(&subab.sci.hdr, rsize, sci_bin, sci_corner)) {
+                return status;
+            }
 
-            if ( GetCorner(&ab.sci.hdr, rsize, ref_bin, ref_corner))
-                return (status);
+            if (GetCorner(&ab.sci.hdr, rsize, ref_bin, ref_corner)) {
+                return status;
+            }
 
             start = sci_corner[0] - ref_corner[0];
             finish = start + subab.sci.data.nx;
-            if ( start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN){
-                trlmessage("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
-                return(ERROR_RETURN);
+            if (start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN) {
+                trlerror("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction",start,finish);
+                return (status=ERROR_RETURN);
             }
             /*add subarray to full frame image*/
             Sub2Full(&wf3, &subab, &ab, 0, 1, 1);
@@ -435,8 +438,9 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
               AFTER CHECKING TO SEE IF THE USER HAS SPECIFIED ANY CHANGES TO THE
               CTE CODE VARIABLES.
               */
-            if (CompareCTEParams(&subab, &cte_pars))
-                return (status);
+            if (CompareCTEParams(&subab, &cte_pars)) {
+                return status;
+            }
 
             /* now create an empty chip 2*/
             initSingleGroup(&cd);
@@ -449,9 +453,9 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             /* Subtract the BIAC file from the subarray before continuing*/
             subab.group_num=2;
-            if (doCteBias(&wf3,&subab)){
+            if (doCteBias(&wf3,&subab)) {
                 freeSingleGroup(&subab);
-                return(status);
+                return status;
             }
 
             /*reset the array after bias subtraction*/
@@ -465,19 +469,19 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
         initSingleGroup (&cd);
         getSingleGroup (wf3.input, 1, &cd);
-        if (hstio_err()){
+        if (hstio_err()) {
             return (status = OPEN_FAILED);
         }
 
         initSingleGroup (&ab);
         getSingleGroup (wf3.input, 2, &ab);
-        if (hstio_err()){
+        if (hstio_err()) {
             return (status = OPEN_FAILED);
         }
 
         /*setup the mask*/
-        for(i=0; i< ab.dq.data.nx; i++){
-            for(j=0; j< ab.dq.data.ny; j++){
+        for(j=0; j< ab.dq.data.ny; j++) {
+            for(i=0; i< ab.dq.data.nx; i++) {
                 PPix(&ab.dq.data, i, j) = 1;
                 PPix(&cd.dq.data, i, j) = 1;
             }
@@ -487,27 +491,41 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         makeRAZ(&cd,&ab,&raw);
 
         /***SUBTRACT THE CTE BIAS FROM BOTH CHIPS IN PLACE***/
-        if (doCteBias(&wf3,&cd)){
+        if (doCteBias(&wf3,&cd)) {
             freeSingleGroup(&cd);
-            return(status);
+            return status;
         }
 
-        if (doCteBias(&wf3,&ab)){
+        if (doCteBias(&wf3,&ab)) {
             freeSingleGroup(&ab);
-            return(status);
+            return status;
         }
         /*SAVE THE PCTETABLE INFORMATION TO THE HEADER OF THE SCIENCE IMAGE
           AFTER CHECKING TO SEE IF THE USER HAS SPECIFIED ANY CHANGES TO THE
           CTE CODE VARIABLES.
           */
-        if (CompareCTEParams(&cd, &cte_pars))
-            return (status);
-
+        if (CompareCTEParams(&cd, &cte_pars)) {
+            return status;
+        }
     }
 
-    /*CONVERT TO RAZ, SUBTRACT BIAS AND CORRECT FOR GAIN*/
-    if (raw2raz(&wf3, &cd, &ab, &raz))
-        return (status);
+    /* CONVERT TO RAZ, SUBTRACT BIAS AND CORRECT FOR GAIN */
+    if (raw2raz(&wf3, &cd, &ab, &raz)) {
+        return status;
+    }
+
+    /* Perform XCTE correction but only for fullframe.
+       This must be done before YCTE correction.
+    */
+    if (wf3.subarray) {
+        trlmessage("XCTE: Skipped for subarray");
+    } else {
+        trlmessage("XCTE: Jumping into the routine...");
+        if (sub_xctecor(&raz, wf3.expstart)) {
+            return status;
+        }
+        trlmessage("XCTE: Returning from the routine...");
+    }
 
     SingleGroup fff;
     initSingleGroup(&fff);
@@ -518,13 +536,13 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     cte_ff=  (wf3.expstart       - cte_pars.cte_date0)/
              (cte_pars.cte_date1 - cte_pars.cte_date0);
 
-    printf("CTE_FF: %8.3f \n",cte_ff);
+    trlmessage("YCTE_FF: %8.3f", cte_ff);
 
     cte_pars.scale_frac=cte_ff;
 
-    for(i=0;i<RAZ_COLS;i++) {
-        for(j=0;j<RAZ_ROWS;j++) {
-            Pix(fff.sci.data,i,j) =  cte_ff * (j+1)/((double)XAMP_SCI_DIM);
+    for(j=0;j<RAZ_ROWS;j++) {
+        for(i=0;i<RAZ_COLS;i++) {
+            Pix(fff.sci.data,i,j) = cte_ff * (j + 1) / ((double)XAMP_SCI_DIM);
         }
     }
 
@@ -536,13 +554,13 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     float FLOAT_RNOIVAL = 0.;
     float FLOAT_BKGDVAL = 0.;
     readNoise = wf3.pcternoi;
-    trlmessage("PCTERNOI: %8.4f (source: primary header of science image)\n\n", readNoise);
+    trlmessage("PCTERNOI: %8.4f (source: primary header of science image)", readNoise);
     /* Comparison should be OK - read from FITS header and no computation */
     if (readNoise == 0.0) {
         readNoise = find_raz2rnoival(raz.sci.data.data, &FLOAT_RNOIVAL, &FLOAT_BKGDVAL);
-        trlmessage("RNOIVAL: %8.4f BKGDVAL: %8.4f\n", FLOAT_RNOIVAL, FLOAT_BKGDVAL);
+        trlmessage("RNOIVAL: %8.4f BKGDVAL: %8.4f", FLOAT_RNOIVAL, FLOAT_BKGDVAL);
         trlmessage("PCTERNOI: %8.4f (source: computed on-the-fly from science image)", readNoise);
-        trlmessage("This computed value supersedes any value obtained from the primary\nheader of the science image.\n\n");
+        trlmessage("    This computed value supersedes any value obtained from the primary\n    header of the science image.");
     }
 
     /* The PCTERNOI value actually used is written to the PCTERNOI keyword in
@@ -552,8 +570,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     /* Invoke the updated CTE correction which does the read noise
        mitigation in each of the three forward-model iterations.
     */
-    trlmessage("CTE: jumping into the routine...");
-    ret = sub_ctecor_v2c(raz.sci.data.data,
+    trlmessage("YCTE: Jumping into the routine...");
+    if (sub_ctecor_v2c(raz.sci.data.data,
                          fff.sci.data.data,
                          WsMAX,
                          cte_pars.qlevq_data,
@@ -564,11 +582,13 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
                          cte_pars.thresh,
                          cte_pars.n_forward,
                          cte_pars.n_par,
-                         rzc.sci.data.data);
-    trlmessage("CTE: returning from the routine...");
+                         rzc.sci.data.data)) {
+        return status;
+    }
+    trlmessage("YCTE: Returning from the routine...");
 
-    for (i=0;i<RAZ_COLS;i++){
-        for (j=0;j<RAZ_ROWS;j++){
+    for (j=0;j<RAZ_ROWS;j++) {
+        for (i=0;i<RAZ_COLS;i++) {
              Pix(chg.sci.data,i,j) = (Pix(rzc.sci.data,i,j) - Pix(raz.sci.data,i,j))/wf3.ccdgain;
              Pix(rzc.sci.data,i,j) =  Pix(raw.sci.data,i,j) + Pix(chg.sci.data,i,j);
         }
@@ -587,15 +607,16 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     if (wf3.subarray) {
         if (wf3.chip == 2) {
             /*** SAVE USEFUL HEADER INFORMATION ***/
-            if (cteHistory (&wf3, subcd.globalhdr))
-                return (status);
+            if (cteHistory (&wf3, subcd.globalhdr)) {
+                return status;
+            }
 
             /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
             PutKeyDbl(subcd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-            trlmessage("PCTEFRAC saved to header");
+            trlmessage("PCTEFRAC saved to header: %lf", cte_pars.scale_frac);
 
             PutKeyFlt(subcd.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
-            trlmessage("PCTERNOI saved to header");
+            trlmessage("PCTERNOI saved to header: %f", readNoise);
 
             Full2Sub(&wf3, &subcd, &cd, 0, 1, 1);
             putSingleGroup(output, 1, &subcd,0);
@@ -603,15 +624,16 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         } else {
 
             /*** SAVE USEFUL HEADER INFORMATION ***/
-            if (cteHistory (&wf3, subab.globalhdr))
-                return (status);
+            if (cteHistory (&wf3, subab.globalhdr)) {
+                return status;
+            }
 
             /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
             PutKeyDbl(subab.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-            trlmessage("PCTEFRAC saved to header");
+            trlmessage("PCTEFRAC saved to header: %lf", cte_pars.scale_frac);
 
             PutKeyFlt(subab.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
-            trlmessage("PCTERNOI saved to header");
+            trlmessage("PCTERNOI saved to header: %f", readNoise);
 
             Full2Sub(&wf3, &subab, &ab, 0, 1, 1);
             putSingleGroup(output, 1, &subab,0);
@@ -620,15 +642,16 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     } else { /*FUll FRAME*/
         /*** SAVE USEFUL HEADER INFORMATION ***/
-        if (cteHistory (&wf3, cd.globalhdr))
-            return (status);
+        if (cteHistory (&wf3, cd.globalhdr)) {
+            return status;
+        }
 
         /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
         PutKeyDbl(cd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-        trlmessage("PCTEFRAC saved to header");
+        trlmessage("PCTEFRAC saved to header: %lf", cte_pars.scale_frac);
 
         PutKeyFlt(cd.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
-        trlmessage("PCTERNOI saved to header");
+        trlmessage("PCTERNOI saved to header: %f", readNoise);
 
         putSingleGroup(output,cd.group_num, &cd,0);
         putSingleGroup(output,ab.group_num, &ab,0);
@@ -645,21 +668,22 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     freeSingleGroup(&ab);
 
     time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
-    if (verbose){
-        trlmessage("CTE run time: %.2f(s) with %i procs/threads\n",time_spent/max_threads,max_threads);
+    if (verbose) {
+        trlmessage("CTE run time: %.2f(s) with %i procs/threads", time_spent/max_threads, max_threads);
     }
 
     PrSwitch("pctecorr", COMPLETE);
-    if(wf3.printtime)
-        TimeStamp("PCTECORR Finished",wf3.rootname);
+    if(wf3.printtime) {
+        TimeStamp("PCTECORR Finished", wf3.rootname);
+    }
 
-    return (status);
+    return status;
 }
 
 
 /********************* SUPPORTING SUBROUTINES *****************************/
 
-int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
+int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz) {
     /*
 
        convert a raw file to raz file: CDAB longwise amps, save data array
@@ -709,7 +733,7 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
     float gain;
 
     /*INIT THE ARRAYS*/
-    for(i=0;i<NAMPS;i++){
+    for(i=0;i<NAMPS;i++) {
         bias_post[i]=0.;
         bsig_post[i]=0.;
         bias_pre[i]=0.;
@@ -726,12 +750,12 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
       Note that for user subarray the image is in only 1 quad, and only
       has prescan bias pixels so the regions are different for full and subarrays
     */
-    if (wf3->subarray){
+    if (wf3->subarray) {
         findPreScanBias(raz, bias_pre, bsig_pre);
-        for (k=0;k<NAMPS;k++){
-            for (i=0; i<subcol;i++){
-                for (j=0;j<RAZ_ROWS; j++){
-                    if(Pix(raz->dq.data,i+k*subcol,j)){
+        for (k=0;k<NAMPS;k++) {
+            for (i=0; i<subcol;i++) {
+                for (j=0;j<RAZ_ROWS; j++) {
+                    if(Pix(raz->dq.data,i+k*subcol,j)) {
                         Pix(raz->sci.data,i+k*subcol,j) -= bias_pre[k];
                         Pix(raz->sci.data,i+k*subcol,j) *= gain;
                     }
@@ -740,9 +764,9 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
         }
     } else {
         findPostScanBias(raz, bias_post, bsig_post);
-        for (k=0;k<NAMPS;k++){
-            for (i=0; i<subcol;i++){
-                for (j=0;j<RAZ_ROWS; j++){
+        for (k=0;k<NAMPS;k++) {
+            for (i=0; i<subcol;i++) {
+                for (j=0;j<RAZ_ROWS; j++) {
                     Pix(raz->sci.data,i+k*subcol,j) -= bias_post[k];
                     Pix(raz->sci.data,i+k*subcol,j) *= gain;
                 }
@@ -750,7 +774,7 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
         }
     }
 
-    return(status);
+    return status;
 }
 
 /*calculate the post scan and bias after the biac file has been subtracted
@@ -767,7 +791,7 @@ int raw2raz(WF3Info *wf3, SingleGroup *cd, SingleGroup *ab, SingleGroup *raz){
   these only exist in full frame images
   */
 
-int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
+int findPostScanBias(SingleGroup *raz, float *mean, float *sigma) {
 
     extern int status;
     int arrsize = 55377;
@@ -781,23 +805,23 @@ int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
     float sigreg =7.5; /*sigma clip*/
 
 
-    int subcol = RAZ_COLS/4;
+    int subcol = RAZ_COLS/NAMPS;
     int npix=0; /*track array size for resistant mean*/
 
     /*init plist for full size
       We'll allocate heap memory for smaller arrays
       */
-    for (i=0;i<arrsize;i++){
+    for (i=0;i<arrsize;i++) {
         plist[i]=0.;
     }
 
-    for (k=0;k<NAMPS;k++){  /*for each quadrant cdab = 0123*/
+    for (k=0;k<NAMPS;k++) {  /*for each quadrant cdab = 0123*/
         npix=0; /*reset for each quad*/
         rmean=0.;
         rsigma=0.;
-        for (i=RAZ_ROWS+5;i<= subcol-1; i++){ /*quad area for post scan bias pixels*/
-            for (j=0; j<YAMP_SCI_DIM; j++){
-                if (npix < arrsize){
+        for (i=RAZ_ROWS+5;i<= subcol-1; i++) { /*quad area for post scan bias pixels*/
+            for (j=0; j<YAMP_SCI_DIM; j++) {
+                if (npix < arrsize) {
                     if ( Pix(raz->dq.data,i+k*subcol,j)) {
                         plist[npix] = Pix(raz->sci.data,i+k*subcol,j);
                         npix+=1;
@@ -805,14 +829,14 @@ int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
                 }
             }
         }
-        if (npix > 0 ){
+        if (npix > 0 ) {
             plistSub = (float *) calloc(npix, sizeof(float));
-            if (plistSub == NULL){
+            if (plistSub == NULL) {
                 trlerror("out of memory for resistmean entrance in findPostScanBias.");
                 free(plistSub);
-                return (ERROR_RETURN);
+                return (status=OUT_OF_MEMORY);
             }
-            for(i=0; i<npix; i++){
+            for(i=0; i<npix; i++) {
                 plistSub[i]=plist[i];
             }
             resistmean(plistSub, npix, sigreg, &rmean, &rsigma, &min, &max);
@@ -833,7 +857,7 @@ int findPostScanBias(SingleGroup *raz, float *mean, float *sigma){
 
 */
 
-int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
+int findPreScanBias(SingleGroup *raz, float *mean, float *sigma) {
     /** this calls resistmean, which does a better job clipping outlying pixels
       that just a standard stddev clip single pass*/
 
@@ -847,23 +871,23 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
     float rmean;
     float rsigma;
     float sigreg =7.5; /*sigma clip*/
-    int subcol = RAZ_COLS/4;
+    int subcol = RAZ_COLS/NAMPS;
     int npix=0; /*track array size for resistant mean*/
 
 
     /*init plist*/
-    for (i=0;i<arrsize;i++){
+    for (i=0;i<arrsize;i++) {
         plist[i]=0.;
     }
 
-    for (k=0;k<NAMPS;k++){  /*for each quadrant, CDAB ordered*/
+    for (k=0;k<NAMPS;k++) {  /*for each quadrant, CDAB ordered*/
         npix=0;
         rmean=0.;
         rsigma=0.;
-        for (i=5;i<P_OVRSCN; i++){
-            for (j=0; j<YAMP_SCI_DIM; j++){ /*all rows*/
-                if (npix < arrsize ){
-                    if (Pix(raz->dq.data,i+(k*subcol),j)){
+        for (i=5;i<P_OVRSCN; i++) {
+            for (j=0; j<YAMP_SCI_DIM; j++) { /*all rows*/
+                if (npix < arrsize ) {
+                    if (Pix(raz->dq.data,i+(k*subcol),j)) {
                         plist[npix] = Pix(raz->sci.data,i+k*subcol,j);
                         npix+=1;
                     }
@@ -871,24 +895,25 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
             }
          }
 
-        if (0 < npix ){
+        if (0 < npix ) {
             plistSub = (float *) calloc(npix, sizeof(float));
-            if (plistSub == NULL){
+            if (plistSub == NULL) {
                 trlerror("out of memory for resistmean entrance in findPreScanBias.");
                 free(plistSub);
-                return (ERROR_RETURN);
+                return (status=OUT_OF_MEMORY);
             }
-            for(i=0; i<npix; i++){
+            for(i=0; i<npix; i++) {
                 plistSub[i]=plist[i];
             }
             resistmean(plistSub, npix, sigreg, &rmean, &rsigma, &min, &max);
             free(plistSub);
         }
 
-        mean[k]= rmean;
+        mean[k] = rmean;
         sigma[k] = rsigma;
-        if(npix>0)
-            printf("npix=%i\nmean[%i]=%f\nsigma[%i] = %f\n",npix,k+1,rmean,k+1,rsigma);
+        if(npix>0) {
+            trlmessage("npix=%i\nmean[%i]=%f\nsigma[%i] = %f", npix, k+1, rmean, k+1, rsigma);
+        }
     }
     return status;
 }
@@ -919,8 +944,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma){
 
   the ttrap reference to the image array has to be -1 for C
   */
-
-int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
+int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte) {
 
     extern int status;
     int j;
@@ -955,7 +979,7 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
     /*FIGURE OUT WHICH TRAPS WE DON'T NEED TO WORRY ABOUT IN THIS COLUMN
       PMAX SHOULD ALWAYS BE POSITIVE HERE  */
     pmax=10.;
-    for(j=0; j<RAZ_ROWS; j++){
+    for(j=0; j<RAZ_ROWS; j++) {
         pixo[j] = pixi[j];
         if (pixo[j] > pmax)
             pmax=pixo[j];
@@ -963,7 +987,7 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
 
     /*GO THROUGH THE TRAPS ONE AT A TIME, FROM HIGHEST TO LOWEST Q,
       AND SEE WHEN THEY GET FILLED AND EMPTIED, ADJUST THE PIXELS ACCORDINGLY*/
-    for (w = cte->cte_traps-1; w>=0; w--){
+    for (w = cte->cte_traps-1; w>=0; w--) {
         if ( cte->qlevq_data[w] <= pmax ) {
 
             ftrap = 0.0e0;
@@ -971,12 +995,12 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
             fcarry = 0.0e0;
 
             /*GO UP THE COLUMN PIXEL BY PIXEL*/
-            for(j=0; j<RAZ_ROWS;j++){
+            for(j=0; j<RAZ_ROWS;j++) {
                 pix_1 = pixo[j];
 
 
-                if ( (ttrap < cte->cte_len) || ( pix_1 >= cte->qlevq_data[w] - 1. ) ){
-                    if (pixo[j] >= 0 ){
+                if ( (ttrap < cte->cte_len) || ( pix_1 >= cte->qlevq_data[w] - 1. ) ) {
+                    if (pixo[j] >= 0 ) {
                         pix_1 = pixo[j] + fcarry; /*shuffle charge in*/
                         fcarry = pix_1 - floor(pix_1); /*carry the charge remainder*/
                         pix_1 = floor(pix_1); /*reset pixel*/
@@ -991,14 +1015,14 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
 
                     /*RELEASE THE CHARGE*/
                     padd_2=0.0;
-                    if (ttrap <cte->cte_len){
+                    if (ttrap <cte->cte_len) {
                         ttrap += 1;
                         padd_2 = Pix(rprof->data,w,ttrap-1) *ftrap;
                     }
 
                     padd_3 = 0.0;
                     prem_3 = 0.0;
-                    if ( pix_1 >= cte->qlevq_data[w]){
+                    if ( pix_1 >= cte->qlevq_data[w]) {
                         prem_3 =  cte->dpdew_data[w] / cte->n_par * pixf[j];  /*dpdew is 1 in file */
                         if (ttrap < cte->cte_len)
                             padd_3 = Pix(cprof->data,w,ttrap-1)*ftrap;
@@ -1013,7 +1037,7 @@ int sim_colreadout_l(double *pixi, double *pixo, double *pixf, CTEParams *cte){
 
     }/*end for w*/
 
-    return(status);
+    return status;
 
 }
 
@@ -1042,7 +1066,6 @@ int initCTETrl (char *input, char *output) {
 
     int nsuffix = 1;
 
-
     /* Start by stripping off suffix from input/output filenames */
     if (MkOutName (input, isuffix, trlsuffix, nsuffix, trl_in, CHAR_LINE_LENGTH)) {
         WhichError (status);
@@ -1054,14 +1077,13 @@ int initCTETrl (char *input, char *output) {
     }
 
     /* NOW, CONVERT TRAILER FILENAME EXTENSIONS FROM '.FITS' TO '.TRL' */
-
     if (MkNewExtn (trl_in, TRL_EXTN) ) {
-        trlerror("Error with input trailer filename %s", trl_in);
         WhichError (status);
+        trlerror("Error with input trailer filename %s", trl_in);
     }
     if (MkNewExtn (trl_out, TRL_EXTN) ) {
-        trlerror("Error with output trailer filename %s", trl_out);
         WhichError (status);
+        trlerror("Error with output trailer filename %s", trl_out);
     }
 
     /* If we are working with a RAW file, then see if a TRL file
@@ -1080,7 +1102,7 @@ int initCTETrl (char *input, char *output) {
      ** trailer file into it.  */
     InitTrlFile (trl_in, trl_out);
 
-    return(status);
+    return status;
 }
 
 
@@ -1155,48 +1177,50 @@ int rm_rnZ_colj(double *pixj_chg,
            /* Bounds of this loop include only the non-zero portion of the data */
            for(j=j1; j<=j2; j++) {
 
-              /* Compare each pixel to the average of its up/down neighbors */
-              dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
-              pixj_ffu[j] = 0.0;
+               /* Compare each pixel to the average of its up/down neighbors */
+               dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
+               pixj_ffu[j] = 0.0;
 
-              /* If the pixel is within the readnoise window... */
-              if (fabs(dd) < RNN) {
-                  /* Cap the adjustments we are willing to make at any time to 20% */
-                  if (dd >  RNMIT/5.0) dd =  RNMIT/5.0;
-                  if (dd < -RNMIT/5.0) dd = -RNMIT/5.0;
-                  /* Take half of the maximum adjustment from the current pixel... */
-                  pixj_rnz[j  ] = pixj_rnz[j  ] + dd*0.50;
-                  /* ...and give half of the value to the pixel below and above */
-                  pixj_rnz[j-1] = pixj_rnz[j-1] - dd*0.25;
-                  pixj_rnz[j+1] = pixj_rnz[j+1] - dd*0.25;
-                  /* Flag this pixel to be in the readnoise range so we can track
-                   * the total noise in the nominal pixels
-                   */
-                  pixj_ffu[j  ] = 1.0;
-              }
-          }
-          /* Bounds of this loop include only the non-zero portion of the data */
-          for(j=j1; j<=j2; j++) {
-              pixj_rsz[j] = pixj_chg[j] - pixj_rnz[j];
-          }
-          dtot = 0.;
-          ntot = 0.;
-          ftot = 0.;
-          rtot = 0.;
-          /* Bounds of this loop include only the non-zero portion of the data */
-          for(j=j1; j<=j2; j++) {
-             ftot = ftot + pixj_ffu[j];
-             dtot = dtot + pixj_rnz[j]*pixj_rnz[j];
-             dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
-             rtot = rtot + dd*dd;
-             ntot = ntot + 1;
-          }
-          RNU = sqrt(dtot/ftot);
+               /* If the pixel is within the readnoise window... */
+               if (fabs(dd) < RNN) {
+                   /* Cap the adjustments we are willing to make at any time to 20% */
+                   if (dd >  RNMIT/5.0) dd =  RNMIT/5.0;
+                   if (dd < -RNMIT/5.0) dd = -RNMIT/5.0;
+                   /* Take half of the maximum adjustment from the current pixel... */
+                   pixj_rnz[j  ] = pixj_rnz[j  ] + dd*0.50;
+                   /* ...and give half of the value to the pixel below and above */
+                   pixj_rnz[j-1] = pixj_rnz[j-1] - dd*0.25;
+                   pixj_rnz[j+1] = pixj_rnz[j+1] - dd*0.25;
+                   /* Flag this pixel to be in the readnoise range so we can track
+                    * the total noise in the nominal pixels
+                    */
+                   pixj_ffu[j  ] = 1.0;
+               }
+           }
+           /* Bounds of this loop include only the non-zero portion of the data */
+           for(j=j1; j<=j2; j++) {
+               pixj_rsz[j] = pixj_chg[j] - pixj_rnz[j];
+           }
+           dtot = 0.;
+           ntot = 0.;
+           ftot = 0.;
+           rtot = 0.;
+           /* Bounds of this loop include only the non-zero portion of the data */
+           for(j=j1; j<=j2; j++) {
+               ftot = ftot + pixj_ffu[j];
+               dtot = dtot + pixj_rnz[j]*pixj_rnz[j];
+               dd =  pixj_rsz[j]-(pixj_rsz[j+1]+pixj_rsz[j-1])/2.0;
+               rtot = rtot + dd*dd;
+               ntot = ntot + 1;
+           }
+           RNU = sqrt(dtot/ftot);
 
-          if (RNU > RNMIT) return(0);
+           if (RNU > RNMIT) {
+               return WF3_OK;
+           }
        }
 
-       return(0);
+       return WF3_OK;
 }
 
 
@@ -1243,8 +1267,8 @@ int sim_colreadout_l_uvis_w(double *pixi,     // input column array (JDIM)
 
       /* Bounds checking */
       if (Ws>WsMAX) {
-          printf("Ws error\n");
-          return(1);
+          trlerror("Ws error: %d > %d", Ws, WsMAX);
+          return ERROR_RETURN;
       }
 
       /* Figure out which traps we do not need
@@ -1341,7 +1365,7 @@ int sim_colreadout_l_uvis_w(double *pixi,     // input column array (JDIM)
             pixo[j] = pixo[j] + prel_1 + prel_2 - pgrb_3;
          }
       }
-      return(0);
+      return WF3_OK;
      }
 
 
@@ -1396,13 +1420,11 @@ int sub_ctecor_v2c(float *pixz_raz,
       NITFORs = PCTENFOR;
       NITPARs = PCTENPAR;
 
-      printf("                             \n");
-      printf("   INSIDE sub_ctecor_v2.f... \n");
-      printf("          ---> PCTERNOI: %8.4f \n",PCTERNOI);
-      printf("          ---> FIX_ROCR: %8.4f \n",FIX_ROCR);
-      printf("          --->  NITFORs: %5d \n",NITFORs);
-      printf("          --->  NITPARs: %5d \n",NITPARs);
-      printf("                             \n");
+      trlmessage("   INSIDE sub_ctecor_v2 ...");
+      trlmessage("       ---> PCTERNOI: %8.4f", PCTERNOI);
+      trlmessage("       ---> FIX_ROCR: %8.4f", FIX_ROCR);
+      trlmessage("       --->  NITFORs: %5d", NITFORs);
+      trlmessage("       --->  NITPARs: %5d", NITPARs);
 
       #pragma omp parallel \
        shared(pixz_raz,pixz_fff,pixz_rzc,              \
@@ -1415,9 +1437,7 @@ int sub_ctecor_v2c(float *pixz_raz,
 
       #pragma omp for
 
-
       for(i=0;i<RAZ_COLS;i++) {
-
          pixj_fff = malloc(RAZ_ROWS*8);
          pixj_raz = malloc(RAZ_ROWS*8);
          pixj_mod = malloc(RAZ_ROWS*8);
@@ -1500,11 +1520,14 @@ int sub_ctecor_v2c(float *pixz_raz,
 
          /* This variable exists for debuggin purposes. */
          NDONE++;
-         /*if (NDONE==(NDONE/100)*100) { printf("  i = %5d   %5d  %5d \n",i,NCRX,NDONE); }*/
-
+         /*
+         if (NDONE % 100 == 0) {
+             trlmessage("  i = %5d   %5d  %5d", i, NCRX, NDONE);
+         }
+         */
       }
 
-      return(status);
+      return status;
 }
 
 /*
@@ -1664,17 +1687,14 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
          BKGDVALu = 999.9 ;
          *FLOAT_RNOIVAL = RNOIVALu;
          *FLOAT_BKGDVAL = BKGDVALu;
-         return(RNOIVALu);
+         return RNOIVALu;
       }
 
       /* For debugging purposes only
-      printf("  \n");
-      printf("   vsum: %12lld  \n",vsum);
-      printf("   nsum: %12lld  \n",nsum);
-      printf("  \n");
-      printf("   dbar: %12.2f   \n",idmin/2.30*(SPREAD_FOR_HISTO));
-      printf("   vbar: %12.2f %12lld %12lld \n",vsum/nsum*(SPREAD_FOR_HISTO),vsum,nsum);
-      printf("  \n");
+      trlmessage("   vsum: %12lld", vsum);
+      trlmessage("   nsum: %12lld\n", nsum);
+      trlmessage("   dbar: %12.2f", idmin/2.30*(SPREAD_FOR_HISTO));
+      trlmessage("   vbar: %12.2f %12lld %12lld\n", vsum/nsum*(SPREAD_FOR_HISTO), vsum, nsum);
       */
 
       RNOIVAL  = (int)(idmin/2.30/(SPREAD_FOR_HISTO)/sqrt(1+1/8.0)*4+0.5)/4.00;
@@ -1699,5 +1719,5 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       if (RNOIVALo > HIGH_CLIP)
           RNOIVALo = HIGH_CLIP;
 
-      return(RNOIVALo);
+      return RNOIVALo;
 }

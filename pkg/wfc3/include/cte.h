@@ -94,6 +94,7 @@ int cteHistory (WF3Info *, Hdr *);
 int free_array(float **ptr, int rows, int columns);
 int GetCTESwitch (WF3Info *, Hdr *);
 int initCTETrl (char *, char *);
+int sub_xctecor(SingleGroup *, double);
 
 int makeRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
 int undoRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
