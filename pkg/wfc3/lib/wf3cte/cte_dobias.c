@@ -92,7 +92,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	 */
 
 	 if (wf3->verbose){
- 		trlmessage("Image has starting location of %d,%d in the reference image",x0,y0);
+ 		trlmessage("    Image has starting location of %d,%d in the reference image", x0, y0);
  	}
 
 	 /* Subtract the bias image from x. */
