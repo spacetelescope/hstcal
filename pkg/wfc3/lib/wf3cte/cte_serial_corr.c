@@ -44,7 +44,7 @@ int sub_xctecor(SingleGroup *raz, double mjd_obs) {
     /* These values are independent of PCTETAB. */
     float ff_xcte = (mjd_obs - 54962.00) / (60125.0 - 54962.00);
 
-    trlmessage("XCTE_FF: %8.3f\n", ff_xcte);
+    trlmessage("XCTE_FF: %8.3f", ff_xcte);
 
     /* Make a copy of raz data and use as input. */
     for(j=0; j<RAZ_ROWS; j++) {
@@ -139,8 +139,9 @@ static int sub_raz2rzx_wfc3uv(float *pixz_i, float *pixz_o, float ff_xcte) {
         }
 
         /* DEBUG: Print out which amp we are working on. */
-        // TODO: Comment this out before production.
-        trlmessage("XCTE on AMP: k=%d kk=%d\n", k, kk);
+        /*
+        trlmessage("XCTE on AMP: k=%d kk=%d", k, kk);
+        */
 
         for (j=0; j<RAZ_ROWS; j++) {
             /* Copy the amp image from the input raz image. */
@@ -152,7 +153,6 @@ static int sub_raz2rzx_wfc3uv(float *pixz_i, float *pixz_o, float ff_xcte) {
         /* Zero out the register to start. */
         zero_reg(reg);
 
-        // UNTIL HERE
         for (j=0; j<RAZ_ROWS; j++) {
             m = j * XCTE_TRAPS;
 
@@ -163,13 +163,14 @@ static int sub_raz2rzx_wfc3uv(float *pixz_i, float *pixz_o, float ff_xcte) {
             read_reg(reg, &amp_o[m], e_kn[kk], e_t, c_t, r_t);
 
             /* DEBUG: Show every 100th row. */
-            // TODO: Comment this out before production.
+            /*
             if (j % 100 == 0) {
-                trlmessage(" K%1d KK%1d -- %4d -- %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f\n",
+                trlmessage(" K%1d KK%1d -- %4d -- %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %9.3f",
                            k, kk, j + 1,
                            reg[ 1],reg[ 2],reg[ 3],reg[ 4],reg[ 5],
                            reg[ 6],reg[ 7],reg[ 8],reg[ 9],reg[10]);
             }
+            */
         }
 
         /* Generate difference image for the amplifier. */
@@ -190,14 +191,16 @@ static int sub_raz2rzx_wfc3uv(float *pixz_i, float *pixz_o, float ff_xcte) {
     } /* End of amp loop */
 
     /* DEBUG: Report on one particular pixel in each amp. */
-    // TODO: Comment this out before production.
+    /*
     for (i=0; i<NAMPS; i++) {
         j = 1720;
         m = 350;
         trlmessage("    pixz_o[%d, %d, %d] = %9.3f", j, m, i, pixz_o[j + i * XCTE_TRAPS + m * RAZ_COLS]);
     }
+    */
 
-    free(amp_i);                                                                  // free up the amp memory
+    /* Free up the amp memory. */
+    free(amp_i);
     free(amp_o);
     free(amp_d);
     return (status);

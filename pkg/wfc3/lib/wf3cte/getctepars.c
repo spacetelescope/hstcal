@@ -1,12 +1,12 @@
 /*
-MLS 2015: read in the CTE parameters from the PCTETAB file 
+MLS 2015: read in the CTE parameters from the PCTETAB file
 
-    Jan 19, 2016: MLS  Updated to check for existence of PCTENSMD in 
+    Jan 19, 2016: MLS  Updated to check for existence of PCTENSMD in
                   raw science header
 
     Mar 05, 2020: MDD  Do not read PCTERNOI from the reference file header
-                  and removed its associated variable.  The value is now 
-                  obtained from the raw file, or it is computed on-the-fly 
+                  and removed its associated variable.  The value is now
+                  obtained from the raw file, or it is computed on-the-fly
                   based on data.
 */
 
@@ -24,7 +24,7 @@ MLS 2015: read in the CTE parameters from the PCTETAB file
 # include "cte.h"
 # include "ctegen2.h"
 
-/************ HELPER SUBROUTINES ****************************/    
+/************ HELPER SUBROUTINES ****************************/
 
 /*initialize the cte parameter structure*/
 void initCTEParams(CTEParams *pars){
@@ -36,19 +36,19 @@ void initCTEParams(CTEParams *pars){
     pars->cte_date1=0.0f;
     pars->cte_traps=0.0f;
     pars->cte_len=0;
-    pars->n_forward=0; 
+    pars->n_forward=0;
     pars->n_par=0;
     pars->scale_frac=0.0f; /*will be updated during routine run*/
-    pars->noise_mit=0; 
+    pars->noise_mit=0;
     pars->thresh=0.0f;
     pars->descrip2[0]='\0';
 
     /*static scheduling is faster when there are no dependent loop variables
-      for dependent variables inside the main loop switch to dynamic so that 
-      the thread wait time can be variable 
+      for dependent variables inside the main loop switch to dynamic so that
+      the thread wait time can be variable
     */
     for (i=0; i<TRAPS;i++){
-        pars->wcol_data[i]=0;  
+        pars->wcol_data[i]=0;
         pars->qlevq_data[i]=0.0f;
         pars->dpdew_data[i]=0.0f;
     }
@@ -85,17 +85,17 @@ int GetCTEPars (char *filename, CTEParams *pars) {
 
 Filename: wfc3_cte.fits
 No.    Name         Type      Cards   Dimensions   Format
-0    PRIMARY     PrimaryHDU      21   ()              
-1    QPROF       BinTableHDU     16   999R x 3C    ['i', 'i', 'i']   
-2    SCLBYCOL    BinTableHDU     20   8412R x 5C   ['i', 'e', 'e', 'e', 'e']   
-3    RPROF       ImageHDU        12   (999, 100)   float32   
-4    CPROF       ImageHDU        12   (999, 100)   float32   
+0    PRIMARY     PrimaryHDU      21   ()
+1    QPROF       BinTableHDU     16   999R x 3C    ['i', 'i', 'i']
+2    SCLBYCOL    BinTableHDU     20   8412R x 5C   ['i', 'e', 'e', 'e', 'e']
+3    RPROF       ImageHDU        12   (999, 100)   float32
+4    CPROF       ImageHDU        12   (999, 100)   float32
 
 	 */
 
 	extern int status; /* variable for return status */
     int ctraps; /*see if more traps were added to reference file*/
-    
+
 	/* HSTIO VARIABLES */
 	Hdr hdr_ptr;
 
@@ -218,12 +218,12 @@ No.    Name         Type      Cards   Dimensions   Format
         status = KEYWORD_MISSING;
         return status;
     }
-    
+
     /*
 	trlmessage("FIXROCR: %d",pars->fix_rocr);
     */
-    
-    
+
+
 	/* DONE READING STUFF FROM THE PRIMARY HEADER */
 	freeHdr(&hdr_ptr);
 
@@ -269,9 +269,9 @@ No.    Name         Type      Cards   Dimensions   Format
 
 	/* LOOP OVER TABLE ROWS UP TO SIZE TRAPS*/
     ctraps=0; /*actual usable traps*/
-    
+
 	for (j = 0; j < TRAPS; j++) {
-    
+
 		/* GET W FROM THIS ROW */
 		c_tbegti(tbl_ptr, w_ptr, j+1, &pars->wcol_data[j]);
 		if (c_iraferr()) {
@@ -279,7 +279,7 @@ No.    Name         Type      Cards   Dimensions   Format
 			status = TABLE_ERROR;
 			return status;
 		}
-                
+
 		/* GET QLEVQ FROM THIS ROW */
 		c_tbegtd(tbl_ptr, qlevq_ptr, j+1, &pars->qlevq_data[j]);
 		if (c_iraferr()) {
@@ -287,10 +287,10 @@ No.    Name         Type      Cards   Dimensions   Format
 			status = TABLE_ERROR;
 			return status;
 		}
-        
+
         if (pars->qlevq_data[j] < 999999.)
             ctraps+=1;
-        
+
 		/* GET DPDEW FROM THIS ROW */
 		c_tbegtd(tbl_ptr, dpdew_ptr, j+1, &pars->dpdew_data[j]);
 		if (c_iraferr()) {
@@ -302,7 +302,7 @@ No.    Name         Type      Cards   Dimensions   Format
             trlmessage("More TRAPS in reference file than available, update TRAPS: %i -> %i",TRAPS,(int)ctraps);
         }
 	}
-    
+
     /*IF CTRAPS EVER OVERFLOWS INT THIS NEEDS TO BE CHANGED*/
     pars->cte_traps=(int)ctraps;
 
@@ -310,7 +310,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage("(pctecorr) data check for PCTETAB QPROF, row %i, %i\t%g\t%g\ttraps=%i\n",20,
             pars->wcol_data[19],pars->qlevq_data[19], pars->dpdew_data[19], pars->cte_traps);
     */
-    
+
 	/* CLOSE CTE PARAMETERS FILE FOR EXTENSION 1*/
 	c_tbtclo(tbl_ptr);
 
@@ -370,7 +370,7 @@ No.    Name         Type      Cards   Dimensions   Format
 	/* loop over table rows */
 
 	for (j = 0; j < RAZ_COLS; j++) {
-		/* get trap from this row */    
+		/* get trap from this row */
 		c_tbegti(tbl_ptr, iz_ptr, j+1, &pars->iz_data[j]);
 
 		if (c_iraferr()) {
@@ -405,40 +405,40 @@ No.    Name         Type      Cards   Dimensions   Format
 	trlmessage("(pctecorr) data check for PCTETAB SCLBYCOL row %d, %d %g\t%g\t%g\t%g\ntotal traps = %i",
             j,pars->iz_data[j-1],pars->scale512[j-1],pars->scale1024[j-1],pars->scale1536[j-1],pars->scale2048[j-1],pars->cte_traps);
     */
-   
+
 	/* close CTE parameters file for extension 2*/
 	c_tbtclo(tbl_ptr);
 
 	/****************************************************************************/
 	/*  extension 3: differential trail profile as image */
-	trlmessage("Reading in image from extension 3");
+	trlmessage("PCTETAB  Reading in image from extension 3");
 
 	/* Get the coefficient images from the PCTETAB */
 	pars->rprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->rprof == NULL){
 		trlerror("Can't allocate memory for RPROF ref data");
-		return (status = 1);
+		return (status = OUT_OF_MEMORY);
 	}
 	initFloatHdrData(pars->rprof);
 	if (getFloatHD (filename, "RPROF", 1, pars->rprof)){
-		return (status=1);
+		return (status = ERROR_RETURN);
 	}
 
 
 	/****************************************************************************/
 	/* ext number 4 : cummulative trail profile as image */
-	trlerror("Reading in image from extension 4");
+	trlmessage("PCTETAB  Reading in image from extension 4");
 
 	pars->cprof  = (FloatHdrData *)calloc(1,sizeof(FloatHdrData));
 	if (pars->cprof == NULL){
 		trlerror("Can't allocate memory for CPROF ref data");
-		return (status = 1);
+		return (status = OUT_OF_MEMORY);
 	}
 
 	/* Get the coefficient images from the PCTETAB */
 	initFloatHdrData (pars->cprof);
 	if (getFloatHD (filename, "CPROF", 1, pars->cprof)){
-		return (status=1);
+		return (status = ERROR_RETURN);
 	}
 
     return(status);
@@ -450,7 +450,7 @@ No.    Name         Type      Cards   Dimensions   Format
   are then the values found there will be used instead of the values read from
   the PCTETAB. If the values are not set they will be populated with the values
   from the PCTETAB, namely these:
- 
+
         'CTE_NAME':'pixelCTE 2012', #name of cte algorithm
         'CTE_VER':'1.0' ,  #version number of algorithm
         'CTEDATE0':54962.0, #date of uvis installation in HST in MJD
@@ -462,8 +462,8 @@ No.    Name         Type      Cards   Dimensions   Format
         'PCTETRSH':-10.0 ,#over subtraction threshold, always use reference value
         'FIXROCR' : 1, #set to 1 for true, fix the readout cr's
         ***NOTE: The PCTERNOI value is no longer used from the PCTETAB.  If the PCTERNOI
-                 keyword value in the raw science image header is non-zero, it will be used 
-                 for the CTE computations.  Otherwise, the value is computed on-the-fly based 
+                 keyword value in the raw science image header is non-zero, it will be used
+                 for the CTE computations.  Otherwise, the value is computed on-the-fly based
                  upon the raw image data. (March 2020)
 
  */
@@ -476,25 +476,25 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     int n_par;
     int fix_rocr;
     int noise_mit;
-    
+
     cte_len=0;
     n_forward=0;
     n_par=0;
     fix_rocr=0;
     noise_mit=0;
 
-    
+
     /*always put the cte_name  and cte_ver from the reference file in*/
     if (PutKeyStr(group->globalhdr,"CTE_NAME", pars->cte_name, "CTE algorithm name")){
         trlmessage("(pctecorr) Error updating CTE_NAME keyword in image header");
         return (status=HEADER_PROBLEM);
     }
-    
+
     if(PutKeyStr(group->globalhdr,"CTE_VER", pars->cte_ver, "CTE algorithm version")){
         trlmessage("(pctecorr) Error updating CTE_VER keyword in image header");
         return (status=HEADER_PROBLEM);
     }
-   
+
 	if (PutKeyDbl(group->globalhdr, "CTEDATE0", pars->cte_date0,"Date of UVIS installation")) {
 		trlmessage("(pctecorr) Error putting CTEDATE0 keyword in header");
         return (status=HEADER_PROBLEM);
@@ -510,7 +510,7 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
 		trlmessage("(pctecorr) Error putting CTEDATE1 keyword in header");
         return (status=HEADER_PROBLEM);
 	}
-    
+
     /*check the PCTENSMD keyword in the header*/
     if (GetKeyInt(group->globalhdr, "PCTENSMD", NO_DEFAULT, -999, &noise_mit)){
         trlmessage("(pctecorr) Error reading PCTENSMD keyword from header");
@@ -518,8 +518,8 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     }
     if (noise_mit != pars->noise_mit){
         pars->noise_mit = noise_mit;
-    } 
-    
+    }
+
     /*check the PCTEDIM keyword in header*/
 	if (GetKeyInt(group->globalhdr, "PCTETLEN", NO_DEFAULT, -999, &cte_len)) {
 		trlmessage("(pctecorr) Error reading PCTETLEN keyword from header");
@@ -534,13 +534,13 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
         return (status=HEADER_PROBLEM);
         }
     }
-    
+
 	/* get number of iterations used in forward model */
 	if (GetKeyInt(group->globalhdr, "PCTENFOR", NO_DEFAULT, -999, &n_forward)) {
 		trlmessage("(pctecorr) Error reading PCTENFOR keyword from header");
         return (status=HEADER_PROBLEM);
 	}
-    
+
     if (n_forward > 1 && n_forward != pars->n_forward){
         pars->n_forward = n_forward;
     } else {
@@ -549,15 +549,15 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
             return (status=HEADER_PROBLEM);
         }
     }
-    
+
 
 	/* get number of iterations used in parallel transfer*/
 	if (GetKeyInt(group->globalhdr, "PCTENPAR", NO_DEFAULT, -999, &n_par)) {
 		trlmessage("(pctecorr) Error reading PCTENPAR keyword from header");
         return (status=HEADER_PROBLEM);
 	}
-    
-    
+
+
     if( n_par >1 && n_par != pars->n_par){
         pars->n_par = n_par;
     } else {
@@ -566,8 +566,8 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
             return (status=HEADER_PROBLEM);
         }
     }
-                       
-                
+
+
     /*fix the readout Cr's? */
     if (GetKeyInt(group->globalhdr, "FIXROCR", NO_DEFAULT, -999, &fix_rocr)){
         trlmessage("(pctecorr) Error reading FIXROCR keyword from header");
@@ -583,4 +583,3 @@ int CompareCTEParams(SingleGroup *group, CTEParams *pars) {
     }
 	return status;
 }
-

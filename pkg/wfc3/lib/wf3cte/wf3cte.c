@@ -366,7 +366,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             start = sci_corner[0] - ref_corner[0];
             finish = start + subcd.sci.data.nx;
             if (start >= P_OVRSCN && finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN) {
-                trlerror("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n", start, finish);
+                trlerror("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction", start, finish);
                 return (status=ERROR_RETURN);
             }
 
@@ -428,7 +428,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             start = sci_corner[0] - ref_corner[0];
             finish = start + subab.sci.data.nx;
             if (start >= P_OVRSCN &&  finish + V_OVRSCNX2 <= (RAZ_COLS/2) - P_OVRSCN) {
-                trlerror("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction\n",start,finish);
+                trlerror("Subarray not taken with physical overscan (%i %i)\nCan't perform CTE correction",start,finish);
                 return (status=ERROR_RETURN);
             }
             /*add subarray to full frame image*/
@@ -517,12 +517,14 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     /* Perform XCTE correction but only for fullframe.
        This must be done before YCTE correction.
     */
-    if (!wf3.subarray) {
-        trlmessage("XCTE: jumping into the routine...");
+    if (wf3.subarray) {
+        trlmessage("XCTE: Skipped for subarray");
+    } else {
+        trlmessage("XCTE: Jumping into the routine...");
         if (sub_xctecor(&raz, wf3.expstart)) {
             return status;
         }
-        trlmessage("XCTE: returning from the routine...");
+        trlmessage("XCTE: Returning from the routine...");
     }
 
     SingleGroup fff;
@@ -534,7 +536,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     cte_ff=  (wf3.expstart       - cte_pars.cte_date0)/
              (cte_pars.cte_date1 - cte_pars.cte_date0);
 
-    trlmessage("YCTE_FF: %8.3f\n", cte_ff);
+    trlmessage("YCTE_FF: %8.3f", cte_ff);
 
     cte_pars.scale_frac=cte_ff;
 
@@ -552,13 +554,13 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     float FLOAT_RNOIVAL = 0.;
     float FLOAT_BKGDVAL = 0.;
     readNoise = wf3.pcternoi;
-    trlmessage("PCTERNOI: %8.4f (source: primary header of science image)\n\n", readNoise);
+    trlmessage("PCTERNOI: %8.4f (source: primary header of science image)", readNoise);
     /* Comparison should be OK - read from FITS header and no computation */
     if (readNoise == 0.0) {
         readNoise = find_raz2rnoival(raz.sci.data.data, &FLOAT_RNOIVAL, &FLOAT_BKGDVAL);
-        trlmessage("RNOIVAL: %8.4f BKGDVAL: %8.4f\n", FLOAT_RNOIVAL, FLOAT_BKGDVAL);
+        trlmessage("RNOIVAL: %8.4f BKGDVAL: %8.4f", FLOAT_RNOIVAL, FLOAT_BKGDVAL);
         trlmessage("PCTERNOI: %8.4f (source: computed on-the-fly from science image)", readNoise);
-        trlmessage("This computed value supersedes any value obtained from the primary\nheader of the science image.\n\n");
+        trlmessage("    This computed value supersedes any value obtained from the primary\n    header of the science image.");
     }
 
     /* The PCTERNOI value actually used is written to the PCTERNOI keyword in
@@ -568,7 +570,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     /* Invoke the updated CTE correction which does the read noise
        mitigation in each of the three forward-model iterations.
     */
-    trlmessage("YCTE: jumping into the routine...");
+    trlmessage("YCTE: Jumping into the routine...");
     if (sub_ctecor_v2c(raz.sci.data.data,
                          fff.sci.data.data,
                          WsMAX,
@@ -583,7 +585,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
                          rzc.sci.data.data)) {
         return status;
     }
-    trlmessage("YCTE: returning from the routine...");
+    trlmessage("YCTE: Returning from the routine...");
 
     for (j=0;j<RAZ_ROWS;j++) {
         for (i=0;i<RAZ_COLS;i++) {
@@ -611,10 +613,10 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
             PutKeyDbl(subcd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-            trlmessage("PCTEFRAC saved to header");
+            trlmessage("PCTEFRAC saved to header: %lf", cte_pars.scale_frac);
 
             PutKeyFlt(subcd.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
-            trlmessage("PCTERNOI saved to header");
+            trlmessage("PCTERNOI saved to header: %f", readNoise);
 
             Full2Sub(&wf3, &subcd, &cd, 0, 1, 1);
             putSingleGroup(output, 1, &subcd,0);
@@ -628,10 +630,10 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
             /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
             PutKeyDbl(subab.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-            trlmessage("PCTEFRAC saved to header");
+            trlmessage("PCTEFRAC saved to header: %lf", cte_pars.scale_frac);
 
             PutKeyFlt(subab.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
-            trlmessage("PCTERNOI saved to header");
+            trlmessage("PCTERNOI saved to header: %f", readNoise);
 
             Full2Sub(&wf3, &subab, &ab, 0, 1, 1);
             putSingleGroup(output, 1, &subab,0);
@@ -646,10 +648,10 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
         /*UPDATE THE OUTPUT HEADER ONE FINAL TIME*/
         PutKeyDbl(cd.globalhdr, "PCTEFRAC", cte_pars.scale_frac,"CTE scaling fraction based on expstart");
-        trlmessage("PCTEFRAC saved to header");
+        trlmessage("PCTEFRAC saved to header: %lf", cte_pars.scale_frac);
 
         PutKeyFlt(cd.globalhdr, "PCTERNOI", readNoise,"read noise amp clip limit");
-        trlmessage("PCTERNOI saved to header");
+        trlmessage("PCTERNOI saved to header: %f", readNoise);
 
         putSingleGroup(output,cd.group_num, &cd,0);
         putSingleGroup(output,ab.group_num, &ab,0);
@@ -667,12 +669,12 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     time_spent = ((double) clock()- begin +0.0) / CLOCKS_PER_SEC;
     if (verbose) {
-        trlmessage("CTE run time: %.2f(s) with %i procs/threads\n",time_spent/max_threads,max_threads);
+        trlmessage("CTE run time: %.2f(s) with %i procs/threads", time_spent/max_threads, max_threads);
     }
 
     PrSwitch("pctecorr", COMPLETE);
     if(wf3.printtime) {
-        TimeStamp("PCTECORR Finished",wf3.rootname);
+        TimeStamp("PCTECORR Finished", wf3.rootname);
     }
 
     return status;
@@ -910,7 +912,7 @@ int findPreScanBias(SingleGroup *raz, float *mean, float *sigma) {
         mean[k] = rmean;
         sigma[k] = rsigma;
         if(npix>0) {
-            trlmessage("npix=%i\nmean[%i]=%f\nsigma[%i] = %f\n",npix,k+1,rmean,k+1,rsigma);
+            trlmessage("npix=%i\nmean[%i]=%f\nsigma[%i] = %f", npix, k+1, rmean, k+1, rsigma);
         }
     }
     return status;
@@ -1418,13 +1420,11 @@ int sub_ctecor_v2c(float *pixz_raz,
       NITFORs = PCTENFOR;
       NITPARs = PCTENPAR;
 
-      trlmessage("                             \n");
-      trlmessage("   INSIDE sub_ctecor_v2 ... \n");
-      trlmessage("          ---> PCTERNOI: %8.4f \n",PCTERNOI);
-      trlmessage("          ---> FIX_ROCR: %8.4f \n",FIX_ROCR);
-      trlmessage("          --->  NITFORs: %5d \n",NITFORs);
-      trlmessage("          --->  NITPARs: %5d \n",NITPARs);
-      trlmessage("                             \n");
+      trlmessage("   INSIDE sub_ctecor_v2 ...");
+      trlmessage("       ---> PCTERNOI: %8.4f", PCTERNOI);
+      trlmessage("       ---> FIX_ROCR: %8.4f", FIX_ROCR);
+      trlmessage("       --->  NITFORs: %5d", NITFORs);
+      trlmessage("       --->  NITPARs: %5d", NITPARs);
 
       #pragma omp parallel \
        shared(pixz_raz,pixz_fff,pixz_rzc,              \
@@ -1520,8 +1520,11 @@ int sub_ctecor_v2c(float *pixz_raz,
 
          /* This variable exists for debuggin purposes. */
          NDONE++;
-         /*if (NDONE==(NDONE/100)*100) { trlmessage("  i = %5d   %5d  %5d \n",i,NCRX,NDONE); }*/
-
+         /*
+         if (NDONE % 100 == 0) {
+             trlmessage("  i = %5d   %5d  %5d", i, NCRX, NDONE);
+         }
+         */
       }
 
       return status;
@@ -1688,13 +1691,10 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       }
 
       /* For debugging purposes only
-      trlmessage("  \n");
-      trlmessage("   vsum: %12lld  \n",vsum);
-      trlmessage("   nsum: %12lld  \n",nsum);
-      trlmessage("  \n");
-      trlmessage("   dbar: %12.2f   \n",idmin/2.30*(SPREAD_FOR_HISTO));
-      trlmessage("   vbar: %12.2f %12lld %12lld \n",vsum/nsum*(SPREAD_FOR_HISTO),vsum,nsum);
-      trlmessage("  \n");
+      trlmessage("   vsum: %12lld", vsum);
+      trlmessage("   nsum: %12lld\n", nsum);
+      trlmessage("   dbar: %12.2f", idmin/2.30*(SPREAD_FOR_HISTO));
+      trlmessage("   vbar: %12.2f %12lld %12lld\n", vsum/nsum*(SPREAD_FOR_HISTO), vsum, nsum);
       */
 
       RNOIVAL  = (int)(idmin/2.30/(SPREAD_FOR_HISTO)/sqrt(1+1/8.0)*4+0.5)/4.00;
