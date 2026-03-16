@@ -261,16 +261,16 @@ static int square_test_case_derot(int amp_id) {
 }
 
 int main(int argc, char **argv) {
-    int i, test_status;
+    int i, test_status=0;
 
-    test_status = rectangle_test_case_transpose();
+    test_status += rectangle_test_case_transpose();
 
     for (i=0; i<4; i++) {
-        test_status = square_test_case_rot(i);
-        test_status = square_test_case_derot(i);
+        test_status += square_test_case_rot(i);
+        test_status += square_test_case_derot(i);
 
         /* FIXME: da dimension would need fixing in dopcte-gen3.c */
-        //test_status = rectangle_test_case_derot(i);
+        //test_status += rectangle_test_case_derot(i);
     }
 
     return test_status;
