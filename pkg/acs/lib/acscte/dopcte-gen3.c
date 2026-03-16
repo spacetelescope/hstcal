@@ -462,17 +462,34 @@ int derotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID)
 */
 void transpose(FloatTwoDArray * amp)
 {
-    const unsigned nRows = amp->ny;
-    const unsigned nColumns = amp->nx;
-    float temp;
+    FloatTwoDArray orig_amp;
+    const int nRows = amp->ny, nColumns = amp->nx;
+    int i, j;
 
-    for (unsigned i = 0; i < nRows; i++) {
-        for (unsigned j = i; j < nColumns; j++) {
-            temp = PPix(amp, j, i);
-            PPix(amp, j, i) = PPix(amp, i, j);
-            PPix(amp, i, j) = temp;
+    initFloatData(&orig_amp);
+    allocFloatData(&orig_amp, nColumns, nRows, False);
+    for (i = 0; i < nRows; i++) {
+        for (j = 0; j < nColumns; j++) {
+            PPix(&orig_amp, j, i) = PPix(amp, j, i);
         }
     }
+
+    if (amp->tot_nx != amp->tot_ny) {
+        amp->nx = nRows;
+        amp->ny = nColumns;
+        j = amp->tot_nx;
+        i = amp->tot_ny;
+        amp->tot_nx = i;
+        amp->tot_ny = j;
+    }
+
+    for (i = 0; i < nRows; i++) {
+        for (j = 0; j < nColumns; j++) {
+            PPix(amp, i, j) = PPix(&orig_amp, j, i);
+        }
+    }
+
+    freeFloatData(&orig_amp);
 }
 
 /*
