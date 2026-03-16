@@ -33,7 +33,6 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
 static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, char ccdamp);
 
-static void transpose(FloatTwoDArray *amp);
 static void side2sideFlip(FloatTwoDArray *amp);
 static void top2bottomFlip(FloatTwoDArray *amp);
 
@@ -461,7 +460,7 @@ int derotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID)
 /*
    Transpose the amp data
 */
-static void transpose(FloatTwoDArray * amp)
+void transpose(FloatTwoDArray * amp)
 {
     const unsigned nRows = amp->ny;
     const unsigned nColumns = amp->nx;

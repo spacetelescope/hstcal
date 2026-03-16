@@ -2,5 +2,6 @@
    They are not meant to be used outside that module and they were static.
    We are only exposing them here so they can be tested in CI. */
 
+void transpose(FloatTwoDArray *amp);
 int rotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID);
 int derotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID);

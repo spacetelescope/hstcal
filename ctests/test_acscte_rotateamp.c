@@ -4,6 +4,7 @@
 
 static int setup_input_array(FloatTwoDArray *, int, int);
 static int compare_arrays(FloatTwoDArray *, float *, int, int);
+static int rectangle_test_case_transpose();
 static int rectangle_test_case_derot(int);
 static int square_test_case_rot(int);
 static int square_test_case_derot(int);
@@ -70,8 +71,46 @@ static int compare_arrays(FloatTwoDArray *da, float *truth, int truth_nx, int tr
     return test_status;
 }
 
+static int rectangle_test_case_transpose() {
+    int test_status, nx=3, ny=4;
+    FloatTwoDArray da;
+
+    /* Array before transpose:
+
+       0 1 2
+       3 4 5
+       6 7 8
+       9 10 11
+    */
+    if ((test_status = setup_input_array(&da, nx, ny))) {
+        freeFloatData(&da);
+        return test_status;
+    }
+
+    printf("==== transpose array %d x %d ====\n", nx, ny);
+    transpose(&da);
+
+    /* Array after transpose:
+
+       0 3 6 9
+       1 4 7 10
+       2 5 8 11
+    */
+    int truth_nx=ny;
+    int truth_ny=nx;
+    float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
+    truth[0] = 0; truth[1] = 3; truth[2] = 6; truth[3] = 9;
+    truth[4] = 1; truth[5] = 4; truth[6] = 7; truth[7] = 10;
+    truth[8] = 2; truth[9] = 5; truth[10] = 8; truth[11] = 11;
+
+    test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
+    free(truth);
+    freeFloatData(&da);
+    return test_status;
+}
+
 static int rectangle_test_case_derot(int amp_id) {
-    int test_status, nx=3, ny=4;;
+    int test_status, nx=3, ny=4;
     FloatTwoDArray da;
 
     /* Input array before rotation:
@@ -223,6 +262,8 @@ static int square_test_case_derot(int amp_id) {
 
 int main(int argc, char **argv) {
     int i, test_status;
+
+    test_status = rectangle_test_case_transpose();
 
     for (i=0; i<4; i++) {
         test_status = square_test_case_rot(i);
