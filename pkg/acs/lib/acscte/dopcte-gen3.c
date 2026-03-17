@@ -411,7 +411,6 @@ int rotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID)
        Rotate the amp to put the serial trails in the same orientation
        as the parallel trails would be. A rotation requires a transpose
        and then a flip. Always transpose the data first.
-
     */
     transpose(amp);
 
@@ -600,7 +599,7 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
    Flip the amp about the X-axis central row (i.e., flip from top to bottom)
 
    Note: This routine was originally in alignAmpData flow of processing.  It
-   is now encapulated here as it is used multiple times due to the rotations
+   is now encapsulated here as it is used multiple times due to the rotations
    needed to accommodate the serial CTE correction.  The original OPENMP
    specifications have been left intact.
 */

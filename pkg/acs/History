@@ -1,3 +1,6 @@
+### 16-Mar-2026 - PLL - Version 10.5.0
+    Serial CTE correction is now enabled for post-SM4 WFC subarrays.
+
 ### 08-Aug-2025 - PLL - Version 10.4.1
     Post-SM4 subarrays now have MEANBLEV populated with "fat zero"
     value. Also report the value before bias level correction,
