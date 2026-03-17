@@ -21,6 +21,6 @@
 
 /* name and version number of generation 3 CTE correction algorithm */
 #define ACS_GEN3_CTE_NAME "Par/Serial PixelCTE 2023"
-#define ACS_GEN3_CTE_VER "3.1"
+#define ACS_GEN3_CTE_VER "3.0"
 
 #endif /* INCL_ACSVERSION_H */
