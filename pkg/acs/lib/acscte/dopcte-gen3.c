@@ -126,6 +126,8 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
             freeOnExit(&ptrReg);
             return (status);
         }
+        nColumns = ampImage.sci.data.nx;
+        nRows = ampImage.sci.data.ny;
     }
 
     if ((status = alignAmp(&ampImage, ampID)))
@@ -297,6 +299,10 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
             freeOnExit(&ptrReg);
             return (status);
         }
+        /* UNCOMMENT IF NEEDED IN THE FUTURE.
+        nColumns = ampImage.sci.data.nx;
+        nRows = ampImage.sci.data.ny;
+        */
     }
 
     if ((status = insertAmp(chipImage, &ampImage, ampID, ctePars)))
