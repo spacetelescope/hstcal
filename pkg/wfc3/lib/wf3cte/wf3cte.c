@@ -525,6 +525,14 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
             return status;
         }
         trlmessage("XCTE: Returning from the routine...");
+
+        /* TODO: Remove or comment out tmp_xcte_output stuff before merge */
+        char *tmp_xcte_output;
+        tmp_xcte_output = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+        tmp_xcte_output[0] = '\0';
+        MkName (input, "_raw", "_rzx", "", tmp_xcte_output, CHAR_FNAME_LENGTH);
+        writfits_r4(tmp_xcte_output, raz.sci.data.data, RAZ_COLS, RAZ_ROWS);
+        free(tmp_xcte_output);
     }
 
     SingleGroup fff;

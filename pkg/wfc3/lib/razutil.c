@@ -6,7 +6,6 @@
 /* These routines facilitate moving between the regular WFC3 image structre
    to the RAZ image structure used in the CTE correction and Sink pixel flagging
 
-
    convert a raw file to raz file: CDAB longwise amps, save data array
    for comparison with what jay has during testing
 
@@ -21,7 +20,6 @@
    Megan Sosey, May 2015
 
 */
-
 
 
 /*convert the sci and dq extensions to the long format*/
@@ -215,4 +213,91 @@ int makeFloatRaz(FloatTwoDArray *x, FloatTwoDArray  *raz, int group){
     }
 
     return(status);
+}
+
+
+/* This is Jay's quick-and-easy FITS writer that can be used to
+   write out temporary RAZ images for internal testing.
+   Do not use for production in pipeline.
+*/
+int writfits_r4(char *filename, float *data, int nx, int ny) {
+
+    typedef unsigned char Byte;
+
+    char  cbuff[2880];
+    Byte  bbuff[2880];
+    Byte  bbufr[2880];
+    float rbuff[ 720];
+
+    int i;
+    int n;
+    int NRs, NRo;
+    int nb, NBs;
+
+    Byte btemp4[4];
+    Byte  *pByte;
+
+    for (i=0;i<2880;i++) {
+        cbuff[i] = ' ';
+    }
+
+    /* simplest possible header */
+    sprintf(&cbuff[0+ 0*80],"SIMPLE  =                    T");
+    sprintf(&cbuff[0+ 1*80],"BITPIX  =                  -32");
+    sprintf(&cbuff[0+ 2*80],"NAXIS   =                    2");
+    sprintf(&cbuff[0+ 3*80],"NAXIS1  = %20d",nx);
+    sprintf(&cbuff[0+ 4*80],"NAXIS2  = %20d",ny);
+    sprintf(&cbuff[0+ 5*80],"DATATYPE= 'REAL*4'            ");
+    sprintf(&cbuff[0+ 6*80],"COMMENT                       ");
+    sprintf(&cbuff[0+ 7*80],"COMMENT    Jay's Quickie      ");
+    sprintf(&cbuff[0+ 8*80],"COMMENT    C fits writer      ");
+    sprintf(&cbuff[0+ 9*80],"COMMENT    writfits_r4()      ");
+    sprintf(&cbuff[0+10*80],"COMMENT                       ");
+    sprintf(&cbuff[0+11*80],"END                           ");
+
+    for (i=0;i<2880;i++) {
+        if (cbuff[i]==0) {
+            cbuff[i] = ' ';
+        }
+    }
+
+    FILE *fp = fopen(filename,"w");
+    fwrite(cbuff,2880,1,fp);
+
+    NRs = nx*ny;
+    NBs = 1 + ((nx*ny-1)/720);  /* the -1 covers the case where the data have an exact multiple
+                                   of 2880 bytes; it can happen! */
+
+    /* distill the data into 2880-byte buffers
+       we must flip the bytes, since INTEL machines
+       have the opposite Endian-ness to the FITS
+       standard
+    */
+    for (nb=0;nb<NBs;nb++) {
+         NRo = nb*720;
+         for (n=0;n<720;n++) {
+              rbuff[n] = 0;
+              if (NRo+n<NRs) {
+                  rbuff[n] = data[NRo+n];
+              } /* make sure we haven't gone off the end */
+         }
+         pByte = (Byte *)rbuff;
+         for (n=0;n<2880;n++) {
+             bbuff[n] = *(pByte+n);
+         }
+         for (n=0;n<720;n++) {
+              btemp4[0] = bbuff[0+n*4];
+              btemp4[1] = bbuff[1+n*4];
+              btemp4[2] = bbuff[2+n*4];
+              btemp4[3] = bbuff[3+n*4];
+              bbufr[0+n*4] = btemp4[3];
+              bbufr[1+n*4] = btemp4[2];
+              bbufr[2+n*4] = btemp4[1];
+              bbufr[3+n*4] = btemp4[0];
+         }
+         fwrite(bbufr,2880,1,fp);
+    }
+    fclose(fp);
+
+    return(0);
 }

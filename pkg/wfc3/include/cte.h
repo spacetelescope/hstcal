@@ -98,5 +98,6 @@ int sub_xctecor(SingleGroup *, double);
 
 int makeRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
 int undoRAZ(SingleGroup *, SingleGroup *, SingleGroup *);
+int writfits_r4(char *, float *, int, int);
 
 #endif /* INCL_CTE_H */
