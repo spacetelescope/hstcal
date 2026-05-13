@@ -33,7 +33,6 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID);
 static int alignAmp(SingleGroup * amp, const unsigned ampID);
 static int rotateAmp(SingleGroup * amp, const unsigned ampID, bool derotate, char ccdamp);
 
-static void transpose(FloatTwoDArray *amp);
 static void side2sideFlip(FloatTwoDArray *amp);
 static void top2bottomFlip(FloatTwoDArray *amp);
 
@@ -127,6 +126,8 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
             freeOnExit(&ptrReg);
             return (status);
         }
+        nColumns = ampImage.sci.data.nx;
+        nRows = ampImage.sci.data.ny;
     }
 
     if ((status = alignAmp(&ampImage, ampID)))
@@ -298,6 +299,10 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
             freeOnExit(&ptrReg);
             return (status);
         }
+        /* UNCOMMENT IF NEEDED IN THE FUTURE.
+        nColumns = ampImage.sci.data.nx;
+        nRows = ampImage.sci.data.ny;
+        */
     }
 
     if ((status = insertAmp(chipImage, &ampImage, ampID, ctePars)))
@@ -412,7 +417,6 @@ int rotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID)
        Rotate the amp to put the serial trails in the same orientation
        as the parallel trails would be. A rotation requires a transpose
        and then a flip. Always transpose the data first.
-
     */
     transpose(amp);
 
@@ -461,19 +465,36 @@ int derotateAmpData_acscte(FloatTwoDArray * amp, const unsigned ampID)
 /*
    Transpose the amp data
 */
-static void transpose(FloatTwoDArray * amp)
+void transpose(FloatTwoDArray * amp)
 {
-    const unsigned nRows = amp->ny;
-    const unsigned nColumns = amp->nx;
-    float temp;
+    FloatTwoDArray orig_amp;
+    const int nRows = amp->ny, nColumns = amp->nx;
+    int i, j;
 
-    for (unsigned i = 0; i < nRows; i++) {
-        for (unsigned j = i; j < nColumns; j++) {
-            temp = PPix(amp, j, i);
-            PPix(amp, j, i) = PPix(amp, i, j);
-            PPix(amp, i, j) = temp;
+    initFloatData(&orig_amp);
+    allocFloatData(&orig_amp, nColumns, nRows, False);
+    for (i = 0; i < nRows; i++) {
+        for (j = 0; j < nColumns; j++) {
+            PPix(&orig_amp, j, i) = PPix(amp, j, i);
         }
     }
+
+    if (amp->tot_nx != amp->tot_ny) {
+        amp->nx = nRows;
+        amp->ny = nColumns;
+        j = amp->tot_nx;
+        i = amp->tot_ny;
+        amp->tot_nx = i;
+        amp->tot_ny = j;
+    }
+
+    for (i = 0; i < nRows; i++) {
+        for (j = 0; j < nColumns; j++) {
+            PPix(amp, i, j) = PPix(&orig_amp, j, i);
+        }
+    }
+
+    freeFloatData(&orig_amp);
 }
 
 /*
@@ -584,7 +605,7 @@ static int alignAmpData(FloatTwoDArray * amp, const unsigned ampID)
    Flip the amp about the X-axis central row (i.e., flip from top to bottom)
 
    Note: This routine was originally in alignAmpData flow of processing.  It
-   is now encapulated here as it is used multiple times due to the rotations
+   is now encapsulated here as it is used multiple times due to the rotations
    needed to accommodate the serial CTE correction.  The original OPENMP
    specifications have been left intact.
 */

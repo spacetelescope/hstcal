@@ -6,7 +6,7 @@
  14-Sep-2023 MDD: Updated to accommodate only the "Parallel/Serial PixelCTE 2023"
      (aka Generation 3) correction. Code now applies a serial CTE correction for
      full-frame data.
-
+ 16-Mar-2026 PLL: Enabled serial CTE correction for subarrays.
 */
 # include <string.h>
 # include <stdio.h>
@@ -326,8 +326,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         trlwarn("(pctecorr) IGNORING read noise level PCTERNOI from PCTETAB: %f. Using amp dependent values from CCDTAB instead", cteParallelPars.rn_amp);
         trlmessage("(pctecorr) Readout simulation forward modeling iterations PCTENFOR: %i\n"
                    "(pctecorr) Number of iterations used in the parallel transfer PCTENPAR: %i\n"
-                   "(pctecorr) CTE_FRAC: %f\n\n"
-                   "(pctecorr) NOTE: No serial CTE correction is done for any subarray data.\n",
+                   "(pctecorr) CTE_FRAC: %f\n\n",
                    cteParallelPars.n_forward, cteParallelPars.n_par, cteParallelPars.scale_frac);
         /* End read of the parallel CTE parameters */
 
@@ -364,9 +363,9 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                     ampIDInCalib = amplocInCalib - AMPCALIBORDER; // This is a number.
 
                     /*
-                       Only perform the serial CTE correction for full-frame, post-SM4 data
+                       Only perform the serial CTE correction for post-SM4 data.
                     */
-                    if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
+                    if (acs_info->expstart >= SM4MJD) {
 
                         startOfSetInCalib = SET_TO_PROCESS[ampIDInCalib];
                         strcpy(corrType, "serial");
@@ -443,8 +442,8 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
                     clock_t begin = (double)clock();
 
-                    /* Perform the serial CTE correction for only full-frame, post-SM4 data */
-                    if ((acs_info->expstart >= SM4MJD) && (!acs[i].subarray)) {
+                    /* Perform the serial CTE correction for only post-SM4 data */
+                    if (acs_info->expstart >= SM4MJD) {
                         /* Serial correction */
                         strcpy(corrType, "serial");
                         if ((status = doPCTEGen3(&acs[i], &ctePars, &x[i], forwardModelOnly, corrType, ccdamp, nthAmp, amploc, ampID)))
