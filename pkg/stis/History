@@ -1,0 +1,135 @@
+### 04-Feb-2026 - CALSTIS:
+	- Wavecorr e1 implementation - 699
+	- Implement improved wavecal calibration for CCD data taken at the E1 or E2 aperture locations.  
+	  The part of the long slit wavecal spectrum that matches the location of the source is used to 
+	  calculate the SHIFTA1 value.
+
+
+### 05-June-2025 - CALSTIS:
+	- Common timestamp - 653
+	- Moves `TimeStamp` into the core library.
+	- Minor improvements:
+		- The `rootname` _could_ be `NULL` so now it's only reported when there is something valid
+		- Safely pads `-` characters to the end of the `message` string
+
+
+### 22-May-2025 - CALSTIS:
+	- (STIS) Variadic trl functions - 658
+	- This implements the variadic `trl` messaging functions.
+	- It does not generate any trailer files.
+	- Continuation of #644 and #657 
+
+
+### 29-Apr-2025 - CALSTIS:
+	- Replaces most sprintf with snprintf - 640
+	- Born from #639 - As I was replacing the custom argument parsers I uncovered several conditions 
+	  that lead straight to segfaults due to buffer overflows. Most often they cropped up when the trailer
+	  file functions (`trlerror`, `trlwarn`) were attempting to report messages larger than the line buffer.
+	- This also adjusts the size of several buffers to accommodate the expected input, otherwise they would 
+	  likely be truncated at run-time.
+
+
+### 30-Aug-2023 - CALSTIS:
+	- STIS/HSTCAL: Change test to g140l longslit - 593
+	- Addresses HLA-1086
+
+
+### 11-Feb-2021 - CALSTIS:
+	- Added missing import for pytest to the STIS test - 541
+	- The import statement for pytest was added to the test in order to allow the test to be marked properly 
+	 for skipping (pytest.mark.skip).
+
+
+### 18-May-2020 - CALSTIS:
+	- Free aname after use - 486
+	- Fix a minor memory leak in `BuildTempNames`
+
+
+### 25-Juun-2020 - CALSTIS:
+	- Issue hla 255 - Address issues associated with routines under copyright - 408
+	- Modified HSTCAL infrastructure routines for ACS, WFC3, and STIS which have copyright issues.
+
+
+### 27-Nov-2017 - CALSTIS:
+	- Fix unguarded IFs introduced in #275 - 283
+	- Fixes #280
+	- This also addresses the "-Wmisleading-indentation" compiler warnings generated
+	  from the following files, also from #275
+		- pkg/stis/calstis/lib/reffiles.c
+		- pkg/stis/calstis/cs12/cs12.c
+		- pkg/acs/calacs/lib/reffiles.c
+		- pkg/wfc3/calwf3/lib/reffiles.c
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 21-Nov-2017 - CALSTIS:
+	- Remove incorrect non-ptr registrations - 282
+	- Fixes #280
+	- Regression introduced from #275
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 14-Nov-2017 - CALSTIS:
+	- Plug memory leaks in main.c code. - 275
+	- Resolves #239
+	- Fixes #274 (smuggled)
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 10-Oct-2017 - CALSTIS:
+	- Add --help cmd option to print syntax - 240
+	- Add --help cmd option to print syntax
+    	- Resolves #238
+    	- Doesn't cover:
+		- wf3rej.e
+		- acsrej.e
+		- cs2.e
+		- cs6.e
+    	- Signed-off-by: James Noss <jnoss@stsci.edu>
+	- AND
+	- "unrecognized option" errors should also print syntax
+    	- Resolves #171
+    	- Doesn't cover:
+		- wf3rej.e
+		- acsrej.e
+		- cs2.e
+		- cs6.e
+    	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 24-Aug-2017 - CALSTIS:
+	- Add git tag version, branch, & commit to waf configure and into C code - 194
+	- resolves #192 
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 25-Apr-2017 - CALSTIS:
+	- Consolidate stiserr.h, wf3err.h, acserr.h, & the errors in hstcal/inc… - 96
+	- …lude/imphttab.h to hstcal/include/hstcalerr.h
+	- Fixes #95 
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 24-Apr-2017 - CALSTIS:
+	- Remove unused and not needed IRAF build mkpkg files - 98
+	- Fixes #97
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 21-Apr-2017 - CALSTIS:
+	- Consolidate stiserr.h, wf3err.h, & acserr.h to hstcal/include/hstcalerr.h - 94
+	- Fixes #95 
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
+
+
+### 20-Apr-2017 - CALSTIS:
+	- Dms2017 2 - 92
+	- new version of calstis for dms 2017.2
+
+
+### 29-Nov-2016 - CALSTIS:
+	- Address -Wsometimes-uninitialized warnings - 37
+	- This PR doesn't ultimately 'fix' the issue, though it does temporarily plug the holes 
+	  preventing these bugs from impacting users results.
+	- Fixes #36 
+	- Signed-off-by: James Noss <jnoss@stsci.edu>
