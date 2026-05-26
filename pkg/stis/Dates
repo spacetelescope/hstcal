@@ -4,7 +4,6 @@
 	  The part of the long slit wavecal spectrum that matches the location of the source is used to 
 	  calculate the SHIFTA1 value.
 
-
 2025-06-05 - CALSTIS:
 	- Common timestamp - 653
 	- Moves `TimeStamp` into the core library.
@@ -12,13 +11,11 @@
 		- The `rootname` _could_ be `NULL` so now it's only reported when there is something valid
 		- Safely pads `-` characters to the end of the `message` string
 
-
 2025-05-22 - CALSTIS:
 	- (STIS) Variadic trl functions - 658
 	- This implements the variadic `trl` messaging functions.
 	- It does not generate any trailer files.
 	- Continuation of #644 and #657 
-
 
 2025-04-29 - CALSTIS:
 	- Replaces most sprintf with snprintf - 640
@@ -28,27 +25,22 @@
 	- This also adjusts the size of several buffers to accommodate the expected input, otherwise they would 
 	  likely be truncated at run-time.
 
-
 2023-08-30 - CALSTIS:
 	- STIS/HSTCAL: Change test to g140l longslit - 593
 	- Addresses HLA-1086
-
 
 2021-02-11 - CALSTIS:
 	- Added missing import for pytest to the STIS test - 541
 	- The import statement for pytest was added to the test in order to allow the test to be marked properly 
 	 for skipping (pytest.mark.skip).
 
-
 2020-06-25 - CALSTIS:
 	- Issue hla 255 - Address issues associated with routines under copyright - 408
 	- Modified HSTCAL infrastructure routines for ACS, WFC3, and STIS which have copyright issues.
 
-
 2020-05-18 - CALSTIS:
 	- Free aname after use - 486
 	- Fix a minor memory leak in `BuildTempNames`
-
 
 2017-11-27 - CALSTIS:
 	- Fix unguarded IFs introduced in #275 - 283
@@ -61,20 +53,17 @@
 		- pkg/wfc3/calwf3/lib/reffiles.c
 	- Signed-off-by: James Noss <jnoss@stsci.edu>
 
-
 2017-11-21 - CALSTIS:
 	- Remove incorrect non-ptr registrations - 282
 	- Fixes #280
 	- Regression introduced from #275
 	- Signed-off-by: James Noss <jnoss@stsci.edu>
 
-
 2017-11-14 - CALSTIS:
 	- Plug memory leaks in main.c code. - 275
 	- Resolves #239
 	- Fixes #274 (smuggled)
 	- Signed-off-by: James Noss <jnoss@stsci.edu>
-
 
 2017-10-10 - CALSTIS:
 	- Add --help cmd option to print syntax - 240
@@ -96,12 +85,10 @@
 		- cs6.e
     	- Signed-off-by: James Noss <jnoss@stsci.edu>
 
-
 2017-08-24 - CALSTIS:
 	- Add git tag version, branch, & commit to waf configure and into C code - 194
 	- resolves #192 
 	- Signed-off-by: James Noss <jnoss@stsci.edu>
-
 
 2017-04-25 - CALSTIS:
 	- Consolidate stiserr.h, wf3err.h, acserr.h, & the errors in hstcal/inc… - 96
@@ -109,23 +96,19 @@
 	- Fixes #95 
 	- Signed-off-by: James Noss <jnoss@stsci.edu>
 
-
 2017-04-24 - CALSTIS:
 	- Remove unused and not needed IRAF build mkpkg files - 98
 	- Fixes #97
 	- Signed-off-by: James Noss <jnoss@stsci.edu>
-
 
 2017-04-21 - CALSTIS:
 	- Consolidate stiserr.h, wf3err.h, & acserr.h to hstcal/include/hstcalerr.h - 94
 	- Fixes #95 
 	- Signed-off-by: James Noss <jnoss@stsci.edu>
 
-
 2017-04-20 - CALSTIS:
 	- Dms2017 2 - 92
 	- new version of calstis for dms 2017.2
-
 
 2016-11-29 - CALSTIS:
 	- Address -Wsometimes-uninitialized warnings - 37
