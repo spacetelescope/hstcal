@@ -1,118 +1,215 @@
-### 04-Feb-2026 - CALSTIS:
-	- Wavecorr e1 implementation - 699
+### 04-Feb-2026 - CALSTIS Version 3.5.0:
+	- Wavecorr e1 implementation
 	- Implement improved wavecal calibration for CCD data taken at the E1 or E2 aperture locations.  
 	  The part of the long slit wavecal spectrum that matches the location of the source is used to 
 	  calculate the SHIFTA1 value.
 
-### 05-June-2025 - CALSTIS:
-	- Common timestamp - 653
-	- Moves `TimeStamp` into the core library.
+### 05-June-2025 - CALSTIS Version 3.5.0:
+	- Common timestamp
+	- Moves TimeStamp into the core library.
 	- Minor improvements:
-		- The `rootname` _could_ be `NULL` so now it's only reported when there is something valid
-		- Safely pads `-` characters to the end of the `message` string
+		- The rootname _could_ be NULL so now it's only reported when there is something valid
+		- Safely pads - characters to the end of the message string
 
-### 22-May-2025 - CALSTIS:
-	- (STIS) Variadic trl functions - 658
-	- This implements the variadic `trl` messaging functions.
+### 22-May-2025 - CALSTIS Version 3.5.0:
+	- (STIS) Variadic trl functions
+	- This implements the variadic trl messaging functions.
 	- It does not generate any trailer files.
-	- Continuation of #644 and #657 
 
-### 29-Apr-2025 - CALSTIS:
-	- Replaces most sprintf with snprintf - 640
-	- Born from #639 - As I was replacing the custom argument parsers I uncovered several conditions 
-	  that lead straight to segfaults due to buffer overflows. Most often they cropped up when the trailer
-	  file functions (`trlerror`, `trlwarn`) were attempting to report messages larger than the line buffer.
+### 29-Apr-2025 - CALSTIS Version 3.5.0:
+	- Replaces most sprintf with snprintf
+	- Fixes conditions leading to segfaults due to buffer overflows, mostly from trailer file
+	  functions (trlerror, trlwarn) attempting to report messages larger than the line buffer.
 	- This also adjusts the size of several buffers to accommodate the expected input, otherwise they would 
 	  likely be truncated at run-time.
 
-### 30-Aug-2023 - CALSTIS:
-	- STIS/HSTCAL: Change test to g140l longslit - 593
-	- Addresses HLA-1086
+### 18-May-2020 - CALSTIS Version 3.5.0:
+	- Free aname after use
+	- Fix a minor memory leak in BuildTempNames
 
-### 11-Feb-2021 - CALSTIS:
-	- Added missing import for pytest to the STIS test - 541
-	- The import statement for pytest was added to the test in order to allow the test to be marked properly 
-	 for skipping (pytest.mark.skip).
-
-### 18-May-2020 - CALSTIS:
-	- Free aname after use - 486
-	- Fix a minor memory leak in `BuildTempNames`
-
-### 25-Juun-2020 - CALSTIS:
-	- Issue hla 255 - Address issues associated with routines under copyright - 408
+### 25-Jun-2020 - CALSTIS Version 3.5.0:
+	- JIRA issue HLA-255 - Address issues associated with routines under copyright
 	- Modified HSTCAL infrastructure routines for ACS, WFC3, and STIS which have copyright issues.
 
-### 27-Nov-2017 - CALSTIS:
-	- Fix unguarded IFs introduced in #275 - 283
-	- Fixes #280
+### 19-Jan-2018 - CALSTIS Version 3.4.2:
+	- Bumping version numbers
+
+### 27-Nov-2017 - CALSTIS Version 3.4.1:
+	- Fix unguarded IFs
 	- This also addresses the "-Wmisleading-indentation" compiler warnings generated
-	  from the following files, also from #275
+	  from the following files:
 		- pkg/stis/calstis/lib/reffiles.c
 		- pkg/stis/calstis/cs12/cs12.c
-		- pkg/acs/calacs/lib/reffiles.c
-		- pkg/wfc3/calwf3/lib/reffiles.c
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
 
-### 21-Nov-2017 - CALSTIS:
-	- Remove incorrect non-ptr registrations - 282
-	- Fixes #280
-	- Regression introduced from #275
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
+### 21-Nov-2017 - CALSTIS Version 3.4.1:
+	- Remove incorrect non-ptr registrations
 
-### 14-Nov-2017 - CALSTIS:
-	- Plug memory leaks in main.c code. - 275
-	- Resolves #239
-	- Fixes #274 (smuggled)
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
+### 14-Nov-2017 - CALSTIS Version 3.4.1:
+	- Plug memory leaks in main.c code.
+	- Resolves memory leak when exiting from cmd opt parsing
+	- Adds --help to stis/cs7
 
-### 10-Oct-2017 - CALSTIS:
-	- Add --help cmd option to print syntax - 240
+### 10-Oct-2017 - CALSTIS Version 3.4.1:
 	- Add --help cmd option to print syntax
-    	- Resolves #238
+	- Cmd line option parsing "unrecognized option" errors also print syntax now
     	- Doesn't cover:
-		- wf3rej.e
-		- acsrej.e
 		- cs2.e
 		- cs6.e
-    	- Signed-off-by: James Noss <jnoss@stsci.edu>
-	- AND
-	- "unrecognized option" errors should also print syntax
-    	- Resolves #171
-    	- Doesn't cover:
-		- wf3rej.e
-		- acsrej.e
-		- cs2.e
-		- cs6.e
-    	- Signed-off-by: James Noss <jnoss@stsci.edu>
 
-### 24-Aug-2017 - CALSTIS:
-	- Add git tag version, branch, & commit to waf configure and into C code - 194
-	- resolves #192 
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
+### 24-Aug-2017 - CALSTIS Version 3.4.1:
+	- Add git tag version, branch, & commit to waf configure and into C code
 
-### 25-Apr-2017 - CALSTIS:
-	- Consolidate stiserr.h, wf3err.h, acserr.h, & the errors in hstcal/inc… - 96
-	- …lude/imphttab.h to hstcal/include/hstcalerr.h
-	- Fixes #95 
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
+### 25-Apr-2017 - CALSTIS Version 3.4.1:
+	- Consolidate stiserr.h, wf3err.h, acserr.h, & the errors in 
+	  hstcal/include/imphttab.h to hstcal/include/hstcalerr.h
 
-### 24-Apr-2017 - CALSTIS:
-	- Remove unused and not needed IRAF build mkpkg files - 98
-	- Fixes #97
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
+### 24-Apr-2017 - CALSTIS Version 3.4.1:
+	- Remove unused and not needed IRAF build mkpkg files
 
-### 21-Apr-2017 - CALSTIS:
-	- Consolidate stiserr.h, wf3err.h, & acserr.h to hstcal/include/hstcalerr.h - 94
-	- Fixes #95 
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
+### 20-Apr-2017 - CALSTIS Version 3.4.1:
+	- New version of calstis for dms 2017.2
+	- Copy ERR and DQ arrays to output, as RebinData doesn't do that for binned data
+		- Ensures ERR and DQ arrays are handled for hirez echelle data
+	- Open the primary HDU (instead of the table HDU), in order to get keywords 
+	  PEDIGREE and DESCRIP. Initializes tdctab
+	- Bug fix for bar finding routine
 
-### 20-Apr-2017 - CALSTIS:
-	- Dms2017 2 - 92
-	- new version of calstis for dms 2017.2
+### 24-Feb-2014 - CALSTIS Version 3.4:
+	- In the section for echelle scattered light correction, function GetPSF reads 
+	  the PSF image from a reference table (_tel.fits).  If the aperture that was 
+	  used for the exposure is smaller than the PSF image, GetPSF then truncates 
+	  the PSF image to include only the portion that would have gotten through the 
+	  aperture.  The PSF image is oversampled quite a bit, and it needs to be binned 
+	  down to match the STIS image. The number of STIS image pixels for the PSF 
+	  (truncated by the aperture) is found from the aperture size and plate scale, 
+	  but this computation did not take into consideration the possibility that 
+	  the aperture may actually be larger than the PSF image.  This has been fixed 
+	  by modifying the two lines for computing ms and ml.
 
-### 29-Nov-2016 - CALSTIS:
-	- Address -Wsometimes-uninitialized warnings - 37
-	- This PR doesn't ultimately 'fix' the issue, though it does temporarily plug the holes 
-	  preventing these bugs from impacting users results.
-	- Fixes #36 
-	- Signed-off-by: James Noss <jnoss@stsci.edu>
+### 04-Oct-2013 - CALSTIS Version 3.3:
+	- Use mean instead of median for the NUV-MAMA dark reference image.
+
+### 16-Sep-2013 - CALSTIS Version 3.2:
+	- In function X1DBack in cs6/background.c, the loop over background pixels 
+	  in a column used floating-point loop index and limit, and the actual 
+	  number of background pixels that were included could vary due to roundoff.
+	  This was modified to use integer index and limit.
+	- In postSM4TdcCorr, change the condition for setting read_this_row, 
+	  and add a check that read_this_row is greater than zero.
+
+### 25-Jan-2013 - CALSTIS Version 3.0:
+	- Edited wscript to include cs4, cs7, cs11, cs12, and added wscripts to those 
+	  directories so that cs4.e, cs7.e, cs11.e and cs12.e will be built.
+
+### 15-Oct-2012 - CALSTIS Version 3.0:
+	- The TDCTAB is now required for NUV-MAMA data.
+	- DarkMsg in do2d.c prints info about the TDC table.
+	- darkHistory in history1.c writes a HISTORY record for the TDC table.
+	- In dodark.c, function medianDark was added.  This is called for NUV-MAMA data, 
+	  and the value (median of the binned dark reference image) is passed 
+	  as a new argument to GetTdcCorr.
+	- For imaging data, calstis has been adding three dummy keywords to the DQ 
+	  extension header, in order to work around a bug in the IRAF FITS kernel. 
+	  The code to do this has been removed from the hstcal version of calstis.
+
+### 23-May-2012 - CALSTIS Version 3.0:
+	- Memory is allocated for the list of input file names.
+
+### 22-May-2012 - CALSTIS Version 3.0:
+	- Fixed issue where two input images were opened but never closed during
+	  cosmic ray rejection
+	- Removed hard-coded limit of 120 on number of input image sets. Arrays whose
+	  size was set by this number now get set to the actual number of input image sets.
+
+### 10-Feb-2012 - CALSTIS Version 3.0:
+	- Add function PrFullVersion to print the full version string, and call this 
+	  function in each of the calstis modules (except cs6) for command-line option -r.  
+	  cs6 was not modified because it already has -r to specify the maximum search size.
+
+### 10-Feb-2012 - CALSTIS Version 3.0:
+	- Update the date string, for the change to allocate file name template strings 
+          based on the length of the command-line argument.
+
+### 17-Jan-2012 - CALSTIS Version 3.0:
+	- Increase the buffer size for file names to 1025.
+
+### 16-Dec-2011 - CALSTIS Version 3.0:
+	- Change (and add) wscript files to build cs1.e, cs2.e and cs6.e. 
+	  Also include <stdlib.h> in cs6.c for the declaration of exit().
+
+### 12-Dec-2011 - CALSTIS Version 3.0:
+	- When calstis1 constructs the photmode string (aka obsmode, the value for keyword PHOTMODE) 
+	  for imaging data, "MIRROR" is now included in the string.
+	- In both lib/gettds.c and cs1/gettds1.c, CloseTdsTab (or CloseTdsTab1) was called without 
+	  catching the function value (status).  status was added, although its value is still ignored.
+
+### 21-Nov-2011 - CALSTIS Version 3.0:
+	- For the photcorr step with imaging data, explicitly apply a correction for the variation 
+	  in detector sensitivity with temperature.
+
+### 21-Oct-2011 - CALSTIS Version 3.0:
+	- The FLUX and ERROR columns will both be set to 0 if pedigree is dummy. 
+	  A new NET_ERROR column will be added to the x1d table (regardless of pedigree), 
+	  which contains the error estimate of the NET column, both of which are in counts per second.
+
+### 21-Oct-2011 - CALSTIS Version 3.0:
+	- Calstis will now accept either the original STIS format for a TDS table or a COS-like TDS table.
+
+### 01-Sep-2011 - CALSTIS Version 3.0:
+	- The photcorr correction checks for photometry parameters of -9999, which indicates that the 
+	  date of observation is outside the range of the imphttab. 
+	- The fluxcorr for calstis6 sets the flux to zero if the relevant row in the phottab is dummy.
+
+### 27-Jul-2011 - CALSTIS Version 3.0:
+	- Added a check that there was at least one input file specified.  Added a check for 
+	 "strange" (e.g. INF) values of the phot parameters.
+
+### 25-Jul-2011 - CALSTIS Version 3.0:
+	- For each calstis module, the function that reads the command-line arguments now 
+	  checks for "--version", and if present, the function prints the calstis version number 
+	  (without the date) and exits with status 0.  Function PrVersion to extract the number 
+	  and print it was added to lib/prinfo.c.
+	- The following changes are for making use of the IMPHTTAB and functions
+	  InitPhotPar, GetPhotTab, and FreePhotPar:
+		- For imaging data, check for IMPHTTAB instead of PHOTTAB.
+		- filtcorr, tdscorr, apertab and tdstab were removed from the StisInfo1 struct.  
+		  The PhotInfo struct was deleted.
+		- Function CalStis1 was modified to not set sts.filtcorr or sts.tdscorr.
+		- Function StisInit1 was modified to not call InitRefTab for apertab or for tdstab.
+		- The call to PhotMode was moved to a point just before the call to doPhot.
+		- In PhotMsg, keyword phottab was changed to imphttab, and info is no longer printed 
+		  about apertab or tdstab.
+		- Functions InitPhotPar, GetPhotTab, and FreePhotPar are called, instead of 
+		  explicitly getting the throughput info and calling c_phopar.
+		- Function checkPhot was modified to check for keyword IMPHTTAB instead of PHOTTAB, 
+		  and keywords APERTAB and TDSTAB are ignored. 
+		  sts->filtcorr and sts->tdscorr are no longer set.
+		- Function photHistory was modified to not check filtcorr or tdscorr.
+		- The Modified Julian Date was added to the photmode string (MJD#<date>).
+		- cs2_command returns a status code, but it wasn't being checked.  A test on the value 
+		  returned by cs2_command was added; if it's not zero, exit is called with that value of status.
+	- The following changes make this version consistent with the iraf-dependent version of calstis 2.36:
+		- CALSTIS should use reference temp and slope from CCD dark file
+		- Add another term to the dispersion relation in CALSTIS.
+		- Rewrite calstis function for inverting the dispersion relation.
+		- Improve the a4corr correction for echelle wavecal processing in calstis.
+		- Calstis failure when an imset is missing (exptime was 0).
+	- CALSTIS was using hard-coded parameters for the reference temperature and slope in order to 
+	  correct the temperature dependence of the CCD dark rate.  Analysis of SMOV data shows that 
+	  these values have changed. Rather than including time-dependent parameters in calstis, these are 
+	  now included as header keywords in the dark reference files, and calstis has been modified to 
+	  read and use these keyword values.
+	- A ninth term has been added to the dispersion relation.  
+	  This is proportional to m**2, where m is the spectral order.
+	- Improved the a4corr correction for echelle wavecal processing by deriving shifta2 from inputs
+	  instead of taking the moffset2 value as an estimate. The a4corr correction is a modification 
+	  to the echelle dispersion coefficients to account for a skew that results from a displacement 
+	  of the image in the cross-dispersion direction.
+	- Fixed issue where call to c_tbtclo failed while checking whether an image set exists or not.
+
+### 24-Mar-2010 - CALSTIS Version 2.29:
+	- Updated version number and date (cfitsio test)
+
+### 12-Mar-2010 - CALSTIS Version 2.28:
+	- Changed the version string to match irafdev, except for an extra "cfitsio test" to indicate that
+	  this version is being used.
