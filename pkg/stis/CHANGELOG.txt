@@ -1,72 +1,50 @@
-### 04-Feb-2026 - CALSTIS Version 3.5.0:
+### 28-Apr-2026 - CALSTIS Version 3.5.0:
 	- Wavecorr e1 implementation
 	- Implement improved wavecal calibration for CCD data taken at the E1 or E2 aperture locations.  
 	  The part of the long slit wavecal spectrum that matches the location of the source is used to 
 	  calculate the SHIFTA1 value.
-
-### 05-June-2025 - CALSTIS Version 3.5.0:
 	- Common timestamp
 	- Moves TimeStamp into the core library.
 	- Minor improvements:
 		- The rootname _could_ be NULL so now it's only reported when there is something valid
 		- Safely pads - characters to the end of the message string
-
-### 22-May-2025 - CALSTIS Version 3.5.0:
 	- (STIS) Variadic trl functions
 	- This implements the variadic trl messaging functions.
-	- It does not generate any trailer files.
-
-### 29-Apr-2025 - CALSTIS Version 3.5.0:
+		- It does not generate any trailer files.
 	- Replaces most sprintf with snprintf
 	- Fixes conditions leading to segfaults due to buffer overflows, mostly from trailer file
 	  functions (trlerror, trlwarn) attempting to report messages larger than the line buffer.
 	- This also adjusts the size of several buffers to accommodate the expected input, otherwise they would 
 	  likely be truncated at run-time.
 
-### 18-May-2020 - CALSTIS Version 3.5.0:
+### 12-Aug-2020 - CALSTIS Version 3.4.2:
+	- JIRA issue HLA-255 - Address issues associated with routines under copyright
+	- Modified HSTCAL infrastructure routines for ACS, WFC3, and STIS which have copyright issues.
 	- Free aname after use
 	- Fix a minor memory leak in BuildTempNames
 
-### 25-Jun-2020 - CALSTIS Version 3.5.0:
-	- JIRA issue HLA-255 - Address issues associated with routines under copyright
-	- Modified HSTCAL infrastructure routines for ACS, WFC3, and STIS which have copyright issues.
-
-### 19-Jan-2018 - CALSTIS Version 3.4.2:
+### 22-Jan-2018 - CALSTIS Version 3.4.2:
 	- Bumping version numbers
-
-### 27-Nov-2017 - CALSTIS Version 3.4.1:
 	- Fix unguarded IFs
 	- This also addresses the "-Wmisleading-indentation" compiler warnings generated
 	  from the following files:
 		- pkg/stis/calstis/lib/reffiles.c
 		- pkg/stis/calstis/cs12/cs12.c
-
-### 21-Nov-2017 - CALSTIS Version 3.4.1:
 	- Remove incorrect non-ptr registrations
-
-### 14-Nov-2017 - CALSTIS Version 3.4.1:
 	- Plug memory leaks in main.c code.
 	- Resolves memory leak when exiting from cmd opt parsing
 	- Adds --help to stis/cs7
-
-### 10-Oct-2017 - CALSTIS Version 3.4.1:
 	- Add --help cmd option to print syntax
 	- Cmd line option parsing "unrecognized option" errors also print syntax now
     	- Doesn't cover:
 		- cs2.e
 		- cs6.e
-
-### 24-Aug-2017 - CALSTIS Version 3.4.1:
 	- Add git tag version, branch, & commit to waf configure and into C code
 
-### 25-Apr-2017 - CALSTIS Version 3.4.1:
+### 13-Jun-2017 - CALSTIS Version 3.4.1:
 	- Consolidate stiserr.h, wf3err.h, acserr.h, & the errors in 
 	  hstcal/include/imphttab.h to hstcal/include/hstcalerr.h
-
-### 24-Apr-2017 - CALSTIS Version 3.4.1:
 	- Remove unused and not needed IRAF build mkpkg files
-
-### 20-Apr-2017 - CALSTIS Version 3.4.1:
 	- New version of calstis for dms 2017.2
 	- Copy ERR and DQ arrays to output, as RebinData doesn't do that for binned data
 		- Ensures ERR and DQ arrays are handled for hirez echelle data
@@ -100,8 +78,6 @@
 ### 25-Jan-2013 - CALSTIS Version 3.0:
 	- Edited wscript to include cs4, cs7, cs11, cs12, and added wscripts to those 
 	  directories so that cs4.e, cs7.e, cs11.e and cs12.e will be built.
-
-### 15-Oct-2012 - CALSTIS Version 3.0:
 	- The TDCTAB is now required for NUV-MAMA data.
 	- DarkMsg in do2d.c prints info about the TDC table.
 	- darkHistory in history1.c writes a HISTORY record for the TDC table.
@@ -111,60 +87,34 @@
 	- For imaging data, calstis has been adding three dummy keywords to the DQ 
 	  extension header, in order to work around a bug in the IRAF FITS kernel. 
 	  The code to do this has been removed from the hstcal version of calstis.
-
-### 23-May-2012 - CALSTIS Version 3.0:
 	- Memory is allocated for the list of input file names.
-
-### 22-May-2012 - CALSTIS Version 3.0:
 	- Fixed issue where two input images were opened but never closed during
 	  cosmic ray rejection
 	- Removed hard-coded limit of 120 on number of input image sets. Arrays whose
 	  size was set by this number now get set to the actual number of input image sets.
-
-### 10-Feb-2012 - CALSTIS Version 3.0:
 	- Add function PrFullVersion to print the full version string, and call this 
 	  function in each of the calstis modules (except cs6) for command-line option -r.  
 	  cs6 was not modified because it already has -r to specify the maximum search size.
-
-### 10-Feb-2012 - CALSTIS Version 3.0:
 	- Update the date string, for the change to allocate file name template strings 
           based on the length of the command-line argument.
-
-### 17-Jan-2012 - CALSTIS Version 3.0:
 	- Increase the buffer size for file names to 1025.
-
-### 16-Dec-2011 - CALSTIS Version 3.0:
 	- Change (and add) wscript files to build cs1.e, cs2.e and cs6.e. 
 	  Also include <stdlib.h> in cs6.c for the declaration of exit().
-
-### 12-Dec-2011 - CALSTIS Version 3.0:
 	- When calstis1 constructs the photmode string (aka obsmode, the value for keyword PHOTMODE) 
 	  for imaging data, "MIRROR" is now included in the string.
 	- In both lib/gettds.c and cs1/gettds1.c, CloseTdsTab (or CloseTdsTab1) was called without 
 	  catching the function value (status).  status was added, although its value is still ignored.
-
-### 21-Nov-2011 - CALSTIS Version 3.0:
 	- For the photcorr step with imaging data, explicitly apply a correction for the variation 
 	  in detector sensitivity with temperature.
-
-### 21-Oct-2011 - CALSTIS Version 3.0:
 	- The FLUX and ERROR columns will both be set to 0 if pedigree is dummy. 
 	  A new NET_ERROR column will be added to the x1d table (regardless of pedigree), 
 	  which contains the error estimate of the NET column, both of which are in counts per second.
-
-### 21-Oct-2011 - CALSTIS Version 3.0:
 	- Calstis will now accept either the original STIS format for a TDS table or a COS-like TDS table.
-
-### 01-Sep-2011 - CALSTIS Version 3.0:
 	- The photcorr correction checks for photometry parameters of -9999, which indicates that the 
 	  date of observation is outside the range of the imphttab. 
 	- The fluxcorr for calstis6 sets the flux to zero if the relevant row in the phottab is dummy.
-
-### 27-Jul-2011 - CALSTIS Version 3.0:
 	- Added a check that there was at least one input file specified.  Added a check for 
 	 "strange" (e.g. INF) values of the phot parameters.
-
-### 25-Jul-2011 - CALSTIS Version 3.0:
 	- For each calstis module, the function that reads the command-line arguments now 
 	  checks for "--version", and if present, the function prints the calstis version number 
 	  (without the date) and exits with status 0.  Function PrVersion to extract the number 
