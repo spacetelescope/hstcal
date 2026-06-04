@@ -548,8 +548,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
     cte_pars.scale_frac=cte_ff;
 
-    for(j=0;j<RAZ_ROWS;j++) {
-        for(i=0;i<RAZ_COLS;i++) {
+    for(i=0;i<RAZ_COLS;i++) {
+        for(j=0;j<RAZ_ROWS;j++) {
             Pix(fff.sci.data,i,j) = cte_ff * (j + 1) / ((double)XAMP_SCI_DIM);
         }
     }
@@ -595,8 +595,8 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     }
     trlmessage("YCTE: Returning from the routine...");
 
-    for (j=0;j<RAZ_ROWS;j++) {
-        for (i=0;i<RAZ_COLS;i++) {
+    for (i=0;i<RAZ_COLS;i++){
+        for (j=0;j<RAZ_ROWS;j++){
              Pix(chg.sci.data,i,j) = (Pix(rzc.sci.data,i,j) - Pix(raz.sci.data,i,j))/wf3.ccdgain;
              Pix(rzc.sci.data,i,j) =  Pix(raw.sci.data,i,j) + Pix(chg.sci.data,i,j);
         }
