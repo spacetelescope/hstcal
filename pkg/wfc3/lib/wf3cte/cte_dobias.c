@@ -39,20 +39,18 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	int scilines; 		/* number of lines in science image */
 	int i, j;
 	int update;
-	int dimx, dimy;
+	int dimx;
 	int straddle=0;
 	int overstart=0;
 	int offsetx=0;
 	int offsety=0;
 
 	dimx = x->sci.data.nx;
-	dimy = x->sci.data.ny;
 
 	trlmessage("CTE: Subtracting BIACFILE: %s for imset %d",wf3->biac.name, x->group_num);
 
 	initSingleGroupLine (&y);
 	scilines = x->sci.data.ny;
-
 
 	/* Initialize local variables */
 	rx = 1;

@@ -37,9 +37,10 @@ static void init_ecr_t(float [NUM_TRAP], float [NUM_TRAP], float [NUM_TRAP]);
  */
 int sub_xctecor(SingleGroup *raz, double mjd_obs) {
     extern int status;
-    int i, j, k;
-    float *pixz_i = malloc(RAZ_COLS * RAZ_ROWS * sizeof(float));
-    float *pixz_o = malloc(RAZ_COLS * RAZ_ROWS * sizeof(float));
+    int k;
+    const int raz_totsize = RAZ_COLS * RAZ_ROWS;
+    float *pixz_i = malloc(raz_totsize * sizeof(float));
+    float *pixz_o = malloc(raz_totsize * sizeof(float));
 
     /* These values are independent of PCTETAB. */
     float ff_xcte = (mjd_obs - 54962.00) / (60125.0 - 54962.00);
@@ -47,11 +48,8 @@ int sub_xctecor(SingleGroup *raz, double mjd_obs) {
     trlmessage("XCTE_FF: %8.3f", ff_xcte);
 
     /* Make a copy of raz data and use as input. */
-    for(j=0; j<RAZ_ROWS; j++) {
-        for(i=0; i<RAZ_COLS; i++) {
-            k = j * RAZ_COLS + i;
-            pixz_i[k] = Pix(raz->sci.data, i, j);
-        }
+    for(k=0; k<raz_totsize; k++) {
+        pixz_i[k] = raz->sci.data.data[k];
     }
 
     if (sub_raz2rzx_wfc3uv(pixz_i, pixz_o, ff_xcte)) {
@@ -62,11 +60,8 @@ int sub_xctecor(SingleGroup *raz, double mjd_obs) {
     }
 
     /* Stuff corrected pixels back to raz for Y-CTE next. */
-    for(j=0; j<RAZ_ROWS; j++) {
-        for(i=0; i<RAZ_COLS; i++) {
-            k = j * RAZ_COLS + i;
-            Pix(raz->sci.data, i, j) = pixz_o[k];
-        }
+    for(k=0; k<raz_totsize; k++) {
+        raz->sci.data.data[k] = pixz_o[k];
     }
 
     free(pixz_i);
@@ -281,7 +276,7 @@ static void read_reg(float reg[NUM_REG], float *row, int e_n[NUM_ELEVEL],
                 }
                 /* Reset the trap. */
                 t = 0;
-                /* How much charge is in the trep? (prop to number of i-shifts to reg)
+                /* How much charge is in the trap? (prop to number of i-shifts to reg)
 
                    Jay: 2025 is the number of shifts I calibrated the model to.
                    Not sure why it wasn’t 2048 (the whole chip), but it’s what I used.

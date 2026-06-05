@@ -138,8 +138,7 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     SingleGroup subcd; /*subarray chip*/
     SingleGroup subab; /*subarray chip*/
     SingleGroup raz; /* THE LARGE FORMAT COMBINATION OF CDAB*/
-    SingleGroup rsz; /* LARGE FORMAT READNOISE CORRECTED IMAGE */
-    SingleGroup rsc; /* CTE CORRECTED*/
+    SingleGroup razx;
     SingleGroup rzc; /* FINAL CTE CORRECTED IMAGE */
     SingleGroup chg; /* THE CHANGE DUE TO CTE  */
     SingleGroup raw; /* THE RAW IMAGE IN RAZ FORMAT */
@@ -274,12 +273,6 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
     initSingleGroup(&raz);
     allocSingleGroup(&raz, RAZ_COLS, RAZ_ROWS, True);
 
-    initSingleGroup(&rsz);
-    allocSingleGroup(&rsz, RAZ_COLS, RAZ_ROWS, True);
-
-    initSingleGroup(&rsc);
-    allocSingleGroup(&rsc, RAZ_COLS, RAZ_ROWS, True);
-
     initSingleGroup(&rzc);
     allocSingleGroup(&rzc, RAZ_COLS, RAZ_ROWS, True);
 
@@ -294,8 +287,6 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         for (i=0;i<RAZ_COLS;i++) {
             Pix(raw.sci.data,i,j)=hardset;
             Pix(raz.sci.data,i,j)=hardset;
-            Pix(rsz.sci.data,i,j)=hardset;
-            Pix(rsc.sci.data,i,j)=hardset;
             Pix(rzc.sci.data,i,j)=hardset;
             Pix(chg.sci.data,i,j)=hardset;
         }
@@ -514,46 +505,6 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
         return status;
     }
 
-    /* Perform XCTE correction but only for fullframe.
-       This must be done before YCTE correction.
-    */
-    if (wf3.subarray) {
-        trlmessage("XCTE: Skipped for subarray");
-    } else {
-        trlmessage("XCTE: Jumping into the routine...");
-        if (sub_xctecor(&raz, wf3.expstart)) {
-            return status;
-        }
-        trlmessage("XCTE: Returning from the routine...");
-
-        /* TODO: Remove or comment out tmp_xcte_output stuff before merge */
-        char *tmp_xcte_output;
-        tmp_xcte_output = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
-        tmp_xcte_output[0] = '\0';
-        MkName (input, "_raw", "_rzx", "", tmp_xcte_output, CHAR_FNAME_LENGTH);
-        writfits_r4(tmp_xcte_output, raz.sci.data.data, RAZ_COLS, RAZ_ROWS);
-        free(tmp_xcte_output);
-    }
-
-    SingleGroup fff;
-    initSingleGroup(&fff);
-    allocSingleGroup(&fff, RAZ_COLS, RAZ_ROWS, True);
-
-    double cte_ff;
-
-    cte_ff=  (wf3.expstart       - cte_pars.cte_date0)/
-             (cte_pars.cte_date1 - cte_pars.cte_date0);
-
-    trlmessage("YCTE_FF: %8.3f", cte_ff);
-
-    cte_pars.scale_frac=cte_ff;
-
-    for(i=0;i<RAZ_COLS;i++) {
-        for(j=0;j<RAZ_ROWS;j++) {
-            Pix(fff.sci.data,i,j) = cte_ff * (j + 1) / ((double)XAMP_SCI_DIM);
-        }
-    }
-
     /*
      * If the PCTERNOI value from the primary header of the science image is non-zero, it is
      * used in the CTE algorithm.  Otherwise the read noise must be computed via find_raz2rnoival.
@@ -575,23 +526,84 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
      * the output image header when it is updated below for a final time.
      */
 
+    /* Perform XCTE correction but only for fullframe.
+       This must be done before YCTE correction.
+    */
+    if (wf3.subarray) {
+        trlmessage("XCTE: Skipped for subarray");
+    } else {
+        trlmessage("XCTE: Jumping into the routine...");
+
+        initSingleGroup(&razx);
+        allocSingleGroup(&razx, RAZ_COLS, RAZ_ROWS, True);
+        copySingleGroup(&razx, &raz, raz.sci.data.storageOrder);
+
+        if (sub_xctecor(&razx, wf3.expstart)) {
+            return status;
+        }
+        trlmessage("XCTE: Returning from the routine...");
+
+        /* TODO: Remove or comment out tmp_xcte_output stuff before merge */
+        char *tmp_xcte_output;
+        tmp_xcte_output = calloc (CHAR_FNAME_LENGTH+1, sizeof (char));
+        tmp_xcte_output[0] = '\0';
+        MkName (input, "_raw", "_rzx", "", tmp_xcte_output, CHAR_FNAME_LENGTH);
+        writfits_r4(tmp_xcte_output, razx.sci.data.data, RAZ_COLS, RAZ_ROWS);
+        free(tmp_xcte_output);
+    }
+
+    SingleGroup fff;
+    initSingleGroup(&fff);
+    allocSingleGroup(&fff, RAZ_COLS, RAZ_ROWS, True);
+
+    double cte_ff;
+
+    cte_ff = (wf3.expstart       - cte_pars.cte_date0)/
+             (cte_pars.cte_date1 - cte_pars.cte_date0);
+
+    trlmessage("YCTE_FF: %8.3f", cte_ff);
+
+    cte_pars.scale_frac=cte_ff;
+
+    for(i=0;i<RAZ_COLS;i++) {
+        for(j=0;j<RAZ_ROWS;j++) {
+            Pix(fff.sci.data,i,j) = cte_ff * (j + 1) / ((double)XAMP_SCI_DIM);
+        }
+    }
+
     /* Invoke the updated CTE correction which does the read noise
        mitigation in each of the three forward-model iterations.
     */
     trlmessage("YCTE: Jumping into the routine...");
-    if (sub_ctecor_v2c(raz.sci.data.data,
-                         fff.sci.data.data,
-                         WsMAX,
-                         cte_pars.qlevq_data,
-                         cte_pars.dpdew_data,
-                         cte_pars.rprof->data.data,
-                         cte_pars.cprof->data.data,
-                         readNoise,
-                         cte_pars.thresh,
-                         cte_pars.n_forward,
-                         cte_pars.n_par,
-                         rzc.sci.data.data)) {
-        return status;
+    if (wf3.subarray) {
+        i = sub_ctecor_v2c(raz.sci.data.data,
+                           fff.sci.data.data,
+                           WsMAX,
+                           cte_pars.qlevq_data,
+                           cte_pars.dpdew_data,
+                           cte_pars.rprof->data.data,
+                           cte_pars.cprof->data.data,
+                           readNoise,
+                           cte_pars.thresh,
+                           cte_pars.n_forward,
+                           cte_pars.n_par,
+                           rzc.sci.data.data);
+    } else {
+        i = sub_ctecor_v2c(razx.sci.data.data,
+                           fff.sci.data.data,
+                           WsMAX,
+                           cte_pars.qlevq_data,
+                           cte_pars.dpdew_data,
+                           cte_pars.rprof->data.data,
+                           cte_pars.cprof->data.data,
+                           readNoise,
+                           cte_pars.thresh,
+                           cte_pars.n_forward,
+                           cte_pars.n_par,
+                           rzc.sci.data.data);
+    }
+    if (i) {
+        return (status = i);
     }
     trlmessage("YCTE: Returning from the routine...");
 
@@ -663,14 +675,14 @@ int WF3cte (char *input, char *output, CCD_Switch *cte_sw,
 
         putSingleGroup(output,cd.group_num, &cd,0);
         putSingleGroup(output,ab.group_num, &ab,0);
+
+        freeSingleGroup(&razx);
     }
 
     /** CLEAN UP ON AISLE 3 **/
     freeSingleGroup(&rzc);
-    freeSingleGroup(&rsc);
     freeSingleGroup(&chg);
     freeSingleGroup(&raz);
-    freeSingleGroup(&rsz);
     freeSingleGroup(&raw);
     freeSingleGroup(&cd);
     freeSingleGroup(&ab);
@@ -1552,7 +1564,7 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       int       ih, iih;
       long      dhist[NUM_BINS], dcum[NUM_BINS], vtot;
       long      vhist[NUM_BINS], vcum[NUM_BINS], dtot;
-      int       ivmin, id1, id2;
+      int       ivmin;
       int       idmin, iv1, iv2;
       long long vsum;
       long long nsum;
@@ -1570,8 +1582,6 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
 
       iv1 = 1;
       iv2 = 999;
-      id1 = 1;
-      id2 = 999;
 
       /*
        * Distill the image variation information and background into quick histograms
@@ -1669,8 +1679,6 @@ float find_raz2rnoival(float *raz_cdab, float *FLOAT_RNOIVAL, float *FLOAT_BKGDV
       for (ih=1; ih<=NUM_BINS-1; ih++) {
           for (iih=ih+1; iih<=NUM_BINS-1; iih++) {
               if (dcum[iih-1]-dcum[ih-1] > 0.75*dtot && iih-ih < idmin) {
-                  id1   = ih;
-                  id2   = iih;
                   idmin = iih-ih;
               }
 
