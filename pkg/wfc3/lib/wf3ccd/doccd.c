@@ -101,6 +101,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     int sizex, sizey;	/* size of output image */
 
     int i, j, x1, dx;		/* loop index */
+    int is_binned;
     int overscan;
     int blevcorr;
     char buff[SZ_FITS_REC+1];
@@ -319,6 +320,16 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (biasHistory (wf3, x.globalhdr))
             return (status);
 
+    is_binned = checkBinned(&x);
+
+    /* Apply crosstalk correction after BIASCORR but before everything else. */
+    if (wf3->biascorr == PERFORM && wf3->blevcorr == PERFORM && !is_binned & !wf3->subarray) {
+        trlmessage("\nCrosstalk correction is being performed.");
+        if (cross_talk_corr(wf3, &x)) {
+            return (status);
+        }
+    }
+
     /* Apply the saturation image.
        Strictly speaking, the application of the full-well saturation image is
        not a calibration step (i.e., there is no SATCORR), but the application
@@ -346,7 +357,7 @@ int DoCCD (WF3Info *wf3, int extver) {
      BINNED IMAGES ARE NOT SUPPORTED AT ALL
     */
     if (wf3->dqicorr == PERFORM) {
-        if (checkBinned(&x)){
+        if (is_binned){
             trlmessage("Binned data not supported for Sink Pixel detection");
         } else {
             if (wf3->subarray){
