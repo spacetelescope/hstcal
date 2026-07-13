@@ -29,7 +29,6 @@ int main (int argc, char **argv) {
 
     int rej_command (int, char **, char **, char *, clpar *, int []);
     int Wf3Rej (char *, char *, char *, clpar *, int []);
-    void WhichError (int);
 
     status = 0;
 

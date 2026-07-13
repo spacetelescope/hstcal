@@ -83,7 +83,6 @@ int main (int argc, char **argv) {
     int ACS2d (char *, char *, CalSwitch *, RefFileInfo *, int, int);
     /*int DefSwitch (char *);*/
     int MkOutName (char *, char **, char **, int, char *, int);
-    void WhichError (int);
     int CompareNumbers (int, int, char *);
     void initSwitch (CalSwitch *);
 

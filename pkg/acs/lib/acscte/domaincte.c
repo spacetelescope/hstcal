@@ -93,7 +93,6 @@ int doMainCTE (int argc, char **argv) {
             const bool forwardModelOnly);
     int DefSwitch (char *);
     int MkName (char *, char *, char *, char *, char *, int);
-    void WhichError (int);
     int CompareNumbers (int, int, char *);
 
     /* For image header access */

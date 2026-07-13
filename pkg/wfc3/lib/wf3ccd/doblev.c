@@ -150,7 +150,7 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	    (biny != 1 && biny != 2 && biny != 3)) {
 	    trlerror("(doBlev) bin size must be 1, 2, or 3.");
 	    free (ccdamp);
-	    return (status = 1001);
+	    return (status = INVALID_EXPTIME);
 	}
 
 	/* Get biassect, the location of the region to use for determining

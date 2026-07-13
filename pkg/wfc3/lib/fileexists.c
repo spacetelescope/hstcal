@@ -25,11 +25,11 @@ int FileExists (char *fname) {
 	if (flag > 0) {
 	    if (flag == 1) {
 		    trlwarn("Output file `%s' already exists.", fname);
-            status = 1021;
+            status = INVALID_TEMP_FILE;
             exists = EXISTS_YES;
 	    } else {
 		    trlerror("Can't clobber `%s'.", fname);
-            status = 1023;
+            status = FILE_NOT_READABLE;
             exists = EXISTS_YES;
 	    }
 	}
@@ -67,7 +67,7 @@ int TrlExists (char *trlname) {
 		trlerror("Can't update/overwrite trailer file '%s'.", trlname);
 
 		/* Return error condition, can't create TRL file... */
-		status = 1023;	
+		status = FILE_NOT_READABLE;
 		return (exists = EXISTS_YES);			
 
 	    } else {
