@@ -1,3 +1,6 @@
+Updates for Version 3.8.0 12-Mar-2026 - PLL
+    - New serial (X) CTE correction for UVIS fullframe data.
+
 Updates for Version 3.7.3 07-Jan-2026 - PLL
     - Bug fix to remove per-second in BUNIT for CRREJ output for IR data.
 
