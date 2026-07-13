@@ -4,7 +4,7 @@
 /* This string is written to the output primary header as CAL_VER. */
 
 
-# define WF3_CAL_VER "3.7.3 (Jan-07-2026)"
-# define WF3_CAL_VER_NUM "3.7.3"
+# define WF3_CAL_VER "3.8.0 (Feb-07-2026)"
+# define WF3_CAL_VER_NUM "3.8.0"
 
 #endif /* INCL_WF3VERSION_H */
