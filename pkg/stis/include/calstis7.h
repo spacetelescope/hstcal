@@ -89,6 +89,7 @@ typedef struct {
 	int obstype;		/* spectroscopic or imaging */
 	int wavecal;		/* true if ASN_MTYP is "WAVECAL" */
 	int nimages;		/* number of "groups" in file */
+	int echelle;        /* echelle mode? */
 	int first_order;	/* true if first order grating */
 	int center_target;	/* center target in output?  normally true */
 
@@ -160,6 +161,7 @@ typedef struct {
 	RefTab apdestab;	/* APD, aperture description table */
 	RefTab apertab;		/* APT, relative aperture throughput table */
 	RefTab phottab;		/* PHT, photometric throughput table */
+	RefTab blazetab;    /* BLZ, blaze correction coefficients table */
 	RefTab tdstab;		/* TDS, time-dependent sensitivity table */
 	RefTab disptab;		/* DSP, dispersion coefficients table */
 	RefTab inangtab;	/* IAC, incidence-angle correction table */
