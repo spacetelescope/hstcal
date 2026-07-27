@@ -310,6 +310,12 @@ int *missing    io: incremented if the table is missing
                                        &sts->fluxcorr, missing, FATAL)))
                 return (status);
 
+            /* Blaze table. */
+            l_missing = 0;
+            if ((status = GetCheckRef (phdr, "BLAZETAB", &sts->blazetab,
+                                       &sts->fluxcorr, &l_missing, NO_FATAL)))
+                return (status);
+
             /* Relative aperture throughput table. */
             if ((status = GetCheckRef (phdr, "APERTAB", &sts->apertab,
                                        &sts->fluxcorr, missing, FATAL)))

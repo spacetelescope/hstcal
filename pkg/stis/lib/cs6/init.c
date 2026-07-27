@@ -152,6 +152,7 @@ void StisInit6 (StisInfo6 *sts) {
 	InitRefTab (&sts->apdestab);
 	InitRefTab (&sts->apertab);
 	InitRefTab (&sts->phottab);
+	InitRefTab (&sts->blazetab);
 	InitRefTab (&sts->ccdtab);
 	InitRefTab (&sts->tdstab);
 	InitRefTab (&sts->disptab);
