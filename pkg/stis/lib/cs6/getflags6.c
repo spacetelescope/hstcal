@@ -316,6 +316,11 @@ int *missing    io: incremented if the table is missing
                                        &sts->fluxcorr, &l_missing, NO_FATAL)))
                 return (status);
 
+            if (sts->blazetab.exists != EXISTS_YES) {
+                printf("Warning: BLAZETAB not found or not specified\n");
+                printf("Using blaze coefficients from PHOTTAB reference file\n");
+            }
+
             /* Relative aperture throughput table. */
             if ((status = GetCheckRef (phdr, "APERTAB", &sts->apertab,
                                        &sts->fluxcorr, missing, FATAL)))

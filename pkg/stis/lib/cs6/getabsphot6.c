@@ -229,14 +229,12 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	    return (ROW_NOT_FOUND);
 	}
     
-	if (sts->echelle) {
+	if (sts->echelle && sts->blazetab.exists == EXISTS_YES) {
 	
 	    *warn = 1;
 	    /* Check for existence of BLAZETAB reference file*/
 	    if ((status = OpenBlazeTab (sts, &blazetabinfo, phot, warn)))
 	        return (status);
-
-        printf("Overriding blaze info in PHOTTAB with BLAZETAB coefficients\n");
 
 	    /* Check each row for a match with keyword values, then read
 	       the arrays of blaze coefficients if there's a match.
@@ -754,6 +752,7 @@ static int ClosePhotTab (TblInfo *tabinfo) {
 
 	return (0);
 }
+
 /* This routine closes the blazetab table. */
 
 static int CloseBlazeTab (BlazeTblInfo *tabinfo) {
