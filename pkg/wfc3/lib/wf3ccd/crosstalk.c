@@ -14,6 +14,10 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     float *y;
     double corr_fac, cur_err;
 
+    /* DEBUG */
+    int tmp_k;
+    double tmp_after;
+
     /* Correction coefficients (ABCD) from WFC3 ISR 2012-02 */
     const double intercept[NAMPS] = {0.0180206, 0.15501201,-0.038376406, 0.19124641};
     const double slope[NAMPS] = {-6.0494304e-5, -2.0746221e-4, -7.9701178e-5, -2.3177171e-4};
@@ -43,6 +47,19 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
                 }
             }
             corr_fac = intercept[cur_amp] + y[arr_cols - j - 1] * wf3->atodgain[cur_amp] * slope[cur_amp];
+
+            /* DEBUG */
+            if ((cur_amp == AMP_C) && (i == 1100) && ((j == 26) || (j == (wf3->ampx - 1)) || (j == 1100))) {
+                tmp_k = arr_cols - j - 1;
+                tmp_after = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
+                trlmessage("DEBUG ix=%d iy=%d", j, i);
+                trlmessage("    opposite ix=%d value=%lf", tmp_k, y[tmp_k]);
+                trlmessage("    gain = %f", wf3->atodgain[cur_amp]);
+                trlmessage("    corrfac = %lf", corr_fac);
+                trlmessage("    before = %lf", y[j]);
+                trlmessage("     after = %lf", tmp_after);
+            }
+
             /* Only fix when we can recover the signal, not removing more signal */
             if (corr_fac < 0) {
                 Pix(x->sci.data, j, i) = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
