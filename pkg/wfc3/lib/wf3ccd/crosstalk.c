@@ -22,12 +22,13 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     const double intercept[NAMPS] = {0.0180206, 0.15501201,-0.038376406, 0.19124641};
     const double slope[NAMPS] = {-6.0494304e-5, -2.0746221e-4, -7.9701178e-5, -2.3177171e-4};
 
+    if ((y = calloc(arr_cols, sizeof(float))) == NULL) {
+        return (status = OUT_OF_MEMORY);
+    }
+
     /* Crosstalk correction in electrons but then converted back to DN */
     for (i = 0; i < arr_rows; i++) {
         /* Copy out original row for corr_fac calculation. */
-        if ((y = calloc(arr_cols, sizeof(float))) == NULL) {
-            return (status = OUT_OF_MEMORY);
-        }
         for (j = 0; j < arr_cols; j++) {
             y[j] = Pix(x->sci.data, j, i);
         }
@@ -71,5 +72,6 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
         }
     }
 
+    free(y);
     return status;
 }
