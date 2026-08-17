@@ -17,6 +17,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     /* DEBUG */
     int tmp_k;
     double tmp_after;
+    trlmessage("DEBUG  nx=%d  ny=%d", arr_cols, arr_rows);
 
     /* Correction coefficients (ABCD) from WFC3 ISR 2012-02 */
     const double intercept[NAMPS] = {0, 0, 0, 0};
