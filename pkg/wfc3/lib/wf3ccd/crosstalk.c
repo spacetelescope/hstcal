@@ -10,6 +10,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     extern int status;
     const int arr_rows = x->sci.data.ny;
     const int arr_cols = x->sci.data.nx;
+    const int half_nx = x->sci.data.nx / 2;
     int i, j, cur_amp;  /* iteration variables */
     float *y;
     double corr_fac, cur_err;
@@ -18,6 +19,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     int tmp_k;
     double tmp_after;
     trlmessage("DEBUG  nx=%d  ny=%d", arr_cols, arr_rows);
+    trlmessage("DEBUG  ampx=%d", half_nx);
 
     /* Correction coefficients (ABCD) from WFC3 ISR 2012-02 */
     const double intercept[NAMPS] = {0.0180206, 0.15501201,-0.038376406, 0.19124641};
@@ -36,13 +38,13 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
 
         for (j = 0; j < arr_cols; j++) {
             if (x->group_num == 1) {
-                if (j < wf3->ampx) {
+                if (j < half_nx) {
                     cur_amp = AMP_C;
                 } else {
                     cur_amp = AMP_D;
                 }
             } else {
-                if (j < wf3->ampx) {
+                if (j < half_nx) {
                     cur_amp = AMP_A;
                 } else {
                     cur_amp = AMP_B;
@@ -51,7 +53,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
             corr_fac = intercept[cur_amp] + y[arr_cols - j - 1] * wf3->atodgain[cur_amp] * slope[cur_amp];
 
             /* DEBUG */
-            if ((cur_amp == AMP_C) && (i == 1100) && ((j == 26) || (j == (wf3->ampx - 1)) || (j == 1100))) {
+            if ((cur_amp == AMP_C) && (i == 1100) && ((j == 26) || (j == (half_nx - 1)) || (j == 1100))) {
                 tmp_k = arr_cols - j - 1;
                 tmp_after = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
                 trlmessage("DEBUG ix=%d iy=%d", j, i);
