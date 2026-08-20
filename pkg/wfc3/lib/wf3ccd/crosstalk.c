@@ -13,7 +13,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     const int half_nx = x->sci.data.nx / 2;
     int i, j, cur_amp;  /* iteration variables */
     float *y;
-    double corr_fac, cur_err;
+    double corr_fac, cur_err, new_val, new_err;
 
     /* DEBUG */
     int tmp_k;
@@ -66,11 +66,13 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
 
             /* Only fix when we can recover the signal, not removing more signal */
             if (corr_fac < 0) {
-                Pix(x->sci.data, j, i) = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
+                new_val = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
+                Pix(x->sci.data, j, i) = new_val;
 
                 /* Propagate error; assume ERR of correction is sqrt(corr_fac) */
                 cur_err = Pix(x->err.data, j, i) * wf3->atodgain[cur_amp];
-                Pix(x->err.data, j, i) = sqrt(cur_err * cur_err + fabs(corr_fac)) / wf3->atodgain[cur_amp];
+                new_err = sqrt(cur_err * cur_err + fabs(corr_fac)) / wf3->atodgain[cur_amp];
+                Pix(x->err.data, j, i) = new_err;
             }
         }
     }
