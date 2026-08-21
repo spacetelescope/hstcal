@@ -11,12 +11,12 @@
 
 static int CheckX1D (Hdr *, StisInfo6 *, int *);
 static int CheckOptimal (Hdr *, StisInfo6 *);
-static int CheckBack (Hdr *, StisInfo6 *);
+static int CheckBack ();
 static int CheckDisp (Hdr *, StisInfo6 *, int *);
 static int CheckFlux (Hdr *, StisInfo6 *, int *);
-static int CheckHelio (Hdr *, StisInfo6 *);
+static int CheckHelio ();
 static int CheckSmGeo (Hdr *, StisInfo6 *, int *);
-static int CheckWave (Hdr *, StisInfo6 *);
+static int CheckWave ();
 
 /*
    Get calibration flag values and names of reference images and tables
@@ -75,13 +75,13 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
 
         /* Check remaining calibration switches and reference files. */
 
-        if ((status = CheckBack (phdr, sts)))
+        if ((status = CheckBack ()))
             return (status);
 
         if ((status = CheckDisp (phdr, sts, &missing)))
             return (status);
 
-        if ((status = CheckHelio (phdr, sts)))
+        if ((status = CheckHelio ()))
             return (status);
 
         if (sts->dispcorr != PERFORM && sts->heliocorr == PERFORM) {
@@ -103,7 +103,7 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
                 return (status);
         }
 
-        if ((status = CheckWave (phdr, sts)))             /* just check flag */
+        if ((status = CheckWave ()))             /* just check flag */
             return (status);
 
         if (missing)
@@ -216,7 +216,7 @@ int *missing    io: incremented if the file is missing
    steps share the same reference table.
 */
 
-static int CheckBack (Hdr *phdr, StisInfo6 *sts) {
+static int CheckBack () {
 
 /* arguments:
 Hdr *phdr       i: primary header
@@ -310,17 +310,6 @@ int *missing    io: incremented if the table is missing
                                        &sts->fluxcorr, missing, FATAL)))
                 return (status);
 
-            /* Blaze table. */
-            l_missing = 0;
-            if ((status = GetCheckRef (phdr, "BLAZETAB", &sts->blazetab,
-                                       &sts->fluxcorr, &l_missing, NO_FATAL)))
-                return (status);
-
-            if (sts->blazetab.exists != EXISTS_YES) {
-                printf("Warning: BLAZETAB not found or not specified\n");
-                printf("Using blaze coefficients from PHOTTAB reference file\n");
-            }
-
             /* Relative aperture throughput table. */
             if ((status = GetCheckRef (phdr, "APERTAB", &sts->apertab,
                                        &sts->fluxcorr, missing, FATAL)))
@@ -369,7 +358,7 @@ int *missing    io: incremented if the table is missing
    reference file.
 */
 
-static int CheckHelio (Hdr *phdr, StisInfo6 *sts) {
+static int CheckHelio () {
 
 /* arguments:
 Hdr *phdr       i: primary header
@@ -442,7 +431,7 @@ int *missing    io: incremented if the file is missing
 
 /* Check whether the wavecal has been used to update the coordinates. */
 
-static int CheckWave (Hdr *phdr, StisInfo6 *sts) {
+static int CheckWave () {
 
 /* arguments:
 Hdr *phdr       i: primary header

@@ -279,12 +279,14 @@ int *nsteps     io: incremented if this step can be performed
 		MissingFile ("PHOTTAB", sts->phottab.name, missing);
 
             /* Blaze Table */
-            if ((status = GetCheckRef (sts->refnames, phdr,
-		    "BLAZETAB", &sts->blazetab, &sts->fluxcorr)))
-		return (status);
-	    if (sts->blazetab.exists != EXISTS_YES) {
-		printf("Warning: BLAZETAB not found or not specified\n");
-		printf("Using blaze coefficients from PHOTTAB reference file\n");
+	    if (sts->echelle) {
+                if ((status = GetCheckRef (sts->refnames, phdr,
+		        "BLAZETAB", &sts->blazetab, &sts->fluxcorr)))
+		    return (status);
+	        if (sts->blazetab.exists != EXISTS_YES) {
+		    printf("Warning: BLAZETAB not found or not specified\n");
+		    printf("Using blaze coefficients from PHOTTAB reference file\n");
+		}
 	    }
 
 	    /* Relative aperture throughput table. */
