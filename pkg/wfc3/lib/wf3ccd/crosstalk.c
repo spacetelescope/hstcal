@@ -12,21 +12,23 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     const int arr_cols = x->sci.data.nx;
     const int half_nx = x->sci.data.nx / 2;
     int i, j, cur_amp;  /* iteration variables */
+    int n_skipped[NAMPS] = {0, 0, 0, 0};
     float *y;
-    double corr_fac, cur_err, new_val, new_err;
-
-    /* DEBUG */
-    int tmp_k;
-    double tmp_after;
-    trlmessage("DEBUG  nx=%d  ny=%d", arr_cols, arr_rows);
-    trlmessage("DEBUG  ampx=%d", half_nx);
+    double corr_fac, cur_err;
 
     /* Correction coefficients (ABCD) from WFC3 ISR 2012-02 */
-    const double intercept[NAMPS] = {0.0180206, 0.15501201, -0.038376406, 0.19124641};
+    double intercept[NAMPS] = {0.0180206, 0.15501201, -0.038376406, 0.19124641};
     const double slope[NAMPS] = {-6.0494304e-5, -2.0746221e-4, -7.9701178e-5, -2.3177171e-4};
 
     if ((y = calloc(arr_cols, sizeof(float))) == NULL) {
         return (status = OUT_OF_MEMORY);
+    }
+
+    /* Factor in gain into intercept to avoid data unit conversion.
+       Crosstalk correction should have been in electrons but data in DN.
+    */
+    for (i = 0; i < NAMPS; i++) {
+        intercept[i] /= wf3->atodgain[i];
     }
 
     /* Crosstalk correction in electrons but then converted back to DN */
@@ -50,30 +52,29 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
                     cur_amp = AMP_B;
                 }
             }
-            corr_fac = intercept[cur_amp] + y[arr_cols - j - 1] * wf3->atodgain[cur_amp] * slope[cur_amp];
-
-            /* DEBUG */
-            if ((cur_amp == AMP_C) && (i == 1100) && ((j == 26) || (j == (half_nx - 1)) || (j == 1100))) {
-                tmp_k = arr_cols - j - 1;
-                tmp_after = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
-                trlmessage("DEBUG ix=%d iy=%d", j, i);
-                trlmessage("    opposite ix=%d value=%lf", tmp_k, y[tmp_k]);
-                trlmessage("    gain = %f", wf3->atodgain[cur_amp]);
-                trlmessage("    corrfac = %lf", corr_fac);
-                trlmessage("    before = %lf", y[j]);
-                trlmessage("     after = %lf", tmp_after);
-            }
+            corr_fac = -1.0 * (intercept[cur_amp] + y[arr_cols - j - 1] * slope[cur_amp]);
 
             /* Only fix when we can recover the signal, not removing more signal */
-            if (corr_fac < 0) {
-                new_val = (y[j] * wf3->atodgain[cur_amp] - corr_fac) / wf3->atodgain[cur_amp];
-                Pix(x->sci.data, j, i) = new_val;
+            if (corr_fac > 0) {
+                Pix(x->sci.data, j, i) = y[j] + corr_fac;
 
                 /* Propagate error; assume ERR of correction is sqrt(corr_fac) */
-                cur_err = Pix(x->err.data, j, i) * wf3->atodgain[cur_amp];
-                new_err = sqrt(cur_err * cur_err + fabs(corr_fac)) / wf3->atodgain[cur_amp];
-                Pix(x->err.data, j, i) = new_err;
+                cur_err = Pix(x->err.data, j, i);
+                Pix(x->err.data, j, i) = sqrt(cur_err * cur_err + corr_fac);
+            } else {
+                n_skipped[cur_amp]++;
             }
+        }
+    }
+
+    // DEBUG OR STAY?
+    if (x->group_num == 1) {
+        for (i=AMP_C; i<NAMPS; i++) {
+            trlmessage("    amp=%d slope=%lf intercept=%lf n_skipped=%d", i, slope[i], intercept[i], n_skipped[i]);
+        }
+    } else {
+        for (i=0; i<AMP_C; i++) {
+            trlmessage("    amp=%d slope=%lf intercept=%lf n_skipped=%d", i, slope[i], intercept[i], n_skipped[i]);
         }
     }
 
