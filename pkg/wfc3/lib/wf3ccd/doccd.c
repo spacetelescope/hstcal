@@ -328,6 +328,8 @@ int DoCCD (WF3Info *wf3, int extver) {
         if (cross_talk_corr(wf3, &x)) {
             return (status);
         }
+    } else {
+        trlmessage("\nCrosstalk correction is skipped.");
     }
 
     /* Apply the saturation image.

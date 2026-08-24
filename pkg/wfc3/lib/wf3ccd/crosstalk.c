@@ -11,6 +11,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
     const int arr_rows = x->sci.data.ny;
     const int arr_cols = x->sci.data.nx;
     const int half_nx = x->sci.data.nx / 2;
+    const int tot_pix = arr_rows * arr_cols;
     int i, j, cur_amp;  /* iteration variables */
     int n_skipped[NAMPS] = {0, 0, 0, 0};
     float *y;
@@ -31,7 +32,7 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
         intercept[i] /= wf3->atodgain[i];
     }
 
-    /* Crosstalk correction in electrons but then converted back to DN */
+    /* Crosstalk correction. */
     for (i = 0; i < arr_rows; i++) {
         /* Copy out original row for corr_fac calculation. */
         for (j = 0; j < arr_cols; j++) {
@@ -67,14 +68,13 @@ int cross_talk_corr(WF3Info *wf3, SingleGroup *x) {
         }
     }
 
-    // DEBUG OR STAY?
     if (x->group_num == 1) {
         for (i=AMP_C; i<NAMPS; i++) {
-            trlmessage("    amp=%d slope=%lf intercept=%lf n_skipped=%d", i, slope[i], intercept[i], n_skipped[i]);
+            trlmessage("    amp=%d slope=%lf intercept=%lf n_skipped=%d/%d", i, slope[i], intercept[i], n_skipped[i], tot_pix);
         }
     } else {
         for (i=0; i<AMP_C; i++) {
-            trlmessage("    amp=%d slope=%lf intercept=%lf n_skipped=%d", i, slope[i], intercept[i], n_skipped[i]);
+            trlmessage("    amp=%d slope=%lf intercept=%lf n_skipped=%d/%d", i, slope[i], intercept[i], n_skipped[i], tot_pix);
         }
     }
 
