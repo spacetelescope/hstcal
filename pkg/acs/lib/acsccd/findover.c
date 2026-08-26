@@ -160,7 +160,7 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan, int *virtOverscan
 
     /* Check each row for a match with ccdamp, chip,
        binx, and biny, and get info from the matching row. */
-    {unsigned int row;
+    {int row;
     for (row = 1; row <= tabinfo.nrows; row++) {
 
         /* Read the current row into tabrow. */
@@ -204,8 +204,9 @@ int FindOverscan (ACSInfo *acs, int nx, int ny, int *overscan, int *virtOverscan
     }}
 
 
-    if(CloseOverTab (&tabinfo))
+    if(CloseOverTab (&tabinfo)) {
         return(status);
+    }
 
     if (foundit == NO) {
         /* Error message is commented so that if no row found

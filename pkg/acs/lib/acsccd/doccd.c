@@ -105,7 +105,7 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr(&ptrReg, acs, &free);
 
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         initSingleGroup(&x[i]);
         acs[i] = *acs_info;
@@ -120,7 +120,7 @@ int DoCCD (ACSInfo *acs_info) {
        processing step functions and pass along modified input image
        from one step to the next...
     */
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         getSingleGroup(acs[i].input, i+1, &x[i]);
         if (hstio_err()) {
@@ -137,7 +137,7 @@ int DoCCD (ACSInfo *acs_info) {
        for reading CCDTAB.
     */
     Bool subarray = False;
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
             freeOnExit (&ptrReg);
@@ -166,7 +166,7 @@ int DoCCD (ACSInfo *acs_info) {
         }
     }}
 
-    int primaryIdx = 0;
+    const int primaryIdx = 0;
     if (PutKeyFlt(x[primaryIdx].globalhdr, "ATODGNA", acs[primaryIdx].atodgain[0], "")) {
         freeOnExit (&ptrReg);
         return status;
@@ -227,7 +227,7 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr (&ptrReg, virtOverscan, &free);
 
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (FindOverscan(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny,
                          &overscan[i], &virtOverscan[i])) {
@@ -241,7 +241,7 @@ int DoCCD (ACSInfo *acs_info) {
     const int nextver = 1;
     dqiMsg(&acs[primaryIdx], nextver);
 
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].dqicorr == PERFORM || acs[i].dqicorr == DUMMY) {
             if (doDQI(&acs[i], &x[i])) {
@@ -268,7 +268,7 @@ int DoCCD (ACSInfo *acs_info) {
     /* Subtract bias image. */
     BiasMsg(&acs[primaryIdx], nextver);
 
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM) {
             if (doBias(&acs[i], &x[i])) {
@@ -293,7 +293,7 @@ int DoCCD (ACSInfo *acs_info) {
 
     /************************************************************************/
     /* convert data to electrons */
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (to_electrons(&acs[i], &x[i])) {
             freeOnExit (&ptrReg);
@@ -323,7 +323,7 @@ int DoCCD (ACSInfo *acs_info) {
     }
     addPtr (&ptrReg, blevcorr, free);
 
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         blevcorr[i] = PERFORM;
     }}
@@ -367,7 +367,7 @@ int DoCCD (ACSInfo *acs_info) {
        BIASCORR and BLEVCORR have been performed, and the data has been
        converted to electrons.  This flagging is only applicable for the
        two CCDs (WFC and HRC). */
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (acs[i].biascorr == PERFORM && acs[i].blevcorr == PERFORM) {
             trlmessage("\nFull-well saturation flagging being performed for imset %d.\n", i+1);
@@ -384,7 +384,7 @@ int DoCCD (ACSInfo *acs_info) {
     /************************************************************************/
     /* Fill in the error array, if it initially contains all zeros. */
     if (acs->noisecorr == PERFORM) {
-        {unsigned int i;
+        {int i;
         for (i = 0; i < acs_info->nimsets; i++) {
             if (doNoise(&acs[i], &x[i], &done)) {
                 freeOnExit (&ptrReg);
@@ -459,7 +459,7 @@ int DoCCD (ACSInfo *acs_info) {
     SinkMsg (&acs[primaryIdx], nextver);
 
     if (acs->sinkcorr == PERFORM) {
-        {unsigned int i;
+        {int i;
         for (i = 0; i < acs_info->nimsets; i++) {
             if (SinkDetect(&acs[i], &x[i])) {
                 freeOnExit (&ptrReg);
@@ -491,7 +491,7 @@ int DoCCD (ACSInfo *acs_info) {
     */
     int option = 0; /* Write data to disk */
     int sizex = 0, sizey = 0;  /* size of output image */
-    {unsigned int i;
+    {int i;
     for (i = 0; i < acs_info->nimsets; i++) {
         if (blevcorr[i] == COMPLETE || acs[i].blevcorr == COMPLETE) {
             /* BLEVCORR was completed, so overscan regions can be trimmed... */

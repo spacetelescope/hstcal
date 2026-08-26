@@ -31,7 +31,6 @@
  */
 
 int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
-
     /*
       ACSInfo *acs     i: calibration switches, etc.
       SingleGroup *x   io: image to be modified; dq array is updated in-place
@@ -39,17 +38,15 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 
     extern int status;
 
-    SingleGroupLine y, z;	/* y and z are scratch space */
+    SingleGroupLine y;	/* scratch space */
     SingleGroup satimage;   /* storage for entire saturation image */
     int extver = 1;			/* get this imset from bias image */
     int rx, ry;				/* for binning bias image down to size of x */
     int x0, y0;				/* offsets of sci image */
     int same_size;			/* true if no binning of ref image required */
-    int avg = 0;			/* bin2d should sum within each bin */
     int xdim;
     int ydim;				/* number of lines in science image */
-    int i, j, k;
-	short sum_dq;
+    short sum_dq;
     int xbeg, ybeg;			/* Beginning pixels for saturation image overlay */
     int xend, yend;			/* Beginning pixels for saturation image overlay */
     int rsize = 1;
@@ -61,7 +58,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
     int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int, int *);
-	int GetCorner (Hdr *, int, int *, int *);
+    int GetCorner (Hdr *, int, int *, int *);
 
     /* Initialize local variables */
     rx = 1;
@@ -86,8 +83,9 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     /* Get the first line of saturation image data */
     initSingleGroupLine (&y);
     openSingleGroupLine (acs->satmap.name, extver, &y);
-    if (hstio_err())
+    if (hstio_err()) {
         return (status = OPEN_FAILED);
+    }
 
     /*
       It is necessary to determine if the science array is full-frame
@@ -100,16 +98,18 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     **	FindLine is a modified version of FindBin routine from CALSTIS.
     **
     */
-    if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
+    if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0)) {
         return (status);
-
+    }
 
     /* Get the bin factor and "corner" (xpixel and ypixel) where science data actually
        begins (versus overscan) in the science and the saturation image data */
-	if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner))
-	    return (status);
-	if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner))
-	    return (status);
+    if (GetCorner (&x->sci.hdr, rsize, sci_bin, sci_corner)) {
+        return (status);
+    }
+    if (GetCorner (&y.sci.hdr, rsize, ref_bin, ref_corner)) {
+        return (status);
+    }
 
     /* Clean up the SingleGroupLine object */
     closeSingleGroupLine (&y);
@@ -137,9 +137,9 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
         yend = ybeg + ydim;
 
         /* Loop over the lines in the science image, excluding the overscan lines */
-        {unsigned int  j;
+        {int  j;
         for (j = ybeg; j < yend; j++) {
-            {unsigned int  i;
+            {int  i;
             for (i = xbeg;  i < xend;  i++) {
 
                 /* Flag full-well saturated pixels with 256 dq bit*/
@@ -164,7 +164,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
            k - index for line in reference image
            y0 - line in reference image corresponding to line in input image
         */
-        {unsigned int j, k;
+        {int j, k;
         for (j = 0, k = y0; j < ydim; j++, k++) {
 
             /*
@@ -172,7 +172,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
                section from the reference image to the science image.
             */
 
-            {unsigned int i, l;
+            {int i, l;
             for (i = 0, l = x0; i < xdim; i++, l++) {
                 /* Flag full-well saturated pixels with 256 dq bit*/
 		        if (Pix (x->sci.data, i, j) > Pix(satimage.sci.data, l, k)) {

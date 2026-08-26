@@ -16,7 +16,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
     int doBlev (ACSInfo *, SingleGroup *, int, int *, int *);
     void blevSubTrlMessage(ACSInfo *, ACSInfo *);
     int bias_shift_corr(ACSInfo *, int, ...);
-    void cross_talk_corr(ACSInfo *, SingleGroup *);
+    void cross_talk_corr(SingleGroup *);
     int doDestripe(ACSInfo *, SingleGroup *, SingleGroup *);
     int isValidBiasShiftSubArrWithVirtOscn(int, char *, int);
     void PrSwitch (char *, int);
@@ -103,7 +103,7 @@ int performBlevCorr(ACSInfo *acs_info, ACSInfo *acs, SingleGroup *x,
 
                       {int i;
                       for (i = 0; i < acs_info->nimsets; i++) {
-                          cross_talk_corr(&acs[i], &x[i]);
+                          cross_talk_corr(&x[i]);
                       }}
                    } else {
                       trlmessage("WFC readout type/gain not set as needed, no bias shift nor cross talk correction done for full frame data.");

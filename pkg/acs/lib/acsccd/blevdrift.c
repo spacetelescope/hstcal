@@ -46,12 +46,11 @@ static int middle_col;
 */
 
 int BlevDrift (SingleGroup *in, int *vx, int *vy,
-		int trimx1, int *biassect, int *driftcorr, short sdqflags) {
+		int *biassect, int *driftcorr, short sdqflags) {
 
 /* arguments:
 SingleGroup *in      i: image to be calibrated
 int vx[2], vy[2]     i: range of pixel numbers for virtual overscan region
-int trimx1           i: width to trim off beginning of line
 int biassect[2]      i: section to use for finding bias level
 int *driftcorr       i: true if correction can be applied
 */

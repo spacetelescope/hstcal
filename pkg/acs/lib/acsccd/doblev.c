@@ -82,7 +82,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
   float meanblev = 0;   /* mean value of overscan bias (for history) */
 
   /* Function definitions */
-  int BlevDrift (SingleGroup *, int *, int *, int, int *, int *, short);
+  int BlevDrift (SingleGroup *, int *, int *, int *, int *, short);
   double DriftEval (double);
   double DriftMean (double);
   double BlevEval (double);
@@ -245,7 +245,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
       /* Fit a line to the virtual overscan region as a function of
        column number.
        */
-      if (BlevDrift (x, acs->vx, acs->vy, trimx1, biassect, driftcorr,
+      if (BlevDrift (x, acs->vx, acs->vy, biassect, driftcorr,
                      acs->sdqflags)) {
         free (ccdamp);
         return status;
@@ -453,7 +453,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
 
   /* With statistics in hand, ID and flag outliers*/
 	for (j = 0;  j < ny;  j++) {
-    if (barray[j] > abs((clip*sdev)+bmean)) {
+    if (barray[j] > fabs((clip*sdev)+bmean)) {
       bmask[j] = 0;
       nrej++;
     }
@@ -475,7 +475,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
   /* With statistics in hand, ID and flag outliers based on
    readnoise as sigma to further refine the value... */
 	for (j = 0;  j < ny;  j++) {
-    if (barray[j] > abs((clip*rn)+bmean)) {
+    if (barray[j] > fabs((clip*rn)+bmean)) {
       bmask[j] = 0;
       nrej++;
     }

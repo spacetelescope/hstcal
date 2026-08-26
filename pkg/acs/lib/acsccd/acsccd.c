@@ -192,7 +192,6 @@ void InitCCDTrl (char *input, char *output) {
 
     char trl_in[CHAR_LINE_LENGTH+1]; 	/* trailer filename for input */
     char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
-    int exist;
 
     char isuffix[] = "_raw";
     char osuffix[] = "_blv_tmp";

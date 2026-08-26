@@ -9,7 +9,7 @@
 
 static int checkAtoD (Hdr *, ACSInfo *, int *, int *);
 static int checkBias (Hdr *, ACSInfo *, int *, int *);
-static int checkBlev (Hdr *, ACSInfo *, int *, int *);
+static int checkBlev (Hdr *, ACSInfo *, int *);
 static int checkCCD (Hdr *, ACSInfo *, int *);
 static int checkDQI (Hdr *, ACSInfo *, int *, int *);
 static int checkSink (Hdr *, ACSInfo *, int *, int *);
@@ -79,7 +79,7 @@ int GetACSFlags (ACSInfo *acs, Hdr *phdr) {
     if (checkAtoD (phdr, acs, &missing, &nsteps))
         return (status);
 
-    if (checkBlev (phdr, acs, &missing, &nsteps))    /* no reference file */
+    if (checkBlev (phdr, acs, &nsteps))    /* no reference file */
         return (status);
 
     if (checkBias (phdr, acs, &missing, &nsteps))
@@ -214,7 +214,7 @@ static int checkBias (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
 }
 
 
-static int checkBlev (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
+static int checkBlev (Hdr *phdr, ACSInfo *acs, int *nsteps) {
 
     /* arguments:
        Hdr *phdr        i: primary header
