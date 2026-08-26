@@ -197,7 +197,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
       trlmessage("Bias shift correcting for bias level in Amp %c of %0.4f electrons (before correction).", AMPSORDER[ampInUse], magic_square_mean);
 
       /* make amp + gap array */
-      {int j; unsigned int k;
+      {int j, k;
       for (j = 0; j < arr_rows; j++) {
           for (k = 0; k < (arr_cols + ngap_pix); k++) {
               if (k < arr_cols) {

@@ -131,7 +131,6 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
 
     /* mappings from one coordinate system to another */
     double ri_m[2], ri_v[2];	/* reference to image */
-    int npix_x, npix_y;			/* size of current image */
 
     int i, j;					/* indexes for scratch array ydq */
     short sum_dq;				/* for binning data quality array */
@@ -173,18 +172,6 @@ int doDQI (ACSInfo *acs, SingleGroup *x) {
     /* Get the linear transformations. */
     if (GetLT0 (&x->sci.hdr, ri_m, ri_v))		/* zero indexed LTV */
         return (status);
-
-    /* size of current image */
-    npix_x = x->dq.data.nx;
-    npix_y = x->dq.data.ny;
-
-    /* Flag regions beyond the bounderies of the aperture, for
-    CCD imaging type observations.
-
-    if (acs->detector != MAMA_DETECTOR) {
-    FlagFilter (acs, &x->dq.data, npix_x, npix_y, ri_m, ri_v);
-    }
-    */
 
     /* There might not be any bad pixel table.  If not, quit now. */
     if (acs->bpix.exists == EXISTS_NO || acs->dqicorr != PERFORM)

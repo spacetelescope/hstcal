@@ -270,7 +270,7 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                     trlwarn(
                         "Negative value found at (%d,%d) in input MAMA data!",
                         (i + 1), (j + 1));
-                    val = abs(val);
+                    val = fabs(val);
                 }
                 value = sqrt(val);
                 Pix(x->err.data, i, j) = (value > 1) ? value : 1;

@@ -204,7 +204,6 @@ void InitCCDTrl (char *input, char *output) {
     /* Initialize internal variables */
     trl_in[0] = '\0';
     trl_out[0] = '\0';
-    exist = EXISTS_UNKNOWN;
 
     /* Start by stripping off suffix from input/output filenames */
     if (MkName (input, isuffix, trlsuffix, TRL_EXTN, trl_in, CHAR_LINE_LENGTH)) {
