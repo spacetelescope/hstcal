@@ -3,7 +3,7 @@
  FitToOverscan
  */
 
-#include <math.h>		/* sqrt */
+#include <math.h>        /* sqrt */
 #include <string.h>
 
 #include "acs.h"
@@ -57,19 +57,19 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
   double averagedrift;        /* drift averaged over all (output) columns */
   double sumbias, sumblev;    /* sum of bias levels (for getting mean) */
   int binx, biny;             /* bin factors */
-  int trimx1, trimx2;	/* width to trim off ends of each line */
-  int trimy1, trimy2;	/* amount to trim off ends of each column */
-  int biassect[4];	/* section(s) to use for finding bias level */
+  int trimx1, trimx2;    /* width to trim off ends of each line */
+  int trimy1, trimy2;    /* amount to trim off ends of each column */
+  int biassect[4];    /* section(s) to use for finding bias level */
   int i, j;
   double di, dj;
-  int endx, endy;		/* boundaries of actual image */
-  int begx, begy;		/* boundaries of actual image */
+  int endx, endy;        /* boundaries of actual image */
+  int begx, begy;        /* boundaries of actual image */
   int sizex, sizey;
   int biasnum;        /* array position for single amp used */
-  int amp;			/* Counter for amps used */
-  int numamps;		/* Number of AMPS used to readout chip */
+  int amp;            /* Counter for amps used */
+  int numamps;        /* Number of AMPS used to readout chip */
   char *ccdamp; /* Amps which are used for this chip */
-  int dodrift = YES;		/* use virtual overscan to get blevdrift? */
+  int dodrift = YES;        /* use virtual overscan to get blevdrift? */
   char *amploc;
   int bias_loc, amp_indx;
   int bias_ampx, bias_ampy;
@@ -102,7 +102,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
   biny = acs->bin[1];
 
   if ((binx != 1 && binx != 2 && binx != 4) ||
-	    (biny != 1 && biny != 2 && biny != 4)) {
+        (biny != 1 && biny != 2 && biny != 4)) {
     trlerror("(doBlev) bin size must be 1, 2, or 4.");
     free (ccdamp);
     return (status = 1001);
@@ -114,8 +114,8 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
    Also get the widths of the trim regions, the amount to remove
    from each axis of the input when copying to output.
    ** This routine is new to ACS...  It reads in overscan and trim
-   **	region specifications from an OSCNTAB, rather than having
-   **	it hardwired into the code as it was in CALSTIS.
+   **    region specifications from an OSCNTAB, rather than having
+   **    it hardwired into the code as it was in CALSTIS.
    */
   /*
    ASSUMPTION: Only have no overscan with SINGLE AMP readouts
@@ -136,7 +136,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
 
     for (j = 0;  j < x->sci.data.ny;  j++) {
       for (i = 0;  i < x->sci.data.nx;  i++)
-		    Pix (x->sci.data,i,j) = Pix (x->sci.data,i,j) - ccdbias;
+            Pix (x->sci.data,i,j) = Pix (x->sci.data,i,j) - ccdbias;
     }
 
     acs->blev[biasnum] = ccdbias;
@@ -189,7 +189,7 @@ int doBlev (ACSInfo *acs, SingleGroup *x, int chip,
     bias_ampx = bias_orderx[bias_loc];
     bias_ampy = bias_ordery[bias_loc];
 
-    /* Requirement: at least 1 section should be specified!	 */
+    /* Requirement: at least 1 section should be specified!     */
     /* If both bias sections are specified,... */
     if (acs->biassecta[1] > 0 && acs->biassectb[1] > 0) {
       /* select section nearest the amp based on bias_amp */
@@ -331,36 +331,36 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
    float rn         i: calibrated readnoise level for this amp
    */
 
-	extern int status;
+    extern int status;
 
-	double biaslevel;	/* bias level in one line of input image */
-	int too_few = 0;	/* number of lines with too few good pixels */
-	int npix;		/* number of pixels used to compute bias */
+    double biaslevel;    /* bias level in one line of input image */
+    int too_few = 0;    /* number of lines with too few good pixels */
+    int npix;        /* number of pixels used to compute bias */
   double *biasvals;  /* intermediate array for biaslevel values */
   int *biasmask;     /* mask array for biasvals- 0 means do not use */
-	int j;
-	void BlevInit (int);
-	void BlevAccum (int, double);
-	int BlevFit (void);
-	void BlevSet (double);
-	int FindBlev (SingleGroup *, int, int *, short, double *, int *);
+    int j;
+    void BlevInit (int);
+    void BlevAccum (int, double);
+    int BlevFit (void);
+    void BlevSet (double);
+    int FindBlev (SingleGroup *, int, int *, short, double *, int *);
   void cleanBiasFit(double *, int *, int, float);
 
-	BlevInit (ny / 2);			/* initialize for fitting */
+    BlevInit (ny / 2);            /* initialize for fitting */
 
   /* Allocate space for biaslevel arrays... */
   biasvals = (double *) calloc (ny+1, sizeof(double));
   biasmask = (int *) calloc (ny+1, sizeof(int));
 
-	/* For each line, determine the bias level from the overscan in x.
+    /* For each line, determine the bias level from the overscan in x.
    Note that we loop over the number of pixels in the output image.
    The argument j+trimy1 to FindBlev is the line number in the
    input image x, with trimy1 the offset to the illuminated region.
    */
-	for (j = 0;  j < ny;  j++) {
+    for (j = 0;  j < ny;  j++) {
     if (FindBlev (x, j+trimy1, biassect, sdqflags, &biaslevel, &npix)) {
       too_few++;
-      status = 0;			/* not fatal */
+      status = 0;            /* not fatal */
     } else {
       /* add biaslevel value to intermediate array
        This array will then be analyzed for outliers and
@@ -373,7 +373,7 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
               biassect[0], biassect[1], biassect[2], biassect[3], npix);
       }
     }
-	}
+    }
   /* Analyze biasvals for outliers and mask them
    by setting the corresponding value in the biasweight
    array to 0.
@@ -385,29 +385,29 @@ static void FitToOverscan (SingleGroup *x, int ny, int trimy1,
    regions and thrown out any outliers (cosmic-ray hits), we can accumulate
    the fitting statistics now.
    */
-	for (j = 0;  j < ny;  j++) {
+    for (j = 0;  j < ny;  j++) {
     if (biasmask[j] == 1){
       /* Note:  j is line number in output image. */
-      BlevAccum (j, biasvals[j]);	/* increment sums */
+      BlevAccum (j, biasvals[j]);    /* increment sums */
     }
   }
 
-	if (too_few > 0) {
+    if (too_few > 0) {
             snprintf(MsgText, sizeof(MsgText), "(blevcorr) %d image line", too_few);
     if (too_few == 1)
-			strcat (MsgText, " has");
+            strcat (MsgText, " has");
     else
-			strcat (MsgText, "s have");
+            strcat (MsgText, "s have");
     strcat (MsgText, " too few usable overscan pixels.");
-		trlwarn(MsgText);
-	}
+        trlwarn(MsgText);
+    }
 
-	/* Fit a curve to the bias levels found. */
-	if (BlevFit()) {
+    /* Fit a curve to the bias levels found. */
+    if (BlevFit()) {
     trlwarn("No bias level data, or singular fit;");
     trlmessage("            bias from CCDTAB will be subtracted.");
-    BlevSet (ccdbias);		/* assign the default value */
-	}
+    BlevSet (ccdbias);        /* assign the default value */
+    }
 
   /* Clean up memory */
   free(biasvals);
@@ -425,7 +425,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
   float clip = 3;
   int nrej=0;
 
-	for (j = 0;  j < ny;  j++) {
+  for (j = 0;  j < ny;  j++) {
     if (bmask[j] == 1){
       bsum += barray[j];
       nsum += 1;
@@ -436,7 +436,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
     return;
 
   bmean = bsum / nsum;
-	for (j = 0;  j < ny;  j++) {
+  for (j = 0;  j < ny;  j++) {
     if (bmask[j] == 1) {
       s = barray[j] - bmean;
       svar += (s*s);
@@ -452,8 +452,12 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
   if (sdev > sqrt(bmean)) sdev = sqrt(bmean);
 
   /* With statistics in hand, ID and flag outliers*/
-	for (j = 0;  j < ny;  j++) {
-    if (barray[j] > fabs((clip*sdev)+bmean)) {
+  for (j = 0;  j < ny;  j++) {
+    /* NOTE: int casting is to silence compiler warning without
+       changing results, though the cleaner fix is probably fabs
+       but that would require INS approval.
+    */
+    if (barray[j] > abs((int) ((clip*sdev)+bmean))) {
       bmask[j] = 0;
       nrej++;
     }
@@ -462,7 +466,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
   /* Recompute the mean based on clipped values. */
   bsum = bmean = 0.0;
   nsum = 0;
-	for (j = 0;  j < ny;  j++) {
+  for (j = 0;  j < ny;  j++) {
     /* If value has not already been thrown out,
      use it to compute new mean... */
     if ( bmask[j] != 0 ){
@@ -474,7 +478,7 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
 
   /* With statistics in hand, ID and flag outliers based on
    readnoise as sigma to further refine the value... */
-	for (j = 0;  j < ny;  j++) {
+  for (j = 0;  j < ny;  j++) {
     if (barray[j] > fabs((clip*rn)+bmean)) {
       bmask[j] = 0;
       nrej++;
