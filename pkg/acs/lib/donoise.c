@@ -155,7 +155,7 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */
                     Pix(x->err.data, i, j) =
-                        sqrt(value + rn2[AMP_C] + err_val * err_val);
+                        sqrtf(value + rn2[AMP_C] + err_val * err_val);
                 } else {
                     /* BIAS exposure being processed: only set to RN */
                     Pix(x->err.data, i, j) = rn[AMP_C];
@@ -186,7 +186,7 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */
                     Pix(x->err.data, i, j) =
-                        sqrt(value + rn2[AMP_D] + err_val * err_val);
+                        sqrtf(value + rn2[AMP_D] + err_val * err_val);
                 } else {
                     /* BIAS exposure being processed: only set to RN */
                     Pix(x->err.data, i, j) = rn[AMP_D];
@@ -219,7 +219,7 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */
                     Pix(x->err.data, i, j) =
-                        sqrt(value + rn2[AMP_A] + err_val * err_val);
+                        sqrtf(value + rn2[AMP_A] + err_val * err_val);
                 } else {
                     /* BIAS exposure being processed: only set to RN */
                     Pix(x->err.data, i, j) = rn[AMP_A];
@@ -251,7 +251,7 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                 if (strncmp(targname, "BIAS", 4) != 0) {
                     /* include readout noise and convert back to dn */
                     Pix(x->err.data, i, j) =
-                        sqrt(value + rn2[AMP_B] + err_val * err_val);
+                        sqrtf(value + rn2[AMP_B] + err_val * err_val);
                 } else {
                     /* BIAS exposure being processed: only set to RN */
                     Pix(x->err.data, i, j) = rn[AMP_B];
