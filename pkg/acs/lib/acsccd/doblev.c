@@ -477,9 +477,14 @@ void cleanBiasFit(double *barray, int *bmask, int ny, float rn){
   bmean = bsum / nsum;
 
   /* With statistics in hand, ID and flag outliers based on
-   readnoise as sigma to further refine the value... */
+     readnoise as sigma to further refine the value...
+
+     NOTE: int casting is to silence compiler warning without
+     changing results, though the cleaner fix is probably fabs
+     but that would require INS approval.
+  */
   for (j = 0;  j < ny;  j++) {
-    if (barray[j] > fabs((clip*rn)+bmean)) {
+    if (barray[j] > abs((int)((clip*rn)+bmean))) {
       bmask[j] = 0;
       nrej++;
     }

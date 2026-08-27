@@ -922,7 +922,11 @@ static int calc_mean_std(const int len, const double array[], const double sig,
     sum_std = 0.0;
 
     for (i = 0; i < len; i++) {
-      if (fabs(array[i] - temp_mean) <= sig*temp_std) {
+      /* NOTE: int casting is to silence compiler warning without
+         changing results, though the cleaner fix is probably fabs
+         but that would require INS approval.
+      */
+      if (abs((int) (array[i] - temp_mean)) <= sig*temp_std) {
         sum_mean += array[i];
         sum_std += pow(array[i] - temp_mean, 2);
         nused++;

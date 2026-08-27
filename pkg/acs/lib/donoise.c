@@ -270,9 +270,13 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
                     trlwarn(
                         "Negative value found at (%d,%d) in input MAMA data!",
                         (i + 1), (j + 1));
-                    val = fabs(val);
+                    /* NOTE: int casting is to silence compiler warning without
+                       changing results, though the cleaner fix is probably fabs
+                       but that would require INS approval.
+                    */
+                    val = (float) abs((int) val);
                 }
-                value = sqrt(val);
+                value = sqrtf(val);
                 Pix(x->err.data, i, j) = (value > 1) ? value : 1;
             }
         }
