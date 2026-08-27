@@ -786,7 +786,11 @@ static int find_good_rows(const int arr_rows, const int arr_cols, const double *
 
     row_means[i] = sum / (double) (arr_cols - NBIAS_COLS);
 
-    if (fabs(row_means[i] - amp_mean) > 100) {
+    /* NOTE: int casting is to silence compiler warning without
+       changing results, though the cleaner fix is probably fabs
+       but that would require INS approval.
+    */
+    if (abs((int)(row_means[i] - amp_mean)) > 100) {
       good_rows[i] = 0;
     } else if (array[arr_cols*i + 24] > 70000) {
       good_rows[i] = 0;
