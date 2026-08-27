@@ -248,7 +248,7 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
         float threadCounts = 0;
         float threadRawCounts = 0;
         float delta;
-        {   unsigned k;
+        {   int k;
 #ifdef _OPENMP
             #pragma omp for schedule(static)
 #endif
@@ -256,7 +256,7 @@ int doPCTEGen3 (ACSInfo *acs, CTEParamsFast * ctePars, SingleGroup * chipImage, 
             //MORE: look into worth splitting out ops, prob needs a order swap (copy) so perhaps not worth it.
             for (k = 0; k < nRows; ++k)
             {
-                {   unsigned m;
+                {   int m;
                     for (m = 0; m < nColumns; ++m)
                     {
                         delta = (PixColumnMajor(cteCorrectedImage->sci.data,k,m) - PixColumnMajor(smoothedImage.sci.data,k,m));

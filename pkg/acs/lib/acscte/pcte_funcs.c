@@ -25,7 +25,7 @@ int getCTE_NAME(char * filename, char * cteName, int cteNameBufferLength)
     extern int status;
 
     Hdr hdr;
-    initHdr(&hdr);//For correctness (this is foolishly initialized in LoadHdr())
+    initHdr(&hdr); //For correctness (this is foolishly initialized in LoadHdr())
 
     if (LoadHdr(filename, &hdr))
     {
@@ -58,8 +58,6 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams *pars) {
   IRAFPointer col_ptr_dtde;   /* xtables column pointer for dtde */
   IRAFPointer col_ptr_qdtde;  /* xtables column pointer for q_dtde */
   IRAFPointer col_ptr_levs;   /* xtables column pointer for levels */
-  /*IRAFPointer col_ptr_mjd;*/    /* xtables column pointer for mjd */
-  /*IRAFPointer col_ptr_scale;*/  /* xtables column pointer for scale */
   IRAFPointer col_ptr_amp;    /* xtables column pointer for amp */
 
   /* names of data columns we want from the file */
@@ -614,7 +612,8 @@ int CalcCteFrac(double * cte_frac, const double expstart, const double scalemjd[
  * Output chg_leak_interp has all the data chg_leak plus interpolated data where
  * chg_leak has none.
  */
-int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ], const int psi_node[NUM_PSI],
+int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ],
+                   const int psi_node[NUM_PSI],
                    double chg_leak_interp[MAX_TAIL_LEN*NUM_LOGQ],
                    double chg_open_interp[MAX_TAIL_LEN*NUM_LOGQ]) {
 

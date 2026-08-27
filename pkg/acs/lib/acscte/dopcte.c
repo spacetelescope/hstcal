@@ -18,18 +18,6 @@ int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
                               char *amploc, char *ccdamp,
                               int *xsize, int *ysize, int *xbeg,
                               int *xend, int *ybeg, int *yend);
-static int make_amp_array(const ACSInfo *acs, const SingleGroup *im,
-                          const int amp,
-                          const int arr1, const int arr2,
-                          const int xbeg, const int ybeg,
-                          double amp_sci_array[arr1*arr2],
-                          double amp_err_array[arr1*arr2]);
-static int unmake_amp_array(const ACSInfo *acs, const SingleGroup *im,
-                            const int amp,
-                            const int arr1, const int arr2,
-                            const int xbeg, const int ybeg,
-                            double amp_sci_array[arr1*arr2],
-                            double amp_err_array[arr1*arr2]);
 
 
 /* Returns the x/y dimensions for an array that holds data readout through a
@@ -53,14 +41,12 @@ int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
     int bias_orderx[4] = {0,1,0,1};
     int bias_ordery[4] = {0,0,1,1};
 
-    int trimx1, trimx2, trimy1, trimy2;
+    int trimx1, trimy1;
 
     if (acs->detector == WFC_CCD_DETECTOR) {
         /* Copy out overscan info for ease of reference in this function*/
         trimx1 = acs->trimx[0];
-        trimx2 = acs->trimx[1];
         trimy1 = acs->trimy[0];
-        trimy2 = acs->trimy[1];
 
         bias_loc = *amploc - ccdamp[0];
         bias_ampx = bias_orderx[bias_loc];
@@ -78,112 +64,6 @@ int get_amp_array_size_acs_cte(const ACSInfo *acs, SingleGroup *x,
         if (*yend > x->sci.data.ny) *yend = x->sci.data.ny;
         *xsize = *xend - *xbeg;
         *ysize = *yend - *ybeg;
-    } else {
-        trlerror("(pctecorr) Detector not supported: %i",acs->detector);
-        status = ERROR_RETURN;
-        return status;
-    }
-
-    return status;
-}
-
-
-/* Make_amp_array returns an array view of the data readout through the
-   specified amp in which the amp is at the lower left hand corner.
-*/
-static int make_amp_array(const ACSInfo *acs, const SingleGroup *im,
-                          const int amp,
-                          const int arr1, const int arr2,
-                          const int xbeg, const int ybeg,
-                          double amp_sci_array[arr1*arr2],
-                          double amp_err_array[arr1*arr2]) {
-
-    extern int status;
-
-    /* iteration variables */
-    int i, j;
-
-    /* variables for the image row/column we want */
-    int r, c;
-
-    if (acs->detector == WFC_CCD_DETECTOR) {
-        for (i = 0; i < arr1; i++) {
-            for (j = 0; j < arr2; j++) {
-                if (amp == AMP_A) {
-                    r = ybeg + arr1 - i - 1;
-                    c = xbeg + j;
-                } else if (amp == AMP_B) {
-                    r = ybeg + arr1 - i - 1;
-                    c = xbeg + arr2 - j - 1;
-                } else if (amp == AMP_C) {
-                    r = ybeg + i;
-                    c = xbeg + j;
-                } else if (amp == AMP_D) {
-                    r = ybeg + i;
-                    c = xbeg + arr2 - j -1;
-                } else {
-                    trlerror("Amp number not recognized, must be 0-3.");
-                    status = ERROR_RETURN;
-                    return status;
-                }
-
-                amp_sci_array[i*arr2 + j] = Pix(im->sci.data, c, r);
-                amp_err_array[i*arr2 + j] = Pix(im->err.data, c, r);
-            }
-        }
-    } else {
-        trlerror("(pctecorr) Detector not supported: %i",acs->detector);
-        status = ERROR_RETURN;
-        return status;
-    }
-
-    return status;
-}
-
-
-/* unmake_amp_array does the opposite of make_amp_array, it takes amp array
-   views and puts them back into the single group in the right order.
-*/
-static int unmake_amp_array(const ACSInfo *acs, const SingleGroup *im,
-                            const int amp,
-                            const int arr1, const int arr2,
-                            const int xbeg, const int ybeg,
-                            double amp_sci_array[arr1*arr2],
-                            double amp_err_array[arr1*arr2]) {
-
-    extern int status;
-
-    /* iteration variables */
-    int i, j;
-
-    /* variables for the image row/column we want */
-    int r, c;
-
-    if (acs->detector == WFC_CCD_DETECTOR) {
-        for (i = 0; i < arr1; i++) {
-            for (j = 0; j < arr2; j++) {
-                if (amp == AMP_A) {
-                    r = ybeg + arr1 - i - 1;
-                    c = xbeg + j;
-                } else if (amp == AMP_B) {
-                    r = ybeg + arr1 - i - 1;
-                    c = xbeg + arr2 - j - 1;
-                } else if (amp == AMP_C) {
-                    r = ybeg + i;
-                    c = xbeg + j;
-                } else if (amp == AMP_D) {
-                    r = ybeg + i;
-                    c = xbeg + arr2 - j -1;
-                } else {
-                    trlerror("Amp number not recognized, must be 0-3.");
-                    status = ERROR_RETURN;
-                    return status;
-                }
-
-                Pix(im->sci.data, c, r) = (float) amp_sci_array[i*arr2 + j];
-                Pix(im->err.data, c, r) = (float) amp_err_array[i*arr2 + j];
-            }
-        }
     } else {
         trlerror("(pctecorr) Detector not supported: %i",acs->detector);
         status = ERROR_RETURN;

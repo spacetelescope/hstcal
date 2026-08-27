@@ -46,7 +46,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
 
   /* flag for whether we've found a pixel with added charge */
   short int high_found;
-  int high_location;
+  int high_location = 0;
 
   /* track how many times we run the column. */
   short int redo_col = 0;
@@ -103,11 +103,10 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
 
               /* if no added pixel was found then we can't do anything, move on */
               if (high_found == 0) {
-                continue;
-              } else {
-                /* gonna have to redo this */
-                redo_col = 1;
+                  continue;
               }
+              /* gonna have to redo this */
+              redo_col = 1;
 
               /* recalculate a new CTE scaling factor */
               ncf_top = fmax(pix_obs[i], 0.0);
@@ -143,9 +142,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
                 cte_frac_col[i+4] *= 1.0 - 0.2 * (1.0 - new_cte_frac);
               }
 
-              if (redo_col) {
-                break;
-              }
+              break;
             }
           }
 
@@ -186,8 +183,10 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
       }
 
       num_redo = 0;
+      redo_col = 0;
 
       do {
+        status = ERROR_RETURN;
         for (n = 0; n < sim_nit; n++) {
           status = sim_readout_nit(arrx, pix_cur, pix_read, shft_nit, cte_frac_col,
                                    levels, dpde_l, chg_leak_lt, chg_open_lt);
@@ -208,6 +207,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             if (pix_cur[i] - pix_obs[i] < too_low &&
                 pix_cur[i] < too_low && !redo_col) {
               high_found = 0;
+              high_location = 0;
 
               /* search for an upstream pixel with added charge */
               for (i2 = i-1; i2 > 0; i2--) {
@@ -220,11 +220,10 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
 
               /* if no added pixel was found then we can't do anything, move on */
               if (high_found == 0) {
-                continue;
-              } else {
-                /* gonna have to redo this */
-                redo_col = 1;
+                  continue;
               }
+              /* gonna have to redo this */
+              redo_col = 1;
 
               /* recalculate a new CTE scaling factor */
               ncf_top = fmax(pix_obs[i], 0.0);
@@ -260,9 +259,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
                 cte_frac_col[i+4] *= 1.0 - 0.2 * (1.0 - new_cte_frac);
               }
 
-              if (redo_col) {
-                break;
-              }
+              break;
             }
           }
 
@@ -328,9 +325,6 @@ int sim_readout(const int arrx, double pix_cur[arrx], double pix_read[arrx],
                 const double dpde_l[NUM_LEV],
                 const double chg_leak_lt[MAX_TAIL_LEN*NUM_LEV],
                 const double chg_open_lt[MAX_TAIL_LEN*NUM_LEV]) {
-
-  /* status variable for return */
-  extern int status;
 
   /* iteration variables */
   int i, l;
@@ -409,5 +403,5 @@ int sim_readout(const int arrx, double pix_cur[arrx], double pix_read[arrx],
     pix_read[i] = pix_cur[i] + add_charge1 + add_charge2 - rem_charge;
   }
 
-  return status;
+  return ACS_OK;
 }

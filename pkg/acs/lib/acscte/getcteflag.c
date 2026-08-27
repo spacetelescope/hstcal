@@ -93,7 +93,7 @@ static int checkPCTE (Hdr *phdr, ACSInfo *acs, int *missing, int *nsteps) {
             return (status);
         }
 
-        if (acs->pcteTabNameFromCmd && *acs->pcteTabNameFromCmd != '\0')
+        if (*acs->pcteTabNameFromCmd != '\0')
         {
             trlwarn("(pctecorr) USING PCTETAB SPECIFIED BY '--pctetab %s' AND NOT THAT FROM IMAGE HEADER!!!", acs->pcteTabNameFromCmd);
             if ((status = checkTabRefPedigree(acs->pcteTabNameFromCmd, &acs->pcte, &acs->pctecorr)))

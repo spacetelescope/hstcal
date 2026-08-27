@@ -18,7 +18,7 @@
 # include "trlbuf.h"
 # include "getacskeys.h"
 
-void InitCTETrl (char * input, char * output, const char * isuffix, const char * osuffix);
+void InitCTETrl (char * input, char * output, char * isuffix, char * osuffix);
 
 
 /* Do CTE loss correction.
@@ -180,7 +180,7 @@ int ACScte (char *input, char *output, CalSwitch *cte_sw,
 }
 
 
-void InitCTETrl (char *input, char *output, const char * isuffix, const char * osuffix) {
+void InitCTETrl (char *input, char *output, char * isuffix, char * osuffix) {
 
     extern int status;
 

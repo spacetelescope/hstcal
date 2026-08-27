@@ -48,7 +48,8 @@ int PixCteParams (char *filename, const double expstart, ACSCTEParams * pars);
 int CompareCteParams(SingleGroup *x, ACSCTEParams *pars);
 int CalcCteFrac(double * cte_frac, const double expstart, const double scalemjd[NUM_SCALE],
                    const double scaleval[NUM_SCALE]);
-int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ], const int psi_node[],
+int InterpolatePsi(const double chg_leak[NUM_PSI*NUM_LOGQ],
+                   const int psi_node[NUM_PSI],
                    double chg_leak_interp[MAX_TAIL_LEN*NUM_LOGQ],
                    double chg_open_interp[MAX_TAIL_LEN*NUM_LOGQ]);
 int InterpolatePhi(const double dtde_l[NUM_PHI], const int q_dtde[NUM_PHI],

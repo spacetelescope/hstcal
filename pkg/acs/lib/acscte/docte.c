@@ -98,7 +98,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     x = (SingleGroup *) malloc(acs_info->nimsets * sizeof(SingleGroup));
     acs = (ACSInfo *) malloc(acs_info->nimsets * sizeof(ACSInfo));
 
-    {   unsigned i;
+    {   int i;
         for (i = 0; i < acs_info->nimsets; i++) {
             initSingleGroup(&x[i]);
             acs[i] = *acs_info;
@@ -114,7 +114,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
        processing step functions and pass along modified input image
        from one step to the next...
     */
-    {   unsigned i;
+    {   int i;
         for (i = 0; i < acs_info->nimsets; i++) {
             getSingleGroup(acs[i].input, i+1, &x[i]);
 
@@ -134,7 +134,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
        Probably redundant here but does not hurt.
     */
-    {   unsigned i;
+    {   int i;
         for (i = 0; i < acs_info->nimsets; i++) {
             if (GetACSGrp(&acs[i], &x[i].sci.hdr)) {
                 freeSingleGroup(&x[i]);
@@ -335,7 +335,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
         */
         char ccdamp[strlen(AMPSTR1)+1]; // string to hold amps on current chip
         addPtr(&ptrReg, &ctePars, &freeCTEParamsFast);
-        {   unsigned i;
+        {   int i;
             for (i = 0; i < acs_info->nimsets; i++) {
 
                 // Determine which amps are on the current chip of the input image
@@ -347,7 +347,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
 
                 char corrType[20];
                 corrType[0] = '\0';
-                for (unsigned nthAmp = 0; nthAmp < numamps; ++nthAmp)
+                for (int nthAmp = 0; nthAmp < numamps; ++nthAmp)
                 {
                     /* Get the amp letter and number where A:0, B:1, etc. as defined in acs.h */
                     amploc = strchr(AMPSORDER, ccdamp[nthAmp]);
@@ -498,7 +498,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     UCalVer(x[0].globalhdr);
     UFilename(acs_info->output, x[0].globalhdr);
 
-    {   unsigned i;
+    {   int i;
         for (i = 0; i < acs_info->nimsets; i++) {
             if (acs_info->verbose) {
                 trlmessage("Outputting chip %d", acs[i].chip);
