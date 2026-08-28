@@ -356,7 +356,7 @@ int extver       i: "imset" number, the current set of extensions
 	putSingleGroup (wf32d->output, extver, &x, option);
 	if (hstio_err()) {
 	    trlerror("Couldn't write imset %d.", extver);
-	    return (status = 1001);
+		return (status = INVALID_EXPTIME);
 	}
 	if (wf32d->printtime)
 	    TimeStamp ("Output written to disk", wf32d->rootname);

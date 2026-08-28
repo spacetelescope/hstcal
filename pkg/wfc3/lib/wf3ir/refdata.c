@@ -751,7 +751,6 @@ int crrpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
     float           exp_in, meanexp, mindiff, diff;
 
     void    PrRefInfo (char *, char *, char *, char *, char *);
-    void    WhichError (int);
 
 /* -------------------------------- begin ---------------------------------- */
     row=0;

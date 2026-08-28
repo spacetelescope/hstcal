@@ -46,7 +46,6 @@ int main (int argc, char **argv) {
 	/* Function definitions */
 	void c_irafinit (int, char **);
 	int  CalWf3Run  (char *, int, int, int, int, int);
-	void WhichError (int);
 
 	/* Initialize status to OK and MsgText to null */
 	status     = WF3_OK;

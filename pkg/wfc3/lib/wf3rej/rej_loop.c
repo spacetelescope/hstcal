@@ -209,7 +209,6 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 
     /* Functions for dealing with MULTIAMP values of gain and noise */
 /*  int       LoadHdr (char *, Hdr *);*/
-    void      WhichError (int);
     void      get_nsegn (int, int, int, int, float *, float*, float *, float *);
 
     /********************************** Begin Code ****************************/

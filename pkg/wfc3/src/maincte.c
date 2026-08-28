@@ -36,7 +36,6 @@ void FreeRefFile (RefFileInfo *);
 void InitRefFile (RefFileInfo *);
 int WF3cte (char *, char *, CCD_Switch *, RefFileInfo *, int, int, int);
 int MkName (char *, char *, char *, char *, char *, int);
-void WhichError (int);
 int CompareNumbers (int, int, char *);
 int LoadHdr (char *, Hdr *);
 int GetSwitch (Hdr *, char *, int *);

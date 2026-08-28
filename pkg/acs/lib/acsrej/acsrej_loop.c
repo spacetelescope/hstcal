@@ -257,7 +257,6 @@ int acsrej_loop (IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
 
     /* Functions for dealing with MULTIAMP values of gain and noise */
     int  LoadHdr (char *, Hdr *);
-    void WhichError (int);
     void get_nsegn (int, int, int, int, float *, float*, float *, float *);
 
     /********************************** Begin Code ****************************/

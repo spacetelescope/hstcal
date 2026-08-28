@@ -353,7 +353,6 @@ void InitIRTrl (char *input, char *output) {
         char osuffix[] = "_flt";
 
         int MkName (char *, char *, char *, char *, char *, int);
-        void WhichError (int);
         int TrlExists (char *);
 
         /* Initialize internal variables */

@@ -133,8 +133,7 @@ static void InitRejTrl (char *input, char *output) {
   char        otrlsuffix[] = "";
   
   int MkName (char *, char *, char *, char *, char *, int);
-  void WhichError (int);
-  
+
   /* check whether we're dealing with _blv_tmp or _blc_tmp files and
    * adjust isuffix and osuffix accordingly */
   if (strstr(input, isuffix) == NULL) {

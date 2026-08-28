@@ -55,7 +55,6 @@ int rejpar_in (clpar *par, int newpar[], int nimgs, float exptot, int *niter,
     char            maskstr[SZ_CBUF+1];
 
     void    PrRefInfo (char *, char *, char *, char *, char *);
-    void    WhichError (int);
 
 /* -------------------------------- begin ---------------------------------- */
 
