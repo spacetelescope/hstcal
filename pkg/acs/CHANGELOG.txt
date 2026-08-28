@@ -1,5 +1,8 @@
-### 16-Mar-2026 - PLL - Version 10.5.0
-    Serial CTE correction is now enabled for post-SM4 WFC subarrays.
+### 25-Aug-2026 - PLL - Version 10.5.0
+    - Serial CTE correction is now enabled for post-SM4 WFC subarrays.
+    - Fixed crosstalk bug where right amp operates on corrected pixels
+      from left amp, but not vice versa. Now right amp also operates
+      on uncorrected pixels.
 
 ### 08-Aug-2025 - PLL - Version 10.4.1
     Post-SM4 subarrays now have MEANBLEV populated with "fat zero"
