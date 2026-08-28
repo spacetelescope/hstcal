@@ -184,6 +184,7 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
 
       num_redo = 0;
       redo_col = 0;
+      high_location = 0;
 
       do {
         status = ERROR_RETURN;
@@ -207,7 +208,6 @@ int FixYCte(const int arrx, const int arry, const double sig_cte[arrx*arry],
             if (pix_cur[i] - pix_obs[i] < too_low &&
                 pix_cur[i] < too_low && !redo_col) {
               high_found = 0;
-              high_location = 0;
 
               /* search for an upstream pixel with added charge */
               for (i2 = i-1; i2 > 0; i2--) {
