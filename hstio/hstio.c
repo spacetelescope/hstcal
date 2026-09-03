@@ -114,7 +114,6 @@
 
 # include "hstio.h"
 # include "hstcalerr.h"
-#include "str_util.h"
 
 /* Global status tracker */
 int status;
