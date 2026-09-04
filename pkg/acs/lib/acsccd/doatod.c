@@ -102,9 +102,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 	int foundit;		/* row found in table? */
 	int row;		/* loop index for row number */
-	int row_min;		/* row with matching keyword */
+	int row_min=0;		/* row with matching keyword */
 	double ref_key_value;	/* value gotten from image header */
-	double dt, dt_min;	/* for finding desired row in table */
+	double dt, dt_min=99999.9;	/* for finding desired row in table */
 	int ival;		/* input science data value from x */
 	int i, j;
 	short dqval;

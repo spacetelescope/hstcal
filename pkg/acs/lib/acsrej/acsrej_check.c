@@ -72,7 +72,7 @@ int acsrej_check (IRAFPointer tpin, int extver, clpar *par, int newpar[],
     Hdr         prihdr, scihdr;         /* header structures */
     char        fdata[CHAR_FNAME_LENGTH];
     char        det[ACS_CBUF], flashcur[ACS_CBUF], flashcur0[ACS_CBUF];
-    int         detector=0, flshcorr, flshcorr0;
+    int         detector=0, flshcorr, flshcorr0=DUMMY;
     float       flashdur, flashlevel, flashlevel0;
     float       darktime;
     multiamp    gn, ron;
