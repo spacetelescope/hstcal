@@ -23,32 +23,31 @@
 */
 
 int RowPedigree (RefTab *ref, int row,
-	IRAFPointer tp, IRAFPointer cp_pedigree, IRAFPointer cp_descrip) {
+    IRAFPointer tp, IRAFPointer cp_pedigree, IRAFPointer cp_descrip) {
 
-	extern int status;
+    extern int status;
 
-	/* Get pedigree and descrip.  If either or both are missing,
-	   that's not an error in this case.
-	*/
-	if (cp_pedigree > 0) {
-	    c_tbegtt (tp, cp_pedigree, row, ref->pedigree, ACS_FITS_REC);
-	    if (c_iraferr())
-		return (status = TABLE_ERROR);
-	    /* Is this row flagged as dummy? */
-	    if (strncmp (ref->pedigree, "DUMMY", 5) == 0)
-		ref->goodPedigree = DUMMY_PEDIGREE;
-	    else
-		ref->goodPedigree = GOOD_PEDIGREE;
-	}
+    /* Get pedigree and descrip.  If either or both are missing,
+       that's not an error in this case.
+    */
+    if (cp_pedigree != NULL) {
+        c_tbegtt (tp, cp_pedigree, row, ref->pedigree, ACS_FITS_REC);
+        if (c_iraferr())
+            return (status = TABLE_ERROR);
+        /* Is this row flagged as dummy? */
+        if (strncmp (ref->pedigree, "DUMMY", 5) == 0)
+            ref->goodPedigree = DUMMY_PEDIGREE;
+        else
+            ref->goodPedigree = GOOD_PEDIGREE;
+    }
 
-	if (cp_descrip > 0) {
-	    c_tbegtt (tp, cp_descrip, row, ref->descrip2, ACS_FITS_REC);
-	    if (c_iraferr())
-		return (status = TABLE_ERROR);
-	} else {
-	    ref->descrip2[0] = '\0';
-	}
+    if (cp_descrip != NULL) {
+        c_tbegtt (tp, cp_descrip, row, ref->descrip2, ACS_FITS_REC);
+        if (c_iraferr())
+            return (status = TABLE_ERROR);
+    } else {
+        ref->descrip2[0] = '\0';
+    }
 
-
-	return (status);
+    return (status);
 }

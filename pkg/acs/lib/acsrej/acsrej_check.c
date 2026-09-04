@@ -12,7 +12,7 @@
 
 static int getACSnsegn (Hdr *, char *, multiamp *, multiamp *);
 static int checkgn (multiamp, char *);
-static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
+static int getACSampxy (Hdr *, int, int, char *, int, int *, int *);
 
 /*  acsrej_check -- check input files of acsrej
 
@@ -289,7 +289,7 @@ int acsrej_check (IRAFPointer tpin, int extver, clpar *par, int newpar[],
                 chip = 1;
 
             /* Now we need to read in CCDTAB file to get AMP regions */
-            if (getACSampxy (&prihdr, detector, chip, ccdamp, *dim_x, *dim_y,
+            if (getACSampxy (&prihdr, detector, chip, ccdamp, *dim_x,
                              &ampx, &ampy) )
                 return (status);
 
@@ -379,7 +379,7 @@ static int checkgn (multiamp gn, char *fdata) {
     return (status);
 
 }
-static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int dimy, int *ampx, int *ampy) {
+static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int *ampx, int *ampy) {
 
     extern int status;
     ACSInfo acsrej;

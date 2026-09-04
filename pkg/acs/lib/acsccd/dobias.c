@@ -1,10 +1,10 @@
-# include <stdio.h>
+#include <stdio.h>
 
 #include "hstcal.h"
-# include "hstio.h"
-# include "acs.h"
-# include "acsinfo.h"
-# include "hstcalerr.h"
+#include "hstio.h"
+#include "acs.h"
+#include "acsinfo.h"
+#include "hstcalerr.h"
 
 /* This routine subtracts the bias image from x (in-place).
  For ACS science data, it will normally be the
@@ -21,107 +21,106 @@
  Initial version for ACS...
 
  ** Revised to read Bias image in line-by-line.  All code written around
- **	SingleGroupLine routines are new to ACS...
+ **    SingleGroupLine routines are new to ACS...
  */
 
 int doBias (ACSInfo *acs, SingleGroup *x) {
 
-  /* arguments:
-   ACSInfo *acs     i: calibration switches, etc
-   SingleGroup *x    io: image to be calibrated; written to in-place
-   */
+    /* arguments:
+       ACSInfo *acs     i: calibration switches, etc
+       SingleGroup *x    io: image to be calibrated; written to in-place
+    */
 
-	extern int status;
+    extern int status;
 
-	SingleGroupLine y, z;	/* y and z are scratch space */
-	int extver = 1;			/* get this imset from bias image */
-	int rx, ry;					/* for binning bias image down to size of x */
-	int x0, y0;				/* offsets of sci image */
-	int same_size;			/* true if no binning of ref image required */
-	int avg = 0;			/* bin2d should sum within each bin */
-	int scilines; 			/* number of lines in science image */
-	int i, j;
-	int update;
+    SingleGroupLine y, z;    /* y and z are scratch space */
+    int extver = 1;            /* get this imset from bias image */
+    int rx, ry;                    /* for binning bias image down to size of x */
+    int x0, y0;                /* offsets of sci image */
+    int same_size;            /* true if no binning of ref image required */
+    int scilines;             /* number of lines in science image */
+    int i, j;
+    int update;
 
-	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
-	int sub1d (SingleGroup *, int, SingleGroupLine *);
-	int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-	int DetCCDChip (char *, int, int *);
+    int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
+    int sub1d (SingleGroup *, int, SingleGroupLine *);
+    int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
+    int DetCCDChip (char *, int, int *);
 
-	if (acs->biascorr != PERFORM)
-    return (status);
+    if (acs->biascorr != PERFORM) {
+        return (status);
+    }
 
-	initSingleGroupLine (&y);
+    initSingleGroupLine (&y);
 
-	scilines = x->sci.data.ny;
+    scilines = x->sci.data.ny;
 
-	/* Initialize local variables */
-	rx = 1;
-	ry = 1;
-	x0 = 0;
-	y0 = 0;
-	same_size = 1;
+    /* Initialize local variables */
+    rx = 1;
+    ry = 1;
+    x0 = 0;
+    y0 = 0;
+    same_size = 1;
 
-	/* Compute correct extension version number to extract from
-   reference image to correspond to CHIP in science data.
-   */
-	if (DetCCDChip (acs->bias.name, acs->chip, &extver) )
-		return (status);
+    /* Compute correct extension version number to extract from
+       reference image to correspond to CHIP in science data.
+    */
+    if (DetCCDChip (acs->bias.name, acs->chip, &extver) )
+        return (status);
 
-	/* Get the first line of bias image data. */
-	openSingleGroupLine (acs->bias.name, extver, &y);
-	if (hstio_err())
-    return (status = OPEN_FAILED);
+    /* Get the first line of bias image data. */
+    openSingleGroupLine (acs->bias.name, extver, &y);
+    if (hstio_err())
+        return (status = OPEN_FAILED);
 
-	/*
-   Reference image should already be selected to have the
-   same binning factor as the science image.  All we need to
-   make sure of is whether the science array is a sub-array of
-   the bias image.
+    /* Reference image should already be selected to have the
+       same binning factor as the science image.  All we need to
+       make sure of is whether the science array is a sub-array of
+       the bias image.
 
-   x0,y0 is the location of the start of the
-   subimage in the reference image.
+       x0,y0 is the location of the start of the
+       subimage in the reference image.
 
-   **
-   **	FindLine is a modified version of FindBin routine from CALSTIS.
-   **
-   */
-	if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
-    return (status);
+       **
+       ** FindLine is a modified version of FindBin routine from CALSTIS.
+       **
+    */
+    if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
+        return (status);
 
-	if (acs->verbose) {
-		trlmessage("Ratio of (%d,%d) with offset =(%d,%d)",rx,ry,x0,y0);
-		if (same_size) {
-			trlmessage("BIAS image and input are the same size");
-		} else {
-			trlmessage("BIAS image and input are NOT the same size");
-		}
-	}
+    if (acs->verbose) {
+        trlmessage("Ratio of (%d,%d) with offset =(%d,%d)",rx,ry,x0,y0);
+        if (same_size) {
+            trlmessage("BIAS image and input are the same size");
+        } else {
+            trlmessage("BIAS image and input are NOT the same size");
+        }
+    }
 
-	/* Subtract the bias image from x. */
+    /* Subtract the bias image from x. */
 
-	/* If the science image is binned, it will be assumed to have
-   same size as the reference image, since reading subarrays
-   of a binned chip is not supported in current flight software.
-   */
-	if (same_size) {
+    /* If the science image is binned, it will be assumed to have
+       same size as the reference image, since reading subarrays
+       of a binned chip is not supported in current flight software.
+    */
+    if (same_size) {
 
-		/* Loop over all the lines in the science image */
+        /* Loop over all the lines in the science image */
 
-		for (i=0; i < scilines; i++) {
-			status = getSingleGroupLine (acs->bias.name, i, &y);
-			if (status) {
-				trlerror("Could not read line %d from bias image.",i+1);
-			}
+        for (i=0; i < scilines; i++) {
+            status = getSingleGroupLine (acs->bias.name, i, &y);
+            if (status) {
+                trlerror("Could not read line %d from bias image.",i+1);
+            }
 
-      /* No binning required. */
-			status = sub1d(x, i, &y);
-      if (status) {
-				trlerror("(biascorr) size mismatch.");
-				return (status);
-      }
-		}
-	} else {
+            /* No binning required. */
+            status = sub1d(x, i, &y);
+            if (status) {
+                trlerror("(biascorr) size mismatch.");
+                return (status);
+            }
+        }
+    } else {
 
         /* Loop over all the lines in the science array, and
            match them to the appropriate line in the reference image...
@@ -143,21 +142,21 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
             update = NO;
 
             /* rx = 1; */
-            if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
+            if (trim1d (&y, x0, y0, rx, update, &z)) {
                 trlerror("(biascorr) size mismatch.");
                 return (status);
             }
 
             status = sub1d (x, i, &z);
-            if (status)
+            if (status) {
                 return (status);
-
+            }
         }
-        freeSingleGroupLine (&z);			/* done with z */
+        freeSingleGroupLine (&z);            /* done with z */
     }
 
-	closeSingleGroupLine (&y);
-	freeSingleGroupLine (&y);
+    closeSingleGroupLine (&y);
+    freeSingleGroupLine (&y);
 
-	return (status);
+    return (status);
 }

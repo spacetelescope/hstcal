@@ -57,7 +57,6 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
     int rx, ry;            /* for binning post-flash down to size of x */
     int x0, y0;            /* offsets of sci image */
     int same_size;         /* true if no binning of ref image required */
-    int avg = 0;           /* bin2d should sum values within each bin */
     int scilines;          /* number of lines in science image */
     int i, j;
     float mean, flash;
@@ -66,7 +65,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
 
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
     int sub1d (SingleGroup *, int, SingleGroupLine *);
-    int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
+    int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     int multk1d (SingleGroupLine *a, float k);
@@ -157,7 +156,7 @@ int doFlash (ACSInfo *acs2d, SingleGroup *x, float *meanflash) {
 
         update = NO;
 
-        if (trim1d(&y, x0, y0, rx, avg, update, &z)) {
+        if (trim1d(&y, x0, y0, rx, update, &z)) {
             trlerror("(flshcorr) size mismatch.");
             return (status);
         }

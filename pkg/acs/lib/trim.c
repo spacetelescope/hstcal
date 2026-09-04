@@ -18,7 +18,7 @@
     This function does not treat any expansion or reduction in Y!
 */
 
-int trim1d (SingleGroupLine *a, int xstart, int ystart, int binx, int avg, int update, SingleGroupLine *b) {
+int trim1d (SingleGroupLine *a, int xstart, int ystart, int binx, int update, SingleGroupLine *b) {
 
 /* arguments:
 SingleGroupLine *a        i: input data
@@ -27,8 +27,6 @@ int xstart  		  i: starting location of subarray (zero indexed,
 int ystart  		  i: starting location of subarray (zero indexed,
 						 input pixel coordinates)
 int binx	          i: number of input pixels for one output pixel
-int avg               i: == 0 means we should sum the values within a bin;
-						  > 0 means we should average the values
 int updated			  i: == 1 means have already updated the header info
 						 == 0 means we need to update the header info
 SingleGroupLine *b    o: output data
@@ -38,20 +36,14 @@ SingleGroupLine *b    o: output data
 
 	double block[2];	/* number of input pixels for one output */
 	double offset[2];	/* offset of binned image */
-	float weight;		/* binx * biny (or sqrt for errors) */
-	/*float sum;*/		/* for summing data values */
-	/*float sum_err;*/		/* for summing error array */
-	/*short sum_dq;*/		/* for ORing data quality array */
 	int nx;				/* size of output array */
 	int m;			/* pixel index in output array */
 	int i;			/* pixel index in input array */
-	/*int i0;*/			/* starting location of m in input */
 
 	int BinCoords (Hdr *, double *, double *, Hdr *, Hdr *, Hdr *);
 
 	/* Initialize internal variables... */
 	nx = b->sci.tot_nx;
-	weight = binx;
 	block[0] = binx;
 	block[1] = 1;
 	offset[0] = xstart;

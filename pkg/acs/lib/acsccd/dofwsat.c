@@ -56,7 +56,6 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     int ref_corner[2];
 
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
-    int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int *);
     int GetCorner (Hdr *, int, int *, int *);
 

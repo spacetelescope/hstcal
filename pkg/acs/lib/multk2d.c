@@ -52,7 +52,7 @@ void AvgSciVal (SingleGroup *y, short sdqflags, double *mean, double *weight) {
     int dimx = y->sci.data.nx;
     int dimy = y->sci.data.ny;
 
-    {unsigned int i, j;
+    {int i, j;
     for (j = 0; j < dimy; j++) {
         for (i = 0;  i < dimx;  i++) {
             flagval = DQPix (y->dq.data, i, j);

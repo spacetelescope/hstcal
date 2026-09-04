@@ -3,7 +3,7 @@
 # include "hstcalerr.h"	/* SIZE_MISMATCH */
 
 /* Subtract the second SingleGroup from the first, leaving the
-   result in the first.  
+   result in the first.
 
    (*a) -= (*b)
 
@@ -34,7 +34,7 @@ SingleGroup *b   i: second input data
     int dimx = a->sci.data.nx;
     int dimy = a->sci.data.ny;
 
-    {unsigned int i, j;
+    {int i, j;
     for (j = 0; j < dimy; j++) {
         for (i = 0;  i < dimx;  i++) {
             /* science array */
