@@ -34,8 +34,7 @@ static int getACSampxy (Hdr *, int, int, char *, int, int, int *, int *);
                          reset the CRJ/CRC DARKTIME to this cumulativate valuve.
 */
 
-int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
-                  int newpar[],
+int acsrej_check (IRAFPointer tpin, int extver, clpar *par, int newpar[],
                   char imgname[][CHAR_FNAME_LENGTH], int grp[],
                   IODescPtr ipsci[], IODescPtr iperr[], IODescPtr ipdq[],
                   multiamp *noise, multiamp *gain, int *dim_x, int *dim_y,
@@ -45,7 +44,6 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
       tpin    i: Pointer of image list.
       extver  i: EXTVER to process. For WFC, 1 is CD and 2 is AB.
-      ngrps   i: Total number of EXTVER.
       par, newpar  i: User specified parameters.
       imagename  o: Array of image names.
       grp     o: Array of EXTVER for each input image.
@@ -89,7 +87,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
     int         GetKeyFlt (Hdr *, char *, int, float, float *);
     int         GetKeyStr (Hdr *, char *, int, char *, char *, int);
     int         GetSwitch (Hdr *, char *, int *);
-    int         DetCCDChip (char *, int, int, int *);
+    int         DetCCDChip (char *, int, int *);
     int         streq_ic (char *, char *);  /* str equal? (case insensitive) */
     void        initmulti (multiamp *);
     /* -------------------------------- begin ------------------------------- */
@@ -263,7 +261,7 @@ int acsrej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
             /* Determine which extension corresponds to desired chip
                for the remainder of the images */
-            if (DetCCDChip(fdata, chip, ngrps, &n)) {
+            if (DetCCDChip(fdata, chip, &n)) {
                 return (status);
             }
         }
@@ -389,7 +387,7 @@ static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int
 
     void ACSInit (ACSInfo *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
-    int GetCCDTab (ACSInfo *, int, int);
+    int GetCCDTab (ACSInfo *, int);
 
     ACSInit (&acsrej);
 
@@ -414,7 +412,7 @@ static int getACSampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx, int
         return (status);
     strcpy (acsrej.ccdpar.name, tabname);
 
-    if (GetCCDTab (&acsrej, dimx, dimy) ) {
+    if (GetCCDTab (&acsrej, dimx) ) {
         return (status);
     }
 

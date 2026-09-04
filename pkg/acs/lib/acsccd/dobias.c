@@ -46,7 +46,7 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
 	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
 	int sub1d (SingleGroup *, int, SingleGroupLine *);
 	int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-	int DetCCDChip (char *, int, int, int *);
+	int DetCCDChip (char *, int, int *);
 
 	if (acs->biascorr != PERFORM)
     return (status);
@@ -65,7 +65,7 @@ int doBias (ACSInfo *acs, SingleGroup *x) {
 	/* Compute correct extension version number to extract from
    reference image to correspond to CHIP in science data.
    */
-	if (DetCCDChip (acs->bias.name, acs->chip, acs->nimsets, &extver) )
+	if (DetCCDChip (acs->bias.name, acs->chip, &extver) )
 		return (status);
 
 	/* Get the first line of bias image data. */

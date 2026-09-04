@@ -57,7 +57,7 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
 
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *, int *, int *);
     int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-    int DetCCDChip (char *, int, int, int *);
+    int DetCCDChip (char *, int, int *);
     int GetCorner (Hdr *, int, int *, int *);
 
     /* Initialize local variables */
@@ -75,9 +75,8 @@ int doFullWellSat(ACSInfo *acs, SingleGroup *x) {
     /*
        Compute correct extension version number to extract from
        reference image to correspond to CHIP in science data.
-       Note: acs->nimsets is no longer used in DetCCDChip() routine.
     */
-    if (DetCCDChip (acs->satmap.name, acs->chip, acs->nimsets, &extver) )
+    if (DetCCDChip (acs->satmap.name, acs->chip, &extver) )
         return (status);
 
     /* Get the first line of saturation image data */

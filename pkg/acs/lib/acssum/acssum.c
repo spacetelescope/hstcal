@@ -317,7 +317,7 @@ static int SumGrps (AcsSumInfo *acs, char *mtype) {
     void UFilename (char *, Hdr *);
     void UMemType (char *, Hdr *);
     void UExpname (char *, Hdr *);
-    int DetCCDChip (char *, int, int, int *);
+    int DetCCDChip (char *, int, int *);
     void    UpperAll (char *, char *, int);
 
     int GetKeyInt (Hdr *, char *, int, int, int *);
@@ -356,7 +356,7 @@ static int SumGrps (AcsSumInfo *acs, char *mtype) {
             */
             extchip = 0;
 
-            if (DetCCDChip(acs->input[i], chip, acs->nimsets, &extchip) ) {
+            if (DetCCDChip(acs->input[i], chip, &extchip) ) {
                 return (status);
             }
 

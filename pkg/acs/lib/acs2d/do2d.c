@@ -94,7 +94,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
 	void PrRefInfo (char *, char *, char *, char *, char *);
 	void UCalVer (Hdr *);
 	void UFilename (char *, Hdr *);
-	int GetCCDTab (ACSInfo *, int, int);
+	int GetCCDTab (ACSInfo *, int);
         int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
         int UpdateSwitch (char *, int, Hdr *, int *);
 
@@ -131,7 +131,7 @@ int Do2D (ACSInfo *acs2d, int extver) {
       acs2d->subarray = NO;
 
 		/* Get values from tables, using same function used in ACSCCD. */
-    if (GetCCDTab (acs2d, x.sci.data.nx, x.sci.data.ny)) {
+    if (GetCCDTab (acs2d, x.sci.data.nx)) {
       freeSingleGroup (&x);
 			return (status);
     }

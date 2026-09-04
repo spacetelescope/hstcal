@@ -87,7 +87,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
     void UCalVer (Hdr *);
     void UCteVer(Hdr * hdr, char * cteName, char * cteVersion);
     void UFilename (char *, Hdr *);
-    int GetCCDTab (ACSInfo *, int, int);
+    int GetCCDTab (ACSInfo *, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
     void parseWFCamps (char *acsamps, int chip, char *ccdamp);
@@ -161,7 +161,7 @@ int DoCTE (ACSInfo *acs_info, const bool forwardModelOnly) {
                Also reset CRCORR if there's only one image set.
             */
             /* Get values from tables, using same function used in ACSCTE. */
-            if (GetCCDTab(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny)) {
+            if (GetCCDTab(&acs[i], x[i].sci.data.nx)) {
                 freeSingleGroup(&x[i]);
                 return (status);
             }

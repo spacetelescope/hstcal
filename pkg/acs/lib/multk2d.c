@@ -5,7 +5,7 @@
    the data quality array is not modified.
 
    M.D. De La Pena: 05 June 2018
-   Created AvgSciVal from AvgSciValLine (multk1d.c) and put the new routine 
+   Created AvgSciVal from AvgSciValLine (multk1d.c) and put the new routine
    here to complement the multk2d routine.
 */
 
@@ -24,8 +24,8 @@ float k          i: multiply a by this constant
 	/* science data */
     int dimx = a->sci.data.nx;
     int dimy = a->sci.data.ny;
-    
-    {unsigned int i, j;
+
+    {int i, j;
     for (j = 0;  j < dimy;  j++) {
         for (i = 0;  i < dimx;  i++) {
 
@@ -42,7 +42,7 @@ float k          i: multiply a by this constant
 
 /* Compute the average of all the good pixels in the image, as
    well as a weight value.
-*/ 
+*/
 void AvgSciVal (SingleGroup *y, short sdqflags, double *mean, double *weight) {
 
     double sum  = 0.0;
@@ -70,5 +70,5 @@ void AvgSciVal (SingleGroup *y, short sdqflags, double *mean, double *weight) {
     if (numgood > 0) {
         *mean   = sum / (double) numgood;
         *weight = (double) numgood / (double)(dimx * dimy);
-    } 
+    }
 }

@@ -64,7 +64,6 @@ int doNoise(ACSInfo *acs, SingleGroup *x, int *done) {
 
     int FindLine(SingleGroup *, SingleGroupLine *, int *, int *, int *, int *,
                  int *);
-    int DetCCDChip(char *, int, int, int *);
     int GetKeyStr(Hdr *, char *, int, char *, char *, int);
     int GetKeyDbl(Hdr *, char *, int, double, double *);
     void get_nsegn(int, int, int, int, float *, float *, float *, float *);

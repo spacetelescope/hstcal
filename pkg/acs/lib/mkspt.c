@@ -34,7 +34,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 
     extern int  status;
     IRAFPointer tpin;
-    int         n;
+    size_t      n;
 	Hdr         header;		                /* SPT header */
 	FILE        *fp;		                /* file pointer */
 	IODescPtr   im;		           /* descriptor for input image */

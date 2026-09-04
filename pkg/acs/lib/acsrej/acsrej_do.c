@@ -97,7 +97,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     ImgHistory (const RefImage *, Hdr *);
     int     ImgPedigree (RefImage *);
 
-    int     acsrej_check (IRAFPointer, int, int, clpar *, int [],
+    int     acsrej_check (IRAFPointer, int, clpar *, int [],
                           char [][CHAR_FNAME_LENGTH], int [], IODescPtr [],
                           IODescPtr [], IODescPtr [], multiamp *, multiamp *,
                           int *, int *, int, float [], float *, float *);
@@ -247,7 +247,7 @@ int acsrej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		}
 
 		/* open input files and temporary files, check the parameters */
-		if (acsrej_check (tpin, extver, numext, par, newpar, imgname, ext,
+		if (acsrej_check (tpin, extver, par, newpar, imgname, ext,
 						  ipsci, iperr, ipdq, &noise, &gain, &dim_x, &dim_y,
 						  nimgs, efac, &cumFlashDur, &cumDarktime)) {
 			WhichError (status);

@@ -19,14 +19,13 @@
      WJH     12 April 2000
 */
 
-int DetCCDChip (char *fname, int chip, int nimsets, int *extver) {
+int DetCCDChip (char *fname, int chip, int *extver) {
 
 /*
-char *fname                i: name of file
+char *fname             i: name of file
 int chip                i: CHIP ID to be found
-int nimsets;            i: number of IMSETS in image
-int *extver                o: extension (IMSET) from file corresponding
-                            to input image chip ID
+int *extver             o: extension (IMSET) from file corresponding
+                           to input image chip ID
 */
 
     Hdr scihdr, prihdr;

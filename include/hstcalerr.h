@@ -45,8 +45,10 @@
 #define COPY_NOT_POSSIBLE      1025
 
 #define INVALID_VALUE          1111
-#define GENERIC_ERROR_CODE     1111 //used in STIS
+#define GENERIC_ERROR_CODE     1111 // used in STIS
 
 #define UNSUPPORTED_APERTURE   1030
+
+#define INVALID_BINNED_BLOCK   1991 // used in ACS
 
 #endif

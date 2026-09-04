@@ -81,7 +81,7 @@ int DoCCD (ACSInfo *acs_info) {
     void UCalVer (Hdr *);
     void UFilename (char *, Hdr *);
     int FindOverscan (ACSInfo *, int, int, int *, int *);
-    int GetCCDTab (ACSInfo *, int, int);
+    int GetCCDTab (ACSInfo *, int);
     int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
     int doFullWellSat(ACSInfo *, SingleGroup *);
 
@@ -160,7 +160,7 @@ int DoCCD (ACSInfo *acs_info) {
            Also reset CRCORR if there's only one image set.
         */
         /* Get values from tables, using same function used in ACSCCD. */
-        if (GetCCDTab(&acs[i], x[i].sci.data.nx, x[i].sci.data.ny)) {
+        if (GetCCDTab(&acs[i], x[i].sci.data.nx)) {
             freeOnExit (&ptrReg);
             return status;
         }

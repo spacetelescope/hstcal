@@ -1,3 +1,5 @@
+#include "hstcalerr.h"
+
 /* This routine modifies some of the coordinate parameters in place
    to account for a linear transformation, a change in scale and
    a shift of the origin.  The parameters that are modified are
@@ -30,37 +32,21 @@ double crpix[2]         io: reference pixel
 
 	extern int status;
 
-	/* If we're actually unbinning (blkrep rather than blkavg), then
-	   the offset that we use to compute the new parameters needs
-	   to be multiplied by the bin factor (which is less than one)
-	   so it will be in units of the input image rather than in units
-	   of the image with smaller pixels.  So we need a local variable
-	   for a copy of offset, possibly scaled by bin.
-	*/
-	double off[2];
+	if (block[0] == 0. || block[1] == 0.) {
+	    return (status = INVALID_BINNED_BLOCK);
+	}
 
-	if (block[0] == 0. || block[1] == 0.)
-	    return (status = 1991);
-
-	if (block[0] > 1.)
-	    off[0] = offset[0];
-	else
-	    off[0] = offset[0] * block[0];
 	cd[0] *= block[0];		/* CD1_1 */
 	cd[2] *= block[0];		/* CD2_1 */
 	ltm[0] /= block[0];
 	ltv[0] = (ltv[0] - offset[0] + (block[0] - 1.) / 2.) / block[0];
 	crpix[0] = (crpix[0] - offset[0] + (block[0] - 1.) / 2.) / block[0];
 
-	if (block[1] > 1.)
-	    off[1] = offset[1];
-	else
-	    off[1] = offset[1] * block[1];
 	cd[1] *= block[1];		/* CD1_2 */
 	cd[3] *= block[1];		/* CD2_2 */
 	ltm[1] /= block[1];
 	ltv[1] = (ltv[1] - offset[1] + (block[1] - 1.) / 2.) / block[1];
 	crpix[1] = (crpix[1] - offset[1] + (block[1] - 1.) / 2.) / block[1];
 
-	return (status);
+	return status;
 }

@@ -199,7 +199,7 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 
 	extern int status;
 
-	if (strlen (instr) + strlen (outstr) > maxch) {
+	if ((int) (strlen(instr) + strlen(outstr)) > maxch) {
 	    trlerror("(MkOutName) strings are too long:\n"
                      "`%s' + `%s'", outstr, instr);
 		status = INVALID_FILENAME;

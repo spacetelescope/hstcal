@@ -59,7 +59,6 @@ int ACSccd (char *input, char *output, CalSwitch *ccd_sw,
     int MkName (char *, char *, char *, char *, char *, int);
 
     int GetACSGrp (ACSInfo *, Hdr *);
-    int GetCCDTab (ACSInfo *, int, int);
 
     /* ----------------------- Start Code --------------------------------*/
 

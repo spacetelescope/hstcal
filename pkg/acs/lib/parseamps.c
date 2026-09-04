@@ -1,4 +1,3 @@
-
 # include <string.h>
 # include "acs.h"
 
@@ -8,7 +7,9 @@
 
 24 Jul 01 (WJH): Fixed a problem with parsing the CCDAMP string.
 10 Oct 01 (WJH): CCDAMP string was 'strcat'ing entire input instead of
-                just 1 character, so used 'strncat' to fix.
+                 just 1 character, so used 'strncat' to fix.
+04 Sep 26 (PLL): Refactored function to avoid compiler warning
+                 about strncat possible truncation.
 */
 
 void parseWFCamps (char *acsamps, int chip, char *ccdamp) {
@@ -19,26 +20,20 @@ int chip                i: value of CCDCHIP from image header
 char *ccdamp            o: string with amps used by chip
 */
 
-	int i,j,k;
-    int out_max;
-    char wfcamps[3];
+    char wfcamps[3], curamp[2];
 
-		i = 0;
-		k = 0;
-        out_max = 2;
-        wfcamps[0] = '\n';
-        
-        /* Set up string of possible amps used with the chip */
-        if (chip == 2)
-            strcpy (wfcamps,AMPSTR1);
-        else 
-            strcpy (wfcamps,AMPSTR2);
-        
-        /* Pick out only those amps actually used... */
-		for (j = 0; j < out_max; j++) {
-            
-			if (strchr (acsamps, *(wfcamps+j)) != NULL) {
-				strncat(ccdamp,&wfcamps[j],1);
-            }
- 		}
-}       
+    /* Set up string of possible amps used with the chip */
+    if (chip == 2)
+        strcpy(wfcamps, AMPSTR1);
+    else
+        strcpy(wfcamps, AMPSTR2);
+
+    /* Pick out only those amps actually used... */
+    for (size_t j = 0; j < strlen(wfcamps); j++) {
+        if (strchr(acsamps, wfcamps[j]) != NULL) {
+            curamp[0] = wfcamps[j];
+            curamp[1] = '\0';
+            strcat(ccdamp, curamp);
+        }
+    }
+}
