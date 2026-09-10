@@ -88,7 +88,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	void copySectLine (WF3sect *, int, SingleGroupLine *);
 	void getWF3sect (char *, SingleGroupLine *, int, int, WF3sect *);
 	int unbinsect (WF3sect *, int, WF3sect *);
-	int DetCCDChip (char *, int, int, int *);
+	int DetCCDChip (char *, int, int *);
 
 	/* Initialize applygain so that correction gets applied */
 	applygain = 1;
@@ -124,9 +124,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* Compute correct extension version number to extract from
 	    ** reference image to correspond to CHIP in science data.  */
 	    chipext = extver;
-	    if (DetCCDChip (wf32d->lflt.name, wf32d->chip, wf32d->nimsets,
-			    &chipext))
-		return (status);
+	    if (DetCCDChip (wf32d->lflt.name, wf32d->chip, &chipext)) {
+	        return (status);
+	    }
 
 	    /* Get the low-order flat field image data. */
 	    initSingleGroupLine (&w);
@@ -267,7 +267,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 
 	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *,
 		      int *, int *);
-	int DetCCDChip (char *, int, int, int *);
+	int DetCCDChip (char *, int, int *);
 	int trim1d (SingleGroupLine *, int, int, int, int, int,
 		    SingleGroupLine *);
 	int div1d (SingleGroup *, int, SingleGroupLine *);
@@ -278,7 +278,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
-	if (DetCCDChip (flatname, wf32d->chip, wf32d->nimsets, &pchipext) )
+	if (DetCCDChip (flatname, wf32d->chip, &pchipext) )
 	    return (status);
 
 	openSingleGroupLine (flatname, pchipext, &y);
@@ -371,4 +371,3 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	return (status);
 
 }
-

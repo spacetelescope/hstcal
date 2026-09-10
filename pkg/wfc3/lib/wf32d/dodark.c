@@ -73,7 +73,7 @@ float *meandark	   o: mean of dark image values subtracted
 		  int *, int *);
     int sub1d (SingleGroup *, int, SingleGroupLine *);
     int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-    int DetCCDChip (char *, int, int, int *);
+    int DetCCDChip (char *, int, int *);
     void get_nsegn (int, int, int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     void multgn1d (SingleGroupLine *, int, int, int, float *, float);
@@ -85,7 +85,7 @@ float *meandark	   o: mean of dark image values subtracted
 
 	/* Compute correct extension version number to extract from
 	   reference image to correspond to CHIP in science data.  */
-	if (DetCCDChip(wf32d->dark.name, wf32d->chip, wf32d->nimsets, &extver))
+	if (DetCCDChip(wf32d->dark.name, wf32d->chip, &extver))
 	    return (status);
 
 	if (wf32d->verbose) {
@@ -171,4 +171,3 @@ float *meandark	   o: mean of dark image values subtracted
 
 	return (status);
 }
-

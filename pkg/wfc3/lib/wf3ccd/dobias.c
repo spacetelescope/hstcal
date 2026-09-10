@@ -65,7 +65,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
     int sub1d (SingleGroup *, int, SingleGroupLine *);
     int trim1d (SingleGroupLine *, int, int, int, int, int,
             SingleGroupLine *);
-    int DetCCDChip (char *, int, int, int *);
+    int DetCCDChip (char *, int, int *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
     int streq_ic (char *, char *); /* case insensitive string equal */
 
@@ -85,7 +85,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
 
     /* Compute correct extension version number to extract from
      ** reference image to correspond to CHIP in science data. */
-    if (DetCCDChip (wf3->bias.name, wf3->chip, wf3->nimsets, &extver))
+    if (DetCCDChip (wf3->bias.name, wf3->chip, &extver))
         return (status);
 
     /* Get the first line of bias image data. */

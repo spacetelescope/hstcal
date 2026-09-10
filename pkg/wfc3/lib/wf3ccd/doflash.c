@@ -102,7 +102,7 @@ float *meanflash    o: mean of post-flash image values subtracted
     int sub1d (SingleGroup *, int, SingleGroupLine *);
     int sub1dreform (SingleGroup *, int, int, SingleGroupLine *);
     int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-    int DetCCDChip (char *, int, int, int *);
+    int DetCCDChip (char *, int, int *);
     void get_nsegn (int, int, int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     void multgn1d (SingleGroupLine *, int, int, int, float *, float);
@@ -169,7 +169,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
-	if (DetCCDChip (wf3ccd->flash.name, wf3ccd->chip, wf3ccd->nimsets, &extver) )
+	if (DetCCDChip (wf3ccd->flash.name, wf3ccd->chip, &extver) )
 	    return (status);
 
 	if (wf3ccd->verbose) {

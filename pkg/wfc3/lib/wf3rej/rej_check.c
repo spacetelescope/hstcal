@@ -58,7 +58,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
     int         GetKeyInt (Hdr *, char *, int, int, int *);
     int         GetKeyStr (Hdr *, char *, int, char *, char *, int);
-    int         DetCCDChip (char *, int, int, int *);
+    int         DetCCDChip (char *, int, int *);
     int         streq_ic (char *, char *);/* strings equal? (case insensitive)*/
     void        initmulti (multiamp *);
 
@@ -167,7 +167,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
             /* Determine which extension corresponds to desired chip
             ** for the remainder of the images */
-            if (DetCCDChip(fdata, chip, ngrps, &n) ) {
+            if (DetCCDChip(fdata, chip, &n) ) {
                 return (status);
             }
 

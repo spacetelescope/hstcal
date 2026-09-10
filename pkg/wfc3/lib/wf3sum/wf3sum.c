@@ -40,9 +40,9 @@ static void FreeWf3Input (char **, int);
 
     Warren Hack, 1998 Oct 12:
    	Initial version.
-    
+
     WJH, 1999 Apr 19:
-        Revised SumGrps and GetSumKeyInfo to read EXPTIMEs and EXPEND 
+        Revised SumGrps and GetSumKeyInfo to read EXPTIMEs and EXPEND
             from PHDR headers.
     WJH, 1999 Nov 11:
         Added creation of SPT file for output product.
@@ -63,15 +63,15 @@ static void FreeWf3Input (char **, int);
     H.Bushouse, 2002 Nov 26:
 	Updates to track 2 minor changes in CALACS.
   M Sosey, 2012 December 27:
-      Updated to account for a memory leak on linux machines during BuildDth 
-      when RPTCORR is off and a new spt is being constructed (#967)       
+      Updated to account for a memory leak on linux machines during BuildDth
+      when RPTCORR is off and a new spt is being constructed (#967)
 */
 
 int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 
 	extern int status;
 
-	IRAFPointer tpin; 
+	IRAFPointer tpin;
 
 	Wf3SumInfo wf3;
 	IODescPtr im;		/* descriptor for input image */
@@ -91,7 +91,7 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 	/* Determine input and output trailer files, then initialize
 	** output file by combining inputs into output file */
 	InitSumTrl (input, output);
-	
+
 	PrBegin ("WF3SUM");
 	nimgs = 0;
 
@@ -107,7 +107,7 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 
 	/* Copy input file names into wf3 structure. */
 	for (i = 0; i < nimgs; i++) {
-	     c_imtgetim (tpin, wf3.input[i], CHAR_FNAME_LENGTH);	
+	     c_imtgetim (tpin, wf3.input[i], CHAR_FNAME_LENGTH);
 	     PrFileName ("input", wf3.input[i]);
 	}
 
@@ -129,7 +129,7 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 	    return (status);
 	}
 	strcpy (wf3_input, wf3.input[0]);
-	
+
 	/* Open input image in order to read its primary header. */
 	im = openInputImage (wf3_input, "", 0);
 	if (hstio_err()) {
@@ -161,7 +161,7 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 	    FreeWf3Input (wf3.input, nimgs);
     	    return (status);
 	}
-	
+
 	/* Create new SPT file for output product */
 	if (mkNewSpt (input, mtype, output)) {
 	    return(status);
@@ -184,12 +184,12 @@ int Wf3Sum (char *input, char *output, char *mtype, int printtime, int verbose){
 static void FreeWf3Input (char **input, int nimgs) {
 
 	int i;
-	
-	for (i = 0; i < nimgs; i++) 
+
+	for (i = 0; i < nimgs; i++)
 	     free((char *)input[i]);
-	
+
 	free((char *)input);
-	
+
 }
 
 /* Initialize the Wf3SumInfo structure.  This includes information about the
@@ -200,13 +200,13 @@ static void FreeWf3Input (char **input, int nimgs) {
 static void Wf3Init (Wf3SumInfo *wf3, int nimages) {
 
 	int i;
-	
+
 	wf3->input = (char **) calloc (nimages, sizeof(char *));
 	for (i=0; i<nimages; i++) {
-	     wf3->input[i] = (char *) calloc (CHAR_LINE_LENGTH+1, sizeof(char)); 
+	     wf3->input[i] = (char *) calloc (CHAR_LINE_LENGTH+1, sizeof(char));
 	     wf3->input[i][0] = '\0';
 	}
-	
+
 	/* Assign default values. */
 	wf3->output[0]   = '\0';
 	wf3->rootname[0] = '\0';
@@ -303,7 +303,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 	int extchip;			/* Extension of chip being summed */
 	int line;			/* Line of chip being summed */
 	char uroot[CHAR_FNAME_LENGTH+1];		/* Upper case version of rootname */
-    
+
 	int doStat (SingleGroup *, short);
 	void PrGrpBegin (char *, int);
 	void PrGrpEnd (char *, int);
@@ -311,7 +311,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 	void UFilename (char *, Hdr *);
 	void UMemType (char *, Hdr *);
 	void UExpname (char *, Hdr *);
-	int DetCCDChip (char *, int, int, int *);
+	int DetCCDChip (char *, int, int *);
 	void UpperAll (char *, char *, int);
 
 	int GetKeyInt (Hdr *, char *, int, int, int *);
@@ -350,11 +350,11 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 	     /* For each imset/extver, loop over all images */
 	     for (i = 1; i < wf3->nimages; i++) {
 
-		  /* Determine which extension corresponds to desired chip 
+		  /* Determine which extension corresponds to desired chip
 		  ** for the remainder of the images.  */
 		  extchip = 0;
 
-		  if (DetCCDChip(wf3->input[i], chip, wf3->nimsets, &extchip)) {
+		  if (DetCCDChip(wf3->input[i], chip, &extchip)) {
 		      return (status);
 		  }
 
@@ -376,7 +376,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 		  sumexptime += exptime;
 
 		  /*Loop over lines in each subsequent image */
-		  for (line = 0; line < x.sci.data.ny; line++) { 
+		  for (line = 0; line < x.sci.data.ny; line++) {
 		       status = getSingleGroupLine (wf3->input[i], line, &y);
 		       if (status) {
 			   trlerror("Could not read line %d from image %d.", line+1,i+1);
@@ -424,7 +424,7 @@ static int SumGrps (Wf3SumInfo *wf3, char *mtype) {
 				wf3->nimsets))
 		 return (status);
 
-	     /* Update CAL_VER and FILENAME, then write output file. 
+	     /* Update CAL_VER and FILENAME, then write output file.
              ** EXPNAME values modified for all extensions in a SingleGroup. */
 	     UCalVer (x.globalhdr);
 	     UFilename (wf3->output, x.globalhdr);
@@ -545,7 +545,7 @@ static void SqrtErr (SingleGroup *x) {
 	}
 }
 
-/* Add one SingleGroup triplet with a SingleGroupLine, 
+/* Add one SingleGroup triplet with a SingleGroupLine,
 	leaving the result in the first.
 
    (*a) += (*b[i])
@@ -562,7 +562,7 @@ static int RptSumLine (SingleGroup *a, int line, SingleGroupLine *b) {
 
 /* arguments:
 SingleGroup *a      io: input data; output sum
-int line	     i: line from input/output to be summed		
+int line	     i: line from input/output to be summed
 SingleGroupLine *b   i: second input data line
 */
 
@@ -596,35 +596,35 @@ SingleGroupLine *b   i: second input data line
 }
 
 static void InitSumTrl (char *input, char *output) {
-	
+
 	extern int status;
 	IRAFPointer tpin;
 	int n;
-	
+
 	char *trl_in;			/* trailer filename for input */
 	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
 	char in_name[CHAR_FNAME_LENGTH+1];
 	char out_name[CHAR_FNAME_LENGTH+1];
-	
+
 	int trl_len;
-	
+
 	char *isuffix[] = {"_crj", "_flt","_crc","_flc"};
 	char *osuffix[] = {"_sfl", "_sfl","_sfl","_sfl"};
 	char *trlsuffix[] = {"", ""};
 	int nsuffix = 2;
-	
+
 	int MkOutName (const char *, char **, char **, int, char *, int);
 	int MkNewExtn (char *, char *);
 	void WhichError (int);
 
 	trl_in = realloc (NULL, (CHAR_LINE_LENGTH));
 	trl_len = CHAR_LINE_LENGTH;
-	
+
 	if (trl_in == NULL) {
 	    trlerror("Out of memory: Couldn't allocate for CRJ_TMP trailer file.");
  	    status = OUT_OF_MEMORY;
 	    trl_len = 0;
- 	}	
+ 	}
 
 	/* Initialize TRL filenames */
 	trl_in[0] = '\0';
@@ -636,7 +636,7 @@ static void InitSumTrl (char *input, char *output) {
  	for (n = 0; n < c_imtlen(tpin); ++n) {
              c_imtgetim (tpin, in_name, CHAR_FNAME_LENGTH);
              out_name[0] = '\0';
-        
+
 	     /* Start by stripping off suffix from input/output filenames */
 	     if (MkOutName (in_name, isuffix, trlsuffix, nsuffix, out_name,
 			    CHAR_LINE_LENGTH)) {
@@ -650,7 +650,7 @@ static void InitSumTrl (char *input, char *output) {
 		 trlerror("Error with input trailer filename %s", out_name);
 		 WhichError (status);
 	     }
-		
+
 	     if ((strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
 	     /* Add 1 to out_name to account for comma to be appended */
 		 trl_len += strlen(out_name) + 1;
@@ -660,7 +660,7 @@ static void InitSumTrl (char *input, char *output) {
 	     /* Append each filename to create list of input trailer files */
 	     strcat(trl_in, out_name);
 	     /* Put a comma after all but the last filename */
-	     if (n < (c_imtlen(tpin)-1)) strcat (trl_in, ",");		
+	     if (n < (c_imtlen(tpin)-1)) strcat (trl_in, ",");
 	}
 
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
@@ -673,10 +673,9 @@ static void InitSumTrl (char *input, char *output) {
 	    trlerror("Error with input trailer filename %s", trl_out);
 	    WhichError (status);
 	}
-	
+
 	/* Sets up temp trailer file for output and copies input
 	** trailer file into it.  */
 	InitTrlFile (trl_in, trl_out);
 
 }
-

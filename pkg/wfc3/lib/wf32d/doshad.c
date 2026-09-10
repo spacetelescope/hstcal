@@ -53,7 +53,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	void copySectLine (WF3sect *, int, SingleGroupLine *);
 	void getWF3sect (char *, SingleGroupLine *, int, int, WF3sect *);
 	int unbinsect (WF3sect *, int, WF3sect *);
-	int DetCCDChip (char *, int, int, int *);
+	int DetCCDChip (char *, int, int *);
 
 	if (wf32d->shadcorr != PERFORM)
 	    return (status);
@@ -72,8 +72,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
 	chipext = extver;
-	if (DetCCDChip (wf32d->shad.name, wf32d->chip, wf32d->nimsets,
-			&chipext) )
+	if (DetCCDChip (wf32d->shad.name, wf32d->chip, &chipext) )
 	    return (status);
 
 	/* Get the shutter shading image data. */
