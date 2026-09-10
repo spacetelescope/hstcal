@@ -4,8 +4,8 @@
    MkNewExtn	replaces current extension with new extension
 
    M Sosey, 2012 December 27:
-   Updated to account for a memory leak on linux machines during BuildDth 
-   when RPTCORR is off and a new spt is being constructed (#967)       
+   Updated to account for a memory leak on linux machines during BuildDth
+   when RPTCORR is off and a new spt is being constructed (#967)
    */
 
 # include <stdio.h>
@@ -56,7 +56,7 @@ static int strcatN (char *, char *, int);
    File created.
 
    Warren Hack, 1998 Nov 17:
-   Added MkNewExtn to support trailer file name conventions	
+   Added MkNewExtn to support trailer file name conventions
 
    Howard Bushouse, 2006 June 20:
    Revised to track CALACS changes:
@@ -82,7 +82,7 @@ int MkOutName (char *input, char **isuffix, char **osuffix, int nsuffix,
     int tr_len;		/* length of truncated input name */
     int i;			/* loop index */
     int dotlocn;		/* location of '.' in input name */
-    
+
     if (output[0] == '\0') {
 
         extn = calloc (1 + strlen(input) + strlen(FITS_EXTN), sizeof(char));
@@ -205,7 +205,7 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 
     extern int status;
 
-    if (strlen (instr) + strlen (outstr) > maxch) {
+    if ((int) (strlen(instr) + strlen(outstr)) > maxch) {
         trlerror("(MkOutName) strings are too long:");
         trlerror("`%s' + `%s'", outstr, instr);
         status = INVALID_FILENAME;

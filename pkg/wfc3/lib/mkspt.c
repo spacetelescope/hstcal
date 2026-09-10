@@ -9,16 +9,16 @@
 # include "wf3.h"
 # include "hstcalerr.h"
 
-/* mkNewSpt -- Create a new SPT file for the output file. 
+/* mkNewSpt -- Create a new SPT file for the output file.
 
   Description:
   ------------
-    New file will be based on primary header of first input file 
+    New file will be based on primary header of first input file
     given and will not have any extensions.
 
   Date          Author      Description
   ----          ------      -----------
-  11-10-1999    W.J. Hack   Initial version 
+  11-10-1999    W.J. Hack   Initial version
                             based on InitRejTrl and n_mkSPT from CALNICB
   8 May 2001    H.Bushouse  Updated (in sync with calacs) to write out
 			    all extensions of input SPT files.
@@ -38,13 +38,13 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 
 /* arguments:
     char    *in_list            i: input filename/list to copy SPT data
-    char    *mtype              i: type of exposure in association 
-    char    *output             o: rootname of output SPT file 
+    char    *mtype              i: type of exposure in association
+    char    *output             o: rootname of output SPT file
 */
 
 	extern int  status;
 	IRAFPointer tpin;
-	int         n;
+	size_t      n;
 	Hdr         header;		/* SPT header */
 	FILE        *fp;		/* file pointer */
 	IODescPtr   im;			/* descriptor for input image */
@@ -82,17 +82,17 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	    WhichError (status);
 	    return (status);
 	}
-    
+
 	/* See if an output SPT file already exists */
 	if (FileExists (out_spt)) {
 	    return (status);
 	}
-    
+
 	/* Now, let's get the data to be copied into this new SPT file.  */
 	/* open the input file template */
 	tpin = c_imtopen (in_list);
 	nimgs = c_imtlen(tpin);
-    
+
 	/* Loop over all images in input list, and append them
 	** to output SPT file. */
 	extnum = 0;
@@ -139,7 +139,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 		 } else {
 		     trlmessage("Created output SPT rootname %s...\n",out_spt);
 		 }
-            
+
 		 /* Update the FILENAME header keyword */
 		 if (PutKeyStr (&header, "FILENAME", out_spt, ""))
 		     return (status = 1);
@@ -174,10 +174,10 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	     }
 
 	     /* Uncomment this section to copy input SPT files into output
-	     ** when HSTIO is fixed to work with 1-D data.  
-	     ** WFC3 has 2 extensions per SPT file: a UDL and a SNAP1. The 
-	     ** SNAP1 has a null data array (header only), so we must use 
-	     ** low-level imageio routines to read and write the header by 
+	     ** when HSTIO is fixed to work with 1-D data.
+	     ** WFC3 has 2 extensions per SPT file: a UDL and a SNAP1. The
+	     ** SNAP1 has a null data array (header only), so we must use
+	     ** low-level imageio routines to read and write the header by
 	     ** itself. */
 
 	     for (nx = 0; nx < nextn/2; nx++) {
@@ -185,7 +185,7 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 		  initShortHdrData(&stmp);
 		  getShortHD(in_spt, "UDL", (nx+1), &stmp);
 		  putShortHD (out_spt, "UDL", extnum, &stmp, 0);
-		  freeShortHdrData(&stmp);      
+		  freeShortHdrData(&stmp);
 
 		  initShortHdrData(&stmp);
 		  stmp.iodesc = openInputImage(in_spt, "SNAP1", (nx+1));
@@ -193,9 +193,9 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 		  closeImage(stmp.iodesc);
 		  stmp.iodesc = openOutputImage(out_spt, "SNAP1", extnum, &(stmp.hdr),0,0,FITSSHORT);
 		  closeImage(stmp.iodesc);
-		  freeShortHdrData(&stmp);      
+		  freeShortHdrData(&stmp);
 	     }
-        
+
 	}
 
 	if (extnum > 0) {
@@ -221,4 +221,3 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
 	/* Successful return */
 	return (status);
 }
-
