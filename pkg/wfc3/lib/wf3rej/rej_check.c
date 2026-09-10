@@ -297,7 +297,7 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
     void WF3Init (WF3Info *);
     int GetKeys (WF3Info *, Hdr *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
-    int GetCCDTab (WF3Info *, int, int);
+    int GetCCDTab (WF3Info *, int);
 
     WF3Init (&wf3rej);
 
@@ -323,7 +323,7 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
         return (status);
     strcpy (wf3rej.ccdpar.name, tabname);
 
-    if (GetCCDTab (&wf3rej, dimx, dimy) ) {
+    if (GetCCDTab (&wf3rej, dimx) ) {
         return (status);
     }
 

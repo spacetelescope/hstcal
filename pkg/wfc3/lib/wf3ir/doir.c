@@ -76,7 +76,7 @@ int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 	int getDarkInfo (WF3Info *);
 	int copyGroup (SingleNicmosGroup *, SingleNicmosGroup *);
 	int GetGrp (WF3Info *, Hdr *);
-	int GetCCDTab (WF3Info *, int, int);
+	int GetCCDTab (WF3Info *, int);
 	int FindOverscan (WF3Info *, int, int, int *);
 	int PutKeyFlt (Hdr *, char *, float, char *);
 	int PutKeyStr (Hdr *, char *, char *, char *);
@@ -125,8 +125,7 @@ int DoIR (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage) {
 	    wf3->subarray = NO;
 
 	/* Load CCD reference table using same function as in WF3CCD. */
-	if (GetCCDTab (wf3, input->group[0].sci.data.nx,
-			    input->group[0].sci.data.ny))
+	if (GetCCDTab (wf3, input->group[0].sci.data.nx))
 	    return (status);
 
 	/* Update gain and readnoise keyword values in primary header */

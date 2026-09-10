@@ -115,7 +115,7 @@ int extver       i: "imset" number, the current set of extensions
 	void UCalVer (Hdr *);
 	void UFilename (char *, Hdr *);
 	int UpdateSwitch (char *, int, Hdr *, int *);
-	int GetCCDTab (WF3Info *, int, int);
+	int GetCCDTab (WF3Info *, int);
 	int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
 
 	initSingleGroup (&x);
@@ -153,7 +153,7 @@ int extver       i: "imset" number, the current set of extensions
 		wf32d->subarray = NO;
 
 	    /* Get values from tables, using same function used in WF3CCD. */
-	    if (GetCCDTab (wf32d, x.sci.data.nx, x.sci.data.ny)) {
+	    if (GetCCDTab (wf32d, x.sci.data.nx)) {
 		freeSingleGroup (&x);
 		return (status);
             }
