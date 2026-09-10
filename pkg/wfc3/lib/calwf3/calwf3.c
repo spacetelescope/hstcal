@@ -135,15 +135,13 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 	int LoadAsn (AsnInfo *);
 	int ProcessCCD (AsnInfo *, CALWF3Info *, int *, int, int);
 	int ProcessIR  (AsnInfo *, CALWF3Info *, int);
-	int Wf3Dth (const char *, char *, int, int, int);
+	int Wf3Dth (const char *, char *, int);
 	char* BuildDthInput (AsnInfo *, int, char *);
 	int updateAsnTable (AsnInfo *, int, int);
 	void InitDthTrl (const char *, char *);
 
     /*because DTH had this hard coded and it varies with UVIS for CTE*/
    char suffix_flt[]="_flt.fits";
-   char suffix_flc[]="_flc.fits";
-
 
 	/* Post error handler */
 	push_hstioerr (errchk);
@@ -267,8 +265,8 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
                     if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
 				        if (Wf3Dth (wf3dth_input,
-							        asn.product[prod].prodname, asn.dthcorr,
-							        printtime, asn.verbose) )
+							        asn.product[prod].prodname,
+							        printtime) )
 					        return (status);
 
 				        /* Pass posid=0 to indicate a PRODUCT is to
@@ -314,8 +312,8 @@ int CalWf3Run (char *input, int printtime, int save_tmp, int verbose, int debug,
 
 			        if ((asn.dthcorr == PERFORM || asn.dthcorr == DUMMY)) {
 				        if (Wf3Dth (wf3dth_input,
-							        asn.product[prod].prodname, asn.dthcorr,
-							        printtime, asn.verbose) )
+							        asn.product[prod].prodname,
+							        printtime) )
 					        return (status);
 
 				        /* Pass posid=0 to indicate a PRODUCT is to

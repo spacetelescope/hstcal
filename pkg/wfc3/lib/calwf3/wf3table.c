@@ -441,7 +441,8 @@ int GetAsnTable (AsnInfo *asn) {
     extern int status;
 
     /* Local variables */
-    int i;				/* loop index */
+    int i;	/* loop index */
+    size_t j;
     int nrows;			/* number of rows in ASNTAB */
     int col, row;			/* loop indexes */
     IRAFPointer tp;			/* ASNTAB table pointer */
@@ -532,8 +533,8 @@ int GetAsnTable (AsnInfo *asn) {
         }
 
         /* Convert to lowercase for use as a file name */
-        for (i = 0; i < strlen(exp[row].memname); i++)
-            exp[row].memname[i] = tolower(exp[row].memname[i]);
+        for (j = 0; j < strlen(exp[row].memname); j++)
+            exp[row].memname[j] = tolower(exp[row].memname[j]);
 
         /* Get the TYPE in this row */
         c_tbegtt (tp, colptr[1], row+1, exp[row].mtype, SZ_CBUF);
@@ -549,9 +550,9 @@ int GetAsnTable (AsnInfo *asn) {
          ** record conversion to DASH in trailer file and warn
          ** user to correct the value. */
         lowcase (exp[row].type, exp[row].mtype);
-        for (i = 0; i < strlen(exp[row].type); i++) {
-            if (exp[row].type[i] == UNDERLINE_CHAR) {
-                exp[row].type[i] = DASH_CHAR;
+        for (j = 0; j < strlen(exp[row].type); j++) {
+            if (exp[row].type[j] == UNDERLINE_CHAR) {
+                exp[row].type[j] = DASH_CHAR;
                 trlwarn("MEMTYPE %s in row %d was INVALID and needs to be corrected.", exp[row].mtype, row+1);
             }
         }
@@ -1328,6 +1329,7 @@ int GetAsnName (char *filename, char *asn_name) {
     extern int status;
     IODescPtr im;           /* descriptor for an image */
     Hdr phdr;               /* primary header */
+    size_t n;
 
     /* Function definitions */
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
@@ -1351,7 +1353,9 @@ int GetAsnName (char *filename, char *asn_name) {
     }
 
     if (strncmp(asn_name, "NONE", 4) == 0) {
-        strncpy(asn_name, filename, strlen(filename));
+        n = strlen(filename);
+        strncpy(asn_name, filename, n);
+        asn_name[n] = '\0';
     }
 
     /* Close the file's primary header. */

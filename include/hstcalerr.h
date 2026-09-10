@@ -49,6 +49,6 @@
 
 #define UNSUPPORTED_APERTURE   1030
 
-#define INVALID_BINNED_BLOCK   1991 // used in ACS
+#define INVALID_BINNED_BLOCK   1991 // used in ACS and WFC3
 
 #endif
