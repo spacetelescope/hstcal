@@ -271,7 +271,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	int trim1d (SingleGroupLine *, int, int, int, int, int,
 		    SingleGroupLine *);
 	int div1d (SingleGroup *, int, SingleGroupLine *);
-	void get_nsegn (int, int, int, int, float *, float *, float *, float *);
+	void get_nsegn (int, int, float *, float *, float *, float *);
 	void multgn1d (SingleGroupLine *, int, int, int, float *, float);
 
 	initSingleGroupLine (&y);
@@ -310,8 +310,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	     gain[i] = 0.;
 	     rn2[i]  = 0.;
 	}
-	get_nsegn (wf32d->detector, wf32d->chip, wf32d->ampx, wf32d->ampy,
-		   wf32d->atodgain, wf32d->readnoise, gain, rn2);
+	get_nsegn (wf32d->detector, wf32d->chip, wf32d->atodgain, wf32d->readnoise, gain, rn2);
 	gnscale = 1.0;
 
 	/* Load the average gain value for use in all quadrants. */

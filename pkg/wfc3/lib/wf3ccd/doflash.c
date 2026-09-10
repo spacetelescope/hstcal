@@ -103,7 +103,7 @@ float *meanflash    o: mean of post-flash image values subtracted
     int sub1dreform (SingleGroup *, int, int, SingleGroupLine *);
     int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int *);
-    void get_nsegn (int, int, int, int, float *, float*, float *, float *);
+    void get_nsegn (int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     void multgn1d (SingleGroupLine *, int, int, int, float *, float);
     void multgn1dsub(SingleGroupLine *a, int , float *, float , char *);
@@ -156,8 +156,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 
     /*return an array of valid gain and readnoise values
       This returns 2 amps regardless of subarray */
-	get_nsegn (wf3ccd->detector, wf3ccd->chip, wf3ccd->ampx, wf3ccd->ampy,
-		   wf3ccd->atodgain, wf3ccd->readnoise, gain, rn2);
+	get_nsegn (wf3ccd->detector, wf3ccd->chip, wf3ccd->atodgain, wf3ccd->readnoise, gain, rn2);
 
     if (wf3ccd->verbose){
      trlmessage("**gain,flashdur** = ([%f,%f,%f,%f],%f)",gain[0],gain[1],gain[2],gain[3],wf3ccd->flashdur);

@@ -74,7 +74,7 @@ float *meandark	   o: mean of dark image values subtracted
     int sub1d (SingleGroup *, int, SingleGroupLine *);
     int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int *);
-    void get_nsegn (int, int, int, int, float *, float*, float *, float *);
+    void get_nsegn (int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     void multgn1d (SingleGroupLine *, int, int, int, float *, float);
 
@@ -127,8 +127,7 @@ float *meandark	   o: mean of dark image values subtracted
 	     gain[i] = 0.;
 	     rn2[i] = 0.;
 	}
-	get_nsegn (wf32d->detector, wf32d->chip, wf32d->ampx, wf32d->ampy,
-		   wf32d->atodgain, wf32d->readnoise, gain, rn2);
+	get_nsegn (wf32d->detector, wf32d->chip, wf32d->atodgain, wf32d->readnoise, gain, rn2);
 
 	initSingleGroupLine (&z);
 	allocSingleGroupLine (&z, x->sci.data.nx);

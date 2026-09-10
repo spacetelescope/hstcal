@@ -17,8 +17,8 @@
   Description:
   ------------
   Get the initial average according to the specified scheme
-  This function 
-  
+  This function
+
   Date          Author          Description
   ----          ------          -----------
   22-Sep-1998   W.J. Hack       initial version, uses multiamp noise,gain
@@ -65,7 +65,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
     Hdr    dqhdr;
 
     void ipiksrt (float [], int, int[]);
-    void get_nsegn (int, int, int, int, float *, float*, float *, float *);
+    void get_nsegn (int, int, float *, float*, float *, float *);
 
     /* -------------------------------- begin ------------------------------ */
     expn=0.0f;
@@ -94,7 +94,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
         exp2[n] = SQ(efac[n]);
 	if (efac[n] > 0.) non_zero++;
     }
-    get_nsegn (detector, chip, ampx, ampy, gain.val, rog2, gain2, noise2); 
+    get_nsegn (detector, chip, gain.val, rog2, gain2, noise2);
 
     /* Use the stack median to construct the initial average */
     if (strncmp(par->initgues, "median", 3) == 0) {
@@ -112,7 +112,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                 gn[0] = gain2[AMP_A];
                 gn[1] = gain2[AMP_B];
                 nse[0] = noise2[AMP_A];
-                nse[1] = noise2[AMP_B];            
+                nse[1] = noise2[AMP_B];
             }
 
             for (n = 0; n < nimgs; n++) {
@@ -142,7 +142,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 		     }
                 }
             }
- 
+
             for (i = 0; i < ampx; i++) {
                 dum = npts[i];
 
@@ -169,13 +169,13 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 			expn = exp2[ipts[dum/2]];
 		    }
                 }
-                
+
                 raw0 = Pix(sg->sci.data,i,j);
 		exp2n = (expn > 0.) ? expn : 1.;
                 Pix(sg->err.data,i,j) = (nse[0]+ raw0/gn[0] + SQ(scale*raw0)) /
 					exp2n;
             } /* End loop over FIRST AMP used on pixels in the line */
-             
+
             for (i = ampx; i < dim_x; i++) {
                 dum = npts[i];
                 if (dum == 0)
@@ -193,7 +193,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 			expn = exp2[ipts[dum/2]];
 		    }
                 }
-                
+
                 raw0 = Pix(sg->sci.data,i,j);
 		exp2n = (expn > 0.) ? expn : 1.;
                 Pix(sg->err.data,i,j) = (nse[1]+ raw0/gn[1] + SQ(scale*raw0)) /
@@ -212,7 +212,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
         for (n = 0; n < nimgs; n++) {
             initHdr(&dqhdr);
             getHeader(ipdq[n],&dqhdr);
-            for (j = 0; j < dim_y; j++) { 
+            for (j = 0; j < dim_y; j++) {
                 /* Set up the gain and noise values used for this line
 		** in ALL images */
                 if (j < ampy ) {
@@ -224,7 +224,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
                     gn[0] = gain2[AMP_A];
                     gn[1] = gain2[AMP_B];
                     nse[0] = noise2[AMP_A];
-                    nse[1] = noise2[AMP_B];            
+                    nse[1] = noise2[AMP_B];
                 }
 
                 getFloatLine (ipsci[n], j, buf);
@@ -259,7 +259,7 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 			     Pix(sg->sci.data,i,j) = 0.;
 			     Pix(sg->err.data,i,j) = 0.;
 			}
-                    } 
+                    }
                 } /* End of loop over FIRST AMP for this line in each image */
 
                 for (i = ampx; i < dim_x; i++) {
@@ -276,12 +276,12 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 		       (val<Pix(sg->sci.data,i,j) && ((bufdq[i]&dqpat)==OK))) {
                         Pix(sg->sci.data,i,j) = val;
 			if (efac[n] > 0.) {
-                            Pix(sg->err.data,i,j) = 
+                            Pix(sg->err.data,i,j) =
 			     (nse[1]+ raw0/gn[1] + SQ(scale*signal0)) / exp2[n];
 			} else {
 			    Pix(sg->err.data,i,j) = 0.;
 			}
-                    } 
+                    }
                 } /* End of loop over SECOND AMP for this line in each image */
 
             } /* End of loop over lines in image (y) */
@@ -298,4 +298,3 @@ int rej_init (IODescPtr ipsci[], IODescPtr ipdq[], clpar *par, int nimgs,
 
     return (status);
 }
-

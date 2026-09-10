@@ -73,7 +73,7 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
     int offsetx, offsety;
     float ccdbias[NAMPS]; /* default ccdbias values for chip */
 
-    void get_nsegn(int, int, int, int, float *, float *, float *, float *);
+    void get_nsegn(int, int, float *, float *, float *, float *);
 
     *done = 0; /* initial value */
 
@@ -127,7 +127,7 @@ int doNoise(WF3Info *wf3, SingleGroup *x, int *done) {
             gain[i] = 0.;
             rn2[i] = 0.;
         }
-        get_nsegn(wf3->detector, wf3->chip, wf3->ampx, wf3->ampy, wf3->atodgain,
+        get_nsegn(wf3->detector, wf3->chip, wf3->atodgain,
                   wf3->readnoise, gain, rn2);
 
         /* For WFC3 UVIS data, AMPY will always be zero, yet we still need
