@@ -179,7 +179,7 @@ int SetInput (AsnInfo *asn) {
 
     int  DoesFileExist (char *);
     char *lowcase (char *, char *);
-    int  GetAsnName (char *, char *);
+    int  GetAsnName (char *, char []);
     void FindAsnRoot (const char *, char *);
 
     /* Initialize internal variables here... */
@@ -1324,12 +1324,11 @@ static int IsProduct (char *input) {
 }
 
 
-int GetAsnName (char *filename, char *asn_name) {
+int GetAsnName (char *filename, char asn_name[CHAR_FNAME_LENGTH+1]) {
 
     extern int status;
     IODescPtr im;           /* descriptor for an image */
     Hdr phdr;               /* primary header */
-    size_t n;
 
     /* Function definitions */
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
@@ -1353,9 +1352,13 @@ int GetAsnName (char *filename, char *asn_name) {
     }
 
     if (strncmp(asn_name, "NONE", 4) == 0) {
-        n = strlen(filename);
-        strncpy(asn_name, filename, n);
-        asn_name[n] = '\0';
+        const size_t n1 = CHAR_FNAME_LENGTH;
+        const size_t n2 = strlen(filename);
+        const size_t n3 = n2 < n1 ? n2 : n1;
+        for (size_t i=0; i < n3; i++) {
+            asn_name[i] = filename[i];
+        }
+        asn_name[n3] = '\0';
     }
 
     /* Close the file's primary header. */
