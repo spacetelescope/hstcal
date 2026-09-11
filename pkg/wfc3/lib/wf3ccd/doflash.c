@@ -106,7 +106,7 @@ float *meanflash    o: mean of post-flash image values subtracted
     void get_nsegn (int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     void multgn1d (SingleGroupLine *, int, int, int, float *, float);
-    void multgn1dsub(SingleGroupLine *a, int , float *, float , char *);
+    void multgn1dsub(SingleGroupLine *a, float *, float , char *);
 
     int streq_ic (char *, char *);
     int subarray;
@@ -286,7 +286,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 	    }
 
         if(subarray){
-            multgn1dsub (&z, j, gain, wf3ccd->flashdur, wf3ccd->ccdamp);
+            multgn1dsub (&z, gain, wf3ccd->flashdur, wf3ccd->ccdamp);
         } else {
     	    multgn1d (&z, j, wf3ccd->ampx, wf3ccd->ampy, gain, wf3ccd->flashdur);
         }

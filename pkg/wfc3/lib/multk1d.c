@@ -10,7 +10,7 @@
    Howard Bushouse, 2001 Nov 16:
 	Revised to track CALACS changes - Modified calling sequence and
 	internal operation of multgn1d.
-    
+
    Megan Sosey, 2013 Sep 6
    Added new routine to deal with subarrays which span amp regions
 */
@@ -27,7 +27,7 @@ float k			 i: multiply a by this constant
 
 	if (k == 1.)
 	    return (0);
-       
+
 	/* science data */
 	/* error array */
 	dimx = a->sci.tot_nx;
@@ -36,7 +36,7 @@ float k			 i: multiply a by this constant
 	     a->sci.line[i] = k * a->sci.line[i];
 	     a->err.line[i] = k * a->err.line[i];
 	}
-    
+
 	return (0);
 }
 
@@ -75,7 +75,7 @@ void AvgSciValLine (SingleGroupLine *y, short sdqflags, float *mean,
 	numgood = 0;
 	sum = 0.;
 	dimx = y->sci.tot_nx;
-    
+
 	for (i = 0;  i < dimx;  i++) {
 	     flagval = y->dq.line[i];
 	     if ( ! (sdqflags & flagval) ) {
@@ -88,24 +88,23 @@ void AvgSciValLine (SingleGroupLine *y, short sdqflags, float *mean,
 	if (numgood > 0) {
 	    *mean = sum / (double) numgood;
 	    *weight = (float) numgood / (float)y->sci.tot_nx;
-	} else { 
+	} else {
 	    *mean = 0.;
 	    *weight = 0.;
 	}
 }
 
-void multgn1dsub(SingleGroupLine *a, int line, float *gain, float k0, char *ccdamp) {
+void multgn1dsub(SingleGroupLine *a, float *gain, float k0, char *ccdamp) {
 
 /* arguments:
 SingleGroupLine *a	io: input data; output product
-int line		i: line number of input line
 int ampx, ampy		i: amp parameters
 float *gain		i: atogain parameter
 float k0		i: value for scaling image data
 			(exptime or flashdur or ...)
-            
-This uses logic which is good for subarrays    
-            
+
+This uses logic which is good for subarrays
+
 */
 	int i;
 	float k;
@@ -115,30 +114,30 @@ This uses logic which is good for subarrays
 	/* Determine k */
 	k = 0;
 	dimx = a->sci.tot_nx;
-            
-    /* Since both the science and error arrays operate on the 
+
+    /* Since both the science and error arrays operate on the
         same line of data, we will combine them into one loop over
         X values.
     */
-    
-    if (strcmp (ccdamp, "A")==0) {   
+
+    if (strcmp (ccdamp, "A")==0) {
             k = k0 / gain[AMP_A];
-    } else if (strcmp (ccdamp, "B")==0) {   
+    } else if (strcmp (ccdamp, "B")==0) {
              k = k0 / gain[AMP_B];
-    } else if  (strcmp (ccdamp, "C")==0) {   
+    } else if  (strcmp (ccdamp, "C")==0) {
              k = k0 / gain[AMP_C];
-    } else if  (strcmp (ccdamp, "D")==0) {   
+    } else if  (strcmp (ccdamp, "D")==0) {
              k = k0 / gain[AMP_D];
     } else {
         trlerror("Bad AMP assignment in multgn1dsub");
     }
-             
+
     /* Apply scale factors  */
     for (i = 0;  i < dimx;  i++) {
 	     a->sci.line[i] = k * a->sci.line[i];
-	     a->err.line[i] = k * a->err.line[i];        
+	     a->err.line[i] = k * a->err.line[i];
     }
- 
+
 }
 
 
@@ -152,10 +151,10 @@ int ampx, ampy		i: amp parameters
 float *gain		i: atogain parameter
 float k0		i: value for scaling image data
 			(exptime or flashdur or ...)
-            
+
 None of this logic is taking into account the subarray cases where only 1 amp
-is used to read out the entire array, no mater where it is taken from            
-            
+is used to read out the entire array, no mater where it is taken from
+
 */
 	int i;
 	float k;
@@ -165,8 +164,8 @@ is used to read out the entire array, no mater where it is taken from
 	/* Determine k */
 	k = 0;
 	dimx = a->sci.tot_nx;
-    
-    /* Since both the science and error arrays operate on the 
+
+    /* Since both the science and error arrays operate on the
         same line of data, we will combine them into one loop over
         X values.
     */
@@ -176,13 +175,13 @@ is used to read out the entire array, no mater where it is taken from
             k = k0 / gain[AMP_C];
         } else {
             k = 0.;
-        } 
-    
+        }
+
         /* This line has 2-AMP readout */
         /* Apply gain for first amp to first part of line */
         for (i = 0;  i < ampx;  i++) {
 	     a->sci.line[i] = k * a->sci.line[i];
-	     a->err.line[i] = k * a->err.line[i];        
+	     a->err.line[i] = k * a->err.line[i];
         }
         /* Apply gain for second amp over remainder of line...
             only if there is a second amp which needs applying.
@@ -192,7 +191,7 @@ is used to read out the entire array, no mater where it is taken from
             k = k0 / gain[AMP_D];
             for (i = ampx;  i < dimx;  i++) {
 		        a->sci.line[i] = k * a->sci.line[i];
-		        a->err.line[i] = k * a->err.line[i];        
+		        a->err.line[i] = k * a->err.line[i];
             }
         }
 
@@ -206,9 +205,9 @@ is used to read out the entire array, no mater where it is taken from
         /* Apply gain for first amp to first part of line */
         for (i = 0;  i < ampx;  i++) {
 	     a->sci.line[i] = k * a->sci.line[i];
-	     a->err.line[i] = k * a->err.line[i];        
+	     a->err.line[i] = k * a->err.line[i];
         }
-        /* Apply gain for second amp over remainder of line... 
+        /* Apply gain for second amp over remainder of line...
             only if there is a second amp which needs applying.
             WJH 14 Apr 2000
         */
@@ -216,10 +215,9 @@ is used to read out the entire array, no mater where it is taken from
             k = k0 / gain[AMP_B];
             for (i = ampx;  i < dimx;  i++) {
 		 a->sci.line[i] = k * a->sci.line[i];
-		 a->err.line[i] = k * a->err.line[i];        
+		 a->err.line[i] = k * a->err.line[i];
             }
         }
     }
 
 }
-
