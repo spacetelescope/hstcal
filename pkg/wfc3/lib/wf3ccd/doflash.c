@@ -91,8 +91,6 @@ float *meanflash    o: mean of post-flash image values subtracted
     int update;
     float gain[NAMPS];
     float rn2[NAMPS];		/* only need this to call get_nsegn */
-    int ampx;			/* border column for 2amp readout regions, set to size of image in ccdtab */
-    int ampy;			/* Boundary values corrected for trim regions, set to size of image in ccdtab */
     int dimx, dimy;     /*dimensions of science image */
     int offsetx, offsety;
 
@@ -115,8 +113,6 @@ float *meanflash    o: mean of post-flash image values subtracted
     /*init variables*/
     offsetx=0;
     offsety=0;
-    ampx=0;
-    ampy=0;
     dimx=0;
     dimy=0;
     mean=0.;
