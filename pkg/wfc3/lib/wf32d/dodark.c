@@ -60,7 +60,6 @@ float *meandark	   o: mean of dark image values subtracted
     int rx, ry;			/* for binning dark down to size of x */
     int x0, y0;			/* offsets of sci image */
     int same_size;		/* true if no binning of ref image required */
-    int avg = 0;		/* bin2d should sum values within each bin */
     int scilines; 		/* number of lines in science image */
     int i, j;
     float mean, dark;
@@ -72,7 +71,7 @@ float *meandark	   o: mean of dark image values subtracted
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *,
 		  int *, int *);
     int sub1d (SingleGroup *, int, SingleGroupLine *);
-    int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
+    int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int *);
     void get_nsegn (int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
@@ -140,7 +139,7 @@ float *meandark	   o: mean of dark image values subtracted
 
              update = NO;
 
-	     if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
+	     if (trim1d (&y, x0, y0, rx, update, &z)) {
 		 trlerror("(darkcorr) size mismatch.");
 		 return (status);
 	     }

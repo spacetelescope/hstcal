@@ -256,7 +256,6 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	int y_rx, y_ry;		  /* for binning dark down to size of x */
 	int y_x0, y_y0;		  /* offsets of sci image */
 	int ysame_size;		/* true if no binning of ref image required */
-	int avg = 1;		/* bin2d should average within each bin */
 	int update = NO;	/* Flag to determine whether hdr info needs
 				** to be updated*/
 
@@ -268,8 +267,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *,
 		      int *, int *);
 	int DetCCDChip (char *, int, int *);
-	int trim1d (SingleGroupLine *, int, int, int, int, int,
-		    SingleGroupLine *);
+	int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
 	int div1d (SingleGroup *, int, SingleGroupLine *);
 	void get_nsegn (int, int, float *, float *, float *, float *);
 	void multgn1d (SingleGroupLine *, int, int, int, float *, float);
@@ -347,7 +345,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 		   getSingleGroupLine (flatname, line, &y);
 
 		   /* Make sure it is the same length as science image */
-		   trim1d (&y, y_x0, y_y0, y_rx, avg, update, &ytrim);
+		   trim1d (&y, y_x0, y_y0, y_rx, update, &ytrim);
 
 		   /* Divide flat by gain, if requested */
 		   if (applygain) {

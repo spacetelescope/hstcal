@@ -84,7 +84,6 @@ float *meanflash    o: mean of post-flash image values subtracted
     int rx, ry;			/* for binning post-flash down to size of x */
     int x0, y0;			/* offsets of sci image relative to reference image */
     int same_size;		/* true if no binning of ref image required */
-    int avg = 0;		/* bin2d should sum values within each bin */
     int scilines; 		/* number of lines in science image */
     int i, j;
     float mean, flash;
@@ -101,7 +100,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 		  int *);
     int sub1d (SingleGroup *, int, SingleGroupLine *);
     int sub1dreform (SingleGroup *, int, int, SingleGroupLine *);
-    int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
+    int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
     int DetCCDChip (char *, int, int *);
     void get_nsegn (int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
@@ -280,7 +279,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 
 	    update = NO;
 
-	    if (trim1d (&y, x0, j, rx, avg, update, &z)) {
+	    if (trim1d (&y, x0, j, rx, update, &z)) {
 			trlerror("(flshcorr)reference file size mismatch.");
 			return (status);
 	    }
