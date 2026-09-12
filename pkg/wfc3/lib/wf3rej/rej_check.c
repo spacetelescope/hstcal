@@ -35,7 +35,7 @@ static int getampxy (Hdr *, int, int, char *, int, int, int *, int *);
                             the value as MIXED in the output crj header. PR #72001
 */
 
-int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
+int rej_check (IRAFPointer tpin, int extver, clpar *par,
 	       int newpar[], char imgname[][CHAR_FNAME_LENGTH+1], int grp[],
 	       IODescPtr ipsci[], IODescPtr ipdq[], multiamp *noise,
 	       multiamp *gain, int *dim_x, int *dim_y, int nimgs, char expflagFinal[]) {

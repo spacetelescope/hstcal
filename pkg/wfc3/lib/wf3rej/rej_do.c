@@ -108,7 +108,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     ImgHistory (RefImage *, Hdr *);
     int     ImgPedigree (RefImage *);
 
-    int     rej_check (IRAFPointer, int, int, clpar *, int [],
+    int     rej_check (IRAFPointer, int, clpar *, int [],
 		       char [][CHAR_FNAME_LENGTH+1], int [], IODescPtr [], IODescPtr [],
 		       multiamp *, multiamp *, int *, int *, int, char []);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
@@ -250,7 +250,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         }
 
         /* Open input files and temporary files, check the parameters */
-        if (rej_check (tpin, extver, numext, par, newpar, imgname, ext,
+        if (rej_check (tpin, extver, par, newpar, imgname, ext,
             ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs, expflagFinal)) {
             WhichError (status);
             return(status);
