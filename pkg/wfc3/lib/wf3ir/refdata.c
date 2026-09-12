@@ -22,21 +22,20 @@
 ** H.Bushouse	25-Feb-2009	Added crrpar_in to read parameters for CRCORR.
 */
 
-# include <math.h>
-# include <ctype.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <string.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "hstcal.h"
-# include "hstio.h"	/* defines HST I/O functions */
-# include "wf3.h"
-# include "wf3info.h"
-# include "hstcalerr.h"
-# include "trlbuf.h"
+#include "hstio.h"	/* defines HST I/O functions */
+#include "wf3.h"
+#include "wf3info.h"
+#include "hstcalerr.h"
+#include "trlbuf.h"
 
-# define  FATAL   1
-# define  WARNING 2
+#define  FATAL   1
+#define  WARNING 2
 
 extern int status;
 
@@ -326,7 +325,8 @@ int getDarkInfo (WF3Info *wf3) {
 
 	/* Local variables */
 	int i;			/* loop index */
-	char kword[8+1];	/* keyword name */
+    size_t ksize = SZ_KEYWORD + 1;
+	char kword[ksize];	/* keyword name */
 
 	SingleNicmosGroup dark;
 
@@ -359,7 +359,7 @@ int getDarkInfo (WF3Info *wf3) {
 
 	/* Read the list of exposure times */
 	for (i = 0; i < wf3->ndarks; i++) {
-	     sprintf (kword, "EXPOS_%d", i+1);
+	     snprintf (kword, ksize, "EXPOS_%d", i+1);
 	     wf3->dtimes[i] = 0;
 	     if (getKeyD (dark.globalhdr, kword, &(wf3->dtimes[i]))) {
 		 trlkwerr (kword, wf3->dark.name);

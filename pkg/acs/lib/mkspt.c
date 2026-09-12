@@ -129,9 +129,8 @@ int mkNewSpt (char *in_list, char *mtype, char *output) {
                 trlerror("Couldn't create output SPT ROOTNAME for %s", out_spt);
                 WhichError (status);
                 return (status);
-            } else {
-		        trlmessage("Created output SPT rootname %s...",out_spt);
-		    }
+            }
+            trlmessage("Created output SPT rootname %s...",out_spt);
 
 	        /* Update the FILENAME header keyword */
 	        if (PutKeyStr (&header, "FILENAME", out_spt, ""))
