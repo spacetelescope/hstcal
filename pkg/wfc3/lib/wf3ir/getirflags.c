@@ -9,7 +9,7 @@
 
 static int checkCCD  (Hdr *, WF3Info *, int *);
 static int checkDQI  (Hdr *, WF3Info *, int *, int *);
-static int checkZoff (Hdr *, WF3Info *, int *, int *);
+static int checkZoff (Hdr *, WF3Info *, int *);
 static int checkDark (Hdr *, WF3Info *, int *, int *);
 static int checkBlev (Hdr *, WF3Info *, int *);
 static int checkNlin (Hdr *, WF3Info *, int *, int *);
@@ -75,7 +75,7 @@ int GetIRFlags (WF3Info *wf3, Hdr *phdr) {
 	if (checkDQI (phdr, wf3, &missing, &nsteps))
 	    return (status);
 
-	if (checkZoff (phdr, wf3, &missing, &nsteps))
+	if (checkZoff (phdr, wf3, &nsteps))
 	    return (status);
 
 	if (checkDark (phdr, wf3, &missing, &nsteps))
@@ -108,7 +108,7 @@ int GetIRFlags (WF3Info *wf3, Hdr *phdr) {
 }
 
 
-static int checkZoff (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkZoff (Hdr *phdr, WF3Info *wf3, int *nsteps) {
 
 /* arguments:
 Hdr *phdr	i: primary header

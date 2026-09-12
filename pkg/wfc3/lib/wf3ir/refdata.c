@@ -179,7 +179,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 	SingleNicmosGroup lflt;
 
 	/* Function definitions */
-	int getFlatImage (WF3Info *, RefImage *, SingleNicmosGroup *);
+	int getFlatImage (RefImage *, SingleNicmosGroup *);
 	int FindBinIR (SingleNicmosGroup *, SingleNicmosGroup *, int *, int *,
 		       int *, int *, int *);
 	void amul (SingleNicmosGroup *, SingleNicmosGroup *);
@@ -191,7 +191,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 	/* Load the pixel-to-pixel flat */
 	if (wf3->pfltcorr == PERFORM) {
 
-	    if (getFlatImage (wf3, &wf3->pflt, flat))
+	    if (getFlatImage (&wf3->pflt, flat))
 		return (status);
 	}
 
@@ -201,7 +201,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 	    /* If pflt also exists, load dflt into separate temporary image */
 	    if (wf3->pfltcorr == PERFORM) {
 
-		if (getFlatImage (wf3, &wf3->dflt, &dflt))
+		if (getFlatImage (&wf3->dflt, &dflt))
 		    return (status);
 
 		/* Are the pflt and dflt the same size? */
@@ -221,7 +221,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 	    /* Otherwise, just load dflt by itself */
 	    } else {
 
-		if (getFlatImage (wf3, &wf3->dflt, flat))
+		if (getFlatImage (&wf3->dflt, flat))
 		    return (status);
 	    }
 	}
@@ -235,7 +235,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 
 		/* This is the normal case; we already have a product
 		** in flat */
-		if (getFlatImage (wf3, &wf3->lflt, &lflt))
+		if (getFlatImage (&wf3->lflt, &lflt))
 		    return (status);
 
 		/* Allocate an image the same size as flat */
@@ -259,7 +259,7 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 	    /* Otherwise low-order flat is only flat we have */
 	    } else {
 
-		if (getFlatImage (wf3, &wf3->lflt, &lflt))
+		if (getFlatImage (&wf3->lflt, &lflt))
 		    return (status);
 
 		/* Figure out how much to expand the low-order flat
@@ -295,10 +295,10 @@ int getFlats (WF3Info *wf3, SingleNicmosGroup *in, SingleNicmosGroup *flat) {
 /* GETFLATIMAGE: Load the flat field reference file image.
 */
 
-int getFlatImage (WF3Info *wf3, RefImage *ref, SingleNicmosGroup *flat) {
+int getFlatImage (RefImage *ref, SingleNicmosGroup *flat) {
 
 /* Arguments:
-**	nic	i: NICMOS info structure
+**	ref	i: Ref info structure
 **	flat	o: flat field image
 */
 
