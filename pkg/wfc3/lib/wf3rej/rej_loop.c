@@ -949,35 +949,24 @@ static void freeBitBuff (Byte ***crmask, int nimgs, int lines){
     free (crmask);
 }
 
-/* ------------------------------------------------------------------*/
-/*                          printBitLine                             */
-/* ------------------------------------------------------------------*/
-
-
+/* UNCOMMENT FOR DEBUGGING. */
+/*
 static void printBitLine (Byte ***crmask, int img, int line, int nx){
-
     int     x,i;
     Byte    bit;
     int     pix;
-
-    /* Print out values in crbuff to STDOUT using 'X' and '.' */
-
+    // Print out values in crbuff to STDOUT using 'X' and '.'
     for (x = 0; x < (nx/SIZE_BYTE); x++) {
-        /* Set each bit in compressed buffer */
+        // Set each bit in compressed buffer
         for (bit = 0x80,i=0; bit > 0; bit=(bit>>1),i++) {
             if ( (crmask[img][line][x] & bit) > 0) {
                 pix = x * SIZE_BYTE + i;
                 trlmessage("Compressed hit at %d,%d", pix, line);
-            } /*	printf("X");
-            else
-                printf(".");
-            */
+            }
         }
     }
-    /*printf("\n"); */
-
 }
-
+*/
 
 /* ------------------------------------------------------------------*/
 /*                          readBitLine                              */

@@ -416,11 +416,12 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
             char oldunit[12];
             char newunit[12];
             oldunit[0] = '\0';
-            newunit[0] = '\0';
             getKeyS (&sg.sci.hdr, "BUNIT", oldunit);
             size_t oldunitsize = strlen(oldunit);
-            strncpy(newunit, oldunit, oldunitsize - 2);
-            newunit[oldunitsize - 1] = '\0';
+            size_t nn = oldunitsize < 12 ? oldunitsize : 12;
+            for (size_t iin=0; iin < (nn - 2); iin++)
+                newunit[iin] = oldunit[iin];
+            newunit[nn - 2] = '\0';
             PutKeyStr (&sg.sci.hdr, "BUNIT", newunit, "");
             PutKeyStr (&sg.err.hdr, "BUNIT", newunit, "");
         }
