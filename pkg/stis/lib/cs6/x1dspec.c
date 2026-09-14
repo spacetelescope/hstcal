@@ -17,21 +17,21 @@
 static double BoxTilt (XtractInfo *, int);
 static void AccumPix (StisInfo6 *, SingleGroup *, int, int, double, double *,
                        double *, double *, double *, double *, double *,
-                       double *, short *, int *, int, int, double *, double *,
-                       short *, double, double *, short, double *, int);
-static void AccPixUnw (StisInfo6 *, SingleGroup *, int, int, double, double *,
-                       double *, double *, double *, double *, double *,
-                       short *, int *, int, int, double *, short *, double,
-                       double, double *, int);
-static void AccPixOpt (StisInfo6 *, SingleGroup *, int, int, double *,
-                       double *, double *, double *, double *, double *,
                        double *, short *, int *, int, int, double *,
-                       double, double, double, double *, short, int);
+                       double, double *, short, double *);
+static void AccPixUnw (StisInfo6 *, SingleGroup *, int, int, double, double *,
+                       double *, double *, double *, double *,
+                       short *, int *, int, double,
+                       double, double *);
+static void AccPixOpt (StisInfo6 *, SingleGroup *, int, int,
+                       double *, double *, double *, double *,
+                       short *, int *, int, double *,
+                       double, double, double, double *, short);
 static void CleanPixel (StisInfo6 *, SingleGroup *, int, int, double *,
-                        int, double, SingleGroup *, int);
+                        int, double, SingleGroup *);
 static void CleanPixels (StisInfo6 *, SingleGroup *, int, int, int,
-                        double *, int, double, SingleGroup *, int);
-static void ComputeBack (StisInfo6 *, int, double *, double *, double *, int);
+                        double *, int, double, SingleGroup *);
+static void ComputeBack (StisInfo6 *, int, double *, double *, double *);
 static void ReplaceBack (StisInfo6 *, double, double, double *, double *);
 static void UpdateProfile (float, double *, double *,short *, int, int);
 
@@ -98,7 +98,6 @@ static void UpdateProfile (float, double *, double *,short *, int, int);
 
 int X1DSpec (StisInfo6 *sts, SpTrace *trc, XtractInfo *xtr,
              double extrsize, SingleGroup *in, SingleGroup *outw,
-             FloatHdrData *ssgx, FloatHdrData *ssgy,
              IntensArray *inta, RowContents *row_cont) {
 
 
@@ -109,8 +108,6 @@ XtractInfo *xtr;       i:  extraction parameters
 double extrsize;       i:  extraction box size
 SingleGroup *in;       i:  input image
 SingleGroup *outw      o:  output weight image in optimal extr. mode
-FloatHdrData ssgx;     i:  small-scale distortion in X (not used)
-FloatHdrData ssgy;     i:  small-scale distortion in Y (not used)
 IntensArray *inta;     i:  array with intensities for optimal extraction
 RowContents *row_cont  o:  output row arrays
 */
@@ -137,15 +134,14 @@ RowContents *row_cont  o:  output row arrays
 	double	*iprofile;	/* interpolated profile for opt. extraction */
 	double  *profile_yabs;	/* positions corresponding to profile pixels */
         double  pix_back;       /* extracted value corrected for background */
-	int	j, k, debug;
+	int	j, k;
 	short	pmask = 0;
 	int	status;
 	double	j0, centroid, centnorm, offset;
 	double x1, x2;
 	int ix1, ix2, ix;
 
-	int CalcBack (StisInfo6 *, XtractInfo *, SingleGroup *,
-                       FloatHdrData *, FloatHdrData *, int, double, int);
+	int CalcBack (StisInfo6 *, XtractInfo *, SingleGroup *, int, double);
 
 	/* Output extraction info (in image, not reference, pixels) */
 
@@ -197,21 +193,12 @@ RowContents *row_cont  o:  output row arrays
            to compute the centroid. The centroid in turn is used to correct
            the final offset value that is passed to the drizzle routine.
         */
-	if (sts->do_profile) {
-	    if ((profile_yabs = (double *) malloc ((sts->profile_y + 1) *
-                                sizeof(double))) == NULL)
-	        return (OUT_OF_MEMORY);
-	}
+    if ((profile_yabs = (double *) malloc ((sts->profile_y + 1) * sizeof(double))) == NULL)
+        return (OUT_OF_MEMORY);
 
 	/* Loop over physical image pixels in the A1 direction. */
-	for (ipix = 0; ipix < in->sci.data.nx ; ipix++) {
+    for (ipix = 0; ipix < in->sci.data.nx ; ipix++) {
             float extrlocy;            /* output extraction location */
-
-	    /* Debug control. */
-	    if (ipix == 300)
-	        debug = ipix;
-	    else
-	        debug = 0;
 
 	    /* Translate physical pixel index into reference pixel index. */
 	    rpix = (int)((ipix - sts->ltv[0]) / sts->ltm[0]);
@@ -253,8 +240,7 @@ RowContents *row_cont  o:  output row arrays
 
 	    /* Compute background coefficients. */
 	    if (sts->backcorr == PERFORM || sts->optimal) {
-	        if ((status = CalcBack (sts, xtr, in, ssgx, ssgy, ipix,
-                                        y_box, debug)))
+	        if ((status = CalcBack (sts, xtr, in, ipix, y_box)))
 	            return (status);
 	    }
 
@@ -333,7 +319,7 @@ RowContents *row_cont  o:  output row arrays
 	        /* Clean up pixels based on the expected profile. */
 
 	        CleanPixels (sts, in, ipix, j1, j2, iprofile, (int)ilow_end,
-                             intens, outw, debug);
+                             intens, outw);
 	    }
 
 	    /* Clear accumulators. */
@@ -360,8 +346,7 @@ RowContents *row_cont  o:  output row arrays
 	        AccumPix (sts, in, ipix, j1, s1, &sum, &sumback,
                           &sumnet, &sump, &err, &wei, &sum_discarded, &oDQ,
                           &discarded, BOX_LOWER, j1, iprofile,
-                          sts->profile[ipix], sts->profile_dq[ipix],
-                          intens, &weight, pmask, &pix_back, debug);
+                          intens, &weight, pmask, &pix_back);
 	        if (sts->do_profile)
 	            UpdateProfile ((float)pix_back,
                                    sts->profile[ipix], profile_yabs,
@@ -376,8 +361,7 @@ RowContents *row_cont  o:  output row arrays
 	        AccumPix (sts, in, ipix, j2, s2, &sum, &sumback,
                           &sumnet, &sump, &err, &wei, &sum_discarded, &oDQ,
                           &discarded, BOX_UPPER, j1, iprofile,
-                          sts->profile[ipix], sts->profile_dq[ipix],
-                          intens, &weight, pmask, &pix_back, debug);
+                          intens, &weight, pmask, &pix_back);
 
 	        if (sts->do_profile)
 	            UpdateProfile ((float)pix_back,
@@ -405,8 +389,7 @@ RowContents *row_cont  o:  output row arrays
                                   &sumback, &sumnet, &sump, &err, &wei,
                                   &sum_discarded, &oDQ, &discarded,
                                   BOX_MID, j1-1, iprofile,
-                                  sts->profile[ipix], sts->profile_dq[ipix],
-                                  intens, &weight, pmask, &pix_back, debug);
+                                  intens, &weight, pmask, &pix_back);
 
 	                if (sts->do_profile)
 	                    UpdateProfile ((float)pix_back,
@@ -545,9 +528,9 @@ static void AccumPix (StisInfo6 *sts, SingleGroup *in, int i, int j,
                       double *sumnet, double *sump, double *err, double *wei,
                       double *sum_discarded, short *oDQ,
                       int *discarded, int box_pos, int ilow_end,
-                      double *iprofile, double *profile, short *profile_dq,
+                      double *iprofile,
                       double intens, double *weight, short pmask,
-                      double *pix_back, int debug) {
+                      double *pix_back) {
 
 /* arguments:
 StisInfo6 *sts         i:  calibration switches and info
@@ -559,18 +542,15 @@ int *discarded;        o:  are there discarded pixels ?
 int box_pos;           i:  pixel is in box extremities or internal
 int ilow_end;          i:  image pixel where the box's low end sits
 double *iprofile;      i:  interpolated profile for optimal extraction
-double *profile;       o:  profile builder basic output
-short *profile_dq;     o:  profile builder DQ output
 double intens;         i:  intensity value used in optimal extraction
 double weight;         o:  weight (goes into output weight image)
 short pmask;           i:  profile DQ mask
 double *pix_back;      o:  the extracted pixel corrected for background
-int debug;             i:  debug flag / pixel index
 */
 	double	back, backvar, backerr;
 
 	/* Compute background and update its accumulator. */
-	ComputeBack (sts, j, &back, &backvar, &backerr, debug);
+	ComputeBack (sts, j, &back, &backvar, &backerr);
 	*sumback += back * area;
 
 	/* If background smoothing will be done, set the error contribution
@@ -585,26 +565,22 @@ int debug;             i:  debug flag / pixel index
            extraction uses the background error, not the variance.
         */
 	if (sts->optimal)
-	    AccPixOpt (sts, in, i, j, sum, sumback, sumnet, sump,
-                          err, wei, sum_discarded, oDQ, discarded,
-                          box_pos, ilow_end, iprofile, back, backerr,
-                          intens, weight, pmask, debug);
+	    AccPixOpt (sts, in, i, j, sumnet, sump,
+                          err, wei, oDQ, discarded,
+                          ilow_end, iprofile, back, backerr,
+                          intens, weight, pmask);
 	else
-	    AccPixUnw (sts, in, i, j, area, sum, sumback, sumnet,
+	    AccPixUnw (sts, in, i, j, area, sum, sumnet,
                        err, wei, sum_discarded, oDQ, discarded,
-                       box_pos, ilow_end, profile, profile_dq, back,
-                       backvar, pix_back, debug);
+                       box_pos, back,
+                       backvar, pix_back);
 }
-
-
 
 
 /*  The following two routines are the core of calstis6. They perform the
     actual extraction, either in unweighted mode with background
     subtraction, or in optimal mode.
 */
-
-
 
 
 /*  Optimal extraction.
@@ -615,21 +591,17 @@ int debug;             i:  debug flag / pixel index
 */
 
 static void AccPixOpt (StisInfo6 *sts, SingleGroup *in, int i, int j,
-                       double *sum, double *sumback,
                        double *sumnet, double *sump, double *err, double *wei,
-                       double *sum_discarded, short *oDQ, int *discarded,
-                       int box_pos, int ilow_end, double *profile,
+                       short *oDQ, int *discarded,
+                       int ilow_end, double *profile,
                        double back, double backerr, double intens,
-                       double *weight, short pmask, int debug) {
+                       double *weight, short pmask) {
 
 /* arguments:
 StisInfo6 *sts         i:  calibration switches and info
 SingleGroup *in	       i:  input image
 int i, j;              i:  pixel indices in physical image units
-double area;           i:  fraction of pixel area being extracted
-double *sum...         io: accumulators
 int *discarded;        o:  are there discarded pixels ?
-int box_pos;           i:  pixel is in box extremities or internal
 int ilow_end;          i:  image pixel where the box's low end sits
 double *profile;       i:  normalized profile
 double back;           i:  background value
@@ -637,7 +609,6 @@ double backerr;        i:  background error (variance / sqrt(n))
 double intens;         i:  normalization intensity spectrum value
 double weight;         o:  weight (goes into output weight image)
 short pmask;           i:  profile DQ mask
-int debug;             i:  debug flag / pixel index
 */
 	short  dq;
 	double pix, p, var, mask;
@@ -723,12 +694,12 @@ Turned off by Brian's request 3/23/01
 */
 
 static void AccPixUnw (StisInfo6 *sts, SingleGroup *in, int i, int j,
-                       double area, double *sum, double *sumback,
+                       double area, double *sum,
                        double *sumnet, double *err, double *wei,
                        double *sum_discarded, short *oDQ, int *discarded,
-                       int box_pos, int ilow_end, double *profile,
-                       short *profile_dq, double back, double backvar,
-                       double *pix_back, int debug) {
+                       int box_pos,
+                       double back, double backvar,
+                       double *pix_back) {
 
 /* arguments:
 StisInfo6 *sts         i:  calibration switches and info
@@ -738,13 +709,9 @@ double area;           i:  fraction of pixel area being extracted
 double *sum...         io: accumulators
 int *discarded;        o:  are there discarded pixels ?
 int box_pos;           i:  pixel is in box extremities or internal
-int ilow_end;          i:  image pixel where the box's low end sits
-double *profile;       io: 1-D profile array for the i-th image column
-short *profile_dq;     io: 1-D profile DQ array for the i-th image column
 double back;           i:  background value
 double backvar;        i:  background variance
 double *pix_back;      o:  the extracted pixel corrected for background
-int debug;             i:  debug flag / pixel index
 */
 
 	int     nint;
@@ -853,28 +820,27 @@ int debug;             i:  debug flag / pixel index
 
 static void CleanPixels (StisInfo6 *sts, SingleGroup *in, int ipix,
                          int j1, int j2, double *iprofile, int ilow_end,
-                         double intens, SingleGroup *outw, int debug) {
+                         double intens, SingleGroup *outw) {
 
 /* arguments:
 StisInfo6 *sts         i:  calibration switches and info
-SingleGroup *in	       i:  input image
+SingleGroup *in	       i:  input image(
 int ipix;              i:  image column
 int j1, j2;            i:  extreme indices in physical image units
 double *iprofile;      i:  interpolated profile for optimal extraction
 int ilow_end;          i:  image pixel where the profile's low end sits
 double intens;         i:  intensity value used in optimal extraction
 SingleGroup *outw      o:  output weight image in optimal extr. mode
-int debug;             i:  debug control
 */
 	int j, j3, j4;
 
 	/* First clean the two extreme pixels. */
 	if (j1 > 0 && j1 < in->sci.data.ny)
 	    CleanPixel (sts, in, ipix, j1, iprofile, ilow_end, intens,
-                        outw, debug);
+                        outw);
 	if (j2 > 0 && j2 < in->sci.data.ny)
 	    CleanPixel (sts, in, ipix, j2, iprofile, ilow_end, intens,
-                        outw, debug);
+                        outw);
 
 	/* Then the remaining ones. Reset pixel pointers at bottom and
            top of extraction box to point to the first and last integral
@@ -887,7 +853,7 @@ int debug;             i:  debug control
 	    j4--;
 	    for (j = j3; j <= j4; j++)
 	        CleanPixel (sts, in, ipix, j, iprofile, ilow_end, intens,
-                            outw, debug);
+                            outw);
 	}
 }
 
@@ -906,7 +872,7 @@ int debug;             i:  debug control
 
 static void CleanPixel (StisInfo6 *sts, SingleGroup *in, int ipix, int j,
                         double *iprofile, int ilow_end, double intens,
-                        SingleGroup *outw, int debug) {
+                        SingleGroup *outw) {
 
 /* arguments:
 StisInfo6 *sts         i:  calibration switches and info
@@ -917,7 +883,6 @@ double *iprofile;      i:  interpolated profile for optimal extraction
 int ilow_end;          i:  image pixel where the profile's low end sits
 double intens;         i:  intensity value used in optimal extraction
 SingleGroup *outw      o:  output weight image in optimal extr. mode
-int debug;             i:  debug control
 */
 	short  dq, fullmask;
 	double pix, p, var, crit;
@@ -926,7 +891,7 @@ int debug;             i:  debug control
 	/* Compute background and eventually replace by command
            line overriding values.
         */
-	ComputeBack (sts, j, &back, &backvar, &backerr, debug);
+	ComputeBack (sts, j, &back, &backvar, &backerr);
 	ReplaceBack (sts, back, backerr, &back2, &backerr2);
 
 	/* Get pixel value and its "serious" DQ mask. */
@@ -981,7 +946,7 @@ static void UpdateProfile (float pix, double *profile, double *profile_y,
 */
 
 static void ComputeBack (StisInfo6 *sts, int j, double *back,
-                         double *backvar, double *backerr, int debug) {
+                         double *backvar, double *backerr) {
 
 	double ix[1], iy[1];
 
@@ -1058,4 +1023,3 @@ static double BoxTilt (XtractInfo *xtr, int pix) {
 
 	return (angle);
 }
-
