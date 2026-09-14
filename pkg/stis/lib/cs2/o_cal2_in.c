@@ -13,7 +13,7 @@
   Description:
   ------------
   Reads CL parameters and does necessary checkings
-  
+
   Input parameters from crrej reference table:
   -------------------------------------------
 
@@ -21,7 +21,7 @@
   "crsigmas"            Rejection thresholds
   "crradius"            Radius (in pixels) to propagate the cosmic ray
   "crthresh"            Propagation factor
-  "initgues"		Scheme of computing initial-guess image 
+  "initgues"		Scheme of computing initial-guess image
   "scalense"		multiplicative noise in percents
   "badinpdq"		Data quality pset
   "crmask"		flag CR-rejected pixels in input files?
@@ -32,7 +32,7 @@
 
   Date		Author		Description
   ----		------		-----------
-  06-May-1996  J.-C. Hsu	adapt from the SPP code crrej_in.x 
+  06-May-1996  J.-C. Hsu	adapt from the SPP code crrej_in.x
   10-Feb-2000  Phil Hodge	Return int instead of void,
 				and replace exit with return.
    5-Feb-2004  Phil Hodge	Define exp_in, meanexp, mindiff and diff
@@ -48,9 +48,9 @@ float sigma[])
 {
 	IRAFPointer	tp;
 	IRAFPointer	colptr, colptr1;
-	int		i, nrows, nmatch, row;
-	int		crsplit_in, crsplit, maxcrsplit;
-	double		exp_in, meanexp, mindiff, diff;
+	int		i, nrows, nmatch, row=0;
+	int		crsplit_in, crsplit, maxcrsplit=0;
+	double		exp_in, meanexp, mindiff=99999.9, diff;
 
 	int 		strtor (char *, float []);
         void 		PrRefInfo (char *, char *, char *, char *, char *);
@@ -62,7 +62,7 @@ float sigma[])
 	exp_in = exptot / (double) crsplit_in;
 	par->meanexp = exp_in;
 
-	/* if all parameters are specified by the user, no need to open the 
+	/* if all parameters are specified by the user, no need to open the
 		reference CRREJ table */
 	if (newpar[0] < MAX_PAR) {
 	    tp = c_tbtopn (par->tbname, IRAF_READ_ONLY, 0);
@@ -112,7 +112,7 @@ float sigma[])
 	        return (2);
 	    }
 
-	    /* read the sigmas parameter */ 
+	    /* read the sigmas parameter */
 	    if (newpar[CRSIGMAS] == 0) {
 	        c_tbcfnd1 (tp, "crsigmas", &colptr);
 	        if (colptr == 0) {
@@ -136,7 +136,7 @@ float sigma[])
 	        c_tbegtt (tp, colptr, row, par->sky, STIS_LINE);
 
 		/* do not subtract sky if spectroscopic mode */
-		if (strcmp (par->obstype, "SPECTROSCOPIC") == 0) 
+		if (strcmp (par->obstype, "SPECTROSCOPIC") == 0)
 		    strcpy (par->sky, "none");
 	    }
 
