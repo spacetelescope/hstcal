@@ -201,7 +201,7 @@ int inverseCTEBlur(const SingleGroup * input, SingleGroup * output, SingleGroup 
 
                     /*START WITH THE INPUT ARRAY BEING THE LAST OUTPUT
                       IF WE'VE CR-RESCALED, THEN IMPLEMENT CTEF*/
-                    {unsigned NITINV;
+                    {int NITINV;
                     for (NITINV = 1; NITINV <= ctePars->n_forward - 1; ++NITINV)
                     {
                         memcpy(tempModel, model, nRows*sizeof(*model));
@@ -583,8 +583,8 @@ int populateTrapPixelMap(SingleGroup * trapPixelMap, CTEParamsFast * ctePars)
 #endif
     for (i = 0; i < ctePars->nScaleTableColumns; ++i)
     {
-        unsigned column = ctePars->iz_data[i] - ctePars->razColumnOffset; //which column to scale
-        if (column < 0 || column >= nColumns)//vec blocker
+        unsigned column = ctePars->iz_data[i] - ctePars->razColumnOffset; // which column to scale
+        if (column >= nColumns) // vec blocker
             continue;
         trapColumnScale[0] = ctePars->scale512[i];
         trapColumnScale[1] = ctePars->scale1024[i];
