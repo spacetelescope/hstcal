@@ -67,7 +67,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 
 	IODescPtr im;		/* descriptor for input image */
 	Hdr phdr;		/* primary header for input image */
-	int i;
+	size_t i;
 
 	int GetFlags4 (StisInfo4 *, Hdr *);
 	int GetKeyInfo4 (StisInfo4 *, Hdr *);
@@ -125,8 +125,7 @@ double slit_angle      i: angle of long slit used with echelle; this is
 	    if (sts.disp_type == ECHELLE_DISP) {
 
 		/* append ".fits" if necessary */
-		int len;
-		len = strlen (sts.dbgfile);
+		size_t len = strlen (sts.dbgfile);
 		if (len < 5 ||
 		    (strcmp (&sts.dbgfile[len-4], ".fit") != 0 &&
 		     strcmp (&sts.dbgfile[len-5], ".fits") != 0)) {
