@@ -169,7 +169,7 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 
 	/* mappings from one coordinate system to another */
 	double ri_m[2], ri_v[2];	/* reference to image */
-	double rs_m[2], rs_v[2];	/* reference to scratch */
+	double rs_v[2];	/* reference to scratch */
 	double si_m[2], si_v[2];	/* scratch to image */
 
 	/* for copying from scratch array (only copy overlap region): */
@@ -275,8 +275,6 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 	if (!in_place) {
 	    if (high_res) {
 		/* DQ array is binned finer than reference coords */
-		rs_m[0] = 2.;
-		rs_m[1] = 2.;
 		rs_v[0] = 0.5;
 		rs_v[1] = 0.5;
 		/* assumes rs_m = 2, rs_v = 0.5 */
@@ -286,8 +284,6 @@ SingleGroup *x    io: image to be calibrated; DQ array written to in-place
 		si_v[1] = ri_v[1] - ri_m[1] * 0.25;
 	    } else {
 		/* scratch is in reference coords */
-		rs_m[0] = 1.;
-		rs_m[1] = 1.;
 		rs_v[0] = 0.;
 		rs_v[1] = 0.;
 		/* assumes rs_m = 1, rs_v = 0 */
@@ -621,7 +617,7 @@ int doppmin, doppmax  i: offsets for Doppler shift
 
 	double temp;		/* xstart or ystart */
 	int xstart, ystart;	/* from tabrow, but scaled and shifted */
-	int xlength, ylength;	/* repeat count in high-res pixels */
+	int xlength=0, ylength=0;	/* repeat count in high-res pixels */
 	int xlow, xhigh;	/* limits for loop on i */
 	int ylow, yhigh;	/* limits for loop on j */
 	int nx, ny;		/* size of data quality array */

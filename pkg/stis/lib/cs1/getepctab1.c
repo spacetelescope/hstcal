@@ -69,9 +69,6 @@ StisInfo1 *sts     io: calibration switches, etc
 
     sts->epc_rows = 0;
 
-    if (sts->epctab.name == NULL)
-        return (0);
-
     /*  Open the EPC parameters table and find columns. */
     if ((status = OpenEPCTab(sts->epctab.name, &tabinfo)))
         return (status);
