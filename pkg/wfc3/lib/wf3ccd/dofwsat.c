@@ -18,7 +18,7 @@
   trimmed full-frame image.  In order to apply the saturation image to the
   science data (full-frame or subarray), the starting X and Y pixels, as well
   as the X and Y sizes need to be obtained, and the saturation image properly
-  overlaid on the science data.  Note that formerly the full-well saturation 
+  overlaid on the science data.  Note that formerly the full-well saturation
   flags were applied during doDQI.
 
   Michele De La Pena, 2022 March 14
@@ -29,17 +29,17 @@
   Michele De La Pena, 2023 April 17
   Replace hardcoded values with variables isolated to this module.
 
-  Michele De La Pena, 
+  Michele De La Pena,
   The ComputeLimits function has been moved to its own file in /lib.
-  
+
  */
 
-/* SIZE_SV_OVERSCAN is the size of the serial virtual overscan region 
-   (in pixels) between amps on the same chip.  
-   END_PIX_AC_AMP is the last pixel value (0-based system) of amp A 
+/* SIZE_SV_OVERSCAN is the size of the serial virtual overscan region
+   (in pixels) between amps on the same chip.
+   END_PIX_AC_AMP is the last pixel value (0-based system) of amp A
    or C (CCD area plus serial phyical overscan */
 # define SIZE_SV_OVERSCAN 60
-# define END_PIX_AC_AMP 2072 
+# define END_PIX_AC_AMP 2072
 
 int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
@@ -59,14 +59,13 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     int xdim;				/* number of columns in science image */
     int ydim;				/* number of lines in science image */
     short sum_dq;			/* total of the DQ bits for each pixel */
-    int is_subarray = 0;	/* identification of data as a subarray */
     int straddle = 0;		/* subarray starts in A or C and straddles the virtual overscan in the reference image */
     int overstart = -1;		/* location where the overscan starts in the cut science image */
     int xbeg[2], ybeg[2];
     int xend[2], yend[2];
 
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *, int *, int *);
-    int DetCCDChip (char *, int, int, int *);
+    int DetCCDChip (char *, int, int *);
     void ComputeLimits(WF3Info *, int, int, int *, int *, int *, int *);
 
     {unsigned int i;
@@ -83,12 +82,11 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     x0 = 0;
     y0 = 0;
 
-    /* 
+    /*
        Compute correct extension version number to extract from
        reference image to correspond to CHIP in science data.
-       Note: wf3->nimsets is no longer used in DetCCDChip() routine.
     */
-    if (DetCCDChip (wf3->satmap.name, wf3->chip, wf3->nimsets, &extver))
+    if (DetCCDChip (wf3->satmap.name, wf3->chip, &extver))
         return (status);
 
     /* Get the first line of saturation image data */
@@ -97,12 +95,12 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     if (hstio_err())
         return (status = OPEN_FAILED);
 
-    /* 
+    /*
        Reference image should already be selected to have the
        same binning factor as the science image.  All we need to
        make sure of is whether the science array is a subarray.
 
-       x0,y0 is the location of the start of the 
+       x0,y0 is the location of the start of the
        subimage in the reference image.
     */
     if (FindLine (x, &y, &same_size, &rx, &ry, &x0, &y0))
@@ -129,10 +127,10 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
 
        For subarrays which START in B or D we can just move the x0 over 60 pixels
        to avoid the serial virtual overscan in the reference image, which is always
-       an untrimmed, full-frame image. 
+       an untrimmed, full-frame image.
 
        Otherwise, only part of the subarray overlaps the serial virtual overscan
-       and special measures must be taken to avoid it. 
+       and special measures must be taken to avoid it.
     */
 
     /* Science image dimensions */
@@ -144,13 +142,12 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
         trlmessage("Saturation image and input are the same size.");
     /* Subarray */
     } else {
-        is_subarray = 1;
         trlmessage("Saturation image and input are NOT the same size - SUBARRAY found, amp %s", wf3->ccdamp);
 
         /*
-           ONLY 1 AMP is used to read subarrays, so ampx and ampy should be 
+           ONLY 1 AMP is used to read subarrays, so ampx and ampy should be
            set to the size of the image for all cases
-        */ 
+        */
         wf3->ampx = xdim;
         wf3->ampy = ydim;
 
@@ -210,36 +207,36 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
     }
 
     /* The saturation image already has the gain applied, but the science data
-       at this stage in the WFC3 pipeline is still in counts.  It is 
+       at this stage in the WFC3 pipeline is still in counts.  It is
        necessary to divide out the gain from the saturation data before
-       any comparison is done. 
+       any comparison is done.
     */
 
     if (wf3->verbose) {
         trlmessage("Mean gain: %f", wf3->mean_gain);
     }
-    
+
     /* Full-frame */
     if (same_size) {
 
         /* Loop over the lines in the science image */
-        {unsigned int  j;
+        {int  j;
         for (j=ybeg[0]; j < yend[0]; j++) {
 
             /* Loop over the indices in the line in the science image */
-            {unsigned int  i;
+            {int  i;
             for (i = xbeg[0];  i < xend[0];  i++) {
-                /* Flag full-well saturated pixels with 256 dq bit*/             
+                /* Flag full-well saturated pixels with 256 dq bit*/
                 if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, i, j) / wf3->mean_gain)) {
                     sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);
                 }
             }}
 
-            /* If there is a second Amp in play, complete the processing of the line */ 
-            {unsigned int  i;
+            /* If there is a second Amp in play, complete the processing of the line */
+            {int  i;
             for (i = xbeg[1];  i < xend[1];  i++) {
-                /* Flag full-well saturated pixels with 256 dq bit*/             
+                /* Flag full-well saturated pixels with 256 dq bit*/
                 if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, i, j) / wf3->mean_gain)) {
                     sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);
@@ -260,21 +257,21 @@ int doFullWellSat(WF3Info *wf3, SingleGroup *x) {
            l - line in reference image
         */
 
-        {unsigned int j, l;
+        {int j, l;
         for (j = 0, l = y0; j < ydim; j++, l++) {
 
-            /* Working with a subarray so need to apply the proper 
+            /* Working with a subarray so need to apply the proper
                section from the reference image to the science image.
             */
 
-            {unsigned int i, k;
+            {int i, k;
             for (i = 0, k = x0; i < xdim; i++, k++) {
 
                 /* Increase the value of l to jump over the virtual overscan */
                 if (i == overstart)
                     k += SIZE_SV_OVERSCAN;
 
-                /* Flag full-well saturated pixels with 256 dq bit*/             
+                /* Flag full-well saturated pixels with 256 dq bit*/
 		        if (Pix(x->sci.data, i, j) > (Pix(satimage.sci.data, k, l) / wf3->mean_gain)) {
 			        sum_dq = DQPix(x->dq.data, i, j) | SATPIXEL;
 			        DQSetPix(x->dq.data, i, j, sum_dq);

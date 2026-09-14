@@ -34,7 +34,7 @@ typedef struct {
 
 extern int status;
 
-static int dqicorr (WF3Info *, SingleNicmosGroup *, SingleNicmosGroup *);
+static int dqicorr (SingleNicmosGroup *, SingleNicmosGroup *);
 
 
 /* DODQIIR: Load the data quality initialization table (BPIXTAB) and
@@ -172,7 +172,7 @@ int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
 
 	    /* Loop over all MultiAccum groups, applying mask to each one */
 	    for (wf3->group=wf3->ngroups; wf3->group >= 1; wf3->group--) {
-		 if (dqicorr (wf3, &(input->group[wf3->group-1]), &mask))
+		 if (dqicorr (&(input->group[wf3->group-1]), &mask))
 		     return (status);
 	    }
 
@@ -198,11 +198,9 @@ int doDQIIR (WF3Info *wf3, MultiNicmosGroup *input) {
 ** M. Sosey     11-Feb-2013, the DQ array no longer reflects TDFTRANS
 */
 
-static int dqicorr (WF3Info *wf3, SingleNicmosGroup *input,
-		    SingleNicmosGroup *mask) {
+static int dqicorr (SingleNicmosGroup *input, SingleNicmosGroup *mask) {
 
 /* Arguments:
-**	wf3	 i: WFC3 info structure
 **	input	io: image to be masked
 **	mask	 i: mask image
 */
@@ -216,4 +214,3 @@ static int dqicorr (WF3Info *wf3, SingleNicmosGroup *input,
 	/* Successful return */
 	return (status = 0);
 }
-

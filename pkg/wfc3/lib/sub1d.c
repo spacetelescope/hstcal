@@ -12,12 +12,12 @@
 
    The science data arrays are subtracted; the error arrays are combined;
    the data quality arrays are combined.
-	
-    
+
+
    M. Sosey, 2013 Sept 09
    Added new routine to deal with uvis subarrays  for postflash correction
    which knows what to do with different reference file / science sizes and the
-   uvis overscan region 
+   uvis overscan region
 */
 
 int sub1d (SingleGroup *a, int line, SingleGroupLine *b) {
@@ -88,11 +88,8 @@ In this case the size of *a does NOT match the size of *b
 	float da, db;		/* errors for a and b */
 	short dqa, dqb, dqab;	/* data quality for a, b, combined */
     int sizea;
-    int sizeb;
-    
-    sizea=a->sci.data.nx;
-    sizeb=b->sci.tot_nx;    
-    
+
+    sizea = a->sci.data.nx;
 
 	/* science, error, and DQ data */
 	for (i=0,j=0;  i < sizea;  i++,j++) {
@@ -117,4 +114,3 @@ In this case the size of *a does NOT match the size of *b
 
 	return (status);
 }
-

@@ -127,7 +127,7 @@ int *driftcorr   o: true means correction for drift along lines was applied
 	float rn;		/* readnoise value */
 
 	/* Function definitions */
-	int BlevDrift (SingleGroup *, int *, int *, int, int *, int *, short,
+	int BlevDrift (SingleGroup *, int *, int *, int *, int *, short,
 		       float);
 	double DriftEval (double);
 	double DriftMean (double);
@@ -325,11 +325,10 @@ int *driftcorr   o: true means correction for drift along lines was applied
 
 		 /* Fit a line to the virtual overscan region as a function of
 		 ** column number.  */
-		 if (BlevDrift (x, vx, vy, trimx1, biassect,
-				driftcorr, wf3->sdqflags, rn)) {
-        	     free (ccdamp);
+		 if (BlevDrift (x, vx, vy, biassect, driftcorr, wf3->sdqflags, rn)) {
+		     free (ccdamp);
 		     return (status);
-        	 }
+		 }
 
 		 /* Evaluate the fit for each line and subtract from the data.*/
 		 averagedrift = DriftMean ((double)sizex);
@@ -578,4 +577,3 @@ int selectBias (char *ccdamp) {
 
 	return i;
 }
-

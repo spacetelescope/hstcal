@@ -35,7 +35,7 @@ static void InitFloatSect (float **, float *, IODescPtr *, int, int, int);
 static Byte ***allocBitBuff (int, int, int);
 static void freeBitBuff (Byte ***, int, int);
 static void readBitLine (Byte ***, int, int, int, short, short, short *);
-static void writeBitLine (short *, int, int, int, short, Byte ***); 
+static void writeBitLine (short *, int, int, int, short, Byte ***);
 
 /* For debugging purposes:
 static void printBitLine (Byte ***, int, int, int);
@@ -54,20 +54,20 @@ Description:
 This routine performs many operations involving multiple input images
 and scrolling buffers.  Cosmic rays are detected through iteration using
 different sigma sizes on each iteration with neighboring pixels being
-rejected as well.  
+rejected as well.
 
 Code Outline:
 -------------
-    - Initialize all data structures, 
+    - Initialize all data structures,
          malloc'ing space for scrolling buffers.
-         initialize shadcorr buffers 
+         initialize shadcorr buffers
          determine expansion factors, if applying a shadfile.
          setup variables based on input values
     - Determine gain and amp values used in image
     - Start the rejection iteration
         reset single line buffers to all zero
         reset detection mask
-        
+
         - Loop over each line in the image
             Setup gain and noise values for this line
             Get shading correction for this line from the reference image
@@ -89,29 +89,29 @@ Code Outline:
                     - calculate the variance(error) for each pixel
                     - output the buffer for the DQ array complete with
                         which pixels were masked as HITs from this image.
-            - For this combined line, 
+            - For this combined line,
                 perform shading correction
-                calculate the new average value for each pixel based on 
+                calculate the new average value for each pixel based on
                     how many images contributed to the output value.
-     
+
     - Write out CR-hit information to all the input images if par->mask was set
-    
-    - Free memory used by all the buffers                    
-            
-                           
-  
+
+    - Free memory used by all the buffers
+
+
+
   Date          Author          Description
   ----          ------          -----------
   26-Apr-1996   J.-C. Hsu       adapt from the SPP code crrej_loop.x
   28-Aug-1998   W.J. Hack       Modified for section-by-section detection
   20-Nov-1998   W.J. Hack       revised to handle trailer file comments
                                 and exit more gracefully (see goto statements)
-  13-Sep-1999   W.J. Hack       Heavily revised to more directly incorporate 
+  13-Sep-1999   W.J. Hack       Heavily revised to more directly incorporate
                                 shadcorr calculation (rather than using if()),
                                 and only use a single set of noise and gain
 				values.
                                 Other revisions were also made for speed.
-  18-Oct-1999   W.J. Hack       Corrected buffer management, SPILL-pixel 
+  18-Oct-1999   W.J. Hack       Corrected buffer management, SPILL-pixel
                                 radius computation, dqpat usage.  Buffer now
                                 contains all normalized values.
    8-Dec-1999   W.J. Hack       Added explanatory comments and added buffer
@@ -150,9 +150,9 @@ Code Outline:
 
 int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LENGTH+1],
 	      int grp [], int nimgs, clpar *par, int niter, int dim_x,
-	      int dim_y, float sigma[], multiamp noise, multiamp gain, 
+	      int dim_y, float sigma[], multiamp noise, multiamp gain,
 	      float efac[], float skyval[], DataUnits bunit[],
-	      FloatTwoDArray *ave, FloatTwoDArray *avevar, float *efacsum, 
+	      FloatTwoDArray *ave, FloatTwoDArray *avevar, float *efacsum,
               ShortTwoDArray *dq, int *nrej, char *shadfile)
 {
     extern int status;
@@ -181,7 +181,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     float   *sumvar;
     float   *buf;
     short   *bufdq;
-    
+
     Byte    ***crmask;          /* Compressed CR HIT mask for all images */
 
     /* local variables for sections */
@@ -210,7 +210,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     /* Functions for dealing with MULTIAMP values of gain and noise */
 /*  int       LoadHdr (char *, Hdr *);*/
     void      WhichError (int);
-    void      get_nsegn (int, int, int, int, float *, float*, float *, float *);
+    void      get_nsegn (int, int, float *, float*, float *, float *);
 
     /********************************** Begin Code ****************************/
     /* Initialization */
@@ -222,18 +222,18 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     nocr = ~crflag;
     nospill = ~SPILL;
     numpix = dim_x * dim_y;
-    
+
     /* Set up mask for detecting CR-affected pixels */
     maskdq = OK | EXCLUDE;
     maskdq = maskdq | HIT;
     maskdq = maskdq | SPILL;
-    
-    /* Define the buffer size for scrolling  
+
+    /* Define the buffer size for scrolling
         up the image.
     */
     width = (int) ceil(par->radius);
     buffheight = 1+2*width;
-    
+
     /* allocate data arrays */
     pic = (float ***) calloc(nimgs, sizeof(float **));
     if (pic == NULL) {
@@ -277,16 +277,16 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     buf = calloc (dim_x, sizeof(float));
     bufdq = calloc (dim_x, sizeof(short));
 
-    /* 
+    /*
         If we want to perform SHADCORR here, ...
     */
     if (par->shadcorr == PERFORM) {
 
 
         /* Read in the SCI header here... */
-        initHdr (&scihdr);	
+        initHdr (&scihdr);
 	    if (getHeader (ipsci[0], &scihdr) )
-		    status = HEADER_PROBLEM;	
+		    status = HEADER_PROBLEM;
 	    if (hstio_err() || status) {
 		    freeHdr (&scihdr);
 	        return (status = OPEN_FAILED);
@@ -296,7 +296,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
         if (LoadHdr (shadfile, &scihdr))
             return (status = HEADER_PROBLEM);
         */
-        
+
         /* Determine expansion factors dimensions, and offsets for SHADFILE */
         if (initShad (&scihdr, dim_x, shadfile, grp[0], &shadf_x, &rx, &ry,
                       &x0, &y0) )
@@ -308,9 +308,9 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
         rx = 1;
         ry = 1;
         x0 = 0;
-        y0 = 0;    
-        /* Use this value to flag that no shading correction 
-            will be applied, since this refers to the number of 
+        y0 = 0;
+        /* Use this value to flag that no shading correction
+            will be applied, since this refers to the number of
             pixels in each line of the shading correction file...
         */
         shadf_x = 0;
@@ -319,18 +319,18 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     /* Buffer for use with SHADCORR */
     shad_dimy = SECTLINES * ry;
     shadbuff = allocFloatBuff (shad_dimy, dim_x);
-    
-    /* We always want this to be defined, 
+
+    /* We always want this to be defined,
         with it all ZERO when NOT performing SHADCORR.
     */
     shadline = calloc (dim_x, sizeof(float));
-    
+
     /* This buffer is used for the scaled shadcorr data.
-        It defaults to ONE.    
+        It defaults to ONE.
     */
     shadcorr = calloc (dim_x, sizeof(float));
 
-    /* Allocate space for the CR-hit mask */	
+    /* Allocate space for the CR-hit mask */
     crmask = allocBitBuff (nimgs, dim_y, dim_x);
 
     /* readout is in DN */
@@ -349,7 +349,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
             PDQSetPix(dq,i,j,crflag);
             PDQSetPix(&dq2,i,j,OK);
 	}
-    } 
+    }
 
     /* All Observations will have the same CCDAMP */
     ampx = gain.colx;
@@ -369,14 +369,14 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     }
 
     /* Set up gain and values used for each image */
-    get_nsegn (detector, chip, ampx, ampy, gain.val, rog2, gain2, noise2); 
+    get_nsegn (detector, chip, gain.val, rog2, gain2, noise2);
 
     /* start the rejection iteration */
     for (iter = 0; iter < niter; iter++) {
-        if (par->verbose) { 
+        if (par->verbose) {
             trlmessage("iteration %d", iter+1);
         }
-        
+
         sig2 = SQ(sigma[iter]);
 
 	if (iter > 0) {
@@ -384,7 +384,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
             for (j = 0; j < numpix; j++) {
                 *(efacsum+j) = 0.;
             }
-             
+
             memcpy (sum, zerofbuf, dim_x * sizeof(float));
             memcpy (sumvar, zerofbuf, dim_x * sizeof(float));
             memcpy (buf, zerofbuf, dim_x * sizeof(float));
@@ -399,10 +399,10 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                 }
             }
         } /* End initialization section */
-        
+
         /* Start loop over lines in image */
-        for (line =0; line < dim_y; line++) { 
-            
+        for (line =0; line < dim_y; line++) {
+
             /* Zero out this buffer for the next line */
             memcpy (sum, zerofbuf, dim_x * sizeof(float));
             memcpy (sumvar, zerofbuf, dim_x * sizeof(float));
@@ -418,16 +418,16 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                 gn[0] = gain2[AMP_A];
                 gn[1] = gain2[AMP_B];
                 nse[0] = noise2[AMP_A];
-                nse[1] = noise2[AMP_B];            
+                nse[1] = noise2[AMP_B];
             }
 
             /* If we are doing SHADCORR, then fill buffer and get
-                a single SHADLINE to be applied. 
-            
+                a single SHADLINE to be applied.
+
              Get (binned?) line from shadfile reference image
                 and put into 'shadbuff'.  However, we only need
                 to get a line every time we reach the end of
-                the buffer. 
+                the buffer.
                 If no shading correction is being performed, it
                 will return a buffer of all ZEROES.
             */
@@ -435,15 +435,15 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                 getShadBuff (ipshad, line, shad_dimy, dim_x, shadf_x, rx,
                 ry, x0, y0, shadbuff);
             }
-           
+
            /* Manage scrolling buffers for each line here... */
-            if (line > 0) {								
+            if (line > 0) {
                 /* Scroll buffers so new line can be inserted into middle row
-		 of buffer add BLANK line to bottom of buffer 
+		 of buffer add BLANK line to bottom of buffer
                 */
                 bufftop = line+width;
                 for (k = 0; k < nimgs; k++) {
-                    
+
                     if (bufftop < dim_y) {
                         initHdr(&dqhdr);
                         getHeader(ipdq[k],&dqhdr);
@@ -460,23 +460,23 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 
                          /* Scale the input values by the sky and exposure time
                             for comparison to the detection threshhold.
-                        */ 
+                        */
                         for (i = 0; i < dim_x; i++){
 			    if (efac[k] > 0.) {
                                 buf[i] = (buf[i] - skyval[k]) / efac[k];
 			    } else {
 				buf[i] = 0.;
 			    }
-                        }   
-                    } else {                       
+                        }
+                    } else {
                         memcpy (buf, zerofbuf, dim_x * sizeof(float));
                         memcpy (bufdq, zerosbuf, dim_x * sizeof(short));
-                    }   
-                    
+                    }
+
                     scrollShortBuff (bufdq, line, dim_y, buffheight, dim_x,
 				     mask[k], zerosbuf);
                     scrollFloatBuff (buf, line, dim_y, buffheight, dim_x,
-				     pic[k], zerofbuf);                   
+				     pic[k], zerofbuf);
                     scrollFloatBuff (buf, line, dim_y, buffheight, dim_x,
 				     thresh[k], zerofbuf);
                     scrollFloatBuff (buf, line, dim_y, buffheight, dim_x,
@@ -505,7 +505,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                     /* Scale the pic value by the sky value and exposure time
                         for comparison to the detection threshhold.
                     */
-                    
+
                     for (ii = 0; ii < buffheight; ii++){
                         for (i=0; i < dim_x; i++){
 			    if (efac[k] > 0.) {
@@ -516,25 +516,25 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 			    }
                         }
                     }
-                    
+
                 } /* End loop over images */
             } /* End if...else line > 0 */
 
             for (n = 0; n < nimgs; n++) {
-                            
-                /* 
-                    Select line of data to process 
+
+                /*
+                    Select line of data to process
                     This data has already been read into the buffer.
-                    However, this data gets modified 
+                    However, this data gets modified
                 */
                 efacn = efac[n];
                 skyvaln = skyval[n];
                 exp2n = exp2[n];
-                
+
 		/* Only process an image if it has an exposure time > 0. */
 		if (efacn > 0.0) {
                     memcpy (bufdq, mask[n][width], dim_x * sizeof(short));
-                
+
                     /* If no shading correction, this will return all ONEs for
                         shadcorr, to avoid divide by ZERO errors.
                     */
@@ -545,7 +545,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                     If initgues is set to minimum, calculate threshhold based
                         on the sigma for this iteration times the variance
                     Otherwise, compute the threshhold based on the pixel
-                        values directly corrected by amp gain/noise and 
+                        values directly corrected by amp gain/noise and
                         shading correction.
                     */
                     if (strncmp(par->initgues,"minimum",3) == 0 && iter == 0) {
@@ -555,15 +555,15 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                         }
                     } else {
                         for (i = 0; i < ampx; i++) {
-                            /* APPLY SHADCORR correction here, as necessary 
-                                SHADCORR buffer defaults to ONE if SHADCORR is 
+                            /* APPLY SHADCORR correction here, as necessary
+                                SHADCORR buffer defaults to ONE if SHADCORR is
                                 not performed.
                             */
                             dum = PPix(ave,i,line)*efacn/shadcorr[i] + skyvaln;
 
                             /* clip the data at zero */
                             val = (dum > 0.) ? dum : 0.;
-			    /* compute sky subtracted pixel value for use with 
+			    /* compute sky subtracted pixel value for use with
 			    ** SCALENSE */
 			    pixsky = (dum-skyvaln > 0.) ? dum-skyvaln : 0.;
 
@@ -575,8 +575,8 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 			    ** SPILL pixels */
 			    spthresh[n][width][i] = sig2 *
 			        ((nse[0] + val/gn[0])) / exp2n;
-                        
-                        } /* End of loop over first amp used for line */                    
+
+                        } /* End of loop over first amp used for line */
                         for (i = ampx; i < dim_x; i++) {
 
                             dum = PPix(ave,i,line)*efacn/shadcorr[i] + skyvaln;
@@ -596,10 +596,10 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 			    spthresh[n][width][i] = sig2 *
 			        ((nse[1] + val/gn[1])) / exp2n;
 
-                        } /* End of loop over second amp used for this line */                    
+                        } /* End of loop over second amp used for this line */
                     }
- 
-                    /* exclude points: pixels marked with SPILL will 
+
+                    /* exclude points: pixels marked with SPILL will
                         not propagate the flagging to its neighbors.
                         Also, if pixels are marked with a SERIOUS DQ flag
                         in the input, reject it as well.  */
@@ -610,18 +610,18 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                     }
 
                     for (i = 0; i < dim_x; i++){
-            
+
                         /* find the CR by using statistical rejection */
-                        if (SQ(pic[n][width][i]-PPix(ave,i,line)) > 
+                        if (SQ(pic[n][width][i]-PPix(ave,i,line)) >
                           thresh[n][width][i] && mask[n][width][i] != EXCLUDE) {
                             mask[n][width][i] = HIT;
-                        
+
                             if (width == 0) continue;
                             /* mark the surrounding pixels also as CR */
                             for (jj = 0; jj < buffheight; jj++) {
                                 jndx = line - width + jj;
                                 if (jndx < 0 || jndx >= dim_y) continue;
-                            
+
                                 /* Distance from buffer center */
                                 j2 = SQ(width - jj);
 
@@ -640,17 +640,17 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                     } /* End of loop over i */
 
                     /* accumulate the total counts in each good pixel */
-                    for (i = 0; i < dim_x; i++)  {                                       
+                    for (i = 0; i < dim_x; i++)  {
                         if ( (mask[n][width][i] & maskdq) == OK ) {
                             /* add the sky-subtracted but UN-scaled counts */
                             sum[i] += pic[n][width][i] * efacn;
                             PIX(efacsum,i,line,dim_x) += efacn;
-                        } 
+                        }
                     } /* End loop over i (X) */
 
                     /* On the last iteration accumulate variance and DQ vals */
                     if (iter == (niter-1)) {
-                
+
                         /* accumulate the variance only during the last
                            iteration and ONLY for non-HIT or non-SPILL pixels.
                         */
@@ -679,10 +679,10 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                                  sumvar[i]+= nse[1] + val/gn[1];
 			    }
                         }
-                    
+
                         for (i = 0; i < dim_x; i++) {
 
-                            /* output DQF is just the logical OR of all 
+                            /* output DQF is just the logical OR of all
                             (original) input DQF */
                             bufdq[i] = bufdq[i] | PDQPix(&dq2,i,line);
 
@@ -698,7 +698,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 			    soon as 1 good input is encountered the CR value
 			    will be removed */
                             sval = bufdq[i] | PDQPix(dq,i,line);
-                        
+
                             /* A pixel marked as CR or SPILL will have a CR
 			       value in the output images */
                             if (mask[n][width][i] == HIT ||
@@ -710,14 +710,14 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
 			    the output image array */
 			    } else
 				sval = sval & nocr;
-                        
+
 			    /* Store the values arrived at so far in the
 			    output arrays */
                             PDQSetPix(&dq2,i,line,bufdq[i]);
                             PDQSetPix(dq,i,line,sval);
 
                         } /* End loop over x position */
-                    
+
                         /* compress bufdq into byte mask, line-by-line */
 			/* this will be uncompressed later to be written back
 			   into the DQ arrays of the input files */
@@ -730,7 +730,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
             /* If no shading correction is done, this will return all zeroes.
                 getShadCorr can't be called here because each pixel now has
                 a different exposure time, so the raw reference data will be
-                applied directly.            
+                applied directly.
              */
             getShadLine (shadbuff, line, shad_dimy, dim_x/rx, shadline);
 
@@ -750,10 +750,10 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
                         PPix(avevar,i,line) = par->fillval;
                     }
                 }
-            } 
-        } /* End of loop over lines */	 
+            }
+        } /* End of loop over lines */
     } /* End loop for each iteration */
-    
+
     if (par->verbose) {
         trlmessage("Finished all iterations, now writing out results...");
         TimeStamp("Finished all iterations...","");
@@ -794,10 +794,10 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
         }
     } /* End if */
 
-    /* Use this marker to allow easier clean-up after an error condition 
+    /* Use this marker to allow easier clean-up after an error condition
     An error condition will have already set status to something else
     that should be passed on...
-    
+
     cleanup: ;*/
 
 
@@ -806,7 +806,7 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
     free (sumvar);
     free (zerofbuf);
     free (zerosbuf);
-    
+
     for (k=0;k<nimgs;k++) {
         freeFloatBuff (pic[k], buffheight);
         freeFloatBuff (thresh[k], buffheight);
@@ -814,13 +814,13 @@ int rej_loop (IODescPtr ipsci[], IODescPtr ipdq[], char imgname[][CHAR_FNAME_LEN
         freeShortBuff (mask[k], buffheight);
     }
     free (mask);
-    free (pic);	
+    free (pic);
     free (thresh);
     free (spthresh);
     free (buf);
     free (bufdq);
     free (exp2);
-    freeBitBuff (crmask, nimgs, dim_y);	
+    freeBitBuff (crmask, nimgs, dim_y);
     free (shadline);
     free (shadcorr);
     freeFloatBuff(shadbuff, shad_dimy);
@@ -949,35 +949,24 @@ static void freeBitBuff (Byte ***crmask, int nimgs, int lines){
     free (crmask);
 }
 
-/* ------------------------------------------------------------------*/
-/*                          printBitLine                             */
-/* ------------------------------------------------------------------*/
-
-
+/* UNCOMMENT FOR DEBUGGING. */
+/*
 static void printBitLine (Byte ***crmask, int img, int line, int nx){
-
     int     x,i;
     Byte    bit;
     int     pix;
-
-    /* Print out values in crbuff to STDOUT using 'X' and '.' */
-
+    // Print out values in crbuff to STDOUT using 'X' and '.'
     for (x = 0; x < (nx/SIZE_BYTE); x++) {
-        /* Set each bit in compressed buffer */
+        // Set each bit in compressed buffer
         for (bit = 0x80,i=0; bit > 0; bit=(bit>>1),i++) {
-            if ( (crmask[img][line][x] & bit) > 0) { 
+            if ( (crmask[img][line][x] & bit) > 0) {
                 pix = x * SIZE_BYTE + i;
                 trlmessage("Compressed hit at %d,%d", pix, line);
-            } /*	printf("X");
-            else
-                printf("."); 
-            */
-        }		
+            }
+        }
     }
-    /*printf("\n"); */
-
 }
-
+*/
 
 /* ------------------------------------------------------------------*/
 /*                          readBitLine                              */
@@ -1003,12 +992,12 @@ crflag, short nocr, short *bufdq) {
                 ** printf("Compressed hit at %d,%d  with bit = %x ",pix,line,bit);
                 ** printf(" and mask = %x\n",crmask[img][line][x]);
                 */
-                bufdq[buffx] = bufdq[buffx] | crflag;					
+                bufdq[buffx] = bufdq[buffx] | crflag;
             } else
                 bufdq[buffx] = bufdq[buffx] & nocr;
 
             buffx++;
-        }		
+        }
     }
 
 }
@@ -1019,7 +1008,7 @@ crflag, short nocr, short *bufdq) {
 
 
 static void writeBitLine (short *bufdq, int img, int line, int numbits, short
-crflag, Byte ***crmask) 
+crflag, Byte ***crmask)
 {
     int x;					/* Loop counters */
     int buffx;
@@ -1029,9 +1018,9 @@ crflag, Byte ***crmask)
     for (x = 0; x < numbits; x++) {
         /* Set each bit in compressed buffer */
         if ( ( (bufdq[x]) & crflag) == crflag)  {
-            buffx=x/SIZE_BYTE;				
+            buffx=x/SIZE_BYTE;
             crmask[img][line][buffx] |=  (0x80 >> ((x)%(SIZE_BYTE)));
-        } 
+        }
     }
 }
 
@@ -1051,7 +1040,7 @@ static void scrollFloatBuff (float *sect, int line, int nlines, int bufflines, i
 **	float **subsect     o: scrolled subsection
 */
 
-    int i;	
+    int i;
     float *begptr; /* Use for first line in buffer */
 
     /* If there is only one line in the buffer, simply copy it out */
@@ -1059,19 +1048,19 @@ static void scrollFloatBuff (float *sect, int line, int nlines, int bufflines, i
         memcpy (subsect[0], sect, numpix * sizeof(float));
         return;
     }
-    
+
     begptr = *subsect; /* Save first line in buffer */
-        
-    /* Shift lines in the buffer up, 
+
+    /* Shift lines in the buffer up,
     **	moving subsect[1] into subssect[0], and so on..
     **
     ** NOTE: This could probably be optimized to use pointers
     **		more directly to get faster code.
-    */ 
+    */
     for (i=0; i < bufflines-1; i++){
-        *(subsect+i) = *(subsect+i+1); 
+        *(subsect+i) = *(subsect+i+1);
     }
-    
+
     /* Now, put pointer from first line back as last line
     **  This recycles the pointer; the data will be overwritten.
     */
@@ -1080,9 +1069,9 @@ static void scrollFloatBuff (float *sect, int line, int nlines, int bufflines, i
     /* Finally, copy in new data into last line of buffer.
     **	If the line we want to write to buffer is valid,...
     */
-    if (line < nlines && bufflines > 1) { 
+    if (line < nlines && bufflines > 1) {
         /* Copy new line into last line of buffer. */
-        memcpy (subsect[bufflines-1], sect, numpix * sizeof(float));	 
+        memcpy (subsect[bufflines-1], sect, numpix * sizeof(float));
     } else {
         /* Otherwise, set buffer values to default values */
         memcpy (subsect[bufflines-1], zero, numpix * sizeof(float));
@@ -1106,7 +1095,7 @@ static void scrollShortBuff (short *ssect, int line, int nlines, int bufflines, 
 **	short **ssubsect     o: scrolled subsection
 */
 
-    int i;	
+    int i;
     short *begsptr; /* Use for first line in buffer */
 
     /* If there is only one line in the buffer, simply copy it out */
@@ -1114,17 +1103,17 @@ static void scrollShortBuff (short *ssect, int line, int nlines, int bufflines, 
         memcpy (subssect[0], ssect, numpix * sizeof(short));
         return;
     }
-    
+
     begsptr = *subssect; /* Save first line in buffer */
-    
-    /* Shift lines in the buffer up, 
+
+    /* Shift lines in the buffer up,
     **	moving subsect[1] into subssect[0], and so on..
     **
     ** NOTE: This could probably be optimized to use pointers
     **		more directly to get faster code.
-    */ 
+    */
     for (i=0; i < bufflines-1; i++){
-        subssect[i] = subssect[i+1]; 
+        subssect[i] = subssect[i+1];
     }
 
     /* Now, put pointer from first line back as last line */
@@ -1192,14 +1181,14 @@ static void getShadLine (float **shad, int line, int nlines, int dimx,
 	nlines              i: number of lines in shadfile buffer
 	dimx                i: size of shad buffer
 	shadline            o: line of shadfile data to be applied to image
-*/	
+*/
     int offset;
 
     offset = line % nlines;
 
     /* Copy appropriate line from buffer into shadline */
     memcpy (shadline, shad[offset], dimx * sizeof(float));
-	
+
 }
 
 /* ------------------------------------------------------------------*/
@@ -1219,7 +1208,7 @@ static void getShadcorr (float **shad, int line, int nlines, int dimx,
     shadf_x             i: number of pixels in input shadfile line
                          [This will be ZERO if no shading correction is applied]
     shadline            o: line of shadfile data to be applied to image
-*/	
+*/
     int offset;
 
     int         multkline (float *, float, int);
@@ -1229,17 +1218,17 @@ static void getShadcorr (float **shad, int line, int nlines, int dimx,
 
     /* Copy appropriate line from buffer into shadline */
     memcpy (shadline, shad[offset], dimx * sizeof(float));
-    
+
     /* Only when doing shading correction, perform this expensive
-        math operation. 
+        math operation.
     */
     if (shadf_x > 0)  multkline (shadline, 1./efacn, dimx);
-    
+
     /* Always make sure that shadline is either 1 or 1+1/efacn,
         to avoid divide by zero errors.
     */
     addkline (shadline, 1., dimx);
-	
+
 }
 
 /* ------------------------------------------------------------------*/
@@ -1263,22 +1252,22 @@ static void getShadBuff (IODescPtr *ipshad, int line, int shad_dimy, int dim_x,
 	zl = (float *) calloc (shad_dimx, sizeof(float));
     else
 	zl = (float *) calloc (dim_x, sizeof(float));
-    
+
     /* If we are NOT performing SHADCORR, then populate the buffer 'shad'
         with ZEROES.
     */
     if (shad_x == 0) {
         for (j = 0; j < shad_dimy; j++) {
-            memcpy (shad[j], zl, dim_x * sizeof(float));     
+            memcpy (shad[j], zl, dim_x * sizeof(float));
         }
         /* We don't need to do anything else once this is set... */
         free (zl);
-        return;   
+        return;
     }
 
     /* Apply the shutter shading image. */
 
-    /* 
+    /*
     Shading correction image may be binned down more than image, and
 	    might need to be expanded to match the image size.
         If rx and ry are 1, then it simply uses the shadfile as is.
@@ -1290,14 +1279,14 @@ static void getShadBuff (IODescPtr *ipshad, int line, int shad_dimy, int dim_x,
     zsect = allocFloatBuff (shad_dimy, shad_dimx);
 
     /* Initialize row counter for shadfile, based on offset
-        calculated by FindLine.					
+        calculated by FindLine.
         X and Y offsets are input in binned coordinates,
         so we need to convert X to unbinned coordinates
-        for use below. 
+        for use below.
     */
     j = y0 + (int)(line/ry);
     k = x0 * rx;
-    
+
     /* Read in shadfile here */
     for (i=0; i < SECTLINES; i++)
         getFloatLine (ipshad, j+i, ysect[i]);
@@ -1305,17 +1294,17 @@ static void getShadBuff (IODescPtr *ipshad, int line, int shad_dimy, int dim_x,
     /* Expand binned reference data, if necessary.	*/
     unbinArray (ysect, shad_x, SECTLINES, rx, ry, zsect);
 
-    /* For each line in expanded section, copy out a 
+    /* For each line in expanded section, copy out a
         single line and trim it to the science image size */
     for (zline=0; zline < shad_dimy; zline++) {
 
-        /* Copy out individual expanded lines from reference data */ 
+        /* Copy out individual expanded lines from reference data */
         memcpy (zl, zsect[zline], shad_dimx * sizeof(float));
 
         /* Trim each line down here, as necessary (k could be 0)... */
         for (m = 0, i = k;  m < dim_x;  m++, i++)
 	        shad[zline][m] = zl[i];
-    }	
+    }
 
     /* Clean up scratch space... */
     freeFloatBuff (zsect,shad_dimy);
@@ -1329,8 +1318,8 @@ static void getShadBuff (IODescPtr *ipshad, int line, int shad_dimy, int dim_x,
 /* ------------------------------------------------------------------*/
 
 
-/* This routine will expand a simple 2-D float array by binx and biny, 
-	without offsets. Furthermore, this routine does NOT update header 
+/* This routine will expand a simple 2-D float array by binx and biny,
+	without offsets. Furthermore, this routine does NOT update header
 	information.
 */
 void unbinArray (float **a, int inx, int iny, int binx, int biny, float **b){
@@ -1374,7 +1363,7 @@ void unbinArray (float **a, int inx, int iny, int binx, int biny, float **b){
                 b[n][m] = value;
             }
         }
-    }	
+    }
 
 }
 
@@ -1383,9 +1372,9 @@ void unbinArray (float **a, int inx, int iny, int binx, int biny, float **b){
 /*                          InitFloatSect                            */
 /* ------------------------------------------------------------------*/
 
-/* 
+/*
     This routine performs all the initial bookkeeping for the scrolling
-    data buffers. 
+    data buffers.
         - Initializes the scrolling buffer by populating it with the first
             lines of data from the image.
 */
@@ -1397,14 +1386,14 @@ IODescPtr *ipdat  i: file handle for working image (image being processed)
 int       line    i: number of current line from working image
 int       width   i: number of lines in buffer on either side of current line
 int       dimx    i: number of pixels in each line
-*/	
+*/
     int     l;
-        
+
     /* Fill initial buffer with first lines of image */
     for (l = 0; l <= width; l++){
         getFloatLine (ipdat, line+l, buf);
         /* Copy new line into last line of buffer. */
-        memcpy (sect[width+l], buf, dimx * sizeof(float));	 
+        memcpy (sect[width+l], buf, dimx * sizeof(float));
     }
 }
 
@@ -1413,9 +1402,9 @@ int       dimx    i: number of pixels in each line
 /*                          InitShortSect                            */
 /* ------------------------------------------------------------------*/
 
-/* 
+/*
     This routine performs all the initial bookkeeping for the scrolling
-    data buffers. 
+    data buffers.
         - Initializes the scrolling buffer by populating it with the first
             lines of data from the image.
 */
@@ -1428,7 +1417,7 @@ IODescPtr   *ipdat   i: file handle for working image (image being processed)
 int         line     i: number of current line from working image
 int         width    i: number of lines in buffer on either side of current line
 int         dimx     i: number of pixels in each line
-*/	
+*/
     int     l;
     Hdr     dqhdr;
 
@@ -1438,7 +1427,7 @@ int         dimx     i: number of pixels in each line
     for (l = 0; l <= width; l++){
         getShortLine (ipdat, line+l, sbuf);
         /* Copy new line into last line of buffer. */
-        memcpy (sect[width+l], sbuf, dimx * sizeof(short));	 
+        memcpy (sect[width+l], sbuf, dimx * sizeof(short));
     }
     freeHdr(&dqhdr);
 

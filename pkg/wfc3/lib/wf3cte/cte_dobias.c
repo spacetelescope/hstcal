@@ -35,7 +35,6 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 	int rx, ry;		/* for binning biac image down to size of x */
 	int x0, y0;		/* offsets of sci image */
 	int same_size;		/* true if no binning of ref image required */
-	int avg = 0;		/* bin2d should sum within each bin */
 	int scilines; 		/* number of lines in science image */
 	int i, j;
 	int update;
@@ -166,7 +165,7 @@ int doCteBias (WF3Info *wf3, SingleGroup *x) {
 
 	 		update = NO;
 
-		    if (trim1d (&y, x0, j, rx, avg, update, &z)) {
+		    if (trim1d (&y, x0, j, rx, update, &z)) {
 				trlerror("(ctebiascorr) reference file size mismatch.");
 				return (status);
 		    }

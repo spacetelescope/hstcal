@@ -84,7 +84,6 @@ float *meanflash    o: mean of post-flash image values subtracted
     int rx, ry;			/* for binning post-flash down to size of x */
     int x0, y0;			/* offsets of sci image relative to reference image */
     int same_size;		/* true if no binning of ref image required */
-    int avg = 0;		/* bin2d should sum values within each bin */
     int scilines; 		/* number of lines in science image */
     int i, j;
     float mean, flash;
@@ -92,8 +91,6 @@ float *meanflash    o: mean of post-flash image values subtracted
     int update;
     float gain[NAMPS];
     float rn2[NAMPS];		/* only need this to call get_nsegn */
-    int ampx;			/* border column for 2amp readout regions, set to size of image in ccdtab */
-    int ampy;			/* Boundary values corrected for trim regions, set to size of image in ccdtab */
     int dimx, dimy;     /*dimensions of science image */
     int offsetx, offsety;
 
@@ -101,12 +98,12 @@ float *meanflash    o: mean of post-flash image values subtracted
 		  int *);
     int sub1d (SingleGroup *, int, SingleGroupLine *);
     int sub1dreform (SingleGroup *, int, int, SingleGroupLine *);
-    int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-    int DetCCDChip (char *, int, int, int *);
-    void get_nsegn (int, int, int, int, float *, float*, float *, float *);
+    int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
+    int DetCCDChip (char *, int, int *);
+    void get_nsegn (int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     void multgn1d (SingleGroupLine *, int, int, int, float *, float);
-    void multgn1dsub(SingleGroupLine *a, int , float *, float , char *);
+    void multgn1dsub(SingleGroupLine *a, float *, float , char *);
 
     int streq_ic (char *, char *);
     int subarray;
@@ -116,8 +113,6 @@ float *meanflash    o: mean of post-flash image values subtracted
     /*init variables*/
     offsetx=0;
     offsety=0;
-    ampx=0;
-    ampy=0;
     dimx=0;
     dimy=0;
     mean=0.;
@@ -156,8 +151,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 
     /*return an array of valid gain and readnoise values
       This returns 2 amps regardless of subarray */
-	get_nsegn (wf3ccd->detector, wf3ccd->chip, wf3ccd->ampx, wf3ccd->ampy,
-		   wf3ccd->atodgain, wf3ccd->readnoise, gain, rn2);
+	get_nsegn (wf3ccd->detector, wf3ccd->chip, wf3ccd->atodgain, wf3ccd->readnoise, gain, rn2);
 
     if (wf3ccd->verbose){
      trlmessage("**gain,flashdur** = ([%f,%f,%f,%f],%f)",gain[0],gain[1],gain[2],gain[3],wf3ccd->flashdur);
@@ -169,7 +163,7 @@ float *meanflash    o: mean of post-flash image values subtracted
 
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
-	if (DetCCDChip (wf3ccd->flash.name, wf3ccd->chip, wf3ccd->nimsets, &extver) )
+	if (DetCCDChip (wf3ccd->flash.name, wf3ccd->chip, &extver) )
 	    return (status);
 
 	if (wf3ccd->verbose) {
@@ -281,13 +275,13 @@ float *meanflash    o: mean of post-flash image values subtracted
 
 	    update = NO;
 
-	    if (trim1d (&y, x0, j, rx, avg, update, &z)) {
+	    if (trim1d (&y, x0, j, rx, update, &z)) {
 			trlerror("(flshcorr)reference file size mismatch.");
 			return (status);
 	    }
 
         if(subarray){
-            multgn1dsub (&z, j, gain, wf3ccd->flashdur, wf3ccd->ccdamp);
+            multgn1dsub (&z, gain, wf3ccd->flashdur, wf3ccd->ccdamp);
         } else {
     	    multgn1d (&z, j, wf3ccd->ampx, wf3ccd->ampy, gain, wf3ccd->flashdur);
         }

@@ -60,7 +60,6 @@ float *meandark	   o: mean of dark image values subtracted
     int rx, ry;			/* for binning dark down to size of x */
     int x0, y0;			/* offsets of sci image */
     int same_size;		/* true if no binning of ref image required */
-    int avg = 0;		/* bin2d should sum values within each bin */
     int scilines; 		/* number of lines in science image */
     int i, j;
     float mean, dark;
@@ -72,9 +71,9 @@ float *meandark	   o: mean of dark image values subtracted
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *,
 		  int *, int *);
     int sub1d (SingleGroup *, int, SingleGroupLine *);
-    int trim1d (SingleGroupLine *, int, int, int, int, int, SingleGroupLine *);
-    int DetCCDChip (char *, int, int, int *);
-    void get_nsegn (int, int, int, int, float *, float*, float *, float *);
+    int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
+    int DetCCDChip (char *, int, int *);
+    void get_nsegn (int, int, float *, float*, float *, float *);
     void AvgSciValLine (SingleGroupLine *, short, float *, float *);
     void multgn1d (SingleGroupLine *, int, int, int, float *, float);
 
@@ -85,7 +84,7 @@ float *meandark	   o: mean of dark image values subtracted
 
 	/* Compute correct extension version number to extract from
 	   reference image to correspond to CHIP in science data.  */
-	if (DetCCDChip(wf32d->dark.name, wf32d->chip, wf32d->nimsets, &extver))
+	if (DetCCDChip(wf32d->dark.name, wf32d->chip, &extver))
 	    return (status);
 
 	if (wf32d->verbose) {
@@ -127,8 +126,7 @@ float *meandark	   o: mean of dark image values subtracted
 	     gain[i] = 0.;
 	     rn2[i] = 0.;
 	}
-	get_nsegn (wf32d->detector, wf32d->chip, wf32d->ampx, wf32d->ampy,
-		   wf32d->atodgain, wf32d->readnoise, gain, rn2);
+	get_nsegn (wf32d->detector, wf32d->chip, wf32d->atodgain, wf32d->readnoise, gain, rn2);
 
 	initSingleGroupLine (&z);
 	allocSingleGroupLine (&z, x->sci.data.nx);
@@ -141,7 +139,7 @@ float *meandark	   o: mean of dark image values subtracted
 
              update = NO;
 
-	     if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
+	     if (trim1d (&y, x0, y0, rx, update, &z)) {
 		 trlerror("(darkcorr) size mismatch.");
 		 return (status);
 	     }
@@ -171,4 +169,3 @@ float *meandark	   o: mean of dark image values subtracted
 
 	return (status);
 }
-

@@ -27,8 +27,8 @@ static short DQIGNORE = SATPIXEL;
 
 /** Function Instantiation **/
 
-static int RejSpikes (float *, float *, short *, float *, short, float, int *);
-static int RejFirstRead (short *, float *, short, float);
+static int RejSpikes (short *, float *, short, int *);
+static int RejFirstRead (short *, float *, float);
 static int RejCRs (short *, float *, short, float, int *);
 static void EstimateDarkandGlow(const short nsamp,float *time,float,float *tot_ADUs);
 
@@ -36,9 +36,9 @@ extern int status;
 
 static int  crrej (WF3Info *, MultiNicmosGroup *, SingleNicmosGroup *);
 static void fitsamps (const short, float *, float *, short *,float *, float *, float,
-        float *, float *, short *, float *, short, short, float, float);
+        float *, float *, short *, float *, short, short, float);
 static void linfit (short, float *, float *, float *, float *, short, float,
-        float, float *, float *, float *, float *, int, int);
+        float *, float *, float *, float *);
 
 /** THE DRIVER ROUTINE **/
 
@@ -221,7 +221,6 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
         float out_time;     /* output time value */
         float flat_value;             /* value to convert from flat fielded ADUs to
                          electrons */
-        float flat_uncertainty;       /* unitless rms flat field uncertainty */
         int ncurved;            /* Number of pixels with high curvature */
         int   niter = 0;        /* number of rejection iterations */
         float sigma[MAX_ITER];  /* list of sigma values for rejection */
@@ -359,16 +358,13 @@ int cridcalc (WF3Info *wf3, MultiNicmosGroup *input, SingleNicmosGroup *crimage)
 
                 if (wf3->flatcorr == PERFORM) {
                     flat_value = wf3->mean_gain;
-                    flat_uncertainty = 0.0;
                 } else {
                     flat_value = wf3->mean_gain;
-                    flat_uncertainty = 0.0;
                 }
 
                 /* Do iterative rejection and computation of slope */
                 fitsamps (nsamp, sci, err, dq, time, tot_ADUs, wf3->crthresh,
-                        &out_sci, &out_err, &out_samp, &out_time, i, j, flat_value,
-                        flat_uncertainty);
+                        &out_sci, &out_err, &out_samp, &out_time, i, j, flat_value);
 
                 /* Propagate all DQ flags to output EXCEPT for SATPIXEL
                  ** and DATAREJECT  (Version 4.2) */
@@ -464,7 +460,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
         float *time, float *darkandglow, float thresh,
         float *out_sci, float *out_err,
         short *out_samp, float *out_time,
-        short i, short j, float gain, float flat_uncertainty) {
+        short i, short j, float gain) {
     /* Local variables */
     int k,idx,l;            /* loop index */
     int nrej, rej;      /* number & index of rejected samples */
@@ -649,8 +645,8 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                    Karls paper
                    */
                 linfit (equal_weight, ttime[idx], tsci[idx], terr[idx],
-                        tdarkandglow[idx], tcount[idx], gain, flat_uncertainty,
-                        &a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
+                        tdarkandglow[idx], tcount[idx], gain,
+                        &a[idx], &b[idx], &siga[idx], &sigb[idx]);
 
                 /*---------------------------------------------------------------
                   EXAMINE EACH INTERVAL FOR SPIKES AND CRS
@@ -675,8 +671,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                  }
 
                 /* Look for and flag new electronic noise spikes and CRs*/
-                nrej=RejSpikes (tsci[idx], terr[idx], tdq[idx], diff, tcount[idx],
-                        thresh, &rej);
+                nrej = RejSpikes(tdq[idx], diff, tcount[idx], &rej);
                 if (nrej > 0) {
                     dq[tlookup[idx][rej]] = dq[tlookup[idx][rej]] | SPIKE;
                 } else if (nrej == 0) {
@@ -696,7 +691,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                         }
                     } else if (nrej == 0) {
                         /* Only check the first read if nothing else has been found */
-                        nrej = RejFirstRead(tdq[idx], diff, tcount[idx], thresh);
+                        nrej = RejFirstRead(tdq[idx], diff, thresh);
                         if (nrej > 0){
                             dq[tlookup[idx][0]] = dq[tlookup[idx][0]] | SPIKE;
                         }
@@ -837,8 +832,8 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                     /* Compute mean countrate using linear fit and equal weighting
                        to best find spikes and CRs*/
                     linfit (equal_weight, ttime[idx], tsci[idx], terr[idx],
-                            tdarkandglow[idx], tcount[idx], gain, flat_uncertainty,
-                            &a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
+                            tdarkandglow[idx], tcount[idx], gain,
+                            &a[idx], &b[idx], &siga[idx], &sigb[idx]);
                     if (DEBUG2) {
                         printf ("Slope = %8.2f, intercept = %8.2f ", b[idx], a[idx]);
                         printf ("(equal weight)\n");
@@ -865,8 +860,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                     if (DEBUG2) printf ("Accumulated %d diffs\n", naccum);
 
                     /* Look for and flag new electronic noise spikes and CRs*/
-                    nrej=RejSpikes (tsci[idx], terr[idx], tdq[idx], diff, tcount[idx],
-                            thresh, &rej);
+                    nrej = RejSpikes(tdq[idx], diff, tcount[idx], &rej);
                     if (nrej > 0) {
                         dq[tlookup[idx][rej]] = dq[tlookup[idx][rej]] | SPIKE;
                         if (DEBUG2) printf ("Rejected %d points\n", nrej);
@@ -888,7 +882,7 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                             }
                         } else if (nrej == 0) {
                             /* Only check the first read if nothing else has been found */
-                            nrej = RejFirstRead(tdq[idx], diff, tcount[idx], thresh);
+                            nrej = RejFirstRead(tdq[idx], diff, thresh);
                             if (nrej > 0){
                                 dq[tlookup[idx][0]] = dq[tlookup[idx][0]] | SPIKE;
                                 if (DEBUG2) printf ("Rejected first read\n");
@@ -938,8 +932,8 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
                 /* Compute mean countrate using linear fit, with optimum weighting
                    this time to get best estimate of the slope */
                 linfit (optimum_weight, ttime[idx], tsci[idx], terr[idx],
-                        tdarkandglow[idx],tcount[idx], gain, flat_uncertainty,
-                        &a[idx], &b[idx], &siga[idx], &sigb[idx],i,j);
+                        tdarkandglow[idx],tcount[idx], gain,
+                        &a[idx], &b[idx], &siga[idx], &sigb[idx]);
                 if (nsflag == 1) {
                     if (DEBUG2) {
                         printf ("Slope = %8.2f, intercept = %8.2f", b[idx], a[idx]);
@@ -1080,10 +1074,8 @@ static void fitsamps (const short nsamp, float *sci, float *err, short *dq,
  */
 
 static void linfit (short weight_type, float *x, float *y, float *sig,
-        float *darkandglow, short ndata,
-        float gain, float flat_uncert,
-        float *a, float *b, float *siga, float *sigb,
-        int i, int j) {
+        float *darkandglow, short ndata, float gain,
+        float *a, float *b, float *siga, float *sigb) {
 
     /* Local variables */
     int k;
@@ -1237,8 +1229,7 @@ static void linfit (short weight_type, float *x, float *y, float *sig,
 
 # define SPIKE_THRESH 6.0   /* sigma threshold for spike rejection */
 
-static int RejSpikes (float *tsci, float*terr, short *dq, float *diff,
-        short nsamp, float thresh, int *max_samp) {
+static int RejSpikes (short *dq, float *diff, short nsamp, int *max_samp) {
 
     /* Local variables */
     int   k, nrej;  /* loop index and rejection counter */
@@ -1332,7 +1323,7 @@ static int RejCRs (short *dq, float *diff, short nsamp, float thresh,
 /* REJFIRSTREAD: Check for spikes in the first read of the interval only.
  ** This was formerly part of RejSpikes.
  */
-static int RejFirstRead(short *dq, float *diff, short nsamp, float thresh) {
+static int RejFirstRead(short *dq, float *diff, float thresh) {
 
     /* Local variables */
     int   nrej;     /* return value */
@@ -1379,4 +1370,3 @@ static void EstimateDarkandGlow (const short nsamp, float *time, float gain,
     for (i=0; i <nsamp; i++)
         tot_ADUs[i] = time[i]*lineardark + i*ampglow;
 }
-

@@ -122,12 +122,11 @@ static int CloseCCDTab (TblInfo *);
     saturated pixels can be used if the saturation image is not available.
 */
 
-int GetCCDTab (WF3Info *wf3, int dimx, int dimy) {
+int GetCCDTab (WF3Info *wf3, int dimx) {
 
 /* arguments:
 WF3Info *wf3     io: calibration switches, etc
 int     dimx      i: number of columns in exposure
-int     dimy      i: number of lines in exposure
 */
 
 	extern int status;

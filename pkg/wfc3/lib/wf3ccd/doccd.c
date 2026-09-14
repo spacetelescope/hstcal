@@ -145,7 +145,7 @@ int DoCCD (WF3Info *wf3, int extver) {
     /* FOR THE CCD, UPDATE PRIMARY HEADER KEYWORDS.
      * ALSO RESET CRCORR IF THERE'S ONLY ONE IMAGE SET.
      * GET VALUES FROM TABLES, USING SAME FUNCTION USED IN WF3CCD. */
-    if (GetCCDTab (wf3, x.sci.data.nx, x.sci.data.ny)) {
+    if (GetCCDTab (wf3, x.sci.data.nx)) {
         freeSingleGroup (&x);
         return (status);
     }

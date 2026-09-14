@@ -1,7 +1,3 @@
-/* Contains:
-    get_nsegn
-*/
-
 # include   <stdio.h>
 # include   <string.h>
 
@@ -39,20 +35,20 @@
     as only 2 amps can be used at most per chip.
 
     The logic for what elements are appropriate follow from how AMPX and
-    AMPY will be used throughout CALWF3.  
+    AMPY will be used throughout CALWF3.
 
         IF AMPY > 0., then more than one AMP is used in the Y direction
         If AMPX > 0., then more than one AMP is used in the X direction
-        
-        So, if line being processed > AMPY then,  
-            For all pixels up to AMPX, use AMP_C values 
+
+        So, if line being processed > AMPY then,
+            For all pixels up to AMPX, use AMP_C values
                 If AMPX is ZERO, don't use AMP_C values for any pixel
-            For remaining pixels in line (or all), Use AMP_D values 
-            
+            For remaining pixels in line (or all), Use AMP_D values
+
         However, if AMPY is ZERO or the line number > AMPY (and AMPY > 0) then,
             For all pixels up to AMPX, Use AMP_A values
                 If AMPX is ZERO, don't use AMP_A values for any pixel
-            Then, for remaining pixels in line (or all of them), 
+            Then, for remaining pixels in line (or all of them),
                     Use AMP_B values
 
     Therefore, for 1 AMP use, AMPX and AMPY are both ZERO, putting the
@@ -62,7 +58,7 @@
     Also, for UVIS, AMPY is always zero, resulting in AMP_A and AMP_B
     entries as the only ones needed/used.  All entries which are not
     appropriate will have values of zero.
-   
+
     For diagonal amp usage, this routine will establish symmetry by filling
     in the opposite amp values with the values from the amp on the same
     side of the chip (in the X direction). With AMPX set to the center and
@@ -71,23 +67,22 @@
 
     This routine also assumes that only those amps used will have valid
     values in the CALWF3Info structure to begin with, as no further checking
-    of amp usage will be required.  
-*/  
-void get_nsegn (int detector, int chip, int ampx, int ampy, float *hdrgain,
+    of amp usage will be required.
+*/
+void get_nsegn (int detector, int chip, float *hdrgain,
 		float *hdrnoise, float *gain, float *rn2) {
 
-/* 
+/*
 Parameters:
     int     detector        i: detector ID
     int     chip            i: chip ID
-    int     ampx,ampy       i: first columns used by second AMP in x,y axes
     float   *hdrgain        i: atodgn values from image/ccdtab
     float   *hdrnoise       i: readnoise values from image/ccdtab
     float   *gain           o: gain - array of valid values
-    float   *rn2            o: readnoise - array of valid values 
+    float   *rn2            o: readnoise - array of valid values
 */
-    
-    if (detector == CCD_DETECTOR) { 
+
+    if (detector == CCD_DETECTOR) {
 
         /* Start of CCD section */
         if (chip == 2) {
@@ -119,7 +114,7 @@ Parameters:
         /* Start if IR section */
 	/* Use all 4 amp values, but need to rearrange the ordering in
 	   the arrays because of the different arrangement of the IR
-	   amps relative to UVIS: 
+	   amps relative to UVIS:
 		-----          -----
 		|A|D|          |A|B|
 	    IR: -----    UVIS: -----

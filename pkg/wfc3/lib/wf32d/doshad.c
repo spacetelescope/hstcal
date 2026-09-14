@@ -34,7 +34,6 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	int rx, ry;		/* for binning dark down to size of x */
 	int x0, y0;		/* offsets of sci image */
 	int same_size;		/* true if no binning of ref image required */
-	int avg = 1;		/* bin2d should average within each bin */
 	int i,j, zline;
 	int chipext;
 	int update = NO;
@@ -45,15 +44,14 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	int addk1d (SingleGroupLine *, float);
 	int multk1d (SingleGroupLine *, float);
 	int div1d (SingleGroup *, int, SingleGroupLine *);
-	int trim1d (SingleGroupLine *, int, int, int, int, int,
-		    SingleGroupLine *);
+	int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
 	int allocWF3sect (WF3sect *, int, int);
 	void initWF3sect (WF3sect *);
 	void freeWF3sect (WF3sect *);
 	void copySectLine (WF3sect *, int, SingleGroupLine *);
 	void getWF3sect (char *, SingleGroupLine *, int, int, WF3sect *);
 	int unbinsect (WF3sect *, int, WF3sect *);
-	int DetCCDChip (char *, int, int, int *);
+	int DetCCDChip (char *, int, int *);
 
 	if (wf32d->shadcorr != PERFORM)
 	    return (status);
@@ -72,8 +70,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
 	chipext = extver;
-	if (DetCCDChip (wf32d->shad.name, wf32d->chip, wf32d->nimsets,
-			&chipext) )
+	if (DetCCDChip (wf32d->shad.name, wf32d->chip, &chipext) )
 	    return (status);
 
 	/* Get the shutter shading image data. */
@@ -101,7 +98,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 
 		 getSingleGroupLine (wf32d->shad.name, j, &y);
 
-		 if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
+		 if (trim1d (&y, x0, y0, rx, update, &z)) {
 		     trlerror("(doShad) size mismatch.");
 		     return (status);
 		 }
@@ -175,7 +172,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 			** reference data */
 			copySectLine (&zsect, zline, &zl);
 
-			if (trim1d (&zl, x0, y0, 1, avg, update, &z)) {
+			if (trim1d (&zl, x0, y0, 1, update, &z)) {
 			    trlerror("(doShad) size mismatch.");
 			    return (status);
 			}

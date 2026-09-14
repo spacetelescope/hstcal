@@ -35,7 +35,7 @@ static int getampxy (Hdr *, int, int, char *, int, int, int *, int *);
                             the value as MIXED in the output crj header. PR #72001
 */
 
-int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
+int rej_check (IRAFPointer tpin, int extver, clpar *par,
 	       int newpar[], char imgname[][CHAR_FNAME_LENGTH+1], int grp[],
 	       IODescPtr ipsci[], IODescPtr ipdq[], multiamp *noise,
 	       multiamp *gain, int *dim_x, int *dim_y, int nimgs, char expflagFinal[]) {
@@ -58,7 +58,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
     int         GetKeyInt (Hdr *, char *, int, int, int *);
     int         GetKeyStr (Hdr *, char *, int, char *, char *, int);
-    int         DetCCDChip (char *, int, int, int *);
+    int         DetCCDChip (char *, int, int *);
     int         streq_ic (char *, char *);/* strings equal? (case insensitive)*/
     void        initmulti (multiamp *);
 
@@ -167,7 +167,7 @@ int rej_check (IRAFPointer tpin, int extver, int ngrps, clpar *par,
 
             /* Determine which extension corresponds to desired chip
             ** for the remainder of the images */
-            if (DetCCDChip(fdata, chip, ngrps, &n) ) {
+            if (DetCCDChip(fdata, chip, &n) ) {
                 return (status);
             }
 
@@ -297,7 +297,7 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
     void WF3Init (WF3Info *);
     int GetKeys (WF3Info *, Hdr *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
-    int GetCCDTab (WF3Info *, int, int);
+    int GetCCDTab (WF3Info *, int);
 
     WF3Init (&wf3rej);
 
@@ -323,7 +323,7 @@ static int getampxy (Hdr *hdr, int det, int chip, char *ccdamp, int dimx,
         return (status);
     strcpy (wf3rej.ccdpar.name, tabname);
 
-    if (GetCCDTab (&wf3rej, dimx, dimy) ) {
+    if (GetCCDTab (&wf3rej, dimx) ) {
         return (status);
     }
 

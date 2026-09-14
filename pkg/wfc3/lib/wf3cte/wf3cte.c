@@ -1268,65 +1268,64 @@ int sim_colreadout_l_uvis_w(double *pixi,     // input column array (JDIM)
                             int    NITs,      // the num of iterations (dpde-->dpde/NITs)
                             float *rprof_wt,  // the trap emission for t=T (_WDIM_,100)
                             float *cprof_wt,  // the amount left in trap after t=T emission (_WDIM_,100)
-                            int    Ws)  {
+                            int    Ws) {
+    int    j;       // pixel location up the column
 
-      int    j;       // pixel location up the column
+    double ftrap;   // total number of electrons in the trap
+    int    ttrap;   // shifts since the trap was last filled
 
-      double ftrap;   // total number of electrons in the trap
-      int    ttrap;   // shifts since the trap was last filled
+    int    w;       // trap counter
 
-      int    w;       // trap counter
+    double pmax;    // max pixel value in the column - tells us the highest relevant trap numbrer
+    int    Wf;      // highest relevant trap number
 
-      double pmax;    // max pixel value in the column - tells us the highest relevant trap numbrer
-      int    Wf;      // highest relevant trap number
+    double prel_1;  // amount in incidental release from trap
+    double prel_2;  // amount in flush release of trap
+    double pgrb_3;  // amount grabbed by filling trap
 
-      double prel_1;  // amount in incidental release from trap
-      double prel_2;  // amount in flush release of trap
-      double pgrb_3;  // amount grabbed by filling trap
+    float rprof_t[_TDIM_];
+    float cprof_t[_TDIM_];
 
-      float rprof_t[_TDIM_];
-      float cprof_t[_TDIM_];
+    /* Bounds checking */
+    if (Ws>WsMAX) {
+        trlerror("Ws error: %d > %d", Ws, WsMAX);
+        return ERROR_RETURN;
+    }
 
-      /* Bounds checking */
-      if (Ws>WsMAX) {
-          trlerror("Ws error: %d > %d", Ws, WsMAX);
-          return ERROR_RETURN;
-      }
+    /* Figure out which traps we do not need
+       to worry about in this column
+    */
+    pmax = 10;
+    for(j=0;j<JDIM;j++) {
+        pixo[j] = pixi[j];
+        if (pixo[j] > pmax) pmax = pixo[j];
+    }
 
-      /* Figure out which traps we do not need
-         to worry about in this column
-      */
-      pmax = 10;
-      for(j=0;j<JDIM;j++) {
-         pixo[j] = pixi[j];
-         if (pixo[j] > pmax) pmax = pixo[j];
-      }
+    /* Figure out the highest trap number we need to consider */
+    Wf = 1;
+    for (w=0;w<Ws;w++) {
+        if (pmax >=q_w[w]) Wf = w;
+    }
 
-      /* Figure out the highest trap number we need to consider */
-      Wf = 1;
-      for (w=0;w<Ws;w++) {
-         if (pmax >=q_w[w]) Wf = w;
-      }
+    /* Go thru the traps one at a time (from highest to lowest q)
+       and see when they get filled and emptied; adjust the
+       pixel values accordingly
+    */
+    for (w=Wf;w>=0;w--) {   // loop backwards
 
-      /* Go thru the traps one at a time (from highest to lowest q)
-         and see when they get filled and emptied; adjust the
-         pixel values accordingly
-      */
-      for (w=Wf;w>=0;w--) {   // loop backwards
+        for(ttrap=0;ttrap<_TDIM_;ttrap++) {
+            rprof_t[ttrap] = rprof_wt[w+ttrap*WsMAX];
+            cprof_t[ttrap] = cprof_wt[w+ttrap*WsMAX];
+        }
 
-         for(ttrap=0;ttrap<_TDIM_;ttrap++) {
-             rprof_t[ttrap] = rprof_wt[w+ttrap*WsMAX];
-             cprof_t[ttrap] = cprof_wt[w+ttrap*WsMAX];
-         }
+        /* Initialize the flux in the trap to zero */
+        ftrap =   0.0;
 
-         /* Initialize the flux in the trap to zero */
-         ftrap =   0.0;
+        /* Initialize the time-since-flush to the max */
+        ttrap =  _TDIM_ + 1;
 
-         /* Initialize the time-since-flush to the max */
-         ttrap =  _TDIM_ + 1;
-
-         /* Go up the column, pixel-by-pixel */
-         for (j=J1;j<J2;j++) {
+        /* Go up the column, pixel-by-pixel */
+        for (j=J1;j<J2;j++) {
 
             /* If we have an inversion of the density (i.e., a readout-cosmic issue),
                then we do not want to flush too much
@@ -1385,10 +1384,10 @@ int sim_colreadout_l_uvis_w(double *pixi,     // input column array (JDIM)
                flush the trap, and fill the trap
             */
             pixo[j] = pixo[j] + prel_1 + prel_2 - pgrb_3;
-         }
-      }
-      return WF3_OK;
-     }
+        }
+    }
+    return WF3_OK;
+}
 
 
 /* --------------------------------- */
@@ -1422,7 +1421,6 @@ int sub_ctecor_v2c(float *pixz_raz,
       int    NITFOR, NITFORs;
       int    NITPAR, NITPARs;
       double RNOI;
-      int ret;
 
       double *pixj_fff;
       double *pixj_raz;
@@ -1453,7 +1451,7 @@ int sub_ctecor_v2c(float *pixz_raz,
               NITPARs,NITFORs,                         \
               q_w,dpde_w,                              \
               rprof_wt,cprof_wt,Ws,NDONE)              \
-       private(i,j,ret,NCRX, DONE, NITFOR,NITPAR,      \
+       private(i,j,NCRX, DONE, NITFOR,NITPAR,      \
                pixj_fff, pixj_raz, pixj_mod, pixj_rnz, \
                pixj_rsz, pixj_org, pixj_obs, pixj_chg)
 
@@ -1484,17 +1482,17 @@ int sub_ctecor_v2c(float *pixz_raz,
                 pixj_chg[j] = 0.0;
              }
              for(NITFOR=0;NITFOR<NITFORs;NITFOR++) {
-                 ret = rm_rnZ_colj(pixj_mod,pixj_rnz,pixj_rsz,RNOI);
+                 rm_rnZ_colj(pixj_mod,pixj_rnz,pixj_rsz,RNOI);
                  for(j=0;j<RAZ_ROWS;j++) {
                     pixj_org[j] = pixj_rsz[j];
                  }
                  for(NITPAR=1;NITPAR<=NITPARs;NITPAR++) {
-                     ret = sim_colreadout_l_uvis_w(pixj_org,
-                                                   pixj_obs,
-                                                   pixj_fff,
-                                                   1,RAZ_ROWS,RAZ_ROWS,
-                                                   q_w,dpde_w,NITPARs,
-                                                   rprof_wt,cprof_wt,Ws);
+                     sim_colreadout_l_uvis_w(pixj_org,
+                                             pixj_obs,
+                                             pixj_fff,
+                                             1,RAZ_ROWS,RAZ_ROWS,
+                                             q_w,dpde_w,NITPARs,
+                                             rprof_wt,cprof_wt,Ws);
                      for (j=0;j<RAZ_ROWS;j++) {
                         pixj_org[j] = pixj_obs[j];
                      }

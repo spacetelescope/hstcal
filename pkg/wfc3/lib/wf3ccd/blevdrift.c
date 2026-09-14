@@ -55,22 +55,21 @@ static int middle_col;
 	Upgraded to reject outliers from parallel overscan array before
 	fitting (as is already done for serial overscan fit). Added new
 	routine cleanDriftFit to reject outliers (equivalent to serial
-	cleanBiasFit). Added readnoise as input argument, which is used in 
+	cleanBiasFit). Added readnoise as input argument, which is used in
 	cleanDriftFit.
    H.Bushouse, 2009 Jan 16:
 	Upgraded the methods used in cleanDriftFit to compute the mean and
 	standard deviation of unrejected values so that they use only the
-	good values returned by VMedianY. Also added checks for potential 
+	good values returned by VMedianY. Also added checks for potential
 	divide-by-zero conditions.
 */
 
-int BlevDrift (SingleGroup *in, int *vx, int *vy, int trimx1, int *biassect,
+int BlevDrift (SingleGroup *in, int *vx, int *vy, int *biassect,
 	       int *driftcorr, short sdqflags, float rn) {
 
 /* arguments:
 SingleGroup *in      i: image to be calibrated
 int vx[2], vy[2]     i: range of pixel numbers for virtual overscan region
-int trimx1           i: width to trim off beginning of line
 int biassect[4]      i: section to use for finding bias level
 int *driftcorr       i: true if correction can be applied
 float rn             i: readnoise (units of DN)
@@ -108,7 +107,7 @@ float rn             i: readnoise (units of DN)
 	   the section used for determining the bias level, in units of
 	   pixel number in the input, untrimmed, image.
 	*/
-	
+
 	/* HAB 1-Mar-2002: Modified zerocol computation so that it is
 	** pixel units of the input, untrimmed image, rather than the
 	** STIS approach of pixel units in the output, trimmed image. */
@@ -172,7 +171,7 @@ float rn             i: readnoise (units of DN)
 
 */
 
-static int VMedianY (SingleGroup *in, int i, int *vy, short sdqflags, 
+static int VMedianY (SingleGroup *in, int i, int *vy, short sdqflags,
 		     double *median, double *scratch) {
 
 /* arguments:

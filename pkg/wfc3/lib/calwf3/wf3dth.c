@@ -39,7 +39,7 @@
 	"dth" to "drz". Eliminated creation of dummy "_drz.fits" products.
 
    H.Bushouse, 2006 June 20:
-	Updated to track CALACS acsdth changes: Fixed bug InitDthTrl in 
+	Updated to track CALACS acsdth changes: Fixed bug InitDthTrl in
 	reallocating memory for list of trailer file names (trl_in).
 
    H.Bushouse, 2008 June 11:
@@ -58,20 +58,16 @@
 	handle associations with missing members. (PR 66366)
 
   M Sosey, 2012 December 27:
-      Updated to account for a memory leak on linux machines during BuildDth 
-      when RPTCORR is off and a new spt is being constructed (#967)       
+      Updated to account for a memory leak on linux machines during BuildDth
+      when RPTCORR is off and a new spt is being constructed (#967)
 
-  M Sosey, 2015 May: 
+  M Sosey, 2015 May:
       Updated for UVIS2
-      
 */
+int Wf3Dth ( char *in_list, char *output, int printtime) {
 
-
-int Wf3Dth ( char *in_list, char *output, int dthcorr, int printtime,
-	    int verbose){
-	
 	extern int status;
-	
+
 	char mtype[SZ_CBUF+1];		/* role of exposure in Association */
 	IRAFPointer tpin;
 
@@ -79,12 +75,12 @@ int Wf3Dth ( char *in_list, char *output, int dthcorr, int printtime,
 	void PrEnd (char *);
 
 	int  mkNewSpt (char *, char *, char *);
-	
+
 /* ----------------------- Start Code --------------------------------*/
 
 	/* Start the task... */
 	PrBegin ("WF3DTH");
-		
+
 	if (printtime)
 	    TimeStamp ("WF3DTH started", "");
 
@@ -106,28 +102,28 @@ int Wf3Dth ( char *in_list, char *output, int dthcorr, int printtime,
 	/* Write out temp trailer file to final file */
 	WriteTrlFile ();
 
-	return (status);	
+	return (status);
 }
 
 
 void InitDthTrl (char *inlist, char *output) {
-	
+
 	extern int status;
-	
+
 	IRAFPointer tpin;
 	int n, nfiles;
 
 	char *trl_in;			/* trailer filename for input */
-	int  trl_len;
+	size_t trl_len;
 	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
 	char input[CHAR_FNAME_LENGTH+1];		/* Name of image in list */
 	char out_name[CHAR_FNAME_LENGTH+1];
-	
+
 	char *isuffix[]={"_sfl", "_crj", "_flt", "_flc", "_crc", "_sfl"};
 	char *osuffix[]={"_drz", "_drz", "_drz", "_drc", "_drc", "_drc"};
 	char *trlsuffix[]={"", "", "", "", "", ""};
 	int nsuffix = 6;
-	
+
 	int MkOutName (char *, char **, char **, int, char *, int);
 	int MkNewExtn ( char *, char *);
 	void WhichError (int);
@@ -156,33 +152,33 @@ void InitDthTrl (char *inlist, char *output) {
 	     /* Start by stripping off suffix from input/output filenames */
 	     if (MkOutName (input, isuffix, trlsuffix, nsuffix, out_name,
 			    CHAR_LINE_LENGTH)) {
-         
+
 		    WhichError (status);
 		    trlmessage("Couldn't determine trailer filename for %s",input);
 	     }
-         
+
 	     /* Now convert trailer filename extension from '.fits' to '.trl' */
 	     if (MkNewExtn (out_name, TRL_EXTN)) {
 		    trlerror("Error creating input trailer filename %s",out_name);
 		    WhichError (status);
 	     }
-         
-         
-	     if ( (strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
+
+
+	     if ((strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
 		    trl_len += CHAR_LINE_LENGTH;
 		    trl_in = realloc (trl_in, trl_len);
 	     }
 
 	     /* Append each filename to create list of input trailer files */
 	     strcat(trl_in, out_name);
-         
+
 	     /* But don't put a comma after the last filename */
 	     if (n < (nfiles-1)) strcat (trl_in, ",");
 	     /* Reset value for the output filename for the next image */
 	     out_name[0] = '\0';
 	}
 
-    
+
 	if (MkOutName (output, osuffix, trlsuffix, nsuffix, trl_out, CHAR_LINE_LENGTH)) {
 	    WhichError (status);
 	    trlerror("Couldn't create trailer filename for %s\n",output);
@@ -193,7 +189,7 @@ void InitDthTrl (char *inlist, char *output) {
 	    WhichError (status);
 	}
 
-    
+
 	/* Sets up temp trailer file for output and copies input
 	** trailer file into it. */
 	InitTrlFile (trl_in, trl_out);
@@ -202,4 +198,3 @@ void InitDthTrl (char *inlist, char *output) {
 	free(trl_in);
 	c_imtclose (tpin);
 }
-

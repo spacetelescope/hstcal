@@ -54,7 +54,6 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
     int rx, ry;		/* for binning bias image down to size of x */
     int x0, y0;		/* offsets of sci image */
     int same_size;		/* true if no binning of ref image required */
-    int avg = 0;		/* bin2d should sum within each bin */
     int scilines; 		/* number of lines in science image */
     int i, j;
     int update;
@@ -63,9 +62,8 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
     int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *,
             int *, int *);
     int sub1d (SingleGroup *, int, SingleGroupLine *);
-    int trim1d (SingleGroupLine *, int, int, int, int, int,
-            SingleGroupLine *);
-    int DetCCDChip (char *, int, int, int *);
+    int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
+    int DetCCDChip (char *, int, int *);
     int GetKeyStr (Hdr *, char *, int, char *, char *, int);
     int streq_ic (char *, char *); /* case insensitive string equal */
 
@@ -85,7 +83,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
 
     /* Compute correct extension version number to extract from
      ** reference image to correspond to CHIP in science data. */
-    if (DetCCDChip (wf3->bias.name, wf3->chip, wf3->nimsets, &extver))
+    if (DetCCDChip (wf3->bias.name, wf3->chip, &extver))
         return (status);
 
     /* Get the first line of bias image data. */
@@ -193,7 +191,7 @@ int doBias (WF3Info *wf3, SingleGroup *x) {
 
             update = NO;
 
-            if (trim1d (&y, x0, y0, rx, avg, update, &z)) {
+            if (trim1d (&y, x0, y0, rx, update, &z)) {
                 trlerror("(biascorr) size mismatch.");
                 return (status);
             }

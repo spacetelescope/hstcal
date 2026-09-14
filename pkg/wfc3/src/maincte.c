@@ -1,4 +1,4 @@
-/* WFC3CTE -- CTE loss correction 
+/* WFC3CTE -- CTE loss correction
 
 This is the routine for running the CTE correction standalone,
 as you would wf3ccd or wf32d
@@ -53,7 +53,7 @@ static void printHelp(void)
 /* Standard string buffer for use in messages */
 char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
-/* 
+/*
 
 This is the main module for WF3CTE standalone task.  It gets the input
 file name(s), calibration switches, flags, and then calls WFC3cte.
@@ -71,14 +71,13 @@ int main (int argc, char **argv) {
     int onecpu = NO; /* Use OpenMP with onely one thread, if available? */
     int too_many = 0;	/* too many command-line arguments? */
     int i, j;		/* loop indexes */
-    int k;
 
     IRAFPointer i_imt, o_imt;	/* imt list pointers */
     char *input;		/* name of input science file */
     char *output;		/* name of output file */
     int n_in, n_out;	/* number of files in each list */
     int n;
-    
+
 	/* Initialize status to OK and MsgText to null */
 	status     = WF3_OK;
 
@@ -88,7 +87,6 @@ int main (int argc, char **argv) {
 
     /* For image header access */
     Hdr phdr;
-
 
     c_irafinit (argc, argv);
     push_hstioerr(errchk);
@@ -116,14 +114,13 @@ int main (int argc, char **argv) {
     input[0] = '\0';
     output[0] = '\0';
 
-    
     /*INITIALIZE REFERENCE FILE INFORMATION*/
     InitRefFile (&refnames);
     addPtr(&ptrReg, &refnames, &FreeRefFile);
-    
+
     /* Initial values. */
  	initCCDSwitches (&cte_sw);
-    
+
     for (i = 1;  i < argc;  i++) {
 
         if (argv[i][0] == '-') {
@@ -182,7 +179,7 @@ int main (int argc, char **argv) {
 
     /* COPY COMMAND-LINE VALUE FOR QUIET TO STRUCTURE */
     SetTrlQuietMode(quiet);
-           
+
     /* EXPAND THE TEMPLATES. */
     i_imt = c_imtopen (inlist);
     addPtr(&ptrReg, i_imt, &c_imtclose);
@@ -202,10 +199,10 @@ int main (int argc, char **argv) {
     /* LOOP OVER THE LIST OF INPUT FILES. */
     for (n = 0;  n < n_in;  n++) {
 
-        k = c_imtgetim (i_imt, input, CHAR_FNAME_LENGTH);
+        c_imtgetim (i_imt, input, CHAR_FNAME_LENGTH);
 
         if (n_out > 0)
-            k = c_imtgetim (o_imt, output, CHAR_FNAME_LENGTH);
+            c_imtgetim (o_imt, output, CHAR_FNAME_LENGTH);
         else
             output[0] = '\0';
 
@@ -235,7 +232,7 @@ int main (int argc, char **argv) {
             trlerror("An uncalibrated, RAW file must be used as input to CTE corr, skipping %s", input);
             freeOnExit(&ptrReg);
             exit(ERROR_RETURN);
-            
+
         } else if (cte_sw.pctecorr) {
 
             if (MkName (input, "_raw", "_rac_tmp", "", output, CHAR_FNAME_LENGTH)) {

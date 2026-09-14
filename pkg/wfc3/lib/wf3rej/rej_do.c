@@ -11,7 +11,7 @@
 # include   "wf3info.h"
 # include   "rej.h"
 
-static void closeSciDq (int, IODescPtr [], IODescPtr [], clpar *);
+static void closeSciDq (int, IODescPtr [], IODescPtr []);
 
 /*  rej_do -- Perform the cosmic ray rejection for WFC3 images
 
@@ -108,7 +108,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
     int     ImgHistory (RefImage *, Hdr *);
     int     ImgPedigree (RefImage *);
 
-    int     rej_check (IRAFPointer, int, int, clpar *, int [],
+    int     rej_check (IRAFPointer, int, clpar *, int [],
 		       char [][CHAR_FNAME_LENGTH+1], int [], IODescPtr [], IODescPtr [],
 		       multiamp *, multiamp *, int *, int *, int, char []);
     int     cr_scaling (char *, IRAFPointer, float [], int *, double *,
@@ -250,7 +250,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
         }
 
         /* Open input files and temporary files, check the parameters */
-        if (rej_check (tpin, extver, numext, par, newpar, imgname, ext,
+        if (rej_check (tpin, extver, par, newpar, imgname, ext,
             ipsci, ipdq, &noise, &gain, &dim_x, &dim_y, nimgs, expflagFinal)) {
             WhichError (status);
             return(status);
@@ -309,7 +309,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
             if (rej_init (ipsci, ipdq, par, nimgs, dim_x, dim_y,
 			  noise, gain, efac, skyval, bunit, &sg, work)) {
                 WhichError(status);
-                closeSciDq(nimgs, ipsci, ipdq, par);
+                closeSciDq(nimgs, ipsci, ipdq);
                 return (status);
             }
 
@@ -322,7 +322,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 		      &sg.sci.data, &sg.err.data, efacsum, &sg.dq.data, &nrej,
 		      shadref.name)){
                 WhichError(status);
-                closeSciDq(nimgs, ipsci, ipdq, par);
+                closeSciDq(nimgs, ipsci, ipdq);
                 return (status);
             }
 
@@ -339,7 +339,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 	} /* End if(non_zero) block */
 
         /* Must close all images, now that we are done reading them */
-        closeSciDq (nimgs, ipsci, ipdq, par);
+        closeSciDq (nimgs, ipsci, ipdq);
 
         /* Calculate the total sky ... */
         skysum = 0.;
@@ -416,11 +416,12 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
             char oldunit[12];
             char newunit[12];
             oldunit[0] = '\0';
-            newunit[0] = '\0';
             getKeyS (&sg.sci.hdr, "BUNIT", oldunit);
             size_t oldunitsize = strlen(oldunit);
-            strncpy(newunit, oldunit, oldunitsize - 2);
-            newunit[oldunitsize - 1] = '\0';
+            size_t nn = oldunitsize < 12 ? oldunitsize : 12;
+            for (size_t iin=0; iin < (nn - 2); iin++)
+                newunit[iin] = oldunit[iin];
+            newunit[nn - 2] = '\0';
             PutKeyStr (&sg.sci.hdr, "BUNIT", newunit, "");
             PutKeyStr (&sg.err.hdr, "BUNIT", newunit, "");
         }
@@ -457,8 +458,7 @@ int rej_do (IRAFPointer tpin, char *outfile, char *mtype, clpar *par,
 
 /* Helper function to clean up image pointers... */
 
-static void closeSciDq (int nimgs, IODescPtr ipsci[], IODescPtr ipdq[],
-			clpar *par) {
+static void closeSciDq (int nimgs, IODescPtr ipsci[], IODescPtr ipdq[]) {
 
     int n;
 

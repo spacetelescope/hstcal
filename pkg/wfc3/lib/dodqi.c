@@ -160,7 +160,7 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
 
     /* mappings from one coordinate system to another */
     double ri_m[2], ri_v[2];	/* reference to image */
-    double rs_m[2], rs_v[2];	/* reference to scratch */
+    double rs_v[2];	/* reference to scratch */
     double si_m[2], si_v[2];	/* scratch to image */
 
     int xbeg[2], ybeg[2];		/* beginning limits of science data */
@@ -383,8 +383,6 @@ int doDQI (WF3Info *wf3, SingleGroup *x, int overscan) {
     if (!in_place) {
 
         /* scratch array will be in reference table coords */
-        rs_m[0] = 1.;
-        rs_m[1] = 1.;
         rs_v[0] = 0.;
         rs_v[1] = 0.;
         /* assumes rs_m = 1, rs_v = 0 */
@@ -803,4 +801,3 @@ static void FirstLast (double *ltm, double *ltv, int *snpix, int *npix,
         }
     }
 }
-

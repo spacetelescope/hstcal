@@ -88,7 +88,7 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	void copySectLine (WF3sect *, int, SingleGroupLine *);
 	void getWF3sect (char *, SingleGroupLine *, int, int, WF3sect *);
 	int unbinsect (WF3sect *, int, WF3sect *);
-	int DetCCDChip (char *, int, int, int *);
+	int DetCCDChip (char *, int, int *);
 
 	/* Initialize applygain so that correction gets applied */
 	applygain = 1;
@@ -124,9 +124,9 @@ SingleGroup *x    io: image to be calibrated; written to in-place
 	    /* Compute correct extension version number to extract from
 	    ** reference image to correspond to CHIP in science data.  */
 	    chipext = extver;
-	    if (DetCCDChip (wf32d->lflt.name, wf32d->chip, wf32d->nimsets,
-			    &chipext))
-		return (status);
+	    if (DetCCDChip (wf32d->lflt.name, wf32d->chip, &chipext)) {
+	        return (status);
+	    }
 
 	    /* Get the low-order flat field image data. */
 	    initSingleGroupLine (&w);
@@ -256,7 +256,6 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	int y_rx, y_ry;		  /* for binning dark down to size of x */
 	int y_x0, y_y0;		  /* offsets of sci image */
 	int ysame_size;		/* true if no binning of ref image required */
-	int avg = 1;		/* bin2d should average within each bin */
 	int update = NO;	/* Flag to determine whether hdr info needs
 				** to be updated*/
 
@@ -267,18 +266,17 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 
 	int FindLine (SingleGroup *, SingleGroupLine *, int *, int *, int *,
 		      int *, int *);
-	int DetCCDChip (char *, int, int, int *);
-	int trim1d (SingleGroupLine *, int, int, int, int, int,
-		    SingleGroupLine *);
+	int DetCCDChip (char *, int, int *);
+	int trim1d (SingleGroupLine *, int, int, int, int, SingleGroupLine *);
 	int div1d (SingleGroup *, int, SingleGroupLine *);
-	void get_nsegn (int, int, int, int, float *, float *, float *, float *);
+	void get_nsegn (int, int, float *, float *, float *, float *);
 	void multgn1d (SingleGroupLine *, int, int, int, float *, float);
 
 	initSingleGroupLine (&y);
 
 	/* Compute correct extension version number to extract from
 	** reference image to correspond to CHIP in science data.  */
-	if (DetCCDChip (flatname, wf32d->chip, wf32d->nimsets, &pchipext) )
+	if (DetCCDChip (flatname, wf32d->chip, &pchipext) )
 	    return (status);
 
 	openSingleGroupLine (flatname, pchipext, &y);
@@ -310,8 +308,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	     gain[i] = 0.;
 	     rn2[i]  = 0.;
 	}
-	get_nsegn (wf32d->detector, wf32d->chip, wf32d->ampx, wf32d->ampy,
-		   wf32d->atodgain, wf32d->readnoise, gain, rn2);
+	get_nsegn (wf32d->detector, wf32d->chip, wf32d->atodgain, wf32d->readnoise, gain, rn2);
 	gnscale = 1.0;
 
 	/* Load the average gain value for use in all quadrants. */
@@ -348,7 +345,7 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 		   getSingleGroupLine (flatname, line, &y);
 
 		   /* Make sure it is the same length as science image */
-		   trim1d (&y, y_x0, y_y0, y_rx, avg, update, &ytrim);
+		   trim1d (&y, y_x0, y_y0, y_rx, update, &ytrim);
 
 		   /* Divide flat by gain, if requested */
 		   if (applygain) {
@@ -371,4 +368,3 @@ static int divFlat (SingleGroup *x, char *flatname, WF3Info *wf32d,
 	return (status);
 
 }
-

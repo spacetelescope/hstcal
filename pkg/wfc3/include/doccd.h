@@ -38,7 +38,7 @@ void PrRefInfo (char *, char *, char *, char *, char *);
 void UCalVer (Hdr *);
 void UFilename (char *, Hdr *);
 int FindOverscan (WF3Info *, int, int, int *);
-int GetCCDTab (WF3Info *, int, int);
+int GetCCDTab (WF3Info *, int);
 int GetKeyBool (Hdr *, char *, int, Bool, Bool *);
 int SinkDetect (WF3Info *, SingleGroup *);
 int FindLine (SingleGroup *, SingleGroupLine *, int *, int *,int *,int *, int *);

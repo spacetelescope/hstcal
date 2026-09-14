@@ -10,7 +10,7 @@
 
 static int checkAtoD (Hdr *, WF3Info *, int *, int *);
 static int checkBias (Hdr *, WF3Info *, int *, int *);
-static int checkBlev (Hdr *, WF3Info *, int *, int *);
+static int checkBlev (Hdr *, WF3Info *, int *);
 static int checkCCD  (Hdr *, WF3Info *, int *);
 static int checkDQI  (Hdr *, WF3Info *, int *, int *);
 static int checkFlash(Hdr *, WF3Info *, int *, int *);
@@ -71,7 +71,7 @@ int GetFlags (WF3Info *wf3, Hdr *phdr) {
 	if (checkAtoD (phdr, wf3, &missing, &nsteps))
 	    return (status);
 
-	if (checkBlev (phdr, wf3, &missing, &nsteps))	/* no reference file */
+	if (checkBlev (phdr, wf3, &nsteps))	/* no reference file */
 	    return (status);
 
 	if (checkCCD (phdr, wf3, &missing))
@@ -256,7 +256,7 @@ int *nsteps      io: incremented if this step can be performed
 }
 
 
-static int checkBlev (Hdr *phdr, WF3Info *wf3, int *missing, int *nsteps) {
+static int checkBlev (Hdr *phdr, WF3Info *wf3, int *nsteps) {
 
 /* arguments:
 Hdr *phdr         i: primary header
@@ -477,4 +477,3 @@ int *nsteps      io: incremented if this step can be performed
 
 	return (status);
 }
-
