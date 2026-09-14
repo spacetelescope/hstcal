@@ -11,12 +11,18 @@
 
 static int CheckX1D (Hdr *, StisInfo6 *, int *);
 static int CheckOptimal (Hdr *, StisInfo6 *);
+/*
 static int CheckBack (Hdr *, StisInfo6 *);
+*/
 static int CheckDisp (Hdr *, StisInfo6 *, int *);
 static int CheckFlux (Hdr *, StisInfo6 *, int *);
+/*
 static int CheckHelio (Hdr *, StisInfo6 *);
+*/
 static int CheckSmGeo (Hdr *, StisInfo6 *, int *);
+/*
 static int CheckWave (Hdr *, StisInfo6 *);
+*/
 
 /*
    Get calibration flag values and names of reference images and tables
@@ -74,15 +80,18 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
             return (status);
 
         /* Check remaining calibration switches and reference files. */
-
+        /*
         if ((status = CheckBack (phdr, sts)))
             return (status);
+        */
 
         if ((status = CheckDisp (phdr, sts, &missing)))
             return (status);
 
+        /*
         if ((status = CheckHelio (phdr, sts)))
             return (status);
+        */
 
         if (sts->dispcorr != PERFORM && sts->heliocorr == PERFORM) {
             trlerror("No wavelengths - cannot apply heliocentric correction.");
@@ -103,13 +112,14 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
                 return (status);
         }
 
-        if ((status = CheckWave (phdr, sts)))             /* just check flag */
+    /*
+        if ((status = CheckWave (phdr, sts))) // just check flag
             return (status);
+    */
 
         if (missing)
             return (CAL_FILE_MISSING);
-        else
-            return (0);
+        return (0);
 }
 
 
@@ -209,29 +219,25 @@ int *missing    io: incremented if the file is missing
 }
 
 
-
 /* Check whether we should extract and subtract the background. No need
    to check for the spectrum extraction table, since this step can be
    performed only if the spectrum itself is being extracted, and both
    steps share the same reference table.
 */
-
+/*
 static int CheckBack (Hdr *phdr, StisInfo6 *sts) {
 
-/* arguments:
-Hdr *phdr       i: primary header
-StisInfo6 *sts  i: switches, file names, etc
-*/
-        /*
+// arguments:
+//Hdr *phdr       i: primary header
+//StisInfo6 *sts  i: switches, file names, etc
+
         if (sts->pipeline) {
             if ((status = GetSwitch (phdr, "BACKCORR", &sts->backcorr)))
                 return (status);
         }
-        */
-
-        return (0);
+    return (0);
 }
-
+*/
 
 
 /* Check whether we should generate the wavelength array.  If so,
@@ -272,7 +278,6 @@ int *missing    io: incremented if the table is missing
 
         return (0);
 }
-
 
 
 /* Check whether we should convert to absolute flux units.  If so,
@@ -353,30 +358,25 @@ int *missing    io: incremented if the table is missing
 }
 
 
-
 /* Check whether this step is to be performed.  There is no associated
    reference file.
 */
-
+/*
 static int CheckHelio (Hdr *phdr, StisInfo6 *sts) {
 
-/* arguments:
-Hdr *phdr       i: primary header
-StisInfo6 *sts  i: switches, file names, etc
-*/
-    /*
-        int status;
+// arguments:
+//Hdr *phdr       i: primary header
+//StisInfo6 *sts  i: switches, file names, etc
 
+        int status;
 
         if (sts->pipeline) {
             if ((status = GetSwitch (phdr, "HELCORR", &sts->heliocorr)))
                 return (status);
         }
-    */
-
-        return (0);
+    return (0);
 }
-
+*/
 
 
 /* If this step is to be performed, check for the existence of the
@@ -428,22 +428,18 @@ int *missing    io: incremented if the file is missing
 }
 
 
-
 /* Check whether the wavecal has been used to update the coordinates. */
-
+/*
 static int CheckWave (Hdr *phdr, StisInfo6 *sts) {
 
-/* arguments:
-Hdr *phdr       i: primary header
-StisInfo6 *sts  i: switches, file names, etc
-*/
+// arguments:
+//Hdr *phdr       i: primary header
+//StisInfo6 *sts  i: switches, file names, etc
 
-        /*
         if (sts->pipeline) {
             if ((status = GetSwitch (phdr, "WAVECORR", &sts->wavecorr)))
                 return (status);
         }
-        */
-
-        return (0);
+    return (0);
 }
+*/

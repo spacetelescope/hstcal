@@ -11,15 +11,12 @@
 static void RemoveBlanks (char *, char *);
 static double WaveToPix (double, RowContents *);
 
-/* 
+/*
    Translates a range string into a rejection flag array.
 
    This is used by the profile generator to reject wavelength ranges
    in the input image. This function presumes the necessary arrays
    were previously allocated and initialized elsewhere.
-
-
-
 
    Revision history:
    ----------------
@@ -95,11 +92,8 @@ void SetRanges (StisInfo6 *sts, RowContents *row) {
 /*  Removes embedded blanks. */
 
 static void RemoveBlanks (char *in, char *out) {
-
-	int i, k;
-
-	k = 0;
-	for (i = 0; i < strlen (in); i++) {
+	size_t k = 0;
+	for (size_t i = 0; i < strlen (in); i++) {
 	    if (in[i] != ' ')
 	        out[k++] = in[i];
 	}
@@ -112,7 +106,6 @@ static void RemoveBlanks (char *in, char *out) {
 
 static double WaveToPix (double wave, RowContents *row) {
 
-	return ((wave - row->wave[0]) / 
+	return ((wave - row->wave[0]) /
                 (row->wave[row->npts-1] - row->wave[0]) * row->npts);
 }
-
