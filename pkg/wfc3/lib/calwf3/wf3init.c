@@ -91,7 +91,7 @@ RefFileInfo *sciref o: reference file name and info
         if (missing == 1) {
             trlerror("One reference file was missing.");
         } else {
-             trlerror("%d reference files were missing.", missing);
+            trlerror("%d reference files were missing.", missing);
         }
         return (status = CAL_FILE_MISSING);
     }
