@@ -371,7 +371,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* GET DATE SERIAL CTE BECAME RELEVANT */
     pars->cte_date0 = c_tbhgtd(tbl_ptr, "CTEDATE0");
-    if (status = c_iraferr()) {
+    if ((status = c_iraferr())) {
         trlerror("(pctecorr) Error reading CTEDATE0 from extension %d.", extn);
         c_tbtclo(tbl_ptr);
         return status;
@@ -380,7 +380,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* GET REFERENCE DATE OF CTE MODEL PINNING */
     pars->cte_date1 = c_tbhgtd(tbl_ptr, "CTEDATE1");
-    if (status = c_iraferr()) {
+    if ((status = c_iraferr())) {
         trlerror("(pctecorr) Error reading CTEDATE1 from extension %d.", extn);
         c_tbtclo(tbl_ptr);
         return status;
@@ -389,7 +389,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* READ MAX LENGTH OF CTE TRAIL */
     pars->cte_len = c_tbhgti(tbl_ptr, "PCTETLEN");
-    if (status = c_iraferr()) {
+    if ((status = c_iraferr())) {
         trlerror("(pctecorr) Error reading PCTETLEN from extension %d.", extn);
         c_tbtclo(tbl_ptr);
         return status;
@@ -398,7 +398,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* GET NUMBER OF ITERATIONS USED IN FORWARD MODEL */
     pars->n_forward = c_tbhgti(tbl_ptr, "PCTENFOR");
-    if (status = c_iraferr()) {
+    if ((status = c_iraferr())) {
         trlerror("(pctecorr) Error reading PCTENFOR from extension %d.", extn);
         c_tbtclo(tbl_ptr);
         return status;
@@ -407,7 +407,7 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
 
     /* GET NUMBER OF ITERATIONS USED IN TRANSFER */
     pars->n_par = c_tbhgti(tbl_ptr, "PCTENPAR");
-    if (status = c_iraferr()) {
+    if ((status = c_iraferr())) {
         trlerror("(pctecorr) Error reading PCTENPAR from extension %d.", extn);
         c_tbtclo(tbl_ptr);
         return status;
@@ -471,8 +471,8 @@ No.    Name      Ver    Type      Cards   Dimensions   Format
             status = TABLE_ERROR;
             return status;
         }
-        if (ctraps > pars->nTraps){
-            trlmessage("More TRAPS in reference file than available, update TRAPS: %i -> %i",pars->nTraps,(int)ctraps);
+        if (ctraps > (int) pars->nTraps){
+            trlmessage("More TRAPS in reference file than available, update TRAPS: %i -> %i",pars->nTraps,ctraps);
         }
     }}
 
