@@ -42,16 +42,14 @@ static void ComputeGaussian (double, int, float *);
 */
 
 int DefineBackRegions (StisInfo6 *sts, SpTrace *trc, CoordInfo *coord,
-                       SingleGroup *in, FloatHdrData *ssgx,
-                       FloatHdrData *ssgy, int *ilow_end, int *ihigh_end) {
+                       SingleGroup *in,
+                       int *ilow_end, int *ihigh_end) {
 
 /* arguments:
 StisInfo6 *sts      io: calibration switches and info
 SpTrace *trc;       i:  full list of spectrum traces
 CoordInfo *coord;   i:  rectified image size information
 SingleGroup *in	    i:  input image
-FloatHdrData ssgx;  i:  small-scale distortion in X (not used)
-FloatHdrData ssgy;  i:  small-scale distortion in Y (not used)
 int *ilow_end;	    o:  pointers in image array to the subimage
 int *ihigh_end;	        that maps into the convolution buffer
 */
@@ -328,9 +326,9 @@ int *ihigh_end;	        that maps into the convolution buffer
 	                if (!(DQPix (in->dq.data, l, j) & sts->sdqflags))
 	                    buffers[jpix][i] += Pix(in->sci.data, l, j) *
                                                 kernel[k];
-	                    buffere[jpix][i] += Pix(in->err.data, l, j) *
-                                                Pix(in->err.data, l, j) *
-                                                kernel[k];
+	                buffere[jpix][i] += Pix(in->err.data, l, j) *
+                                            Pix(in->err.data, l, j) *
+                                            kernel[k];
 	            }
 	        }
 	    }
