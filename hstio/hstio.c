@@ -239,11 +239,11 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
     const bool usingExtName = setContainsExtName && *setContainsExtName != '\0' ? true : false;
     const char * key = usingExtName ? "EXTNAME" : "EXTVER";
 
-    int encounteredList[hduNum]; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
-    unsigned encounteredListCursor = 0; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
+    // in hduList]))
     // open each HDU and count
-    {unsigned i;
-    for (i = 1; i <= hduNum; ++i) // HDUs are 1 based
+    int encounteredListCursor = 0;
+    int encounteredList[hduNum];
+    for (int i = 1; i <= hduNum; ++i) // HDUs are 1 based
     {
         int loopStatus = HSTCAL_OK; // decl here to auto reset
         int extHDUType = ANY_HDU; // This is populated by fits_movabs_hdu() but init anyhow
@@ -280,9 +280,8 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
             fits_compare_str(setContainsExtName, keyValue, caseSensitive, &match, &exact);
             if (match || exact)
                 (*total)++;
-        }
-        else
-        {
+            }
+        } else {
             // (python) nimsets = len(set([hdu.ver for hdu in hduList]))
             int extVer = atoi(keyValue);
             bool alreadyCounted = false;
