@@ -1,0 +1,19 @@
+ci:
+  autofix_prs: false
+  autoupdate_schedule: monthly
+
+repos:
+  # basic checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: detect-private-key
+  # C style
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v23.1.0
+    hooks:
+      - id: clang-format
+        types_or: [c, h]
+        # TODO: Eventually we want to enable for the entire repo
+        files: "^tests/"
