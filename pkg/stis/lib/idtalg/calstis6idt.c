@@ -166,9 +166,9 @@ int bks_order;		i: backgr. smoothing polynomial order
 	float **im_mod2;
 	float **im_mod3;
 	float **o_mod;			/* model image without scattering */
-	float **o_mod1;
-	float **o_mod2;
-	float **o_mod3;
+	float **o_mod1=NULL;
+	float **o_mod2=NULL;
+	float **o_mod3=NULL;
 	double *scale_lsf;		/* scattering function for curr. order*/
 	double *scale_lsf1;		/* above with clipped peak */
 	double *scale_lsf2;		/* and wings only */
