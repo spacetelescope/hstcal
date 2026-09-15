@@ -376,7 +376,6 @@ static int square_test_case_derot(int amp_id) {
     return test_status;
 }
 
-
 int main() {
     int i, test_status = 0;
 
