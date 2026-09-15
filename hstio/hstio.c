@@ -287,15 +287,14 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
             int extVer = atoi(keyValue);
             bool alreadyCounted = false;
             // Ugly, but list size should be small so who cares
-            {unsigned j;
-            for (j = 0; j < encounteredListCursor; ++j)
             {
-                if (extVer == encounteredList[j])
-                {
-                    alreadyCounted = true;
-                    break;
+                for (int j = 0; j < encounteredListCursor; ++j) {
+                    if (extVer == encounteredList[j]) {
+                        alreadyCounted = true;
+                        break;
+                    }
                 }
-            }}
+            }
             // Add to list and inc. total
             if (!alreadyCounted)
             {
@@ -303,7 +302,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
                 (*total)++;
             }
         }
-    }}
+    }
 
     fits_close_file(fptr, &tmpStatus);
     return HSTCAL_OK;
@@ -544,18 +543,15 @@ int swapFloatStorageOrder(FloatTwoDArray * target, const FloatTwoDArray * source
     const unsigned nRows = target->ny;
     const unsigned nCols = target->nx;
 
-    {unsigned j;
-    for (j = 0; j < nCols; ++j)
-    {
-        {unsigned i;
-        for (i = 0; i < nRows; ++i)
-        {
-            if (targetStorageOrder == COLUMNMAJOR)
-                target->data[j*nRows + i] = source->data[i*nCols + j];
-            else
-                target->data[i*nCols + j] = source->data[j*nRows + i];
-        }}
-    }}
+    for (unsigned j = 0; j < nCols; ++j) {
+        for (unsigned i = 0; i < nRows; ++i) {
+            if (targetStorageOrder == COLUMNMAJOR) {
+                target->data[j * nRows + i] = source->data[i * nCols + j];
+            } else {
+                target->data[i * nCols + j] = source->data[j * nRows + i];
+            }
+        }
+    }
     return 0;
 }
 
