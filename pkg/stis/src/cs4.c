@@ -51,7 +51,7 @@ static void printHelp(void)
 
 int main (int argc, char **argv) {
 
-	int status;		/* zero is OK */
+	int status=0;		/* zero is OK */
 
 	char *inlist;		/* list of input file names */
 	char *dbglist;		/* list of files for debug output */
@@ -70,7 +70,6 @@ int main (int argc, char **argv) {
 	char *dbgfile;		/* name of file for debug output */
 	int n_in, n_dbg;	/* number of names in lists */
 	int n;
-	int junk;
 
 	/* reference file keywords and names */
 	RefFileInfo refnames;
@@ -193,9 +192,9 @@ int main (int argc, char **argv) {
 	/* Loop over the list of input files. */
 	for (n = 0;  n < n_in;  n++) {
 
-	    junk = c_imtgetim (i_imt, input, STIS_LINE);
+	    c_imtgetim (i_imt, input, STIS_LINE);
 	    if (n_dbg > 0)
-		junk = c_imtgetim (d_imt, dbgfile, STIS_LINE);
+		c_imtgetim (d_imt, dbgfile, STIS_LINE);
 	    else
 		dbgfile[0] = '\0';
 

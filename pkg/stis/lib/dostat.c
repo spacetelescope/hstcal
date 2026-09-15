@@ -38,11 +38,11 @@ short sdqflags    i: "serious" data quality flags
 	int status;
 
 	double value;			/* current data value */
-	double valsum, valmin, valmax;
+	double valsum, valmin=99999.9, valmax=0.0;
 	double stddev;			/* current error estimate */
-	double errsum, errmin, errmax;
+	double errsum, errmin=99999.9, errmax=0.0;
 	double snr;			/* current signal-to-noise ratio */
-	double snrsum, snrmin, snrmax;
+	double snrsum, snrmin=99999.9, snrmax=0.0;
 	int numgood;			/* number of good pixels */
 	int num_bad_stddev;		/* number of pixels with err = 0 */
 	int area;			/* total number of pixels */

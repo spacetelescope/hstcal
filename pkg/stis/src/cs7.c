@@ -64,7 +64,7 @@ static void printHelp(void)
 
 int main (int argc, char **argv) {
 
-	int status;		/* zero is OK */
+	int status=0;		/* zero is OK */
 	char *inlist;		/* list of input file names */
 	char *outlist;		/* list of output file names */
 	int switch_on = 0;	/* was any switch specified? */
