@@ -219,7 +219,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_sporder, cp_nelem, cp_scat;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i;
+        int row, nrows;
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
@@ -260,9 +260,9 @@ ScatterFunctions *scf;  o: data structure with scattering functions
                 scf->scfunc[(scf->nsc)].values = (double *) calloc (
                                                  scf->scfunc[(scf->nsc)].nelem,
                                                  sizeof (double));
-                i = c_tbagtd (tp, cp_scat, row,
-                                           scf->scfunc[(scf->nsc)].values, 1,
-                                           scf->scfunc[(scf->nsc)].nelem);
+                c_tbagtd (tp, cp_scat, row,
+                    scf->scfunc[(scf->nsc)].values, 1,
+                    scf->scfunc[(scf->nsc)].nelem);
                 if (c_iraferr())
                     return (TABLE_ERROR);
 
@@ -500,7 +500,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_nelem, cp_exscat;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i;
+        int row, nrows;
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
@@ -524,7 +524,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
                 scf->spsf = (float *) calloc (scf->nspsf, sizeof (float));
                 if (scf->spsf == NULL )
                     return (OUT_OF_MEMORY);
-                i = c_tbagtr (tp, cp_exscat, row, scf->spsf, 1, scf->nspsf);
+                c_tbagtr (tp, cp_exscat, row, scf->spsf, 1, scf->nspsf);
                 if (c_iraferr())
                     return (TABLE_ERROR);
                 c_tbtclo (tp);
@@ -553,7 +553,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_nelem, cp_cdscat;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i;
+        int row, nrows;
 
         tp = c_tbtopn (name, IRAF_READ_ONLY, 0);
         if (c_iraferr()) {
@@ -577,7 +577,7 @@ ScatterFunctions *scf;  o: data structure with scattering functions
                 scf->xdisp = (float *) calloc (scf->nxdisp, sizeof (float));
                 if (scf->xdisp == NULL )
                     return (OUT_OF_MEMORY);
-                i = c_tbagtr (tp, cp_cdscat, row, scf->xdisp, 1, scf->nxdisp);
+                c_tbagtr (tp, cp_cdscat, row, scf->xdisp, 1, scf->nxdisp);
                 if (c_iraferr())
                     return (TABLE_ERROR);
                 c_tbtclo (tp);
@@ -609,7 +609,7 @@ Image *halo1,2,3;       o: halo images, previously initialized
         IRAFPointer tp;
         IRAFPointer cp_optelem, cp_refwave, cp_haldim, cp_halo;
         char opt_elem[STIS_CBUF];
-        int row, nrows, i, status, k, haldim;
+        int row, nrows, status, k, haldim;
         double rw;
 
         int Alloc2DImage (Image *, int, int);
@@ -652,21 +652,21 @@ Image *halo1,2,3;       o: halo images, previously initialized
                 case 0:
                     if ((status = Alloc2DImage (halo1, haldim, haldim)))
                         return (status);
-                    i = c_tbagtr (tp, cp_halo, row, halo1->pix, 1, halo1->npix);
+                    c_tbagtr (tp, cp_halo, row, halo1->pix, 1, halo1->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
                 case 1:
                     if ((status = Alloc2DImage (halo2, haldim, haldim)))
                         return (status);
-                    i = c_tbagtr (tp, cp_halo, row, halo2->pix, 1, halo2->npix);
+                    c_tbagtr (tp, cp_halo, row, halo2->pix, 1, halo2->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
                 case 2:
                     if ((status = Alloc2DImage (halo3, haldim, haldim)))
                         return (status);
-                    i = c_tbagtr (tp, cp_halo, row, halo3->pix, 1, halo3->npix);
+                    c_tbagtr (tp, cp_halo, row, halo3->pix, 1, halo3->npix);
                     if (c_iraferr())
                         return (TABLE_ERROR);
                     break;
@@ -716,7 +716,7 @@ Image *psf1,2,3;        o: PSF images, previously initialized
         double frac1, frac2;
         float fhold;
         double sum;
-        int i, j, k, kk, ms, ml, ns, nl, s, l;
+        int i, j, k, kk, ms, ml, ns, nl, s=0, l=0;
         int ns2, nl2, s1, s2, l1, l2;
         int istart, istop;
         int status;
