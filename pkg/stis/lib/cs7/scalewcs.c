@@ -37,7 +37,7 @@ CoordInfo *coord_o  io: size and coordinate info for output
 
 	double temp[2];
 	int fullbinned[2];	/* binned size of a full frame image */
-	double plate_scale;	/* before scaling according to binning */
+	double plate_scale=0.0;	/* before scaling according to binning */
 
 	/* Reduce the output image size by a factor if the input is binned. */
 	temp[0] = (double)coord_o->npix[0] * sts->ltm[0];

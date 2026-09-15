@@ -145,9 +145,9 @@ StisInfo7 *sts    i: calibration switches and info
 	int minorder, maxorder;	/* min & max spectral order */
 	int disp_type;		/* grating or prism ? */
 	int mref;		/* MSM/blaze correction reference order */
-	double ypos;		/* MSM/blaze correction reference position */
-	double wpos;		/* MSM/blaze correction reference wavelength */
-	double ddisp;		/* MSM/blaze correction reference dispersion*/
+	double ypos=0.0;	/* MSM/blaze correction reference position */
+	double wpos=0.0;	/* MSM/blaze correction reference wavelength */
+	double ddisp=0.0;	/* MSM/blaze correction reference dispersion*/
 	int i;
 	double blazeshift;	/* MSM/blaze shift from command line */
 	double delta;
