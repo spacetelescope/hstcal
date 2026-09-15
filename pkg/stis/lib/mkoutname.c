@@ -187,7 +187,7 @@ static int strcatN (char *outstr, char *instr, int maxch) {
 
 	int status;
 
-	if (strlen (instr) + strlen (outstr) > maxch) {
+	if ((int) (strlen (instr) + strlen (outstr)) > maxch) {
 	    trlerror("(MkOutName) strings are too long:");
 	    trlerror("`%s' + `%s'", outstr, instr);
 	    status = 2011;
