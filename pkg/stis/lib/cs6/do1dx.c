@@ -228,7 +228,7 @@ StisInfo6 *sts    i: calibration switches and info
                                SingleGroup *,
                                int *, int *);
 	void FindLya (StisInfo6 *, SingleGroup *, ApInfo *, double *,
-                      int, int *, int *, int *, int *);
+                      int *, int *, int *, int *);
 	void FreeDisp6 (DispRelation **);
 	void FreeInang6 (InangInfo *);
 	void FreeIntensity (IntensArray *);
@@ -944,7 +944,7 @@ StisInfo6 *sts    i: calibration switches and info
 	            /* If 1st order, look for geocoronal Lya. */
 	            if (minorder == maxorder) {
 	                FindLya (sts, &in, &slit,
-	                        row_contents.wave, row_contents.npts,
+	                        row_contents.wave,
 	                        &(sts->avoid1a), &(sts->avoid2a),
 	                        &(sts->avoid1b), &(sts->avoid2b));
 	            } else {
