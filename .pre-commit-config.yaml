@@ -14,6 +14,6 @@ repos:
     rev: v23.1.0
     hooks:
       - id: clang-format
+        types_or: [c]
         # TODO: Eventually we want to enable for the entire repo
-        #types_or: [c]
-        files: "^tests/"
+        files: "^ctests/"
