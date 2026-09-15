@@ -62,7 +62,7 @@ static int FindPixel (double, double *);
 */
 
 void FindLya (StisInfo6 *sts, SingleGroup *in, ApInfo *slit,
-              double *wave, int size,
+              double *wave,
               int *avoid1a, int *avoid2a,
               int *avoid1b, int *avoid2b) {
 
