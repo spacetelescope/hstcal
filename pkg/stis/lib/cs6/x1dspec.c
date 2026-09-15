@@ -824,7 +824,7 @@ static void CleanPixels (StisInfo6 *sts, SingleGroup *in, int ipix,
 
 /* arguments:
 StisInfo6 *sts         i:  calibration switches and info
-SingleGroup *in	       i:  input image(
+SingleGroup *in	       i:  input image
 int ipix;              i:  image column
 int j1, j2;            i:  extreme indices in physical image units
 double *iprofile;      i:  interpolated profile for optimal extraction
