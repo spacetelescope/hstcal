@@ -103,18 +103,11 @@ static int rectangle_test_case_transpose() {
     int truth_nx = ny;
     int truth_ny = nx;
     float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
-    truth[0] = 0;
-    truth[1] = 3;
-    truth[2] = 6;
-    truth[3] = 9;
-    truth[4] = 1;
-    truth[5] = 4;
-    truth[6] = 7;
-    truth[7] = 10;
-    truth[8] = 2;
-    truth[9] = 5;
-    truth[10] = 8;
-    truth[11] = 11;
+    // clang-format off
+    truth[0] = 0; truth[1] = 3; truth[2] = 6; truth[3] = 9;
+    truth[4] = 1; truth[5] = 4; truth[6] = 7; truth[7] = 10;
+    truth[8] = 2; truth[9] = 5; truth[10] = 8; truth[11] = 11;
+    // clang-format on
 
     test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
     free(truth);
@@ -159,31 +152,17 @@ static int rectangle_test_case_rot(int amp_id) {
     int truth_ny = nx;
     float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
     if (amp_id == AMP_B || amp_id == AMP_C) {
-        truth[0] = 9;
-        truth[1] = 6;
-        truth[2] = 3;
-        truth[3] = 0;
-        truth[4] = 10;
-        truth[5] = 7;
-        truth[6] = 4;
-        truth[7] = 1;
-        truth[8] = 11;
-        truth[9] = 8;
-        truth[10] = 5;
-        truth[11] = 2;
+        // clang-format off
+        truth[0] = 9; truth[1] = 6; truth[2] = 3; truth[3] = 0;
+        truth[4] = 10; truth[5] = 7; truth[6] = 4; truth[7] = 1;
+        truth[8] = 11; truth[9] = 8; truth[10] = 5; truth[11] = 2;
+        // clang-format on
     } else {
-        truth[0] = 2;
-        truth[1] = 5;
-        truth[2] = 8;
-        truth[3] = 11;
-        truth[4] = 1;
-        truth[5] = 4;
-        truth[6] = 7;
-        truth[7] = 10;
-        truth[8] = 0;
-        truth[9] = 3;
-        truth[10] = 6;
-        truth[11] = 9;
+        // clang-format off
+        truth[0] = 2; truth[1] = 5; truth[2] = 8; truth[3] = 11;
+        truth[4] = 1; truth[5] = 4; truth[6] = 7; truth[7] = 10;
+        truth[8] = 0; truth[9] = 3; truth[10] = 6; truth[11] = 9;
+        // clang-format on
     }
 
     test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
@@ -229,31 +208,17 @@ static int rectangle_test_case_derot(int amp_id) {
     int truth_ny = nx;
     float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
     if (amp_id == AMP_B || amp_id == AMP_C) {
-        truth[0] = 2;
-        truth[1] = 5;
-        truth[2] = 8;
-        truth[3] = 11;
-        truth[4] = 1;
-        truth[5] = 4;
-        truth[6] = 7;
-        truth[7] = 10;
-        truth[8] = 0;
-        truth[9] = 3;
-        truth[10] = 6;
-        truth[11] = 9;
+        // clang-format off
+        truth[0] = 2; truth[1] = 5; truth[2] = 8; truth[3] = 11;
+        truth[4] = 1; truth[5] = 4; truth[6] = 7; truth[7] = 10;
+        truth[8] = 0; truth[9] = 3; truth[10] = 6; truth[11] = 9;
+        // clang-format on
     } else {
-        truth[0] = 9;
-        truth[1] = 6;
-        truth[2] = 3;
-        truth[3] = 0;
-        truth[4] = 10;
-        truth[5] = 7;
-        truth[6] = 4;
-        truth[7] = 1;
-        truth[8] = 11;
-        truth[9] = 8;
-        truth[10] = 5;
-        truth[11] = 2;
+        // clang-format off
+        truth[0] = 9; truth[1] = 6; truth[2] = 3; truth[3] = 0;
+        truth[4] = 10; truth[5] = 7; truth[6] = 4; truth[7] = 1;
+        truth[8] = 11; truth[9] = 8; truth[10] = 5; truth[11] = 2;
+        // clang-format on
     }
 
     test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
@@ -289,15 +254,11 @@ static int square_test_case_transpose() {
     int truth_nx = nx;
     int truth_ny = nx;
     float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
-    truth[0] = 0;
-    truth[1] = 3;
-    truth[2] = 6;
-    truth[3] = 1;
-    truth[4] = 4;
-    truth[5] = 7;
-    truth[6] = 2;
-    truth[7] = 5;
-    truth[8] = 8;
+    // clang-format off
+    truth[0] = 0; truth[1] = 3; truth[2] = 6;
+    truth[3] = 1; truth[4] = 4; truth[5] = 7;
+    truth[6] = 2; truth[7] = 5; truth[8] = 8;
+    // clang-format on
 
     test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
     free(truth);
@@ -341,25 +302,17 @@ static int square_test_case_rot(int amp_id) {
     int truth_ny = nx;
     float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
     if (amp_id == AMP_B || amp_id == AMP_C) {
-        truth[0] = 6;
-        truth[1] = 3;
-        truth[2] = 0;
-        truth[3] = 7;
-        truth[4] = 4;
-        truth[5] = 1;
-        truth[6] = 8;
-        truth[7] = 5;
-        truth[8] = 2;
+        // clang-format off
+        truth[0] = 6; truth[1] = 3; truth[2] = 0;
+        truth[3] = 7; truth[4] = 4; truth[5] = 1;
+        truth[6] = 8; truth[7] = 5; truth[8] = 2;
+        // clang-format on
     } else {
-        truth[0] = 2;
-        truth[1] = 5;
-        truth[2] = 8;
-        truth[3] = 1;
-        truth[4] = 4;
-        truth[5] = 7;
-        truth[6] = 0;
-        truth[7] = 3;
-        truth[8] = 6;
+        // clang-format off
+        truth[0] = 2; truth[1] = 5; truth[2] = 8;
+        truth[3] = 1; truth[4] = 4; truth[5] = 7;
+        truth[6] = 0; truth[7] = 3; truth[8] = 6;
+        // clang-format on
     }
 
     test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
@@ -404,25 +357,17 @@ static int square_test_case_derot(int amp_id) {
     int truth_ny = nx;
     float *truth = malloc(sizeof(float) * truth_nx * truth_ny);
     if (amp_id == AMP_B || amp_id == AMP_C) {
-        truth[0] = 2;
-        truth[1] = 5;
-        truth[2] = 8;
-        truth[3] = 1;
-        truth[4] = 4;
-        truth[5] = 7;
-        truth[6] = 0;
-        truth[7] = 3;
-        truth[8] = 6;
+        // clang-format off
+        truth[0] = 2; truth[1] = 5; truth[2] = 8;
+        truth[3] = 1; truth[4] = 4; truth[5] = 7;
+        truth[6] = 0; truth[7] = 3; truth[8] = 6;
+        // clang-format on
     } else {
-        truth[0] = 6;
-        truth[1] = 3;
-        truth[2] = 0;
-        truth[3] = 7;
-        truth[4] = 4;
-        truth[5] = 1;
-        truth[6] = 8;
-        truth[7] = 5;
-        truth[8] = 2;
+        // clang-format off
+        truth[0] = 6; truth[1] = 3; truth[2] = 0;
+        truth[3] = 7; truth[4] = 4; truth[5] = 1;
+        truth[6] = 8; truth[7] = 5; truth[8] = 2;
+        // clang-format on
     }
 
     test_status = compare_arrays(&da, truth, truth_nx, truth_ny);
