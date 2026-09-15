@@ -83,7 +83,7 @@ int CalStis8 (char *input, char *output, int printtime, int verbose) {
 	IODescPtr im;		/* descriptor for input image */
 	Hdr phdr;		/* primary header for input image */
 	int *orders;		/* array of sporder for each input imset */
-	int minorder, maxorder;	/* range of sporder numbers */
+	int minorder=0, maxorder=0;	/* range of sporder numbers */
 
 	PrBegin (8);
 
@@ -405,13 +405,11 @@ static int SumOrder (StisInfo8 *sts, int *orders, int sporder, int oextver) {
 	initSingleGroup (&x);
 	initSingleGroup (&y);
 
-	if (sts->printtime) {
-	    if ((message = calloc (STIS_LINE+1, sizeof (char))) == NULL)
-		return (OUT_OF_MEMORY);
-	}
+    if ((message = calloc (STIS_LINE+1, sizeof (char))) == NULL)
+        return (OUT_OF_MEMORY);
 
 	/* Find and read the first image that has IMSET_OK = T. */
-	iextver = 0;
+    iextver = 0;
 	done = 0;
 	while (!done) {
 
