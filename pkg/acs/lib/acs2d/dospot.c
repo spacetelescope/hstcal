@@ -8,7 +8,6 @@
 int readSpotImage(char *spotname, SingleGroup *inspot, SingleGroupLine *spotline) {
 
     extern int status;
-    const int dimx = inspot->sci.data.nx;
 
     initSingleGroup (inspot);
 	/* Open the input image. */
@@ -16,6 +15,7 @@ int readSpotImage(char *spotname, SingleGroup *inspot, SingleGroupLine *spotline
 	if (hstio_err())
 	    return (status = OPEN_FAILED);
 
+    const int dimx = inspot->sci.data.nx;
     initSingleGroupLine(spotline);
     allocSingleGroupLine(spotline, dimx);
 
