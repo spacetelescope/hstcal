@@ -12,7 +12,7 @@
 # include "acs.h"	/* for message output */
 
 static int FindExtn (char *);
-static int strcatN (char *, char *, int);
+static int strcatN (char *, char *, size_t);
 
 /* This routine constructs the output file name based on the input name
    if the output name is null.  If output is not null but lacks a filename
@@ -195,11 +195,11 @@ static int FindExtn (char *fname) {
    their lengths is no longer than maxch.
 */
 
-static int strcatN (char *outstr, char *instr, int maxch) {
+static int strcatN (char *outstr, char *instr, size_t maxch) {
 
 	extern int status;
 
-	if ((int) (strlen(instr) + strlen(outstr)) > maxch) {
+	if (strlen(instr) + strlen(outstr) > maxch) {
 	    trlerror("(MkOutName) strings are too long:\n"
                      "`%s' + `%s'", outstr, instr);
 		status = INVALID_FILENAME;

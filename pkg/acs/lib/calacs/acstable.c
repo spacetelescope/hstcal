@@ -428,6 +428,7 @@ int GetAsnTable (AsnInfo *asn) {
     extern int status;
     /* Local variables */
     int i;                /* loop index */
+    size_t ii;
     int nrows;            /* number of rows in ASNTAB */
     int col, row;            /* loop indexes */
     IRAFPointer tp;            /* ASNTAB table pointer */
@@ -514,8 +515,8 @@ int GetAsnTable (AsnInfo *asn) {
              return (status = ELEMENT_NOT_FOUND);
          }
          /* Convert to lowercase for use as a file name */
-         for (i = 0; i < (int) strlen(exp[row].memname); i++)
-          exp[row].memname[i] = tolower(exp[row].memname[i]);
+         for (ii = 0; ii < strlen(exp[row].memname); ii++)
+          exp[row].memname[ii] = tolower(exp[row].memname[ii]);
 
          /* Get the TYPE in this row */
          c_tbegtt (tp, colptr[1], row+1, exp[row].mtype, ACS_CBUF);
@@ -531,9 +532,9 @@ int GetAsnTable (AsnInfo *asn) {
             user to correct the value.      3-Mar-99 WJH
         */
          lowcase (exp[row].type, exp[row].mtype);
-         for (i = 0; i < (int) strlen(exp[row].type); i++) {
-            if (exp[row].type[i] == UNDERLINE_CHAR) {
-                exp[row].type[i] = DASH_CHAR;
+         for (ii = 0; ii < strlen(exp[row].type); ii++) {
+            if (exp[row].type[ii] == UNDERLINE_CHAR) {
+                exp[row].type[ii] = DASH_CHAR;
                 trlwarn("MEMTYPE %s in row %d was INVALID and needs to be corrected.", exp[row].mtype,
                 row+1);
             }
