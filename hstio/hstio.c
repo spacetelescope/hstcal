@@ -1717,16 +1717,19 @@ int getSingleGroupLine(const char *filename, const int line, SingleGroupLine *x)
     return 0;
 }
 
-int putSingleGroupHdr(char *fname, SingleGroup *x, int option) {
-        IODescPtr out = NULL;
-        if (option == 0)
-            out = openOutputImage(fname,"",0,x->globalhdr,0,0,FITSBYTE);
-        else if (option & Overwrite)
-            out = openUpdateImage(fname,"",0,x->globalhdr);
-        if (hstio_err()) return -1;
-        closeImage(out);
-        clear_err();
-        return 0;
+int putSingleGroupHdr(char *filename, const SingleGroup *x, const int option) {
+    IODescPtr out = NULL;
+    if (option == 0) {
+        out = openOutputImage(filename, "", 0, x->globalhdr, 0, 0, FITSBYTE);
+    } else if (option & Overwrite) {
+        out = openUpdateImage(filename, "", 0, x->globalhdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(out);
+    clear_err();
+    return 0;
 }
 
 int putSingleGroup(char *fname, int ever, SingleGroup *x, int option) {
