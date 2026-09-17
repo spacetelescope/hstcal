@@ -1617,6 +1617,9 @@ int getFloatHdr(char *filename, const char *extname, const int extver, FloatHdrL
     clear_err();
     return 0;
 }
+int getShortHdr(char *filename, const char *extname, const int extver, ShortHdrLine *x) {
+    int no_dims = 0;
+    int retval = 0;
 
     x->iodesc = openInputImage(filename, extname, extver);
     if (hstio_err()) {
@@ -1624,22 +1627,28 @@ int getFloatHdr(char *filename, const char *extname, const int extver, FloatHdrL
     }
     getHeader(x->iodesc, &x->hdr);
 
-        /* determine dimensions for images which contain a constant value */
-        xio = (IODesc *)(x->iodesc);
-        if (fits_get_img_dim(xio->ff, &no_dims, &status)) {
-            ioerr(BADDIMS, xio, status);
+    /* determine dimensions for images which contain a constant value */
+    IODesc *xio = x->iodesc;
+    if (fits_get_img_dim(xio->ff, &no_dims, &retval)) {
+        ioerr(BADDIMS, xio, retval);
+        return -1;
+    }
+    if (no_dims == 0) {
+        FitsKw kw = findKw(xio->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADDIMS, xio, 0);
             return -1;
         }
-        if (no_dims == 0) {
-            kw = findKw(xio->hdr,"NPIX1");
-            if (kw == 0) { ioerr(BADDIMS,xio,0); return -1; }
-            dim1 = getIntKw(kw);
-            kw = findKw(xio->hdr,"NPIX2");
-            if (kw == 0) { ioerr(BADDIMS,xio,0); return -1; }
-            dim2 = getIntKw(kw);
-            xio->dims[0] = dim1;
-            xio->dims[1] = dim2;
+        const long dim1 = getIntKw(kw);
+        kw = findKw(xio->hdr, "NPIX2");
+        if (kw == 0) {
+            ioerr(BADDIMS, xio, 0);
+            return -1;
         }
+        const long dim2 = getIntKw(kw);
+        xio->dims[0] = dim1;
+        xio->dims[1] = dim2;
+    }
 
     if (hstio_err()) {
         return -1;
@@ -1647,92 +1656,44 @@ int getFloatHdr(char *filename, const char *extname, const int extver, FloatHdrL
     clear_err();
     return 0;
 }
-
-int getSci(char *fname, int ever, SciHdrData *x) {
-        return getFloatHD(fname,"SCI",ever,x); }
-int putSci(char *fname, int ever, SciHdrData *x, int option) {
-        return putFloatHD(fname,"SCI",ever,x,option); }
-int getErr(char *fname, int ever, ErrHdrData *x) {
-        return getFloatHD(fname,"ERR",ever,x); }
-int putErr(char *fname, int ever, ErrHdrData *x, int option) {
-        return putFloatHD(fname,"ERR",ever,x,option); }
-int getDQ(char *fname, int ever, DQHdrData *x) {
-        return getShortHD(fname,"DQ",ever,x); }
-int putDQ(char *fname, int ever, DQHdrData *x, int option) {
-        return putShortHD(fname,"DQ",ever,x,option); }
-int getSmpl(char *fname, int ever, SmplHdrData *x) {
-        return getShortHD(fname,"SAMP",ever,x); }
-int putSmpl(char *fname, int ever, SmplHdrData *x, int option) {
-        return putShortHD(fname,"SAMP",ever,x,option); }
-int getIntg(char *fname, int ever, IntgHdrData *x) {
-        return getFloatHD(fname,"TIME",ever,x); }
-int putIntg(char *fname, int ever, IntgHdrData *x, int option) {
-        return putFloatHD(fname,"TIME",ever,x,option); }
-
-/*                                                                      **
-** Routines to output a subsection of an image in memory to a disk file **
-** where the subsection is the full size (NAXIS1/NAXIS2) of the output  **
-** image.                                                               **
-**                                                                      */
-int putSciSect(char *fname, int ever, SciHdrData *x, int xbeg, int ybeg,
-               int xsize, int ysize, int option) {
-    return (putFloatHDSect(fname,"SCI",ever,x,xbeg,ybeg,xsize,ysize,option)); }
-
-int putErrSect(char *fname, int ever, ErrHdrData *x, int xbeg, int ybeg,
-               int xsize, int ysize, int option) {
-    return (putFloatHDSect(fname,"ERR",ever,x,xbeg,ybeg,xsize,ysize,option)); }
-
-int putDQSect(char *fname, int ever, DQHdrData *x, int xbeg, int ybeg,
-               int xsize, int ysize, int option) {
-    return (putShortHDSect(fname,"DQ",ever,x,xbeg,ybeg,xsize,ysize,option)); }
-
-int putSmplSect(char *fname, int ever, SmplHdrData *x, int xbeg, int ybeg,
-               int xsize, int ysize, int option) {
-    return (putShortHDSect(fname,"SAMP",ever,x,xbeg,ybeg,xsize,ysize,option)); }
-
-int putIntgSect(char *fname, int ever, IntgHdrData *x, int xbeg, int ybeg,
-               int xsize, int ysize, int option) {
-    return (putFloatHDSect(fname,"TIME",ever,x,xbeg,ybeg,xsize,ysize,option)); }
-
-/* Get just the header for the extension */
-int getSciHdr (char *fname, int ever, SciHdrLine *x) {
-        return getFloatHdr (fname,"SCI",ever,x); }
-int getErrHdr (char *fname, int ever, ErrHdrLine *x) {
-        return getFloatHdr (fname,"ERR",ever,x); }
-int getDQHdr(char *fname, int ever, DQHdrLine *x) {
-        return getShortHdr (fname,"DQ",ever,x); }
-
-/* Get just the data line for the extension */
-int getSciLine (SciHdrLine *x, int line_num) {
-        return (getFloatLine (x->iodesc, line_num, x->line));
-}
-int getErrLine (ErrHdrLine *x, int line_num) {
-        return (getFloatLine (x->iodesc, line_num, x->line));
-}
-int getDQLine (DQHdrLine *x, int line_num) {
-        return (getShortLine (x->iodesc, line_num, x->line));
-}
-
-int getSingleGroup(char *fname, int ever, SingleGroup *x) {
-        IODescPtr in;
-        in = openInputImage(fname,"",0); if (hstio_err()) return -1;
-        if (x->globalhdr != NULL)
-            free(x->globalhdr);
-        if (x->filename != NULL)
-            free(x->filename);
-        x->filename = (char *)calloc((strlen(fname) + 1),sizeof(char));
-        strcpy(x->filename,fname);
-        x->globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
-        if (x->globalhdr == NULL) return -1;
-        initHdr(x->globalhdr);
-        getHeader(in,x->globalhdr); if (hstio_err()) return -1;
-        closeImage(in);
-        x->group_num = ever;
-        getSci(fname,ever,&(x->sci)); if (hstio_err()) return -1;
-        getErr(fname,ever,&(x->err)); if (hstio_err()) return -1;
-        getDQ(fname,ever,&(x->dq)); if (hstio_err()) return -1;
-        clear_err();
-        return 0;
+int getSingleGroup(char *filename, const int extver, SingleGroup *x) {
+    IODescPtr in = openInputImage(filename, "", 0);
+    if (hstio_err()) {
+        return -1;
+    }
+    if (x->globalhdr != NULL) {
+        free(x->globalhdr);
+    }
+    if (x->filename != NULL) {
+        free(x->filename);
+    }
+    x->filename = (char *)calloc(strlen(filename) + 1, sizeof(char));
+    strcpy(x->filename, filename);
+    x->globalhdr = (Hdr *)calloc(1, sizeof(Hdr));
+    if (x->globalhdr == NULL) {
+        return -1;
+    }
+    initHdr(x->globalhdr);
+    getHeader(in, x->globalhdr);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(in);
+    x->group_num = extver;
+    getSci(filename, extver, &x->sci);
+    if (hstio_err()) {
+        return -1;
+    }
+    getErr(filename, extver, &x->err);
+    if (hstio_err()) {
+        return -1;
+    }
+    getDQ(filename, extver, &x->dq);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
 int getSingleGroupLine (char *fname, int line, SingleGroupLine  *x) {
