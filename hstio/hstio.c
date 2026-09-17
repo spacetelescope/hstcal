@@ -1696,16 +1696,25 @@ int getSingleGroup(char *filename, const int extver, SingleGroup *x) {
     return 0;
 }
 
-int getSingleGroupLine (char *fname, int line, SingleGroupLine  *x) {
-        x->line_num = line;
-        getSciLine(&(x->sci), line);
-        if (hstio_err()) return (-1);
-        getErrLine(&(x->err), line);
-        if (hstio_err()) return (-1);
-        getDQLine(&(x->dq), line);
-        if (hstio_err()) return (-1);
-        clear_err();
-        return (0);
+int getSingleGroupLine(const char *filename, const int line, SingleGroupLine *x) {
+    (void)filename;
+    // TODO: This function is called throughout hstcal with a filename
+    //       defined but it isn't used. Should it be?
+    x->line_num = line;
+    getSciLine(&x->sci, line);
+    if (hstio_err()) {
+        return -1;
+    }
+    getErrLine(&x->err, line);
+    if (hstio_err()) {
+        return -1;
+    }
+    getDQLine(&x->dq, line);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
 int putSingleGroupHdr(char *fname, SingleGroup *x, int option) {
