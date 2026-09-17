@@ -307,11 +307,13 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
     return HSTCAL_OK;
 }
 
-int push_hstioerr(HSTIOErrHandler x) {
-        if (errtop == (max_err_handlers - 1)) return -1;
-        ++errtop;
-        errhandler[errtop] = x;
-        return errtop + 1;
+int push_hstioerr(const HSTIOErrHandler x) {
+    if (errtop == max_err_handlers - 1) {
+        return -1;
+    }
+    ++errtop;
+    errhandler[errtop] = x;
+    return errtop + 1;
 }
 
 int pop_hstioerr(void) {
