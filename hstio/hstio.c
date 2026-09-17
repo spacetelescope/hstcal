@@ -664,27 +664,26 @@ void initFloatLine (FloatHdrLine *x) {
         x->tot_nx = 0;
 }
 
-int allocFloatLine (FloatHdrLine *x, int i) {
-# if defined (DEBUG)
-        printf("allocFloatLine-1: %x %d\n",
-                (int)(x->line),i);
-# endif
-        if (x->line == NULL || x->tot_nx != i) {
-            if (x->line != NULL)
-                free (x->line);
-            x->tot_nx = i;
-            x->line = (float *) calloc (x->tot_nx, sizeof(float));
-            if (x->line == NULL) {
-                initFloatLine (x);
-                error (NOMEM,"Allocating float line");
-                return (-1);
-            }
+int allocFloatLine(FloatHdrLine *x, const long i) {
+#if defined(DEBUG)
+    printf("allocFloatLine-1: %x %d\n", (int)(x->line), i);
+#endif
+    if (x->line == NULL || x->tot_nx != i) {
+        if (x->line != NULL) {
+            free(x->line);
         }
-# if defined (DEBUG)
-        printf("allocFloatLine-2: %x %d\n",
-                (int)(x->line),x->tot_nx);
-# endif
-        return (0);
+        x->tot_nx = i;
+        x->line = (float *)calloc(x->tot_nx, sizeof(float));
+        if (x->line == NULL) {
+            initFloatLine(x);
+            error(NOMEM, "Allocating float line");
+            return -1;
+        }
+    }
+#if defined(DEBUG)
+    printf("allocFloatLine-2: %x %d\n", (int)(x->line), x->tot_nx);
+#endif
+    return 0;
 }
 
 void freeFloatLine (FloatHdrLine *x) {
