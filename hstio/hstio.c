@@ -3556,88 +3556,88 @@ int getShortLine(IODescPtr iodesc_, int line, short *ptr) {
         return 0;
 }
 
-int putShortLine(IODescPtr iodesc_, int line, short *ptr) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        long fpixel[2];
-        long dims[2];
-        int no_dims;
-        FitsKw kw;
-        short val;
-        short* buffer;
-        long i, j;
-        int status = 0;
+int putShortLine(IODescPtr iodesc_, const int line, short *ptr) {
+    IODesc *iodesc = iodesc_;
+    long fpixel[2];
+    long dims[2];
+    int no_dims;
+    int retval = 0;
 
-        if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
-        if (iodesc->hflag) { iodesc->hflag = 0; putHeader(iodesc); }
+    if (iodesc->options == ReadOnly) {
+        ioerr(NOPUT, iodesc, 0);
+        return -1;
+    }
+    if (iodesc->hflag) {
+        iodesc->hflag = 0;
+        putHeader(iodesc);
+    }
 
-        /* If a constant array, convert to a non-constant array */
-        fits_get_img_dim(iodesc->ff, &no_dims, &status);
-        if (no_dims == 0) {
-            kw = findKw(iodesc->hdr,"NPIX1");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS, iodesc, 0);
-                return -1;
-            } else {
-                dims[0] = getIntKw(kw);
-                delKw(kw);
-            }
-
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS, iodesc, 0);
-                return -1;
-            } else {
-                dims[1] = getIntKw(kw);
-                delKw(kw);
-            }
-
-            kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS,iodesc,0);
-                return -1;
-            } else {
-                val = getIntKw(kw);
-                delKw(kw);
-            }
-
-            iodesc->dims[0] = dims[0];
-            iodesc->dims[1] = dims[1];
-            if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, dims, &status)) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
-
-            buffer = malloc(dims[0] * sizeof(short));
-            if (buffer == NULL) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
-
-            for (i = 0; i < dims[0]; ++i) {
-                buffer[i] = val;
-            }
-
-            /* Write the constant value into CFITSIO's array */
-
-            fpixel[0] = 1;
-            for (j = 0; j < dims[1]; ++j) {
-                fpixel[1] = j + 1;
-                if (fits_write_pix(iodesc->ff, TSHORT, fpixel, dims[0], buffer, &status)) {
-                    ioerr(BADWRITE, iodesc, status);
-                    free(buffer);
-                    return -1;
-                }
-            }
-
-            free(buffer);
+    /* If a constant array, convert to a non-constant array */
+    fits_get_img_dim(iodesc->ff, &no_dims, &retval);
+    if (no_dims == 0) {
+        FitsKw kw = findKw(iodesc->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
         }
+        dims[0] = getIntKw(kw);
+        delKw(kw);
 
-        fpixel[0] = 1;
-        fpixel[1] = line + 1;
-        if (fits_write_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0],
-                           ptr, &status)) {
-            ioerr(BADWRITE, iodesc, status);
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        dims[1] = getIntKw(kw);
+        delKw(kw);
+
+        kw = findKw(iodesc->hdr, "PIXVALUE");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        const short val = (short) getIntKw(kw); // TODO: UB warning
+        delKw(kw);
+
+        iodesc->dims[0] = dims[0];
+        iodesc->dims[1] = dims[1];
+        if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, dims, &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
             return -1;
         }
 
-        clear_err();
-        return 0;
+        short *buffer = malloc(dims[0] * sizeof(short));
+        if (buffer == NULL) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
+        }
+
+        for (long i = 0; i < dims[0]; ++i) {
+            buffer[i] = val;
+        }
+
+        /* Write the constant value into CFITSIO's array */
+
+        fpixel[0] = 1;
+        for (long j = 0; j < dims[1]; ++j) {
+            fpixel[1] = j + 1;
+            if (fits_write_pix(iodesc->ff, TSHORT, fpixel, dims[0], buffer, &retval)) {
+                ioerr(BADWRITE, iodesc, retval);
+                free(buffer);
+                return -1;
+            }
+        }
+
+        free(buffer);
+    }
+
+    fpixel[0] = 1;
+    fpixel[1] = line + 1;
+    if (fits_write_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], ptr, &retval)) {
+        ioerr(BADWRITE, iodesc, retval);
+        return -1;
+    }
+
+    clear_err();
+    return 0;
 }
