@@ -2092,33 +2092,33 @@ static char *make_iodesc(IODesc **x, const char *fname, const char *ename, const
     return filename_out;
 }
 
-IODescPtr openInputImage(char *fname, char *ename, int ever) {
-        IODesc *iodesc;
-        int no_dims;
-        char *tmp;
-        char ospath[SZ_PATHNAME];
-        int open_mode;
-        int status = 0;
+IODescPtr openInputImage(char *filename, const char *extname, const int extver) {
+    IODesc *iodesc;
+    int no_dims;
+    char ospath[SZ_PATHNAME];
+    int retval = 0;
 
-        /* CFITSIO: Error handling */
-        c_pusherr(detect_iraferr);
+    /* CFITSIO: Error handling */
+    c_pusherr(detect_iraferr);
 
-        tmp = make_iodesc(&iodesc, fname, ename, ever);
-        if (tmp == NULL) return NULL;
-        iodesc->options = ReadOnly;
+    char *tmp = make_iodesc(&iodesc, filename, extname, extver);
+    if (tmp == NULL) {
+        return NULL;
+    }
+    iodesc->options = ReadOnly;
 
-        /* CFITSIO: Resolve this inheritance stuff */
-        /* p = strstr(tmp,"[0]"); */
-        /* if (p == NULL) { */
-        /*     tmp[strlen(tmp) - 1] = '\0'; */
-        /*     strcat(tmp, ",NOINHERIT]"); */
-        /* } */
+    /* CFITSIO: Resolve this inheritance stuff */
+    /* p = strstr(tmp,"[0]"); */
+    /* if (p == NULL) { */
+    /*     tmp[strlen(tmp) - 1] = '\0'; */
+    /*     strcat(tmp, ",NOINHERIT]"); */
+    /* } */
 
-        /* open the file using CFITSIO */
-        if (c_vfn2osfn(fname, ospath)) {
-            free(tmp);
-            return NULL;
-        }
+    /* open the file using CFITSIO */
+    if (c_vfn2osfn(filename, ospath)) {
+        free(tmp);
+        return NULL;
+    }
 
         open_mode = READONLY;
 
@@ -2128,37 +2128,37 @@ IODescPtr openInputImage(char *fname, char *ename, int ever) {
         }
         free(tmp);
 
-        if (fits_open_file(&iodesc->ff, ospath, open_mode, &status)) {
-            ioerr(BADOPEN, iodesc, status);
-            free(iodesc->extname);
-            free(iodesc->filename);
-            free(iodesc);
-            return NULL;
-        }
+    if (fits_open_file(&iodesc->ff, ospath, open_mode, &retval)) {
+        ioerr(BADOPEN, iodesc, retval);
+        free(iodesc->extname);
+        free(iodesc->filename);
+        free(iodesc);
+        return NULL;
+    }
 
-        /* get the dimensions and type */
-        fits_get_img_dim(iodesc->ff, &no_dims, &status);
-        fits_get_img_equivtype(iodesc->ff, &iodesc->type, &status);
-        fits_get_img_size(iodesc->ff, 2, iodesc->dims, &status);
-        if (status) {
-            ioerr(BADDIMS, iodesc, status);
-            return NULL;
-        }
-        if (no_dims == 2) {
-            /* Nothing */
-        } else if (no_dims == 1) {
-            iodesc->dims[1] = 0;
-        } else if (no_dims == 0) {
-            iodesc->dims[0] = 0;
-            iodesc->dims[1] = 0;
-        } else {
-            ioerr(BADDIMS, iodesc, 0);
-            return NULL;
-        }
+    /* get the dimensions and type */
+    fits_get_img_dim(iodesc->ff, &no_dims, &retval);
+    fits_get_img_equivtype(iodesc->ff, &iodesc->type, &retval);
+    fits_get_img_size(iodesc->ff, 2, iodesc->dims, &retval);
+    if (retval) {
+        ioerr(BADDIMS, iodesc, retval);
+        return NULL;
+    }
+    if (no_dims == 2) {
+        /* Nothing */
+    } else if (no_dims == 1) {
+        iodesc->dims[1] = 0;
+    } else if (no_dims == 0) {
+        iodesc->dims[0] = 0;
+        iodesc->dims[1] = 0;
+    } else {
+        ioerr(BADDIMS, iodesc, 0);
+        return NULL;
+    }
 
-        clear_err();
+    clear_err();
 
-        return iodesc;
+    return iodesc;
 }
 
 IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
