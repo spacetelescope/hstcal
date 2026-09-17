@@ -928,10 +928,14 @@ void initFloatHdrLine (FloatHdrLine *x) {
         x->line   = NULL;
 }
 
-int allocFloatHdrLine (FloatHdrLine *x, int i) {
-        if (allocFloatLine (x, i)) return (-1);
-        if (allocHdr (&(x->hdr),HdrUnit, True)) return (-1);
-        return (0);
+int allocFloatHdrLine(FloatHdrLine *x, const int i) {
+    if (allocFloatLine(x, i)) {
+        return -1;
+    }
+    if (allocHdr(&x->hdr, HdrUnit, True)) {
+        return -1;
+    }
+    return 0;
 }
 
 void freeFloatHdrLine (FloatHdrLine *x) {
@@ -1004,25 +1008,25 @@ int allocSingleGroupHeader(Hdr ** hdr, Bool zeroInitialize)
     return HSTCAL_OK;
 }
 
-int allocSingleGroupExts(SingleGroup *x, int i, int j, unsigned extension, Bool zeroInitialize)
-{
-    if (allocSingleGroupHeader(&x->globalhdr, zeroInitialize))
+int allocSingleGroupExts(SingleGroup *x, const long i, const long j, const unsigned extension, const Bool zeroInitialize) {
+    if (allocSingleGroupHeader(&x->globalhdr, zeroInitialize)) {
         return ALLOCATION_PROBLEM;
+    }
 
-    if (extension & SCIEXT)
-    {
-        if (allocFloatHdrData(&(x->sci),i,j, zeroInitialize))
+    if (extension & SCIEXT) {
+        if (allocFloatHdrData(&x->sci, i, j, zeroInitialize)) {
             return ALLOCATION_PROBLEM;
+        }
     }
-    if (extension & ERREXT)
-    {
-        if (allocFloatHdrData(&(x->err),i,j, zeroInitialize))
+    if (extension & ERREXT) {
+        if (allocFloatHdrData(&x->err, i, j, zeroInitialize)) {
             return ALLOCATION_PROBLEM;
+        }
     }
-    if (extension & DQEXT)
-    {
-        if (allocShortHdrData(&(x->dq),i,j, zeroInitialize))
+    if (extension & DQEXT) {
+        if (allocShortHdrData(&x->dq, i, j, zeroInitialize)) {
             return ALLOCATION_PROBLEM;
+        }
     }
     return 0;
 }
