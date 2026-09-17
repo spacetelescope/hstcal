@@ -768,32 +768,31 @@ int allocHdr(Hdr *h, const long n, const Bool zeroInitialize) {
     return 0;
 }
 
-int reallocHdr(Hdr *h, int n) {
-        HdrArray *tmp;
-# if defined (DEBUG)
-        printf("reallocHdr-1: %x %d %d %x %d\n",
-                (int)h,h->nlines,h->nalloc,(int)(h->array),n);
-# endif
-        if (h->array == NULL || n <= h->nalloc) return -1;
-        tmp = (HdrArray *)calloc(n,sizeof(HdrArray));
-        if (tmp == NULL) {
-            error(NOMEM,"Re-llocating Hdr");
-            return -1;
-        }
-        h->nalloc = n;
-        free(h->array);
-        h->array = tmp;
-# if defined (DEBUG)
-        printf("reallocHdr-2: %x %d %d %x %d\n",
-                (int)h,h->nlines,h->nalloc,(int)(h->array),n);
-# endif
-        return 0;
+int reallocHdr(Hdr *h, const long n) {
+    HdrArray *tmp;
+#if defined(DEBUG)
+    printf("reallocHdr-1: %x %d %d %x %d\n", (int)h, h->nlines, h->nalloc, (int)(h->array), n);
+#endif
+    if (h->array == NULL || n <= h->nalloc) {
+        return -1;
+    }
     const size_t sz = sizeof(HdrArray);
     tmp = (HdrArray *)calloc(n, sz);
+    if (tmp == NULL) {
+        error(NOMEM, "Re-llocating Hdr");
+        return -1;
+    }
+    h->nalloc = n;
     for (long i = 0; i < h->nlines; ++i) {
         strncpy(tmp[i], h->array[i], sz - 1);
         tmp[i][sz - 1] = '\0';
     }
+    free(h->array);
+    h->array = tmp;
+#if defined(DEBUG)
+    printf("reallocHdr-2: %x %d %d %x %d\n", (int)h, h->nlines, h->nalloc, (int)(h->array), n);
+#endif
+    return 0;
 }
 
 void freeHdr(Hdr *h) {
