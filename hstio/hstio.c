@@ -740,32 +740,32 @@ void initHdr(Hdr *h) {
         h->array = NULL;
 }
 
-int allocHdr(Hdr *h, int n, Bool zeroInitialize) {
-# if defined (DEBUG)
-        printf("allocHdr-1: %x %d %d %x %d\n",
-                (int)h,h->nlines,h->nalloc,(int)(h->array),n);
-# endif
-        h->nlines = 0;
-        if (h->array == NULL || h->nalloc != n) {
-            if (h->array != NULL)
-                free(h->array);
-            h->nalloc = n;
-            if (zeroInitialize)
-                h->array = calloc(n,sizeof(*h->array));
-            else
-                h->array = malloc(n * sizeof(*h->array));
-
-            if (h->array == NULL) {
-                h->nalloc = 0;
-                error(NOMEM,"Allocating Hdr");
-                return -1;
-            }
+int allocHdr(Hdr *h, const long n, const Bool zeroInitialize) {
+#if defined(DEBUG)
+    printf("allocHdr-1: %x %d %d %x %d\n", (int)h, h->nlines, h->nalloc, (int)(h->array), n);
+#endif
+    h->nlines = 0;
+    if (h->array == NULL || h->nalloc != n) {
+        if (h->array != NULL) {
+            free(h->array);
         }
-# if defined (DEBUG)
-        printf("allocHdr-2: %x %d %d %x %d\n",
-                (int)h,h->nlines,h->nalloc,(int)(h->array),n);
-# endif
-        return 0;
+        h->nalloc = n;
+        if (zeroInitialize) {
+            h->array = calloc(n, sizeof(*h->array));
+        } else {
+            h->array = malloc(n * sizeof(*h->array));
+        }
+
+        if (h->array == NULL) {
+            h->nalloc = 0;
+            error(NOMEM, "Allocating Hdr");
+            return -1;
+        }
+    }
+#if defined(DEBUG)
+    printf("allocHdr-2: %x %d %d %x %d\n", (int)h, h->nlines, h->nalloc, (int)(h->array), n);
+#endif
+    return 0;
 }
 
 int reallocHdr(Hdr *h, int n) {
@@ -1310,25 +1310,28 @@ void freeSingleGroupLine (SingleGroupLine *x) {
 /*                                                                      **
 ** Allocate space for the lines of data from each extension of a Single **
 ** Group                                                                */
-int allocSciLine (SingleGroupLine *x) {
-    IODesc *xio;
-    xio = (IODesc *)(x->sci.iodesc);
-    if (allocFloatLine (&(x->sci), xio->dims[0])) return (-1);
-    return (0);
+int allocSciLine(SingleGroupLine *x) {
+    const IODesc *xio = (IODesc *)x->sci.iodesc;
+    if (allocFloatLine(&x->sci, xio->dims[0])) {
+        return -1;
+    }
+    return 0;
 }
 
-int allocErrLine (SingleGroupLine *x) {
-    IODesc *xio;
-    xio = (IODesc *)(x->err.iodesc);
-    if (allocFloatLine (&(x->err), xio->dims[0])) return (-1);
-    return (0);
+int allocErrLine(SingleGroupLine *x) {
+    const IODesc *xio = (IODesc *)x->err.iodesc;
+    if (allocFloatLine(&x->err, xio->dims[0])) {
+        return -1;
+    }
+    return 0;
 }
 
-int allocDQLine (SingleGroupLine *x) {
-    IODesc *xio;
-    xio = (IODesc *)(x->dq.iodesc);
-    if (allocShortLine (&(x->dq), xio->dims[0])) return (-1);
-    return (0);
+int allocDQLine(SingleGroupLine *x) {
+    const IODesc *xio = (IODesc *)x->dq.iodesc;
+    if (allocShortLine(&x->dq, xio->dims[0])) {
+        return -1;
+    }
+    return 0;
 }
 
 /*
@@ -1336,12 +1339,24 @@ int allocDQLine (SingleGroupLine *x) {
 ** Low-level I/O functions.
 */
 
-char *getFilename(IODescPtr p) { return ((IODesc *)p)->filename; }
-char *getExtname(IODescPtr p) { return ((IODesc *)p)->extname; }
-int getExtver(IODescPtr p) { return ((IODesc *)p)->extver; }
-int getNaxis1(IODescPtr p) { return ((IODesc *)p)->dims[0]; }
-int getNaxis2(IODescPtr p) { return ((IODesc *)p)->dims[1]; }
-int getType(IODescPtr p) { return ((IODesc *)p)->type; }
+char *getFilename(IODescPtr p) {
+    return ((IODesc *)p)->filename;
+}
+char *getExtname(IODescPtr p) {
+    return ((IODesc *)p)->extname;
+}
+int getExtver(IODescPtr p) {
+    return ((IODesc *)p)->extver;
+}
+long getNaxis1(IODescPtr p) {
+    return ((IODesc *)p)->dims[0];
+}
+long getNaxis2(IODescPtr p) {
+    return ((IODesc *)p)->dims[1];
+}
+int getType(IODescPtr p) {
+    return ((IODesc *)p)->type;
+}
 
 # include "c_iraf.h"
 
