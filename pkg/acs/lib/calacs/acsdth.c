@@ -165,7 +165,7 @@ void InitDthTrl (char *inlist, char *output) {
 	int  n, nfiles;
 
 	char *trl_in; 	/* trailer filename for input */
-	int  trl_len;
+	size_t trl_len;
 	char trl_out[CHAR_LINE_LENGTH+1]; 	/* output trailer filename */
   char input[CHAR_FNAME_LENGTH];  /* Name of image in list */
   char out_name[CHAR_FNAME_LENGTH];
@@ -205,7 +205,7 @@ void InitDthTrl (char *inlist, char *output) {
 			WhichError (status);
 		}
 
-    if ( (int) (strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
+    if (strlen(out_name) + strlen(trl_in) + 1 >= trl_len) {
       trl_len += CHAR_LINE_LENGTH;
       trl_in = realloc (trl_in, trl_len);
     }

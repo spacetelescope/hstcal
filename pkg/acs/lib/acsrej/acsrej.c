@@ -125,7 +125,7 @@ static void InitRejTrl (char *input, char *output) {
   char        in_name[CHAR_FNAME_LENGTH+1];
   char        out_name[CHAR_FNAME_LENGTH+1];
 
-  int         trl_len;
+  size_t      trl_len;
 
   char        isuffix[] = "_blv_tmp";
   char        osuffix[] = "_crj_tmp";
@@ -172,7 +172,7 @@ static void InitRejTrl (char *input, char *output) {
       continue;
     }
 
-    if ( (int) (strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
+    if (strlen(out_name) + strlen(trl_in) + 1 >= trl_len) {
       trl_len += strlen(out_name) * (nfiles - n);
       trl_in = realloc (trl_in, trl_len);
     }

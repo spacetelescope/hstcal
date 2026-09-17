@@ -610,7 +610,7 @@ void InitSumTrl (char *input, char *output) {
     char in_name[CHAR_FNAME_LENGTH+1];
     char out_name[CHAR_FNAME_LENGTH+1];
 
-    int trl_len;
+    size_t trl_len;
 
     char *isuffix[] = {"_crj", "_flt"};
     char *osuffix[] = {"_sfl", "_sfl"};
@@ -622,7 +622,7 @@ void InitSumTrl (char *input, char *output) {
     void WhichError (int);
 
     trl_in = realloc (NULL, (CHAR_LINE_LENGTH));
-    trl_len = CHAR_LINE_LENGTH;
+    trl_len = CHAR_LINE_LENGTH+1;
 
     if (trl_in == NULL) {
         trlerror ("Out of memory: Couldn't allocate for CRJ_TMP trailer file.");
@@ -654,7 +654,7 @@ void InitSumTrl (char *input, char *output) {
             WhichError (status);
         }
 
-        if ( (int) (strlen(out_name) + strlen(trl_in) + 1) >= trl_len) {
+        if (strlen(out_name) + strlen(trl_in) + 1 >= trl_len) {
             /*
                 Add 1 to out_name to account for comma to be appended.
                 WJH  4 June 2002
