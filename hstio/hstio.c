@@ -594,35 +594,35 @@ void initShortData(ShortTwoDArray *x) {
 # endif
 }
 
-int allocShortData(ShortTwoDArray *x, int i, int j, Bool zeroInitialize) {
-# if defined (DEBUG)
-        printf("allocShortData-1: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
-        if (x->buffer == NULL || x->buffer_size != (i * j)) {
-            if (x->buffer != NULL)
-                free(x->buffer);
-            x->buffer_size = i * j;
-            if (zeroInitialize)
-                x->buffer = calloc(x->buffer_size, sizeof(*x->buffer));
-            else
-                x->buffer = malloc(x->buffer_size * sizeof(*x->buffer));
-            if (x->buffer == NULL) {
-                initShortData(x);
-                error(NOMEM,"Allocating DQData");
-                return -1;
-            }
+int allocShortData(ShortTwoDArray *x, const long i, const long j, const Bool zeroInitialize) {
+#if defined(DEBUG)
+    printf("allocShortData-1: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
+    if (x->buffer == NULL || x->buffer_size != i * j) {
+        if (x->buffer != NULL) {
+            free(x->buffer);
         }
-        x->tot_nx = i;
-        x->tot_ny = j;
-        x->nx = x->tot_nx;
-        x->ny = x->tot_ny;
-        x->data = x->buffer;
-# if defined (DEBUG)
-        printf("allocShortData-2: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
-        return 0;
+        x->buffer_size = i * j;
+        if (zeroInitialize) {
+            x->buffer = calloc(x->buffer_size, sizeof(*x->buffer));
+        } else {
+            x->buffer = malloc(x->buffer_size * sizeof(*x->buffer));
+        }
+        if (x->buffer == NULL) {
+            initShortData(x);
+            error(NOMEM, "Allocating DQData");
+            return -1;
+        }
+    }
+    x->tot_nx = i;
+    x->tot_ny = j;
+    x->nx = x->tot_nx;
+    x->ny = x->tot_ny;
+    x->data = x->buffer;
+#if defined(DEBUG)
+    printf("allocShortData-2: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
+    return 0;
 }
 
 void freeShortData(ShortTwoDArray *x) {
