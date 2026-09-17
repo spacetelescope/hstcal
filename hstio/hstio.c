@@ -945,35 +945,38 @@ void initShortHdrLine (ShortHdrLine *x) {
         x->line   = NULL;
 }
 
-int allocShortHdrLine (ShortHdrLine *x, int i) {
-        if (allocShortLine (x, i)) return (-1);
-        if (allocHdr (&(x->hdr),HdrUnit, True)) return (-1);
-        return (0);
+int allocShortHdrLine(ShortHdrLine *x, const int i) {
+    if (allocShortLine(x, i)) {
+        return -1;
+    }
+    if (allocHdr(&x->hdr, HdrUnit, True)) {
+        return -1;
+    }
+    return 0;
 }
 
-void freeShortHdrLine (ShortHdrLine *x) {
-        if (x->line != NULL)
-            free(x->line);
-        freeHdr (&(x->hdr));
-        initShortHdrLine (x);
+void freeShortHdrLine(ShortHdrLine *x) {
+    if (x->line != NULL) {
+        free(x->line);
+    }
+    freeHdr(&x->hdr);
+    initShortHdrLine(x);
 }
 
 void initSingleGroup(SingleGroup *x) {
-        x->filename = NULL;
-        x->group_num = 0;
-        x->globalhdr = NULL;
-        initFloatHdrData(&(x->sci));
-        initShortHdrData(&(x->dq));
-        initFloatHdrData(&(x->err));
+    x->filename = NULL;
+    x->group_num = 0;
+    x->globalhdr = NULL;
+    initFloatHdrData(&x->sci);
+    initShortHdrData(&x->dq);
+    initFloatHdrData(&x->err);
 }
 
-int allocSingleGroup(SingleGroup *x, int i, int j, Bool zeroInitialize)
-{
-    if (allocSingleGroupHeader(&x->globalhdr, zeroInitialize) ||
-            allocFloatHdrData(&(x->sci),i,j, zeroInitialize)  ||
-            allocShortHdrData(&(x->dq),i,j, zeroInitialize)   ||
-            allocFloatHdrData(&(x->err),i,j, zeroInitialize))
+int allocSingleGroup(SingleGroup *x, const long i, const long j, const Bool zeroInitialize) {
+    if (allocSingleGroupHeader(&x->globalhdr, zeroInitialize) || allocFloatHdrData(&x->sci, i, j, zeroInitialize) ||
+        allocShortHdrData(&x->dq, i, j, zeroInitialize) || allocFloatHdrData(&x->err, i, j, zeroInitialize)) {
         return ALLOCATION_PROBLEM;
+    }
     return 0;
 }
 
