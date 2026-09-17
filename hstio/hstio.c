@@ -1578,47 +1578,51 @@ int putShortHDSect(char *fname, char *ename, int ever, ShortHdrData *x, int xbeg
         return 0;
 }
 
-int getFloatHdr (char *fname, char *ename, int ever, FloatHdrLine *x) {
-        IODesc *xio;
-        FitsKw kw;
-        int dim1, dim2, no_dims;
-        int status = 0;
+int getFloatHdr(char *filename, const char *extname, const int extver, FloatHdrLine *x) {
+    int no_dims = 0;
+    int retval = 0;
 
-        x->iodesc = openInputImage (fname,ename,ever);
-        if (hstio_err()) return (-1);
-        getHeader (x->iodesc,&(x->hdr));
+    x->iodesc = openInputImage(filename, extname, extver);
+    if (hstio_err()) {
+        return -1;
+    }
+    getHeader(x->iodesc, &x->hdr);
 
-        /* determine dimensions for images which contain a constant value */
-        xio = (IODesc *)(x->iodesc);
-        if (fits_get_img_dim(xio->ff, &no_dims, &status)) {
-            ioerr(BADDIMS, xio, status);
+    /* determine dimensions for images which contain a constant value */
+    IODesc *xio = x->iodesc;
+    if (fits_get_img_dim(xio->ff, &no_dims, &retval)) {
+        ioerr(BADDIMS, xio, retval);
+        return -1;
+    }
+    if (no_dims == 0) {
+        FitsKw kw = findKw(xio->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADDIMS, xio, 0);
             return -1;
         }
-        if (no_dims == 0) {
-            kw = findKw(xio->hdr,"NPIX1");
-            if (kw == 0) { ioerr(BADDIMS,xio,0); return -1; }
-            dim1 = getIntKw(kw);
-            kw = findKw(xio->hdr,"NPIX2");
-            if (kw == 0) { ioerr(BADDIMS,xio,0); return -1; }
-            dim2 = getIntKw(kw);
-            xio->dims[0] = dim1;
-            xio->dims[1] = dim2;
+        const long dim1 = getIntKw(kw);
+        kw = findKw(xio->hdr, "NPIX2");
+        if (kw == 0) {
+            ioerr(BADDIMS, xio, 0);
+            return -1;
         }
+        const long dim2 = getIntKw(kw);
+        xio->dims[0] = dim1;
+        xio->dims[1] = dim2;
+    }
 
-        if (hstio_err()) return (-1);
-        clear_err();
-        return (0);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
-int getShortHdr (char *fname, char *ename, int ever, ShortHdrLine *x) {
-        IODesc *xio;
-        FitsKw kw;
-        int dim1, dim2, no_dims;
-        int status = 0;
-
-        x->iodesc = openInputImage (fname,ename,ever);
-        if (hstio_err()) return (-1);
-        getHeader (x->iodesc,&(x->hdr));
+    x->iodesc = openInputImage(filename, extname, extver);
+    if (hstio_err()) {
+        return -1;
+    }
+    getHeader(x->iodesc, &x->hdr);
 
         /* determine dimensions for images which contain a constant value */
         xio = (IODesc *)(x->iodesc);
@@ -1637,9 +1641,11 @@ int getShortHdr (char *fname, char *ename, int ever, ShortHdrLine *x) {
             xio->dims[1] = dim2;
         }
 
-        if (hstio_err()) return (-1);
-        clear_err();
-        return (0);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
 int getSci(char *fname, int ever, SciHdrData *x) {
