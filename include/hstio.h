@@ -539,7 +539,7 @@ int makeImageExtHdr(Hdr *, FitsDataType, long dims, const long *ndim,
 */
 /*\group(find)*/
 FitsKw findKw(Hdr *, const char *name);
-FitsKw findnextKw(Hdr *, char *name);
+FitsKw findnextKw(Hdr *, const char *name);
 FitsKw first(Hdr *);
 FitsKw next(FitsKw);
 FitsKw getKw(Hdr *, int n);
@@ -561,24 +561,24 @@ FitsKw insertfirst(Hdr *);
 */
 /*\group(get)*/
 /* High-level keyword access routines */
-int getKeyB (Hdr *, char *keyword, Bool *value);
-int getKeyI (Hdr *, char *keyword, int *value);
-int getKeyF (Hdr *, char *keyword, float *value);
-int getKeyD (Hdr *, char *keyword, double *value);
-int getKeyS (Hdr *, char *keyword, char *value);
+int getKeyB (Hdr *, const char *keyword, Bool *value);
+int getKeyI (Hdr *, const char *keyword, int *value);
+int getKeyF (Hdr *, const char *keyword, float *value);
+int getKeyD (Hdr *, const char *keyword, double *value);
+int getKeyS (Hdr *, const char *keyword, char *value);
 /*\group(put)*/
-int putKeyB (Hdr *, char *keyword, Bool value, const char *comment);
-int putKeyI (Hdr *, char *keyword, int value, const char *comment);
-int putKeyF (Hdr *, char *keyword, float value, const char *comment);
-int putKeyD (Hdr *, char *keyword, double value, const char *comment);
-int putKeyS (Hdr *, char *keyword, const char *value, const char *comment);
+int putKeyB (Hdr *, const char *keyword, Bool value, const char *comment);
+int putKeyI (Hdr *, const char *keyword, int value, const char *comment);
+int putKeyF (Hdr *, const char *keyword, float value, const char *comment);
+int putKeyD (Hdr *, const char *keyword, double value, const char *comment);
+int putKeyS (Hdr *, const char *keyword, const char *value, const char *comment);
 /*\group(update)*/
 // The following updateKeyX() will only set values for existing keywords
-int updateKeyB (Hdr *, char *keyword, Bool value, const char *comment);
-int updateKeyI (Hdr *, char *keyword, long value, const char *comment);
-int updateKeyF (Hdr *, char *keyword, float value, const char *comment);
-int updateKeyD (Hdr *, char *keyword, double value, const char *comment);
-int updateKeyS (Hdr *, char *keyword, const char *value, const char *comment);
+int updateKeyB (Hdr *, const char *keyword, Bool value, const char *comment);
+int updateKeyI (Hdr *, const char *keyword, long value, const char *comment);
+int updateKeyF (Hdr *, const char *keyword, float value, const char *comment);
+int updateKeyD (Hdr *, const char *keyword, double value, const char *comment);
+int updateKeyS (Hdr *, const char *keyword, const char *value, const char *comment);
 // Updates existing keyword OR add as history keyword
 int updateKeyOrAddAsHistKeyBool (Hdr *hd, char *keyword, Bool value, const char *comment);
 int updateKeyOrAddAsHistKeyInt (Hdr *hd, char *keyword, long value, const char *comment);
@@ -595,7 +595,7 @@ int  getIntKw(FitsKw);
 float getFloatKw(FitsKw);
 double getDoubleKw(FitsKw);
 int getStringKw(FitsKw, char *str, int maxch);
-int putKwName(FitsKw, char *name);
+int putKwName(FitsKw, const char *name);
 void putKwComm(FitsKw, const char *comment);
 int putBoolKw(FitsKw, Bool value);
 int putIntKw(FitsKw, long value);
@@ -614,11 +614,11 @@ int putStringKw(FitsKw, const char *value);
 **
 */
 /*\group(add)*/
-int addBoolKw(Hdr *, char *name, Bool value, const char *comment);
-int addIntKw(Hdr *, char *name, long value, const char *comment);
-int addFloatKw(Hdr *, char *name, float value, const char *comment);
-int addDoubleKw(Hdr *, char *name, double value, const char *comment);
-int addStringKw(Hdr *, char *name, const char * value, const char *comment);
+int addBoolKw(Hdr *, const char *name, Bool value, const char *comment);
+int addIntKw(Hdr *, const char *name, long value, const char *comment);
+int addFloatKw(Hdr *, const char *name, float value, const char *comment);
+int addDoubleKw(Hdr *, const char *name, double value, const char *comment);
+int addStringKw(Hdr *, const char *name, const char *value, const char *comment);
 int addSpacesKw(Hdr *, const char *comment);
 int addCommentKw(Hdr *, const char *comment);
 int addHistoryKw(Hdr *, const char *comment);
@@ -632,12 +632,11 @@ int addHistoryKw(Hdr *, const char *comment);
 **
 */
 /*\group(insert)*/
-FitsKw insertBoolKw(FitsKw, char *name, Bool value, const char *comment);
-FitsKw insertIntKw(FitsKw, char *name, long value, const char *comment);
-FitsKw insertFloatKw(FitsKw, char *name, float value, const char *comment);
-FitsKw insertDoubleKw(FitsKw, char *name, double value, const char *comment);
-FitsKw insertStringKw(FitsKw, char *name, const char * value,
-                      const char *comment);
+FitsKw insertBoolKw(FitsKw, const char *name, Bool value, const char *comment);
+FitsKw insertIntKw(FitsKw, const char *name, long value, const char *comment);
+FitsKw insertFloatKw(FitsKw, const char *name, float value, const char *comment);
+FitsKw insertDoubleKw(FitsKw, const char *name, double value, const char *comment);
+FitsKw insertStringKw(FitsKw, const char *name, const char *value, const char *comment);
 FitsKw insertSpacesKw(FitsKw, const char *comment);
 FitsKw insertCommentKw(FitsKw, const char *comment);
 FitsKw insertHistoryKw(FitsKw, const char *comment);
