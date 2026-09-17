@@ -101,34 +101,34 @@
 ** Section 6.
 **      Functions to manipulate the header array.
 */
-# include <fitsio.h>
-# include <ctype.h>
-# include <stdio.h>
-# include <string.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <time.h>
-# include <unistd.h>
-# include <stdlib.h>
-# include <stdbool.h>
+#include <fitsio.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-# include "hstio.h"
-# include "hstcalerr.h"
+#include "hstio.h"
+#include "hstcalerr.h"
 
 /* Global status tracker */
 int status;
 
-int fcloseNull(FILE * stream)
-{
-    if (!stream)
+int fcloseNull(FILE *stream) {
+    if (!stream) {
         return 0;
+    }
     return fclose(stream);
 }
-int fcloseWithStatus(FILE ** stream)
-{
+int fcloseWithStatus(FILE **stream) {
     int ret = HSTCAL_OK;
-    if (fcloseNull(*stream))
+    if (fcloseNull(*stream)) {
         ret = IO_ERROR;
+    }
 
     // Whether or not the operation succeeds, the stream is no longer
     // associated with a file, and the buffer allocated by std::setbuf or
@@ -151,26 +151,26 @@ const char *hstio_version = HSTIO_VERSION;
 */
 
 typedef struct {
-  /* CFITSIO TODO: Remove redundant members here */
-        fitsfile *ff;           /* Ptr to cfitsio fitsfile object       */
-        char *filename;         /* File name.                           */
-        char *extname;          /* FITS EXTNAME value.                  */
-        int extver;             /* FITS EXTVER value.                   */
-        int hflag;              /* Flag indicating header update.       */
-        Hdr *hdr;               /* Address of header lines.             */
-        long dims[2];           /* FITS NAXIS values.                   */
-        int type;               /* FITS data type.                      */
-        unsigned int options;   /* I/O options.                         */
+    /* CFITSIO TODO: Remove redundant members here */
+    fitsfile *ff;         /* Ptr to cfitsio fitsfile object       */
+    char *filename;       /* File name.                           */
+    char *extname;        /* FITS EXTNAME value.                  */
+    int extver;           /* FITS EXTVER value.                   */
+    int hflag;            /* Flag indicating header update.       */
+    Hdr *hdr;             /* Address of header lines.             */
+    long dims[2];         /* FITS NAXIS values.                   */
+    int type;             /* FITS data type.                      */
+    unsigned int options; /* I/O options.                         */
 } IODesc;
 
 /* The default allocation unit for Header arrays */
-# define HdrUnit 36
+#define HdrUnit 36
 
 /*
 ** Section 2.
 ** Declarations and functions related to error handling.
 */
-# define ERRLINEWIDTH 2048
+#define ERRLINEWIDTH 2048
 static HSTIOError error_status;
 static char error_msg[ERRLINEWIDTH];
 static HSTIOErrHandler errhandler[32];
@@ -178,27 +178,27 @@ static int max_err_handlers = 32;
 static int errtop = -1;
 
 HSTIOError hstio_err(void) {
-        return error_status;
+    return error_status;
 }
 
 char *hstio_errmsg(void) {
-        return error_msg;
+    return error_msg;
 }
 
-int getNumHDUs(const char * fileName, int * hduNum)
-{
+int getNumHDUs(const char *fileName, int *hduNum) {
     *hduNum = 0;
 
-    fitsfile * fptr = NULL;
+    fitsfile *fptr = NULL;
     int tmpStatus = HSTCAL_OK;
     fits_open_file(&fptr, fileName, READONLY, &tmpStatus);
-    if (tmpStatus)
+    if (tmpStatus) {
         return tmpStatus;
-    if (!fptr)
+    }
+    if (!fptr) {
         return OPEN_FAILED;
+    }
 
-    if (fits_get_num_hdus(fptr, hduNum, &tmpStatus))
-    {
+    if (fits_get_num_hdus(fptr, hduNum, &tmpStatus)) {
         int closeStatus = HSTCAL_OK;
         fits_close_file(fptr, &closeStatus);
         return tmpStatus;
@@ -211,32 +211,35 @@ int findTotalNumberOfImsets(const char *fileName, char *setContainsExtName, int 
     return findTotalNumberOfHDUSets(fileName, setContainsExtName, IMAGE_HDU, total);
 }
 
-int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtName, const int hduType, int * total)
-{
+int findTotalNumberOfHDUSets(const char *fileName, char *setContainsExtName, const int hduType, int *total) {
     *total = 0;
 
     int hduNum = 0;
     int tmpStatus = HSTCAL_OK;
-    if ((tmpStatus = getNumHDUs(fileName, &hduNum)))
+    if ((tmpStatus = getNumHDUs(fileName, &hduNum))) {
         return tmpStatus;
+    }
 
-    if (hduNum < 1)
+    if (hduNum < 1) {
         return HSTCAL_OK;
+    }
 
     // open file
-    fitsfile * fptr = NULL;
+    fitsfile *fptr = NULL;
     fits_open_file(&fptr, fileName, READONLY, &tmpStatus);
-    if (tmpStatus)
+    if (tmpStatus) {
         return tmpStatus;
-    if (!fptr)
+    }
+    if (!fptr) {
         return OPEN_FAILED;
+    }
 
     // Determine which method to use:
     // nimsets = [hdu.name for hdu in hduList].count(setContainsExtName)
     // OR
     // nimsets = len(set([hdu.ver for hdu in hduList]))
     const bool usingExtName = setContainsExtName && *setContainsExtName != '\0' ? true : false;
-    const char * key = usingExtName ? "EXTNAME" : "EXTVER";
+    const char *key = usingExtName ? "EXTNAME" : "EXTVER";
 
     // in hduList]))
     // open each HDU and count
@@ -245,9 +248,9 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
     for (int i = 1; i <= hduNum; ++i) // HDUs are 1 based
     {
         int loopStatus = HSTCAL_OK; // decl here to auto reset
-        int extHDUType = ANY_HDU; // This is populated by fits_movabs_hdu() but init anyhow
-        if (fits_movabs_hdu(fptr, i, &extHDUType, &loopStatus))
-        {
+        int extHDUType = ANY_HDU;   // This is populated by fits_movabs_hdu()
+                                    // but init anyhow
+        if (fits_movabs_hdu(fptr, i, &extHDUType, &loopStatus)) {
             // Since we already know the total number of HDUs, if we can't
             // move through all of them, a real IO error has occurred.
             int closeStatus = HSTCAL_OK;
@@ -256,28 +259,30 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
         }
 
         // Check for HDU type correctness
-        if (hduType != ANY_HDU && extHDUType != hduType)
+        if (hduType != ANY_HDU && extHDUType != hduType) {
             continue;
+        }
 
         // Get keyword value
         char keyValue[FLEN_VALUE];
-        if (fits_read_key(fptr, TSTRING, key, keyValue, NULL, &loopStatus))
-        {
-            if (loopStatus == KEY_NO_EXIST || loopStatus == VALUE_UNDEFINED)
-                continue; // ignore missing keys and empty values of EXTVER and EXTNAME
+        if (fits_read_key(fptr, TSTRING, key, keyValue, NULL, &loopStatus)) {
+            if (loopStatus == KEY_NO_EXIST || loopStatus == VALUE_UNDEFINED) {
+                continue; // ignore missing keys and empty values of EXTVER
+                          // and EXTNAME
+            }
             int closeStatus = HSTCAL_OK;
             fits_close_file(fptr, &closeStatus);
             return loopStatus;
         }
 
-        if (usingExtName)
-        {
-            // (python) nimsets = [hdu.name for hdu in hduList].count(setContainsExtName)
+        if (usingExtName) {
+            // (python) nimsets = [hdu.name for hdu in
+            // hduList].count(setContainsExtName)
             int match = FALSE;
             int exact = FALSE;
-            int caseSensitive = TRUE;
+            const int caseSensitive = TRUE;
             fits_compare_str(setContainsExtName, keyValue, caseSensitive, &match, &exact);
-            if (match || exact)
+            if (match || exact) {
                 (*total)++;
             }
         } else {
@@ -294,8 +299,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
                 }
             }
             // Add to list and inc. total
-            if (!alreadyCounted)
-            {
+            if (!alreadyCounted) {
                 encounteredList[encounteredListCursor++] = extVer;
                 (*total)++;
             }
@@ -316,14 +320,22 @@ int push_hstioerr(const HSTIOErrHandler x) {
 }
 
 int pop_hstioerr(void) {
-        if (errtop == -1) return -1;
-        --errtop;
-        return errtop + 1;
+    if (errtop == -1) {
+        return -1;
+    }
+    --errtop;
+    return errtop + 1;
 }
 
-static void clear_err(void) { error_status = HSTOK; error_msg[0] = '\0'; }
+static void clear_err(void) {
+    error_status = HSTOK;
+    error_msg[0] = '\0';
+}
 
-void clear_hstioerr(void) { error_status = HSTOK; error_msg[0] = '\0'; }
+void clear_hstioerr(void) {
+    error_status = HSTOK;
+    error_msg[0] = '\0';
+}
 
 static void error(const HSTIOError e, char *str) {
     error_status = e;
@@ -440,18 +452,17 @@ static void ioerr(const HSTIOError e, IODescPtr x_, const int error_code) {
 ** Functions that initialize, allocate, and free storage in data structures.
 */
 void initFloatData(FloatTwoDArray *x) {
-        x->buffer = NULL;
-        x->buffer_size = 0;
-        x->tot_nx = 0;
-        x->tot_ny = 0;
-        x->nx = 0;
-        x->ny = 0;
-        x->storageOrder = ROWMAJOR;
-        x->data = NULL;
-# if defined (DEBUG)
-        printf("initFloatData: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
+    x->buffer = NULL;
+    x->buffer_size = 0;
+    x->tot_nx = 0;
+    x->tot_ny = 0;
+    x->nx = 0;
+    x->ny = 0;
+    x->storageOrder = ROWMAJOR;
+    x->data = NULL;
+#if defined(DEBUG)
+    printf("initFloatData: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
 }
 
 int allocFloatData(FloatTwoDArray *x, const long i, const long j, const Bool zeroInitialize) {
@@ -488,52 +499,57 @@ int allocFloatData(FloatTwoDArray *x, const long i, const long j, const Bool zer
 }
 
 void freeFloatData(FloatTwoDArray *x) {
-        if (!x)
-            return;
-# if defined (DEBUG)
-        printf("freeFloatData: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
-        if (x->buffer != NULL)
-            free(x->buffer);
-        initFloatData(x);
+    if (!x) {
+        return;
+    }
+#if defined(DEBUG)
+    printf("freeFloatData: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
+    if (x->buffer != NULL) {
+        free(x->buffer);
+    }
+    initFloatData(x);
 }
 
-int copyFloatData(FloatTwoDArray * target, const FloatTwoDArray * source, enum StorageOrder targetStorageOrder)
-{
-    if (!target || !source)
+int copyFloatData(FloatTwoDArray *target, const FloatTwoDArray *source, const enum StorageOrder targetStorageOrder) {
+    if (!target || !source) {
         return -1;
-
-    //should this check be raise higher up the call stack also?
-    if (targetStorageOrder != source->storageOrder)
-    {
-        //assumes target initialized
-        if (!target->buffer)
-        {
-            if (allocFloatData(target, source->nx, source->ny, False))
-                return ALLOCATION_PROBLEM; //allocFloatData() initializes before returning
-        }
-        return swapFloatStorageOrder(target, source, targetStorageOrder);
-        //fall through and copy normally
     }
 
-    if (allocFloatData(target, source->nx, source->ny, False))
-        return ALLOCATION_PROBLEM; //allocFloatData() initializes before returning
+    // should this check be raise higher up the call stack also?
+    if (targetStorageOrder != source->storageOrder) {
+        // assumes target initialized
+        if (!target->buffer) {
+            if (allocFloatData(target, source->nx, source->ny, False)) {
+                return ALLOCATION_PROBLEM; // allocFloatData() initializes
+                                           // before returning
+            }
+        }
+        return swapFloatStorageOrder(target, source, targetStorageOrder);
+        // fall through and copy normally
+    }
 
-    //allocFloatData() correctly initializes all other members leaving only buffer (data points to buffer)
-    memcpy(target->buffer, source->buffer, source->nx*source->ny*sizeof(*source->buffer));
+    if (allocFloatData(target, source->nx, source->ny, False)) {
+        return ALLOCATION_PROBLEM; // allocFloatData() initializes before
+                                   // returning
+    }
+
+    // allocFloatData() correctly initializes all other members leaving only
+    // buffer (data points to buffer)
+    memcpy(target->buffer, source->buffer, source->nx * source->ny * sizeof(*source->buffer));
     return 0;
 }
 
-int swapFloatStorageOrder(FloatTwoDArray * target, const FloatTwoDArray * source, enum StorageOrder targetStorageOrder)
-{
-    //this probably breaks use of Pix on target? Do we need to swap nx & ny?
-    if (!target || !source)
+int swapFloatStorageOrder(FloatTwoDArray *target, const FloatTwoDArray *source, const enum StorageOrder targetStorageOrder) {
+    // this probably breaks use of Pix on target? Do we need to swap nx & ny?
+    if (!target || !source) {
         return -1;
+    }
 
     target->storageOrder = targetStorageOrder;
-    if (targetStorageOrder == source->storageOrder)
+    if (targetStorageOrder == source->storageOrder) {
         return 0;
+    }
 
     const unsigned nRows = target->ny;
     const unsigned nCols = target->nx;
@@ -550,15 +566,16 @@ int swapFloatStorageOrder(FloatTwoDArray * target, const FloatTwoDArray * source
     return 0;
 }
 
-int swapShortStorageOrder(ShortTwoDArray * target, const ShortTwoDArray * source, enum StorageOrder targetStorageOrder)
-{
-    //this probably breaks use of Pix on target? Do we need to swap nx & ny?
-    if (!target || !source)
+int swapShortStorageOrder(ShortTwoDArray *target, const ShortTwoDArray *source, const enum StorageOrder targetStorageOrder) {
+    // this probably breaks use of Pix on target? Do we need to swap nx & ny?
+    if (!target || !source) {
         return -1;
+    }
 
     target->storageOrder = targetStorageOrder;
-    if (targetStorageOrder == source->storageOrder)
+    if (targetStorageOrder == source->storageOrder) {
         return 0;
+    }
 
     const unsigned nRows = target->ny;
     const unsigned nCols = target->nx;
@@ -576,18 +593,17 @@ int swapShortStorageOrder(ShortTwoDArray * target, const ShortTwoDArray * source
 }
 
 void initShortData(ShortTwoDArray *x) {
-        x->buffer = NULL;
-        x->buffer_size = 0;
-        x->tot_nx = 0;
-        x->tot_ny = 0;
-        x->nx = 0;
-        x->ny = 0;
-        x->storageOrder = ROWMAJOR;
-        x->data = NULL;
-# if defined (DEBUG)
-        printf("initShortData: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
+    x->buffer = NULL;
+    x->buffer_size = 0;
+    x->tot_nx = 0;
+    x->tot_ny = 0;
+    x->nx = 0;
+    x->ny = 0;
+    x->storageOrder = ROWMAJOR;
+    x->data = NULL;
+#if defined(DEBUG)
+    printf("initShortData: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
 }
 
 int allocShortData(ShortTwoDArray *x, const long i, const long j, const Bool zeroInitialize) {
@@ -622,43 +638,46 @@ int allocShortData(ShortTwoDArray *x, const long i, const long j, const Bool zer
 }
 
 void freeShortData(ShortTwoDArray *x) {
-# if defined (DEBUG)
-        printf("freeShortData: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
-        if (x->buffer != NULL)
-            free(x->buffer);
-        initShortData(x);
+#if defined(DEBUG)
+    printf("freeShortData: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
+    if (x->buffer != NULL) {
+        free(x->buffer);
+    }
+    initShortData(x);
 }
-int copyShortData(ShortTwoDArray * target, const ShortTwoDArray * source, enum StorageOrder targetStorageOrder)
-{
-    if (!target || !source)
+int copyShortData(ShortTwoDArray *target, const ShortTwoDArray *source, const enum StorageOrder targetStorageOrder) {
+    if (!target || !source) {
         return -1;
-
-    //should this check be raise higher up the call stack also?
-    if (targetStorageOrder != source->storageOrder)
-    {
-        //assumes target initialized
-        if (!target->buffer)
-        {
-            if (allocShortData(target, source->nx, source->ny, False))
-                return ALLOCATION_PROBLEM; //allocShortData() initializes before returning
-        }
-        return swapShortStorageOrder(target, source, targetStorageOrder);
-        //fall through and copy normally
     }
 
-    if (allocShortData(target, source->nx, source->ny, False))
-        return ALLOCATION_PROBLEM; //allocShortData() initializes before returning
+    // should this check be raise higher up the call stack also?
+    if (targetStorageOrder != source->storageOrder) {
+        // assumes target initialized
+        if (!target->buffer) {
+            if (allocShortData(target, source->nx, source->ny, False)) {
+                return ALLOCATION_PROBLEM; // allocShortData() initializes
+                                           // before returning
+            }
+        }
+        return swapShortStorageOrder(target, source, targetStorageOrder);
+        // fall through and copy normally
+    }
 
-    //allocShortData() correctly initializes all other members leaving only buffer (data points to buffer)
-    memcpy(target->buffer, source->buffer, source->nx*source->ny*sizeof(*source->buffer));
+    if (allocShortData(target, source->nx, source->ny, False)) {
+        return ALLOCATION_PROBLEM; // allocShortData() initializes before
+                                   // returning
+    }
+
+    // allocShortData() correctly initializes all other members leaving only
+    // buffer (data points to buffer)
+    memcpy(target->buffer, source->buffer, source->nx * source->ny * sizeof(*source->buffer));
     return 0;
 }
 
-void initFloatLine (FloatHdrLine *x) {
-        x->line   = NULL;
-        x->tot_nx = 0;
+void initFloatLine(FloatHdrLine *x) {
+    x->line = NULL;
+    x->tot_nx = 0;
 }
 
 int allocFloatLine(FloatHdrLine *x, const long i) {
@@ -683,19 +702,19 @@ int allocFloatLine(FloatHdrLine *x, const long i) {
     return 0;
 }
 
-void freeFloatLine (FloatHdrLine *x) {
-# if defined (DEBUG)
-        printf("freeFloatLine: %x %x %d\n",
-                (int)x,(int)(x->line),x->tot_nx);
-# endif
-        if (x->line != NULL)
-            free (x->line);
-        initFloatLine (x);
+void freeFloatLine(FloatHdrLine *x) {
+#if defined(DEBUG)
+    printf("freeFloatLine: %x %x %d\n", (int)x, (int)(x->line), x->tot_nx);
+#endif
+    if (x->line != NULL) {
+        free(x->line);
+    }
+    initFloatLine(x);
 }
 
-void initShortLine (ShortHdrLine *x) {
-        x->line   = NULL;
-        x->tot_nx = 0;
+void initShortLine(ShortHdrLine *x) {
+    x->line = NULL;
+    x->tot_nx = 0;
 }
 
 int allocShortLine(ShortHdrLine *x, const long i) {
@@ -720,24 +739,23 @@ int allocShortLine(ShortHdrLine *x, const long i) {
     return 0;
 }
 
-void freeShortLine (ShortHdrLine *x) {
-# if defined (DEBUG)
-        printf("freeShortLine: %x %x %d\n",
-                (int)x,(int)(x->line),x->tot_nx);
-# endif
-        if (x->line != NULL)
-            free (x->line);
-        initShortLine (x);
+void freeShortLine(ShortHdrLine *x) {
+#if defined(DEBUG)
+    printf("freeShortLine: %x %x %d\n", (int)x, (int)(x->line), x->tot_nx);
+#endif
+    if (x->line != NULL) {
+        free(x->line);
+    }
+    initShortLine(x);
 }
 
 void initHdr(Hdr *h) {
-# if defined (DEBUG)
-        printf("initHdr: %x %d %d %x\n",
-                (int)h,h->nlines,h->nalloc,(int)(h->array));
-# endif
-        h->nlines = 0;
-        h->nalloc = 0;
-        h->array = NULL;
+#if defined(DEBUG)
+    printf("initHdr: %x %d %d %x\n", (int)h, h->nlines, h->nalloc, (int)(h->array));
+#endif
+    h->nlines = 0;
+    h->nalloc = 0;
+    h->array = NULL;
 }
 
 int allocHdr(Hdr *h, const long n, const Bool zeroInitialize) {
@@ -796,38 +814,42 @@ int reallocHdr(Hdr *h, const long n) {
 }
 
 void freeHdr(Hdr *h) {
-# if defined (DEBUG)
-        printf("freeHdr: %x %d %d %x\n",
-                (int)h,h->nlines,h->nalloc,(int)(h->array));
-# endif
-        if (!h)
-        	return;
-        if (h->array)
-            free(h->array);
-        initHdr(h);
+#if defined(DEBUG)
+    printf("freeHdr: %x %d %d %x\n", (int)h, h->nlines, h->nalloc, (int)(h->array));
+#endif
+    if (!h) {
+        return;
+    }
+    if (h->array) {
+        free(h->array);
+    }
+    initHdr(h);
 }
 
 int copyHdr(Hdr *to, const Hdr *from) {
-        if (!to || !from)
-            return -1;
-        //allcoHdr only allocates if to->array == NULL or sizes differ
-        if (allocHdr(to,from->nalloc, False)) return -1;
-        memcpy(to->array, from->array, to->nalloc*sizeof(*to->array));
-        to->nlines = from->nlines;
-        return 0;
+    if (!to || !from) {
+        return -1;
+    }
+    // allcoHdr only allocates if to->array == NULL or sizes differ
+    if (allocHdr(to, from->nalloc, False)) {
+        return -1;
+    }
+    memcpy(to->array, from->array, to->nalloc * sizeof(*to->array));
+    to->nlines = from->nlines;
+    return 0;
 }
 
 /*
 ** The above are the basic cases, now for the composite cases.
 */
 void initFloatHdrData(FloatHdrData *x) {
-        x->iodesc = NULL;
-        x->section.x_beg = 0;
-        x->section.y_beg = 0;
-        x->section.sx = 0;
-        x->section.sy = 0;
-        initHdr(&(x->hdr));
-        initFloatData(&(x->data));
+    x->iodesc = NULL;
+    x->section.x_beg = 0;
+    x->section.y_beg = 0;
+    x->section.sx = 0;
+    x->section.sy = 0;
+    initHdr(&x->hdr);
+    initFloatData(&x->data);
 }
 
 int allocFloatHdrData(FloatHdrData *x, const long i, const long j, const Bool zeroInitialize) {
@@ -844,30 +866,30 @@ int allocFloatHdrData(FloatHdrData *x, const long i, const long j, const Bool ze
     return 0;
 }
 
-int copyFloatHdrData(FloatHdrData * target, const FloatHdrData * src, enum StorageOrder targetStorageOrder)
-{
-    if (!target || !src)
+int copyFloatHdrData(FloatHdrData *target, const FloatHdrData *src, const enum StorageOrder targetStorageOrder) {
+    if (!target || !src) {
         return -1;
+    }
 
     target->iodesc = src->iodesc;
 
-    //Since DataSection section refers to image IO, keep as source (I think?).
-    copyDataSection(&target->section, &src->section);//No allocations
+    // Since DataSection section refers to image IO, keep as source (I think?).
+    copyDataSection(&target->section, &src->section); // No allocations
 
-    if (copyHdr(&target->hdr, &src->hdr))//This allocates
+    if (copyHdr(&target->hdr, &src->hdr)) { // This allocates
         return ALLOCATION_PROBLEM;
+    }
 
     return copyFloatData(&target->data, &src->data, targetStorageOrder);
 }
 
 void freeFloatHdrData(FloatHdrData *x) {
-        freeFloatData(&(x->data));
-        freeHdr(&(x->hdr));
-        initFloatHdrData(x);
+    freeFloatData(&x->data);
+    freeHdr(&x->hdr);
+    initFloatHdrData(x);
 }
 
-void copyDataSection(DataSection * dest, const DataSection * src)
-{
+void copyDataSection(DataSection *dest, const DataSection *src) {
     dest->x_beg = src->x_beg;
     dest->y_beg = src->y_beg;
     dest->sx = src->sx;
@@ -875,13 +897,13 @@ void copyDataSection(DataSection * dest, const DataSection * src)
 }
 
 void initShortHdrData(ShortHdrData *x) {
-        x->iodesc = NULL;
-        x->section.x_beg = 0;
-        x->section.y_beg = 0;
-        x->section.sx = 0;
-        x->section.sy = 0;
-        initHdr(&(x->hdr));
-        initShortData(&(x->data));
+    x->iodesc = NULL;
+    x->section.x_beg = 0;
+    x->section.y_beg = 0;
+    x->section.sx = 0;
+    x->section.sy = 0;
+    initHdr(&x->hdr);
+    initShortData(&x->data);
 }
 
 int allocShortHdrData(ShortHdrData *x, const long i, const long j, const Bool zeroInitialize) {
@@ -898,34 +920,35 @@ int allocShortHdrData(ShortHdrData *x, const long i, const long j, const Bool ze
     return 0;
 }
 
-int copyShortHdrData(ShortHdrData * target, const ShortHdrData * src, enum StorageOrder targetStorageOrder)
-{
-    if (!target || !src)
+int copyShortHdrData(ShortHdrData *target, const ShortHdrData *src, const enum StorageOrder targetStorageOrder) {
+    if (!target || !src) {
         return -1;
+    }
 
     target->iodesc = src->iodesc;
 
-    //Since DataSection section refers to image IO, keep as source (I think?).
-    copyDataSection(&target->section, &src->section);//No allocations
+    // Since DataSection section refers to image IO, keep as source (I think?).
+    copyDataSection(&target->section, &src->section); // No allocations
 
-    if (copyHdr(&target->hdr, &src->hdr))//This allocates
+    if (copyHdr(&target->hdr, &src->hdr)) { // This allocates
         return ALLOCATION_PROBLEM;
+    }
 
     return copyShortData(&target->data, &src->data, targetStorageOrder);
 }
 
 void freeShortHdrData(ShortHdrData *x) {
-        freeShortData(&(x->data));
-        freeHdr(&(x->hdr));
-        initShortHdrData(x);
+    freeShortData(&x->data);
+    freeHdr(&x->hdr);
+    initShortHdrData(x);
 }
 
-void initFloatHdrLine (FloatHdrLine *x) {
-        x->iodesc = NULL;
-        initHdr (&(x->hdr));
-        x->ehdr_loaded = False;
-        x->tot_nx = 0;
-        x->line   = NULL;
+void initFloatHdrLine(FloatHdrLine *x) {
+    x->iodesc = NULL;
+    initHdr(&x->hdr);
+    x->ehdr_loaded = False;
+    x->tot_nx = 0;
+    x->line = NULL;
 }
 
 int allocFloatHdrLine(FloatHdrLine *x, const int i) {
@@ -938,19 +961,20 @@ int allocFloatHdrLine(FloatHdrLine *x, const int i) {
     return 0;
 }
 
-void freeFloatHdrLine (FloatHdrLine *x) {
-        if (x->line != NULL)
-            free(x->line);
-        freeHdr (&(x->hdr));
-        initFloatHdrLine (x);
+void freeFloatHdrLine(FloatHdrLine *x) {
+    if (x->line != NULL) {
+        free(x->line);
+    }
+    freeHdr(&x->hdr);
+    initFloatHdrLine(x);
 }
 
-void initShortHdrLine (ShortHdrLine *x) {
-        x->iodesc = NULL;
-        initHdr (&(x->hdr));
-        x->ehdr_loaded = False;
-        x->tot_nx = 0;
-        x->line   = NULL;
+void initShortHdrLine(ShortHdrLine *x) {
+    x->iodesc = NULL;
+    initHdr(&x->hdr);
+    x->ehdr_loaded = False;
+    x->tot_nx = 0;
+    x->line = NULL;
 }
 
 int allocShortHdrLine(ShortHdrLine *x, const int i) {
@@ -988,21 +1012,24 @@ int allocSingleGroup(SingleGroup *x, const long i, const long j, const Bool zero
     return 0;
 }
 
-int allocSingleGroupHeader(Hdr ** hdr, Bool zeroInitialize)
-{
-    if (!hdr)
+int allocSingleGroupHeader(Hdr **hdr, const Bool zeroInitialize) {
+    if (!hdr) {
         return ALLOCATION_PROBLEM;
+    }
 
-    if (*hdr)
-        return 0; //Already allocated
+    if (*hdr) {
+        return 0; // Already allocated
+    }
 
-    if (zeroInitialize)
-        *hdr = calloc(1,sizeof(**hdr));
-    else
+    if (zeroInitialize) {
+        *hdr = calloc(1, sizeof(**hdr));
+    } else {
         *hdr = malloc(sizeof(**hdr));
+    }
 
-    if (!*hdr)
+    if (!*hdr) {
         return ALLOCATION_PROBLEM;
+    }
 
     initHdr(*hdr);
     return HSTCAL_OK;
@@ -1031,94 +1058,97 @@ int allocSingleGroupExts(SingleGroup *x, const long i, const long j, const unsig
     return 0;
 }
 
-void setStorageOrder(SingleGroup * group, enum StorageOrder storageOrder)
-{
-    if (!group)
+void setStorageOrder(SingleGroup *group, const enum StorageOrder storageOrder) {
+    if (!group) {
         return;
+    }
 
     group->sci.data.storageOrder = storageOrder;
     group->err.data.storageOrder = storageOrder;
     group->dq.data.storageOrder = storageOrder;
-
 }
 
-void copyOffsetFloatData(float * output, const float * input,
-        unsigned nRows, unsigned nColumns,
-        unsigned outputOffset, unsigned inputOffset,
-        unsigned outputSkipLength, unsigned inputSkipLength)
-{
-    //WARNING - assumes row major storage
-    {unsigned ithRow;
+void copyOffsetFloatData(float *output, const float *input, const unsigned nRows, const unsigned nColumns,
+                         const unsigned outputOffset, const unsigned inputOffset, const unsigned outputSkipLength,
+                         const unsigned inputSkipLength) {
+    // WARNING - assumes row major storage
+    {
+        unsigned ithRow;
 #ifdef _OPENMP
-    #pragma omp parallel for shared(output, input) private(ithRow) schedule(static)
+#pragma omp parallel for shared(output, input) private(ithRow) schedule(static)
 #endif
-    for (ithRow = 0; ithRow < nRows; ++ithRow)
-        memcpy(output + outputOffset + ithRow*outputSkipLength, input + inputOffset + ithRow*inputSkipLength, nColumns*sizeof(*output));
+        for (ithRow = 0; ithRow < nRows; ++ithRow) {
+            memcpy(output + outputOffset + ithRow * outputSkipLength, input + inputOffset + ithRow * inputSkipLength,
+                   nColumns * sizeof(*output));
+        }
     }
 }
-void copyOffsetShortData(short * output, const short * input,
-        unsigned nRows, unsigned nColumns,
-        unsigned outputOffset, unsigned inputOffset,
-        unsigned outputSkipLength, unsigned inputSkipLength)
-{
-    //WARNING - assumes row major storage
-    {unsigned ithRow;
+void copyOffsetShortData(short *output, const short *input, const unsigned nRows, const unsigned nColumns,
+                         const unsigned outputOffset, const unsigned inputOffset, const unsigned outputSkipLength,
+                         const unsigned inputSkipLength) {
+    // WARNING - assumes row major storage
+    {
+        unsigned ithRow;
 #ifdef _OPENMP
-    #pragma omp parallel for shared(output, input) private(ithRow) schedule(static)
+#pragma omp parallel for shared(output, input) private(ithRow) schedule(static)
 #endif
-    for (ithRow = 0; ithRow < nRows; ++ithRow)
-        memcpy(output + outputOffset + ithRow*outputSkipLength, input + inputOffset + ithRow*inputSkipLength, nColumns*sizeof(*output));
+        for (ithRow = 0; ithRow < nRows; ++ithRow) {
+            memcpy(output + outputOffset + ithRow * outputSkipLength, input + inputOffset + ithRow * inputSkipLength,
+                   nColumns * sizeof(*output));
+        }
     }
 }
 
-void copyOffsetSingleGroup(SingleGroup * output, const SingleGroup * input,
-        unsigned nRows, unsigned nColumns,
-		unsigned outputOffset, unsigned inputOffset,
-		unsigned outputSkipLength, unsigned inputSkipLength)
-{
-    if (!output || !input)
-        return;
-    //WARNING - assumes row major storage
-    if (output->sci.data.storageOrder != ROWMAJOR ||
-            input->sci.data.storageOrder != ROWMAJOR) {
-        status = ALLOCATION_PROBLEM;
-        return;
+int copyOffsetSingleGroup(SingleGroup *output, const SingleGroup *input, const unsigned nRows, const unsigned nColumns,
+                          const unsigned outputOffset, const unsigned inputOffset, const unsigned outputSkipLength,
+                          const unsigned inputSkipLength) {
+    if (!output || !input) {
+        return ERROR_RETURN;
     }
-
-    //sci data
-    if (output->sci.data.data && input->sci.data.data)
-        copyOffsetFloatData(output->sci.data.data, input->sci.data.data, nRows, nColumns, outputOffset, inputOffset, outputSkipLength, inputSkipLength);
-    //err data
-    if (output->err.data.data && input->err.data.data)
-        copyOffsetFloatData(output->err.data.data, input->err.data.data, nRows, nColumns, outputOffset, inputOffset, outputSkipLength, inputSkipLength);
-    //dq data
-    if (output->dq.data.data && input->dq.data.data)
-        copyOffsetShortData(output->dq.data.data, input->dq.data.data, nRows, nColumns, outputOffset, inputOffset, outputSkipLength, inputSkipLength);
-}
-
-
-int copySingleGroup(SingleGroup * target, const SingleGroup * source, enum StorageOrder targetStorageOrder)
-{
-    //WARNING assumes target pre allocated and initialized (entire tree). This way data can be copied to pre
-    //allocated target, i.e. copy(a, b) .. do something .. copy(b, a)
-    //NOTE: If structs contained total size we could just use malloc & memcpy and be done with it.
-
-    if (!target || !source)
+    // WARNING - assumes row major storage
+    if (output->sci.data.storageOrder != ROWMAJOR || input->sci.data.storageOrder != ROWMAJOR) {
         return ALLOCATION_PROBLEM;
+    }
+
+    // sci data
+    if (output->sci.data.data && input->sci.data.data) {
+        copyOffsetFloatData(output->sci.data.data, input->sci.data.data, nRows, nColumns, outputOffset, inputOffset,
+                            outputSkipLength, inputSkipLength);
+    }
+    // err data
+    if (output->err.data.data && input->err.data.data) {
+        copyOffsetFloatData(output->err.data.data, input->err.data.data, nRows, nColumns, outputOffset, inputOffset,
+                            outputSkipLength, inputSkipLength);
+    }
+    // dq data
+    if (output->dq.data.data && input->dq.data.data) {
+        copyOffsetShortData(output->dq.data.data, input->dq.data.data, nRows, nColumns, outputOffset, inputOffset,
+                            outputSkipLength, inputSkipLength);
+    }
+    return 0;
+}
+
+int copySingleGroup(SingleGroup *target, const SingleGroup *source, const enum StorageOrder targetStorageOrder) {
+    // WARNING assumes target pre allocated and initialized (entire tree). This
+    // way data can be copied to pre allocated target, i.e. copy(a, b) .. do
+    // something .. copy(b, a) NOTE: If structs contained total size we could
+    // just use malloc & memcpy and be done with it.
+
+    if (!target || !source) {
+        return ALLOCATION_PROBLEM;
+    }
 
     setStorageOrder(target, targetStorageOrder);
 
-    if (source->filename)
-    {
-        size_t filenameLength = strlen(source->filename)+1;
-        if (!target->filename || (target->filename && strlen(target->filename) != filenameLength))
-        {
-            if (target->filename)
+    if (source->filename) {
+        const size_t filenameLength = strlen(source->filename) + 1;
+        if (!target->filename || (target->filename && strlen(target->filename) != filenameLength)) {
+            if (target->filename) {
                 free(target->filename);
-            target->filename = malloc(filenameLength*sizeof(*source->filename));
+            }
+            target->filename = malloc(filenameLength * sizeof(*source->filename));
         }
-        if (!target->filename)
-        {
+        if (!target->filename) {
             initSingleGroup(target);
             return ALLOCATION_PROBLEM;
         }
@@ -1127,28 +1157,22 @@ int copySingleGroup(SingleGroup * target, const SingleGroup * source, enum Stora
 
     target->group_num = source->group_num;
 
-    copyHdr(target->globalhdr, source->globalhdr); //This allocates
+    copyHdr(target->globalhdr, source->globalhdr); // This allocates
 
-    if (source->sci.data.data)
-    {
-        if (copyFloatHdrData(&target->sci, &source->sci, targetStorageOrder))
-        {
+    if (source->sci.data.data) {
+        if (copyFloatHdrData(&target->sci, &source->sci, targetStorageOrder)) {
             initSingleGroup(target);
             return ALLOCATION_PROBLEM;
         }
     }
-    if (source->err.data.data)
-    {
-        if (copyFloatHdrData(&target->err, &source->err, targetStorageOrder))
-        {
+    if (source->err.data.data) {
+        if (copyFloatHdrData(&target->err, &source->err, targetStorageOrder)) {
             initSingleGroup(target);
             return ALLOCATION_PROBLEM;
         }
     }
-    if (source->dq.data.data)
-    {
-        if (copyShortHdrData(&target->dq, &source->dq, targetStorageOrder))
-        {
+    if (source->dq.data.data) {
+        if (copyShortHdrData(&target->dq, &source->dq, targetStorageOrder)) {
             initSingleGroup(target);
             return ALLOCATION_PROBLEM;
         }
@@ -1157,167 +1181,201 @@ int copySingleGroup(SingleGroup * target, const SingleGroup * source, enum Stora
 }
 
 void freeSingleGroup(SingleGroup *x) {
-        freeFloatHdrData(&(x->err));
-        freeShortHdrData(&(x->dq));
-        freeFloatHdrData(&(x->sci));
-        freeHdr(x->globalhdr);
-        if (x->globalhdr != NULL)
-                free(x->globalhdr);
-        if (x->filename != NULL)
-                free(x->filename);
-        initSingleGroup(x);
+    freeFloatHdrData(&x->err);
+    freeShortHdrData(&x->dq);
+    freeFloatHdrData(&x->sci);
+    freeHdr(x->globalhdr);
+    if (x->globalhdr != NULL) {
+        free(x->globalhdr);
+    }
+    if (x->filename != NULL) {
+        free(x->filename);
+    }
+    initSingleGroup(x);
 }
 
 void initMultiGroup(MultiGroup *x) {
-        x->ngroups = 0;
-        x->group = NULL;
+    x->ngroups = 0;
+    x->group = NULL;
 }
 
-int allocMultiGroup(MultiGroup *x, int n) {
-        int i;
-        if (x->group != NULL)
-                freeMultiGroup(x);
-        x->ngroups = n;
-        x->group = (SingleGroup *)calloc(n,sizeof(SingleGroup));
-        if (x->group == NULL) {
-            x->ngroups = 0;
-            error(NOMEM,"Allocating MultiGroup");
-            return -1;
-        }
-        for (i = 0; i < x->ngroups; ++i)
-            initSingleGroup(&(x->group[i]));
-        x->group[0].globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
-        if (x->group[0].globalhdr == NULL) return -1;
-        initHdr(x->group[0].globalhdr);
-        for (i = 1; i < x->ngroups; ++i)
-            x->group[i].globalhdr = x->group[0].globalhdr;
-        return 0;
+int allocMultiGroup(MultiGroup *x, const int n) {
+    int i;
+    if (x->group != NULL) {
+        freeMultiGroup(x);
+    }
+    x->ngroups = n;
+    x->group = (SingleGroup *)calloc(n, sizeof(SingleGroup));
+    if (x->group == NULL) {
+        x->ngroups = 0;
+        error(NOMEM, "Allocating MultiGroup");
+        return -1;
+    }
+    for (i = 0; i < x->ngroups; ++i) {
+        initSingleGroup(&x->group[i]);
+    }
+    x->group[0].globalhdr = (Hdr *)calloc(1, sizeof(Hdr));
+    if (x->group[0].globalhdr == NULL) {
+        return -1;
+    }
+    initHdr(x->group[0].globalhdr);
+    for (i = 1; i < x->ngroups; ++i) {
+        x->group[i].globalhdr = x->group[0].globalhdr;
+    }
+    return 0;
 }
 
 void freeMultiGroup(MultiGroup *x) {
-        int i;
-        if (x->group != NULL) {
-            freeSingleGroup(&(x->group[0]));
-            for (i = 1; i < x->ngroups; ++i) {
-                x->group[i].globalhdr = NULL;
-                x->group[i].filename = NULL;
-                freeSingleGroup(&(x->group[i]));
-            }
+    if (x->group != NULL) {
+        freeSingleGroup(&x->group[0]);
+        for (int i = 1; i < x->ngroups; ++i) {
+            x->group[i].globalhdr = NULL;
+            x->group[i].filename = NULL;
+            freeSingleGroup(&x->group[i]);
         }
-        initMultiGroup(x);
+    }
+    initMultiGroup(x);
 }
 
 void initSingleNicmosGroup(SingleNicmosGroup *x) {
-        x->filename = NULL;
-        x->group_num = 0;
-        x->globalhdr = NULL;
-        initFloatHdrData(&(x->sci));
-        initFloatHdrData(&(x->err));
-        initShortHdrData(&(x->dq));
-        initShortHdrData(&(x->smpl));
-        initFloatHdrData(&(x->intg));
+    x->filename = NULL;
+    x->group_num = 0;
+    x->globalhdr = NULL;
+    initFloatHdrData(&x->sci);
+    initFloatHdrData(&x->err);
+    initShortHdrData(&x->dq);
+    initShortHdrData(&x->smpl);
+    initFloatHdrData(&x->intg);
 }
 
 int allocSingleNicmosGroup(SingleNicmosGroup *x, int i, int j) {
+    if (x->globalhdr == NULL) {
+        x->globalhdr = (Hdr *)calloc(1, sizeof(Hdr));
         if (x->globalhdr == NULL) {
-            x->globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
-            if (x->globalhdr == NULL) return -1;
-            initHdr(x->globalhdr);
+            return -1;
         }
-        if (allocFloatHdrData(&(x->sci),i,j, True)) return -1;
-        if (allocFloatHdrData(&(x->err),i,j, True)) return -1;
-        if (allocShortHdrData(&(x->dq),i,j, True)) return -1;
-        if (allocShortHdrData(&(x->smpl),i,j, True)) return -1;
-        if (allocFloatHdrData(&(x->intg),i,j, True)) return -1;
-        return 0;
+        initHdr(x->globalhdr);
+    }
+    if (allocFloatHdrData(&x->sci, i, j, True)) {
+        return -1;
+    }
+    if (allocFloatHdrData(&x->err, i, j, True)) {
+        return -1;
+    }
+    if (allocShortHdrData(&x->dq, i, j, True)) {
+        return -1;
+    }
+    if (allocShortHdrData(&x->smpl, i, j, True)) {
+        return -1;
+    }
+    if (allocFloatHdrData(&x->intg, i, j, True)) {
+        return -1;
+    }
+    return 0;
 }
 
 void freeSingleNicmosGroup(SingleNicmosGroup *x) {
-        freeFloatHdrData(&(x->intg));
-        freeShortHdrData(&(x->smpl));
-        freeShortHdrData(&(x->dq));
-        freeFloatHdrData(&(x->err));
-        freeFloatHdrData(&(x->sci));
-        freeHdr(x->globalhdr);
-        if (x->globalhdr != NULL)
-                free(x->globalhdr);
-        if (x->filename != NULL)
-                free(x->filename);
-        initSingleNicmosGroup(x);
+    freeFloatHdrData(&x->intg);
+    freeShortHdrData(&x->smpl);
+    freeShortHdrData(&x->dq);
+    freeFloatHdrData(&x->err);
+    freeFloatHdrData(&x->sci);
+    freeHdr(x->globalhdr);
+    if (x->globalhdr != NULL) {
+        free(x->globalhdr);
+    }
+    if (x->filename != NULL) {
+        free(x->filename);
+    }
+    initSingleNicmosGroup(x);
 }
 
 void initMultiNicmosGroup(MultiNicmosGroup *x) {
-        x->ngroups = 0;
-        x->group = NULL;
+    x->ngroups = 0;
+    x->group = NULL;
 }
 
 int allocMultiNicmosGroup(MultiNicmosGroup *x, int n) {
-        int i;
-        if (x->group != NULL)
-                freeMultiNicmosGroup(x);
-        x->ngroups = n;
-        x->group = (SingleNicmosGroup *)calloc(n,sizeof(SingleNicmosGroup));
-        if (x->group == NULL) {
-            x->ngroups = 0;
-            error(NOMEM,"Allocating MultiNicmosGroup");
-            return -1;
-        }
-        for (i = 0; i < x->ngroups; ++i)
-            initSingleNicmosGroup(&(x->group[i]));
-        x->group[0].globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
-        if (x->group[0].globalhdr == NULL) return -1;
-        initHdr(x->group[0].globalhdr);
-        for (i = 1; i < x->ngroups; ++i)
-            x->group[i].globalhdr = x->group[0].globalhdr;
-        return 0;
+    int i;
+    if (x->group != NULL) {
+        freeMultiNicmosGroup(x);
+    }
+    x->ngroups = n;
+    x->group = (SingleNicmosGroup *)calloc(n, sizeof(SingleNicmosGroup));
+    if (x->group == NULL) {
+        x->ngroups = 0;
+        error(NOMEM, "Allocating MultiNicmosGroup");
+        return -1;
+    }
+    for (i = 0; i < x->ngroups; ++i) {
+        initSingleNicmosGroup(&x->group[i]);
+    }
+    x->group[0].globalhdr = (Hdr *)calloc(1, sizeof(Hdr));
+    if (x->group[0].globalhdr == NULL) {
+        return -1;
+    }
+    initHdr(x->group[0].globalhdr);
+    for (i = 1; i < x->ngroups; ++i) {
+        x->group[i].globalhdr = x->group[0].globalhdr;
+    }
+    return 0;
 }
 
 void freeMultiNicmosGroup(MultiNicmosGroup *x) {
-        int i;
-        if (x->group != NULL) {
-            freeSingleNicmosGroup(&(x->group[0]));
-            for (i = 1; i < x->ngroups; ++i) {
-                x->group[i].globalhdr = NULL;
-                x->group[i].filename = NULL;
-                freeSingleNicmosGroup(&(x->group[i]));
-            }
+    if (x->group != NULL) {
+        freeSingleNicmosGroup(&x->group[0]);
+        for (int i = 1; i < x->ngroups; ++i) {
+            x->group[i].globalhdr = NULL;
+            x->group[i].filename = NULL;
+            freeSingleNicmosGroup(&x->group[i]);
         }
-        initMultiNicmosGroup(x);
+    }
+    initMultiNicmosGroup(x);
 }
 
-void initSingleGroupLine (SingleGroupLine *x) {
-        x->filename    = NULL;
-        x->group_num   = 0;
-        x->line_num    = -1;
-        x->phdr_loaded = False;
-        x->globalhdr   = NULL;
-        initFloatHdrLine (&(x->sci));
-        initFloatHdrLine (&(x->err));
-        initShortHdrLine (&(x->dq));
+void initSingleGroupLine(SingleGroupLine *x) {
+    x->filename = NULL;
+    x->group_num = 0;
+    x->line_num = -1;
+    x->phdr_loaded = False;
+    x->globalhdr = NULL;
+    initFloatHdrLine(&x->sci);
+    initFloatHdrLine(&x->err);
+    initShortHdrLine(&x->dq);
 }
 
-int allocSingleGroupLine (SingleGroupLine *x, int i) {
+int allocSingleGroupLine(SingleGroupLine *x, int i) {
+    if (x->globalhdr == NULL) {
+        x->globalhdr = (Hdr *)calloc(1, sizeof(Hdr));
         if (x->globalhdr == NULL) {
-            x->globalhdr = (Hdr *) calloc (1,sizeof(Hdr));
-            if (x->globalhdr == NULL) return (-1);
-            initHdr(x->globalhdr);
+            return -1;
         }
-        if (allocFloatHdrLine (&(x->sci),i)) return (-1);
-        if (allocFloatHdrLine (&(x->err),i)) return (-1);
-        if (allocShortHdrLine (&(x->dq),i))  return (-1);
-        return (0);
+        initHdr(x->globalhdr);
+    }
+    if (allocFloatHdrLine(&x->sci, i)) {
+        return -1;
+    }
+    if (allocFloatHdrLine(&x->err, i)) {
+        return -1;
+    }
+    if (allocShortHdrLine(&x->dq, i)) {
+        return -1;
+    }
+    return 0;
 }
 
-void freeSingleGroupLine (SingleGroupLine *x) {
-        freeFloatHdrLine (&(x->sci));
-        freeFloatHdrLine (&(x->err));
-        freeShortHdrLine (&(x->dq));
-        freeHdr (x->globalhdr);
-        if (x->globalhdr != NULL)
-                free (x->globalhdr);
-        if (x->filename != NULL)
-                free (x->filename);
-        initSingleGroupLine (x);
+void freeSingleGroupLine(SingleGroupLine *x) {
+    freeFloatHdrLine(&x->sci);
+    freeFloatHdrLine(&x->err);
+    freeShortHdrLine(&x->dq);
+    freeHdr(x->globalhdr);
+    if (x->globalhdr != NULL) {
+        free(x->globalhdr);
+    }
+    if (x->filename != NULL) {
+        free(x->filename);
+    }
+    initSingleGroupLine(x);
 }
 
 /*                                                                      **
@@ -1371,7 +1429,7 @@ int getType(IODescPtr p) {
     return ((IODesc *)p)->type;
 }
 
-# include "c_iraf.h"
+#include "c_iraf.h"
 
 /*
 ** Section 5.
@@ -1400,23 +1458,27 @@ int getType(IODescPtr p) {
 **
 ** The ckNewFile() function runs under both UNIX and VMS.
 */
-int ckNewFile(char *fname) {
-        char *value;
-        FILE *x = fopen(fname,"r");
-        if (x == NULL)
-            return 0; /* file does not exist */
-        /* file exists */
-        fcloseWithStatus(&x);
-        value = getenv("imclobber");
-        if (value == NULL)
-            return 1; /* file exists and was not removed */
-        if ((strcmp(value,"yes") != 0) && (strcmp(value,"YES") != 0))
-            return 1; /* file exists and was not removed */
-        /* file exists and imclobber is yes */
-        if (remove(fname) != 0)
-            return 2;
-        while (remove(fname) == 0); /* The while loop is for VMS */
-        return -1;
+int ckNewFile(const char *filename) {
+    FILE *x = fopen(filename, "r");
+    if (x == NULL) {
+        return 0; /* file does not exist */
+    }
+    /* file exists */
+    fcloseWithStatus(&x);
+    const char *value = getenv("imclobber");
+    if (value == NULL) {
+        return 1; /* file exists and was not removed */
+    }
+    if (strcmp(value, "yes") != 0 && strcmp(value, "YES") != 0) {
+        return 1; /* file exists and was not removed */
+    }
+    /* file exists and imclobber is yes */
+    if (remove(filename) != 0) {
+        return 2;
+    }
+    while (remove(filename) == 0)
+        ; /* The while loop is for VMS */
+    return -1;
 }
 
 /*
@@ -1426,174 +1488,270 @@ int ckNewFile(char *fname) {
 ** for the respective lines of data.  Access to the SingleGroup extensions *
 ** remains open.                                                           *
 **                                                                         */
-int openSingleGroupLine (char *fname, int ever, SingleGroupLine *x) {
-        IODescPtr in;
-        in = openInputImage(fname,"",0); if (hstio_err()) return (-1);
-        if (x->globalhdr != NULL)
-            free(x->globalhdr);
-        if (x->filename != NULL)
-            free(x->filename);
-        x->filename = (char *) calloc ((strlen(fname) + 1),sizeof(char));
-        strcpy (x->filename,fname);
-        x->globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
-        if (x->globalhdr == NULL) return -1;
-        initHdr(x->globalhdr);
-        getHeader (in,x->globalhdr); if (hstio_err()) return (-1);
-        x->phdr_loaded = True;
-        closeImage (in);
-        x->group_num = ever;
+int openSingleGroupLine(char *filename, const int extver, SingleGroupLine *x) {
+    IODesc *in = openInputImage(filename, "", 0);
+    if (hstio_err()) {
+        return -1;
+    }
+    if (x->globalhdr != NULL) {
+        free(x->globalhdr);
+    }
+    if (x->filename != NULL) {
+        free(x->filename);
+    }
+    x->filename = (char *)calloc(strlen(filename) + 1, sizeof(char));
+    strcpy(x->filename, filename);
+    x->globalhdr = (Hdr *)calloc(1, sizeof(Hdr));
+    if (x->globalhdr == NULL) {
+        return -1;
+    }
+    initHdr(x->globalhdr);
+    getHeader(in, x->globalhdr);
+    if (hstio_err()) {
+        return -1;
+    }
+    x->phdr_loaded = True;
+    closeImage(in);
+    x->group_num = extver;
 
-        /* obtain the file pointers to the individual SingleGroup     *
-         * extensions, read the headers, and allocate the proper size *
-         * storage for the line arrays.                               */
-        getSciHdr (fname,ever,&(x->sci)); if (hstio_err()) return (-1);
-        x->sci.ehdr_loaded = True;
-        getErrHdr (fname,ever,&(x->err)); if (hstio_err()) return (-1);
-        x->err.ehdr_loaded = True;
-        getDQHdr  (fname,ever,&(x->dq)); if (hstio_err()) return (-1);
-        x->dq.ehdr_loaded = True;
-        allocSciLine (x);
-        allocErrLine (x);
-        allocDQLine  (x);
-        clear_err();
-        return (0);
+    /* obtain the file pointers to the individual SingleGroup     *
+     * extensions, read the headers, and allocate the proper size *
+     * storage for the line arrays.                               */
+    getSciHdr(filename, extver, &x->sci);
+    if (hstio_err()) {
+        return -1;
+    }
+    x->sci.ehdr_loaded = True;
+    getErrHdr(filename, extver, &x->err);
+    if (hstio_err()) {
+        return -1;
+    }
+    x->err.ehdr_loaded = True;
+    getDQHdr(filename, extver, &x->dq);
+    if (hstio_err()) {
+        return -1;
+    }
+    x->dq.ehdr_loaded = True;
+    allocSciLine(x);
+    allocErrLine(x);
+    allocDQLine(x);
+    clear_err();
+    return 0;
 }
 
-void closeSingleGroupLine (SingleGroupLine *x) {
-        closeImage (x->sci.iodesc);
-        closeImage (x->err.iodesc);
-        closeImage (x->dq.iodesc);
+void closeSingleGroupLine(const SingleGroupLine *x) {
+    closeImage(x->sci.iodesc);
+    closeImage(x->err.iodesc);
+    closeImage(x->dq.iodesc);
 }
 
-int getFloatHD(char *fname, char *ename, int ever, FloatHdrData *x) {
-        IODesc *xio;
-        x->iodesc = openInputImage(fname,ename,ever);
-        xio = (IODesc *)(x->iodesc);
-        if (hstio_err()) return -1;
-        x->section.sx = xio->dims[0];
-        x->section.sy = xio->dims[1];
-        getHeader(x->iodesc,&(x->hdr));
-        if (hstio_err()) return -1;
-        getFloatData(x->iodesc,&(x->data));
-        if (hstio_err()) return -1;
-        closeImage(x->iodesc);
-        clear_err();
-        return 0;
+int getSci(char *filename, const int extver, SciHdrData *x) {
+    return getFloatHD(filename, "SCI", extver, x);
 }
 
-int putFloatHD(char *fname, char *ename, int ever, FloatHdrData *x, int option) {
-        if (option == 0)
-            x->iodesc = openOutputImage(fname, ename, ever, &(x->hdr),
-                x->data.tot_nx, x->data.tot_ny, FITSFLOAT);
-        else if (option & Overwrite)
-            x->iodesc = openUpdateImage(fname, ename, ever, &(x->hdr));
-        if (hstio_err()) return -1;
-        putFloatData(x->iodesc,&(x->data));
-        if (hstio_err()) return -1;
-        closeImage(x->iodesc);
-        clear_err();
-        return 0;
+int putSci(char *filename, const int extver, SciHdrData *x, const int option) {
+    return putFloatHD(filename, "SCI", extver, x, option);
 }
 
-int getShortHD(char *fname, char *ename, int ever, ShortHdrData *x) {
-        IODesc *xio;
-        x->iodesc = openInputImage(fname,ename,ever);
-        xio = (IODesc *)(x->iodesc);
-        if (hstio_err()) return -1;
-        x->section.sx = xio->dims[0];
-        x->section.sy = xio->dims[1];
-        getHeader(x->iodesc,&(x->hdr));
-        if (hstio_err()) return -1;
-        getShortData(x->iodesc,&(x->data));
-        if (hstio_err()) return -1;
-        closeImage(x->iodesc);
-        clear_err();
-        return 0;
+int getErr(char *filename, const int extver, ErrHdrData *x) {
+    return getFloatHD(filename, "ERR", extver, x);
 }
 
-int putShortHD(char *fname, char *ename, int ever, ShortHdrData *x, int option) {
-        if (option == 0)
-            x->iodesc = openOutputImage(fname, ename, ever, &(x->hdr),
-                x->data.tot_nx, x->data.tot_ny, FITSSHORT);
-        else if (option & Overwrite)
-            x->iodesc = openUpdateImage(fname, ename, ever, &(x->hdr));
-        if (hstio_err()) return -1;
-        putShortData(x->iodesc,&(x->data));
-        if (hstio_err()) return -1;
-        closeImage(x->iodesc);
-        clear_err();
-        return 0;
+int putErr(char *filename, const int extver, ErrHdrData *x, const int option) {
+    return putFloatHD(filename, "ERR", extver, x, option);
 }
 
-/* Routine to support the routines which write out a subsection of data in *
- * memory to output files.  XBEG and YBEG are zero-indexed values.  The    *
- * coordinate values in the headers are one-indexed.                       */
-void updateWCS (Hdr *hdr, int xbeg, int ybeg) {
-        FitsKw kw;
-        float  old_LTV, new_LTV;
-        double old_CRPIX, new_CRPIX;
-
-        kw = findKw(hdr,"LTV1");
-        if (kw != 0) {
-            old_LTV = getFloatKw (kw);
-            new_LTV = old_LTV - (float)xbeg;
-            putFloatKw (kw, new_LTV);
-        }
-        kw = findKw(hdr,"LTV2");
-        if (kw != 0) {
-            old_LTV = getFloatKw (kw);
-            new_LTV = old_LTV - (float)ybeg;
-            putFloatKw (kw, new_LTV);
-        }
-
-        kw = findKw(hdr,"CRPIX1");
-        if (kw != 0) {
-            old_CRPIX = getDoubleKw (kw);
-            new_CRPIX = old_CRPIX - (double)xbeg;
-            putDoubleKw (kw, new_CRPIX);
-        }
-        kw = findKw(hdr,"CRPIX2");
-        if (kw != 0) {
-            old_CRPIX = getDoubleKw (kw);
-            new_CRPIX = old_CRPIX - (double)ybeg;
-            putDoubleKw (kw, new_CRPIX);
-        }
+int getDQ(char *filename, const int extver, DQHdrData *x) {
+    return getShortHD(filename, "DQ", extver, x);
 }
 
-int putFloatHDSect(char *fname, char *ename, int ever, FloatHdrData *x, int xbeg, int ybeg, int xsize, int ysize, int option) {
-
-        /* Update the LTV keywords */
-        updateWCS (&(x->hdr), xbeg, ybeg);
-
-        if (option == 0)
-            x->iodesc = openOutputImage(fname, ename, ever, &(x->hdr),
-                xsize, ysize, FITSFLOAT);
-        else if (option & Overwrite)
-            x->iodesc = openUpdateImage(fname, ename, ever, &(x->hdr));
-        if (hstio_err()) return -1;
-        putFloatSect(x->iodesc,&(x->data),xbeg,ybeg,xsize,ysize);
-        if (hstio_err()) return -1;
-        closeImage(x->iodesc);
-        clear_err();
-        return 0;
+int putDQ(char *filename, const int extver, DQHdrData *x, const int option) {
+    return putShortHD(filename, "DQ", extver, x, option);
 }
 
-int putShortHDSect(char *fname, char *ename, int ever, ShortHdrData *x, int xbeg, int ybeg, int xsize, int ysize, int option) {
+int getSmpl(char *filename, const int extver, SmplHdrData *x) {
+    return getShortHD(filename, "SAMP", extver, x);
+}
 
-        /* Update the LTV keywords */
-        updateWCS (&(x->hdr), xbeg, ybeg);
+int putSmpl(char *filename, const int extver, SmplHdrData *x, const int option) {
+    return putShortHD(filename, "SAMP", extver, x, option);
+}
 
-        if (option == 0)
-            x->iodesc = openOutputImage(fname, ename, ever, &(x->hdr),
-                xsize, ysize, FITSSHORT);
-        else if (option & Overwrite)
-            x->iodesc = openUpdateImage(fname, ename, ever, &(x->hdr));
-        if (hstio_err()) return -1;
-        putShortSect(x->iodesc,&(x->data),xbeg,ybeg,xsize,ysize);
-        if (hstio_err()) return -1;
-        closeImage(x->iodesc);
-        clear_err();
-        return 0;
+int getIntg(char *filename, const int extver, IntgHdrData *x) {
+    return getFloatHD(filename, "TIME", extver, x);
+}
+
+int putIntg(char *filename, const int extver, IntgHdrData *x, const int option) {
+    return putFloatHD(filename, "TIME", extver, x, option);
+}
+/*                                                                      **
+** Routines to output a subsection of an image in memory to a disk file **
+** where the subsection is the full size (NAXIS1/NAXIS2) of the output  **
+** image.                                                               **
+**                                                                      */
+int putSciSect(char *filename, const int extver, SciHdrData *x, const long xbeg, const long ybeg, const long xsize,
+               const long ysize, const int option) {
+    return putFloatHDSect(filename, "SCI", extver, x, xbeg, ybeg, xsize, ysize, option);
+}
+int putErrSect(char *filename, const int extver, ErrHdrData *x, const long xbeg, const long ybeg, const long xsize,
+               const long ysize, const int option) {
+    return putFloatHDSect(filename, "ERR", extver, x, xbeg, ybeg, xsize, ysize, option);
+}
+int putDQSect(char *filename, const int extver, DQHdrData *x, const long xbeg, const long ybeg, const long xsize,
+              const long ysize, const int option) {
+    return putShortHDSect(filename, "DQ", extver, x, xbeg, ybeg, xsize, ysize, option);
+}
+int putSmplSect(char *filename, const int extver, SmplHdrData *x, const long xbeg, const long ybeg, const long xsize,
+                const long ysize, const int option) {
+    return putShortHDSect(filename, "SAMP", extver, x, xbeg, ybeg, xsize, ysize, option);
+}
+int putIntgSect(char *filename, const int extver, IntgHdrData *x, const long xbeg, const long ybeg, const long xsize,
+                const long ysize, const int option) {
+    return putFloatHDSect(filename, "TIME", extver, x, xbeg, ybeg, xsize, ysize, option);
+}
+/* Get just the header for the extension */
+int getSciHdr(char *filename, const int extver, SciHdrLine *x) {
+    return getFloatHdr(filename, "SCI", extver, x);
+}
+int getErrHdr(char *filename, const int extver, ErrHdrLine *x) {
+    return getFloatHdr(filename, "ERR", extver, x);
+}
+int getDQHdr(char *filename, const int extver, DQHdrLine *x) {
+    return getShortHdr(filename, "DQ", extver, x);
+}
+/* Get just the data line for the extension */
+int getSciLine(const SciHdrLine *x, const int line_num) {
+    return getFloatLine(x->iodesc, line_num, x->line);
+}
+
+int getErrLine(const ErrHdrLine *x, const int line_num) {
+    return getFloatLine(x->iodesc, line_num, x->line);
+}
+
+int getDQLine(const DQHdrLine *x, const int line_num) {
+    return getShortLine(x->iodesc, line_num, x->line);
+}
+
+int getFloatHD(char *filename, const char *extname, const int extver, FloatHdrData *x) {
+    x->iodesc = openInputImage(filename, extname, extver);
+    const IODesc *xio = (IODesc *)x->iodesc;
+    if (hstio_err()) {
+        return -1;
+    }
+    x->section.sx = xio->dims[0];
+    x->section.sy = xio->dims[1];
+    getHeader(x->iodesc, &x->hdr);
+    if (hstio_err()) {
+        return -1;
+    }
+    getFloatData(x->iodesc, &x->data);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(x->iodesc);
+    clear_err();
+    return 0;
+}
+
+int putFloatHD(char *filename, const char *extname, const int extver, FloatHdrData *x, const int option) {
+    if (option == 0) {
+        x->iodesc = openOutputImage(filename, extname, extver, &x->hdr, x->data.tot_nx, x->data.tot_ny, FITSFLOAT);
+    } else if (option & Overwrite) {
+        x->iodesc = openUpdateImage(filename, extname, extver, &x->hdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    putFloatData(x->iodesc, &x->data);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(x->iodesc);
+    clear_err();
+    return 0;
+}
+
+int getShortHD(char *filename, const char *extname, const int extver, ShortHdrData *x) {
+    x->iodesc = openInputImage(filename, extname, extver);
+    const IODesc *xio = (IODesc *)x->iodesc;
+    if (hstio_err()) {
+        return -1;
+    }
+    x->section.sx = xio->dims[0];
+    x->section.sy = xio->dims[1];
+    getHeader(x->iodesc, &x->hdr);
+    if (hstio_err()) {
+        return -1;
+    }
+    getShortData(x->iodesc, &x->data);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(x->iodesc);
+    clear_err();
+    return 0;
+}
+
+int putShortHD(char *filename, const char *extname, const int extver, ShortHdrData *x, const int option) {
+    if (option == 0) {
+        x->iodesc = openOutputImage(filename, extname, extver, &x->hdr, x->data.tot_nx, x->data.tot_ny, FITSSHORT);
+    } else if (option & Overwrite) {
+        x->iodesc = openUpdateImage(filename, extname, extver, &x->hdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    putShortData(x->iodesc, &x->data);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(x->iodesc);
+    clear_err();
+    return 0;
+}
+int putFloatHDSect(char *filename, const char *extname, const int extver, FloatHdrData *x, const long xbeg,
+                   const long ybeg, const long xsize, const long ysize, const int option) {
+
+    /* Update the LTV keywords */
+    updateWCS(&x->hdr, xbeg, ybeg);
+
+    if (option == 0) {
+        x->iodesc = openOutputImage(filename, extname, extver, &x->hdr, xsize, ysize, FITSFLOAT);
+    } else if (option & Overwrite) {
+        x->iodesc = openUpdateImage(filename, extname, extver, &x->hdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    putFloatSect(x->iodesc, &x->data, xbeg, ybeg, xsize, ysize);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(x->iodesc);
+    clear_err();
+    return 0;
+}
+int putShortHDSect(char *filename, const char *extname, const int extver, ShortHdrData *x, const long xbeg,
+                   const long ybeg, const long xsize, const long ysize, const int option) {
+
+    /* Update the LTV keywords */
+    updateWCS(&x->hdr, xbeg, ybeg);
+
+    if (option == 0) {
+        x->iodesc = openOutputImage(filename, extname, extver, &x->hdr, xsize, ysize, FITSSHORT);
+    } else if (option & Overwrite) {
+        x->iodesc = openUpdateImage(filename, extname, extver, &x->hdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    putShortSect(x->iodesc, &x->data, xbeg, ybeg, xsize, ysize);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(x->iodesc);
+    clear_err();
+    return 0;
 }
 
 int getFloatHdr(char *filename, const char *extname, const int extver, FloatHdrLine *x) {
@@ -1750,250 +1908,429 @@ int putSingleGroupHdr(char *filename, const SingleGroup *x, const int option) {
     return 0;
 }
 
-int putSingleGroup(char *fname, int ever, SingleGroup *x, int option) {
-        struct stat buf;
-        if (option == 0) {
-            if (stat(fname,&buf) == -1)
-                putSingleGroupHdr(fname,x,0);
+int putSingleGroup(char *filename, const int extver, SingleGroup *x, const int option) {
+    struct stat buf;
+    if (option == 0) {
+        if (stat(filename, &buf) == -1) {
+            putSingleGroupHdr(filename, x, 0);
         }
-        putSci(fname,ever,&(x->sci),option); if (hstio_err()) return -1;
-        putErr(fname,ever,&(x->err),option); if (hstio_err()) return -1;
-        putDQ(fname,ever,&(x->dq),option); if (hstio_err()) return -1;
-        clear_err();
-        return 0;
+    }
+    putSci(filename, extver, &x->sci, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putErr(filename, extver, &x->err, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putDQ(filename, extver, &x->dq, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
 /*                                                                           **
 ** Routine to output a subsection of an imset in memory to a disk file where **
 ** the subsection is the full size (NAXIS1/NAXIS2) of the output image.      **
 **                                                                           */
-int putSingleGroupSect(char *fname, int ever, SingleGroup *x, int xbeg,
-    int ybeg, int xsize, int ysize, int option) {
-        struct stat buf;
+int putSingleGroupSect(char *filename, const int extver, SingleGroup *x, const int xbeg, const int ybeg, const int xsize,
+                       const int ysize, const int option) {
+    struct stat buf;
 
-        if (option == 0) {
-            if (stat(fname,&buf) == -1)
-                putSingleGroupHdr(fname,x,0);
+    if (option == 0) {
+        if (stat(filename, &buf) == -1) {
+            putSingleGroupHdr(filename, x, 0);
         }
+    }
 
-        putSciSect(fname,ever,&(x->sci),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putSciSect(filename, extver, &x->sci, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        putErrSect(fname,ever,&(x->err),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putErrSect(filename, extver, &x->err, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        putDQSect (fname,ever,&(x->dq),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putDQSect(filename, extver, &x->dq, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        clear_err ();
-        return 0;
+    clear_err();
+    return 0;
 }
 
-int getSingleNicmosGroup(char *fname, int ever, SingleNicmosGroup *x) {
-        IODescPtr in;
-        in = openInputImage(fname,"",0); if (hstio_err()) return -1;
-        if (x->globalhdr != NULL)
-            free(x->globalhdr);
-        if (x->filename != NULL)
-            free(x->filename);
-        x->filename = (char *)calloc((strlen(fname) + 1),sizeof(char));
-        strcpy(x->filename,fname);
-        x->globalhdr = (Hdr *)calloc(1,sizeof(Hdr));
-        if (x->globalhdr == NULL) return -1;
-        initHdr(x->globalhdr);
-        getHeader(in,x->globalhdr); if (hstio_err()) return -1;
-        closeImage(in);
-        x->group_num = ever;
-        getSci(fname,ever,&(x->sci)); if (hstio_err()) return -1;
-        getErr(fname,ever,&(x->err)); if (hstio_err()) return -1;
-        getDQ(fname,ever,&(x->dq)); if (hstio_err()) return -1;
-        getSmpl(fname,ever,&(x->smpl)); if (hstio_err()) return -1;
-        getIntg(fname,ever,&(x->intg)); if (hstio_err()) return -1;
-        clear_err();
-        return 0;
+int getSingleNicmosGroup(char *filename, const int extver, SingleNicmosGroup *x) {
+    IODescPtr in = openInputImage(filename, "", 0);
+    if (hstio_err()) {
+        return -1;
+    }
+    if (x->globalhdr != NULL) {
+        free(x->globalhdr);
+    }
+    if (x->filename != NULL) {
+        free(x->filename);
+    }
+    x->filename = (char *)calloc(strlen(filename) + 1, sizeof(char));
+    strcpy(x->filename, filename);
+    x->globalhdr = (Hdr *)calloc(1, sizeof(Hdr));
+    if (x->globalhdr == NULL) {
+        return -1;
+    }
+    initHdr(x->globalhdr);
+    getHeader(in, x->globalhdr);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(in);
+    x->group_num = extver;
+    getSci(filename, extver, &x->sci);
+    if (hstio_err()) {
+        return -1;
+    }
+    getErr(filename, extver, &x->err);
+    if (hstio_err()) {
+        return -1;
+    }
+    getDQ(filename, extver, &x->dq);
+    if (hstio_err()) {
+        return -1;
+    }
+    getSmpl(filename, extver, &x->smpl);
+    if (hstio_err()) {
+        return -1;
+    }
+    getIntg(filename, extver, &x->intg);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
-int putSingleNicmosGroupHdr(char *fname, SingleNicmosGroup *x, int option) {
-        IODescPtr out = NULL;
-        if (option == 0)
-            out = openOutputImage(fname,"",0,x->globalhdr,0,0,FITSBYTE);
-        else if (option & Overwrite)
-            out = openUpdateImage(fname,"",0,x->globalhdr);
-        if (hstio_err()) return -1;
-        closeImage(out);
-        clear_err();
-        return 0;
+int putSingleNicmosGroupHdr(char *filename, const SingleNicmosGroup *x, const int option) {
+    IODescPtr out = NULL;
+    if (option == 0) {
+        out = openOutputImage(filename, "", 0, x->globalhdr, 0, 0, FITSBYTE);
+    } else if (option & Overwrite) {
+        out = openUpdateImage(filename, "", 0, x->globalhdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(out);
+    clear_err();
+    return 0;
 }
 
-int putSingleNicmosGroup(char *fname, int ever, SingleNicmosGroup *x,
-        int option) {
-        struct stat buf;
-        if (option == 0) {
-            if (stat(fname,&buf) == -1)
-                putSingleNicmosGroupHdr(fname,x,0);
+int putSingleNicmosGroup(char *filename, const int extver, SingleNicmosGroup *x, const int option) {
+    struct stat buf;
+    if (option == 0) {
+        if (stat(filename, &buf) == -1) {
+            putSingleNicmosGroupHdr(filename, x, 0);
         }
-        putSci(fname,ever,&(x->sci),option); if (hstio_err()) return -1;
-        putErr(fname,ever,&(x->err),option); if (hstio_err()) return -1;
-        putDQ(fname,ever,&(x->dq),option); if (hstio_err()) return -1;
-        putSmpl(fname,ever,&(x->smpl),option); if (hstio_err()) return -1;
-        putIntg(fname,ever,&(x->intg),option); if (hstio_err()) return -1;
-        clear_err();
-        return 0;
+    }
+    putSci(filename, extver, &x->sci, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putErr(filename, extver, &x->err, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putDQ(filename, extver, &x->dq, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putSmpl(filename, extver, &x->smpl, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putIntg(filename, extver, &x->intg, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
 /*                                                                           **
 ** Routine to output a subsection of an imset in memory to a disk file where **
 ** the subsection is the full size (NAXIS1/NAXIS2) of the output image.      **
 **                                                                           */
-int putSingleNicmosGroupSect(char *fname, int ever, SingleNicmosGroup *x,
-    int xbeg, int ybeg, int xsize, int ysize, int option) {
-        struct stat buf;
+int putSingleNicmosGroupSect(char *filename, const int extver, SingleNicmosGroup *x, const long xbeg, const long ybeg,
+                             const long xsize, const long ysize, const int option) {
+    struct stat buf;
 
-        if (option == 0) {
-            if (stat(fname,&buf) == -1)
-                putSingleNicmosGroupHdr(fname,x,0);
+    if (option == 0) {
+        if (stat(filename, &buf) == -1) {
+            putSingleNicmosGroupHdr(filename, x, 0);
         }
+    }
 
-        putSciSect(fname,ever,&(x->sci),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putSciSect(filename, extver, &x->sci, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        putErrSect(fname,ever,&(x->err),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putErrSect(filename, extver, &x->err, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        putDQSect (fname,ever,&(x->dq),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putDQSect(filename, extver, &x->dq, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        putSmplSect(fname,ever,&(x->smpl),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putSmplSect(filename, extver, &x->smpl, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        putIntgSect(fname,ever,&(x->intg),xbeg,ybeg,xsize,ysize,option);
-        if (hstio_err()) return -1;
+    putIntgSect(filename, extver, &x->intg, xbeg, ybeg, xsize, ysize, option);
+    if (hstio_err()) {
+        return -1;
+    }
 
-        clear_err ();
-        return 0;
+    clear_err();
+    return 0;
 }
 
-int getMultiGroupHdr(char *fname, MultiGroup *x) {
-        IODescPtr in;
-        int i;
-        in = openInputImage(fname,"",0); if (hstio_err()) return -1;
-        getHeader(in,x->group[0].globalhdr); if (hstio_err()) return -1;
-        closeImage(in);
-        if (x->group[0].filename != NULL)
-            free(x->group[0].filename);
-        x->group[0].filename = (char *)calloc((strlen(fname) + 1),sizeof(char));
-        strcpy(x->group[0].filename,fname);
-        for (i = 1; i < x->ngroups; ++i) {
-            x->group[i].filename = x->group[0].filename;
-            x->group[i].globalhdr = x->group[0].globalhdr;
+int getMultiGroupHdr(char *filename, const MultiGroup *x) {
+    IODescPtr in = openInputImage(filename, "", 0);
+    if (hstio_err()) {
+        return -1;
+    }
+    getHeader(in, x->group[0].globalhdr);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(in);
+    if (x->group[0].filename != NULL) {
+        free(x->group[0].filename);
+    }
+    x->group[0].filename = (char *)calloc(strlen(filename) + 1, sizeof(char));
+    strcpy(x->group[0].filename, filename);
+    for (int i = 1; i < x->ngroups; ++i) {
+        x->group[i].filename = x->group[0].filename;
+        x->group[i].globalhdr = x->group[0].globalhdr;
+    }
+    clear_err();
+    return 0;
+}
+
+int getMultiGroup(const MultiGroup *x, const int ngroup, const int extver) {
+    if (ngroup < 0 || ngroup > x->ngroups) {
+        error(BADGROUP, "");
+        return -1;
+    }
+    x->group[ngroup].group_num = extver;
+    getSci(x->group[ngroup].filename, extver, &x->group[ngroup].sci);
+    if (hstio_err()) {
+        return -1;
+    }
+    getErr(x->group[ngroup].filename, extver, &x->group[ngroup].err);
+    if (hstio_err()) {
+        return -1;
+    }
+    getDQ(x->group[ngroup].filename, extver, &x->group[ngroup].dq);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
+}
+
+int putMultiGroupHdr(char *filename, const MultiGroup *x, const int option) {
+    IODescPtr out = NULL;
+    if (option == 0) {
+        out = openOutputImage(filename, "", 0, x->group[0].globalhdr, 0, 0, FITSBYTE);
+    } else if (option & Overwrite) {
+        out = openUpdateImage(filename, "", 0, x->group[0].globalhdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    putHeader(out);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(out);
+    clear_err();
+    return 0;
+}
+
+int putMultiGroup(char *filename, const int extver, const MultiGroup *x, const int ngroup, const int option) {
+    struct stat buf;
+    if (ngroup < 0 || ngroup > x->ngroups) {
+        error(BADGROUP, "");
+        return -1;
+    }
+    if (option == 0) {
+        if (stat(filename, &buf) == -1) {
+            putMultiGroupHdr(filename, x, 0);
         }
-        clear_err();
-        return 0;
+    }
+    putSci(filename, extver, &x->group[ngroup].sci, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putErr(filename, extver, &x->group[ngroup].err, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putDQ(filename, extver, &x->group[ngroup].dq, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
-int getMultiGroup(MultiGroup *x, int ng, int ever) {
-        if (ng < 0 || ng > x->ngroups) { error(BADGROUP,""); return -1; }
-        x->group[ng].group_num = ever;
-        getSci(x->group[ng].filename,ever,&(x->group[ng].sci));
-        if (hstio_err()) return -1;
-        getErr(x->group[ng].filename,ever,&(x->group[ng].err));
-        if (hstio_err()) return -1;
-        getDQ(x->group[ng].filename,ever,&(x->group[ng].dq));
-        if (hstio_err()) return -1;
-        clear_err();
-        return 0;
+int getMultiNicmosGroupHdr(char *filename, const MultiNicmosGroup *x) {
+    IODescPtr in = openInputImage(filename, "", 0);
+    if (hstio_err()) {
+        return -1;
+    }
+    getHeader(in, x->group[0].globalhdr);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(in);
+    if (x->group[0].filename != NULL) {
+        free(x->group[0].filename);
+    }
+    x->group[0].filename = (char *)calloc(strlen(filename) + 1, sizeof(char));
+    strcpy(x->group[0].filename, filename);
+    for (int i = 1; i < x->ngroups; ++i) {
+        x->group[i].filename = x->group[0].filename;
+        x->group[i].globalhdr = x->group[0].globalhdr;
+    }
+    clear_err();
+    return 0;
 }
 
-int putMultiGroupHdr(char *fname, MultiGroup *x, int option) {
-        IODescPtr out = NULL;
-        if (option == 0)
-            out = openOutputImage(fname,"",0,x->group[0].globalhdr,0,0,FITSBYTE);
-        else if (option & Overwrite)
-            out = openUpdateImage(fname,"",0,x->group[0].globalhdr);
-        if (hstio_err()) return -1;
-        putHeader(out); if (hstio_err()) return -1;
-        closeImage(out);
-        clear_err();
-        return 0;
+int getMultiNicmosGroup(const MultiNicmosGroup *x, const int ngroup, const int extver) {
+    if (ngroup < 0 || ngroup > x->ngroups) {
+        error(BADGROUP, "");
+        return -1;
+    }
+    x->group[ngroup].group_num = extver;
+    getSci(x->group[ngroup].filename, extver, &x->group[ngroup].sci);
+    if (hstio_err()) {
+        return -1;
+    }
+    getErr(x->group[ngroup].filename, extver, &x->group[ngroup].err);
+    if (hstio_err()) {
+        return -1;
+    }
+    getDQ(x->group[ngroup].filename, extver, &x->group[ngroup].dq);
+    if (hstio_err()) {
+        return -1;
+    }
+    getSmpl(x->group[ngroup].filename, extver, &x->group[ngroup].smpl);
+    if (hstio_err()) {
+        return -1;
+    }
+    getIntg(x->group[ngroup].filename, extver, &x->group[ngroup].intg);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
-int putMultiGroup(char *fname, int ever, MultiGroup *x, int ng, int option) {
-        struct stat buf;
-        if (ng < 0 || ng > x->ngroups) { error(BADGROUP,""); return -1; }
-        if (option == 0) {
-            if (stat(fname,&buf) == -1)
-                putMultiGroupHdr(fname,x,0);
+int putMultiNicmosGroupHdr(char *filename, const MultiNicmosGroup *x, const int option) {
+    IODescPtr out = NULL;
+    if (option == 0) {
+        out = openOutputImage(filename, "", 0, x->group[0].globalhdr, 0, 0, FITSBYTE);
+    } else if (option & Overwrite) {
+        out = openUpdateImage(filename, "", 0, x->group[0].globalhdr);
+    }
+    if (hstio_err()) {
+        return -1;
+    }
+    putHeader(out);
+    if (hstio_err()) {
+        return -1;
+    }
+    closeImage(out);
+    clear_err();
+    return 0;
+}
+
+int putMultiNicmosGroup(char *filename, const int extver, const MultiNicmosGroup *x, const int ngroup, const int option) {
+    struct stat buf;
+    if (ngroup < 0 || ngroup > x->ngroups) {
+        error(BADGROUP, "");
+        return -1;
+    }
+    if (option == 0) {
+        if (stat(filename, &buf) == -1) {
+            putMultiNicmosGroupHdr(filename, x, 0);
         }
-        putSci(fname,ever,&(x->group[ng].sci),option); if (hstio_err()) return -1;
-        putErr(fname,ever,&(x->group[ng].err),option); if (hstio_err()) return -1;
-        putDQ(fname,ever,&(x->group[ng].dq),option); if (hstio_err()) return -1;
-        clear_err();
-        return 0;
+    }
+    putSci(filename, extver, &x->group[ngroup].sci, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putErr(filename, extver, &x->group[ngroup].err, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putDQ(filename, extver, &x->group[ngroup].dq, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putSmpl(filename, extver, &x->group[ngroup].smpl, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    putIntg(filename, extver, &x->group[ngroup].intg, option);
+    if (hstio_err()) {
+        return -1;
+    }
+    clear_err();
+    return 0;
 }
 
-int getMultiNicmosGroupHdr(char *fname, MultiNicmosGroup *x) {
-        IODescPtr in;
-        int i;
-        in = openInputImage(fname,"",0); if (hstio_err()) return -1;
-        getHeader(in,x->group[0].globalhdr); if (hstio_err()) return -1;
-        closeImage(in);
-        if (x->group[0].filename != NULL)
-            free(x->group[0].filename);
-        x->group[0].filename = (char *)calloc((strlen(fname) + 1),sizeof(char));
-        strcpy(x->group[0].filename,fname);
-        for (i = 1; i < x->ngroups; ++i) {
-            x->group[i].filename = x->group[0].filename;
-            x->group[i].globalhdr = x->group[0].globalhdr;
-        }
-        clear_err();
-        return 0;
-}
+/* Routine to support the routines which write out a subsection of data in *
+ * memory to output files.  XBEG and YBEG are zero-indexed values.  The    *
+ * coordinate values in the headers are one-indexed.                       */
+void updateWCS(Hdr *hdr, const long xbeg, const long ybeg) {
+    float old_LTV, new_LTV;
+    double old_CRPIX, new_CRPIX;
 
-int getMultiNicmosGroup(MultiNicmosGroup *x, int ng, int ever) {
-        if (ng < 0 || ng > x->ngroups) { error(BADGROUP,""); return -1; }
-        x->group[ng].group_num = ever;
-        getSci(x->group[ng].filename,ever,&(x->group[ng].sci));
-        if (hstio_err()) return -1;
-        getErr(x->group[ng].filename,ever,&(x->group[ng].err));
-        if (hstio_err()) return -1;
-        getDQ(x->group[ng].filename,ever,&(x->group[ng].dq));
-        if (hstio_err()) return -1;
-        getSmpl(x->group[ng].filename,ever,&(x->group[ng].smpl));
-        if (hstio_err()) return -1;
-        getIntg(x->group[ng].filename,ever,&(x->group[ng].intg));
-        if (hstio_err()) return -1;
-        clear_err();
-        return 0;
-}
+    FitsKw kw = findKw(hdr, "LTV1");
+    if (kw != 0) {
+        old_LTV = getFloatKw(kw);
+        new_LTV = old_LTV - (float)xbeg;
+        putFloatKw(kw, new_LTV);
+    }
+    kw = findKw(hdr, "LTV2");
+    if (kw != 0) {
+        old_LTV = getFloatKw(kw);
+        new_LTV = old_LTV - (float)ybeg;
+        putFloatKw(kw, new_LTV);
+    }
 
-int putMultiNicmosGroupHdr(char *fname, MultiNicmosGroup *x, int option) {
-        IODescPtr out = NULL;
-        if (option == 0)
-            out = openOutputImage(fname,"",0,x->group[0].globalhdr,0,0,FITSBYTE);
-        else if (option & Overwrite)
-            out = openUpdateImage(fname,"",0,x->group[0].globalhdr);
-        if (hstio_err()) return -1;
-        putHeader(out); if (hstio_err()) return -1;
-        closeImage(out);
-        clear_err();
-        return 0;
-}
-
-int putMultiNicmosGroup(char *fname, int ever, MultiNicmosGroup *x, int ng,
-        int option) {
-        struct stat buf;
-        if (ng < 0 || ng > x->ngroups) { error(BADGROUP,""); return -1; }
-        if (option == 0) {
-            if (stat(fname,&buf) == -1)
-                putMultiNicmosGroupHdr(fname,x,0);
-        }
-        putSci(fname,ever,&(x->group[ng].sci),option); if (hstio_err()) return -1;
-        putErr(fname,ever,&(x->group[ng].err),option); if (hstio_err()) return -1;
-        putDQ(fname,ever,&(x->group[ng].dq),option); if (hstio_err()) return -1;
-        putSmpl(fname,ever,&(x->group[ng].smpl),option); if (hstio_err()) return -1;
-        putIntg(fname,ever,&(x->group[ng].intg),option); if (hstio_err()) return -1;
-        clear_err();
-        return 0;
+    kw = findKw(hdr, "CRPIX1");
+    if (kw != 0) {
+        old_CRPIX = getDoubleKw(kw);
+        new_CRPIX = old_CRPIX - (double)xbeg;
+        putDoubleKw(kw, new_CRPIX);
+    }
+    kw = findKw(hdr, "CRPIX2");
+    if (kw != 0) {
+        old_CRPIX = getDoubleKw(kw);
+        new_CRPIX = old_CRPIX - (double)ybeg;
+        putDoubleKw(kw, new_CRPIX);
+    }
 }
 
 /*
@@ -2007,47 +2344,13 @@ int putMultiNicmosGroup(char *fname, int ever, MultiNicmosGroup *x, int ng,
 ** Section 7.
 **
 ** High-level functions formerly in hstioirf.c
- */
+*/
 
 /* CFITSIO TODO: store axes in IODesc object as array to more
    conveniently interface with CFITSIO */
 
 static void detect_iraferr(void) {
-        sprintf(error_msg,"\nIRAF error %d: %s\n",c_iraferr(),
-                c_iraferrmsg());
-}
-
-static int is_empty_extname(const IODesc *iodesc) {
-    // An empty EXTNAME is:
-    //   - a NULL pointer
-    //   - a zero-length string
-    //   - a string consisting of space characters
-
-    if (!iodesc->extname) {
-        return 1;
-    }
-
-    const size_t len = strlen(iodesc->extname);
-    if (!len) {
-        return 1;
-    }
-
-    for (size_t i = 0; i < len; i++) {
-        if (iodesc->extname[i] != ' ') {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static int is_primary_hdu(const IODesc *iodesc) {
-    if (iodesc->extver == 0) {
-        return 1;
-    }
-    if (!is_empty_extname(iodesc) && strcasecmp(iodesc->extname, "PRIMARY") == 0) {
-        return 1;
-    }
-    return 0;
+    sprintf(error_msg, "\nIRAF error %d: %s\n", c_iraferr(), c_iraferrmsg());
 }
 
 /*
@@ -2056,70 +2359,82 @@ static int is_primary_hdu(const IODesc *iodesc) {
 ** correct filename to be used in the open statement to IRAF.  This
 ** constructed filename is returned.
 */
-static char *make_iodesc(IODesc **x, const char *fname, const char *ename, const int ever) {
+static char *make_iodesc(IODesc **x, char *filename, const char *extname, const int extver) {
+    char xname[9];
+
     IODesc *iodesc = calloc(1, sizeof(IODesc));
     if (iodesc == NULL) {
         error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
-
-    if (fname == NULL) {
-        fname = "";
+    iodesc->ff = NULL;
+    iodesc->filename = NULL;
+    iodesc->extname = NULL;
+    iodesc->extver = 0;
+    iodesc->hflag = 0;
+    iodesc->hdr = NULL;
+    iodesc->dims[0] = 0;
+    iodesc->dims[1] = 0;
+    iodesc->type = 0;
+    if (filename == 0) {
+        filename = "";
     }
-    if (ename == NULL) {
-        ename = "";
+    if (extname == 0) {
+        extname = "";
     }
-
-    iodesc->filename = strdup(fname);
+    const size_t filename_len = strlen(filename) + 1;
+    iodesc->filename = (char *)calloc(filename_len, sizeof(char));
     if (iodesc->filename == NULL) {
         free(iodesc);
         error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
+    const size_t n = strlen(extname);
+    if (n > 8) {
+        ioerr(BADEXTNAME, iodesc, 0);
+        return NULL;
+    }
+    for (size_t i = 0; i < n; ++i) {
+        xname[i] = (char) toupper(extname[i]);
+    }
 
-    iodesc->extname = strdup(ename);
+    char *xname_end = strrchr(xname, ' ');
+    if (xname_end) {
+       *xname_end = '\0';
+    }
+
+    iodesc->extname = (char *)calloc(strlen(xname) + 1, sizeof(char));
     if (iodesc->extname == NULL) {
         free(iodesc->filename);
         free(iodesc);
         error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
+    strcpy(iodesc->filename, filename);
+    strcpy(iodesc->extname, xname);
+    iodesc->extver = extver;
 
-    if (strlen(iodesc->extname) > 8) {
-        free(iodesc->filename);
-        free(iodesc);
-        ioerr(BADEXTNAME, iodesc, 0);
-        return NULL;
-    }
+    /* make up the proper filename */
+    /* check for a request for the primary HDU */
+    const bool have_xname = strlen(xname) != 0;
+    const bool need_sep = extver == 0 || extname == 0 || extname[0] == '\0' || extname[0] == ' ';
+    char filename_suffix[80] = {0};
+    const int filename_suffix_len =
+        snprintf(filename_suffix, sizeof(filename_suffix), "[%s%s%d]", have_xname ? xname : "", need_sep ? "" : ",", extver);
 
-    fits_uppercase(iodesc->extname);
-    iodesc->extver = ever;
-
-    /* Check for a request for the primary HDU */
-    const int have_primary = is_primary_hdu(iodesc);
-
-    /* Generate the proper filename for a primary HDU:
-     *   "FILENAME[0]"
-     * Otherwise:
-     *   "FILENAME[EXTNAME,EXTVER]"
-     */
-    char filename_out_suffix[80] = {0};
-    const int filename_suffix_len = snprintf(filename_out_suffix, sizeof(filename_out_suffix), "[%s%s%d]",
-        have_primary ? "" : iodesc->extname,
-        have_primary ? "" : ",", iodesc->extver);
-
-    const size_t filename_out_len = strlen(iodesc->filename) + filename_suffix_len + 1;
-    char *filename_out = calloc(filename_out_len, sizeof(*filename_out));
-    if (!filename_out) {
+    const size_t result_len = filename_len + filename_suffix_len + 1;
+    char *result = calloc(result_len, sizeof(*result));
+    if (!result) {
         free(iodesc->filename);
         free(iodesc);
         error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
-    snprintf(filename_out, filename_out_len, "%s%s", iodesc->filename, filename_out_suffix);
+    snprintf(result, result_len, "%s%s", filename, filename_suffix);
 
     *x = iodesc;
-    return filename_out;
+
+    return result;
 }
 
 IODescPtr openInputImage(char *filename, const char *extname, const int extver) {
@@ -2150,13 +2465,13 @@ IODescPtr openInputImage(char *filename, const char *extname, const int extver) 
         return NULL;
     }
 
-        open_mode = READONLY;
+    const int open_mode = READONLY;
 
-        if (c_vfn2osfn(tmp, ospath)) {
-            free(tmp);
-            return NULL;
-        }
+    if (c_vfn2osfn(tmp, ospath)) {
         free(tmp);
+        return NULL;
+    }
+    free(tmp);
 
     if (fits_open_file(&iodesc->ff, ospath, open_mode, &retval)) {
         ioerr(BADOPEN, iodesc, retval);
@@ -2191,100 +2506,99 @@ IODescPtr openInputImage(char *filename, const char *extname, const int extver) 
     return iodesc;
 }
 
-IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
-        int d1, int d2, FitsDataType typ) {
-        IODesc *iodesc;
-        char *tmp;
-        char date[12];
-        char date_card[81];
-        time_t t;
-        struct tm *time_tmp;
-        FitsKw kw;
-        char ename_val[9];
-        int ever_val;
-        char ospath[SZ_PATHNAME];
-        int status = 0;
+IODescPtr openOutputImage(char *filename, const char *extname, const int extver, Hdr *hdr, const long dim1, const long dim2, const FitsDataType type) {
+    IODesc *iodesc;
+    char date[12];
+    char date_card[81];
+    time_t t;
+    char ename_val[9];
+    char ospath[SZ_PATHNAME];
+    int retval = 0;
 
-        /* CFITSIO: Error handling */
-        c_pusherr(detect_iraferr);
+    /* CFITSIO: Error handling */
+    c_pusherr(detect_iraferr);
 
-        tmp = make_iodesc(&iodesc, fname, ename, ever);
-        if (tmp == NULL) return NULL;
-        iodesc->options = WriteOnly;
-        if (ever == 0 || ename == 0 || ename[0] == '\0' || ename[0] == ' ') {
-            int rtn = ckNewFile(fname);
-            if (rtn == 1) {
-                ioerr(BADEXIST, iodesc, 0);
-                return NULL;
-            } else if (rtn == 2) {
-                ioerr(BADREMOVE, iodesc, 0);
-                return NULL;
-            }
-        }
-
-        /* CFITSIO: Check this INHERIT, APPEND nonsense works */
-        /* p = strstr(tmp, "[0]"); */
-        /* if (p == NULL) { */
-        /*     tmp[strlen(tmp) - 1] = '\0'; */
-        /*     strcat(tmp, ",INHERIT,APPEND]"); */
-        /* } */
-        /* else { */
-        /*     tmp[strlen(tmp) - 3] = '\0'; /\* eliminate the "[0]" *\/ */
-        /* } */
-
-        /* make sure ename and ever are in the header array */
-        kw = findKw(hd, "EXTNAME");
-        if (kw == NotFound) {
-            if (ever != 0 && ename != 0 &&
-                ename[0] != '\0' && ename[0] != ' ') {
-                kw = insertfirst(hd);
-                kw = insertStringKw(kw, "EXTNAME", ename, "Name of the extension");
-            }
-        } else {
-            /* Make sure it has the right value */
-            getStringKw(kw,ename_val,8);
-            if (strncpy(ename_val, ename, strlen(ename)) != 0)
-                putStringKw(kw,ename);
-        }
-        kw = findKw(hd,"EXTVER");
-        if (kw == NotFound) {
-            if (ever != 0 && ename != 0 &&
-                ename[0] != '\0' && ename[0] != ' ') {
-                kw = findKw(hd, "EXTNAME");
-                kw = insertIntKw(kw, "EXTVER", ever, "Extension version");
-            }
-        } else {
-            /* Make sure it has the right value */
-            ever_val = getIntKw(kw);
-            if (ever != ever_val)
-                putIntKw(kw, ever);
-        }
-
-        /* open or create the file using CFITSIO */
-        if (ever == 0 || ename == 0 || ename[0] == '\0' || ename[0] == ' ') {
-            c_vfn2osfn(fname, ospath);
-            fits_create_file(&iodesc->ff, ospath, &status);
-        } else {
-            c_vfn2osfn(fname, ospath);
-            fits_open_file(&iodesc->ff, ospath, READWRITE, &status);
-        }
-        if (status) {
-            ioerr(BADOPEN, iodesc, status);
-            free(iodesc->extname);
-            free(iodesc->filename);
-            free(iodesc);
+    char *tmp = make_iodesc(&iodesc, filename, extname, extver);
+    if (tmp == NULL) {
+        return NULL;
+    }
+    iodesc->options = WriteOnly;
+    if (extver == 0 || extname == 0 || extname[0] == '\0' || extname[0] == ' ') {
+        const int rtn = ckNewFile(filename);
+        if (rtn == 1) {
+            ioerr(BADEXIST, iodesc, 0);
             return NULL;
         }
-        free(tmp);
+        if (rtn == 2) {
+            ioerr(BADREMOVE, iodesc, 0);
+            return NULL;
+        }
+    }
 
-        iodesc->dims[0] = d1;
-        iodesc->dims[1] = d2;
-        /* IMIO would always set bitpix to 16 when the dimensions are
-           naught */
-        if (d1 == 0 && d2 == 0) {
-            iodesc->type = SHORT_IMG;
-        } else {
-            switch (typ) {
+    /* CFITSIO: Check this INHERIT, APPEND nonsense works */
+    /* p = strstr(tmp, "[0]"); */
+    /* if (p == NULL) { */
+    /*     tmp[strlen(tmp) - 1] = '\0'; */
+    /*     strcat(tmp, ",INHERIT,APPEND]"); */
+    /* } */
+    /* else { */
+    /*     tmp[strlen(tmp) - 3] = '\0'; /\* eliminate the "[0]" *\/ */
+    /* } */
+
+    /* make sure extname and extver are in the header array */
+    FitsKw kw = findKw(hdr, "EXTNAME");
+    if (kw == NotFound) {
+        if (extver != 0 && extname != 0 && extname[0] != '\0' && extname[0] != ' ') {
+            kw = insertfirst(hdr);
+            kw = insertStringKw(kw, "EXTNAME", extname, "Name of the extension");
+        }
+    } else {
+        /* Make sure it has the right value */
+        getStringKw(kw, ename_val, 8);
+        if (strncpy(ename_val, extname, sizeof(ename_val) - 1) != 0) {
+            ename_val[sizeof(ename_val) - 1] = '\0';
+            putStringKw(kw, extname);
+        }
+    }
+    kw = findKw(hdr, "EXTVER");
+    if (kw == NotFound) {
+        if (extver != 0 && extname != 0 && extname[0] != '\0' && extname[0] != ' ') {
+            kw = findKw(hdr, "EXTNAME");
+            kw = insertIntKw(kw, "EXTVER", extver, "Extension version");
+        }
+    } else {
+        /* Make sure it has the right value */
+        const int extver_val = getIntKw(kw);
+        if (extver != extver_val) {
+            putIntKw(kw, extver);
+        }
+    }
+
+    /* open or create the file using CFITSIO */
+    if (extver == 0 || extname == 0 || extname[0] == '\0' || extname[0] == ' ') {
+        c_vfn2osfn(filename, ospath);
+        fits_create_file(&iodesc->ff, ospath, &retval);
+    } else {
+        c_vfn2osfn(filename, ospath);
+        fits_open_file(&iodesc->ff, ospath, READWRITE, &retval);
+    }
+    if (retval) {
+        ioerr(BADOPEN, iodesc, retval);
+        free(iodesc->extname);
+        free(iodesc->filename);
+        free(iodesc);
+        return NULL;
+    }
+    free(tmp);
+
+    iodesc->dims[0] = dim1;
+    iodesc->dims[1] = dim2;
+    /* IMIO would always set bitpix to 16 when the dimensions are
+       naught */
+    if (dim1 == 0 && dim2 == 0) {
+        iodesc->type = SHORT_IMG;
+    } else {
+        switch (type) {
             case FITSBYTE:
                 iodesc->type = BYTE_IMG;
                 break;
@@ -2303,131 +2617,132 @@ IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
             default:
                 iodesc->type = SHORT_IMG;
                 break;
-            }
         }
-        iodesc->hdr = hd;
+    }
+    iodesc->hdr = hdr;
 
-        if (fits_create_img(iodesc->ff, iodesc->type, 2, iodesc->dims, &status)) {
-            ioerr(BADOPEN, iodesc, status);
-            return NULL;
-        }
+    if (fits_create_img(iodesc->ff, iodesc->type, 2, iodesc->dims, &retval)) {
+        ioerr(BADOPEN, iodesc, retval);
+        return NULL;
+    }
 
-        if (fits_write_record(iodesc->ff, "ORIGIN  = 'HSTIO/CFITSIO March 2010' / FITS file originator", &status)) {
-            ioerr(BADWRITE, iodesc, status);
-            return NULL;
-        }
+    if (fits_write_record(iodesc->ff, "ORIGIN  = 'HSTIO/CFITSIO March 2010' / FITS file originator", &retval)) {
+        ioerr(BADWRITE, iodesc, retval);
+        return NULL;
+    }
 
-        t = time(NULL);
-        time_tmp = localtime(&t);
-        strftime(date, 12, "%Y-%m-%d", time_tmp);
-        snprintf(date_card, 80,
-                 "DATE    = '%s' / date this file was written (yyyy-mm-dd)", date);
-        if (fits_write_record(iodesc->ff, date_card, &status)) {
-            ioerr(BADWRITE, iodesc, status);
-            return NULL;
-        }
+    t = time(NULL);
+    const struct tm *time_tmp = localtime(&t);
+    strftime(date, 12, "%Y-%m-%d", time_tmp);
+    snprintf(date_card, 80, "DATE    = '%s' / date this file was written (yyyy-mm-dd)", date);
+    if (fits_write_record(iodesc->ff, date_card, &retval)) {
+        ioerr(BADWRITE, iodesc, retval);
+        return NULL;
+    }
 
-        iodesc->hflag = 1; /* mark to write header */
-        if (iodesc->dims[0] == 0) {
-            putHeader(iodesc);
-            iodesc->hflag = 0;
-        }
+    iodesc->hflag = 1; /* mark to write header */
+    if (iodesc->dims[0] == 0) {
+        putHeader(iodesc);
+        iodesc->hflag = 0;
+    }
 
-        clear_err();
+    clear_err();
 
-        return iodesc;
+    return iodesc;
 }
 
-IODescPtr openUpdateImage(char *fname, char *ename, int ever, Hdr *hd) {
-        IODesc *iodesc;
-        int no_dims;
-        char *tmp;
-        char ospath[SZ_PATHNAME];
-        int status = 0;
+IODescPtr openUpdateImage(char *filename, const char *extname, const int extver, Hdr *hdr) {
+    IODesc *iodesc;
+    int no_dims;
+    char ospath[SZ_PATHNAME];
+    int retval = 0;
 
-        /* CFITSIO: Error handling */
-        c_pusherr(detect_iraferr);
+    /* CFITSIO: Error handling */
+    c_pusherr(detect_iraferr);
 
-        tmp = make_iodesc(&iodesc, fname, ename, ever);
-        if (tmp == NULL) return NULL;
-        iodesc->options = ReadWrite;
+    char *tmp = make_iodesc(&iodesc, filename, extname, extver);
+    if (tmp == NULL) {
+        return NULL;
+    }
+    iodesc->options = ReadWrite;
 
-        /* CFITSIO: Resolve this keyword inheritance stuff */
-        /* p = strstr(tmp,"[0]"); */
-        /* if (p == NULL) { */
-        /*     tmp[strlen(tmp) - 1] = '\0'; */
-        /*     strcat(tmp,",NOINHERIT]"); */
-        /* } */
+    /* CFITSIO: Resolve this keyword inheritance stuff */
+    /* p = strstr(tmp,"[0]"); */
+    /* if (p == NULL) { */
+    /*     tmp[strlen(tmp) - 1] = '\0'; */
+    /*     strcat(tmp,",NOINHERIT]"); */
+    /* } */
 
-        /* open the file using CFITSIO */
-        c_vfn2osfn(tmp, ospath);
+    /* open the file using CFITSIO */
+    c_vfn2osfn(tmp, ospath);
 
-        if (fits_open_file(&iodesc->ff, ospath, READWRITE, &status)) {
-            ioerr(BADOPEN, iodesc, status);
-            free(tmp);
-            free(iodesc->extname);
-            free(iodesc->filename);
-            free(iodesc);
-            return NULL;
-        }
+    if (fits_open_file(&iodesc->ff, ospath, READWRITE, &retval)) {
+        ioerr(BADOPEN, iodesc, retval);
         free(tmp);
-
-        /* get the dimensions and type */
-        fits_get_img_dim(iodesc->ff, &no_dims, &status);
-        fits_get_img_equivtype(iodesc->ff, &iodesc->type, &status);
-        fits_get_img_size(iodesc->ff, 2, iodesc->dims, &status);
-        if (status) {
-            ioerr(BADDIMS, iodesc, status);
-            return NULL;
-        }
-        if (no_dims == 2) {
-            /* Nothing */
-        } else if (no_dims == 1) {
-            iodesc->dims[1] = 0;
-        } else if (no_dims == 0) {
-            iodesc->dims[0] = 0;
-            iodesc->dims[1] = 0;
-        } else {
-            ioerr(BADDIMS, iodesc, 0);
-            return NULL;
-        }
-
-        /* read the user area into the header array */
-        getHeader(iodesc, hd);
-
-        clear_err();
-        return iodesc;
-}
-
-void closeImage(IODescPtr iodesc_) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int status = 0;
-
-        if (iodesc->options != ReadOnly && iodesc->dims[0] != 0)
-            putHeader(iodesc);
-
-        if (fits_close_file(iodesc->ff, &status)) {
-            /* TODO: Raise error */
-        }
-
-        /* This is a handy check to use pyfits to validate the file upon every close */
-        /* c_vfn2osfn(iodesc->filename, ospath); */
-        /* sprintf(system_string, "python -c \"import pyfits; pyfits.open('%s')\"", ospath); */
-        /* if (system(system_string)) { */
-        /*   printf("LOG: pyfits corruption!!!\n"); */
-        /*   exit(1); */
-        /* } */
-
-        /* if (there is an IRAF error) */
-        /*      ioerr(IRAF_CLOSE,iodesc); */
         free(iodesc->extname);
         free(iodesc->filename);
         free(iodesc);
+        return NULL;
+    }
+    free(tmp);
 
-        /* CFITSIO: Error handling */
-        c_poperr();
+    /* get the dimensions and type */
+    fits_get_img_dim(iodesc->ff, &no_dims, &retval);
+    fits_get_img_equivtype(iodesc->ff, &iodesc->type, &retval);
+    fits_get_img_size(iodesc->ff, 2, iodesc->dims, &retval);
+    if (retval) {
+        ioerr(BADDIMS, iodesc, retval);
+        return NULL;
+    }
+    if (no_dims == 2) {
+        /* Nothing */
+    } else if (no_dims == 1) {
+        iodesc->dims[1] = 0;
+    } else if (no_dims == 0) {
+        iodesc->dims[0] = 0;
+        iodesc->dims[1] = 0;
+    } else {
+        ioerr(BADDIMS, iodesc, 0);
+        return NULL;
+    }
+
+    /* read the user area into the header array */
+    getHeader(iodesc, hdr);
+
+    clear_err();
+    return iodesc;
 }
 
+void closeImage(IODescPtr iodesc_) {
+    IODesc *iodesc = iodesc_;
+    int retval = 0;
+
+    if (iodesc->options != ReadOnly && iodesc->dims[0] != 0) {
+        putHeader(iodesc);
+    }
+
+    if (fits_close_file(iodesc->ff, &retval)) {
+        /* TODO: Raise error */
+    }
+
+    /* This is a handy check to use pyfits to validate the file upon every close
+     */
+    /* c_vfn2osfn(iodesc->filename, ospath); */
+    /* sprintf(system_string, "python -c \"import pyfits; pyfits.open('%s')\"", ospath); */
+    /* if (system(system_string)) { */
+    /*   printf("LOG: pyfits corruption!!!\n"); */
+    /*   exit(1); */
+    /* } */
+
+    /* if (there is an IRAF error) */
+    /*      ioerr(IRAF_CLOSE,iodesc); */
+    free(iodesc->extname);
+    free(iodesc->filename);
+    free(iodesc);
+
+    /* CFITSIO: Error handling */
+    c_poperr();
+}
 
 /* According to the imio documentation, the following reserved
    keywords are recognized:
@@ -2436,1142 +2751,1171 @@ void closeImage(IODescPtr iodesc_) {
    PTYPE* PDTYPE* PSIZE* XTENSION
 */
 
-static char* reservedKwds[] = {
-    "BITPIX  ",
-    "BSCALE  ",
-    "BZERO   ",
-    "DATAMAX ",
-    "DATAMIN ",
-    "DATATYPE",
-    "DATE    ",
-    "EXTEND  ",
-    "GCOUNT  ",
-    "GROUPS  ",
-    "NAXIS   ",
-    "NAXIS*  ",
-    "ORIGIN  ",
-    "PCOUNT  ",
-    "PDTYPE* ",
-    "PSIZE   ",
-    "PSIZE*  ",
-    "PTYPE*  ",
-    "SIMPLE  ",
-    "XTENSION",
-    NULL
-};
+static char *reservedKwds[] = {"BITPIX  ", "BSCALE  ", "BZERO   ", "DATAMAX ", "DATAMIN ", "DATATYPE", "DATE    ",
+                               "EXTEND  ", "GCOUNT  ", "GROUPS  ", "NAXIS   ", "NAXIS*  ", "ORIGIN  ", "PCOUNT  ",
+                               "PDTYPE* ", "PSIZE   ", "PSIZE*  ", "PTYPE*  ", "SIMPLE  ", "XTENSION", NULL};
 
 /* Whole cards to not allow in the user area.
 
    Must remain alphabetized.
 */
-static char* reservedCards[] = {
-    "COMMENT   FITS (Flexible Image Transport System) format is defined in 'Astronomy",
-    "COMMENT   and Astrophysics', volume 376, page 359; bibcode: 2001A&A...376..359H ",
-    NULL
-};
+static char *reservedCards[] = {"COMMENT   FITS (Flexible Image Transport "
+                                "System) format is defined in 'Astronomy",
+                                "COMMENT   and Astrophysics', volume 376, page "
+                                "359; bibcode: 2001A&A...376..359H ",
+                                NULL};
 
-int isReservedKwd(const char* card) {
-        /* CFITSIO: Should this be made case-insensitive? */
-        /* TODO: Maybe use a binary search? */
+static int isReservedKwd(const char *card) {
+    /* CFITSIO: Should this be made case-insensitive? */
+    /* TODO: Maybe use a binary search? */
 
-        /* Returns 1 if the card matches one of the reserved keywords */
-        int i;
-        int match;
-        char** kwd = reservedKwds;
-        int cmp;
+    /* Returns 1 if the card matches one of the reserved keywords */
+    char **kwd = reservedKwds;
 
-        for (kwd = reservedCards; *kwd != NULL; ++kwd) {
-            cmp = strncmp(*kwd, card, 79);
-            if (cmp == 0) {
-                return 1;
-            }
+    for (kwd = reservedCards; *kwd != NULL; ++kwd) {
+        const int cmp = strncmp(*kwd, card, 79);
+        if (cmp == 0) {
+            return 1;
+        }
+    }
+
+    for (kwd = reservedKwds; *kwd != NULL; ++kwd) {
+        /* Short-circuit if we're certain not to find the kwd
+           later in the list */
+        if ((*kwd)[0] > card[0]) {
+            return 0;
         }
 
-        for (kwd = reservedKwds; *kwd != NULL; ++kwd) {
-            /* Short-circuit if we're certain not to find the kwd
-               later in the list */
-            if ((*kwd)[0] > card[0]) {
-                return 0;
-            }
-
-            match = 1;
-            for (i = 0; i < 8; ++i) {
-                /* '*' indicates a digit */
-                if ((*kwd)[i] == '*') {
-                    if (card[i] < '0' || card[i] > '9') {
-                        match = 0;
-                        break;
-                    }
-                } else if ((*kwd)[i] != card[i]) {
+        int match = 1;
+        for (int i = 0; i < 8; ++i) {
+            /* '*' indicates a digit */
+            if ((*kwd)[i] == '*') {
+                if (card[i] < '0' || card[i] > '9') {
                     match = 0;
                     break;
                 }
-            }
-            if (match) {
-                return 1;
-            }
-        }
-
-        return 0;
-}
-
-int getHeader(IODescPtr iodesc_, Hdr *hd) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int ncards, i, j;
-        char source[HDRSize];
-        char *target;
-        int status = 0;
-
-        if (iodesc->options == WriteOnly) {
-            ioerr(NOGET, iodesc, 0);
-            return -1;
-        }
-
-        /* get the number of cards in the header */
-        if (fits_get_hdrspace(iodesc->ff, &ncards, NULL, &status)) {
-            ioerr(BADHSIZE, iodesc, status);
-            return -1;
-        }
-
-        /* allocate space for the header cards */
-        if (allocHdr(hd, ncards, True) == -1) return -1;
-
-        /* translate the data */
-        hd->nlines = 0;
-        for (i = 0; i < ncards; ++i) {
-            if (fits_read_record(iodesc->ff, i+1, source, &status)) {
-                ioerr(BADREAD, iodesc, status);
-                return -1;
-            }
-            if (!isReservedKwd(source)) {
-                target = hd->array[hd->nlines];
-                for (j = 0; j < (HDRSize -1); ++j) {
-                    *target++ = source[j];
-                }
-                *target++ = '\0';
-                hd->nlines++;
-            }
-        }
-        iodesc->hdr = hd;
-
-        clear_err();
-        return 0;
-}
-
-int putHeader(IODescPtr iodesc_) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int i, j, tmp;
-        int numkeys;
-        int found_non_space;
-        char *source;
-        char card[81];
-        int status = 0;
-
-        if (iodesc->options == ReadOnly) {
-            ioerr(NOPUT, iodesc, status);
-            return -1;
-        }
-
-        if (iodesc->hflag) {
-            /* CFITSIO: We probably need to move this in front of all
-               calls to fits_create_img */
-
-            /* If the image is actually 1-dimensional, modify the naxis2
-             * value so the output header is written with only NAXIS and
-             * NAXIS1 keywords, where NAXIS=1, and NAXIS1=number.
-             */
-            if (iodesc->dims[0] != 0 && iodesc->dims[1] == 1)
-                iodesc->dims[1] = 0;
-
-            /* set the pixel type */
-            fits_update_key(iodesc->ff, TINT, "BITPIX", &(iodesc->type), NULL, &status);
-            if (status) {
-                ioerr(BADWRITE, iodesc, status);
-                return -1;
-            }
-            if (iodesc->dims[0] == 0 && iodesc->dims[1] == 0) {
-                tmp = 0;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &status);
-                if (status) {
-                    ioerr(BADWRITE, iodesc, status);
-                    return -1;
-                }
-                fits_delete_key(iodesc->ff, "NAXIS1", &status);
-                if (status == KEY_NO_EXIST) {
-                    fits_clear_errmsg();
-                    status = 0;
-                }
-                fits_delete_key(iodesc->ff, "NAXIS2", &status);
-                if (status == KEY_NO_EXIST) {
-                    fits_clear_errmsg();
-                    status = 0;
-                }
-            } else if (iodesc->dims[0] != 0 && iodesc->dims[1] == 0) {
-                /* set the number of dimensions */
-                tmp = 1;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &status);
-                if (status) {
-                    ioerr(BADWRITE, iodesc, status);
-                    return -1;
-                }
-                /* set dim1 */
-                fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], NULL, &status);
-                if (status) {
-                    ioerr(BADWRITE, iodesc, status);
-                    return -1;
-                }
-                fits_delete_key(iodesc->ff, "NAXIS2", &status);
-                if (status == KEY_NO_EXIST) {
-                    fits_clear_errmsg();
-                    status = 0;
-                }
-            } else {
-                /* set the number of dimensions */
-                tmp = 2;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &status);
-                /* set dim1 and dim2 */
-                fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], NULL, &status);
-                fits_update_key(iodesc->ff, TINT, "NAXIS2", &iodesc->dims[1], NULL, &status);
-            }
-
-            if (status) {
-                ioerr(BADWRITE, iodesc, status);
-            }
-        }
-
-        /* Verify the size of the user area */
-        /* The original code just memcopies the cards into the "user
-           area" of the header.  CFITSIO doesn't have the concept of a
-           "user area", so we need to carefully only copy the cards
-           that are not "reserved".
-        */
-        if (fits_get_hdrspace(iodesc->ff, &numkeys, NULL, &status)) {
-            ioerr(BADWRITE, iodesc, status);
-            return -1;
-        }
-
-        for (i = 0, j = numkeys; i < numkeys; ++i, --j) {
-            if (fits_read_record(iodesc->ff, j, card, &status)) {
-                ioerr(BADWRITE, iodesc, status);
-                return -1;
-            }
-            if (!isReservedKwd(card)) {
-                if (fits_delete_record(iodesc->ff, j, &status)) {
-                    ioerr(BADWRITE, iodesc, status);
-                    return -1;
-                }
-            } else {
-                ++j;
-            }
-        }
-
-        /* translate the data */
-
-        /* Skip blank cards at the beginning */
-        found_non_space = 0;
-        for (i = 0; i < iodesc->hdr->nlines; ++i) {
-            source = iodesc->hdr->array[i];
-            for (j = 0; j < 80; ++j) {
-                if (source[j] != ' ' &&
-                    source[j] != '\n' &&
-                    source[j] != 0) {
-                    found_non_space = 1;
-                    break;
-                }
-            }
-            if (found_non_space) {
+            } else if ((*kwd)[i] != card[i]) {
+                match = 0;
                 break;
             }
         }
+        if (match) {
+            return 1;
+        }
+    }
 
-        for (/* i from above */; i < iodesc->hdr->nlines; ++i) {
-            source = iodesc->hdr->array[i];
-            if (!isReservedKwd(source)) {
-                if (fits_write_record(iodesc->ff, source, &status)) {
-                    ioerr(BADWRITE, iodesc, status);
-                    return -1;
-                }
+    return 0;
+}
+
+int getHeader(IODescPtr iodesc_, Hdr *hdr) {
+    IODesc *iodesc = iodesc_;
+    int ncards;
+    char source[HDRSize];
+    int retval = 0;
+
+    if (iodesc->options == WriteOnly) {
+        ioerr(NOGET, iodesc, 0);
+        return -1;
+    }
+
+    /* get the number of cards in the header */
+    if (fits_get_hdrspace(iodesc->ff, &ncards, NULL, &retval)) {
+        ioerr(BADHSIZE, iodesc, retval);
+        return -1;
+    }
+
+    /* allocate space for the header cards */
+    if (allocHdr(hdr, ncards, True) == -1) {
+        return -1;
+    }
+
+    /* translate the data */
+    hdr->nlines = 0;
+    for (int i = 0; i < ncards; ++i) {
+        if (fits_read_record(iodesc->ff, i + 1, source, &retval)) {
+            ioerr(BADREAD, iodesc, retval);
+            return -1;
+        }
+        if (!isReservedKwd(source)) {
+            char *target = hdr->array[hdr->nlines];
+            for (int j = 0; j < HDRSize - 1; ++j) {
+                *target++ = source[j];
+            }
+            *target++ = '\0';
+            hdr->nlines++;
+        }
+    }
+    iodesc->hdr = hdr;
+
+    clear_err();
+    return 0;
+}
+
+int putHeader(IODescPtr iodesc_) {
+    IODesc *iodesc = iodesc_;
+    int i, j, tmp;
+    int numkeys;
+    char *source;
+    char card[81];
+    int retval = 0;
+
+    if (iodesc->options == ReadOnly) {
+        ioerr(NOPUT, iodesc, retval);
+        return -1;
+    }
+
+    if (iodesc->hflag) {
+        /* CFITSIO: We probably need to move this in front of all
+           calls to fits_create_img */
+
+        /* If the image is actually 1-dimensional, modify the naxis2
+         * value so the output header is written with only NAXIS and
+         * NAXIS1 keywords, where NAXIS=1, and NAXIS1=number.
+         */
+        if (iodesc->dims[0] != 0 && iodesc->dims[1] == 1) {
+            iodesc->dims[1] = 0;
+        }
+
+        /* set the pixel type */
+        fits_update_key(iodesc->ff, TINT, "BITPIX", &iodesc->type, NULL, &retval);
+        if (retval) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
+        }
+        if (iodesc->dims[0] == 0 && iodesc->dims[1] == 0) {
+            tmp = 0;
+            fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &retval);
+            if (retval) {
+                ioerr(BADWRITE, iodesc, retval);
+                return -1;
+            }
+            fits_delete_key(iodesc->ff, "NAXIS1", &retval);
+            if (retval == KEY_NO_EXIST) {
+                fits_clear_errmsg();
+                retval = 0;
+            }
+            fits_delete_key(iodesc->ff, "NAXIS2", &retval);
+            if (retval == KEY_NO_EXIST) {
+                fits_clear_errmsg();
+                retval = 0;
+            }
+        } else if (iodesc->dims[0] != 0 && iodesc->dims[1] == 0) {
+            /* set the number of dimensions */
+            tmp = 1;
+            fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &retval);
+            if (retval) {
+                ioerr(BADWRITE, iodesc, retval);
+                return -1;
+            }
+            /* set dim1 */
+            fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], NULL, &retval);
+            if (retval) {
+                ioerr(BADWRITE, iodesc, retval);
+                return -1;
+            }
+            fits_delete_key(iodesc->ff, "NAXIS2", &retval);
+            if (retval == KEY_NO_EXIST) {
+                fits_clear_errmsg();
+                retval = 0;
+            }
+        } else {
+            /* set the number of dimensions */
+            tmp = 2;
+            fits_update_key(iodesc->ff, TINT, "NAXIS", &tmp, NULL, &retval);
+            /* set dim1 and dim2 */
+            fits_update_key(iodesc->ff, TINT, "NAXIS1", &iodesc->dims[0], NULL, &retval);
+            fits_update_key(iodesc->ff, TINT, "NAXIS2", &iodesc->dims[1], NULL, &retval);
+        }
+
+        if (retval) {
+            ioerr(BADWRITE, iodesc, retval);
+        }
+    }
+
+    /* Verify the size of the user area */
+    /* The original code just memcopies the cards into the "user
+       area" of the header.  CFITSIO doesn't have the concept of a
+       "user area", so we need to carefully only copy the cards
+       that are not "reserved".
+    */
+    if (fits_get_hdrspace(iodesc->ff, &numkeys, NULL, &retval)) {
+        ioerr(BADWRITE, iodesc, retval);
+        return -1;
+    }
+
+    for (i = 0, j = numkeys; i < numkeys; ++i, --j) {
+        if (fits_read_record(iodesc->ff, j, card, &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
+        }
+        if (!isReservedKwd(card)) {
+            if (fits_delete_record(iodesc->ff, j, &retval)) {
+                ioerr(BADWRITE, iodesc, retval);
+                return -1;
+            }
+        } else {
+            ++j;
+        }
+    }
+
+    /* translate the data */
+
+    /* Skip blank cards at the beginning */
+    int found_non_space = 0;
+    for (i = 0; i < iodesc->hdr->nlines; ++i) {
+        source = iodesc->hdr->array[i];
+        for (j = 0; j < 80; ++j) {
+            if (source[j] != ' ' && source[j] != '\n' && source[j] != 0) {
+                found_non_space = 1;
+                break;
             }
         }
-
-        /* If we don't explicitly set BSCALE and BZERO to 1.0 and 0.0
-           here, their values could be inadvertently brought over from
-           the source image.  This was the source of a very
-           hard-to-find bug. */
-        if (iodesc->type == TFLOAT || iodesc->type == TDOUBLE) {
-            fits_set_bscale(iodesc->ff, 1.0, 0.0, &status);
+        if (found_non_space) {
+            break;
         }
+    }
 
-        clear_err();
-        return 0;
+    for (/* i from above */; i < iodesc->hdr->nlines; ++i) {
+        source = iodesc->hdr->array[i];
+        if (!isReservedKwd(source)) {
+            if (fits_write_record(iodesc->ff, source, &retval)) {
+                ioerr(BADWRITE, iodesc, retval);
+                return -1;
+            }
+        }
+    }
+
+    /* If we don't explicitly set BSCALE and BZERO to 1.0 and 0.0
+       here, their values could be inadvertently brought over from
+       the source image.  This was the source of a very
+       hard-to-find bug. */
+    if (iodesc->type == TFLOAT || iodesc->type == TDOUBLE) {
+        fits_set_bscale(iodesc->ff, 1.0, 0.0, &retval);
+    }
+
+    clear_err();
+    return 0;
 }
 
 int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int no_dims, i, j;
-        long fpixel[2];
-        int anynul;
-        int type;
-        FitsKw kw;
-        float val;
-        int status = 0;
+    IODesc *iodesc = iodesc_;
+    int no_dims;
+    long fpixel[2];
+    int anynul;
+    int type;
+    int retval = 0;
 
-        if (iodesc->options == WriteOnly) { ioerr(NOGET,iodesc, 0); return -1; }
+    if (iodesc->options == WriteOnly) {
+        ioerr(NOGET, iodesc, 0);
+        return -1;
+    }
 
-        fits_get_img_dim(iodesc->ff, &no_dims, &status);
-        fits_get_img_size(iodesc->ff, 2, iodesc->dims, &status);
-        if (status) {
-            ioerr(BADDIMS, iodesc, status);
+    fits_get_img_dim(iodesc->ff, &no_dims, &retval);
+    fits_get_img_size(iodesc->ff, 2, iodesc->dims, &retval);
+    if (retval) {
+        ioerr(BADDIMS, iodesc, retval);
+        return -1;
+    }
+
+    /*
+       If the number  of dimensions of the image is zero, need to
+       determine how many dimensions the image is supposed to have
+       according to the NPIX[1/2] keyword(s).
+    */
+    if (no_dims == 0) {
+        FitsKw kw = findKw(iodesc->hdr, "PIXVALUE");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
             return -1;
         }
+        const float val = getFloatKw(kw);
 
-        /*
-           If the number  of dimensions of the image is zero, need to
-           determine how many dimensions the image is supposed to have
-           according to the NPIX[1/2] keyword(s).
-        */
-        if (no_dims == 0) {
-            kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc, 0); return -1; }
-            val = getFloatKw(kw);
+        kw = findKw(iodesc->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        iodesc->dims[0] = getIntKw(kw);
 
-            kw = findKw(iodesc->hdr,"NPIX1");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc, 0); return -1; }
-            iodesc->dims[0] = getIntKw(kw);
-
-            /* If NPIX2 is not found, the image should be 1D; dim2 = 1 and *
-             * not 0 for purposes of memory allocation.                    */
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw == 0)  {
-                iodesc->dims[1] = 1;
-            } else {
-                iodesc->dims[1] = getIntKw(kw);
-            }
-
-            if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], False)) return -1;
-            for (j = 0; j < iodesc->dims[1]; ++j) {
-                for (i = 0; i < iodesc->dims[0]; ++i) {
-                    PPix(da, i, j) = val;
-                }
-            }
-        } else if (no_dims == 1) {
+        /* If NPIX2 is not found, the image should be 1D; dim2 = 1 and *
+         * not 0 for purposes of memory allocation.                    */
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw == 0) {
             iodesc->dims[1] = 1;
-            fits_get_img_equivtype(iodesc->ff, &type, &status);
-            /* CFITSIO TODO: Should we verify the type is correct
-               here?  Original code gets type, but then does nothing
-               with it. */
-            if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], True)) return -1;
-            fpixel[0] = 1;
-            fpixel[1] = 1;
-            if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
-                              (float *)&(PPix(da, 0, 0)), &anynul, &status)) {
-                ioerr(BADREAD, iodesc, status);
-                return -1;
-            }
-        } else if (no_dims == 2) {
-            fits_get_img_equivtype(iodesc->ff, &type, &status);
-            /* CFITSIO TODO: Should we verify the type is correct
-               here?  Original code gets type, but then does nothing
-               with it. */
-            if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], True)) return -1;
-
-            fpixel[0] = 1;
-            if (da->storageOrder == ROWMAJOR)
-            {
-                for (i = 0; i < iodesc->dims[1]; ++i) {
-                    fpixel[1] = i + 1;
-                    if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0,
-                            &(PPix(da, 0, i)), &anynul, &status)) {
-                        ioerr(BADREAD,iodesc, status);
-                        return -1;
-                    }
-                }
-            }
-            else
-            {
-                unsigned nColumns = iodesc->dims[0];
-                float * row = malloc(nColumns*sizeof(float));
-                if (!row)
-                    return OUT_OF_MEMORY;
-                for (i = 0; i < iodesc->dims[1]; ++i)
-                {
-                    fpixel[1] = i + 1;
-                    if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, nColumns, 0,
-                            row, &anynul, &status)) {
-                        ioerr(BADREAD,iodesc, status);
-                        return -1;
-                    }
-                    {unsigned j;
-                    for (j = 0; j < nColumns; ++j)
-                        PPixColumnMajor(da, i, j) = row[j];
-                    }
-                }
-                if (row)
-                    free(row);
-            }
         } else {
-            ioerr(BADDIMS,iodesc,0);
+            iodesc->dims[1] = getIntKw(kw);
+        }
+
+        if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], False)) {
             return -1;
         }
-
-        clear_err();
-        return 0;
-}
-
-int putFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int i, j;
-        float tmp;
-        long fpixel[2];
-        FitsKw kw;
-        int is_eq;
-        int naxis;
-        long dims[2];
-        int status = 0;
-
-        if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
-
-        /* check for a constant array, if not SCI data */
-        if (strcmp(iodesc->extname,"SCI") != 0
-            && da->tot_nx != 0 && da->tot_ny != 0) {
-            tmp = PPix(da,0,0);
-            for (i = 0, is_eq = 1; (i < da->tot_nx) && is_eq; ++i) {
-                for (j = 0; (j < da->tot_ny); ++j) {
-                    if (PPix(da,i,j) != tmp) {
-                        is_eq = 0;
-                        break;
-                    }
-                }
-            }
-            if (is_eq) {
-                /* This is a constant array. */
-                /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
-                kw = findKw(iodesc->hdr,"PIXVALUE");
-                if (kw == 0) /* add it */
-                    addFloatKw(iodesc->hdr,"PIXVALUE",tmp,
-                        "values of pixels in constant array");
-                else
-                    putFloatKw(kw,tmp);
-
-                kw = findKw(iodesc->hdr,"NPIX1");
-                if (kw == 0) /* add it */
-                    addIntKw(iodesc->hdr,"NPIX1",iodesc->dims[0],
-                        "length of constant array axis 1");
-                else
-                    putIntKw(kw,iodesc->dims[0]);
-
-                /* NPIX2 should only be added if the y-dimension is > 1. */
-                if (da->tot_ny > 1) {
-                    kw = findKw(iodesc->hdr,"NPIX2");
-                    if (kw == 0) /* add it */
-                        addIntKw(iodesc->hdr,"NPIX2",iodesc->dims[1],
-                            "length of constant array axis 2");
-                    else
-                        putIntKw(kw,iodesc->dims[1]);
-                }
-
-                naxis = 0;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
-                iodesc->dims[0] = 0;
-                iodesc->dims[1] = 0;
-
-                if (fits_resize_img(iodesc->ff, FLOAT_IMG, 0, iodesc->dims, &status)) {
-                    ioerr(BADWRITE, iodesc, status); return -1;
-                }
-
-                /* update the header, etc. */
-                if (iodesc->hflag) {
-                    iodesc->type = FLOAT_IMG;
-                    putHeader(iodesc);
-                    iodesc->hflag = 0;
-                }
-                fits_flush_file(iodesc->ff, &status);
-
-                return 0;
+        for (long j = 0; j < iodesc->dims[1]; ++j) {
+            for (long i = 0; i < iodesc->dims[0]; ++i) {
+                PPix(da, i, j) = val;
             }
         }
-
-        /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
-         * are NOT present in the header to be written out.              */
-        kw = findKw(iodesc->hdr,"NPIX1");
-        if (kw != 0) /* remove it */
-            delKw(kw);
-
-        if (da->tot_ny > 1) {
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw != 0) /* remove it */
-                delKw(kw);
+    } else if (no_dims == 1) {
+        iodesc->dims[1] = 1;
+        fits_get_img_equivtype(iodesc->ff, &type, &retval);
+        /* CFITSIO TODO: Should we verify the type is correct
+           here?  Original code gets type, but then does nothing
+           with it. */
+        if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], True)) {
+            return -1;
         }
-
-        kw = findKw(iodesc->hdr,"PIXVALUE");
-        if (kw != 0) /* remove it */
-            delKw(kw);
-
-        /* Get the current CFITSIO size, and if it's different, resize it */
-        fits_get_img_size(iodesc->ff, 2, dims, &status);
-        if (dims[0] != da->nx || dims[1] != da->ny) {
-            iodesc->dims[0] = da->nx;
-            iodesc->dims[1] = da->ny;
-            if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, iodesc->dims, &status)) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
+        fpixel[0] = 1;
+        fpixel[1] = 1;
+        if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0, (float *)&PPix(da, 0, 0), &anynul,
+                          &retval)) {
+            ioerr(BADREAD, iodesc, retval);
+            return -1;
         }
-
-        /* update the header area */
-        if (iodesc->hflag) {
-            iodesc->type = FLOAT_IMG;
-            putHeader(iodesc);
-            iodesc->hflag = 0;
+    } else if (no_dims == 2) {
+        fits_get_img_equivtype(iodesc->ff, &type, &retval);
+        /* CFITSIO TODO: Should we verify the type is correct
+           here?  Original code gets type, but then does nothing
+           with it. */
+        if (allocFloatData(da, iodesc->dims[0], iodesc->dims[1], True)) {
+            return -1;
         }
 
         fpixel[0] = 1;
-        for (i = 0; i < da->ny; ++i) {
-            fpixel[1] = i + 1;
-            if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, da->nx,
-                               (float *)&(PPix(da, 0, i)), &status)) {
-                ioerr(BADWRITE, iodesc, status);
-                return -1;
+        if (da->storageOrder == ROWMAJOR) {
+            for (long i = 0; i < iodesc->dims[1]; ++i) {
+                fpixel[1] = i + 1;
+                if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], 0, &PPix(da, 0, i), &anynul,
+                                  &retval)) {
+                    ioerr(BADREAD, iodesc, retval);
+                    return -1;
+                }
+            }
+        } else {
+            const long nColumns = iodesc->dims[0];
+            float *row = malloc(nColumns * sizeof(float));
+            if (!row) {
+                return OUT_OF_MEMORY;
+            }
+            for (long i = 0; i < iodesc->dims[1]; ++i) {
+                fpixel[1] = i + 1;
+                if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, nColumns, 0, row, &anynul, &retval)) {
+                    ioerr(BADREAD, iodesc, retval);
+                    return -1;
+                }
+                for (long j = 0; j < nColumns; ++j) {
+                    PPixColumnMajor(da, i, j) = row[j];
+                }
+            }
+            if (row) {
+                free(row);
             }
         }
+    } else {
+        ioerr(BADDIMS, iodesc, 0);
+        return -1;
+    }
 
-        fits_flush_file(iodesc->ff, &status);
+    clear_err();
+    return 0;
+}
 
-        clear_err();
-        return 0;
+int putFloatData(IODescPtr iodesc_, const FloatTwoDArray *da) {
+    IODesc *iodesc = iodesc_;
+    long fpixel[2];
+    FitsKw kw;
+    int naxis;
+    long dims[2];
+    int retval = 0;
+
+    if (iodesc->options == ReadOnly) {
+        ioerr(NOPUT, iodesc, 0);
+        return -1;
+    }
+
+    /* check for a constant array, if not SCI data */
+    if (strcmp(iodesc->extname, "SCI") != 0 && da->tot_nx != 0 && da->tot_ny != 0) {
+        const float tmp = PPix(da, 0, 0);
+        int is_eq = 1;
+        for (long i = 0; i < da->tot_nx && is_eq; ++i) {
+            for (long j = 0; j < da->tot_ny; ++j) {
+                if (PPix(da, i, j) != tmp) {
+                    is_eq = 0;
+                    break;
+                }
+            }
+        }
+        if (is_eq) {
+            /* This is a constant array. */
+            /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
+            kw = findKw(iodesc->hdr, "PIXVALUE");
+            if (kw == 0) { /* add it */
+                addFloatKw(iodesc->hdr, "PIXVALUE", tmp, "values of pixels in constant array");
+            } else {
+                putFloatKw(kw, tmp);
+            }
+
+            kw = findKw(iodesc->hdr, "NPIX1");
+            if (kw == 0) { /* add it */
+                addIntKw(iodesc->hdr, "NPIX1", iodesc->dims[0], "length of constant array axis 1");
+            } else {
+                putIntKw(kw, iodesc->dims[0]);
+            }
+
+            /* NPIX2 should only be added if the y-dimension is > 1. */
+            if (da->tot_ny > 1) {
+                kw = findKw(iodesc->hdr, "NPIX2");
+                if (kw == 0) { /* add it */
+                    addIntKw(iodesc->hdr, "NPIX2", iodesc->dims[1], "length of constant array axis 2");
+                } else {
+                    putIntKw(kw, iodesc->dims[1]);
+                }
+            }
+
+            naxis = 0;
+            fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &retval);
+            iodesc->dims[0] = 0;
+            iodesc->dims[1] = 0;
+
+            if (fits_resize_img(iodesc->ff, FLOAT_IMG, 0, iodesc->dims, &retval)) {
+                ioerr(BADWRITE, iodesc, retval);
+                return -1;
+            }
+
+            /* update the header, etc. */
+            if (iodesc->hflag) {
+                iodesc->type = FLOAT_IMG;
+                putHeader(iodesc);
+                iodesc->hflag = 0;
+            }
+            fits_flush_file(iodesc->ff, &retval);
+
+            return 0;
+        }
+    }
+
+    /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
+     * are NOT present in the header to be written out.              */
+    kw = findKw(iodesc->hdr, "NPIX1");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
+
+    if (da->tot_ny > 1) {
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw != 0) { /* remove it */
+            delKw(kw);
+        }
+    }
+
+    kw = findKw(iodesc->hdr, "PIXVALUE");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
+
+    /* Get the current CFITSIO size, and if it's different, resize it */
+    fits_get_img_size(iodesc->ff, 2, dims, &retval);
+    if (dims[0] != da->nx || dims[1] != da->ny) {
+        iodesc->dims[0] = da->nx;
+        iodesc->dims[1] = da->ny;
+        if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, iodesc->dims, &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
+        }
+    }
+
+    /* update the header area */
+    if (iodesc->hflag) {
+        iodesc->type = FLOAT_IMG;
+        putHeader(iodesc);
+        iodesc->hflag = 0;
+    }
+
+    fpixel[0] = 1;
+    for (long i = 0; i < da->ny; ++i) {
+        fpixel[1] = i + 1;
+        if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, da->nx, (float *)&PPix(da, 0, i), &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
+        }
+    }
+
+    fits_flush_file(iodesc->ff, &retval);
+
+    clear_err();
+    return 0;
 }
 
 /*                                                                     **
 ** Write output a subsection of an image in memory to a file where the **
 ** subsection is the full size of the output data.                     **
 **                                                                     */
-int putFloatSect(IODescPtr iodesc_, FloatTwoDArray *da, int xbeg,
-                 int ybeg, int xsize, int ysize) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int i, j, xend, yend;
-        float tmp;
-        FitsKw kw;
-        long fpixel[2];
-        long dims[2];
-        int is_eq;
-        int naxis;
-        int status = 0;
+int putFloatSect(IODescPtr iodesc_, const FloatTwoDArray *da, const long xbeg, const long ybeg, const long xsize,
+                 const long ysize) {
+    IODesc *iodesc = iodesc_;
+    FitsKw kw;
+    long fpixel[2];
+    long dims[2];
+    int naxis;
+    int retval = 0;
 
-        /* CFITSIO: Verify that the section is within range? */
+    /* CFITSIO: Verify that the section is within range? */
 
-        if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc, 0); return -1; }
+    if (iodesc->options == ReadOnly) {
+        ioerr(NOPUT, iodesc, 0);
+        return -1;
+    }
 
-        xend = xbeg + xsize;
-        yend = ybeg + ysize;
-        /* check for a constant array, if not SCI data */
-        if (strcmp(iodesc->extname,"SCI") != 0
-            && da->tot_nx != 0 && da->tot_ny != 0) {
-            tmp = PPix(da, 0, 0);
-            for (i = xbeg, is_eq = 1; (i < xend) && is_eq; ++i) {
-                for (j = ybeg; (j < yend); ++j) {
-                    if (PPix(da,i,j) != tmp) {
-                        is_eq = 0;
-                        break;
-                    }
+    const long xend = xbeg + xsize;
+    const long yend = ybeg + ysize;
+    /* check for a constant array, if not SCI data */
+    if (strcmp(iodesc->extname, "SCI") != 0 && da->tot_nx != 0 && da->tot_ny != 0) {
+        const float tmp = PPix(da, 0, 0);
+        int is_eq = 1;
+        for (long i = xbeg; i < xend && is_eq; ++i) {
+            for (long j = ybeg; j < yend; ++j) {
+                if (PPix(da, i, j) != tmp) {
+                    is_eq = 0;
+                    break;
                 }
-            }
-            if (is_eq) {
-                /* This is a constant array. */
-                /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
-                kw = findKw(iodesc->hdr,"PIXVALUE");
-                if (kw == 0) /* add it */
-                    addFloatKw(iodesc->hdr,"PIXVALUE",tmp,
-                        "values of pixels in constant array");
-                else
-                    putFloatKw(kw,tmp);
-
-                kw = findKw(iodesc->hdr,"NPIX1");
-                if (kw == 0) /* add it */
-                    addIntKw(iodesc->hdr,"NPIX1",iodesc->dims[0],
-                        "length of constant array axis 1");
-                else
-                    putIntKw(kw,iodesc->dims[0]);
-
-                /* NPIX2 should only be added if the y-dimension is > 1. */
-                if (da->tot_ny > 1) {
-                    kw = findKw(iodesc->hdr,"NPIX2");
-                    if (kw == 0) /* add it */
-                        addIntKw(iodesc->hdr,"NPIX2",iodesc->dims[1],
-                            "length of constant array axis 2");
-                    else
-                        putIntKw(kw,iodesc->dims[1]);
-                }
-
-                naxis = 0;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
-                iodesc->dims[0] = 0;
-                iodesc->dims[1] = 0;
-                /* update the header, etc. */
-                if (iodesc->hflag) {
-                    iodesc->type = FLOAT_IMG;
-                    putHeader(iodesc);
-                    iodesc->hflag = 0;
-                }
-
-                fits_flush_file(iodesc->ff, &status);
-
-                clear_err();
-                return 0;
             }
         }
+        if (is_eq) {
+            /* This is a constant array. */
+            /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
+            kw = findKw(iodesc->hdr, "PIXVALUE");
+            if (kw == 0) { /* add it */
+                addFloatKw(iodesc->hdr, "PIXVALUE", tmp, "values of pixels in constant array");
+            } else {
+                putFloatKw(kw, tmp);
+            }
 
-        /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
-         * are NOT present in the header to be written out.              */
-        kw = findKw(iodesc->hdr,"PIXVALUE");
-        if (kw != 0) /* remove it */
+            kw = findKw(iodesc->hdr, "NPIX1");
+            if (kw == 0) { /* add it */
+                addIntKw(iodesc->hdr, "NPIX1", iodesc->dims[0], "length of constant array axis 1");
+            } else {
+                putIntKw(kw, iodesc->dims[0]);
+            }
+
+            /* NPIX2 should only be added if the y-dimension is > 1. */
+            if (da->tot_ny > 1) {
+                kw = findKw(iodesc->hdr, "NPIX2");
+                if (kw == 0) { /* add it */
+                    addIntKw(iodesc->hdr, "NPIX2", iodesc->dims[1], "length of constant array axis 2");
+                } else {
+                    putIntKw(kw, iodesc->dims[1]);
+                }
+            }
+
+            naxis = 0;
+            fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &retval);
+            iodesc->dims[0] = 0;
+            iodesc->dims[1] = 0;
+            /* update the header, etc. */
+            if (iodesc->hflag) {
+                iodesc->type = FLOAT_IMG;
+                putHeader(iodesc);
+                iodesc->hflag = 0;
+            }
+
+            fits_flush_file(iodesc->ff, &retval);
+
+            clear_err();
+            return 0;
+        }
+    }
+
+    /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
+     * are NOT present in the header to be written out.              */
+    kw = findKw(iodesc->hdr, "PIXVALUE");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
+
+    kw = findKw(iodesc->hdr, "NPIX1");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
+
+    if (da->tot_ny > 1) {
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw != 0) { /* remove it */
             delKw(kw);
+        }
+    }
 
-        kw = findKw(iodesc->hdr,"NPIX1");
-        if (kw != 0) /* remove it */
-            delKw(kw);
-
-        if (da->tot_ny > 1) {
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw != 0) /* remove it */
-                delKw(kw);
+    /* Get the current CFITSIO size, and if it's different, resize it */
+    fits_get_img_size(iodesc->ff, 2, dims, &retval);
+    if (dims[0] != xend - xbeg || dims[1] != yend - ybeg) {
+        iodesc->dims[0] = xend - xbeg;
+        iodesc->dims[1] = yend - ybeg;
+        if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, iodesc->dims, &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
         }
 
-        /* Get the current CFITSIO size, and if it's different, resize it */
-        fits_get_img_size(iodesc->ff, 2, dims, &status);
-        if (dims[0] != xend - xbeg || dims[1] != yend - ybeg) {
-            iodesc->dims[0] = xend - xbeg;
-            iodesc->dims[1] = yend - ybeg;
-            if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, iodesc->dims, &status)) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
+        /* Note, we don't need to fill the image with the constant value, since
+           the image will be entirely over-written by the passed in array da */
+    }
 
-            /* Note, we don't need to fill the image with the constant value, since
-               the image will be entirely over-written by the passed in array da */
+    /* update the header area */
+    if (iodesc->hflag) {
+        iodesc->type = FLOAT_IMG;
+        putHeader(iodesc);
+        iodesc->hflag = 0;
+    }
+
+    fpixel[0] = 1;
+    for (long i = ybeg; i < yend; ++i) {
+        fpixel[1] = i - ybeg + 1;
+        if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, xsize, (float *)&PPix(da, xbeg, i), &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
         }
+    }
 
-        /* update the header area */
-        if (iodesc->hflag) {
-            iodesc->type = FLOAT_IMG;
-            putHeader(iodesc);
-            iodesc->hflag = 0;
-        }
+    fflush(stdout);
 
-        fpixel[0] = 1;
-        for (i = ybeg; i < yend; ++i) {
-            fpixel[1] = i - ybeg + 1;
-            if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, xsize,
-                               (float*)&(PPix(da, xbeg, i)), &status)) {
-                ioerr(BADWRITE, iodesc, status);
-                return -1;
-            }
-        }
-
-        fflush(stdout);
-
-        clear_err();
-        return 0;
+    clear_err();
+    return 0;
 }
 
 int getShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int no_dims, i, j;
-        FitsKw kw;
-        short val;
-        long fpixel[2];
-        int anynul = 0;
-        int status = 0;
+    IODesc *iodesc = iodesc_;
+    int no_dims;
+    long fpixel[2];
+    int anynul = 0;
+    int retval = 0;
 
-        if (iodesc->options == WriteOnly) { ioerr(NOGET,iodesc, 0); return -1; }
+    if (iodesc->options == WriteOnly) {
+        ioerr(NOGET, iodesc, 0);
+        return -1;
+    }
 
-        fits_get_img_dim(iodesc->ff, &no_dims, &status);
-        fits_get_img_size(iodesc->ff, 2, iodesc->dims, &status);
-        if (status) {
-            ioerr(BADDIMS, iodesc, status);
+    fits_get_img_dim(iodesc->ff, &no_dims, &retval);
+    fits_get_img_size(iodesc->ff, 2, iodesc->dims, &retval);
+    if (retval) {
+        ioerr(BADDIMS, iodesc, retval);
+        return -1;
+    }
+
+    /*
+       If the number  of dimensions of the image is zero, need to
+       determine how many dimensions the image is supposed to have
+       according to the NPIX[1/2] keyword(s).
+    */
+    if (no_dims == 0) {
+        FitsKw kw = findKw(iodesc->hdr, "PIXVALUE");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
             return -1;
         }
+        const short val = (short) getIntKw(kw);
 
-        /*
-           If the number  of dimensions of the image is zero, need to
-           determine how many dimensions the image is supposed to have
-           according to the NPIX[1/2] keyword(s).
-        */
-        if (no_dims == 0) {
-            kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc,0); return -1; }
-            val = getIntKw(kw);
+        kw = findKw(iodesc->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        iodesc->dims[0] = getIntKw(kw);
 
-            kw = findKw(iodesc->hdr,"NPIX1");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc,0); return -1; }
-            iodesc->dims[0] = getIntKw(kw);
-
-            /* If NPIX2 is not found, the image should be 1D; dim2 = 1 and *
-             * not 0 for purposes of memory allocation.                    */
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw == 0)  {
-                iodesc->dims[1] = 1;
-            } else {
-                iodesc->dims[1] = getIntKw(kw);
-            }
-
-            if (allocShortData(da, iodesc->dims[0], iodesc->dims[1], True)) return -1;
-            for (j = 0; j < iodesc->dims[1]; ++j)
-                for (i = 0; i < iodesc->dims[0]; ++i)
-                    PPix(da, i, j) = val;
-        } else if (no_dims == 1) {
+        /* If NPIX2 is not found, the image should be 1D; dim2 = 1 and *
+         * not 0 for purposes of memory allocation.                    */
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw == 0) {
             iodesc->dims[1] = 1;
-            /* CFITSIO TODO: Should we verify the type is correct
-               here?  Original code gets type, but then does nothing
-               with it. */
-            if (allocShortData(da, iodesc->dims[0], iodesc->dims[1], True)) return -1;
-            fpixel[0] = 1;
-            fpixel[1] = 1;
-            if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL,
-                              (short *)&(PPix(da, 0, 0)), &anynul, &status)) {
-                ioerr(BADREAD, iodesc, status);
+        } else {
+            iodesc->dims[1] = getIntKw(kw);
+        }
+
+        if (allocShortData(da, iodesc->dims[0], iodesc->dims[1], True)) {
+            return -1;
+        }
+        for (long j = 0; j < iodesc->dims[1]; ++j) {
+            for (long i = 0; i < iodesc->dims[0]; ++i) {
+                PPix(da, i, j) = val;
+            }
+        }
+    } else if (no_dims == 1) {
+        iodesc->dims[1] = 1;
+        /* CFITSIO TODO: Should we verify the type is correct
+           here?  Original code gets type, but then does nothing
+           with it. */
+        if (allocShortData(da, iodesc->dims[0], iodesc->dims[1], True)) {
+            return -1;
+        }
+        fpixel[0] = 1;
+        fpixel[1] = 1;
+        if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL, (short *)&PPix(da, 0, 0), &anynul,
+                          &retval)) {
+            ioerr(BADREAD, iodesc, retval);
+            return -1;
+        }
+    } else if (no_dims == 2) {
+        /* CFITSIO TODO: Should we verify the type is correct
+           here?  Original code gets type, but then does nothing
+           with it. */
+        if (allocShortData(da, iodesc->dims[0], iodesc->dims[1], True)) {
+            return -1;
+        }
+        fpixel[0] = 1;
+        for (long i = 0; i < iodesc->dims[1]; ++i) {
+            fpixel[1] = i + 1;
+            if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL, (short *)&PPix(da, 0, i), &anynul,
+                              &retval)) {
+                ioerr(BADREAD, iodesc, retval);
                 return -1;
             }
-        } else if (no_dims == 2) {
-            /* CFITSIO TODO: Should we verify the type is correct
-               here?  Original code gets type, but then does nothing
-               with it. */
-            if (allocShortData(da, iodesc->dims[0], iodesc->dims[1], True)) return -1;
-            fpixel[0] = 1;
-            for (i = 0; i < iodesc->dims[1]; ++i) {
-                fpixel[1] = i + 1;
-                if (fits_read_pix(iodesc->ff, TSHORT, fpixel, iodesc->dims[0], NULL,
-                                  (short *)&(PPix(da, 0, i)), &anynul, &status)) {
-                    ioerr(BADREAD, iodesc, status);
-                    return -1;
-                }
-            }
-        } else {
-            ioerr(BADDIMS, iodesc, 0);
-            return -1;
         }
+    } else {
+        ioerr(BADDIMS, iodesc, 0);
+        return -1;
+    }
 
-        clear_err();
-        return 0;
+    clear_err();
+    return 0;
 }
 
-int putShortData(IODescPtr iodesc_, ShortTwoDArray *da) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int i, j;
-        short tmp;
-        long fpixel[2];
-        FitsKw kw;
-        int is_eq;
-        int naxis;
-        long dims[2];
-        int status = 0;
+int putShortData(IODescPtr iodesc_, const ShortTwoDArray *da) {
+    IODesc *iodesc = iodesc_;
+    long fpixel[2];
+    FitsKw kw;
+    int naxis;
+    long dims[2];
+    int retval = 0;
 
-        if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
+    if (iodesc->options == ReadOnly) {
+        ioerr(NOPUT, iodesc, 0);
+        return -1;
+    }
 
-        /* check for a constant array, if not SCI data */
-        if (strcmp(iodesc->extname,"SCI") != 0
-            && da->tot_nx != 0 && da->tot_ny != 0) {
-            tmp = PPix(da,0,0);
-            for (i = 0, is_eq = 1; (i < da->tot_nx) && is_eq; ++i) {
-                for (j = 0; (j < da->tot_ny); ++j) {
-                    if (PPix(da,i,j) != tmp) {
-                        is_eq = 0;
-                        break;
-                    }
+    /* check for a constant array, if not SCI data */
+    if (strcmp(iodesc->extname, "SCI") != 0 && da->tot_nx != 0 && da->tot_ny != 0) {
+        int is_eq = 1;
+        const short tmp = PPix(da, 0, 0);
+        for (long i = 0; i < da->tot_nx && is_eq; ++i) {
+            for (long j = 0; j < da->tot_ny; ++j) {
+                if (PPix(da, i, j) != tmp) {
+                    is_eq = 0;
+                    break;
                 }
-            }
-            if (is_eq) {
-                /* This is a constant array. */
-                /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
-                kw = findKw(iodesc->hdr,"PIXVALUE");
-                if (kw == 0) /* add it */
-                    addIntKw(iodesc->hdr,"PIXVALUE",(int)tmp,
-                        "values of pixels in constant array");
-                else
-                    putIntKw(kw,(int)tmp);
-
-                kw = findKw(iodesc->hdr,"NPIX1");
-                if (kw == 0) /* add it */
-                    addIntKw(iodesc->hdr,"NPIX1",iodesc->dims[0],
-                        "length of constant array axis 1");
-                else
-                    putIntKw(kw,iodesc->dims[0]);
-
-                /* NPIX2 should only be added if the y-dimension is > 1. */
-                if (da->tot_ny > 1) {
-                    kw = findKw(iodesc->hdr,"NPIX2");
-                    if (kw == 0) /* add it */
-                        addIntKw(iodesc->hdr,"NPIX2",iodesc->dims[1],
-                            "length of constant array axis 2");
-                    else
-                        putIntKw(kw,iodesc->dims[1]);
-                }
-
-                naxis = 0;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
-                iodesc->dims[0] = 0;
-                iodesc->dims[1] = 0;
-
-                if (fits_resize_img(iodesc->ff, SHORT_IMG, 0, iodesc->dims, &status)) {
-                    ioerr(BADWRITE, iodesc, status); return -1;
-                }
-
-                /* update the header, etc. */
-                if (iodesc->hflag) {
-                    iodesc->type = SHORT_IMG;
-                    putHeader(iodesc);
-                    iodesc->hflag = 0;
-                }
-
-                fits_flush_file(iodesc->ff, &status);
-
-                clear_err();
-                return 0;
             }
         }
+        if (is_eq) {
+            /* This is a constant array. */
+            /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
+            kw = findKw(iodesc->hdr, "PIXVALUE");
+            if (kw == 0) { /* add it */
+                addIntKw(iodesc->hdr, "PIXVALUE", tmp, "values of pixels in constant array");
+            } else {
+                putIntKw(kw, tmp);
+            }
 
-        /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
-         * are NOT present in the header to be written out.              */
-        kw = findKw(iodesc->hdr,"NPIX1");
-        if (kw != 0) /* remove it */
+            kw = findKw(iodesc->hdr, "NPIX1");
+            if (kw == 0) { /* add it */
+                addIntKw(iodesc->hdr, "NPIX1", iodesc->dims[0], "length of constant array axis 1");
+            } else {
+                putIntKw(kw, iodesc->dims[0]);
+            }
+
+            /* NPIX2 should only be added if the y-dimension is > 1. */
+            if (da->tot_ny > 1) {
+                kw = findKw(iodesc->hdr, "NPIX2");
+                if (kw == 0) { /* add it */
+                    addIntKw(iodesc->hdr, "NPIX2", iodesc->dims[1], "length of constant array axis 2");
+                } else {
+                    putIntKw(kw, iodesc->dims[1]);
+                }
+            }
+
+            naxis = 0;
+            fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &retval);
+            iodesc->dims[0] = 0;
+            iodesc->dims[1] = 0;
+
+            if (fits_resize_img(iodesc->ff, SHORT_IMG, 0, iodesc->dims, &retval)) {
+                ioerr(BADWRITE, iodesc, retval);
+                return -1;
+            }
+
+            /* update the header, etc. */
+            if (iodesc->hflag) {
+                iodesc->type = SHORT_IMG;
+                putHeader(iodesc);
+                iodesc->hflag = 0;
+            }
+
+            fits_flush_file(iodesc->ff, &retval);
+
+            clear_err();
+            return 0;
+        }
+    }
+
+    /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
+     * are NOT present in the header to be written out.              */
+    kw = findKw(iodesc->hdr, "NPIX1");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
+
+    if (da->tot_ny > 1) {
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw != 0) { /* remove it */
             delKw(kw);
-
-        if (da->tot_ny > 1) {
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw != 0) /* remove it */
-                delKw(kw);
         }
+    }
 
-        kw = findKw(iodesc->hdr,"PIXVALUE");
-        if (kw != 0) /* remove it */
-            delKw(kw);
+    kw = findKw(iodesc->hdr, "PIXVALUE");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
 
-        /* Get the current CFITSIO size, and if it's different, resize it */
-        fits_get_img_size(iodesc->ff, 2, dims, &status);
-        if (dims[0] != da->nx || dims[1] != da->ny) {
-            iodesc->dims[0] = da->nx;
-            iodesc->dims[1] = da->ny;
-            if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, iodesc->dims, &status)) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
+    /* Get the current CFITSIO size, and if it's different, resize it */
+    fits_get_img_size(iodesc->ff, 2, dims, &retval);
+    if (dims[0] != da->nx || dims[1] != da->ny) {
+        iodesc->dims[0] = da->nx;
+        iodesc->dims[1] = da->ny;
+        if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, iodesc->dims, &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
         }
+    }
 
-        /* update the header area */
-        if (iodesc->hflag) {
-            iodesc->type = SHORT_IMG;
-            putHeader(iodesc);
-            iodesc->hflag = 0;
+    /* update the header area */
+    if (iodesc->hflag) {
+        iodesc->type = SHORT_IMG;
+        putHeader(iodesc);
+        iodesc->hflag = 0;
+    }
+
+    fpixel[0] = 1;
+    for (long i = 0; i < da->ny; ++i) {
+        fpixel[1] = i + 1;
+        if (fits_write_pix(iodesc->ff, TSHORT, fpixel, da->nx, (short *)&PPix(da, 0, i), &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
         }
+    }
 
-        fpixel[0] = 1;
-        for (i = 0; i < da->ny; ++i) {
-            fpixel[1] = i + 1;
-            if (fits_write_pix(iodesc->ff, TSHORT, fpixel, da->nx,
-                               (short *)&(PPix(da, 0, i)), &status)) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
-        }
+    fits_flush_file(iodesc->ff, &retval);
 
-        fits_flush_file(iodesc->ff, &status);
-
-        clear_err();
-        return 0;
+    clear_err();
+    return 0;
 }
 
 /*                                                                     **
 ** Write output a subsection of an image in memory to a file where the **
 ** subsection is the full size of the output data.                     **
 **                                                                     */
-int putShortSect(IODescPtr iodesc_, ShortTwoDArray *da, int xbeg, int ybeg,
-                     int xsize, int ysize) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int i, j, xend, yend;
-        short tmp;
-        FitsKw kw;
-        int naxis;
-        int is_eq;
-        long fpixel[2];
-        long dims[2];
-        int status = 0;
+int putShortSect(IODescPtr iodesc_, const ShortTwoDArray *da, const long xbeg, const long ybeg, const long xsize,
+                 const long ysize) {
+    IODesc *iodesc = iodesc_;
+    FitsKw kw;
+    int naxis;
+    long fpixel[2];
+    long dims[2];
+    int retval = 0;
 
-        if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
+    if (iodesc->options == ReadOnly) {
+        ioerr(NOPUT, iodesc, 0);
+        return -1;
+    }
 
-        xend = xbeg + xsize;
-        yend = ybeg + ysize;
-        /* check for a constant array, if not SCI data */
-        if (strcmp(iodesc->extname,"SCI") != 0
-            && da->tot_nx != 0 && da->tot_ny != 0) {
-            tmp = PPix(da,0,0);
-            for (i = xbeg, is_eq = 1; (i < xend) && is_eq; ++i) {
-                for (j = ybeg; (j < yend); ++j) {
-                    if (PPix(da,i,j) != tmp) {
-                        is_eq = 0;
-                        break;
-                    }
+    const long xend = xbeg + xsize;
+    const long yend = ybeg + ysize;
+    /* check for a constant array, if not SCI data */
+    if (strcmp(iodesc->extname, "SCI") != 0 && da->tot_nx != 0 && da->tot_ny != 0) {
+        int is_eq = 1;
+        const short tmp = PPix(da, 0, 0);
+        for (long i = xbeg; i < xend && is_eq; ++i) {
+            for (long j = ybeg; j < yend; ++j) {
+                if (PPix(da, i, j) != tmp) {
+                    is_eq = 0;
+                    break;
                 }
-            }
-            if (is_eq) {
-                /* This is a constant array. */
-                /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
-                kw = findKw(iodesc->hdr,"PIXVALUE");
-                if (kw == 0) /* add it */
-                    addIntKw(iodesc->hdr,"PIXVALUE",(int)tmp,
-                        "values of pixels in constant array");
-                else
-                    putIntKw(kw,(int)tmp);
-
-                kw = findKw(iodesc->hdr,"NPIX1");
-                if (kw == 0) /* add it */
-                    addIntKw(iodesc->hdr,"NPIX1",iodesc->dims[0],
-                        "length of constant array axis 1");
-                else
-                    putIntKw(kw,iodesc->dims[0]);
-
-                /* NPIX2 should only be added if the y-dimension is > 1. */
-                if (da->tot_ny > 1) {
-                    kw = findKw(iodesc->hdr,"NPIX2");
-                    if (kw == 0) /* add it */
-                        addIntKw(iodesc->hdr,"NPIX2",iodesc->dims[1],
-                            "length of constant array axis 2");
-                    else
-                        putIntKw(kw,iodesc->dims[1]);
-                }
-
-                naxis = 0;
-                fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &status);
-                iodesc->dims[0] = 0;
-                iodesc->dims[1] = 0;
-                /* update the header, etc. */
-                if (iodesc->hflag) {
-                    iodesc->type = SHORT_IMG;
-                    putHeader(iodesc);
-                    iodesc->hflag = 0;
-                }
-
-                fits_flush_file(iodesc->ff, &status);
-
-                clear_err();
-                return 0;
             }
         }
+        if (is_eq) {
+            /* This is a constant array. */
+            /* add NPIX1, NPIX2 (if necessary), and PIXVALUE keywords */
+            kw = findKw(iodesc->hdr, "PIXVALUE");
+            if (kw == 0) { /* add it */
+                addIntKw(iodesc->hdr, "PIXVALUE", tmp, "values of pixels in constant array");
+            } else {
+                putIntKw(kw, tmp);
+            }
 
-        /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
-         * are NOT present in the header to be written out.              */
-        kw = findKw(iodesc->hdr,"PIXVALUE");
-        if (kw != 0) /* remove it */
+            kw = findKw(iodesc->hdr, "NPIX1");
+            if (kw == 0) { /* add it */
+                addIntKw(iodesc->hdr, "NPIX1", iodesc->dims[0], "length of constant array axis 1");
+            } else {
+                putIntKw(kw, iodesc->dims[0]);
+            }
+
+            /* NPIX2 should only be added if the y-dimension is > 1. */
+            if (da->tot_ny > 1) {
+                kw = findKw(iodesc->hdr, "NPIX2");
+                if (kw == 0) { /* add it */
+                    addIntKw(iodesc->hdr, "NPIX2", iodesc->dims[1], "length of constant array axis 2");
+                } else {
+                    putIntKw(kw, iodesc->dims[1]);
+                }
+            }
+
+            naxis = 0;
+            fits_update_key(iodesc->ff, TINT, "NAXIS", &naxis, NULL, &retval);
+            iodesc->dims[0] = 0;
+            iodesc->dims[1] = 0;
+            /* update the header, etc. */
+            if (iodesc->hflag) {
+                iodesc->type = SHORT_IMG;
+                putHeader(iodesc);
+                iodesc->hflag = 0;
+            }
+
+            fits_flush_file(iodesc->ff, &retval);
+
+            clear_err();
+            return 0;
+        }
+    }
+
+    /* If not a constant array, make sure NPIX1, NPIX2, and PIXVALUE *
+     * are NOT present in the header to be written out.              */
+    kw = findKw(iodesc->hdr, "PIXVALUE");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
+
+    kw = findKw(iodesc->hdr, "NPIX1");
+    if (kw != 0) { /* remove it */
+        delKw(kw);
+    }
+
+    if (da->tot_ny > 1) {
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw != 0) { /* remove it */
             delKw(kw);
-
-        kw = findKw(iodesc->hdr,"NPIX1");
-        if (kw != 0) /* remove it */
-            delKw(kw);
-
-        if (da->tot_ny > 1) {
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw != 0) /* remove it */
-                delKw(kw);
         }
+    }
 
-        /* Get the current CFITSIO size, and if it's different, resize it */
-        fits_get_img_size(iodesc->ff, 2, dims, &status);
-        if (dims[0] != xend - xbeg || dims[1] != yend - ybeg) {
-            iodesc->dims[0] = xend - xbeg;
-            iodesc->dims[1] = yend - ybeg;
-            if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, iodesc->dims, &status)) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
-
-            /* Note, we don't need to fill the image with the constant value, since
-               the image will be entirely over-written by the passed in array da */
-        }
-
-        /* update the header area */
-        if (iodesc->hflag) {
-            iodesc->type = SHORT_IMG;
-            putHeader(iodesc);
-            iodesc->hflag = 0;
-        }
-
-        fpixel[0] = 1;
-        for (i = ybeg; i < yend; ++i) {
-            fpixel[1] = i - ybeg + 1;
-            if (fits_write_pix(iodesc->ff, TSHORT, fpixel, xsize,
-                               (short *)&(PPix(da, xbeg, i)), &status)) {
-                ioerr(BADWRITE,iodesc, status);
-                return -1;
-            }
-        }
-
-        fits_flush_file(iodesc->ff, &status);
-
-        clear_err();
-        return 0;
-}
-
-int getFloatLine(IODescPtr iodesc_, int line, float *ptr) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int no_dims, i, dim1;
-        long dims[2];
-        FitsKw kw;
-        float val;
-        long fpixel[2];
-        int anynul;
-        int status = 0;
-
-        if (iodesc->options == WriteOnly) { ioerr(NOGET,iodesc,0); return -1; }
-
-        if (fits_get_img_dim(iodesc->ff, &no_dims, &status)) {
-            ioerr(BADDIMS, iodesc, status);
+    /* Get the current CFITSIO size, and if it's different, resize it */
+    fits_get_img_size(iodesc->ff, 2, dims, &retval);
+    if (dims[0] != xend - xbeg || dims[1] != yend - ybeg) {
+        iodesc->dims[0] = xend - xbeg;
+        iodesc->dims[1] = yend - ybeg;
+        if (fits_resize_img(iodesc->ff, SHORT_IMG, 2, iodesc->dims, &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
             return -1;
         }
-        if (no_dims == 0) {
-            kw = findKw(iodesc->hdr,"NPIX1");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc,0); return -1; }
-            dim1 = getIntKw(kw);
-            kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc,0); return -1; }
-            val = getFloatKw(kw);
-            for (i = 0; i < dim1; ++i) {
-                ptr[i] = val;
-            }
-        } else {
-            if (fits_get_img_size(iodesc->ff, 2, dims, &status)) {
-                ioerr(BADDIMS, iodesc, status);
-                return -1;
-            }
-            fpixel[0] = 1;
-            fpixel[1] = line + 1;
-            if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, dims[0], NULL,
-                              ptr, &anynul, &status)) {
-                ioerr(BADREAD, iodesc, status);
-                return -1;
-            }
+
+        /* Note, we don't need to fill the image with the constant value, since
+           the image will be entirely over-written by the passed in array da */
+    }
+
+    /* update the header area */
+    if (iodesc->hflag) {
+        iodesc->type = SHORT_IMG;
+        putHeader(iodesc);
+        iodesc->hflag = 0;
+    }
+
+    fpixel[0] = 1;
+    for (long i = ybeg; i < yend; ++i) {
+        fpixel[1] = i - ybeg + 1;
+        if (fits_write_pix(iodesc->ff, TSHORT, fpixel, xsize, (short *)&PPix(da, xbeg, i), &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
         }
-        clear_err();
-        return 0;
+    }
+
+    fits_flush_file(iodesc->ff, &retval);
+
+    clear_err();
+    return 0;
 }
 
-int putFloatLine(IODescPtr iodesc_, int line, float *ptr) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        long fpixel[2];
-        int no_dims;
-        long dims[2];
-        FitsKw kw;
-        float* buffer;
-        float val;
-        long i, j;
-        int status = 0;
+int getFloatLine(IODescPtr iodesc_, const int line, float *ptr) {
+    IODesc *iodesc = iodesc_;
+    int no_dims;
+    long dims[2];
+    long fpixel[2];
+    int anynul;
+    int retval = 0;
 
-        if (iodesc->options == ReadOnly) { ioerr(NOPUT,iodesc,0); return -1; }
-        if (iodesc->hflag) { iodesc->hflag = 0; putHeader(iodesc); }
+    if (iodesc->options == WriteOnly) {
+        ioerr(NOGET, iodesc, 0);
+        return -1;
+    }
 
-        /* If a constant array, convert to a non-constant array */
-        fits_get_img_dim(iodesc->ff, &no_dims, &status);
-        if (no_dims == 0) {
-            kw = findKw(iodesc->hdr,"NPIX1");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS, iodesc, 0);
-                return -1;
-            } else {
-                dims[0] = getIntKw(kw);
-                delKw(kw);
-            }
-
-            kw = findKw(iodesc->hdr,"NPIX2");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS, iodesc, 0);
-                return -1;
-            } else {
-                dims[1] = getIntKw(kw);
-                delKw(kw);
-            }
-
-            kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) {
-                ioerr(BADSCIDIMS,iodesc,0);
-                return -1;
-            } else {
-                val = getFloatKw(kw);
-                delKw(kw);
-            }
-
-            iodesc->dims[0] = dims[0];
-            iodesc->dims[1] = dims[1];
-            if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, dims, &status)) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
-
-            buffer = malloc(dims[0] * sizeof(float));
-            if (buffer == NULL) {
-                ioerr(BADWRITE, iodesc, status); return -1;
-            }
-
-            for (i = 0; i < dims[0]; ++i) {
-                buffer[i] = val;
-            }
-
-            /* Write the constant value into CFITSIO's array */
-            fpixel[0] = 1;
-            for (j = 0; j < dims[1]; ++j) {
-                fpixel[1] = j + 1;
-                if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, dims[0], buffer, &status)) {
-                    ioerr(BADWRITE, iodesc, status);
-                    free(buffer);
-                    return -1;
-                }
-            }
-
-            free(buffer);
+    if (fits_get_img_dim(iodesc->ff, &no_dims, &retval)) {
+        ioerr(BADDIMS, iodesc, retval);
+        return -1;
+    }
+    if (no_dims == 0) {
+        FitsKw kw = findKw(iodesc->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
         }
-
+        const long dim1 = getIntKw(kw);
+        kw = findKw(iodesc->hdr, "PIXVALUE");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        const float val = getFloatKw(kw);
+        for (long i = 0; i < dim1; ++i) {
+            ptr[i] = val;
+        }
+    } else {
+        if (fits_get_img_size(iodesc->ff, 2, dims, &retval)) {
+            ioerr(BADDIMS, iodesc, retval);
+            return -1;
+        }
         fpixel[0] = 1;
         fpixel[1] = line + 1;
-        if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0],
-                           ptr, &status)) {
-            ioerr(BADWRITE, iodesc, status);
+        if (fits_read_pix(iodesc->ff, TFLOAT, fpixel, dims[0], NULL, ptr, &anynul, &retval)) {
+            ioerr(BADREAD, iodesc, retval);
             return -1;
         }
-
-        clear_err();
-        return 0;
+    }
+    clear_err();
+    return 0;
 }
 
-int getShortLine(IODescPtr iodesc_, int line, short *ptr) {
-        IODesc *iodesc = (IODesc *)iodesc_;
-        int no_dims, dim1, i;
-        long dims[2];
-        FitsKw kw;
-        short val;
-        long fpixel[2];
-        int anynul;
-        int status = 0;
+int putFloatLine(IODescPtr iodesc_, const int line, float *ptr) {
+    IODesc *iodesc = iodesc_;
+    long fpixel[2];
+    int no_dims;
+    long dims[2];
+    int retval = 0;
 
-        if (iodesc->options == WriteOnly) { ioerr(NOGET,iodesc,0); return -1; }
+    if (iodesc->options == ReadOnly) {
+        ioerr(NOPUT, iodesc, 0);
+        return -1;
+    }
+    if (iodesc->hflag) {
+        iodesc->hflag = 0;
+        putHeader(iodesc);
+    }
 
-        if (fits_get_img_dim(iodesc->ff, &no_dims, &status)) {
-            ioerr(BADDIMS, iodesc, status);
+    /* If a constant array, convert to a non-constant array */
+    fits_get_img_dim(iodesc->ff, &no_dims, &retval);
+    if (no_dims == 0) {
+        float val = 0.0f;
+        FitsKw kw = findKw(iodesc->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
             return -1;
         }
-        if (no_dims == 0) {
-            kw = findKw(iodesc->hdr,"NPIX1");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc,0); return -1; }
-            dim1 = getIntKw(kw);
-            kw = findKw(iodesc->hdr,"PIXVALUE");
-            if (kw == 0) { ioerr(BADSCIDIMS,iodesc,0); return -1; }
-            val = getIntKw(kw);
-            for (i = 0; i < dim1; ++i)
-                ptr[i] = val;
-        } else {
-            if (fits_get_img_size(iodesc->ff, 2, dims, &status)) {
-                ioerr(BADDIMS, iodesc, status);
-                return -1;
-            }
-            fpixel[0] = 1;
-            fpixel[1] = line + 1;
-            if (fits_read_pix(iodesc->ff, TSHORT, fpixel, dims[0], NULL,
-                              ptr, &anynul, &status)) {
-                ioerr(BADREAD, iodesc, status);
+        dims[0] = getIntKw(kw);
+        delKw(kw);
+
+        kw = findKw(iodesc->hdr, "NPIX2");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        dims[1] = getIntKw(kw);
+        delKw(kw);
+
+        kw = findKw(iodesc->hdr, "PIXVALUE");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        val = getFloatKw(kw);
+        delKw(kw);
+
+        iodesc->dims[0] = dims[0];
+        iodesc->dims[1] = dims[1];
+        if (fits_resize_img(iodesc->ff, FLOAT_IMG, 2, dims, &retval)) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
+        }
+
+        float *buffer = malloc(dims[0] * sizeof(float));
+        if (buffer == NULL) {
+            ioerr(BADWRITE, iodesc, retval);
+            return -1;
+        }
+
+        for (long i = 0; i < dims[0]; ++i) {
+            buffer[i] = val;
+        }
+
+        /* Write the constant value into CFITSIO's array */
+        fpixel[0] = 1;
+        for (long j = 0; j < dims[1]; ++j) {
+            fpixel[1] = j + 1;
+            if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, dims[0], buffer, &retval)) {
+                ioerr(BADWRITE, iodesc, retval);
+                free(buffer);
                 return -1;
             }
         }
-        clear_err();
-        return 0;
+
+        free(buffer);
+    }
+
+    fpixel[0] = 1;
+    fpixel[1] = line + 1;
+    if (fits_write_pix(iodesc->ff, TFLOAT, fpixel, iodesc->dims[0], ptr, &retval)) {
+        ioerr(BADWRITE, iodesc, retval);
+        return -1;
+    }
+
+    clear_err();
+    return 0;
+}
+
+int getShortLine(IODescPtr iodesc_, const int line, short *ptr) {
+    IODesc *iodesc = iodesc_;
+    int no_dims;
+    long dims[2];
+    long fpixel[2];
+    int anynul;
+    int retval = 0;
+
+    if (iodesc->options == WriteOnly) {
+        ioerr(NOGET, iodesc, 0);
+        return -1;
+    }
+
+    if (fits_get_img_dim(iodesc->ff, &no_dims, &retval)) {
+        ioerr(BADDIMS, iodesc, retval);
+        return -1;
+    }
+    if (no_dims == 0) {
+        FitsKw kw = findKw(iodesc->hdr, "NPIX1");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        const long dim1 = getIntKw(kw);
+        kw = findKw(iodesc->hdr, "PIXVALUE");
+        if (kw == 0) {
+            ioerr(BADSCIDIMS, iodesc, 0);
+            return -1;
+        }
+        const short val = (short) getIntKw(kw);
+        for (long i = 0; i < dim1; ++i) {
+            ptr[i] = val;
+        }
+    } else {
+        if (fits_get_img_size(iodesc->ff, 2, dims, &retval)) {
+            ioerr(BADDIMS, iodesc, retval);
+            return -1;
+        }
+        fpixel[0] = 1;
+        fpixel[1] = line + 1;
+        if (fits_read_pix(iodesc->ff, TSHORT, fpixel, dims[0], NULL, ptr, &anynul, &retval)) {
+            ioerr(BADREAD, iodesc, retval);
+            return -1;
+        }
+    }
+    clear_err();
+    return 0;
 }
 
 int putShortLine(IODescPtr iodesc_, const int line, short *ptr) {

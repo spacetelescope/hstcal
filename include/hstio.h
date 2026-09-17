@@ -123,7 +123,7 @@ extern "C" {
 
 # define SZ_PATHNAME 511
 
-#define intFormat "%12d"
+#define intFormat "%12ld"
 #define floatFormat "%#14.7E"
 #define doubleFormat "%#20.12E"
 
@@ -145,11 +145,11 @@ enum StorageOrder
 
 typedef struct {
         short *buffer;          /* the pointer to the beg. of the buffer */
-        int buffer_size;        /* the size of the full 2-d array in the */
-        int tot_nx;             /* buffer.                               */
-        int tot_ny;             /*     buffer_size = tot_nx*tot_ny       */
-        int nx;                 /* The size of the current "view" of the */
-        int ny;                 /* full 2-d array.                       */
+        long buffer_size;        /* the size of the full 2-d array in the */
+        long tot_nx;             /* buffer.                               */
+        long tot_ny;             /*     buffer_size = tot_nx*tot_ny       */
+        long nx;                 /* The size of the current "view" of the */
+        long ny;                 /* full 2-d array.                       */
         enum StorageOrder storageOrder;
         short *data;            /* The pointer to the beginning of the   */
                                 /* subsection of the full 2-d array.     */
@@ -157,11 +157,11 @@ typedef struct {
 
 typedef struct {
         float *buffer;
-        int buffer_size;
-        int tot_nx;
-        int tot_ny;
-        int nx;
-        int ny;
+        long buffer_size;
+        long tot_nx;
+        long tot_ny;
+        long nx;
+        long ny;
         enum StorageOrder storageOrder;
         float *data;
 } FloatTwoDArray;
@@ -226,10 +226,10 @@ typedef struct {
 ** I/O operations.  At present, the entire array is read into memory.
 */
 typedef struct {
-        int x_beg;              /* The beginning coordinates of the     */
-        int y_beg;              /* section.                             */
-        int sx;                 /* The sizes of the X and Y dimensions  */
-        int sy;                 /* of the section.                      */
+        long x_beg;              /* The beginning coordinates of the     */
+        long y_beg;              /* section.                             */
+        long sx;                 /* The sizes of the X and Y dimensions  */
+        long sy;                 /* of the section.                      */
 } DataSection;
 void copyDataSection(DataSection * dest, const DataSection * src);
 
@@ -240,8 +240,8 @@ typedef char HdrArray[HDRSize]; /* Headers are simply an array of fixed */
                                 /* represent FITS card images.          */
 
 typedef struct {
-        int nlines;             /* The number of lines actually used.   */
-        int nalloc;             /* Number of lines currently allocated. */
+        long nlines;             /* The number of lines actually used.   */
+        long nalloc;             /* Number of lines currently allocated. */
         HdrArray *array;        /* The buffer of card images.           */
 } Hdr;
 
@@ -308,7 +308,7 @@ typedef struct {
         IODescPtr iodesc;         /* file descriptor                   */
         Hdr       hdr;            /* header structure for extension    */
         Bool      ehdr_loaded;    /* flag, is extension header loaded? */
-        int       tot_nx;         /* number of values in line          */
+        long      tot_nx;         /* number of values in line          */
         float     *line;          /* pointer to line buffer            */
 } FloatHdrLine;
 
@@ -316,7 +316,7 @@ typedef struct {
         IODescPtr iodesc;
         Hdr       hdr;
         Bool      ehdr_loaded;
-        int       tot_nx;
+        long      tot_nx;
         short     *line;
 } ShortHdrLine;
 
@@ -426,13 +426,13 @@ void clear_hstioerr(void);
 ** The ckNewFile() function runs under both UNIX and VMS.
 */
 int  openSingleGroupLine  (char *filename, int extver, SingleGroupLine *);
-void closeSingleGroupLine (SingleGroupLine *);
+void closeSingleGroupLine (const SingleGroupLine *);
 
 int fcloseNull(FILE * stream); // returns 0 if stream=NULL, returns fclose otherwise
 int fcloseWithStatus(FILE ** stream); // calls fcloseNull & returns IO_ERROR upon error,
                                       // 0 otherwise. Sets *stream=NULL always.
 
-int ckNewFile(char *fname);
+int ckNewFile(const char *filename);
 int openFitsFile(char *filename, unsigned int option);
 int closeFitsFile(char *filename);
 int getSci(char *filename, int extver, SciHdrData *);
@@ -446,58 +446,53 @@ int putSmpl(char *filename, int extver, SmplHdrData *, int option);
 int getIntg(char *filename, int extver, IntgHdrData *);
 int putIntg(char *filename, int extver, IntgHdrData *, int option);
 
-int putSciSect(char *filename, int extver, SciHdrData *, int xbeg, int ybeg,
-               int xsize, int ysize, int option);
-int putErrSect(char *filename, int extver, ErrHdrData *, int xbeg, int ybeg,
-               int xsize, int ysize, int option);
-int putDQSect(char *filename, int extver, DQHdrData *, int xbeg, int ybeg,
-               int xsize, int ysize, int option);
-int putSmplSect(char *filename, int extver, SmplHdrData *, int xbeg, int ybeg,
-               int xsize, int ysize, int option);
-int putIntgSect(char *filename, int extver, IntgHdrData *, int xbeg, int ybeg,
-               int xsize, int ysize, int option);
+int putSciSect(char *filename, int extver, SciHdrData *, long xbeg, long ybeg, long xsize, long ysize, int option);
+int putErrSect(char *filename, int extver, ErrHdrData *, long xbeg, long ybeg, long xsize, long ysize, int option);
+int putDQSect(char *filename, int extver, DQHdrData *, long xbeg, long ybeg, long xsize, long ysize, int option);
+int putSmplSect(char *filename, int extver, SmplHdrData *, long xbeg, long ybeg, long xsize, long ysize, int option);
+int putIntgSect(char *filename, int extver, IntgHdrData *, long xbeg, long ybeg, long xsize, long ysize, int option);
 
 int getSciHdr(char *filename, int extver, SciHdrLine *);
 int getErrHdr(char *filename, int extver, ErrHdrLine *);
 int getDQHdr(char *filename, int extver, DQHdrLine *);
-int getSciLine (SciHdrLine *x, int);
-int getErrLine (ErrHdrLine *x, int);
-int getDQLine  (DQHdrLine *x, int);
-int getFloatHD(char *filename, char *extname, int extver, FloatHdrData *);
-int putFloatHD(char *filename, char *extname, int extver, FloatHdrData *, int option);
-int getShortHD(char *filename, char *extname, int extver, ShortHdrData *);
-int putShortHD(char *filename, char *extname, int extver, ShortHdrData *, int option);
+int getSciLine (const SciHdrLine *x, int);
+int getErrLine (const ErrHdrLine *x, int);
+int getDQLine  (const DQHdrLine *x, int);
+int getFloatHD(char *filename, const char *extname, int extver, FloatHdrData *);
+int putFloatHD(char *filename, const char *extname, int extver, FloatHdrData *, int option);
+int getShortHD(char *filename, const char *extname, int extver, ShortHdrData *);
+int putShortHD(char *filename, const char *extname, int extver, ShortHdrData *, int option);
 
-int putFloatHDSect(char *filename, char *extname, int extver, FloatHdrData *,
-                   int xbeg, int ybeg, int xsize, int ysize, int option);
-int putShortHDSect(char *filename, char *extname, int extver, ShortHdrData *,
-                   int xbeg, int ybeg, int xsize, int ysize, int option);
+int putFloatHDSect(char *filename, const char *extname, int extver, FloatHdrData *, long xbeg, long ybeg, long xsize,
+                   long ysize, int option);
+int putShortHDSect(char *filename, const char *extname, int extver, ShortHdrData *, long xbeg, long ybeg, long xsize,
+                   long ysize, int option);
 
-int getFloatHdr(char *filename, char *extname, int extver, FloatHdrLine *);
-int getShortHdr(char *filename, char *extname, int extver, ShortHdrLine *);
+int getFloatHdr(char *filename, const char *extname, int extver, FloatHdrLine *);
+int getShortHdr(char *filename, const char *extname, int extver, ShortHdrLine *);
 int getSingleGroup(char *filename, int extver, SingleGroup *);
-int getSingleGroupLine(char *filename, int line, SingleGroupLine *);
-int putSingleGroupHdr(char *filename, SingleGroup *, int option);
+int getSingleGroupLine(const char *filename, int line, SingleGroupLine *);
+int putSingleGroupHdr(char *filename, const SingleGroup *, int option);
 int putSingleGroup(char *filename, int extver, SingleGroup *, int option);
 
 int putSingleGroupSect(char *filename, int extver, SingleGroup *,
                        int xbeg, int ybeg, int xsize, int ysize, int option);
 
 int getSingleNicmosGroup(char *filename, int extver, SingleNicmosGroup *);
-int putSingleNicmosGroupHdr(char *filename, SingleNicmosGroup *, int option);
+int putSingleNicmosGroupHdr(char *filename, const SingleNicmosGroup *, int option);
 int putSingleNicmosGroup(char *filename, int extver, SingleNicmosGroup *,
         int option);
-int putSingleNicmosGroupSect(char *filename, int extver, SingleNicmosGroup *,
-        int xbeg, int ybeg, int xsize, int ysize, int option);
-int getMultiGroupHdr(char *filename, MultiGroup *);
-int getMultiGroup(MultiGroup *, int ngroup, int extver);
-int putMultiGroupHdr(char *filename, MultiGroup *, int option);
-int putMultiGroup(char *filename, int extver, MultiGroup *, int ngroup,
+int putSingleNicmosGroupSect(char *filename, int extver, SingleNicmosGroup *, long xbeg, long ybeg, long xsize,
+                             long ysize, int option);
+int getMultiGroupHdr(char *filename, const MultiGroup *);
+int getMultiGroup(const MultiGroup *, int ngroup, int extver);
+int putMultiGroupHdr(char *filename, const MultiGroup *, int option);
+int putMultiGroup(char *filename, int extver, const MultiGroup *, int ngroup,
         int option);
-int getMultiNicmosGroupHdr(char *filename, MultiNicmosGroup *);
-int getMultiNicmosGroup(MultiNicmosGroup *, int ngroup, int extver);
-int putMultiNicmosGroupHdr(char *filename, MultiNicmosGroup *, int option);
-int putMultiNicmosGroup(char *filename, int extver, MultiNicmosGroup *,
+int getMultiNicmosGroupHdr(char *filename, const MultiNicmosGroup *);
+int getMultiNicmosGroup(const MultiNicmosGroup *, int ngroup, int extver);
+int putMultiNicmosGroupHdr(char *filename, const MultiNicmosGroup *, int option);
+int putMultiNicmosGroup(char *filename, int extver, const MultiNicmosGroup *,
         int ngroup, int option);
 
 /*
@@ -506,6 +501,9 @@ int putMultiNicmosGroup(char *filename, int extver, MultiNicmosGroup *,
 
 # define NotFound NULL
 typedef void *FitsKw;
+enum TargetDataType_ { T_INTEGER = 0, T_FLOAT };
+typedef enum TargetDataType_ TargetDataType;
+
 enum FitsDataType_ { FITSNOVALUE = 0, FITSLOGICAL, FITSBIT, FITSCHAR,
         FITSBYTE, FITSSHORT, FITSLONG, FITSFLOAT, FITSDOUBLE, FITSCOMPLEX,
         FITSICOMPLEX, FITSDCOMPLEX, FITSVADESC
@@ -518,9 +516,10 @@ typedef enum FitsDataType_ FitsDataType;
 ** These return 0 is successful and -1 if an error occurred.
 */
 /*\group(makehdr)*/
-int makePrimaryArrayHdr(Hdr *, FitsDataType, int dims, int *ndim);
-int makeImageExtHdr(Hdr *, FitsDataType, int dims, int *ndim,
-        char *extname, int extver);
+int makePrimaryArrayHdr(Hdr *, FitsDataType, long dims, const long *ndim);
+int makeImageExtHdr(Hdr *, FitsDataType, long dims, const long *ndim,
+                    const char *extname,
+                    int extver);
 /*\endgroup*/
 
 /*
@@ -539,7 +538,7 @@ int makeImageExtHdr(Hdr *, FitsDataType, int dims, int *ndim,
 ** always insert keywords at a position after the cursor.)
 */
 /*\group(find)*/
-FitsKw findKw(Hdr *, char *name);
+FitsKw findKw(Hdr *, const char *name);
 FitsKw findnextKw(Hdr *, char *name);
 FitsKw first(Hdr *);
 FitsKw next(FitsKw);
@@ -568,24 +567,24 @@ int getKeyF (Hdr *, char *keyword, float *value);
 int getKeyD (Hdr *, char *keyword, double *value);
 int getKeyS (Hdr *, char *keyword, char *value);
 /*\group(put)*/
-int putKeyB (Hdr *, char *keyword, Bool value, char *comment);
-int putKeyI (Hdr *, char *keyword, int value, char *comment);
-int putKeyF (Hdr *, char *keyword, float value, char *comment);
-int putKeyD (Hdr *, char *keyword, double value, char *comment);
-int putKeyS (Hdr *, char *keyword, char *value, char *comment);
+int putKeyB (Hdr *, char *keyword, Bool value, const char *comment);
+int putKeyI (Hdr *, char *keyword, int value, const char *comment);
+int putKeyF (Hdr *, char *keyword, float value, const char *comment);
+int putKeyD (Hdr *, char *keyword, double value, const char *comment);
+int putKeyS (Hdr *, char *keyword, const char *value, const char *comment);
 /*\group(update)*/
 // The following updateKeyX() will only set values for existing keywords
-int updateKeyB (Hdr *, char *keyword, Bool value, char *comment);
-int updateKeyI (Hdr *, char *keyword, int value, char *comment);
-int updateKeyF (Hdr *, char *keyword, float value, char *comment);
-int updateKeyD (Hdr *, char *keyword, double value, char *comment);
-int updateKeyS (Hdr *, char *keyword, char *value, char *comment);
+int updateKeyB (Hdr *, char *keyword, Bool value, const char *comment);
+int updateKeyI (Hdr *, char *keyword, long value, const char *comment);
+int updateKeyF (Hdr *, char *keyword, float value, const char *comment);
+int updateKeyD (Hdr *, char *keyword, double value, const char *comment);
+int updateKeyS (Hdr *, char *keyword, const char *value, const char *comment);
 // Updates existing keyword OR add as history keyword
-int updateKeyOrAddAsHistKeyBool (Hdr *hd, char *keyword, Bool value, char *comment);
-int updateKeyOrAddAsHistKeyInt (Hdr *hd, char *keyword, int value, char *comment);
-int updateKeyOrAddAsHistKeyFloat (Hdr *hd, char *keyword, float value, char *comment);
-int updateKeyOrAddAsHistKeyDouble (Hdr *hd, char *keyword, double value, char *comment);
-int updateKeyOrAddAsHistKeyStr (Hdr *hd, char *keyword, char *value, char *comment);
+int updateKeyOrAddAsHistKeyBool (Hdr *hd, char *keyword, Bool value, const char *comment);
+int updateKeyOrAddAsHistKeyInt (Hdr *hd, char *keyword, long value, const char *comment);
+int updateKeyOrAddAsHistKeyFloat (Hdr *hd, char *keyword, float value, const char *comment);
+int updateKeyOrAddAsHistKeyDouble (Hdr *hd, char *keyword, double value, const char *comment);
+int updateKeyOrAddAsHistKeyStr (Hdr *hd, char *keyword, char *value, const char *comment);
 /* End high-level keyword access routines */
 
 char *getKwName(FitsKw);
@@ -597,12 +596,12 @@ float getFloatKw(FitsKw);
 double getDoubleKw(FitsKw);
 int getStringKw(FitsKw, char *str, int maxch);
 int putKwName(FitsKw, char *name);
-void putKwComm(FitsKw, char *comment);
+void putKwComm(FitsKw, const char *comment);
 int putBoolKw(FitsKw, Bool value);
-int putIntKw(FitsKw, int value);
+int putIntKw(FitsKw, long value);
 int putFloatKw(FitsKw, float value);
 int putDoubleKw(FitsKw, double value);
-int putStringKw(FitsKw, char *value);
+int putStringKw(FitsKw, const char *value);
 /*\endgroup*/
 
 /*
@@ -615,14 +614,14 @@ int putStringKw(FitsKw, char *value);
 **
 */
 /*\group(add)*/
-int addBoolKw(Hdr *, char *name, Bool value, char *comment);
-int addIntKw(Hdr *, char *name, int value, char *comment);
-int addFloatKw(Hdr *, char *name, float value, char *comment);
-int addDoubleKw(Hdr *, char *name, double value, char *comment);
-int addStringKw(Hdr *, char *name, char * value, char *comment);
-int addSpacesKw(Hdr *, char *comment);
-int addCommentKw(Hdr *, char *comment);
-int addHistoryKw(Hdr *, char *comment);
+int addBoolKw(Hdr *, char *name, Bool value, const char *comment);
+int addIntKw(Hdr *, char *name, long value, const char *comment);
+int addFloatKw(Hdr *, char *name, float value, const char *comment);
+int addDoubleKw(Hdr *, char *name, double value, const char *comment);
+int addStringKw(Hdr *, char *name, const char * value, const char *comment);
+int addSpacesKw(Hdr *, const char *comment);
+int addCommentKw(Hdr *, const char *comment);
+int addHistoryKw(Hdr *, const char *comment);
 /*\endgroup*/
 
 /*
@@ -633,14 +632,15 @@ int addHistoryKw(Hdr *, char *comment);
 **
 */
 /*\group(insert)*/
-FitsKw insertBoolKw(FitsKw, char *name, Bool value, char *comment);
-FitsKw insertIntKw(FitsKw, char *name, int value, char *comment);
-FitsKw insertFloatKw(FitsKw, char *name, float value, char *comment);
-FitsKw insertDoubleKw(FitsKw, char *name, double value, char *comment);
-FitsKw insertStringKw(FitsKw, char *name, char * value, char *comment);
-FitsKw insertSpacesKw(FitsKw, char *comment);
-FitsKw insertCommentKw(FitsKw, char *comment);
-FitsKw insertHistoryKw(FitsKw, char *comment);
+FitsKw insertBoolKw(FitsKw, char *name, Bool value, const char *comment);
+FitsKw insertIntKw(FitsKw, char *name, long value, const char *comment);
+FitsKw insertFloatKw(FitsKw, char *name, float value, const char *comment);
+FitsKw insertDoubleKw(FitsKw, char *name, double value, const char *comment);
+FitsKw insertStringKw(FitsKw, char *name, const char * value,
+                      const char *comment);
+FitsKw insertSpacesKw(FitsKw, const char *comment);
+FitsKw insertCommentKw(FitsKw, const char *comment);
+FitsKw insertHistoryKw(FitsKw, const char *comment);
 /*\endgroup*/
 
 /*
@@ -652,8 +652,8 @@ FitsKw insertHistoryKw(FitsKw, char *comment);
 ** If the string is more than 80 bytes it is truncated.
 */
 /*\group(allformat)*/
-int addFitsCard(Hdr *, char *card);
-FitsKw insertFitsCard(FitsKw, char *card);
+int addFitsCard(Hdr *, const char *card);
+FitsKw insertFitsCard(FitsKw, const char *card);
 /*\endgroup*/
 
 /*
@@ -670,29 +670,28 @@ void delAllKw(Hdr *);
 /*
 ** Low-level I/O Function Declarations
 */
-IODescPtr openInputImage(char *filename, char *extname, int extver);
-IODescPtr openOutputImage(char *filename, char *extname, int extver, Hdr *hdr,
-        int dim1, int dim2, FitsDataType type);
-IODescPtr openUpdateImage(char *filename, char *extname, int extver, Hdr *hdr);
+IODescPtr openInputImage(char *filename, const char *extname, int extver);
+IODescPtr openOutputImage(char *filename, const char *extname, int extver, Hdr *hdr, long dim1, long dim2, FitsDataType type);
+IODescPtr openUpdateImage(char *filename, const char *extname, int extver, Hdr *hdr);
 void closeImage(IODescPtr );
 
 char *getFilename(IODescPtr);
 char *getExtname(IODescPtr);
 int getExtver(IODescPtr);
-int getNaxis1(IODescPtr);
-int getNaxis2(IODescPtr);
+long getNaxis1(IODescPtr);
+long getNaxis2(IODescPtr);
 int getType(IODescPtr);
 
-int getHeader(IODescPtr, Hdr *);
+int getHeader(IODescPtr, Hdr *hdr);
 int putHeader(IODescPtr);
 
 int getFloatData(IODescPtr, FloatTwoDArray *);
-int putFloatData(IODescPtr, FloatTwoDArray *);
+int putFloatData(IODescPtr, const FloatTwoDArray *);
 int getShortData(IODescPtr, ShortTwoDArray *);
-int putShortData(IODescPtr, ShortTwoDArray *);
+int putShortData(IODescPtr, const ShortTwoDArray *);
 
-int putFloatSect(IODescPtr, FloatTwoDArray *, int, int, int, int);
-int putShortSect(IODescPtr, ShortTwoDArray *, int, int, int, int);
+int putFloatSect(IODescPtr, const FloatTwoDArray *, long, long, long, long);
+int putShortSect(IODescPtr, const ShortTwoDArray *, long, long, long, long);
 
 int getFloatLine(IODescPtr, int line, float *);
 int putFloatLine(IODescPtr, int line, float *);
@@ -701,28 +700,28 @@ int putShortLine(IODescPtr, int line, short *);
 /*
 ** Low-level Support Function Declarations
 */
-void updateWCS (Hdr *hdr, int xbeg, int ybeg);
+void updateWCS (Hdr *hdr, long xbeg, long ybeg);
 /*
 ** Initialization, Allocation, and Freeing Storage Function Declarations
 */
 # define IFloatData { NULL, 0, 0, 0, 0, 0, NULL }
 void initFloatData(FloatTwoDArray *);
-int allocFloatData(FloatTwoDArray *, int, int, Bool zeroInitialize);
+int allocFloatData(FloatTwoDArray *, long, long, Bool zeroInitialize);
 void freeFloatData(FloatTwoDArray *);
 int swapFloatStorageOrder(FloatTwoDArray * target, const FloatTwoDArray * source, enum StorageOrder targetStorageOrder);
 # define IShortData { NULL, 0, 0, 0, 0, 0, NULL }
 void initShortData(ShortTwoDArray *);
-int allocShortData(ShortTwoDArray *, int, int, Bool zeroInitialize);
+int allocShortData(ShortTwoDArray *, long, long, Bool zeroInitialize);
 void freeShortData(ShortTwoDArray *);
 int swapShortStorageOrder(ShortTwoDArray * target, const ShortTwoDArray * source, enum StorageOrder targetStorageOrder);
 
 # define IFloatLine { NULL, 0 }
 void initFloatLine  (FloatHdrLine *);
-int  allocFloatLine (FloatHdrLine *, int );
+int  allocFloatLine (FloatHdrLine *, long);
 void freeFloatLine  (FloatHdrLine *);
 # define IShortLine { NULL, 0 }
 void initShortLine  (ShortHdrLine *);
-int  allocShortLine (ShortHdrLine *, int );
+int  allocShortLine (ShortHdrLine *, long);
 void freeShortLine  (ShortHdrLine *);
 
 int  allocSciLine (SingleGroupLine *);
@@ -731,19 +730,19 @@ int  allocDQLine  (SingleGroupLine *);
 
 # define IHdr { 0, 0, NULL }
 void initHdr(Hdr *);
-int allocHdr(Hdr *, int, Bool zeroInitialize);
-int reallocHdr(Hdr *, int);
+int allocHdr(Hdr *, long, Bool zeroInitialize);
+int reallocHdr(Hdr *, long);
 void freeHdr(Hdr *);
 int copyHdr(Hdr *to, const Hdr *from);
 
 # define IFloatHdrData { NULL, { 0, 0, 0, 0 }, IHdr, IFloatData }
 void initFloatHdrData(FloatHdrData *);
-int allocFloatHdrData(FloatHdrData *, int, int, Bool zeroInitialize);
+int allocFloatHdrData(FloatHdrData *, long, long, Bool zeroInitialize);
 int copyFloatHdrData(FloatHdrData * target, const FloatHdrData * src, enum StorageOrder targetStorageOrder);
 void freeFloatHdrData(FloatHdrData *);
 # define IShortHdrData { NULL, { 0, 0, 0, 0 }, IHdr, IShortData }
 void initShortHdrData(ShortHdrData *);
-int allocShortHdrData(ShortHdrData *, int, int, Bool zeroInitialize);
+int allocShortHdrData(ShortHdrData *, long, long, Bool zeroInitialize);
 int copyShortHdrData(ShortHdrData * target, const ShortHdrData * src, enum StorageOrder targetStorageOrder);
 void freeShortHdrData(ShortHdrData *);
 
@@ -759,13 +758,15 @@ void freeShortHdrLine  (ShortHdrLine *);
 # define ISingleGroup { NULL, 0, NULL, IFloatHdrData, IFloatHdrData, \
 IShortHdrData }
 void initSingleGroup(SingleGroup *);
-int allocSingleGroup(SingleGroup *, int, int, Bool zeroInitialize);
+int allocSingleGroup(SingleGroup *, long, long, Bool zeroInitialize);
 int allocSingleGroupHeader(Hdr ** hdr, Bool zeroInitialize);
-int allocSingleGroupExts(SingleGroup *x, int i, int j, unsigned extension, Bool zeroInitialize);
+int allocSingleGroupExts(SingleGroup *x, long i, long j, unsigned extension, Bool zeroInitialize);
 void freeSingleGroup(SingleGroup *);
 void setStorageOrder(SingleGroup * group, enum StorageOrder storageOrder);
 int copySingleGroup(SingleGroup * target, const SingleGroup * source, enum StorageOrder targetStorageOrder);
-void copyOffsetSingleGroup(SingleGroup * output, const SingleGroup * input, unsigned nRows, unsigned nColumns, unsigned outputOffset, unsigned inputOffset, unsigned outputSkipLength, unsigned inputSkipLength);
+int copyOffsetSingleGroup(SingleGroup *output, const SingleGroup *input, unsigned nRows, unsigned nColumns,
+                          unsigned outputOffset, unsigned inputOffset, unsigned outputSkipLength,
+                          unsigned inputSkipLength);
 # define IMultiGroup { 0, NULL }
 void initMultiGroup(MultiGroup *);
 int allocMultiGroup(MultiGroup *, int);
@@ -793,8 +794,8 @@ int  allocSingleGroupLine (SingleGroupLine *, int);
 void freeSingleGroupLine  (SingleGroupLine *);
 
 int getNumHDUs(const char * fileName, int * hduNum);
-int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtName, int * total);
-int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtName, const int hduType, int * total);
+int findTotalNumberOfImsets(const char * fileName, char * setContainsExtName, int * total);
+int findTotalNumberOfHDUSets(const char * fileName, char * setContainsExtName, int hduType, int * total);
 
 #if defined(__cplusplus)
 }
