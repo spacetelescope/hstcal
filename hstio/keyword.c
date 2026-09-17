@@ -103,7 +103,7 @@ static char *keymsg(const char *k) {
     const int len =
         snprintf(tmp + strlen(tmp), sizeof(tmp) - strlen(k), "%s", k);
     if ((size_t)len >= sizeof(tmp)) {
-        fprintf(stderr, "message truncate\n");
+        trlwarn("message truncated\n");
     }
     return tmp;
 }
