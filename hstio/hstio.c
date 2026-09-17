@@ -701,27 +701,26 @@ void initShortLine (ShortHdrLine *x) {
         x->tot_nx = 0;
 }
 
-int allocShortLine (ShortHdrLine *x, int i) {
-# if defined (DEBUG)
-        printf("allocShortLine-1: %x %d\n",
-                (int)(x->line),x->tot_nx);
-# endif
-        if (x->line == NULL || x->tot_nx != i) {
-            if (x->line != NULL)
-                free (x->line);
-            x->tot_nx = i;
-            x->line = (short *) calloc (x->tot_nx, sizeof(short));
-            if (x->line == NULL) {
-                initShortLine (x);
-                error (NOMEM,"Allocating short line");
-                return (-1);
-            }
+int allocShortLine(ShortHdrLine *x, const long i) {
+#if defined(DEBUG)
+    printf("allocShortLine-1: %x %d\n", (int)(x->line), x->tot_nx);
+#endif
+    if (x->line == NULL || x->tot_nx != i) {
+        if (x->line != NULL) {
+            free(x->line);
         }
-# if defined (DEBUG)
-        printf("allocShortLine-2: %x %d\n",
-                (int)(x->line),x->tot_nx);
-# endif
-        return (0);
+        x->tot_nx = i;
+        x->line = (short *)calloc(x->tot_nx, sizeof(short));
+        if (x->line == NULL) {
+            initShortLine(x);
+            error(NOMEM, "Allocating short line");
+            return -1;
+        }
+    }
+#if defined(DEBUG)
+    printf("allocShortLine-2: %x %d\n", (int)(x->line), x->tot_nx);
+#endif
+    return 0;
 }
 
 void freeShortLine (ShortHdrLine *x) {
