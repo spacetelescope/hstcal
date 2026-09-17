@@ -345,8 +345,7 @@ static int extractAmp(SingleGroup * amp,  const SingleGroup * image, const unsig
     unsigned rowSkipLength = image->sci.data.nx;
     unsigned offset = ctePars->columnOffset;
 
-    copyOffsetSingleGroup(amp, image, nRows, nColumns, 0, offset, nColumns, rowSkipLength);
-    return status;
+    return copyOffsetSingleGroup(amp, image, nRows, nColumns, 0, offset, nColumns, rowSkipLength);
 }
 
 /*
@@ -538,8 +537,7 @@ static int insertAmp(SingleGroup * image, const SingleGroup * amp, const unsigne
     unsigned rowSkipLength = image->sci.data.nx;
     unsigned offset = ctePars->columnOffset;
 
-    copyOffsetSingleGroup(image, amp, nRows, nColumns, offset, 0, rowSkipLength, nColumns);
-    return status;
+    return copyOffsetSingleGroup(image, amp, nRows, nColumns, offset, 0, rowSkipLength, nColumns);
 }
 
 static int alignAmp(SingleGroup * amp, const unsigned ampID)
