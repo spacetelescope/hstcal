@@ -337,7 +337,7 @@ void clear_hstioerr(void) {
     error_msg[0] = '\0';
 }
 
-static void error(const HSTIOError e, char *str) {
+void hstio_error(const HSTIOError e, char *str) {
     error_status = e;
     const char *reason = "";
 
@@ -444,7 +444,7 @@ static void ioerr(const HSTIOError e, IODescPtr x_, const int error_code) {
     while (fits_read_errmsg(cfitsio_errmsg)) {
         strncat(error_msg, cfitsio_errmsg, sizeof(error_msg) - strlen(error_msg) - 1);
     }
-    error(e, 0);
+    hstio_error(e, 0);
 }
 
 /*
@@ -483,7 +483,7 @@ int allocFloatData(FloatTwoDArray *x, const long i, const long j, const Bool zer
         }
         if (x->buffer == NULL) {
             initFloatData(x);
-            error(NOMEM, "Allocating SciData");
+            hstio_error(NOMEM, "Allocating SciData");
             return -1;
         }
     }
@@ -622,7 +622,7 @@ int allocShortData(ShortTwoDArray *x, const long i, const long j, const Bool zer
         }
         if (x->buffer == NULL) {
             initShortData(x);
-            error(NOMEM, "Allocating DQData");
+            hstio_error(NOMEM, "Allocating DQData");
             return -1;
         }
     }
@@ -692,7 +692,7 @@ int allocFloatLine(FloatHdrLine *x, const long i) {
         x->line = (float *)calloc(x->tot_nx, sizeof(float));
         if (x->line == NULL) {
             initFloatLine(x);
-            error(NOMEM, "Allocating float line");
+            hstio_error(NOMEM, "Allocating float line");
             return -1;
         }
     }
@@ -729,7 +729,7 @@ int allocShortLine(ShortHdrLine *x, const long i) {
         x->line = (short *)calloc(x->tot_nx, sizeof(short));
         if (x->line == NULL) {
             initShortLine(x);
-            error(NOMEM, "Allocating short line");
+            hstio_error(NOMEM, "Allocating short line");
             return -1;
         }
     }
@@ -776,7 +776,7 @@ int allocHdr(Hdr *h, const long n, const Bool zeroInitialize) {
 
         if (h->array == NULL) {
             h->nalloc = 0;
-            error(NOMEM, "Allocating Hdr");
+            hstio_error(NOMEM, "Allocating Hdr");
             return -1;
         }
     }
@@ -797,7 +797,7 @@ int reallocHdr(Hdr *h, const long n) {
     const size_t sz = sizeof(HdrArray);
     tmp = (HdrArray *)calloc(n, sz);
     if (tmp == NULL) {
-        error(NOMEM, "Re-llocating Hdr");
+        hstio_error(NOMEM, "Re-llocating Hdr");
         return -1;
     }
     h->nalloc = n;
@@ -1208,7 +1208,7 @@ int allocMultiGroup(MultiGroup *x, const int n) {
     x->group = (SingleGroup *)calloc(n, sizeof(SingleGroup));
     if (x->group == NULL) {
         x->ngroups = 0;
-        error(NOMEM, "Allocating MultiGroup");
+        hstio_error(NOMEM, "Allocating MultiGroup");
         return -1;
     }
     for (i = 0; i < x->ngroups; ++i) {
@@ -1304,7 +1304,7 @@ int allocMultiNicmosGroup(MultiNicmosGroup *x, int n) {
     x->group = (SingleNicmosGroup *)calloc(n, sizeof(SingleNicmosGroup));
     if (x->group == NULL) {
         x->ngroups = 0;
-        error(NOMEM, "Allocating MultiNicmosGroup");
+        hstio_error(NOMEM, "Allocating MultiNicmosGroup");
         return -1;
     }
     for (i = 0; i < x->ngroups; ++i) {
@@ -2126,7 +2126,7 @@ int getMultiGroupHdr(char *filename, const MultiGroup *x) {
 
 int getMultiGroup(const MultiGroup *x, const int ngroup, const int extver) {
     if (ngroup < 0 || ngroup > x->ngroups) {
-        error(BADGROUP, "");
+        hstio_error(BADGROUP, "");
         return -1;
     }
     x->group[ngroup].group_num = extver;
@@ -2168,7 +2168,7 @@ int putMultiGroupHdr(char *filename, const MultiGroup *x, const int option) {
 int putMultiGroup(char *filename, const int extver, const MultiGroup *x, const int ngroup, const int option) {
     struct stat buf;
     if (ngroup < 0 || ngroup > x->ngroups) {
-        error(BADGROUP, "");
+        hstio_error(BADGROUP, "");
         return -1;
     }
     if (option == 0) {
@@ -2217,7 +2217,7 @@ int getMultiNicmosGroupHdr(char *filename, const MultiNicmosGroup *x) {
 
 int getMultiNicmosGroup(const MultiNicmosGroup *x, const int ngroup, const int extver) {
     if (ngroup < 0 || ngroup > x->ngroups) {
-        error(BADGROUP, "");
+        hstio_error(BADGROUP, "");
         return -1;
     }
     x->group[ngroup].group_num = extver;
@@ -2267,7 +2267,7 @@ int putMultiNicmosGroupHdr(char *filename, const MultiNicmosGroup *x, const int 
 int putMultiNicmosGroup(char *filename, const int extver, const MultiNicmosGroup *x, const int ngroup, const int option) {
     struct stat buf;
     if (ngroup < 0 || ngroup > x->ngroups) {
-        error(BADGROUP, "");
+        hstio_error(BADGROUP, "");
         return -1;
     }
     if (option == 0) {
@@ -2364,7 +2364,7 @@ static char *make_iodesc(IODesc **x, char *filename, const char *extname, const 
 
     IODesc *iodesc = calloc(1, sizeof(IODesc));
     if (iodesc == NULL) {
-        error(NOMEM, "Allocating I/O descriptor");
+        hstio_error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
     iodesc->ff = NULL;
@@ -2386,7 +2386,7 @@ static char *make_iodesc(IODesc **x, char *filename, const char *extname, const 
     iodesc->filename = (char *)calloc(filename_len, sizeof(char));
     if (iodesc->filename == NULL) {
         free(iodesc);
-        error(NOMEM, "Allocating I/O descriptor");
+        hstio_error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
     const size_t n = strlen(extname);
@@ -2407,7 +2407,7 @@ static char *make_iodesc(IODesc **x, char *filename, const char *extname, const 
     if (iodesc->extname == NULL) {
         free(iodesc->filename);
         free(iodesc);
-        error(NOMEM, "Allocating I/O descriptor");
+        hstio_error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
     strcpy(iodesc->filename, filename);
@@ -2427,7 +2427,7 @@ static char *make_iodesc(IODesc **x, char *filename, const char *extname, const 
     if (!result) {
         free(iodesc->filename);
         free(iodesc);
-        error(NOMEM, "Allocating I/O descriptor");
+        hstio_error(NOMEM, "Allocating I/O descriptor");
         return NULL;
     }
     snprintf(result, result_len, "%s%s", filename, filename_suffix);

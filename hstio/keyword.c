@@ -1,4 +1,12 @@
 #include "hstio.h"
+#if defined(__cplusplus)
+extern "C" {
+#endif
+extern void hstio_error(HSTIOError, char *);
+#if defined(__cplusplus)
+}
+#endif
+
 #include "numeric.h"
 #include <stdio.h>
 #include <string.h>
@@ -80,14 +88,6 @@ kw->nresult.data.l,kw->text,kw->value_end);*/
 #define BLANK_CARD_LEN 80
 #define BLANK_CARD getBlankCard()
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
-extern void error(HSTIOError, char *);
-#if defined(__cplusplus)
-}
-#endif
-
 static const char *getBlankCard() {
     static char card[BLANK_CARD_LEN];
     memset(card, BLANK, sizeof(card));
@@ -154,11 +154,11 @@ static int getvalue(FitsKwInfo *kw) {
     }
 
     if (kw->index == -1 || kw->hdr == NULL) {
-        error(BADGET, keymsg(kw->name));
+        hstio_error(BADGET, keymsg(kw->name));
         return -1;
     }
     if (kw->text[8] != '=') {
-        error(BADFITSEQ, keymsg(kw->name));
+        hstio_error(BADFITSEQ, keymsg(kw->name));
         return -1;
     }
     p = &kw->text[10];
@@ -181,7 +181,7 @@ static int getvalue(FitsKwInfo *kw) {
         char *t = kw->cresult;
         for (;;) {
             if (*s == '\0') {
-                error(BADFITSQUOTE, keymsg(kw->name));
+                hstio_error(BADFITSQUOTE, keymsg(kw->name));
                 return -1;
             }
             if (*s == '\'') {
@@ -209,7 +209,7 @@ static int getvalue(FitsKwInfo *kw) {
     switch (kw->nresult.type) {
         case 0:
             kw->type = FITSNOVALUE;
-            error(BADFITSNUMERIC, keymsg(kw->name));
+            hstio_error(BADFITSNUMERIC, keymsg(kw->name));
             return -1;
         case 1:
             kw->type = FITSLONG;
@@ -360,7 +360,7 @@ static FitsKw insertcommentary(FitsKwInfo *kw, const char *str, const char *type
         n = 72;
     }
     if (insertname(kw, type) == -1) {
-        error(BADNAME, keymsg(type));
+        hstio_error(BADNAME, keymsg(type));
         return NULL;
     }
     memcpy(&kw->text[8], str, n);
@@ -398,7 +398,7 @@ int makePrimaryArrayHdr(Hdr *h, const FitsDataType t, const long dims,
             n = -64;
             break;
         default:
-            error(BADBITPIX, "");
+            hstio_error(BADBITPIX, "");
             return -1;
     }
     if (addIntKw(h, "BITPIX", n, "Number of data bits") == -1) {
@@ -411,7 +411,7 @@ int makePrimaryArrayHdr(Hdr *h, const FitsDataType t, const long dims,
         strcpy(naxisn, "NAXIS");
         n = i + 1;
         if (n < 0 || n > 999) {
-            error(BADNDIM, "");
+            hstio_error(BADNDIM, "");
             return -1;
         }
         for (j = 0; n > 0; ++j, n /= 10) {
@@ -461,7 +461,7 @@ int makeImageExtHdr(Hdr *h, const FitsDataType t, const long dims,
             n = -64;
             break;
         default:
-            error(BADBITPIX, "");
+            hstio_error(BADBITPIX, "");
             return -1;
     }
     if (addIntKw(h, "BITPIX", n, "Number of data bits") == -1) {
@@ -474,7 +474,7 @@ int makeImageExtHdr(Hdr *h, const FitsDataType t, const long dims,
         strcpy(naxisn, "NAXIS");
         n = i + 1;
         if (n < 0 || n > 999) {
-            error(BADNDIM, "");
+            hstio_error(BADNDIM, "");
             return -1;
         }
         for (j = 0; n > 0; ++j, n /= 10) {
@@ -1012,7 +1012,7 @@ Bool getBoolKw(FitsKw kw_) {
     if (kw->type == FITSLOGICAL) {
         return kw->bresult;
     }
-    error(BADFITSTYPE, keymsg(kw->name));
+    hstio_error(BADFITSTYPE, keymsg(kw->name));
     return False;
 }
 
@@ -1032,7 +1032,7 @@ int getIntKw(FitsKw kw_) {
     if (kw->type == FITSLONG) {
         /* TODO: Implicit declaration */
         if (checkRange(T_INTEGER, kw->nresult)) {
-            error(BADFITSTYPE, keymsg(kw->name));
+            hstio_error(BADFITSTYPE, keymsg(kw->name));
             return 0;
         }
         return (int)kw->nresult.data.l;
@@ -1041,17 +1041,17 @@ int getIntKw(FitsKw kw_) {
     if (kw->type == FITSDOUBLE) {
         const double value = fabs(kw->nresult.data.d);
         if (value - (int)value > 0.0) {
-            error(BADFITSTYPE, keymsg(kw->name));
+            hstio_error(BADFITSTYPE, keymsg(kw->name));
             return 0;
         }
 
         if (checkRange(T_INTEGER, kw->nresult)) {
-            error(BADFITSTYPE, keymsg(kw->name));
+            hstio_error(BADFITSTYPE, keymsg(kw->name));
             return 0;
         }
         return (int)kw->nresult.data.d;
     }
-    error(BADFITSTYPE, keymsg(kw->name));
+    hstio_error(BADFITSTYPE, keymsg(kw->name));
     return 0;
 }
 
@@ -1064,19 +1064,19 @@ float getFloatKw(FitsKw kw_) {
     }
     if (kw->type == FITSDOUBLE) {
         if (checkRange(T_FLOAT, kw->nresult)) {
-            error(BADFITSTYPE, keymsg(kw->name));
+            hstio_error(BADFITSTYPE, keymsg(kw->name));
             return 0.0F;
         }
         return (float)kw->nresult.data.d;
     }
     if (kw->type == FITSLONG) {
         if (checkRange(T_FLOAT, kw->nresult)) {
-            error(BADFITSTYPE, keymsg(kw->name));
+            hstio_error(BADFITSTYPE, keymsg(kw->name));
             return 0.0F;
         }
         return (float)kw->nresult.data.l;
     }
-    error(BADFITSTYPE, keymsg(kw->name));
+    hstio_error(BADFITSTYPE, keymsg(kw->name));
     return 0.0F;
 }
 
@@ -1093,7 +1093,7 @@ double getDoubleKw(FitsKw kw_) {
     if (kw->type == FITSLONG) {
         return (double)kw->nresult.data.l;
     }
-    error(BADFITSTYPE, keymsg(kw->name));
+    hstio_error(BADFITSTYPE, keymsg(kw->name));
     return 0.0;
 }
 
@@ -1108,7 +1108,7 @@ int getStringKw(FitsKw kw_, char *str, const int maxch) {
         snprintf(str, maxch, "%s", kw->cresult);
         return 0;
     }
-    error(BADFITSTYPE, keymsg(kw->name));
+    hstio_error(BADFITSTYPE, keymsg(kw->name));
     return -1;
 }
 
@@ -1377,7 +1377,7 @@ FitsKw insertBoolKw(FitsKw kw_, const char *name, const Bool value, const char *
     kw->type = FITSLOGICAL;
     kw->isparsed = True;
     if (insertname(kw, name) == -1) {
-        error(BADNAME, keymsg(name));
+        hstio_error(BADNAME, keymsg(name));
         return NULL;
     }
     if (putBoolKw(kw, value) == -1) {
@@ -1393,7 +1393,7 @@ FitsKw insertIntKw(FitsKw kw_, const char *name, const long value, const char *c
     kw->type = FITSLONG;
     kw->isparsed = True;
     if (insertname(kw, name) == -1) {
-        error(BADNAME, keymsg(name));
+        hstio_error(BADNAME, keymsg(name));
         return NULL;
     }
     if (putIntKw(kw, value) == -1) {
@@ -1409,7 +1409,7 @@ FitsKw insertFloatKw(FitsKw kw_, const char *name, const float value, const char
     kw->type = FITSFLOAT;
     kw->isparsed = True;
     if (insertname(kw, name) == -1) {
-        error(BADNAME, keymsg(name));
+        hstio_error(BADNAME, keymsg(name));
         return NULL;
     }
     if (putFloatKw(kw, value) == -1) {
@@ -1425,7 +1425,7 @@ FitsKw insertDoubleKw(FitsKw kw_, const char *name, const double value, const ch
     kw->type = FITSDOUBLE;
     kw->isparsed = True;
     if (insertname(kw, name) == -1) {
-        error(BADNAME, keymsg(name));
+        hstio_error(BADNAME, keymsg(name));
         return NULL;
     }
     if (putDoubleKw(kw, value) == -1) {
@@ -1441,7 +1441,7 @@ FitsKw insertStringKw(FitsKw kw_, const char *name, const char *value, const cha
     kw->type = FITSCHAR;
     kw->isparsed = True;
     if (insertname(kw, name) == -1) {
-        error(BADNAME, keymsg(name));
+        hstio_error(BADNAME, keymsg(name));
         return NULL;
     }
     if (putString(kw, value) == -1) {
@@ -1488,13 +1488,13 @@ FitsKw insertFitsCard(FitsKw kw_, const char *card) {
     /* make sure we have room */
     if (kw->hdr->nalloc == 0) {
         if (allocHdr(kw->hdr, HdrUnit, True) != 0) {
-            error(NOMEM, "");
+            hstio_error(NOMEM, "");
             return NULL;
         }
     }
     if (kw->hdr->nlines == kw->hdr->nalloc) {
         if (reallocHdr(kw->hdr, kw->hdr->nalloc + HdrUnit) != 0) {
-            error(NOMEM, "");
+            hstio_error(NOMEM, "");
             return NULL;
         }
     }
