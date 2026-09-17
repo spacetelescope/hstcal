@@ -461,8 +461,6 @@ int HistoryAddHeader (char *name, char *text) {
         Hdr hdr;                /* header structure */
         IODescPtr tb;           /* image or table descriptor */
 
-        int addHistoryKw (Hdr *, char *);
-
         initHdr (&hdr);
         tb = openUpdateImage (name, "", 0, &hdr);
         if (hstio_err())
