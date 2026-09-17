@@ -1,12 +1,4 @@
 #include "hstio.h"
-#if defined(__cplusplus)
-extern "C" {
-#endif
-extern void hstio_error(HSTIOError, char *);
-#if defined(__cplusplus)
-}
-#endif
-
 #include "numeric.h"
 #include <stdio.h>
 #include <string.h>
@@ -94,6 +86,15 @@ static const char *getBlankCard() {
     return card;
 }
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+extern void hstio_error(HSTIOError, char *);
+extern void trlwarn (const char *fmt, ...);
+#if defined(__cplusplus)
+}
+#endif
+
 static int checkRange(TargetDataType target, NumericResult result);
 static int putString(FitsKw kw_, const char *txt);
 
@@ -102,7 +103,7 @@ static char *keymsg(const char *k) {
     const int len =
         snprintf(tmp + strlen(tmp), sizeof(tmp) - strlen(k), "%s", k);
     if ((size_t)len >= sizeof(tmp)) {
-        trlwarn("message truncated");
+        fprintf(stderr, "message truncate\n");
     }
     return tmp;
 }
