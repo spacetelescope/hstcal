@@ -57,7 +57,6 @@ int makedqRAZ(SingleGroup *, SingleGroup *);
 int makeSciSingleRAZ(SingleGroup *, SingleGroup *);
 int undodqRAZ(SingleGroup *, SingleGroup *);
 int makeFloatRaz(FloatTwoDArray *, FloatTwoDArray  *, int);
-int getFloatHD(char *, char *, int , FloatHdrData *);
 
 int SinkDetect(WF3Info *wf3, SingleGroup *x){
 
@@ -75,7 +74,7 @@ int SinkDetect(WF3Info *wf3, SingleGroup *x){
 
     /* INIT THE SCIENCE INPUT  */
     initSingleGroup (&raz);
-    allocSingleGroup (&raz,RAZ_COLS/2, RAZ_ROWS, True);
+    allocSingleGroup (&raz, RAZ_COLS / 2, RAZ_ROWS, True);
 
     /*CONVERT DQ DATA TO RAZ FORMAT FOR SCIENCE FILE*/
     makedqRAZ(x, &raz);
