@@ -207,8 +207,7 @@ int getNumHDUs(const char * fileName, int * hduNum)
     return HSTCAL_OK;
 }
 
-int findTotalNumberOfImsets(const char * fileName, const char * setContainsExtName, int * total)
-{
+int findTotalNumberOfImsets(const char *fileName, char *setContainsExtName, int *total) {
     return findTotalNumberOfHDUSets(fileName, setContainsExtName, IMAGE_HDU, total);
 }
 
