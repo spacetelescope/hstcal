@@ -769,7 +769,6 @@ int allocHdr(Hdr *h, const long n, const Bool zeroInitialize) {
 }
 
 int reallocHdr(Hdr *h, int n) {
-        int i;
         HdrArray *tmp;
 # if defined (DEBUG)
         printf("reallocHdr-1: %x %d %d %x %d\n",
@@ -782,8 +781,6 @@ int reallocHdr(Hdr *h, int n) {
             return -1;
         }
         h->nalloc = n;
-        for (i = 0; i < h->nlines; ++i)
-            strcpy(tmp[i],h->array[i]);
         free(h->array);
         h->array = tmp;
 # if defined (DEBUG)
@@ -791,6 +788,12 @@ int reallocHdr(Hdr *h, int n) {
                 (int)h,h->nlines,h->nalloc,(int)(h->array),n);
 # endif
         return 0;
+    const size_t sz = sizeof(HdrArray);
+    tmp = (HdrArray *)calloc(n, sz);
+    for (long i = 0; i < h->nlines; ++i) {
+        strncpy(tmp[i], h->array[i], sz - 1);
+        tmp[i][sz - 1] = '\0';
+    }
 }
 
 void freeHdr(Hdr *h) {
