@@ -202,14 +202,14 @@ StisInfo6 *sts    i: calibration switches and info
 	int mref;		/* MSM/blaze correction reference order */
 	double ypos = 0.;	/* MSM/blaze correction reference position */
 	double wpos = 0.;	/* MSM/blaze correction reference wavelength */
-	double ddisp;		/* MSM/blaze correction reference dispersion*/
+	double ddisp = 0.;		/* MSM/blaze correction reference dispersion*/
 	int bcorr_l;		/* MSM/blaze correction local switch */
 	double blazeshift;	/* MSM/blaze correction shift value */
 	double sum_blazeshift;	/* sum of blaze shift values */
 	double n_blazeshift;	/* number of blaze shift values in the sum */
 	double d1, d2, radvel;
 	double hold;
-	int dum, warn;
+	int warn;
 	char str[50];		/* temporary string area */
 
 	int AbsFlux6 (StisInfo6 *, RowContents *, PhotInfo *,
@@ -222,13 +222,13 @@ StisInfo6 *sts    i: calibration switches and info
 	int BuildOptProf (StisInfo6 *, ProfileArray **);
 	int CreaProfTable (StisInfo6 *, ProfTblDesc *);
 	int CreaTable (StisInfo6 *, int, TblDesc *);
-	int CrossCorr (StisInfo6 *, SpTrace *, SingleGroup *, FloatHdrData *,
-                       FloatHdrData *, int, int, int);
+	int CrossCorr (StisInfo6 *, SpTrace *, SingleGroup *,
+                       int, int, int);
 	int DefineBackRegions (StisInfo6 *, SpTrace *, CoordInfo *,
-                               SingleGroup *, FloatHdrData *, FloatHdrData *,
+                               SingleGroup *,
                                int *, int *);
 	void FindLya (StisInfo6 *, SingleGroup *, ApInfo *, double *,
-                      int, int *, int *, int *, int *);
+                      int *, int *, int *, int *);
 	void FreeDisp6 (DispRelation **);
 	void FreeInang6 (InangInfo *);
 	void FreeIntensity (IntensArray *);
@@ -280,8 +280,8 @@ StisInfo6 *sts    i: calibration switches and info
 	int WriteProfRow (StisInfo6 *sts, ProfTblDesc *, RowContents *, int *);
 	int WriteRow (StisInfo6 *sts, TblDesc *, RowContents *, int *);
 	int X1DSpec (StisInfo6 *, SpTrace *, XtractInfo *, double,
-                     SingleGroup *, SingleGroup *, FloatHdrData *,
-                     FloatHdrData *, IntensArray *, RowContents *);
+                     SingleGroup *, SingleGroup *,
+                     IntensArray *, RowContents *);
 
 	/* Set flags to indicate that memory has not been allocated yet. */
 	phot.allocated  = 0;
@@ -944,7 +944,7 @@ StisInfo6 *sts    i: calibration switches and info
 	            /* If 1st order, look for geocoronal Lya. */
 	            if (minorder == maxorder) {
 	                FindLya (sts, &in, &slit,
-	                        row_contents.wave, row_contents.npts,
+	                        row_contents.wave,
 	                        &(sts->avoid1a), &(sts->avoid2a),
 	                        &(sts->avoid1b), &(sts->avoid2b));
 	            } else {
@@ -957,7 +957,7 @@ StisInfo6 *sts    i: calibration switches and info
  	            if (maxsearch != NO_RANGE) {
 
 	                /* Do crosscorr. */
-	                ccstatus = CrossCorr (sts, trace, &in, &ssgx, &ssgy,
+	                ccstatus = CrossCorr (sts, trace, &in,
                                               maxsearch, sts->avoid1a,
                                               sts->avoid2a);
 
@@ -1185,7 +1185,7 @@ StisInfo6 *sts    i: calibration switches and info
                 */
 	        if (sts->scatter) {
 	            if ((status = DefineBackRegions (sts, trace_y, coord_o, &in,
-                            &ssgx, &ssgy, &ilow_end, &ihigh_end))) {
+                            &ilow_end, &ihigh_end))) {
 
 	                if (status == ERROR_RETURN) {
 	                    status = 0;
@@ -1202,7 +1202,7 @@ StisInfo6 *sts    i: calibration switches and info
 
 	        /* Extract spectrum, or build profile. */
 	        if ((status = X1DSpec(sts, trace_y, extract_o, extrsize,
-                                      &in, &outw, &ssgx, &ssgy, &inta,
+                                      &in, &outw, &inta,
                                       &row_contents)))
 	            return (status);
 
@@ -1458,8 +1458,7 @@ StisInfo6 *sts    i: calibration switches and info
                                auxiliary phot structure. This is a temporary
                                solution to the problem of PCT interpolation.
                             */
-	                    dum = GetAbsPhot6 (sts, row_contents.sporder,
-                                               &photc, 1, &warn);
+	                    GetAbsPhot6 (sts, row_contents.sporder, &photc, 1, &warn);
 
 		            /* Get PCT info. A zeroed height means to get
                                the photometry correction for the maximum

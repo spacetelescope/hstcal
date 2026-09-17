@@ -46,11 +46,11 @@
 
 # define MAX_CLIP	5	/* max. number of sigma-clip iterations */
 
-static void X1DBack (StisInfo6 *, SingleGroup *, FloatHdrData *,
-                     FloatHdrData *, double, double, double, double *,
+static void X1DBack (StisInfo6 *, SingleGroup *,
+                     double, double, double, double *,
                      double *, double *, double *, double *, double *,
                      double *, int *, int *, int *, double, double *,
-                     double *, double *, double *, int *, int);
+                     double *, double *, double *, int *);
 static int PolynomialFilter (float *, int, int, int, int, int, int);
 static void BoxcarFilter (float *, int, int, int);
 static float median (float *, int);
@@ -77,18 +77,14 @@ static void copyArray (float *, float *, int);
 */
 
 int CalcBack (StisInfo6 *sts, XtractInfo *xtr, SingleGroup *in,
-              FloatHdrData *ssgx, FloatHdrData *ssgy, int ipix,
-              double ysp, int debug) {
+              int ipix, double ysp) {
 
 /* arguments:
 StisInfo6 *sts         i: calibration switches and info
 XtractInfo *xtr        i: extraction parameters
 SingleGroup *in	       i: input image
-FloatHdrData ssgx;     i: small-scale distortion in X (not used)
-FloatHdrData ssgy;     i: small-scale distortion in Y (not used)
 int ipix;              i: index of image pixel in the A1 direction
 double ysp;            i: center of spectrum extraction box
-int debug;             i: debug control
 */
 	double rpix;            /* index of reference pixel in A1 direction */
 	double xcent[2];	/* center of background boxes */
@@ -194,15 +190,15 @@ int debug;             i: debug control
 
 	    /* Extract background in each box. */
 
-	    X1DBack (sts, in, ssgx, ssgy, xcent[0], ycent[0], bksize[0],
+	    X1DBack (sts, in, xcent[0], ycent[0], bksize[0],
                      &npts, &sumx, &sumy, &sumx2, &sumy2, &sumxy, &sumvar,
                      &nbck, &nfbck, &nsbck, sigma, &new_sigma,
-                     xval, yval, wval, &ndata, debug);
+                     xval, yval, wval, &ndata);
 
-	    X1DBack (sts, in, ssgx, ssgy, xcent[1], ycent[1], bksize[1],
+	    X1DBack (sts, in, xcent[1], ycent[1], bksize[1],
                      &npts, &sumx, &sumy, &sumx2, &sumy2, &sumxy, &sumvar,
                      &nbck, &nfbck, &nsbck, sigma, &new_sigma,
-                     xval, yval, wval, &ndata, debug);
+                     xval, yval, wval, &ndata);
 
 	    /* If more than 30% of the background pixels were rejected
                by sigma-clip, or flagged, set background's 11th flag bit.
@@ -306,19 +302,17 @@ int debug;             i: debug control
     input pixel array.
 */
 
-static void X1DBack (StisInfo6 *sts, SingleGroup *in, FloatHdrData *ssgx,
-                     FloatHdrData *ssgy, double xcenter, double ycenter,
+static void X1DBack (StisInfo6 *sts, SingleGroup *in,
+                     double xcenter, double ycenter,
                      double size, double *npts, double *sumx, double *sumy,
                      double *sumx2, double *sumy2, double *sumxy,
                      double *sumvar, int *nbck, int *nfbck, int *nsbck,
                      double sigma, double *new_sigma, double *xval,
-                     double *yval, double *wval, int *ndata, int debug) {
+                     double *yval, double *wval, int *ndata) {
 
 /* arguments:
 StisInfo6 *sts         i:  calibration switches and info
 SingleGroup *in	       i:  input image
-FloatHdrData ssgx;     i:  small-scale distortion in X (not used)
-FloatHdrData ssgy;     i:  small-scale distortion in Y (not used)
 double xcenter;        i:  center of spectrum extraction box in A1 direction
 double ycenter;        i:  center of spectrum extraction box in A2 direction
 double size;           i:  size of box
@@ -332,7 +326,6 @@ double  *yval;         io: data for polynomial fit
 double  *xval;
 double  *wval;
 int    ndata;          io: # of data points in polynomial fit
-int debug;             i: debug control
 */
 	double x1, y1, y2;	/* end points of background extraction box */
 	double xx, yy;		/* coordinates of current pixel */
@@ -580,8 +573,8 @@ static int PolynomialFilter (float *array, int size, int order,
 static void BoxcarFilter (float *input_array, int size, int wsize, int mode) {
 
 	float *array;
-	double sum;
-	int i, j, w1, w2, vw2, npts;
+	double sum=0.0;
+	int i, j, w1, w2=0, vw2, npts=0;
 
 	array = (float *) malloc (size * sizeof (float));
 	copyArray (input_array, array, size);

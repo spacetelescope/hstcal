@@ -140,15 +140,14 @@ int AbsFlux6 (StisInfo6 *sts, RowContents *out,
         else
             hf = 1.0;
 
-        /* Generate time-dependent sensitivity correction factors. */
-        if (sts->tdscorr == PERFORM) {
-            tds_factors = (double *) malloc (tds->nwl * sizeof (double));
-            if (tds_factors == NULL)
-                return (OUT_OF_MEMORY);
-
-            TdsCorrection (tds, sts->expstart, sts->detector_temp,
-                           tds_factors);
-        }
+    /* Generate time-dependent sensitivity correction factors. */
+    tds_factors = (double *) malloc (tds->nwl * sizeof (double));
+    if (tds_factors == NULL)
+        return (OUT_OF_MEMORY);
+    if (sts->tdscorr == PERFORM) {
+        TdsCorrection (tds, sts->expstart, sts->detector_temp,
+                       tds_factors);
+    }
 
         /* Apply MSM/blaze correction to throughput array. Dispersion
            is required in the case the reference values from the _pht

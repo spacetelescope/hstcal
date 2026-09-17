@@ -9,14 +9,12 @@
 # include "calstis6.h"
 # include "hstcalerr.h"
 
-/* 
-   calstis6 -- This is the entry point for both pipeline and standalone 
-               versions. This function basically gets the algorithm 
-               selected by either the command line of header keyword, 
-               and calls either the  "standard" single pass algorithm 
+/*
+   calstis6 -- This is the entry point for both pipeline and standalone
+               versions. This function basically gets the algorithm
+               selected by either the command line of header keyword,
+               and calls either the  "standard" single pass algorithm
                or the IDT scattered light correction iterative algorithm.
-
-
 
    Revision history:
    ----------------
@@ -29,12 +27,12 @@
 
 int CalStis6 (char *input, char *output, int backcorr, int dispcorr,
               int fluxcorr, int helcorr, int sgeocorr, int ctecorr,
-              int sc2dcorr, double cl_a2center, int maxsearch, 
-              double extrsize, double bk1size, double bk2size, 
-              double bk1offset, double bk2offset, double bktilt, int bkord, 
-              int sporder, char *xtracalg, int printtime, int verbose, 
-              int extrloc, int ccglobal, double ccthresh, int do_profile, 
-              int pstep, double wstep, double minsn, char *rejranges, 
+              int sc2dcorr, double cl_a2center, int maxsearch,
+              double extrsize, double bk1size, double bk2size,
+              double bk1offset, double bk2offset, double bktilt, int bkord,
+              int sporder, char *xtracalg, int printtime, int verbose,
+              int extrloc, int ccglobal, double ccthresh, int do_profile,
+              int pstep, double wstep, double minsn, char *rejranges,
               char *profilefile, char *fluxfile, char *outw, double backval,
               double backerr, int variance, int fflux, double psclip,
               double sclip, int lfilter, char *idtfile, double subscale,
@@ -97,24 +95,24 @@ int pipeline;		i: is calstis6 being run from the pipeline ?
 	int x2dcorr;
 	double dummy;
 
-	int CalStis6Std (char *, char *, int, int, int, int, int, int, 
-                         double, int, 
-                         double, double, double, double, double, double, 
-                         int, int, char *, int, int, int, int, double, int, 
+	int CalStis6Std (char *, char *, int, int, int, int, int, int,
+                         double, int,
+                         double, double, double, double, double, double,
+                         int, int, char *, int, int, int, int, double, int,
                          int, double, double, char *, char *, char *, char *,
-                         double, double, int, int, double, double, int, int, 
+                         double, double, int, int, double, double, int, int,
                          int, double *, double *, double, double, int, int,
                          double);
 	int CalStis6IDT (char *, char *, Hdr *,
-                         int, int, int, int, int, int, double, int, 
-                         double, double, double, double, double, double, 
-                         int, int, char *, int, int, int, int, double, int, 
+                         int, int, int, int, int, int, double, int,
+                         double, double, double, double, double, double,
+                         int, int, char *, int, int, int, double, int,
                          int, double, double, char *, char *, char *, char *,
-                         double, double, int, int, double, double, int, int,
+                         double, double, int, int, double, double, int,
                          int, char *, double, int, int, double);
 
-	/* Open input image in order to read its primary header. 
-           This step will be repeated later, but is necessary in 
+	/* Open input image in order to read its primary header.
+           This step will be repeated later, but is necessary in
            here in order to get the keyword that controls the
            execution of the IDT algorithm.
         */
@@ -138,7 +136,7 @@ int pipeline;		i: is calstis6 being run from the pipeline ?
 
 	if (sc2dcorr) {
 
-	    /* IDT extraction. Zero IMSET is meaningless in this 
+	    /* IDT extraction. Zero IMSET is meaningless in this
                context (for now ?). If the H&S scattering correction
                algorithm was selected, revert to unweighted.
             */
@@ -153,20 +151,20 @@ int pipeline;		i: is calstis6 being run from the pipeline ?
                      maxsearch, extrsize, bk1size, bk2size, bk1offset,
                      bk2offset, bktilt, bkord, sporder, xtracalg, printtime,
                      verbose == 0? 3: verbose,
-                     extrloc, ccglobal, ccthresh, do_profile, pstep, wstep,
+                     ccglobal, ccthresh, do_profile, pstep, wstep,
                      minsn, rejranges, profilefile, fluxfile, outw, backval,
-                     backerr, variance, fflux, psclip, sclip, lfilter, 0,
+                     backerr, variance, fflux, psclip, sclip, lfilter,
                      pipeline, idtfile, blazeshift, BKS_OFF,
 		     bks_order, xoffset);
 
 	} else {
 
 	    /* Standard extraction. Note zeroed IMSET to force extraction
-               on entire file. 
+               on entire file.
             */
 
 	    status = CalStis6Std (input, output, backcorr, dispcorr,
-                     fluxcorr, helcorr, sgeocorr, ctecorr, cl_a2center, 
+                     fluxcorr, helcorr, sgeocorr, ctecorr, cl_a2center,
                      maxsearch, extrsize, bk1size, bk2size, bk1offset,
                      bk2offset, bktilt, bkord, sporder, xtracalg, printtime,
                      verbose+1,
