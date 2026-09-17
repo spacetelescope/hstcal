@@ -884,14 +884,18 @@ void initShortHdrData(ShortHdrData *x) {
         initShortData(&(x->data));
 }
 
-int allocShortHdrData(ShortHdrData *x, int i, int j, Bool zeroInitialize) {
-        if (allocShortData(&(x->data),i,j, zeroInitialize)) return -1;
-        if (allocHdr(&(x->hdr),HdrUnit, zeroInitialize)) return -1;
-        x->section.x_beg = 0;
-        x->section.y_beg = 0;
-        x->section.sx = i;
-        x->section.sy = j;
-        return 0;
+int allocShortHdrData(ShortHdrData *x, const long i, const long j, const Bool zeroInitialize) {
+    if (allocShortData(&x->data, i, j, zeroInitialize)) {
+        return -1;
+    }
+    if (allocHdr(&x->hdr, HdrUnit, zeroInitialize)) {
+        return -1;
+    }
+    x->section.x_beg = 0;
+    x->section.y_beg = 0;
+    x->section.sx = i;
+    x->section.sy = j;
+    return 0;
 }
 
 int copyShortHdrData(ShortHdrData * target, const ShortHdrData * src, enum StorageOrder targetStorageOrder)
