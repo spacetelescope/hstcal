@@ -458,39 +458,37 @@ void initFloatData(FloatTwoDArray *x) {
 # endif
 }
 
-int allocFloatData(FloatTwoDArray *x, int i, int j, Bool zeroInitialize) {
-    //WARNING: target (x) must be initialized by caller
-# if defined (DEBUG)
-        printf("allocFloatData-1: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
-        if (x->buffer == NULL || x->buffer_size != (i * j)) {
-            if (x->buffer != NULL)
-            {
-                free(x->buffer);
-                x->buffer = NULL;
-            }
-            x->buffer_size = i * j;
-            if (zeroInitialize)
-                x->buffer = calloc(x->buffer_size, sizeof(*x->buffer));
-            else
-                x->buffer = malloc(x->buffer_size * sizeof(*x->buffer));
-            if (x->buffer == NULL) {
-                initFloatData(x);
-                error(NOMEM,"Allocating SciData");
-                return -1;
-            }
+int allocFloatData(FloatTwoDArray *x, const long i, const long j, const Bool zeroInitialize) {
+    // WARNING: target (x) must be initialized by caller
+#if defined(DEBUG)
+    printf("allocFloatData-1: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
+    if (x->buffer == NULL || x->buffer_size != i * j) {
+        if (x->buffer != NULL) {
+            free(x->buffer);
+            x->buffer = NULL;
         }
-        x->tot_nx = i;
-        x->tot_ny = j;
-        x->nx = x->tot_nx;
-        x->ny = x->tot_ny;
-        x->data = x->buffer;
-# if defined (DEBUG)
-        printf("allocFloatData-2: %x %x %d\n",
-                (int)x,(int)(x->buffer),x->buffer_size);
-# endif
-        return 0;
+        x->buffer_size = i * j;
+        if (zeroInitialize) {
+            x->buffer = calloc(x->buffer_size, sizeof(*x->buffer));
+        } else {
+            x->buffer = malloc(x->buffer_size * sizeof(*x->buffer));
+        }
+        if (x->buffer == NULL) {
+            initFloatData(x);
+            error(NOMEM, "Allocating SciData");
+            return -1;
+        }
+    }
+    x->tot_nx = i;
+    x->tot_ny = j;
+    x->nx = x->tot_nx;
+    x->ny = x->tot_ny;
+    x->data = x->buffer;
+#if defined(DEBUG)
+    printf("allocFloatData-2: %x %x %d\n", (int)x, (int)(x->buffer), x->buffer_size);
+#endif
+    return 0;
 }
 
 void freeFloatData(FloatTwoDArray *x) {
