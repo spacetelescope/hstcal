@@ -75,11 +75,9 @@ kw->nresult.data.l,kw->text,kw->value_end);*/
 
 # define HdrUnit 36
 
-# define BLANK   0x20
-
-# define BLANK_CARD "\
-                                                                                \
-"
+#define BLANK 0x20
+#define BLANK_CARD_LEN 80
+#define BLANK_CARD getBlankCard()
 
 # if defined(__cplusplus)
 extern "C" {
@@ -89,8 +87,11 @@ extern void error(HSTIOError, char *);
 }
 # endif
 
-enum TargetDataType_ { T_INTEGER = 0, T_FLOAT};
-typedef enum TargetDataType_ TargetDataType;
+static inline const char *getBlankCard() {
+    static char card[BLANK_CARD_LEN];
+    memset(card, BLANK, sizeof(card));
+    return card;
+}
 
 int checkRange (TargetDataType target, NumericResult result);
 int   putString(FitsKw kw_, char *txt);
