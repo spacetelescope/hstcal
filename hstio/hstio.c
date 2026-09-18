@@ -2249,8 +2249,14 @@ IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
         } else {
             /* Make sure it has the right value */
             getStringKw(kw,ename_val,8);
-            if (strncpy(ename_val, ename, strlen(ename)) != 0)
+            // TODO: Can this be a strncmp instead of strncpy?
+            // Does this operation even make sense?
+            //   - When ename is copied into ename_val successfully, put ename.
+            //   - Never use ename_val again
+            //   - Otherwise, don't put the value of ename at all
+            if (strncpy(ename_val, ename, sizeof(ename_val) - 1) != 0) {
                 putStringKw(kw,ename);
+            }
         }
         kw = findKw(hd,"EXTVER");
         if (kw == NotFound) {
