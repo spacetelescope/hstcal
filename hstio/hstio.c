@@ -240,10 +240,9 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
     const char * key = usingExtName ? "EXTNAME" : "EXTVER";
 
     int encounteredList[hduNum]; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
-    unsigned encounteredListCursor = 0; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
+    int encounteredListCursor = 0; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
     // open each HDU and count
-    {unsigned i;
-    for (i = 1; i <= hduNum; ++i) // HDUs are 1 based
+    for (int i = 1; i <= hduNum; ++i) // HDUs are 1 based
     {
         int loopStatus = HSTCAL_OK; // decl here to auto reset
         int extHDUType = ANY_HDU; // This is populated by fits_movabs_hdu() but init anyhow
@@ -287,15 +286,14 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
             int extVer = atoi(keyValue);
             bool alreadyCounted = false;
             // Ugly, but list size should be small so who cares
-            {unsigned j;
-            for (j = 0; j < encounteredListCursor; ++j)
+            for (int j = 0; j < encounteredListCursor; ++j)
             {
                 if (extVer == encounteredList[j])
                 {
                     alreadyCounted = true;
                     break;
                 }
-            }}
+            }
             // Add to list and inc. total
             if (!alreadyCounted)
             {
@@ -303,7 +301,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
                 (*total)++;
             }
         }
-    }}
+    }
 
     fits_close_file(fptr, &tmpStatus);
     return HSTCAL_OK;
@@ -2795,7 +2793,7 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             }
             else
             {
-                unsigned nColumns = iodesc->dims[0];
+                int nColumns = iodesc->dims[0];
                 float * row = malloc(nColumns*sizeof(float));
                 if (!row)
                     return OUT_OF_MEMORY;
@@ -2807,8 +2805,8 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
                         ioerr(BADREAD,iodesc, status);
                         return -1;
                     }
-                    {unsigned j;
                     for (j = 0; j < nColumns; ++j)
+                    {
                         PPixColumnMajor(da, i, j) = row[j];
                     }
                 }
