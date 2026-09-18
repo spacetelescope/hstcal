@@ -1396,14 +1396,6 @@ int ckNewFile(char *fname) {
         return -1;
 }
 
-int openFitsFile(char *filename, unsigned int option) {
-        return 0;
-}
-
-int closeFitsFile(char *filename) {
-        return 0;
-}
-
 /*
 ** Routine to open the input file, read in the primary header information, *
 ** acquire file pointers to the SingleGroup extensions, read the headers   *

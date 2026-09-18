@@ -433,8 +433,6 @@ int fcloseWithStatus(FILE ** stream); // calls fcloseNull & returns IO_ERROR upo
                                       // 0 otherwise. Sets *stream=NULL always.
 
 int ckNewFile(char *fname);
-int openFitsFile(char *filename, unsigned int option);
-int closeFitsFile(char *filename);
 int getSci(char *filename, int extver, SciHdrData *);
 int putSci(char *filename, int extver, SciHdrData *, int option);
 int getErr(char *filename, int extver, ErrHdrData *);
