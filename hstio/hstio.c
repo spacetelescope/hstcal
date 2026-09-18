@@ -2087,9 +2087,9 @@ static char *make_iodesc(IODesc **x, const char *fname, const char *ename, const
     }
 
     if (strlen(iodesc->extname) > 8) {
+        ioerr(BADEXTNAME, iodesc, 0);
         free(iodesc->filename);
         free(iodesc);
-        ioerr(BADEXTNAME, iodesc, 0);
         return NULL;
     }
 
