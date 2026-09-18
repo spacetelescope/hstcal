@@ -1725,6 +1725,9 @@ int getSingleGroup(char *fname, int ever, SingleGroup *x) {
 }
 
 int getSingleGroupLine (char *fname, int line, SingleGroupLine  *x) {
+        // TODO: Instrument code is populating fname but it serves no purpose
+        (void) fname;
+
         x->line_num = line;
         getSciLine(&(x->sci), line);
         if (hstio_err()) return (-1);
