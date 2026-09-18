@@ -104,8 +104,18 @@ static char *keymsg(char *k) {
         return tmp;
 }
 
-static FitsKwInfo findkw = { NULL, NULL, NULL, False, -1, {'\0'},
-        FITSNOVALUE, False, {'\0'} };
+static FitsKwInfo findkw = {
+    .text = NULL,
+    .hdr = NULL,
+    .value_end = NULL,
+    .isparsed = False,
+    .index = -1,
+    .name = {'\0'},
+    .type = FITSNOVALUE,
+    .bresult = False,
+    .cresult = {'\0'},
+    .nresult = {.data.l = 0},
+};
 
 static int find(Hdr *h, char *nm, FitsKwInfo *kw) {
         int i, n;
