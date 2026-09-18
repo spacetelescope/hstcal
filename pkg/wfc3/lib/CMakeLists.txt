@@ -1,4 +1,4 @@
-project(wf3)
+project(wf3 C)
 add_library(${PROJECT_NAME} SHARED
 	addk2d.c
 	bin2d.c

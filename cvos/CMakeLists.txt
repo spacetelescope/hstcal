@@ -1,4 +1,4 @@
-project(cvos)
+project(cvos C)
 add_library(${PROJECT_NAME} SHARED
 	c_iraf_priv.c
        	irafinit.c

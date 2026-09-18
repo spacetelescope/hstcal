@@ -1,8 +1,8 @@
 
-project(acs_top)
+project(acs_top C)
 add_subdirectory(lib)
 
-project(acs2d)
+project(acs2d C)
 add_executable(${PROJECT_NAME}
 	src/main2d.c
 )
@@ -18,7 +18,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(acsccd)
+project(acsccd C)
 add_executable(${PROJECT_NAME}
 	src/mainccd.c
 )
@@ -34,7 +34,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(acscte)
+project(acscte C)
 add_executable(${PROJECT_NAME}
 	src/maincte.c
 )
@@ -62,7 +62,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}forwardmodel.e
 )
 
 
-project(acsrej)
+project(acsrej C)
 add_executable(${PROJECT_NAME}
 	src/mainrej.c
 )
@@ -79,7 +79,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(acssum)
+project(acssum C)
 add_executable(${PROJECT_NAME}
 	src/mainsum.c
 )
@@ -95,7 +95,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(calacs)
+project(calacs C)
 add_executable(${PROJECT_NAME}
 	src/mainacs.c
 )

@@ -1,7 +1,7 @@
-project(wf3_top)
+project(wf3_top C)
 add_subdirectory(lib)
 
-project(wf32d)
+project(wf32d C)
 add_executable(${PROJECT_NAME}
 	src/main2d.c
 )
@@ -17,7 +17,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(wf3ccd)
+project(wf3ccd C)
 add_executable(${PROJECT_NAME}
 	src/mainccd.c
 )
@@ -33,7 +33,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(wf3cte)
+project(wf3cte C)
 add_executable(${PROJECT_NAME}
 	src/maincte.c
 )
@@ -51,7 +51,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(wf3ir)
+project(wf3ir C)
 add_executable(${PROJECT_NAME}
 	src/mainir.c
 )
@@ -67,7 +67,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(wf3rej)
+project(wf3rej C)
 add_executable(${PROJECT_NAME}
 	src/mainrej.c
 )
@@ -83,7 +83,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(wf3sum)
+project(wf3sum C)
 add_executable(${PROJECT_NAME}
 	src/mainsum.c
 )
@@ -99,7 +99,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(calwf3)
+project(calwf3 C)
 add_executable(${PROJECT_NAME}
 	src/mainwf3.c
 )

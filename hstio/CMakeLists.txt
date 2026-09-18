@@ -1,4 +1,4 @@
-project(hstio)
+project(hstio C)
 add_library(${PROJECT_NAME} SHARED
 	hstio.c
 	keyword.c

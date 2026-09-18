@@ -1,4 +1,4 @@
-project(acs)
+project(acs C)
 add_library(${PROJECT_NAME} SHARED
 	acs2d/acs2d.c
 	acs2d/do2d.c

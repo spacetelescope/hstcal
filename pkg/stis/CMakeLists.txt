@@ -1,7 +1,7 @@
-project(wf3_top)
+project(wf3_top C)
 add_subdirectory(lib)
 
-project(cs0)
+project(cs0 C)
 add_executable(${PROJECT_NAME}
 	src/cs0.c
 )
@@ -17,7 +17,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs1)
+project(cs1 C)
 add_executable(${PROJECT_NAME}
 	src/cs1.c
 )
@@ -33,7 +33,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs2)
+project(cs2 C)
 add_executable(${PROJECT_NAME}
 	src/cs2.c
 	src/cs2_command.c
@@ -50,7 +50,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs4)
+project(cs4 C)
 add_executable(${PROJECT_NAME}
 	src/cs4.c
 )
@@ -66,7 +66,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs6)
+project(cs6 C)
 add_executable(${PROJECT_NAME}
 	src/cs6.c
 )
@@ -82,7 +82,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs7)
+project(cs7 C)
 add_executable(${PROJECT_NAME}
 	src/cs7.c
 )
@@ -98,7 +98,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs8)
+project(cs8 C)
 add_executable(${PROJECT_NAME}
 	src/cs8.c
 )
@@ -114,7 +114,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs11)
+project(cs11 C)
 add_executable(${PROJECT_NAME}
 	src/cs11.c
 )
@@ -130,7 +130,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 
-project(cs12)
+project(cs12 C)
 add_executable(${PROJECT_NAME}
 	src/cs12.c
 )

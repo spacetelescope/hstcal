@@ -1,4 +1,4 @@
-project(tables)
+project(tables C)
 add_library(${PROJECT_NAME} SHARED
 	addCol.c
 	c_imt.c
