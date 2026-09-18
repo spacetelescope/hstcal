@@ -95,17 +95,25 @@ typedef enum TargetDataType_ TargetDataType;
 int checkRange (TargetDataType target, NumericResult result);
 int   putString(FitsKw kw_, char *txt);
 
-static char *keymsg(char *k) {
-        static char tmp[81] = "Searching for keyword ";
-        if (strlen(k) > (size_t)58)
-                { strncpy(&tmp[22],k,58); tmp[80] = '\0'; }
-        else
-                strcpy(&tmp[22],k);
-        return tmp;
+static char *keymsg(char *name) {
+    static char msg[81] = {0};
+    const char *base_message = "Searching for keyword ";
+    snprintf(msg, sizeof(msg), "%s%s", base_message, name);
+    return msg;
 }
 
-static FitsKwInfo findkw = { NULL, NULL, NULL, False, -1, {'\0'},
-        FITSNOVALUE, False, {'\0'} };
+static FitsKwInfo findkw = {
+    .text = NULL,
+    .hdr = NULL,
+    .value_end = NULL,
+    .isparsed = False,
+    .index = -1,
+    .name = {'\0'},
+    .type = FITSNOVALUE,
+    .bresult = False,
+    .cresult = {'\0'},
+    .nresult = {.data.l = 0},
+};
 
 static int find(Hdr *h, char *nm, FitsKwInfo *kw) {
         int i, n;
@@ -653,6 +661,7 @@ int updateKeyB (Hdr *hdr, char *keyword, Bool value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;      /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -675,6 +684,7 @@ int updateKeyD (Hdr *hdr, char *keyword, double value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;      /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -697,6 +707,7 @@ int updateKeyF (Hdr *hdr, char *keyword, float value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;      /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -719,6 +730,7 @@ int updateKeyI (Hdr *hdr, char *keyword, int value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;              /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -741,6 +753,7 @@ int updateKeyS (Hdr *hdr, char *keyword, char *value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;              /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -764,6 +777,7 @@ int putKeyB (Hdr *hdr, char *keyword, Bool value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;      /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -787,6 +801,7 @@ int putKeyD (Hdr *hdr, char *keyword, double value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;      /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -810,6 +825,7 @@ int putKeyF (Hdr *hdr, char *keyword, float value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;      /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -833,6 +849,7 @@ int putKeyI (Hdr *hdr, char *keyword, int value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;              /* keyword pointer */
 
         kw = findKw (hdr, keyword);
@@ -856,6 +873,7 @@ int putKeyS (Hdr *hdr, char *keyword, char *value, char *comment) {
 **      comment i: comment to add with keyword if keyword doesn't exist
 */
 
+        (void) comment;
         FitsKw kw;              /* keyword pointer */
 
         kw = findKw (hdr, keyword);

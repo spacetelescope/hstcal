@@ -240,10 +240,9 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
     const char * key = usingExtName ? "EXTNAME" : "EXTVER";
 
     int encounteredList[hduNum]; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
-    unsigned encounteredListCursor = 0; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
+    int encounteredListCursor = 0; // used for nimsets = len(set([hdu.ver for hdu in hduList]))
     // open each HDU and count
-    {unsigned i;
-    for (i = 1; i <= hduNum; ++i) // HDUs are 1 based
+    for (int i = 1; i <= hduNum; ++i) // HDUs are 1 based
     {
         int loopStatus = HSTCAL_OK; // decl here to auto reset
         int extHDUType = ANY_HDU; // This is populated by fits_movabs_hdu() but init anyhow
@@ -277,25 +276,24 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
             int match = FALSE;
             int exact = FALSE;
             int caseSensitive = TRUE;
-            fits_compare_str(setContainsExtName, keyValue, caseSensitive, &match, &exact);
+            fits_compare_str((char *) setContainsExtName, keyValue, caseSensitive, &match, &exact);
             if (match || exact)
                 (*total)++;
         }
         else
         {
             // (python) nimsets = len(set([hdu.ver for hdu in hduList]))
-            int extVer = atoi(keyValue);
+            int extVer = (int) strtol(keyValue, NULL, 10);
             bool alreadyCounted = false;
             // Ugly, but list size should be small so who cares
-            {unsigned j;
-            for (j = 0; j < encounteredListCursor; ++j)
+            for (int j = 0; j < encounteredListCursor; ++j)
             {
                 if (extVer == encounteredList[j])
                 {
                     alreadyCounted = true;
                     break;
                 }
-            }}
+            }
             // Add to list and inc. total
             if (!alreadyCounted)
             {
@@ -303,7 +301,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
                 (*total)++;
             }
         }
-    }}
+    }
 
     fits_close_file(fptr, &tmpStatus);
     return HSTCAL_OK;
@@ -326,98 +324,103 @@ static void clear_err(void) { error_status = HSTOK; error_msg[0] = '\0'; }
 
 void clear_hstioerr(void) { error_status = HSTOK; error_msg[0] = '\0'; }
 
-void error(HSTIOError e, char *str) {
-        int n;
+void error(const HSTIOError e, char *str) {
+    error_status = e;
+    const char *reason = "";
 
-        error_status = e;
-        if (str != 0) {
-            n = strlen(str);
-            strncpy(error_msg,str,(n > ERRLINEWIDTH ? ERRLINEWIDTH : n));
-            error_msg[n] = '\0';
-        }
-        switch(error_status) {
-            /* Do not make these messages longer than 80 chars. */
-            case HSTOK:
-                error_msg[0] = '\0';
-                break;
-            case NOMEM:
-                strcat(error_msg,"\nNo memory left to allocate data.");
-                break;
-            case BADOPEN:
-                strcat(error_msg,"\nError opening image array.");
-                break;
-            case BADCLOSE:
-                strcat(error_msg,"\nError closing image array.");
-                break;
-            case BADREAD:
-                strcat(error_msg,"\nError reading image array.");
-                break;
-            case BADWRITE:
-                strcat(error_msg,"\nError writing image array.");
-                break;
-            case BADEXTNAME:
-                strcat(error_msg,"\nInvalid EXTNAME name");
-                break;
-            case BADHSIZE:
-                strcat(error_msg,"\nInvalid size for header array.");
-                break;
-            case NOGET:
-                strcat(error_msg,"\nIncorrect I/O mode for get operation.");
-                break;
-            case NOPUT:
-                strcat(error_msg,"\nIncorrect I/O mode for put operation.");
-                break;
-            case BADDIMS:
-                strcat(error_msg,"\nImage has wrong number of dimensions.");
-                break;
-            case BADTYPE:
-                strcat(error_msg,"\nImage has wrong data type.");
-                break;
-            case NOSCI:
-                strcat(error_msg,"\nNo Sci array corresponding to DQ or Err arrays");
-                break;
-            case BADSCIDIMS:
-                strcat(error_msg,"\nSci array has wrong number of dimensions.");
-                break;
-            case BADGROUP:
-                strcat(error_msg,"\nGroup number is out of range.");
-                break;
-            case BADGET:
-                strcat(error_msg,"\nKeyword specified in get_Kw function was not found.");
-                break;
-            case BADFITSEQ:
-                strcat(error_msg,"\nFITS card has no value indicator.");
-                break;
-            case BADFITSQUOTE:
-                strcat(error_msg,"\nFITS card has no ending quote.");
-                break;
-            case BADFITSNUMERIC:
-                strcat(error_msg,"\nFITS card has invalid numeric field.");
-                break;
-            case BADFITSTYPE:
-                strcat(error_msg,"\nWrong data type specified in get_Kw function.");
-                break;
-            case BADPUT:
-                strcat(error_msg,"\nKeyword specified in put_Kw function was not found.");
-                break;
-            case BADNAME:
-                strcat(error_msg,"\nKeyword name specified in add_Kw function is too long.");
-                break;
-            case BADBITPIX:
-                strcat(error_msg,"\nWrong data type specified in making primary array or image extension.");
-                break;
-            case BADNDIM:
-                strcat(error_msg,"\nWrong number of dimensions in making primary array or image extension.");
-                break;
-            case BADEXIST:
-                strcat(error_msg,"\nFile already exists.  Operation would overwrite existing file.");
-                break;
-            case BADREMOVE:
-                strcat(error_msg,"\nError removing file.");
-                break;
-        }
-        if (errtop > -1 && errhandler[errtop] != 0)
-            errhandler[errtop]();
+    switch (error_status) {
+        /* Do not make these messages longer than 80 chars. */
+        case HSTOK:
+            error_msg[0] = '\0';
+            break;
+        case NOMEM:
+            reason = "No memory left to allocate data.";
+            break;
+        case BADOPEN:
+            reason = "Error opening image array.";
+            break;
+        case BADCLOSE:
+            reason = "Error closing image array.";
+            break;
+        case BADREAD:
+            reason = "Error reading image array.";
+            break;
+        case BADWRITE:
+            reason = "Error writing image array.";
+            break;
+        case BADEXTNAME:
+            reason = "Invalid EXTNAME name";
+            break;
+        case BADHSIZE:
+            reason = "Invalid size for header array.";
+            break;
+        case NOGET:
+            reason = "Incorrect I/O mode for get operation.";
+            break;
+        case NOPUT:
+            reason = "Incorrect I/O mode for put operation.";
+            break;
+        case BADDIMS:
+            reason = "Image has wrong number of dimensions.";
+            break;
+        case BADTYPE:
+            reason = "Image has wrong data type.";
+            break;
+        case NOSCI:
+            reason = "No Sci array corresponding to DQ or Err arrays";
+            break;
+        case BADSCIDIMS:
+            reason = "Sci array has wrong number of dimensions.";
+            break;
+        case BADGROUP:
+            reason = "Group number is out of range.";
+            break;
+        case BADGET:
+            reason = "Keyword specified in get_Kw function was not found.";
+            break;
+        case BADFITSEQ:
+            reason = "FITS card has no value indicator.";
+            break;
+        case BADFITSQUOTE:
+            reason = "FITS card has no ending quote.";
+            break;
+        case BADFITSNUMERIC:
+            reason = "FITS card has invalid numeric field.";
+            break;
+        case BADFITSTYPE:
+            reason = "Wrong data type specified in get_Kw function.";
+            break;
+        case BADPUT:
+            reason = "Keyword specified in put_Kw function was not found.";
+            break;
+        case BADNAME:
+            reason = "Keyword name specified in add_Kw function is too long.";
+            break;
+        case BADBITPIX:
+            reason = "Wrong data type specified in making primary array "
+                     "or image extension.";
+            break;
+        case BADNDIM:
+            reason = "Wrong number of dimensions in making primary "
+                     "array or image extension.";
+            break;
+        case BADEXIST:
+            reason = "File already exists.  Operation would "
+                     "overwrite existing file.";
+            break;
+        case BADREMOVE:
+            reason = "Error removing file.";
+            break;
+        default:
+            reason = "BUG: Unhandled error_status in HSTIO error() function";
+            break;
+    }
+
+    snprintf(error_msg, sizeof(error_msg), "%s%s%s", str ? str : "", str ? "\n" : "", reason);
+
+    if (errtop > -1 && errhandler[errtop] != 0) {
+        errhandler[errtop]();
+    }
 }
 
 static void ioerr(HSTIOError e, IODescPtr x_, int status) {
@@ -1392,16 +1395,10 @@ int ckNewFile(char *fname) {
         /* file exists and imclobber is yes */
         if (remove(fname) != 0)
             return 2;
-        while (remove(fname) == 0); /* The while loop is for VMS */
+        while (remove(fname) == 0) {
+            /* The while loop is for VMS */
+        }
         return -1;
-}
-
-int openFitsFile(char *filename, unsigned int option) {
-        return 0;
-}
-
-int closeFitsFile(char *filename) {
-        return 0;
 }
 
 /*
@@ -1733,6 +1730,9 @@ int getSingleGroup(char *fname, int ever, SingleGroup *x) {
 }
 
 int getSingleGroupLine (char *fname, int line, SingleGroupLine  *x) {
+        // TODO: Instrument code is populating fname but it serves no purpose
+        (void) fname;
+
         x->line_num = line;
         getSciLine(&(x->sci), line);
         if (hstio_err()) return (-1);
@@ -2092,9 +2092,9 @@ static char *make_iodesc(IODesc **x, const char *fname, const char *ename, const
     }
 
     if (strlen(iodesc->extname) > 8) {
+        ioerr(BADEXTNAME, iodesc, 0);
         free(iodesc->filename);
         free(iodesc);
-        ioerr(BADEXTNAME, iodesc, 0);
         return NULL;
     }
 
@@ -2249,8 +2249,15 @@ IODescPtr openOutputImage(char *fname, char *ename, int ever, Hdr *hd,
         } else {
             /* Make sure it has the right value */
             getStringKw(kw,ename_val,8);
-            if (strncpy(ename_val, ename, strlen(ename)) != 0)
+            // TODO: Remove fprintf calls after figuring out what's expected here
+            if (strncmp(ename_val, ename, sizeof(ename_val)) != 0) {
+                fprintf(stderr, "\n[%s:%d:%s] '%s' != '%s' (call putStringKw)\n",
+                    __FILE__, __LINE__, __func__, ename_val, ename ? ename : "NULL");
                 putStringKw(kw,ename);
+            } else {
+                fprintf(stderr, "\n[%s:%d:%s] '%s' == '%s' (do nothing)\n",
+                    __FILE__, __LINE__, __func__, ename_val, ename ? ename : "NULL");
+            }
         }
         kw = findKw(hd,"EXTVER");
         if (kw == NotFound) {
@@ -2795,7 +2802,7 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
             }
             else
             {
-                unsigned nColumns = iodesc->dims[0];
+                int nColumns = iodesc->dims[0];
                 float * row = malloc(nColumns*sizeof(float));
                 if (!row)
                     return OUT_OF_MEMORY;
@@ -2807,8 +2814,8 @@ int getFloatData(IODescPtr iodesc_, FloatTwoDArray *da) {
                         ioerr(BADREAD,iodesc, status);
                         return -1;
                     }
-                    {unsigned j;
                     for (j = 0; j < nColumns; ++j)
+                    {
                         PPixColumnMajor(da, i, j) = row[j];
                     }
                 }

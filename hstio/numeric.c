@@ -86,8 +86,6 @@ static double tenpower[309] = { 1.0,
 	1.0E289, 1.0E290, 1.0E291, 1.0E292, 1.0E293, 1.0E294, 1.0E295, 1.0E296,
 	1.0E297, 1.0E298, 1.0E299, 1.0E300, 1.0E301, 1.0E302, 1.0E303, 1.0E304,
 	1.0E305, 1.0E306, 1.0E307, 1.0E308 };
-static const int minfltexp = -38;
-static const int maxfltexp = 38;
 static const int mindblexp = -308;
 static const int maxdblexp = 308;
 static const int maxsigdigits = 17;
