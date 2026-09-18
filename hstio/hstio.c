@@ -1390,7 +1390,9 @@ int ckNewFile(char *fname) {
         /* file exists and imclobber is yes */
         if (remove(fname) != 0)
             return 2;
-        while (remove(fname) == 0); /* The while loop is for VMS */
+        while (remove(fname) == 0) {
+            /* The while loop is for VMS */
+        }
         return -1;
 }
 
