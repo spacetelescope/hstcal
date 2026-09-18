@@ -276,7 +276,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
             int match = FALSE;
             int exact = FALSE;
             int caseSensitive = TRUE;
-            fits_compare_str(setContainsExtName, keyValue, caseSensitive, &match, &exact);
+            fits_compare_str((char *) setContainsExtName, keyValue, caseSensitive, &match, &exact);
             if (match || exact)
                 (*total)++;
         }
