@@ -283,7 +283,7 @@ int findTotalNumberOfHDUSets(const char * fileName, const char * setContainsExtN
         else
         {
             // (python) nimsets = len(set([hdu.ver for hdu in hduList]))
-            int extVer = atoi(keyValue);
+            int extVer = (int) strtol(keyValue, NULL, 10);
             bool alreadyCounted = false;
             // Ugly, but list size should be small so who cares
             for (int j = 0; j < encounteredListCursor; ++j)
