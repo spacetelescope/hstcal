@@ -1,4 +1,4 @@
-project(ctegen2)
+project(ctegen2 C)
 
 find_package(OpenMP COMPONENTS C)
 # This interferes with Conda, because it uses clang AND provides
