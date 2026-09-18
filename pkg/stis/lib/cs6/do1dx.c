@@ -209,7 +209,7 @@ StisInfo6 *sts    i: calibration switches and info
 	double n_blazeshift;	/* number of blaze shift values in the sum */
 	double d1, d2, radvel;
 	double hold;
-	int dum, warn;
+	int warn;
 	char str[50];		/* temporary string area */
 
 	int AbsFlux6 (StisInfo6 *, RowContents *, PhotInfo *,
@@ -778,7 +778,7 @@ StisInfo6 *sts    i: calibration switches and info
 		if ((status = ReturnXtract (&extract, minorder, &extract_a)))
 		    return (status);
 	        if ((status = SelectAlg (sts, extract_a))) {
-	            if ((status == CAL_FILE_MISSING)) {
+	            if (status == CAL_FILE_MISSING) {
 	                status = 0;
 	                trlwarn("Skipping order.");
 	                FreeXtract (&extract_a);
@@ -1408,8 +1408,8 @@ StisInfo6 *sts    i: calibration switches and info
 	            if (sts->fluxcorr == PERFORM && !sts->do_profile) {
 
 	                /* Print reference file info. */
-	                if (sts->verbose == 1 || sts->verbose == 2)
-	                    Message6 (sts, FLUX_INFO);
+/*	                if (sts->verbose == 1 || sts->verbose == 2) */
+                        Message6 (sts, FLUX_INFO);
 
 	                if ((status = GetAbsPhot6 (sts,
                                 row_contents.sporder, &phot, 1, &warn))) {
@@ -1458,8 +1458,11 @@ StisInfo6 *sts    i: calibration switches and info
                                auxiliary phot structure. This is a temporary
                                solution to the problem of PCT interpolation.
                             */
-	                    dum = GetAbsPhot6 (sts, row_contents.sporder,
-                                               &photc, 1, &warn);
+	                    if ((status = GetAbsPhot6 (sts, row_contents.sporder,
+                                               &photc, 1, &warn))) {
+	                        FreePhot6 (&photc);
+			        return (status);
+	                    }
 
 		            /* Get PCT info. A zeroed height means to get
                                the photometry correction for the maximum

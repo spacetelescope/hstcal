@@ -1427,7 +1427,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    freeSingleGroup (&wout);
 
 	    if (verbose && (nimages > 1)) {
-	        trlerror("End processing IMSET %d", extver);
+	        trlmessage("End processing IMSET %d", extver);
 	        fflush (stdout);
 	    }
 
