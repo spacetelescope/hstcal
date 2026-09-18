@@ -324,98 +324,103 @@ static void clear_err(void) { error_status = HSTOK; error_msg[0] = '\0'; }
 
 void clear_hstioerr(void) { error_status = HSTOK; error_msg[0] = '\0'; }
 
-void error(HSTIOError e, char *str) {
-        int n;
+void error(const HSTIOError e, char *str) {
+    error_status = e;
+    const char *reason = "";
 
-        error_status = e;
-        if (str != 0) {
-            n = strlen(str);
-            strncpy(error_msg,str,(n > ERRLINEWIDTH ? ERRLINEWIDTH : n));
-            error_msg[n] = '\0';
-        }
-        switch(error_status) {
-            /* Do not make these messages longer than 80 chars. */
-            case HSTOK:
-                error_msg[0] = '\0';
-                break;
-            case NOMEM:
-                strcat(error_msg,"\nNo memory left to allocate data.");
-                break;
-            case BADOPEN:
-                strcat(error_msg,"\nError opening image array.");
-                break;
-            case BADCLOSE:
-                strcat(error_msg,"\nError closing image array.");
-                break;
-            case BADREAD:
-                strcat(error_msg,"\nError reading image array.");
-                break;
-            case BADWRITE:
-                strcat(error_msg,"\nError writing image array.");
-                break;
-            case BADEXTNAME:
-                strcat(error_msg,"\nInvalid EXTNAME name");
-                break;
-            case BADHSIZE:
-                strcat(error_msg,"\nInvalid size for header array.");
-                break;
-            case NOGET:
-                strcat(error_msg,"\nIncorrect I/O mode for get operation.");
-                break;
-            case NOPUT:
-                strcat(error_msg,"\nIncorrect I/O mode for put operation.");
-                break;
-            case BADDIMS:
-                strcat(error_msg,"\nImage has wrong number of dimensions.");
-                break;
-            case BADTYPE:
-                strcat(error_msg,"\nImage has wrong data type.");
-                break;
-            case NOSCI:
-                strcat(error_msg,"\nNo Sci array corresponding to DQ or Err arrays");
-                break;
-            case BADSCIDIMS:
-                strcat(error_msg,"\nSci array has wrong number of dimensions.");
-                break;
-            case BADGROUP:
-                strcat(error_msg,"\nGroup number is out of range.");
-                break;
-            case BADGET:
-                strcat(error_msg,"\nKeyword specified in get_Kw function was not found.");
-                break;
-            case BADFITSEQ:
-                strcat(error_msg,"\nFITS card has no value indicator.");
-                break;
-            case BADFITSQUOTE:
-                strcat(error_msg,"\nFITS card has no ending quote.");
-                break;
-            case BADFITSNUMERIC:
-                strcat(error_msg,"\nFITS card has invalid numeric field.");
-                break;
-            case BADFITSTYPE:
-                strcat(error_msg,"\nWrong data type specified in get_Kw function.");
-                break;
-            case BADPUT:
-                strcat(error_msg,"\nKeyword specified in put_Kw function was not found.");
-                break;
-            case BADNAME:
-                strcat(error_msg,"\nKeyword name specified in add_Kw function is too long.");
-                break;
-            case BADBITPIX:
-                strcat(error_msg,"\nWrong data type specified in making primary array or image extension.");
-                break;
-            case BADNDIM:
-                strcat(error_msg,"\nWrong number of dimensions in making primary array or image extension.");
-                break;
-            case BADEXIST:
-                strcat(error_msg,"\nFile already exists.  Operation would overwrite existing file.");
-                break;
-            case BADREMOVE:
-                strcat(error_msg,"\nError removing file.");
-                break;
-        }
-        if (errtop > -1 && errhandler[errtop] != 0)
-            errhandler[errtop]();
+    switch (error_status) {
+        /* Do not make these messages longer than 80 chars. */
+        case HSTOK:
+            error_msg[0] = '\0';
+            break;
+        case NOMEM:
+            reason = "No memory left to allocate data.";
+            break;
+        case BADOPEN:
+            reason = "Error opening image array.";
+            break;
+        case BADCLOSE:
+            reason = "Error closing image array.";
+            break;
+        case BADREAD:
+            reason = "Error reading image array.";
+            break;
+        case BADWRITE:
+            reason = "Error writing image array.";
+            break;
+        case BADEXTNAME:
+            reason = "Invalid EXTNAME name";
+            break;
+        case BADHSIZE:
+            reason = "Invalid size for header array.";
+            break;
+        case NOGET:
+            reason = "Incorrect I/O mode for get operation.";
+            break;
+        case NOPUT:
+            reason = "Incorrect I/O mode for put operation.";
+            break;
+        case BADDIMS:
+            reason = "Image has wrong number of dimensions.";
+            break;
+        case BADTYPE:
+            reason = "Image has wrong data type.";
+            break;
+        case NOSCI:
+            reason = "No Sci array corresponding to DQ or Err arrays";
+            break;
+        case BADSCIDIMS:
+            reason = "Sci array has wrong number of dimensions.";
+            break;
+        case BADGROUP:
+            reason = "Group number is out of range.";
+            break;
+        case BADGET:
+            reason = "Keyword specified in get_Kw function was not found.";
+            break;
+        case BADFITSEQ:
+            reason = "FITS card has no value indicator.";
+            break;
+        case BADFITSQUOTE:
+            reason = "FITS card has no ending quote.";
+            break;
+        case BADFITSNUMERIC:
+            reason = "FITS card has invalid numeric field.";
+            break;
+        case BADFITSTYPE:
+            reason = "Wrong data type specified in get_Kw function.";
+            break;
+        case BADPUT:
+            reason = "Keyword specified in put_Kw function was not found.";
+            break;
+        case BADNAME:
+            reason = "Keyword name specified in add_Kw function is too long.";
+            break;
+        case BADBITPIX:
+            reason = "Wrong data type specified in making primary array "
+                     "or image extension.";
+            break;
+        case BADNDIM:
+            reason = "Wrong number of dimensions in making primary "
+                     "array or image extension.";
+            break;
+        case BADEXIST:
+            reason = "File already exists.  Operation would "
+                     "overwrite existing file.";
+            break;
+        case BADREMOVE:
+            reason = "Error removing file.";
+            break;
+        default:
+            reason = "BUG: Unhandled error_status in HSTIO error() function";
+            break;
+    }
+
+    snprintf(error_msg, sizeof(error_msg), "%s%s%s", str ? str : "", str ? "\n" : "", reason);
+
+    if (errtop > -1 && errhandler[errtop] != 0) {
+        errhandler[errtop]();
+    }
 }
 
 static void ioerr(HSTIOError e, IODescPtr x_, int status) {
