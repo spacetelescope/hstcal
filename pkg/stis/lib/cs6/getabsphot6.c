@@ -243,7 +243,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	    for (row = 1;  row <= blazetabinfo.nrows;  row++) {
 
 	        if ((status = ReadBlazeTab (&blazetabinfo, row, &tabrow))) {
-			    printf("Something went wrong in ReadBlazeTab\n");
+			    trlerror("Error reading row %d in ReadBlazeTab, status: %d\n", row, status);
 		        return (status);
 			}
 	        if (!SameInt (tabrow.cenwave, sts->cenwave) ||
@@ -257,13 +257,12 @@ int *warn	io: if set to zero, turn off blaze shift warning
 		        if ((status = RowPedigree (&sts->phottab, row,
                             blazetabinfo.tp, blazetabinfo.cp_pedigree,
 							blazetabinfo.cp_descrip))) {
-					printf("Error getting pedigree and descrip from selected row\n");
+					trlerror("Error getting pedigree and descrip from row %d, status: \n", row, status);
 		            return (status);
 				}
 
 		        if (sts->phottab.goodPedigree == DUMMY_PEDIGREE) {
 		            sts->x1d_o = DUMMY;
-					printf("Dummy Pedigree\n");
 		            CloseBlazeTab (&blazetabinfo);
 		            return (0);
 		        }
@@ -280,9 +279,9 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	    if (!foundit) {
 	        if (print) {
-	            printf ("ERROR    Matching row not found in BLAZETAB %s\n",
+	            trlerror("ERROR    Matching row not found in BLAZETAB %s\n",
 	                    sts->blazetab.name);
-	            printf ("ERROR    OPT_ELEM %s, CENWAVE %d, SPORDER %d\n",
+	            trlerror("ERROR    OPT_ELEM %s, CENWAVE %d, SPORDER %d\n",
 	                    sts->opt_elem, sts->cenwave, sporder);
 	        }
 	        return (ROW_NOT_FOUND);
@@ -386,7 +385,7 @@ static int OpenBlazeTab (StisInfo6 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	tabinfo->tp = c_tbtopn (sts->blazetab.name, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
-	    printf ("ERROR    BLAZETAB `%s' not found\n", sts->blazetab.name);
+	    trlwarn("WARNING:    BLAZETAB `%s' not found\n", sts->blazetab.name);
 	    return (OPEN_FAILED);
 	}
 
@@ -397,7 +396,7 @@ static int OpenBlazeTab (StisInfo6 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	c_tbcfnd1 (tabinfo->tp, "NDATES",      &tabinfo->cp_ndates);
 	if (tabinfo->cp_opt_elem == 0 ||
 	    tabinfo->cp_ndates    == 0) {
-	    printf ("ERROR    Column OPT_ELEM or NDATES not found in BLAZETAB\n");
+	    trlerror("ERROR    Column OPT_ELEM or NDATES not found in BLAZETAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -429,7 +428,7 @@ static int OpenBlazeTab (StisInfo6 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
             phot->blazecorr = OMIT;
 
             if (*warn) {
-                printf (
+                trlerror(
 "Warning  BLAZETAB does not contain blaze shift information.\n");
 
                 *warn = 0;
@@ -442,7 +441,7 @@ static int OpenBlazeTab (StisInfo6 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	c_tbcfnd1 (tabinfo->tp, "CENWAVE", &tabinfo->cp_cenwave);
 	c_tbcfnd1 (tabinfo->tp, "SPORDER", &tabinfo->cp_sporder);
 	if (tabinfo->cp_cenwave == 0 || tabinfo->cp_sporder == 0) {
-	    printf (
+	    trlerror(
 	    "ERROR    Column (CENWAVE or SPORDER) not found in PHOTTAB\n");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);

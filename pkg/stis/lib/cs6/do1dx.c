@@ -1408,8 +1408,7 @@ StisInfo6 *sts    i: calibration switches and info
 	            if (sts->fluxcorr == PERFORM && !sts->do_profile) {
 
 	                /* Print reference file info. */
-/*	                if (sts->verbose == 1 || sts->verbose == 2) */
-                        Message6 (sts, FLUX_INFO);
+                    Message6 (sts, FLUX_INFO);
 
 	                if ((status = GetAbsPhot6 (sts,
                                 row_contents.sporder, &phot, 1, &warn))) {
@@ -1435,8 +1434,8 @@ StisInfo6 *sts    i: calibration switches and info
 	                if (sts->x1d_o == DUMMY) {
 	                    warnDummy ("PHOTTAB", row_contents.sporder, 0);
 			    for (i = 0; i < row_contents.npts; i++) {
-				row_contents.flux[i]  = 0.0F;
-				row_contents.error[i] = 0.0F;
+					row_contents.flux[i]  = 0.0F;
+					row_contents.error[i] = 0.0F;
 			    }
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
 	                        PrSwitch6 (sts, "fluxcorr", OMIT);
@@ -1455,13 +1454,13 @@ StisInfo6 *sts    i: calibration switches and info
                             }
 
 	                    /* This is an inefficient way to initialize the
-                               auxiliary phot structure. This is a temporary
-                               solution to the problem of PCT interpolation.
-                            */
+                           auxiliary phot structure. This is a temporary
+                           solution to the problem of PCT interpolation.
+                        */
 	                    if ((status = GetAbsPhot6 (sts, row_contents.sporder,
                                                &photc, 1, &warn))) {
 	                        FreePhot6 (&photc);
-			        return (status);
+			        		return (status);
 	                    }
 
 		            /* Get PCT info. A zeroed height means to get
