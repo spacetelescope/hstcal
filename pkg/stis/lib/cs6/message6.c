@@ -73,7 +73,7 @@ void Message6 (StisInfo6 *sts, int type) {
                                            sts->blazetab.descrip,
                                            sts->blazetab.descrip2);
                 } else {
-                    printf("BLAZETAB  None, using blaze coefficients from PHOTTAB\n");
+                    trlmessage("BLAZETAB  None, using blaze coefficients from PHOTTAB");
                 }
             }
 	        PrRefInfo ("apertab", sts->apertab.name,

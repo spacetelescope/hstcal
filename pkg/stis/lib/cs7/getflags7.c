@@ -280,13 +280,13 @@ int *nsteps     io: incremented if this step can be performed
 
             /* Blaze Table */
 	    if (sts->echelle) {
-                if ((status = GetCheckRef (sts->refnames, phdr,
+            if ((status = GetCheckRef (sts->refnames, phdr,
 		        "BLAZETAB", &sts->blazetab, &sts->fluxcorr)))
-		    return (status);
+				return (status);
 	        if (sts->blazetab.exists != EXISTS_YES) {
-		    printf("Warning: BLAZETAB not found or not specified\n");
-		    printf("Using blaze coefficients from PHOTTAB reference file\n");
-		}
+				trlwarn("BLAZETAB not found or not specified");
+		    	trlwarn("Using blaze coefficients from PHOTTAB reference file");
+			}
 	    }
 
 	    /* Relative aperture throughput table. */

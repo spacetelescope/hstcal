@@ -368,8 +368,7 @@ StisInfo6 *sts    i: calibration switches and info
         if (sts->detector == CCD_DETECTOR && sts->ctecorr == PERFORM &&
             (status = GetCCDTab6(sts, &cti))) {
             if (status == COLUMN_NOT_FOUND) {
-                printf(
-                "Warning  Column not found in CCDTAB. Skipping CTECORR\n");
+                trlwarn("Column not found in CCDTAB. Skipping CTECORR");
                 sts->ctecorr = OMIT;
             } else
                 return (status);

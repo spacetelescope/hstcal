@@ -11,12 +11,12 @@
 
 static int CheckX1D (Hdr *, StisInfo6 *, int *);
 static int CheckOptimal (Hdr *, StisInfo6 *);
-static int CheckBack ();
+static int CheckBack (Hdr *, StisInfo6 *);
 static int CheckDisp (Hdr *, StisInfo6 *, int *);
 static int CheckFlux (Hdr *, StisInfo6 *, int *);
-static int CheckHelio ();
+static int CheckHelio (Hdr *, StisInfo6 *);
 static int CheckSmGeo (Hdr *, StisInfo6 *, int *);
-static int CheckWave ();
+static int CheckWave (Hdr *, StisInfo6 *);
 
 /*
    Get calibration flag values and names of reference images and tables
@@ -75,13 +75,13 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
 
         /* Check remaining calibration switches and reference files. */
 
-        if ((status = CheckBack ()))
+        if ((status = CheckBack (phdr, sts)))
             return (status);
 
         if ((status = CheckDisp (phdr, sts, &missing)))
             return (status);
 
-        if ((status = CheckHelio ()))
+        if ((status = CheckHelio (phdr, sts)))
             return (status);
 
         if (sts->dispcorr != PERFORM && sts->heliocorr == PERFORM) {
@@ -103,7 +103,7 @@ int GetFlags6 (StisInfo6 *sts, Hdr *phdr) {
                 return (status);
         }
 
-        if ((status = CheckWave ()))             /* just check flag */
+        if ((status = CheckWave (phdr, sts)))             /* just check flag */
             return (status);
 
         if (missing)
@@ -216,7 +216,7 @@ int *missing    io: incremented if the file is missing
    steps share the same reference table.
 */
 
-static int CheckBack () {
+static int CheckBack (Hdr *phdr, StisInfo6 *sts) {
 
 /* arguments:
 Hdr *phdr       i: primary header
@@ -363,7 +363,7 @@ int *missing    io: incremented if the table is missing
    reference file.
 */
 
-static int CheckHelio () {
+static int CheckHelio (Hdr *phdr, StisInfo6 *sts) {
 
 /* arguments:
 Hdr *phdr       i: primary header
@@ -436,7 +436,7 @@ int *missing    io: incremented if the file is missing
 
 /* Check whether the wavecal has been used to update the coordinates. */
 
-static int CheckWave () {
+static int CheckWave (Hdr *phdr, StisInfo6 *sts) {
 
 /* arguments:
 Hdr *phdr       i: primary header

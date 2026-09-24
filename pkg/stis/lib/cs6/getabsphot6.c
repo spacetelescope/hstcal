@@ -429,8 +429,7 @@ static int OpenBlazeTab (StisInfo6 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 
             if (*warn) {
                 trlerror(
-"Warning  BLAZETAB does not contain blaze shift information.\n");
-
+                    "Warning  BLAZETAB does not contain blaze shift information.");
                 *warn = 0;
             }
 		}
@@ -442,7 +441,7 @@ static int OpenBlazeTab (StisInfo6 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	c_tbcfnd1 (tabinfo->tp, "SPORDER", &tabinfo->cp_sporder);
 	if (tabinfo->cp_cenwave == 0 || tabinfo->cp_sporder == 0) {
 	    trlerror(
-	    "ERROR    Column (CENWAVE or SPORDER) not found in PHOTTAB\n");
+	    "ERROR    Column (CENWAVE or SPORDER) not found in PHOTTAB");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -643,7 +642,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	}
 
     if (matched_index == -1) {
-		printf("Observation date is before all useafter dates in blaze table\n");
+		trlerror("Observation date is before all useafter dates in blaze table");
 		return (TABLE_ERROR);
 	}
 
@@ -653,16 +652,20 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     reford = (int *) malloc (ndates * sizeof(int));
 	nd = c_tbagti (tabinfo->tp, tabinfo->cp_mref, row,
 	                reford, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (reford);
 	    return (TABLE_ERROR);
+	}
 	phot->mref = reford[matched_index];
     free (reford);
 
     refwav = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_wref, row,
 	                refwav, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (refwav);
 	    return (TABLE_ERROR);
+	}
 
 	phot->wref = refwav[matched_index];
     free (refwav);
@@ -670,8 +673,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     refy = (float *) malloc (ndates * sizeof(float));
 	nd = c_tbagtr (tabinfo->tp, tabinfo->cp_yref, row,
 	                refy, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (refy);
 	    return (TABLE_ERROR);
+	}
 
 	phot->yref = refy[matched_index];
     free (refy);
@@ -679,8 +684,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     refmjd = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mjd, row,
 	                refmjd, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (refmjd);
 	    return (TABLE_ERROR);
+	}
 
 	phot->mjd = refmjd[matched_index];
     free (refmjd);
@@ -688,8 +695,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     bshift_vs_x = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mx, row,
 	                bshift_vs_x, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (bshift_vs_x);
 	    return (TABLE_ERROR);
+	}
 
 	phot->mx = bshift_vs_x[matched_index];
     free (bshift_vs_x);
@@ -697,8 +706,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     bshift_vs_y = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_my, row,
 	                bshift_vs_y, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (bshift_vs_y);
 	    return (TABLE_ERROR);
+	}
 
 	phot->my = bshift_vs_y[matched_index];
     free (bshift_vs_y);
@@ -706,8 +717,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     bshift_vs_t = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mt, row,
 	                bshift_vs_t, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (bshift_vs_t);
 	    return (TABLE_ERROR);
+	}
 
 	phot->mt = bshift_vs_t[matched_index];
     free (bshift_vs_t);
@@ -715,8 +728,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     bshift_offset = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_m0, row,
 	                bshift_offset, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+	    free (bshift_offset);
 	    return (TABLE_ERROR);
+	}
 
 	phot->m0 = bshift_offset[matched_index];
     free (bshift_offset);
@@ -728,8 +743,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	    phot->wref == 0.0 ||
 	    phot->yref == 0.0 ||
 	    phot->mjd  == 0.0) {
-	    printf (
-"Warning  Cenwave has dummy blaze shift information in PHOTTAB.\n");
+		trlwarn("Cenwave has dummy blaze shift information in PHOTTAB.");
 	    phot->blazecorr = OMIT;
 	} else {
 	    /* Reference data is 1-indexed ! */

@@ -246,12 +246,14 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	    /* Check each row for a match with keyword values, then read
 	       the arrays of blaze coefficients if there's a match.
+		   Row starts at 1 because underlying table code is iraf-centric and
+		   1-indexed
 	    */
 		
 	    for (row = 1;  row <= blazetabinfo.nrows;  row++) {
 
 	        if ((status = ReadBlazeTab (&blazetabinfo, row, &tabrow))) {
-			    printf("Something went wrong in ReadBlazeTab\n");
+			    trlerror("Something went wrong in ReadBlazeTab: %d", status);
 		        return (status);
 			}
 	        if (!SameInt (tabrow.cenwave, sts->cenwave) ||
@@ -265,13 +267,12 @@ int *warn	io: if set to zero, turn off blaze shift warning
 		        if ((status = RowPedigree (&sts->blazetab, row,
                             blazetabinfo.tp, blazetabinfo.cp_pedigree,
 							blazetabinfo.cp_descrip))) {
-					printf("Error getting pedigree and descrip from selected row\n");
+					trlerror("Error getting pedigree and descrip from selected row");
 		            return (status);
 				}
 
 		        if (sts->phottab.goodPedigree == DUMMY_PEDIGREE) {
 		            sts->x2dcorr_o = DUMMY;
-					printf("Dummy Pedigree\n");
 		            CloseBlazeTab (&blazetabinfo);
 		            return (0);
 		        }
@@ -288,12 +289,12 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	    if (!foundit) {
 	        if (print) {
-	            printf ("ERROR    Matching row not found in BLAZETAB %s\n",
+	            trlerror("Matching row not found in BLAZETAB %s",
 	                    sts->blazetab.name);
-	            printf ("ERROR    OPT_ELEM %s, CENWAVE %d, SPORDER %d\n",
+	            trlerror("for OPT_ELEM %s, CENWAVE %d, SPORDER %d",
 	                    sts->opt_elem, sts->cenwave, sporder);
-	        } else
-	            return (ROW_NOT_FOUND);
+	        }
+	        return (ROW_NOT_FOUND);
 	
 	    }
 	}
@@ -396,7 +397,7 @@ static int OpenBlazeTab (StisInfo7 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	tabinfo->tp = c_tbtopn (sts->blazetab.name, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
-	    printf ("ERROR    BLAZETAB `%s' not found\n", sts->blazetab.name);
+	    trlerror("BLAZETAB `%s' not found\n", sts->blazetab.name);
 	    return (OPEN_FAILED);
 	}
 
@@ -407,7 +408,7 @@ static int OpenBlazeTab (StisInfo7 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	c_tbcfnd1 (tabinfo->tp, "NDATES",      &tabinfo->cp_ndates);
 	if (tabinfo->cp_opt_elem == 0 ||
 	    tabinfo->cp_ndates    == 0) {
-	    printf ("ERROR    Column OPT_ELEM or NDATES not found in BLAZETAB\n");
+	    trlerror("Column OPT_ELEM or NDATES not found in BLAZETAB");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -439,8 +440,7 @@ static int OpenBlazeTab (StisInfo7 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
             phot->blazecorr = OMIT;
 
             if (*warn) {
-                printf (
-"Warning  BLAZETAB does not contain blaze shift information.\n");
+                trlwarn("BLAZETAB does not contain blaze shift information.");
 
                 *warn = 0;
             }
@@ -452,8 +452,8 @@ static int OpenBlazeTab (StisInfo7 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	c_tbcfnd1 (tabinfo->tp, "CENWAVE", &tabinfo->cp_cenwave);
 	c_tbcfnd1 (tabinfo->tp, "SPORDER", &tabinfo->cp_sporder);
 	if (tabinfo->cp_cenwave == 0 || tabinfo->cp_sporder == 0) {
-	    printf (
-	    "ERROR    Column (CENWAVE or SPORDER) not found in PHOTTAB\n");
+	    trlerror(
+	    "Column (CENWAVE or SPORDER) not found in PHOTTAB");
 	    c_tbtclo (tabinfo->tp);
 	    return (COLUMN_NOT_FOUND);
 	}
@@ -637,7 +637,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	}
 
 	if (matched_index == -1) {
-		printf("Observation date is before all useafter dates in blaze table\n");
+		trlerror("Observation date is before all useafter dates in blaze table");
 		return (TABLE_ERROR);
 	}
 
@@ -721,8 +721,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	    phot->wref == 0.0 ||
 	    phot->yref == 0.0 ||
 	    phot->mjd  == 0.0) {
-	    printf (
-"Warning  Cenwave has dummy blaze shift information in PHOTTAB.\n");
+	    trlwarn("Cenwave has dummy blaze shift information in PHOTTAB.");
 	    phot->blazecorr = OMIT;
 	} else {
 	    /* Reference data is 1-indexed ! */

@@ -322,8 +322,7 @@ StisInfo7 *sts    i: calibration switches and info
 
 	    if (sts->obstype == SPECTROSCOPIC_TYPE && !sts->wavecal &&
 		sts->wavecorr != COMPLETE && extver == 1)
-		printf
-		("Warning  Wavecal processing has not been performed.\n");
+			trlmessage("Warning  Wavecal processing has not been performed.");
 
 	    /* Get heliocentric correction factor. */
 	    if (sts->heliocorr == PERFORM && !sts->wavecal) {
@@ -773,7 +772,7 @@ trlmessage("");
 			        sts->blazetab.pedigree,
 			        sts->blazetab.descrip, sts->blazetab.descrip2);
 	        } else {
-		    printf("BLAZETAB  None, using blaze coefficients from PHOTTAB\n");
+		    trlmessage("BLAZETAB  None, using blaze coefficients from PHOTTAB");
 	        }
 	    }
 
