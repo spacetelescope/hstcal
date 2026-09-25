@@ -22,6 +22,6 @@ class TestNUVMAMAImage(BaseSTIS):
         subprocess.call(['cs0.e', raw_file, '-v'])
 
         # Compare results
-        outputs = [('odnv02ahq_flt.fits', 'odnv02ahq_flt.fits'),
-                   ('odnv02ahq_x2d.fits', 'odnv02ahq_x2d.fits')]
+        outputs = [('odnv02ahq_flt.fits', 'ref_odnv02ahq_flt.fits'),
+                   ('odnv02ahq_x2d.fits', 'ref_odnv02ahq_x2d.fits')]
         self.compare_outputs(outputs)

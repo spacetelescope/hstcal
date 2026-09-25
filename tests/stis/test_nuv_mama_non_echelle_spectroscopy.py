@@ -22,6 +22,6 @@ class TestNUVMAMANonEchelleSpectroscopy(BaseSTIS):
         subprocess.call(['cs0.e', raw_file, '-v'])
 
         # Compare results
-        outputs = [('obq002030_flt.fits', 'obq002030_flt.fits'),
-                   ('obq002030_x1d.fits', 'obq002030_x1d.fits')]
+        outputs = [('obq002030_flt.fits', 'ref_obq002030_flt.fits'),
+                   ('obq002030_x1d.fits', 'ref_obq002030_x1d.fits')]
         self.compare_outputs(outputs)

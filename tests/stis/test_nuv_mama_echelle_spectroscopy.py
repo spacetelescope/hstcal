@@ -22,7 +22,7 @@ class TestNUVMAMAEchelleSpectroscopy(BaseSTIS):
         subprocess.call(['cs0.e', raw_file, '-v'])
 
         # Compare results
-        outputs = [('o61l01030_flt.fits', 'o61l01030_flt.fits'),
-                   ('o61l01030_sfl.fits', 'o61l01030_sfl.fits'),
-                   ('o61l01030_x1d.fits', 'o61l01030_x1d.fits')]
+        outputs = [('o61l01030_flt.fits', 'ref_o61l01030_flt.fits'),
+                   ('o61l01030_sfl.fits', 'ref_o61l01030_sfl.fits'),
+                   ('o61l01030_x1d.fits', 'ref_o61l01030_x1d.fits')]
         self.compare_outputs(outputs)

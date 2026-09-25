@@ -310,9 +310,12 @@ int *missing    io: incremented if the table is missing
                                        &sts->fluxcorr, missing, FATAL)))
                 return (status);
 
-            /* Blaze shift correction table. */
+            /* Blaze shift correction table.  We can silently move on if the
+               table is missing.
+            */
+            l_missing = 0;
             if ((status = GetCheckRef (phdr, "BLAZETAB", &sts->blazetab,
-                                       &sts->fluxcorr, missing, NO_FATAL)))
+                                       &sts->fluxcorr, &l_missing, NO_FATAL)))
                 return (status);
 
             /* Relative aperture throughput table. */
