@@ -246,7 +246,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	    /* Check each row for a match with keyword values, then read
 	       the arrays of blaze coefficients if there's a match.
-		   Row starts at 1 because underlying table code is iraf-centric and
+		   Row starts at 1 because underlying table code is IRAF-centric and
 		   1-indexed
 	    */
 		
@@ -267,7 +267,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 		        if ((status = RowPedigree (&sts->blazetab, row,
                             blazetabinfo.tp, blazetabinfo.cp_pedigree,
 							blazetabinfo.cp_descrip))) {
-					trlerror("Error getting pedigree and descrip from selected row");
+					trlerror("Error getting pedigree and descrip from row %d", row);
 		            return (status);
 				}
 
@@ -397,7 +397,7 @@ static int OpenBlazeTab (StisInfo7 *sts, BlazeTblInfo *tabinfo, PhotInfo *phot,
 	tabinfo->tp = c_tbtopn (sts->blazetab.name, IRAF_READ_ONLY, 0);
 
 	if (c_iraferr()) {
-	    trlerror("BLAZETAB `%s' not found\n", sts->blazetab.name);
+	    trlerror("BLAZETAB '%s' not found", sts->blazetab.name);
 	    return (OPEN_FAILED);
 	}
 
@@ -647,16 +647,20 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	reford = (int *) malloc (ndates * sizeof(int));
 	nd = c_tbagti (tabinfo->tp, tabinfo->cp_mref, row,
 	                reford, 1, ndates);
-	if (c_iraferr())
-	    return (TABLE_ERROR);
+	if (c_iraferr()) {
+		free (reford);
+		return (TABLE_ERROR);
+	}
 	phot->mref = reford[matched_index];
 	free (reford);
 
 	refwav = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_wref, row,
 	                refwav, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+		free (refwav);
 	    return (TABLE_ERROR);
+	}
 
 	phot->wref = refwav[matched_index];
 	free (refwav);
@@ -664,8 +668,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	refy = (float *) malloc (ndates * sizeof(float));
 	nd = c_tbagtr (tabinfo->tp, tabinfo->cp_yref, row,
 	                refy, 1, ndates);
-	if (c_iraferr())
-	    return (TABLE_ERROR);
+	if (c_iraferr()) {
+		free (refy);
+		return (TABLE_ERROR);
+	}
 
 	phot->yref = refy[matched_index];
 	free (refy);
@@ -673,17 +679,20 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	refmjd = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mjd, row,
 	                refmjd, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+		free (refmjd);
 	    return (TABLE_ERROR);
-
+	}
 	phot->mjd = refmjd[matched_index];
 	free (refmjd);
 
 	bshift_vs_x = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mx, row,
 	                bshift_vs_x, 1, ndates);
-	if (c_iraferr())
-	    return (TABLE_ERROR);
+	if (c_iraferr()) {
+		free (bshift_vs_x);
+		return (TABLE_ERROR);
+	}
 
 	phot->mx = bshift_vs_x[matched_index];
 	free (bshift_vs_x);
@@ -691,17 +700,20 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	bshift_vs_y = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_my, row,
 	                bshift_vs_y, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+		free (bshift_vs_y);
 	    return (TABLE_ERROR);
-
+	}
 	phot->my = bshift_vs_y[matched_index];
 	free (bshift_vs_y);
 
 	bshift_vs_t = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mt, row,
 	                bshift_vs_t, 1, ndates);
-	if (c_iraferr())
-	    return (TABLE_ERROR);
+	if (c_iraferr()) {
+		free (bshift_vs_t);
+		return (TABLE_ERROR);
+	}
 
 	phot->mt = bshift_vs_t[matched_index];
 	free (bshift_vs_t);
@@ -709,8 +721,10 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	bshift_offset = (double *) malloc (ndates * sizeof(double));
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_m0, row,
 	                bshift_offset, 1, ndates);
-	if (c_iraferr())
+	if (c_iraferr()) {
+		free (bshift_offset);
 	    return (TABLE_ERROR);
+	}
 
 	phot->m0 = bshift_offset[matched_index];
 	free (bshift_offset);

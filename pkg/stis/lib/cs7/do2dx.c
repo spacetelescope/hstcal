@@ -322,7 +322,7 @@ StisInfo7 *sts    i: calibration switches and info
 
 	    if (sts->obstype == SPECTROSCOPIC_TYPE && !sts->wavecal &&
 		sts->wavecorr != COMPLETE && extver == 1)
-			trlmessage("Warning  Wavecal processing has not been performed.");
+			trlwarn("Wavecal processing has not been performed.");
 
 	    /* Get heliocentric correction factor. */
 	    if (sts->heliocorr == PERFORM && !sts->wavecal) {
