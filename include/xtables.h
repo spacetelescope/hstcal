@@ -2,6 +2,7 @@
 #define INCL_XTABLES_H
 
 # include <c_iraf.h>
+#include <stddef.h>
 
 /* These constants do NOT include space for the NULL character */
 # define SZ_KEYWORD 8
@@ -54,7 +55,7 @@
 IRAFPointer c_imtopen (char *pattern);
 int c_imtlen (IRAFPointer imt);
 void c_imtrew (IRAFPointer imt);
-int c_imtgetim (IRAFPointer imt, char *outstr, int maxch);
+int c_imtgetim (IRAFPointer imt, char *outstr, size_t maxch);
 void c_imtclose (IRAFPointer imt);
 
 IRAFPointer c_tbtopn (char *tablename, int iomode, IRAFPointer template);
@@ -63,7 +64,7 @@ void c_tbtclo (IRAFPointer tp);
 void c_tbtClose (IRAFPointer * tp);
 
 int c_tbtacc (char *tablename);
-void c_tbtnam (IRAFPointer tp, char *tablename, int maxch);
+void c_tbtnam (IRAFPointer tp, char *tablename, size_t maxch);
 void c_tbfpri (char *intable, char *outtable, int *copied);
 int c_tbparse (char *tablename, char *fname, char *extname, int maxch,
                 int *hdu);
@@ -148,6 +149,6 @@ void c_tbapti (IRAFPointer tp, IRAFPointer cp, int row, int *buffer,
 void c_tbapts (IRAFPointer tp, IRAFPointer cp, int row, short *buffer,
                 int first, int nelem);
 void c_tbaptt (IRAFPointer tp, IRAFPointer cp, int row, char **cbuf,
-                int maxch, int first, int nelem);
+                int first, int nelem);
 
 #endif /* INCL_XTABLES_H */

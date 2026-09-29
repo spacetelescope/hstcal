@@ -159,7 +159,7 @@ int buffer              i: value to write to table
         col_descr = (ColumnDescr *)cp;
 
         if (col_descr->datatype < 0) {
-            if (buffer == IRAF_INDEFI) {
+            if (buffer == (int) IRAF_INDEFI) {
                 c_tbeptt (tp, cp, row, "INDEF");
             } else {
                 char cbuf[SZ_FITS_STR+1];
@@ -167,7 +167,7 @@ int buffer              i: value to write to table
                 c_tbeptt (tp, cp, row, cbuf);
             }
 
-        } else if (buffer == IRAF_INDEFI) {
+        } else if (buffer == (int) IRAF_INDEFI) {
             fits_write_col_null (tbl_descr->fptr, col_descr->colnum,
                         (long)row, firstelem, nelem, &status);
         } else {

@@ -9,7 +9,6 @@
 # include "acsinfo.h"
 # include "hstcalerr.h"
 
-# define NPHOT      4		/* size of phot returned by c_phopar */
 # define ARR_SIZE    10000    /* size of arrays used for throughputs */
 
 
