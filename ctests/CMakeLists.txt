@@ -31,3 +31,13 @@ add_test(NAME test_hstio
 target_link_libraries(test_hstio
     PUBLIC hstio
 )
+
+add_executable(test_pointer_registry
+        test_pointer_registry.c
+)
+add_test(NAME test_pointer_registry
+        COMMAND $<TARGET_FILE:test_pointer_registry>
+)
+target_link_libraries(test_pointer_registry
+        PUBLIC hstcalib
+)
