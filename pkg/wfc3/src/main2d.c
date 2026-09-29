@@ -9,7 +9,6 @@ extern int status;
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
-# include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 # include "hstio.h"
 
@@ -47,8 +46,8 @@ char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 	Remove use of "statcorr" switch - statistics always computed by
 	default (in accordance with CALACS changes).
   M Sosey, 2012 December 27:
-      Updated to account for a memory leak on linux machines during BuildDth 
-      when RPTCORR is off and a new spt is being constructed (#967)       
+      Updated to account for a memory leak on linux machines during BuildDth
+      when RPTCORR is off and a new spt is being constructed (#967)
 */
 
 int main (int argc, char **argv) {
@@ -61,7 +60,7 @@ int main (int argc, char **argv) {
 	int quiet = NO;		/* suppress STDOUT messages? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */
-    
+
 	IRAFPointer i_imt, o_imt;	/* imt list pointers */
 	char *input;		/* name of input science file */
 	char *output;		/* optional name of output file */
@@ -92,9 +91,6 @@ int main (int argc, char **argv) {
 /*===========================================================================*/
     status = 0;
 
-	/* Initialize IRAF interface environment */
-	c_irafinit (argc, argv);
-	
 	/* Post HSTIO error handler */
 	push_hstioerr (errchk);
 
@@ -115,7 +111,7 @@ int main (int argc, char **argv) {
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
-        
+
 	/* Initialize the lists of reference file keywords and names. */
 	InitRefFile (&refnames);
 	addPtr(&ptrReg, &refnames, &FreeRefFile);
@@ -188,7 +184,7 @@ int main (int argc, char **argv) {
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
 	}
-	
+
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf ();
 	addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
@@ -217,7 +213,7 @@ int main (int argc, char **argv) {
 	/* The number of input and output files must be the same. */
 	if (CompareNumbers (n_in, n_out, "output"))
 	    status = 1;
-		
+
 	if (status) {
 	    freeOnExit(&ptrReg);
 	    exit (ERROR_RETURN);
@@ -237,7 +233,7 @@ int main (int argc, char **argv) {
 		trlmessage("Skipping %s", input);
 		continue;
 	    }
-										
+
 	    /* Calibrate the current input file. */
 	    if (WF32d(input, output, &wf32d_sw, &refnames, printtime, verbose)){
 		trlerror("Error processing %s.", input);

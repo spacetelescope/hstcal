@@ -6,8 +6,6 @@
 
 extern int status;			/* zero is OK */
 
-# include <c_iraf.h>		/* for c_irafinit */
-
 #include "hstcal_memory.h"
 #include "hstcal.h"
 # include "acs.h"
@@ -52,7 +50,6 @@ int main (int argc, char **argv) {
 	void WhichError (int);
 
     status = 0;
-	c_irafinit (argc, argv);
 
 	PtrRegister ptrReg;
 	initPtrRegister(&ptrReg);
