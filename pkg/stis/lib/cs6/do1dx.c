@@ -209,7 +209,7 @@ StisInfo6 *sts    i: calibration switches and info
 	double n_blazeshift;	/* number of blaze shift values in the sum */
 	double d1, d2, radvel;
 	double hold;
-	int dum, warn;
+	int warn;
 	char str[50];		/* temporary string area */
 
 	int AbsFlux6 (StisInfo6 *, RowContents *, PhotInfo *,
@@ -368,8 +368,7 @@ StisInfo6 *sts    i: calibration switches and info
         if (sts->detector == CCD_DETECTOR && sts->ctecorr == PERFORM &&
             (status = GetCCDTab6(sts, &cti))) {
             if (status == COLUMN_NOT_FOUND) {
-                printf(
-                "Warning  Column not found in CCDTAB. Skipping CTECORR\n");
+                trlwarn("Column not found in CCDTAB. Skipping CTECORR");
                 sts->ctecorr = OMIT;
             } else
                 return (status);
@@ -778,7 +777,7 @@ StisInfo6 *sts    i: calibration switches and info
 		if ((status = ReturnXtract (&extract, minorder, &extract_a)))
 		    return (status);
 	        if ((status = SelectAlg (sts, extract_a))) {
-	            if ((status == CAL_FILE_MISSING)) {
+	            if (status == CAL_FILE_MISSING) {
 	                status = 0;
 	                trlwarn("Skipping order.");
 	                FreeXtract (&extract_a);
@@ -1408,8 +1407,7 @@ StisInfo6 *sts    i: calibration switches and info
 	            if (sts->fluxcorr == PERFORM && !sts->do_profile) {
 
 	                /* Print reference file info. */
-	                if (sts->verbose == 1 || sts->verbose == 2)
-	                    Message6 (sts, FLUX_INFO);
+                    Message6 (sts, FLUX_INFO);
 
 	                if ((status = GetAbsPhot6 (sts,
                                 row_contents.sporder, &phot, 1, &warn))) {
@@ -1435,8 +1433,8 @@ StisInfo6 *sts    i: calibration switches and info
 	                if (sts->x1d_o == DUMMY) {
 	                    warnDummy ("PHOTTAB", row_contents.sporder, 0);
 			    for (i = 0; i < row_contents.npts; i++) {
-				row_contents.flux[i]  = 0.0F;
-				row_contents.error[i] = 0.0F;
+					row_contents.flux[i]  = 0.0F;
+					row_contents.error[i] = 0.0F;
 			    }
 	                    if (sts->verbose == 1 || sts->verbose == 2) {
 	                        PrSwitch6 (sts, "fluxcorr", OMIT);
@@ -1455,11 +1453,14 @@ StisInfo6 *sts    i: calibration switches and info
                             }
 
 	                    /* This is an inefficient way to initialize the
-                               auxiliary phot structure. This is a temporary
-                               solution to the problem of PCT interpolation.
-                            */
-	                    dum = GetAbsPhot6 (sts, row_contents.sporder,
-                                               &photc, 1, &warn);
+                           auxiliary phot structure. This is a temporary
+                           solution to the problem of PCT interpolation.
+                        */
+	                    if ((status = GetAbsPhot6 (sts, row_contents.sporder,
+                                               &photc, 1, &warn))) {
+	                        FreePhot6 (&photc);
+			        		return (status);
+	                    }
 
 		            /* Get PCT info. A zeroed height means to get
                                the photometry correction for the maximum

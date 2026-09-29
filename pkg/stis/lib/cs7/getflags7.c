@@ -278,6 +278,17 @@ int *nsteps     io: incremented if this step can be performed
 	    if (sts->phottab.exists != EXISTS_YES)
 		MissingFile ("PHOTTAB", sts->phottab.name, missing);
 
+            /* Blaze Table */
+	    if (sts->echelle) {
+            if ((status = GetCheckRef (sts->refnames, phdr,
+		        "BLAZETAB", &sts->blazetab, &sts->fluxcorr)))
+				return (status);
+	        if (sts->blazetab.exists != EXISTS_YES) {
+				trlwarn("BLAZETAB not found or not specified");
+		    	trlwarn("Using blaze coefficients from PHOTTAB reference file");
+			}
+	    }
+
 	    /* Relative aperture throughput table. */
 	    if ((status = GetCheckRef (sts->refnames, phdr,
                     "APERTAB", &sts->apertab, &sts->fluxcorr)))

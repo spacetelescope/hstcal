@@ -1,3 +1,11 @@
+### 16-Sep-2026 - CALSTIS Version 3.6.0:
+    - Implement time-dependent blaze correction.  This separates out the blaze
+      corrections from the PHOTTAB reference file to their own BLAZETAB reference
+      file.  The blaze correction table has a USEAFTER selector, allowing
+      control of blaze parameters independent of photometric correction parameters.
+      If no BLAZETAB is specified, defaults to getting blaze correction parameters from
+      PHOTTAB, if available.
+
 ### 28-Apr-2026 - CALSTIS Version 3.5.0:
     - Implement improved wavecal calibration for CCD data taken at the E1 or E2 aperture locations.  
       The part of the long slit wavecal spectrum that matches the location of the source is used to 
