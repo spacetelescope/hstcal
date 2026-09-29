@@ -2,6 +2,7 @@
 #define INCL_XTABLES_H
 
 # include <c_iraf.h>
+#include <stddef.h>
 
 /* These constants do NOT include space for the NULL character */
 # define SZ_KEYWORD 8
