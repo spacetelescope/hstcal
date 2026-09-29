@@ -64,7 +64,7 @@ enum {
         (void) argv; \
         const char *TEST_LOCAL_SUITE_NAME = NAME; \
         int TEST_LOCAL_STATS[TEST_STATS_ARRAY_MAX] = {0}; \
-        TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE " SUITE", "%s%s...%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
+        TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "SUITE", " %s%s...%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
             TEST_LOCAL_SUITE_NAME, TEST_TERM_COLOR_RESET);
 
 #define TEST_SUITE_RETURN \
@@ -123,7 +123,7 @@ enum {
         int TEST_LOCAL_ERROR_COUNT = 0; \
         struct TestRedirect TEST_LOCAL_REDIRECT = {0}; \
         printf(TEST_TERM_COLOR_BRIGHT_BLUE "  UNIT" TEST_TERM_COLOR_RESET TEST_TERM_COLOR_BRIGHT_WHITE \
-                                           " %s..." TEST_TERM_COLOR_RESET, \
+            " %s... " TEST_TERM_COLOR_RESET, \
             __func__); \
         TEST_REDIRECT_OUTPUT(&TEST_LOCAL_REDIRECT);
 
@@ -149,12 +149,12 @@ enum {
     } while (0);
 
 #define TEST_RETURN \
-    TEST_REDIRECT_OUTPUT_RESTORE(&TEST_LOCAL_REDIRECT); \
-    printf(TEST_TERM_COLOR_RESET " %s\n" TEST_TERM_COLOR_RESET, \
-        TEST_LOCAL_ERROR_COUNT ? TEST_TERM_COLOR_RED "FAILED" TEST_TERM_COLOR_RESET \
-                               : TEST_TERM_COLOR_GREEN "PASSED" TEST_TERM_COLOR_RESET); \
-    TEST_REDIRECT_OUTPUT_DUMP(&TEST_LOCAL_REDIRECT); \
-    return (TEST_LOCAL_ERROR_COUNT) ? TEST_T_FAIL : TEST_T_PASS; \
+        do { \
+            if (TEST_LOCAL_ERROR_COUNT != 0) { \
+                return TEST_THROW(TEST_T_FAIL); \
+            } \
+            return TEST_THROW(TEST_T_PASS); \
+        } while (0); \
     }
 
 #define TEST_MARK(DESC) \
@@ -165,11 +165,11 @@ enum {
 #define TEST_ASSERT(COND, REASON, ...) \
     do { \
         if (!(COND)) { \
-            TEST_MSG(stderr, TEST_TERM_COLOR_RED, TEST_TERM_COLOR_BRIGHT_RED "ASSERTION FAILED", \
-                TEST_TERM_COLOR_MAGENTA #COND TEST_TERM_COLOR_RESET TEST_TERM_COLOR_RED \
+            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_RED "ASSERTION FAILED", "", \
+                TEST_TERM_COLOR_MAGENTA " " #COND TEST_TERM_COLOR_RESET TEST_TERM_COLOR_RED \
                 " BECAUSE " TEST_TERM_COLOR_RESET REASON, \
-                __VA_ARGS__); \
-            TEST_FAILED; \
+                ##__VA_ARGS__); \
+            TEST_FAILED \
         } \
     } while (0)
 
@@ -301,29 +301,96 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
     return 0;
 }
 
-static inline int TEST_MSG(FILE *stream, const char *color, const char *prefix, const char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
+#define TEST_THROW(ACTION) TEST_THROW_(ACTION, &TEST_LOCAL_REDIRECT)
+
+static inline int TEST_THROW_(const int action, struct TestRedirect *r) {
+    const char *color = NULL;
+    const char *action_msg = NULL;
+    switch (action) {
+        case TEST_T_PASS:
+            action_msg = "PASSED";
+            color = TEST_TERM_COLOR_GREEN;
+            break;
+        case TEST_T_FAIL:
+            action_msg = "FAILED";
+            color = TEST_TERM_COLOR_RED;
+            break;
+        case TEST_T_SKIP:
+            action_msg = "SKIPPED";
+            color = TEST_TERM_COLOR_YELLOW;
+            break;
+        case TEST_T_ERROR:
+            action_msg = "ERROR";
+            color = TEST_TERM_COLOR_BOLD TEST_TERM_COLOR_RED;
+            break;
+        default:
+            action_msg = "UNHANDLED ACTION";
+            color = TEST_TERM_COLOR_RED;
+            break;
+    }
+    TEST_REDIRECT_OUTPUT_RESTORE(r);
+    printf("%s%s\n" TEST_TERM_COLOR_RESET, color, action_msg);
+    TEST_REDIRECT_OUTPUT_DUMP(r);
+    return action;
+}
+
+static inline int TEST_VMSG(FILE *stream, const char *color, const char *prefix, const char *fmt, va_list ap) {
+    va_list ap_copy;
+    va_copy(ap_copy, ap);
     char *output = NULL;
     int len = 0;
-    if ((len = vasprintf(&output, fmt, ap)) < 0) {
+    if ((len = vasprintf(&output, fmt, ap_copy)) < 0) {
         fprintf(stream, "%s format encoding error\n", __func__);
         return -1;
     }
-    va_end(ap);
+    va_end(ap_copy);
 
     char *tokens = output;
     char *token = NULL;
     while ((token = strsep(&tokens, "\n")) != NULL) {
         if (strlen(token)) {
-            fprintf(stream, TEST_TERM_COLOR_BRIGHT_WHITE "%s" TEST_TERM_COLOR_RESET " %s%s\n" TEST_TERM_COLOR_RESET,
-                prefix, color ? color : "", token);
+            fprintf(stream, TEST_TERM_COLOR_BRIGHT_WHITE "%s" TEST_TERM_COLOR_RESET "%s%s%s\n" TEST_TERM_COLOR_RESET,
+                prefix && strlen(prefix) ? " " : "",
+                prefix && strlen(prefix) ? prefix : "",
+                color ? color : "", token);
             fprintf(stream, TEST_TERM_COLOR_RESET);
         }
     }
     free(output);
     return len;
 }
+
+static inline int TEST_MSG(FILE *stream, const char *color, const char *prefix, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    const int len = TEST_VMSG(stream, color, prefix, fmt, ap);
+    va_end(ap);
+    return len;
+}
+
+#define TEST_THROW_ERROR(MESSAGE, ...) \
+    do { \
+        if (MESSAGE && strlen(MESSAGE)) { \
+            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "EXCEPTION " TEST_TERM_COLOR_BOLD TEST_TERM_COLOR_BRIGHT_RED, "", MESSAGE, ##__VA_ARGS__); \
+        } \
+        return TEST_THROW(TEST_T_ERROR); \
+    } while (0)
+
+#define TEST_THROW_FAIL(MESSAGE, ...) \
+    do { \
+        if (MESSAGE && strlen(MESSAGE)) { \
+            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "EXCEPTION " TEST_TERM_COLOR_RED, "", MESSAGE, ##__VA_ARGS__); \
+        } \
+        return TEST_THROW(TEST_T_FAIL); \
+    } while (0)
+
+#define TEST_THROW_SKIP(MESSAGE, ...) \
+    do { \
+        if (MESSAGE && strlen(MESSAGE)) { \
+            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "REASON " TEST_TERM_COLOR_YELLOW, "", MESSAGE, ##__VA_ARGS__); \
+        } \
+        return TEST_THROW(TEST_T_SKIP); \
+    } while (0)
 
 #define TEST_STATS_UPDATE(RES) \
     do { \
