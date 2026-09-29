@@ -2,12 +2,10 @@
 #include <string.h>
 #include "hstio.h"
 #include "hstcal.h"
-#include "c_iraf.h"
 #include "imphttab.h"
 
 /* Function to implement a self-test of this library */
 int main(int argc, char **argv) {
-    void c_irafinit(int, char **);
     void compute_values(char[], char[], double, float, float, FILE *);
     char *outfile;
     FILE *fp;
@@ -16,10 +14,6 @@ int main(int argc, char **argv) {
     fp = fopen(outfile, "w");
 
     fprintf(fp, "==== Starting self-test for getphttab.c ====\n");
-
-    /* Initialize IRAF environment */
-    c_irafinit(argc, argv);
-    fprintf(fp, "==> Initialized IRAF environment for getphttab.\n");
 
     compute_values("acs,wfc1,fr853n#8344.75,mjd#54718",
                    "Half-way points for both pars.", 1.2695867062843802e-18,

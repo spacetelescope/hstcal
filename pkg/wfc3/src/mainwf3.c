@@ -44,7 +44,6 @@ int main (int argc, char **argv) {
     int i, j;		/* loop indexes */
 
 	/* Function definitions */
-	void c_irafinit (int, char **);
 	int  CalWf3Run  (char *, int, int, int, int, int);
 	void WhichError (int);
 
@@ -54,11 +53,10 @@ int main (int argc, char **argv) {
 	input[0]   = '\0';
 
 	/* Initialize IRAF environment */
-	c_irafinit(argc, argv);
 	PtrRegister ptrReg;
 	initPtrRegister(&ptrReg);
 
-	/* Command line arguments: 
+	/* Command line arguments:
 	 **	0. Check for --version option
 	 **	1. input file name
 	 **	2. print time?
@@ -133,12 +131,12 @@ int main (int argc, char **argv) {
 	if (CalWf3Run (input, printtime, save_tmp, verbose, debug, onecpu)) {
 
 		if (status == NOTHING_TO_DO) {
-			/* If there is just nothing to do, 
+			/* If there is just nothing to do,
 			 ** as for ACQ images, just quit. */
 			status = 0;
 			trlmessage("CALWF3 did NOT process %s", input);
 			freeOnExit(&ptrReg);
-			exit(0); 
+			exit(0);
 		} else {
 			/* Error during processing */
 			trlerror("CALWF3 processing NOT completed for %s", input);
@@ -157,4 +155,3 @@ int main (int argc, char **argv) {
 	/* Exit the program */
 	exit (0);
 }
-

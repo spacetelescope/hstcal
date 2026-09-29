@@ -10,7 +10,6 @@
 
 extern int status;			/* zero is OK */
 
-# include <c_iraf.h>		/* for c_irafinit */
 #include "hstcal_memory.h"
 #include "hstcal.h"
 # include "ximio.h"
@@ -105,8 +104,6 @@ int doMainCTE (int argc, char **argv) {
     char program_buf[PATH_MAX];
 
     status = 0;
-
-    c_irafinit (argc, argv);
 
     PtrRegister ptrReg;
     initPtrRegister(&ptrReg);

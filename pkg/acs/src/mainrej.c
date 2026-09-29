@@ -4,8 +4,6 @@
 # include <stdlib.h>        /* calloc */
 # include <string.h>
 
-# include <c_iraf.h>        /* for c_irafinit */
-
 #include "hstcal_memory.h"
 #include "hstcal.h"
 # include "acs.h"
@@ -28,8 +26,6 @@ int main (int argc, char **argv) {
     void WhichError (int);
 
     status = 0;
-
-    c_irafinit (argc, argv);
 
     /* Initialize mtype to NULL to signal no change in ASN_MTYP for output*/
     mtype[0] = '\0';

@@ -5,7 +5,6 @@
 # include <string.h>
 
 #include "hstcal_memory.h"
-# include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 
 # include "stis.h"
@@ -74,8 +73,6 @@ int main (int argc, char **argv) {
 
 	/* reference file keywords and names */
 	RefFileInfo refnames;
-
-	c_irafinit (argc, argv);
 
 	PtrRegister ptrReg;
 	initPtrRegister(&ptrReg);

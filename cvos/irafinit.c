@@ -6,10 +6,6 @@
 # include <string.h>
 # include <c_iraf.h>
 
-void c_irafinit (int argc, char **argv) {
-        ;
-}
-
 /* Convert a virtual filename (path) to an OS-specific filename
 
 This handles both the IRAF and UNIX forms of variable substitution:
