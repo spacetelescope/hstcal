@@ -5,7 +5,7 @@
 #include "imphttab.h"
 
 /* Function to implement a self-test of this library */
-int main(int argc, char **argv) {
+int main() {
     void compute_values(char[], char[], double, float, float, FILE *);
     char *outfile;
     FILE *fp;
