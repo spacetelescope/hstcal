@@ -73,7 +73,7 @@ enum {
         return 1; \
     } \
     return 0; \
-    }
+    } // DO NOT REMOVE THIS BRACE
 
 #define TEST_SUITE_RUN(TESTFUNC_ARRAY) \
     TEST_DISABLE_BUFFERING(); \
