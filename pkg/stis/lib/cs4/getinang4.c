@@ -210,6 +210,8 @@ static int ReadIACArray (TblInfo *tabinfo, int row, InangInfo *iac) {
 			iac->coeff1, 1, iac->ncoeff1);
 	    if (c_iraferr())
 		return (TABLE_ERROR);
+	} else {
+	    iac->coeff1 = NULL;
 	}
 	if (ncoeff2 > 0) {
 	    if ((iac->coeff2 = malloc (iac->ncoeff2 * sizeof(double))) == NULL)
@@ -218,6 +220,8 @@ static int ReadIACArray (TblInfo *tabinfo, int row, InangInfo *iac) {
 			iac->coeff2, 1, iac->ncoeff2);
 	    if (c_iraferr())
 		return (TABLE_ERROR);
+	} else {
+	    iac->coeff2 = NULL;
 	}
 	iac->allocated = 1;
 

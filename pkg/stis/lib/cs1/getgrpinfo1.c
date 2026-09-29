@@ -243,7 +243,9 @@ Hdr *hdr         i: header of current extension
                                        expname, 80)))
 		    return (status);
 		if (sts->crcorr != COMPLETE) {
-		    strncpy(epcname, expname, 8); epcname[8] = '\0';
+		    for (size_t i=0; i<8; i++)
+		        epcname[i] = expname[i];
+		    epcname[8] = '\0';
 		    sprintf(sts->epctab.name, "%sj_epc.fits", epcname);
 		    PrFileName("epcfile", sts->epctab.name);
 		    status = GetEPCTab(sts, 0.40);

@@ -18,7 +18,7 @@ static int AddGhost (Hdr *, float **, int, int);
 static void BuildTempNames (char *, char *, char *, char *);
 static int CheckIDT (Hdr *, StisInfo6 *, int *);
 static void FillArray (float **, float **, float **, int, int,
-                       double, double, double, double, double *, int);
+                       double, double, double, double, double *);
 static int GetMatchingOrder (int, ScatterFunctions *);
 static int GetScatterOrder (int, ScatterFunctions *);
 static double Interpolate (double, int, double *, double *, int, int *);
@@ -67,12 +67,12 @@ int CalStis6IDT (char *input, char *output, Hdr *phdr, int backcorr,
                  double cl_a2center, int maxsearch, double extrsize,
                  double bk1size, double bk2size, double bk1offset,
                  double bk2offset, double bktilt, int bkord, int sporder,
-                 char *xtracalg, int printtime, int verbose, int extrloc,
+                 char *xtracalg, int printtime, int verbose,
                  int ccglobal, double ccthresh, int do_profile, int pstep,
                  double wstep, double minsn, char *rejranges,
                  char *profilefile, char *fluxfile, char *outw, double backval,
                  double backerr, int variance, int fflux, double psclip,
-                 double sclip, int lfilter, int imset, int pipeline,
+                 double sclip, int lfilter, int pipeline,
                  char *idtfile, double blazeshift,
                  int bks_mode, int bks_order, double xoffset) {
 
@@ -98,7 +98,6 @@ int sporder;		i: spectral order
 char *xtracalg;		i: extraction algorithm
 int printtime;		i: print time after each step?
 int verbose;		i: print additional info ?
-int extrloc;		i: print extraction location info ?
 int ccglobal;		i: use global crosscor everywhere ?
 double ccthresh;	i: crosscor theshold
 int do_profile;		i: use calstis6 as profile generator ?
@@ -116,7 +115,6 @@ int *fflux;		i: use FLUX instead of NET in opt. extraction
 double psclip;          i: sigma-clip in profile builder
 double sclip;           i: sigma-clip in extraction
 int lfilter;		i: Lee filter window size
-int imset;		i: selected IMSET (0 -> process entire file)
 int pipeline;		i: is calstis6 being run from the pipeline ?
 char *idtfile		i: file with IDT final deconvolved image
 double blazeshift;	i: blaze shift (in pixels) from command line
@@ -168,9 +166,9 @@ int bks_order;		i: backgr. smoothing polynomial order
 	float **im_mod2;
 	float **im_mod3;
 	float **o_mod;			/* model image without scattering */
-	float **o_mod1;
-	float **o_mod2;
-	float **o_mod3;
+	float **o_mod1=NULL;
+	float **o_mod2=NULL;
+	float **o_mod3=NULL;
 	double *scale_lsf;		/* scattering function for curr. order*/
 	double *scale_lsf1;		/* above with clipped peak */
 	double *scale_lsf2;		/* and wings only */
@@ -183,7 +181,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	double *hold1, *hold2, *hold3;
 	float *eblaze, *eonimage, *worder, *forder, *yorder_onimage;
 	double *worder_onimage;
-	double f, fr2; /* clumsy names ! kept to match IDT code */
+	double f=0.0, fr2; /* clumsy names ! kept to match IDT code */
 	double fr1;
 	int y1, ixx, iy1, iy2, ilsf;
 	int istart, istop, image1pos, image2pos, ilsf1, ilsf2;
@@ -347,8 +345,8 @@ int bks_order;		i: backgr. smoothing polynomial order
 	    status = checkImsetOK (input, extver, &imset_ok);
 	    if (status < 0)
 		continue;
-	    else if (status > 0)
-                return status;
+	    if (status > 0)
+	        return status;
 	    if (!imset_ok) {
 		trlwarn("imset %d skipped (IMSET_OK = F)",
 			extver);
@@ -1028,7 +1026,9 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            return (status);
 
 	        Cmplx2Float (&zhold, im_mod1, nx, ny);
-
+	        im_mod3 = Alloc2DArrayF (win.sci.data.nx, win.sci.data.ny);
+	        if (im_mod3 == NULL)
+	            return (OUT_OF_MEMORY);
 	        if (scf.nwave > 1) {
 	            if (verbose) {
 	                trlmessage("Convolve at 2nd wavelength.");
@@ -1047,9 +1047,6 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            Float2Cmplx (im_mod, nx, ny, &zhold);
 	            if ((status = FFTConvolve2 (&zhold, &(scf.ft3))))
 	                return (status);
-	            im_mod3 = Alloc2DArrayF (win.sci.data.nx, win.sci.data.ny);
-	            if (im_mod3 == NULL)
-	                return (OUT_OF_MEMORY);
 	            Cmplx2Float (&zhold, im_mod3, nx, ny);
 	        }
 
@@ -1123,7 +1120,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            FillArray (im_mod, im_mod1, im_mod2, win.sci.data.nx,
                                win.sci.data.ny,
                                linepos[0], linepos[1], mpsfpos[0], mpsfpos[1],
-                               mline, in.sci.data.ny);
+                               mline);
 	            for (j = (int)linepos[1]; j < win.sci.data.ny; j++) {
 	                for (i = 0; i < win.sci.data.nx; i++)
 	                    im_mod[j][i] = im_mod2[j][i];
@@ -1133,7 +1130,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	            FillArray (im_mod, im_mod2, im_mod3, win.sci.data.nx,
                                win.sci.data.ny,
                                linepos[1], linepos[2], mpsfpos[1], mpsfpos[2],
-                               mline, in.sci.data.ny);
+                               mline);
 	            for (j = (int)linepos[2]; j < win.sci.data.ny; j++) {
 	                for (i = 0; i < win.sci.data.nx; i++)
 	                    im_mod[j][i] = im_mod3[j][i];
@@ -1156,7 +1153,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                FillArray (o_mod, o_mod1, o_mod2, win.sci.data.nx,
                                    win.sci.data.ny,
                                    linepos[0], linepos[1], mpsfpos[0],
-                                   mpsfpos[1], mline, in.sci.data.ny);
+                                   mpsfpos[1], mline);
 	                for (j = (int)linepos[1]; j < win.sci.data.ny; j++) {
 	                    for (i = 0; i < win.sci.data.nx; i++)
 	                        o_mod[j][i] = o_mod2[j][i];
@@ -1167,7 +1164,7 @@ int bks_order;		i: backgr. smoothing polynomial order
 	                FillArray (o_mod, o_mod2, o_mod3, win.sci.data.nx,
                                    win.sci.data.ny,
                                    linepos[1], linepos[2], mpsfpos[1],
-                                   mpsfpos[2], mline, in.sci.data.ny);
+                                   mpsfpos[2], mline);
 	                for (j = (int)linepos[2]; j < win.sci.data.ny; j++) {
 	                    for (i = 0; i < win.sci.data.nx; i++)
 	                        o_mod[j][i] = o_mod3[j][i];
@@ -1725,7 +1722,10 @@ return: the median.
 	int j;
 	double *temp, median = 0.0;
 
-	temp = (double *) malloc ((n - 1) * sizeof (double));
+    size_t tmpsz = (n - 1) > 0 ? (n - 1) : 0;
+    if (tmpsz == 0)
+        return (0.0);
+    temp = (double *) malloc (tmpsz * sizeof (double));
 	if (temp == NULL)
 	    return (0.0);
 
@@ -1810,7 +1810,7 @@ static double Select (unsigned long k, unsigned long length, double *array) {
 
 static void FillArray (float **out, float **in1, float **in2, int nx, int ny,
                        double linepos1, double linepos2, double mpsfpos1,
-                       double mpsfpos2, double *mline, int msize) {
+                       double mpsfpos2, double *mline) {
 /* arguments:
 float **out;		o: output array
 float **in1;		i: input array # 1
@@ -1822,7 +1822,6 @@ double linepos2;
 double mpsfpos1;	i: order # corrersponding to lines above
 double mpsfpos2;
 double* mline;		i: fractional order # associated with each image row
-int msize;		i: size of mline array
 */
 	int i, j;
 	float frac1, frac2;
@@ -1854,8 +1853,8 @@ int msize;		i: size of mline array
 static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 
 	char opt_elem[STIS_CBUF];	/* grating */
-	double kx[2][2], ky[2][2];	/* ghost image warp matrices */
-	double xx, yy;
+	double kx[2][2];	/* ghost image warp matrices */
+	double xx;
 	float **ghost, **cghost;
 	int i, j, ii, jj, status;
 
@@ -1872,19 +1871,19 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	    kx[0][1] = -0.000844246;
 	    kx[1][0] =  0.998378;
 	    kx[1][1] = 3.51736e-06;
-	    ky[0][0] = 5.46450;
-	    ky[0][1] = 1.00869;
-	    ky[1][0] = 9.48275e-05;
-	    ky[1][1] = -1.10486e-06;
+	    // ky[0][0] = 5.46450;
+	    // ky[0][1] = 1.00869;
+	    // ky[1][0] = 9.48275e-05;
+	    // ky[1][1] = -1.10486e-06;
 	} else if (streq_ic (opt_elem, "E230H")) {
 	    kx[0][0] = -16.4834;
 	    kx[0][1] = -0.000280014;
 	    kx[1][0] =  0.998752;
 	    kx[1][1] = 1.51807e-06;
-	    ky[0][0] = 5.59971;
-	    ky[0][1] = 1.00791;
-	    ky[1][0] = 1.58386e-05;
-	    ky[1][1] = -7.14570e-07;
+	    // ky[0][0] = 5.59971;
+	    // ky[0][1] = 1.00791;
+	    // ky[1][0] = 1.58386e-05;
+	    // ky[1][1] = -7.14570e-07;
 	} else
 	    return (STIS_OK);
 
@@ -1894,9 +1893,9 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	for (j = 0; j < ny; j++) {
 	    for (i = 0; i < nx; i++) {
 	        xx = kx[0][0] + j * kx[0][1] + i * kx[1][0] + j * i * kx[1][1];
-	        yy = ky[0][0] + j * ky[0][1] + i * ky[1][0] + j * i * ky[1][1];
-	        ii = (int)NINT(xx);
-	        jj = (int)NINT(xx);
+	        // yy = ky[0][0] + j * ky[0][1] + i * ky[1][0] + j * i * ky[1][1];
+	        ii = NINT(xx);
+	        jj = NINT(xx);
 	        ii = (ii < 0) ? 0 : ii;
 	        jj = (jj < 0) ? 0 : jj;
 	        ii = (ii >= nx) ? (nx - 1) : ii;

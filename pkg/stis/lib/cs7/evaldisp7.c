@@ -70,7 +70,7 @@ void EvalDisp7 (DispRelation *disp_y, int sporder, double wl, int disp_type,
 double GetWavelength (DispRelation *disp, int sporder, double ix,
                       int disp_type, double low, double high) {
 
-	double wl_high, wl_low, wl_test, x_test;
+	double wl_high, wl_low, wl_test=0.0, x_test;
 	double m;
 
 	if (disp_type == GRATING_DISP) {

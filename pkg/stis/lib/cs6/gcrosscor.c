@@ -71,10 +71,10 @@ double       *yoff                o: reference order croscor offset
 	int trc_status;         /* flag for trace status */
 	int success;		/* at least one order successfully extrac. ? */
 	int skipping;		/* skipping this order ? */
-	int ccstatus;		/* crosscor failed ? */
+	int ccstatus=0;		/* crosscor failed ? */
 
-	int CrossCorr (StisInfo6 *, SpTrace *, SingleGroup *, FloatHdrData *,
-                       FloatHdrData *, int, int, int);
+	int CrossCorr (StisInfo6 *, SpTrace *, SingleGroup *,
+                       int, int, int);
 	void AddOffsets6 (StisInfo6 *, ApInfo *);
 	int GetTrace6 (StisInfo6 *, int, SpTrace **);
 	void FreeTrace6 (SpTrace **);
@@ -246,8 +246,7 @@ double       *yoff                o: reference order croscor offset
 	    else
 	        maxsearch = sts->maxsearch;
 	    if (maxsearch != NO_RANGE)
-	        ccstatus = CrossCorr (sts, trace, in, &ssgx, &ssgy, maxsearch,
-                                      0, 0);
+	        ccstatus = CrossCorr (sts, trace, in, maxsearch, 0, 0);
 	    else
 	        sts->crscroff = 0.0;
 
@@ -418,5 +417,3 @@ FloatHdrData *ssgy      o: small-scale distortion in Y
 
 	return (0);
 }
-
-

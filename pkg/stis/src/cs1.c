@@ -75,7 +75,6 @@ int main (int argc, char **argv) {
 	int verbose = 0;	/* print additional info? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */
-	int junk;
 
 	IRAFPointer i_imt, o_imt, b_imt;	/* imt list pointers */
 	char *input;		/* name of input science file */
@@ -305,13 +304,13 @@ int main (int argc, char **argv) {
 	/* Loop over the list of input files. */
 	for (n = 0;  n < n_in;  n++) {
 
-	    junk = c_imtgetim (i_imt, input, STIS_LINE);
+	    c_imtgetim (i_imt, input, STIS_LINE);
 	    if (n_out > 0)
-		junk = c_imtgetim (o_imt, output, STIS_LINE);
+		c_imtgetim (o_imt, output, STIS_LINE);
 	    else
 		output[0] = '\0';
 	    if (n_blev > 0)
-		junk = c_imtgetim (b_imt, outblev, STIS_LINE);
+		c_imtgetim (b_imt, outblev, STIS_LINE);
 	    else
 		outblev[0] = '\0';
 

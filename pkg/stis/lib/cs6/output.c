@@ -292,7 +292,7 @@ int *row_number         io: row where to start writing in output table.
                             This parameter is updated so when this function
                              returns it points to the last written row.
 */
-        int i, ii, j, asize, k, k_off;
+        int i, ii, j, asize, k_off;
         short shold, asize_off;
         float *profile, *profile_off, *profile_cent;
 
@@ -351,7 +351,6 @@ int *row_number         io: row where to start writing in output table.
             /* Move profile array data to output float arrays so they
                can be written with a single call to the table routines.
             */
-            k     = 0;
             k_off = 0;
             for (ii =  sts->profile_minp[i] - 1;
                  ii <= sts->profile_maxp[i] - 1; ii++) {

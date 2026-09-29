@@ -46,7 +46,7 @@ static void printHelp(void)
 
 int main (int argc, char **argv) {
 
-	int status;			/* zero is OK */
+	int status=0;			/* zero is OK */
 
 	char *rawlist;		/* list of input file names */
 	char *wavlist;		/* list of input wavecal file names */
@@ -272,6 +272,6 @@ int main (int argc, char **argv) {
 
 	if (status)
 	    exit (ERROR_RETURN);
-	else
-	    exit (0);
+
+    exit (0);
 }
