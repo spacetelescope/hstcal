@@ -2,6 +2,7 @@
 #define INCL_XIMIO_H
 
 # include <c_iraf.h>
+#include <stddef.h>
 
 IRAFPointer c_imtopen(char *pattern);
 

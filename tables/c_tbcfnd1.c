@@ -22,7 +22,7 @@ IRAFPointer *cp         o: column descriptor
 
         TableDescr *tbl_descr = (TableDescr *)tp;
 
-        {unsigned i;
+        {int i;
         for (i = 0;  i < tbl_descr->ncols;  ++i) {
             ColumnDescr * col_descr = (ColumnDescr *)tbl_descr->columns[i];
             str_lower (lc_name, col_descr->name);

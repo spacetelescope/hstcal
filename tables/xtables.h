@@ -61,7 +61,7 @@ IRAFPointer c_tbtopn (char *tablename, int iomode, IRAFPointer template);
 void c_tbtcre (IRAFPointer tp);
 void c_tbtclo (IRAFPointer tp);
 int c_tbtacc (char *tablename);
-void c_tbtnam (IRAFPointer tp, char *tablename, int maxch);
+void c_tbtnam (IRAFPointer tp, char *tablename, size_t maxch);
 void c_tbfpri (char *intable, char *outtable, int *copied);
 int c_tbparse (char *tablename, char *fname, char *extname, int maxch,
                 int *hdu);
@@ -142,6 +142,6 @@ void c_tbapti (IRAFPointer tp, IRAFPointer cp, int row, int *buffer,
 void c_tbapts (IRAFPointer tp, IRAFPointer cp, int row, short *buffer,
                 int first, int nelem);
 void c_tbaptt (IRAFPointer tp, IRAFPointer cp, int row, char **cbuf,
-                int maxch, int first, int nelem);
+                int first, int nelem);
 
 #endif /* INCL_XTABLES_H */
