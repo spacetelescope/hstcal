@@ -41,12 +41,13 @@
 /**
  * Valid testfunc return codes
  */
-#define TEST_T_PASS 0
-#define TEST_T_FAIL 1
-#define TEST_T_ERROR 2
-#define TEST_T_SKIP 3
-
-#define TEST_STATS_ARRAY_MAX 4
+enum {
+    TEST_T_PASS=0,
+    TEST_T_FAIL,
+    TEST_T_ERROR,
+    TEST_T_SKIP,
+    TEST_STATS_ARRAY_MAX,
+};
 
 /**
  * Disable line buffering (useful for CI)
