@@ -12,7 +12,7 @@
 # include "hstcalerr.h"
 
 static int FindExtn (char *);
-static int strcatN (char *, char *, int);
+static int strcatN (char *, char *, size_t);
 
 /* This routine constructs the output file name based on the input name
    if the output name is null.  If output is not null but lacks a filename
@@ -53,7 +53,7 @@ static int strcatN (char *, char *, int);
 */
 
 int MkOutName (char *input, char **isuffix, char **osuffix, int nsuffix,
-		char *output, int maxch) {
+		char *output, size_t maxch) {
 
 /* arguments:
 char *input        i: name of input FITS file
@@ -61,7 +61,7 @@ char *isuffix[]    i: suffixes expected for input, e.g. "_raw"
 char *osuffix[]    i: suffixes to append for output, e.g. "_flt"
 int nsuffix        i: length of isuffix and osuffix arrays
 char *output       io: name of output FITS file
-int maxch          i: maximum size of output
+size_t maxch          i: maximum size of output
 */
 
 	int status;
@@ -140,7 +140,7 @@ int maxch          i: maximum size of output
    error condition is when the sum of the string lengths exceeds maxch.
 */
 
-int DefaultExtn (char *input, int maxch) {
+int DefaultExtn (char *input, size_t maxch) {
 
 	int status;
 	int dotlocn;		/* location of '.' in input name */
@@ -183,11 +183,11 @@ static int FindExtn (char *fname) {
    their lengths is no longer than maxch.
 */
 
-static int strcatN (char *outstr, char *instr, int maxch) {
+static int strcatN (char *outstr, char *instr, size_t maxch) {
 
 	int status;
 
-	if ((int) (strlen (instr) + strlen (outstr)) > maxch) {
+	if (strlen (instr) + strlen (outstr) > maxch) {
 	    trlerror("(MkOutName) strings are too long:");
 	    trlerror("`%s' + `%s'", outstr, instr);
 	    status = 2011;
