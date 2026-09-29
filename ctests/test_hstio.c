@@ -11,60 +11,62 @@ static void hstio_error_handler() {
         hstio_errmsg(), strlen(hstio_errmsg()));
 #endif
 }
-static const size_t handlers_max = 1; // up to 32 handlers, see hstio.h
+static const int handlers_max = 2; // up to 32 handlers, see hstio.h
 
 TEST_BEGIN(macro_Pix) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(macro_PixColumnMajor) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(macro_PPixColumnMajor) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(macro_DQPix) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(macro_DQSetPix) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_copyDataSection) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_hstio_err) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_hstio_errmsg) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_push_hstioerr) {
     TEST_MARK("check state after pushing handler onto stack");
-    for (size_t i = 0; i < handlers_max; i++) {
-        TEST_ASSERT(push_hstioerr(hstio_error_handler) == 1, "%s", "push failed");
+    for (int i = 0; i < handlers_max; i++) {
+        const int stack_level = push_hstioerr(hstio_error_handler);
+        TEST_ASSERT(stack_level == i + 1, "push failed, got %d", stack_level);
     }
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_pop_hstioerr) {
     TEST_MARK("check state after poppping handler from stack");
-    for (size_t i = 0; i < handlers_max; i++) {
-        TEST_ASSERT(pop_hstioerr() == 0, "%s", "pop failed");
+    for (int i = handlers_max; i >= 0; i--) {
+        const int stack_level = pop_hstioerr();
+        TEST_ASSERT(stack_level == i - 1, "pop failed, got %d", stack_level);
     }
     TEST_RETURN
 }
@@ -120,19 +122,19 @@ TEST_BEGIN(fn_error) {
 }
 
 TEST_BEGIN(fn_openSingleGroupLine) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_closeSingleGroupLine) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_fcloseNull) {
     FILE *fp = fopen("/dev/null", "w");
     if (!fp) {
-        TEST_MSG(stderr, TEST_TERM_COLOR_RED, __func__, "Error opening /dev/null");
+        //TEST_("%s", "Error opening /dev/null");
         TEST_FORCE_ERROR;
     }
     TEST_MARK("check closing a file handle");
@@ -146,8 +148,7 @@ TEST_BEGIN(fn_fcloseNull) {
 TEST_BEGIN(fn_fcloseWithStatus) {
     FILE *fp = fopen("/dev/null", "w");
     if (!fp) {
-        TEST_MSG(stderr, TEST_TERM_COLOR_RED, __func__, "Error opening /dev/null");
-        TEST_FORCE_ERROR;
+        TEST_THROW_ERROR("%s", "Error opening /dev/null");
     }
     TEST_MARK("check closing a file handle");
     TEST_ASSERT(fcloseWithStatus(&fp) == 0, "%s", "stream did not close\n");
@@ -166,8 +167,7 @@ TEST_BEGIN(fn_ckNewFile) {
     const char *filename = "testnewfile";
     FILE *fp = fopen(filename, "w");
     if (!fp) {
-        TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_RED, __func__, "Error opening %s\n", filename);
-        TEST_FORCE_ERROR;
+        TEST_THROW_ERROR("Error opening %s\n", filename);
     }
     fprintf(fp, "hello world from %s\n", filename);
     fclose(fp);
@@ -186,232 +186,232 @@ TEST_BEGIN(fn_ckNewFile) {
 }
 
 TEST_BEGIN(fn_getSci) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSci) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getErr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putErr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getDQ) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putDQ) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getSmpl) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSmpl) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getIntg) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putIntg) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSciSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putErrSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putDQSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSmplSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putIntgSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getSciHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getErrHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getDQHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getSciLine) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getErrLine) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getDQLine) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getFloatHD) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putFloatHD) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getShortHD) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putShortHD) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putFloatHDSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putShortHDSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getFloatHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getShortHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getSingleGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getSingleGroupLine) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSingleGroupHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSingleGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSingleGroupSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getSingleNicmosGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSingleNicmosGroupHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSingleNicmosGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putSingleNicmosGroupSect) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getMultiGroupHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getMultiGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putMultiGroupHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putMultiGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getMultiNicmosGroupHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_getMultiNicmosGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putMultiNicmosGroupHdr) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
 TEST_BEGIN(fn_putMultiNicmosGroup) {
-    TEST_FORCE_SKIP
+    TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
