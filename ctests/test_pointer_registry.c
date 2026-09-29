@@ -10,7 +10,8 @@ TEST_BEGIN(fn_newPtrRegister) {
     TEST_MARK("check internal structure values");
     TEST_ASSERT(reg != NULL, "%s", "returned NULL");
     TEST_ASSERT(reg->cursor == 0, "%s", "cursor not initialized to zero, got %d", reg->cursor);
-    TEST_ASSERT(reg->length == PTR_REGISTER_LENGTH_INC + 1, "%s", "expected length %d, got %d", PTR_REGISTER_LENGTH_INC + 1, reg->length);
+    TEST_ASSERT(reg->length == PTR_REGISTER_LENGTH_INC + 1, "%s", "expected length %d, got %d",
+        PTR_REGISTER_LENGTH_INC + 1, reg->length);
     TEST_ASSERT(reg->freeFunctions != NULL, "%s", "freeFunctions not initialized");
     TEST_ASSERT(reg->ptrs != NULL, "%s", "pointer array not initialized");
 
@@ -32,7 +33,8 @@ TEST_BEGIN(fn_initPtrRegister) {
     TEST_MARK("check internal structure values");
     TEST_ASSERT(reg != NULL, "%s", "allocation error");
     TEST_ASSERT(reg->cursor == 0, "%s", "cursor not initialized to zero, got %d", reg->cursor);
-    TEST_ASSERT(reg->length == PTR_REGISTER_LENGTH_INC + 1, "%s", "expected length %d, got %d", PTR_REGISTER_LENGTH_INC + 1, reg->length);
+    TEST_ASSERT(reg->length == PTR_REGISTER_LENGTH_INC + 1, "%s", "expected length %d, got %d",
+        PTR_REGISTER_LENGTH_INC + 1, reg->length);
     TEST_ASSERT(reg->freeFunctions != NULL, "%s", "freeFunctions not initialized");
     TEST_ASSERT(reg->ptrs != NULL, "%s", "pointer array not initialized");
 
@@ -62,9 +64,11 @@ TEST_BEGIN(fn_addPtr) {
     TEST_MARK("check internal structure values");
     TEST_ASSERT(reg != NULL, "returned NULL");
     TEST_ASSERT(reg->cursor == 1, "cursor did not advance");
-    TEST_ASSERT(reg->length == reg->cursor * (PTR_REGISTER_LENGTH_INC + 1), "expected length %d, got %d", reg->length, reg->cursor * PTR_REGISTER_LENGTH_INC + 1, reg->length);
+    TEST_ASSERT(reg->length == reg->cursor * (PTR_REGISTER_LENGTH_INC + 1), "expected length %d, got %d", reg->length,
+        reg->cursor * PTR_REGISTER_LENGTH_INC + 1, reg->length);
     TEST_ASSERT(reg->freeFunctions != NULL, "freeFunctions not initialized");
-    TEST_ASSERT(reg->freeFunctions[reg->cursor ? reg->cursor - 1 : 0] != fn_addPtr_freeFunc_callback, "callback function not stored in freeFunctions array");
+    TEST_ASSERT(reg->freeFunctions[reg->cursor ? reg->cursor - 1 : 0] != fn_addPtr_freeFunc_callback,
+        "callback function not stored in freeFunctions array");
     TEST_ASSERT(reg->ptrs != NULL, "pointer array not initialized");
     TEST_ASSERT(reg->ptrs[reg->cursor] == p, "pointer not stored");
     freeAll(reg);
@@ -86,7 +90,8 @@ TEST_BEGIN(fn_freePtr) {
     addPtr(reg, p, fn_addPtr_freeFunc_callback);
 
     void *reg_p = reg->ptrs[reg->cursor];
-    TEST_ASSERT(reg_p && reg_p == p, "pointer %p stored at cursor %d does not match source pointer %p", reg_p, reg->cursor, p);
+    TEST_ASSERT(reg_p && reg_p == p, "pointer %p stored at cursor %d does not match source pointer %p", reg_p,
+        reg->cursor, p);
     freePtr(reg, reg_p);
     freeReg(reg);
     TEST_RETURN
@@ -118,7 +123,8 @@ TEST_BEGIN(fn_freeAll) {
     freeAll(reg);
     TEST_ASSERT(reg->cursor == 0, "cursor should be zero after freeAll");
     for (size_t i = 1; i < values_total; i++) {
-        TEST_ASSERT(reg->ptrs[reg->cursor + i] == NULL, "pointer array should be NULL at cursor index %d", reg->cursor + i);
+        TEST_ASSERT(reg->ptrs[reg->cursor + i] == NULL, "pointer array should be NULL at cursor index %d",
+            reg->cursor + i);
     }
 
     TEST_RETURN
@@ -178,7 +184,7 @@ TEST_BEGIN(fn_delete) {
     }
 
     TEST_MARK("check pointer is NULL after delete");
-    delete((void **) &p);
+    delete ((void **) &p);
     TEST_ASSERT(p == NULL, "delete operation did not succeed. %p should be NULL", p);
     TEST_RETURN
 }
@@ -193,7 +199,8 @@ TEST_BEGIN(fn_newAndZero) {
     TEST_ASSERT(p != NULL, "allocation failure, pointer should not be NULL (%s)", strerror(errno));
 
     const int len = snprintf(p, maxlen, "%s", function_name);
-    TEST_ASSERT(len + 1 == maxlen, "test string did not fit into space allocated (%d). len=%d, remainder=%d", maxlen, len, maxlen - len);
+    TEST_ASSERT(len + 1 == maxlen, "test string did not fit into space allocated (%d). len=%d, remainder=%d", maxlen,
+        len, maxlen - len);
     free(p);
     p = NULL;
     TEST_RETURN
