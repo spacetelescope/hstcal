@@ -3,6 +3,11 @@
 #include "hstcal_memory.h"
 #include "unittest.h"
 
+static void fn_addPtr_freeFunc_callback(void *ptr) {
+    printf("FREEING POINTER %p (within %s)\n", ptr, __func__);
+    free(ptr);
+}
+
 TEST_BEGIN(fn_newPtrRegister) {
     TEST_MARK("initialize pointer registry");
     PtrRegister *reg = newPtrRegister();
@@ -41,12 +46,10 @@ TEST_BEGIN(fn_initPtrRegister) {
     TEST_MARK("free pointer registry");
     freeAll(reg);
     freeReg(reg);
-    TEST_RETURN
-}
 
-static void fn_addPtr_freeFunc_callback(void *ptr) {
-    printf("FREEING POINTER %p (within %s)\n", ptr, __func__);
-    free(ptr);
+    // Free what we allocated because freeReg can't do it
+    free(reg);
+    TEST_RETURN
 }
 
 TEST_BEGIN(fn_addPtr) {
@@ -126,7 +129,7 @@ TEST_BEGIN(fn_freeAll) {
         TEST_ASSERT(reg->ptrs[reg->cursor + i] == NULL, "pointer array should be NULL at cursor index %d",
             reg->cursor + i);
     }
-
+    freeReg(reg);
     TEST_RETURN
 }
 
