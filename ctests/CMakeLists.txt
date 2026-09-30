@@ -41,3 +41,13 @@ add_test(NAME test_pointer_registry
 target_link_libraries(test_pointer_registry
         PUBLIC hstcalib
 )
+
+add_executable(test_str_util
+        test_str_util.c
+)
+add_test(NAME test_str_util
+        COMMAND $<TARGET_FILE:test_str_util>
+)
+target_link_libraries(test_str_util
+        PUBLIC hstcalib
+)
