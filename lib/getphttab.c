@@ -767,7 +767,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     int iter, x;
     int dimpow,iterpow;
     double *ndposd;
-    int b0,b1,pindx;
+    int b0=0,b1=0,pindx;
     int deltadim;            /* index of varying dimension */
     double bindx[2],bvals[2]; /* indices into results array for bounding values */
     double rinterp;          /* placeholder for interpolated result */
@@ -1024,7 +1024,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
  */
 double linterp(double *x, int nx, double *fx, double xpos) {
 
-    int i0, i1;  /* x values that straddle xpos */
+    int i0=0, i1=0;  /* x values that straddle xpos */
 
     double value;
 

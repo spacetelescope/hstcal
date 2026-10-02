@@ -277,7 +277,9 @@ static void CatTrlFile(FILE *ip, FILE *op)
 
     /* Now copy the file into the output trailer file */
     while ( !feof(ip) ) {
-        fgets(buf, CHAR_LINE_LENGTH+1, ip);
+        if (fgets(buf, CHAR_LINE_LENGTH+1, ip) == NULL) {
+            break;
+        }
         fprintf(op,"%s",buf);
     }
 
@@ -337,7 +339,9 @@ static int AppendTrlFile(void)
     while ( !feof(trlbuf.fp) )
     {
         /* Read in a line */
-        fgets(buf, CHAR_LINE_LENGTH+1, trlbuf.fp);
+        if (fgets(buf, CHAR_LINE_LENGTH+1, trlbuf.fp) == NULL) {
+            break;
+        }
 
         /* If we find the prefix, stop searching */
         if (strstr(buf,TRL_PREFIX))
