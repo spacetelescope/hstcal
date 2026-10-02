@@ -16,7 +16,7 @@ MLS: 07/2015 Cleand up for unused variables and warning
 MLS: 08/2015 Added some initializations the clang complained about
 
 MDD: 03/2020 Ensure obs->obsmode is an empty string at the beginning of
-             this routine - this was a lurking bug raised in the case of 
+             this routine - this was a lurking bug raised in the case of
              multiple Imsets and parameterized value.
 
 */
@@ -294,7 +294,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     int *nocol;
     int i, j, missing;
     int parnum;
-    
+
     int PrintMissingCols_IMPHTTAB (int, int, int *, char **, char *, IRAFPointer);
     int buildTabName (char *, char *, char *);
 
@@ -319,7 +319,13 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     }
 
     /* Create name of table with extension to be opened */
-    snprintf(tname, sizeof(tname), "%s[%s]", tabname, photvar);
+    j = CHAR_FNAME_LENGTH - strlen(photvar) - 2 - 1;
+    char tabname_truncated[j];
+    for (i = 0; i < (j - 1); i++) {
+        tabname_truncated[i] = tabname[i];
+    }
+    tabname_truncated[j - 1] = '\0';
+    snprintf(tname, sizeof(tname), "%s[%s]", tabname_truncated, photvar);
 
     /* keep track of what extension we are processing here */
     strcpy(tabinfo->photvar, photvar);
@@ -423,7 +429,7 @@ static int InterpretPhotmode(char *photmode, PhotPar *obs){
 
     numpar = 0;
     n=0;
-    
+
     /* scan entire photmode string and count how many # symbols are found */
     obselems = 0;
     strcpy(tempmode,photmode);
@@ -632,7 +638,7 @@ static int ReadPhotArray (PhtCols *tabinfo, int row, PhtRow *tabrow) {
     char col_parval[SZ_COLNAME]="PAR";
     int nret;
     int n, col, i;
-    
+
     n=0;
     col=0;
     i=0;
@@ -753,7 +759,7 @@ static double ComputeValue(PhtRow *tabrow, PhotPar *obs) {
     int **bounds; /* [ndim,2] array for bounds around obsvals values */
     int indx,pdim,ppos,xdim,xpos;
     int tabparlen;
-   
+
     xdim=0;
     /*
        intermediate products used in iterating over dims
@@ -1237,7 +1243,7 @@ static int PhotRowPedigree (PhotPar *obs, int row,
     /* Get pedigree and descrip.  If either or both are missing,
        that's not an error in this case.
      */
-    if (cp_pedigree > 0) {
+    if (cp_pedigree != NULL) {
         c_tbegtt (tp, cp_pedigree, row, obs->pedigree, SZ_FITS_REC);
         if (c_iraferr())
             return (status = TABLE_ERROR);
@@ -1248,7 +1254,7 @@ static int PhotRowPedigree (PhotPar *obs, int row,
             obs->goodPedigree = GOOD_PEDIGREE;
     }
 
-    if (cp_descrip > 0) {
+    if (cp_descrip != NULL) {
         c_tbegtt (tp, cp_descrip, row, obs->descrip2, SZ_FITS_REC);
         if (c_iraferr())
             return (status = PHOTTABLE_ERROR);
