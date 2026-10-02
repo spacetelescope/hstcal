@@ -31,7 +31,7 @@ MDD: 03/2020 Ensure obs->obsmode is an empty string at the beginning of
 # include "xtables.h"
 # include "imphttab.h"
 # include "c_iraf.h"  /* For Bool type */
-
+#include "trlbuf.h"
 
 /* Internal functions to be used to interpret IMPHTTAB ref tables */
 static int OpenPhotTab (char *, char *, PhtCols *);
@@ -288,7 +288,8 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
 
     extern int status;
 
-    char tname[CHAR_FNAME_LENGTH];
+    const unsigned tname_len = strlen(tabname) + strlen(photvar) + 2 + 1;
+    char *tname;
     char **colnames, **ecolnames, **pncolnames, **pvcolnames;
 
     int *nocol;
@@ -319,21 +320,16 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     }
 
     /* Create name of table with extension to be opened */
-    j = CHAR_FNAME_LENGTH - strlen(photvar) - 2 - 1;
-    char tabname_truncated[j];
-    for (i = 0; i < (j - 1); i++) {
-        tabname_truncated[i] = tabname[i];
-    }
-    tabname_truncated[j - 1] = '\0';
-    snprintf(tname, sizeof(tname), "%s[%s]", tabname_truncated, photvar);
+    tname = calloc(tname_len, sizeof(char));
+    snprintf(tname, tname_len, "%s[%s]", tabname, photvar);
 
     /* keep track of what extension we are processing here */
     strcpy(tabinfo->photvar, photvar);
 
     tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
     if (c_iraferr()) {
-        printf ("\n==>ERROR: IMPHTTAB extension`%s' not found.\n", tname);
-        /*trlerror (MsgText); */
+        trlerror("IMPHTTAB extension not found: %s", tname);
+        free(tname);
         return (status = OPEN_FAILED);
     }
 
@@ -400,6 +396,7 @@ static int OpenPhotTab (char *tabname, char *photvar, PhtCols *tabinfo) {
     free(pncolnames);
     free(pvcolnames);
     free(nocol);
+    free(tname);
 
     return (status);
 }
