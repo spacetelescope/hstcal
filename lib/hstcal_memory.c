@@ -70,7 +70,7 @@ void freePtr(PtrRegister * reg, void * ptr)
     if (!reg || !ptr || !reg->cursor)
         return;
 
-    int i;
+    unsigned i;
     Bool found = False;
     for (i = reg->cursor; i > 0 ; --i)
     {
