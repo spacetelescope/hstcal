@@ -38,6 +38,13 @@
 #define TEST_TERM_COLOR_BG_CYAN "\033[46m"
 #define TEST_TERM_COLOR_BG_WHITE "\033[47m"
 
+// Valid testfixture array indicies
+enum {
+    TEST_F_SETUP=0,
+    TEST_F_TEARDOWN,
+    TEST_F_ARRAY_MAX,
+};
+
 /**
  * Valid testfunc return codes
  */
@@ -62,7 +69,7 @@ enum {
     int main(int argc, char *argv[]) { \
         (void) argc; \
         (void) argv; \
-        const char *TEST_LOCAL_SUITE_NAME = NAME; \
+        const char *TEST_LOCAL_SUITE_NAME = (NAME); \
         int TEST_LOCAL_STATS[TEST_STATS_ARRAY_MAX] = {0}; \
         TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "SUITE", " %s%s...%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
             TEST_LOCAL_SUITE_NAME, TEST_TERM_COLOR_RESET);
@@ -76,13 +83,32 @@ enum {
     } // DO NOT REMOVE THIS BRACE
 
 #define TEST_SUITE_RUN(TESTFUNC_ARRAY) \
-    TEST_DISABLE_BUFFERING(); \
+    TEST_DISABLE_BUFFERING();          \
     const size_t TEST_LOCAL_TESTFUNC_COUNT = sizeof((TESTFUNC_ARRAY)) / sizeof((TESTFUNC_ARRAY)[0]); \
     for (size_t i = 0; i < TEST_LOCAL_TESTFUNC_COUNT; i++) { \
         const testfunc TEST_LOCAL_TESTFUNC = (TESTFUNC_ARRAY)[i]; \
         const int TEST_LOCAL_RESULT = TEST_LOCAL_TESTFUNC(); \
         TEST_STATS_UPDATE(TEST_LOCAL_RESULT); \
     }
+
+#define TEST_SUITE_SET_FIXTURE_SETUP(fn) \
+    do { \
+        TEST_SUITE_FIXTURES[TEST_F_SETUP] = (fn); \
+    } while (0)
+#define TEST_SUITE_SET_FIXTURE_TEARDOWN(fn) \
+    do { \
+        TEST_SUITE_FIXTURES[TEST_F_TEARDOWN] = (fn); \
+    } while (0)
+
+#define TEST_SUITE_FIXTURE_RUN(FIXTURE) \
+    do { \
+        if (TEST_SUITE_FIXTURES[FIXTURE]) { \
+            TEST_LOCAL_FIXTURE_RESULT = TEST_SUITE_FIXTURES[FIXTURE](); \
+            if (TEST_LOCAL_FIXTURE_RESULT) { \
+                TEST_THROW_ERROR("An error occurred in fixture %d", FIXTURE); \
+            } \
+        } \
+    } while (0)
 
 /* Generate a function signature suffixed with FN_NAME and configure local variables
  * required by other unit test functions
@@ -120,36 +146,25 @@ enum {
  */
 #define TEST_BEGIN(FN_NAME) \
     static int test_##FN_NAME() { \
+        int TEST_LOCAL_FIXTURE_RESULT = 0; \
         int TEST_LOCAL_ERROR_COUNT = 0; \
         struct TestRedirect TEST_LOCAL_REDIRECT = {0}; \
         printf(TEST_TERM_COLOR_BRIGHT_BLUE "  UNIT" TEST_TERM_COLOR_RESET TEST_TERM_COLOR_BRIGHT_WHITE \
             " %s... " TEST_TERM_COLOR_RESET, \
             __func__); \
-        TEST_REDIRECT_OUTPUT(&TEST_LOCAL_REDIRECT);
+        TEST_REDIRECT_OUTPUT(&TEST_LOCAL_REDIRECT); \
+        TEST_SUITE_FIXTURE_RUN(TEST_F_SETUP);
 
 #define TEST_FAILED \
     do { \
         TEST_LOCAL_ERROR_COUNT++; \
     } while (0);
 
-#define TEST_FORCE_ERROR \
-    do { \
-        TEST_REDIRECT_OUTPUT_RESTORE(&TEST_LOCAL_REDIRECT); \
-        printf(TEST_TERM_COLOR_BOLD TEST_TERM_COLOR_BRIGHT_RED " ERROR\n" TEST_TERM_COLOR_RESET); \
-        TEST_REDIRECT_OUTPUT_DUMP(&TEST_LOCAL_REDIRECT); \
-        return TEST_T_ERROR; \
-    } while (0);
-
-#define TEST_FORCE_SKIP \
-    do { \
-        TEST_REDIRECT_OUTPUT_RESTORE(&TEST_LOCAL_REDIRECT); \
-        printf(TEST_TERM_COLOR_YELLOW " SKIPPED\n" TEST_TERM_COLOR_RESET); \
-        TEST_REDIRECT_OUTPUT_DUMP(&TEST_LOCAL_REDIRECT); \
-        return TEST_T_SKIP; \
-    } while (0);
-
 #define TEST_RETURN \
         do { \
+            if (TEST_SUITE_FIXTURES[TEST_F_TEARDOWN]) { \
+                TEST_SUITE_FIXTURE_RUN(TEST_F_TEARDOWN); \
+            } \
             if (TEST_LOCAL_ERROR_COUNT != 0) { \
                 return TEST_THROW(TEST_T_FAIL); \
             } \
@@ -389,6 +404,7 @@ static inline int TEST_MSG(FILE *stream, const char *color, const char *prefix, 
         if (MESSAGE && strlen(MESSAGE)) { \
             TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "REASON " TEST_TERM_COLOR_YELLOW, "", MESSAGE, ##__VA_ARGS__); \
         } \
+        TEST_SUITE_FIXTURE_RUN(TEST_F_TEARDOWN); \
         return TEST_THROW(TEST_T_SKIP); \
     } while (0)
 
@@ -438,5 +454,102 @@ static inline void TEST_STATS_SHOW_(const int *stats, const char *name) {
     printf("%s%-6s%s... %-8d\n", TEST_TERM_COLOR_YELLOW, "Skip", TEST_TERM_COLOR_RESET, stats[TEST_T_SKIP]);
 }
 
+static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_count) {
+    FILE *fp = fopen(filename, "r");
+    if (!fp) {
+        return NULL;
+    }
+
+    size_t used = 0;
+    size_t alloc = 1024;
+    char **arr = calloc(alloc + 1,sizeof(*arr));
+
+    size_t line_len = 0;
+    char *line = NULL;
+    while (getline(&line, &line_len, fp) != -1) {
+        arr[used] = line;
+        used++;
+        line = NULL;
+
+        if (used >= alloc) {
+            alloc *= 2;
+            char **tmp = realloc(arr, alloc + 1 * sizeof(*arr));
+            if (!tmp) {
+                return NULL;
+            }
+            arr = tmp;
+        }
+        arr[used] = NULL;
+    }
+    free(line); // final pointer from getline needs to be freed
+    line = NULL;
+
+    *lines_count = used;
+    fclose(fp);
+
+    return arr;
+}
+
+#define TEST_ARRAY_FREE(PTR, COUNT) \
+    do { \
+        for (size_t i = 0; i < (COUNT); i++) { \
+            free((PTR[i])); \
+            (PTR[i]) = NULL; \
+        } \
+        free(PTR); \
+        (PTR) = NULL; \
+    } while (0)
+
+/**
+ * Find a substring in a file
+ *
+ * @param filename path to file
+ * @param pattern a substring to match
+ * @param range_start ignore lines before this line (zero-index, -1 for all)
+ * @param range_end ignore lines after this line (zero-index, -1 for all)
+ * @param result return the string containing the pattern (must be freed by caller)
+ * @param result_lineno the line number where the pattern matched (zero-index)
+ * @return 0 = not found, 1 = found, -1 = error
+ */
+static int TEST_FILE_CONTAINS(const char *filename, const char *pattern, const ssize_t range_start, const ssize_t range_end, char **result, size_t *result_lineno) {
+    size_t line_count = 0;
+    char **lines = TEST_FILE_AS_ARRAY(filename, &line_count);
+    for (ssize_t i = 0; i < (ssize_t) line_count; i++) {
+        if (range_end >= 0 && i > range_end) {
+            break;
+        }
+        if (range_start >= 0 && i < range_start) {
+            continue;
+        }
+        const char *match = strstr(lines[i], pattern);
+        if (match) {
+            if (result) {
+                *result = strdup(lines[i]);
+                if (!*result) {
+                    return -1;
+                }
+                if (result_lineno) {
+                    *result_lineno = i;
+                }
+            }
+            goto found;
+        }
+    }
+    goto not_found;
+
+    found:
+    TEST_ARRAY_FREE(lines, line_count);
+    return 1;
+
+    not_found:
+    *result = NULL;
+    TEST_ARRAY_FREE(lines, line_count);
+    return 0;
+}
+
 typedef int (*testfunc)(void);
+typedef int (*testfixture)(void);
+
+testfixture TEST_SUITE_FIXTURES[TEST_F_ARRAY_MAX] = {NULL, NULL};
+
 #endif // HSTCAL_UNITTEST_H
