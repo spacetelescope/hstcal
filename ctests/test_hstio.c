@@ -134,8 +134,7 @@ TEST_BEGIN(fn_closeSingleGroupLine) {
 TEST_BEGIN(fn_fcloseNull) {
     FILE *fp = fopen("/dev/null", "w");
     if (!fp) {
-        //TEST_("%s", "Error opening /dev/null");
-        TEST_FORCE_ERROR;
+        TEST_THROW_ERROR("failed to open /dev/null for writing");
     }
     TEST_MARK("check closing a file handle");
     TEST_ASSERT(fcloseNull(fp) == 0, "%s", "stream did not close\n");
