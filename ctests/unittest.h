@@ -511,7 +511,7 @@ static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_coun
  * @param result_lineno the line number where the pattern matched (zero-index)
  * @return 0 = not found, 1 = found, -1 = error
  */
-static int TEST_FILE_CONTAINS(const char *filename, const char *pattern, const ssize_t range_start, const ssize_t range_end, char **result, size_t *result_lineno) {
+static inline int TEST_FILE_CONTAINS(const char *filename, const char *pattern, const ssize_t range_start, const ssize_t range_end, char **result, size_t *result_lineno) {
     size_t line_count = 0;
     char **lines = TEST_FILE_AS_ARRAY(filename, &line_count);
     for (ssize_t i = 0; i < (ssize_t) line_count; i++) {
