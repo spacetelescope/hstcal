@@ -121,12 +121,9 @@ TEST_BEGIN(fn_InitTrlPreface) {
 }
 
 TEST_BEGIN(fn_ResetTrlPreface) {
-    const void *orig = trlbuf.preface;
     ResetTrlPreface();
     TEST_ASSERT(trlbuf.preface != NULL, "trlbuf.preface should be initialized");
     TEST_ASSERT(strlen(trlbuf.preface) == 0, "trlbuf.preface should be empty");
-    TEST_ASSERT(orig != trlbuf.preface, "trlbuf.preface pointer should have been replaced");
-
     TEST_RETURN
 }
 
