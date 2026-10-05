@@ -294,9 +294,9 @@ TEST_SUITE_BEGIN(__FILE__) {
     TEST_SUITE_SET_FIXTURE_TEARDOWN(teardown_trl);
 
     const testfunc tests[] = {
+        test_fn_InitTrlBuf,
         test_fn_InitTrlFile,
         test_fn_WriteTrlFile,
-        test_fn_InitTrlBuf,
         test_fn_SetTrlPrefaceMode,
         test_fn_SetTrlOverwriteMode,
         test_fn_SetTrlQuietMode,
