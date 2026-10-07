@@ -314,7 +314,6 @@ static inline void strip_ansi_codes(char *s) {
  * @return total characters
  */
 static size_t strlen_sans_ansi_codes(const char *s) {
-    const char *p = s;
     size_t count = 0;
 
     while (*s != '\0') {
@@ -358,7 +357,6 @@ static inline int is_ansi_and_empty(const char *s) {
 static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
     fflush(stdout);
     fflush(stderr);
-
     FILE *fp = fopen(r->filename, "rb");
     if (!fp) {
         fprintf(stderr, "Unable to open log file: %s\n", r->filename);
