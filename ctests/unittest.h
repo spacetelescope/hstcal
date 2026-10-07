@@ -371,7 +371,7 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
             fprintf(stdout, "%s", line);
             continue;
         }
-        printf(TEST_TERM_COLOR_BRIGHT_BLUE "      " TEST_TERM_COLOR_RESET " %s", line);
+        fprintf(stdout, TEST_TERM_COLOR_BRIGHT_BLUE "      " TEST_TERM_COLOR_RESET " %s", line);
     }
     fclose(fp);
 
