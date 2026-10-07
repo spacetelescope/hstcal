@@ -381,6 +381,36 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
     return 0;
 }
 
+static inline int TEST_REDIRECT_SAVE(struct TestRedirect *r, const char *filename) {
+    TEST_REDIRECT_OUTPUT_RESTORE(r);
+    FILE *outstream = fopen(filename, "w+");
+    if (!outstream) {
+        fprintf(stderr, "Unable to open output file: %s\n", filename);
+        return -1;
+    }
+
+    FILE *fp = fopen(r->filename, "rb");
+    if (!fp) {
+        fprintf(stderr, "Unable to open log file: %s\n", r->filename);
+        fclose(outstream);
+        return -1;
+    }
+
+    char line[0x1000] = {0};
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        if (is_ansi_and_empty(line)) {
+            fprintf(outstream, "%s", line);
+            continue;
+        }
+        fprintf(outstream, "%s", line);
+    }
+
+    fclose(fp);
+    fclose(outstream);
+    TEST_REDIRECT_OUTPUT(r);
+    return 0;
+}
+
 #define TEST_THROW(ACTION) TEST_THROW_(ACTION, &TEST_LOCAL_REDIRECT)
 
 static inline int TEST_THROW_(const int action, struct TestRedirect *r) {
