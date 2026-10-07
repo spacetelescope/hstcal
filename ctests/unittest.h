@@ -386,8 +386,8 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
 #define TEST_THROW(ACTION) TEST_THROW_(ACTION, &TEST_LOCAL_REDIRECT)
 
 static inline int TEST_THROW_(const int action, struct TestRedirect *r) {
-    const char *color = NULL;
-    const char *action_msg = NULL;
+    const char *color;
+    const char *action_msg;
     switch (action) {
         case TEST_T_PASS:
             action_msg = "PASSED";
