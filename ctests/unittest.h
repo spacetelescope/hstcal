@@ -262,6 +262,52 @@ static inline int TEST_REDIRECT_OUTPUT_RESTORE(struct TestRedirect *r) {
     return 0;
 }
 
+// ANSI Control Sequence Introducer (CSI)
+#define TEST_ANSI_CSI_ESC_1 0x1b        // ESC
+#define TEST_ANSI_CSI_ESC_2 0x5b        // '['
+
+#define TEST_ANSI_CSI_PARAM_LOW 0x30    // '0'
+#define TEST_ANSI_CSI_PARAM_HIGH 0x3f   // '?'
+
+#define TEST_ANSI_CSI_INTR_LOW 0x20     // ' '
+#define TEST_ANSI_CSI_INTR_HIGH 0x2F    // '/'
+
+#define TEST_ANSI_CSI_FINAL_LOW 0x40      // '@'
+#define TEST_ANSI_CSI_FINAL_HIGH 0x7e     // '~'
+
+
+static inline void strip_ansi_codes(char *s) {
+    char *src = s;
+    char *dst = s;
+
+    while (*src != '\0') {
+        if (src[0] == TEST_ANSI_CSI_ESC_1 && src[1] == TEST_ANSI_CSI_ESC_2) {
+            // skip preamble
+            char *p = src + 2;
+
+            // skip parameter byte range
+            while (*p >= TEST_ANSI_CSI_PARAM_LOW && *p <= TEST_ANSI_CSI_PARAM_HIGH) {
+                p++;
+            }
+
+            // skip intermediate byte range
+            while (*p >= TEST_ANSI_CSI_INTR_LOW && *p <= TEST_ANSI_CSI_INTR_HIGH) {
+                p++;
+            }
+
+            // check final command byte
+            if (*p >= TEST_ANSI_CSI_FINAL_LOW && *p <= TEST_ANSI_CSI_FINAL_HIGH) {
+                // jump src to after the final byte
+                src = p + 1;
+                continue;
+            }
+        }
+        // copy in place
+        *dst++ = *src++;
+    }
+    *dst = '\0';
+}
+
 /**
  * Returns the length of a character array, ignoring ANSI terminal control codes
  * @param s character array to tally
@@ -270,20 +316,44 @@ static inline int TEST_REDIRECT_OUTPUT_RESTORE(struct TestRedirect *r) {
 static size_t strlen_sans_ansi_codes(const char *s) {
     const char *p = s;
     size_t count = 0;
-    while (*p != '\0') {
-        if (p[0] == 0x1b && p[1] == '[') {
-            p = &p[2];
-            while (*p >= '0' && *p <= '9') {
-                p++;
+
+    while (*s != '\0') {
+        if (s[0] == TEST_ANSI_CSI_ESC_1 && s[1] == TEST_ANSI_CSI_ESC_2) {
+            const char *p = s;
+            s += 2;
+
+            while (*s >= TEST_ANSI_CSI_PARAM_LOW && *s <= TEST_ANSI_CSI_PARAM_HIGH) {
+                s++;
             }
-            p++;
-            continue;
+            while (*s >= TEST_ANSI_CSI_INTR_LOW && *s <= TEST_ANSI_CSI_INTR_HIGH) {
+                s++;
+            }
+
+            if (*s >= TEST_ANSI_CSI_FINAL_LOW && *s <= TEST_ANSI_CSI_FINAL_HIGH) {
+                s++;
+                continue;
+            }
+
+            s = p;
         }
+
         count++;
-        p++;
+        s++;
     }
+
     return count;
 }
+
+static inline int is_ansi_and_empty(const char *s) {
+    if (strrchr(s, '\n') == NULL) {
+        const size_t logical_len = strlen_sans_ansi_codes(s);
+        if (logical_len == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 
 static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
     fflush(stdout);
@@ -297,14 +367,9 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
 
     char line[0x1000] = {0};
     while (fgets(line, sizeof(line) - 1, fp) != NULL) {
-        if (strrchr(line, '\n') == NULL) {
-            const size_t logical_len = strlen_sans_ansi_codes(line);
-            if (logical_len == 0) {
-                // line consists of only control characters and no line feed
-                // emit control codes without line information
-                printf("%s", line);
-                continue;
-            }
+        if (is_ansi_and_empty(line)) {
+            fprintf(stdout, "%s", line);
+            continue;
         }
         printf(TEST_TERM_COLOR_BRIGHT_BLUE "      " TEST_TERM_COLOR_RESET " %s", line);
     }
