@@ -544,7 +544,9 @@ static inline int TEST_FILE_CONTAINS(const char *filename, const char *pattern, 
     return 1;
 
     not_found:
-    *result = NULL;
+    if (result) {
+        *result = NULL;
+    }
     TEST_ARRAY_FREE(lines, line_count);
     return 0;
 }
