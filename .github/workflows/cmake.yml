@@ -11,6 +11,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  code-quality: write
+
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
@@ -23,14 +27,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-15, macos-14]
         gcc: [12, 14]
-        cmake_options: ["", "-DENABLE_ASAN=ON"]
+        cmake_options: ["", "-DENABLE_ASAN=ON", "-DENABLE_COVERAGE=ON"]
         exclude:
           - os: macos-15
             cmake_options: "-DENABLE_ASAN=ON"
           - os: macos-15
+            cmake_options: "-DENABLE_COVERAGE=ON"
+          - os: macos-15
             gcc: 12
           - os: macos-14
             cmake_options: "-DENABLE_ASAN=ON"
+          - os: macos-14
+            cmake_options: "-DENABLE_COVERAGE=ON"
           - os: macos-14
             gcc: 14
           - os: ubuntu-latest
@@ -38,12 +46,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Linux dependencies
       if: startsWith(matrix.os, 'ubuntu')
       run: |
+        export DEBIAN_FRONTEND=noninteractive
         sudo apt update
         sudo apt install -y libcfitsio-dev gfortran pkg-config
+        if [[ "${{ matrix.cmake_options }}" == *"COVERAGE"* ]]; then
+            sudo apt install -y gcovr
+        fi
 
     - name: MacOS dependencies
       if: startsWith(matrix.os, 'macos')
@@ -99,4 +113,18 @@ jobs:
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -V --output-on-failure
+      run: |
+        ctest -V --output-on-failure
+
+    - name: Generate coverage XML
+      if: contains(matrix.cmake_options, 'COVERAGE')
+      run: |
+        gcovr -r . --cobertura-pretty --cobertura coverage.xml
+
+    - name: Upload coverage XML
+      if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      uses: actions/upload-code-coverage@v1
+      with:
+        file: coverage.xml
+        language: "C"
+        label: "code-coverage/hstcal"
