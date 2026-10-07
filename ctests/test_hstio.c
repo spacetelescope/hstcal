@@ -414,6 +414,721 @@ TEST_BEGIN(fn_putMultiNicmosGroup) {
     TEST_RETURN
 }
 
+TEST_BEGIN(fn_makePrimaryArrayHdr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_makeImageExtHdr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKeyB) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKeyI) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKeyF) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKeyD) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKeyS) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putKeyB) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putKeyI) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putKeyF) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putKeyD) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putKeyS) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyB) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyI) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyF) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyD) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyS) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyOrAddAsHistKeyBool) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyOrAddAsHistKeyInt) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyOrAddAsHistKeyFloat) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyOrAddAsHistKeyDouble) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateKeyOrAddAsHistKeyStr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKwName) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKwComm) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getKwType) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getBoolKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getIntKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getFloatKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getDoubleKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getStringKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putKwName) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putKwComm) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putBoolKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putIntKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putFloatKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putDoubleKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putStringKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addBoolKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addIntKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addFloatKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addDoubleKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addStringKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addSpacesKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addCommentKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addHistoryKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertBoolKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertIntKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertFloatKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertDoubleKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertStringKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertSpacesKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertCommentKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertHistoryKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_addFitsCard) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_insertFitsCard) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_delKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_delAllKw) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_openInputImage) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_openOutputImage) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_openUpdateImage) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_closeImage) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getFilename) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getExtname) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getExtver) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getNaxis1) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getNaxis2) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getType) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getHeader) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putHeader) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getFloatData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putFloatData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getShortData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putShortData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putFloatSect) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putShortSect) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getFloatLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putFloatLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getShortLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_putShortLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_updateWCS) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initFloatData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocFloatData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeFloatData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_swapFloatStorageOrder) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initShortData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocShortData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeShortData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_swapShortStorageOrder) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initFloatLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocFloatLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeFloatLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initShortLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocShortLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeShortLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocSciLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocErrLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocDQLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initHdr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocHdr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_reallocHdr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeHdr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyHdr) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initFloatHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocFloatHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyFloatHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeFloatHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initShortHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocShortHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyShortHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeShortHdrData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initFloatHdrLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocFloatHdrLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeFloatHdrLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initShortHdrLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocShortHdrLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeShortHdrLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initSingleGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocSingleGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocSingleGroupHeader) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocSingleGroupExts) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeSingleGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_setStorageOrder) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copySingleGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyOffsetSingleGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initMultiGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocMultiGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeMultiGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyFloatData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyOffsetFloatData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyShortData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_copyOffsetShortData) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initSingleNicmosGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocSingleNicmosGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeSingleNicmosGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initMultiNicmosGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocMultiNicmosGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeMultiNicmosGroup) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_initSingleGroupLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_allocSingleGroupLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_freeSingleGroupLine) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_getNumHDUs) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_findTotalNumberOfImsets) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_findTotalNumberOfHDUSets) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
 
 TEST_SUITE_BEGIN(__FILE__) {
     const testfunc tests[] = {
@@ -480,6 +1195,149 @@ TEST_SUITE_BEGIN(__FILE__) {
         test_fn_getMultiNicmosGroup,
         test_fn_putMultiNicmosGroupHdr,
         test_fn_putMultiNicmosGroup,
+        test_fn_makePrimaryArrayHdr,
+        test_fn_makeImageExtHdr,
+        test_fn_getKeyB,
+        test_fn_getKeyI,
+        test_fn_getKeyF,
+        test_fn_getKeyD,
+        test_fn_getKeyS,
+        test_fn_putKeyB,
+        test_fn_putKeyI,
+        test_fn_putKeyF,
+        test_fn_putKeyD,
+        test_fn_putKeyS,
+        test_fn_updateKeyB,
+        test_fn_updateKeyI,
+        test_fn_updateKeyF,
+        test_fn_updateKeyD,
+        test_fn_updateKeyS,
+        test_fn_updateKeyOrAddAsHistKeyBool,
+        test_fn_updateKeyOrAddAsHistKeyInt,
+        test_fn_updateKeyOrAddAsHistKeyFloat,
+        test_fn_updateKeyOrAddAsHistKeyDouble,
+        test_fn_updateKeyOrAddAsHistKeyStr,
+        test_fn_getKwName,
+        test_fn_getKwComm,
+        test_fn_getKwType,
+        test_fn_getBoolKw,
+        test_fn_getIntKw,
+        test_fn_getFloatKw,
+        test_fn_getDoubleKw,
+        test_fn_getStringKw,
+        test_fn_putKwName,
+        test_fn_putKwComm,
+        test_fn_putBoolKw,
+        test_fn_putIntKw,
+        test_fn_putFloatKw,
+        test_fn_putDoubleKw,
+        test_fn_putStringKw,
+        test_fn_addBoolKw,
+        test_fn_addIntKw,
+        test_fn_addFloatKw,
+        test_fn_addDoubleKw,
+        test_fn_addStringKw,
+        test_fn_addSpacesKw,
+        test_fn_addCommentKw,
+        test_fn_addHistoryKw,
+        test_fn_insertBoolKw,
+        test_fn_insertIntKw,
+        test_fn_insertFloatKw,
+        test_fn_insertDoubleKw,
+        test_fn_insertStringKw,
+        test_fn_insertSpacesKw,
+        test_fn_insertCommentKw,
+        test_fn_insertHistoryKw,
+        test_fn_addFitsCard,
+        test_fn_insertFitsCard,
+        test_fn_delKw,
+        test_fn_delAllKw,
+        test_fn_openInputImage,
+        test_fn_openOutputImage,
+        test_fn_openUpdateImage,
+        test_fn_closeImage,
+        test_fn_getFilename,
+        test_fn_getExtname,
+        test_fn_getExtver,
+        test_fn_getNaxis1,
+        test_fn_getNaxis2,
+        test_fn_getType,
+        test_fn_getHeader,
+        test_fn_putHeader,
+        test_fn_getFloatData,
+        test_fn_putFloatData,
+        test_fn_getShortData,
+        test_fn_putShortData,
+        test_fn_putFloatSect,
+        test_fn_putShortSect,
+        test_fn_getFloatLine,
+        test_fn_putFloatLine,
+        test_fn_getShortLine,
+        test_fn_putShortLine,
+        test_fn_updateWCS,
+        test_fn_initFloatData,
+        test_fn_allocFloatData,
+        test_fn_freeFloatData,
+        test_fn_swapFloatStorageOrder,
+        test_fn_initShortData,
+        test_fn_allocShortData,
+        test_fn_freeShortData,
+        test_fn_swapShortStorageOrder,
+        test_fn_initFloatLine,
+        test_fn_allocFloatLine,
+        test_fn_freeFloatLine,
+        test_fn_initShortLine,
+        test_fn_allocShortLine,
+        test_fn_freeShortLine,
+        test_fn_allocSciLine,
+        test_fn_allocErrLine,
+        test_fn_allocDQLine,
+        test_fn_initHdr,
+        test_fn_allocHdr,
+        test_fn_reallocHdr,
+        test_fn_freeHdr,
+        test_fn_copyHdr,
+        test_fn_initFloatHdrData,
+        test_fn_allocFloatHdrData,
+        test_fn_copyFloatHdrData,
+        test_fn_freeFloatHdrData,
+        test_fn_initShortHdrData,
+        test_fn_allocShortHdrData,
+        test_fn_copyShortHdrData,
+        test_fn_freeShortHdrData,
+        test_fn_initFloatHdrLine,
+        test_fn_allocFloatHdrLine,
+        test_fn_freeFloatHdrLine,
+        test_fn_initShortHdrLine,
+        test_fn_allocShortHdrLine,
+        test_fn_freeShortHdrLine,
+        test_fn_initSingleGroup,
+        test_fn_allocSingleGroup,
+        test_fn_allocSingleGroupHeader,
+        test_fn_allocSingleGroupExts,
+        test_fn_freeSingleGroup,
+        test_fn_setStorageOrder,
+        test_fn_copySingleGroup,
+        test_fn_copyOffsetSingleGroup,
+        test_fn_initMultiGroup,
+        test_fn_allocMultiGroup,
+        test_fn_freeMultiGroup,
+        test_fn_copyFloatData,
+        test_fn_copyOffsetFloatData,
+        test_fn_copyShortData,
+        test_fn_copyOffsetShortData,
+        test_fn_initSingleNicmosGroup,
+        test_fn_allocSingleNicmosGroup,
+        test_fn_freeSingleNicmosGroup,
+        test_fn_initMultiNicmosGroup,
+        test_fn_allocMultiNicmosGroup,
+        test_fn_freeMultiNicmosGroup,
+        test_fn_initSingleGroupLine,
+        test_fn_allocSingleGroupLine,
+        test_fn_freeSingleGroupLine,
+        test_fn_getNumHDUs,
+        test_fn_findTotalNumberOfImsets,
+        test_fn_findTotalNumberOfHDUSets,
     };
     TEST_SUITE_RUN(tests);
     TEST_SUITE_RETURN
