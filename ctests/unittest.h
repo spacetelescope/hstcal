@@ -308,6 +308,8 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
         }
         printf(TEST_TERM_COLOR_BRIGHT_BLUE "      " TEST_TERM_COLOR_RESET " %s", line);
     }
+    fclose(fp);
+
     if (strlen(r->filename)) {
         remove(r->filename);
     }
