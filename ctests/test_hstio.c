@@ -1128,7 +1128,20 @@ TEST_BEGIN(fn_findTotalNumberOfHDUSets) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
+TEST_BEGIN(fn_FloatNAN) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
 
+TEST_BEGIN(fn_DoubleNAN) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
+
+TEST_BEGIN(fn_get_numeric) {
+    TEST_THROW_SKIP("Stub");
+    TEST_RETURN
+}
 
 TEST_SUITE_BEGIN(__FILE__) {
     const testfunc tests[] = {
@@ -1338,6 +1351,9 @@ TEST_SUITE_BEGIN(__FILE__) {
         test_fn_getNumHDUs,
         test_fn_findTotalNumberOfImsets,
         test_fn_findTotalNumberOfHDUSets,
+        test_fn_FloatNAN,
+        test_fn_DoubleNAN,
+        test_fn_get_numeric,
     };
     TEST_SUITE_RUN(tests);
     TEST_SUITE_RETURN
