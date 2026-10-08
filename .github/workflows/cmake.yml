@@ -49,6 +49,11 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+    - uses: actions/setup-python@v7
+      if: startsWith(matrix.os, 'ubuntu')
+      with:
+        python-version: '3.13'
+
     - name: Linux dependencies
       if: startsWith(matrix.os, 'ubuntu')
       run: |
@@ -56,7 +61,7 @@ jobs:
         sudo apt update
         sudo apt install -y libcfitsio-dev gfortran pkg-config
         if [[ "${{ matrix.cmake_options }}" == *"COVERAGE"* ]]; then
-            sudo apt install -y gcovr
+            python3 -m pip install gcovr
         fi
 
     - name: MacOS dependencies
@@ -93,7 +98,6 @@ jobs:
           -DTESTS=ON
         make
 
-
     - name: Install
       run: |
         cd build
@@ -116,15 +120,24 @@ jobs:
       run: |
         ctest -V --output-on-failure
 
+    - name: Generate coverage summary
+      if: contains(matrix.cmake_options, 'COVERAGE')
+      run: |
+        cd build
+        gcovr -r . --markdown coverage.md
+        echo "### Coverage summary" >> $GITHUB_STEP_SUMMARY
+        cat coverage.md >> $GITHUB_STEP_SUMMARY
+
     - name: Generate coverage XML
       if: contains(matrix.cmake_options, 'COVERAGE')
       run: |
+        cd build
         gcovr -r . --cobertura-pretty --cobertura coverage.xml
 
     - name: Upload coverage XML
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
       uses: actions/upload-code-coverage@v1
       with:
-        file: coverage.xml
+        file: build/coverage.xml
         language: "C"
         label: "code-coverage/hstcal"
