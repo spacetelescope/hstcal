@@ -123,14 +123,17 @@ jobs:
     - name: Generate coverage summary
       if: contains(matrix.cmake_options, 'COVERAGE')
       run: |
-        gcovr -r . --markdown coverage.md
+        gcovr -r . --exclude ctests --markdown coverage.md --markdown-title "SOURCE CODE"
+        gcovr -r . ctests --markdown coverage-ctests.md --markdown-title "UNIT TESTS"
+        
         echo "### Coverage summary" >> $GITHUB_STEP_SUMMARY
+        cat coverage-ctests.md >> $GITHUB_STEP_SUMMARY
         cat coverage.md >> $GITHUB_STEP_SUMMARY
 
     - name: Generate coverage XML
       if: contains(matrix.cmake_options, 'COVERAGE')
       run: |
-        gcovr -r . --cobertura-pretty --cobertura coverage.xml
+        gcovr -r . --exclude ctests --cobertura-pretty --cobertura coverage.xml
 
     - name: Upload coverage XML
       if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
