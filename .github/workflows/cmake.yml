@@ -124,7 +124,7 @@ jobs:
       if: contains(matrix.cmake_options, 'COVERAGE')
       run: |
         gcovr -r . --exclude ctests --markdown coverage.md --markdown-title "SOURCE CODE"
-        gcovr -r . ctests --markdown coverage-ctests.md --markdown-title "UNIT TESTS"
+        gcovr -r . build/ctests --markdown coverage-ctests.md --markdown-title "UNIT TESTS"
         
         echo "### Coverage summary" >> $GITHUB_STEP_SUMMARY
         cat coverage-ctests.md >> $GITHUB_STEP_SUMMARY
