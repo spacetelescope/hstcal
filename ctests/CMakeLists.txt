@@ -61,3 +61,14 @@ add_test(NAME test_trlbuf
 target_link_libraries(test_trlbuf
         PUBLIC hstcalib
 )
+
+
+add_executable(test_tables
+    test_tables.c
+)
+add_test(NAME test_tables
+    COMMAND $<TARGET_FILE:test_tables>
+)
+target_link_libraries(test_tables
+    PUBLIC hstcalib tables 
+)
