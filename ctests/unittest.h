@@ -360,6 +360,43 @@ static inline int is_ansi_and_empty(const char *s) {
     return 0;
 }
 
+static inline void hexdump(const void *data, const size_t maxlen) {
+    const unsigned char *bytes = data;
+    const size_t bytes_per_line = 16;
+
+    for (size_t i = 0; i < maxlen; i += bytes_per_line) {
+        size_t bytes_count;
+        if (maxlen - i < bytes_per_line) {
+            bytes_count = maxlen - i;
+        } else {
+            bytes_count = bytes_per_line;
+        }
+
+        // print offset
+        printf("%08zx  ", i);
+        for (size_t j = 0; j < bytes_per_line; ++j) {
+            if (j < bytes_count) {
+                // print byte
+                printf("%02x ", bytes[i + j]);
+            } else {
+                // print padding
+                printf("   ");
+            }
+
+            if (j == (bytes_per_line - 1) / 2) {
+                // pad center of output
+                printf(" ");
+            }
+        }
+
+        printf(" ");
+        for (size_t j = 0; j < bytes_count; ++j) {
+            const unsigned char c = bytes[i + j];
+            putchar(isprint(c) ? c : '.');
+        }
+        printf("\n");
+    }
+}
 
 static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
     fflush(stdout);

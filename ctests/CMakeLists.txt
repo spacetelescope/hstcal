@@ -72,3 +72,13 @@ add_test(NAME test_tables
 target_link_libraries(test_tables
     PUBLIC hstcalib tables 
 )
+
+add_executable(test_timestamp
+    test_timestamp.c
+)
+add_test(NAME test_timestamp
+    COMMAND $<TARGET_FILE:test_timestamp>
+)
+target_link_libraries(test_timestamp
+    PUBLIC hstcalib 
+)
