@@ -1,9 +1,6 @@
 #ifndef HSTCAL_UNITTEST_H
 #define HSTCAL_UNITTEST_H
 
-#include "str_util.h"
-
-
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
