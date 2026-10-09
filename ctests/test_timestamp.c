@@ -32,6 +32,7 @@ TEST_UNIT(timestamp) {
     TEST_ASSERT(strlen(datestamp) == 13, "Datestamp length mismatch, should be 13, got %zu", strlen(datestamp));
     TEST_ASSERT(strlen(message) == 67, "Message length mismatch, should be 67, got %zu", strlen(message));
     TEST_ASSERT(strlen(line) == 80, "Message should be padded to maximum length of %zu, got %zu", SZ_TIMESTRING, strlen(line));
+    fclose(fp);
     remove(filename);
 
     CloseTrlBuf(&trlbuf);
