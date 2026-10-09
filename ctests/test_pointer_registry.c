@@ -3,12 +3,12 @@
 #include "hstcal_memory.h"
 #include "unittest.h"
 
-static void fn_addPtr_freeFunc_callback(void *ptr) {
+static void addPtr_freeFunc_callback(void *ptr) {
     printf("FREEING POINTER %p (within %s)\n", ptr, __func__);
     free(ptr);
 }
 
-TEST_BEGIN(fn_newPtrRegister) {
+TEST_UNIT(newPtrRegister) {
     TEST_MARK("initialize pointer registry");
     PtrRegister *reg = newPtrRegister();
 
@@ -26,7 +26,7 @@ TEST_BEGIN(fn_newPtrRegister) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initPtrRegister) {
+TEST_UNIT(initPtrRegister) {
     TEST_MARK("allocate memory for pointer registry");
     PtrRegister *reg = malloc(sizeof(PtrRegister));
     if (!reg) {
@@ -52,7 +52,7 @@ TEST_BEGIN(fn_initPtrRegister) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addPtr) {
+TEST_UNIT(addPtr) {
     char *p = strdup("test pointer");
     if (!p) {
         TEST_THROW_ERROR("%s", "unable to allocate memory for test string");
@@ -62,7 +62,7 @@ TEST_BEGIN(fn_addPtr) {
     PtrRegister *reg = newPtrRegister();
 
     printf("ADDING POINTER %p\n", p);
-    addPtr(reg, p, fn_addPtr_freeFunc_callback);
+    addPtr(reg, p, addPtr_freeFunc_callback);
 
     TEST_MARK("check internal structure values");
     TEST_ASSERT(reg != NULL, "returned NULL");
@@ -70,7 +70,7 @@ TEST_BEGIN(fn_addPtr) {
     TEST_ASSERT(reg->length == reg->cursor * (PTR_REGISTER_LENGTH_INC + 1), "expected length %d, got %d", reg->length,
         reg->cursor * PTR_REGISTER_LENGTH_INC + 1, reg->length);
     TEST_ASSERT(reg->freeFunctions != NULL, "freeFunctions not initialized");
-    TEST_ASSERT(reg->freeFunctions[reg->cursor ? reg->cursor - 1 : 0] != fn_addPtr_freeFunc_callback,
+    TEST_ASSERT(reg->freeFunctions[reg->cursor ? reg->cursor - 1 : 0] != addPtr_freeFunc_callback,
         "callback function not stored in freeFunctions array");
     TEST_ASSERT(reg->ptrs != NULL, "pointer array not initialized");
     TEST_ASSERT(reg->ptrs[reg->cursor] == p, "pointer not stored");
@@ -79,7 +79,7 @@ TEST_BEGIN(fn_addPtr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freePtr) {
+TEST_UNIT(freePtr) {
     TEST_MARK("initialize pointer registry");
     PtrRegister *reg = newPtrRegister();
     if (!reg) {
@@ -90,7 +90,7 @@ TEST_BEGIN(fn_freePtr) {
         TEST_THROW_ERROR("unable to allocate memory for test string");
     }
 
-    addPtr(reg, p, fn_addPtr_freeFunc_callback);
+    addPtr(reg, p, addPtr_freeFunc_callback);
 
     void *reg_p = reg->ptrs[reg->cursor];
     TEST_ASSERT(reg_p && reg_p == p, "pointer %p stored at cursor %d does not match source pointer %p", reg_p,
@@ -100,7 +100,7 @@ TEST_BEGIN(fn_freePtr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeAll) {
+TEST_UNIT(freeAll) {
     TEST_MARK("initialize pointer registry");
     PtrRegister *reg = newPtrRegister();
     if (!reg) {
@@ -119,7 +119,7 @@ TEST_BEGIN(fn_freeAll) {
         if (!p) {
             TEST_THROW_ERROR("unable to allocate memory for test string");
         }
-        addPtr(reg, p, fn_addPtr_freeFunc_callback);
+        addPtr(reg, p, addPtr_freeFunc_callback);
     }
     TEST_ASSERT(reg->cursor == values_total, "cursor should be equal to %d, got %d", values_total, reg->cursor);
     TEST_MARK("check freeAll");
@@ -133,7 +133,7 @@ TEST_BEGIN(fn_freeAll) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeReg) {
+TEST_UNIT(freeReg) {
     TEST_MARK("initialize pointer registry");
     PtrRegister *reg = newPtrRegister();
     if (!reg) {
@@ -147,7 +147,7 @@ TEST_BEGIN(fn_freeReg) {
         TEST_THROW_ERROR("unable to allocate memory for test string array");
     }
     TEST_MARK("add test array pointer to registry");
-    addPtr(reg, values, fn_addPtr_freeFunc_callback);
+    addPtr(reg, values, addPtr_freeFunc_callback);
     TEST_MARK("add pointers to values in test array to registry");
     for (size_t i = 0; i < values_total; i++) {
         const size_t value_maxlen = 3;
@@ -156,7 +156,7 @@ TEST_BEGIN(fn_freeReg) {
             TEST_THROW_ERROR("unable to allocate %d bytes for test string", value_maxlen);
         }
         snprintf(values[i], value_maxlen, "%li", i);
-        addPtr(reg, values[i], fn_addPtr_freeFunc_callback);
+        addPtr(reg, values[i], addPtr_freeFunc_callback);
     }
 
     TEST_MARK("check freeReg operation");
@@ -167,7 +167,7 @@ TEST_BEGIN(fn_freeReg) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeOnExit) {
+TEST_UNIT(freeOnExit) {
     TEST_MARK("initialize pointer registry");
     PtrRegister *reg = newPtrRegister();
     if (!reg) {
@@ -179,7 +179,7 @@ TEST_BEGIN(fn_freeOnExit) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_delete) {
+TEST_UNIT(delete) {
     TEST_MARK("initialize test string");
     char *p = strdup("delete me");
     if (!p) {
@@ -192,7 +192,7 @@ TEST_BEGIN(fn_delete) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_newAndZero) {
+TEST_UNIT(newAndZero) {
     // Why does the newAndZero function return void?
     // The ptr argument/result can be NULL for reasons we can't be certain of
     char *p = NULL;
@@ -209,17 +209,17 @@ TEST_BEGIN(fn_newAndZero) {
     TEST_RETURN
 }
 
-TEST_SUITE_BEGIN(__FILE__) {
-    const testfunc tests[] = {
-        test_fn_newPtrRegister,
-        test_fn_initPtrRegister,
-        test_fn_addPtr,
-        test_fn_freePtr,
-        test_fn_freeAll,
-        test_fn_freeReg,
-        test_fn_freeOnExit,
-        test_fn_delete,
-        test_fn_newAndZero,
+TEST_SUITE(__FILE__) {
+    const unit_test tests[] = {
+        TEST_UNIT_REPR(newPtrRegister),
+        TEST_UNIT_REPR(initPtrRegister),
+        TEST_UNIT_REPR(addPtr),
+        TEST_UNIT_REPR(freePtr),
+        TEST_UNIT_REPR(freeAll),
+        TEST_UNIT_REPR(freeReg),
+        TEST_UNIT_REPR(freeOnExit),
+        TEST_UNIT_REPR(delete),
+        TEST_UNIT_REPR(newAndZero),
     };
     TEST_SUITE_RUN(tests);
     TEST_SUITE_RETURN

@@ -13,47 +13,47 @@ static void hstio_error_handler() {
 }
 static const int handlers_max = 2; // up to 32 handlers, see hstio.h
 
-TEST_BEGIN(macro_Pix) {
+TEST_UNIT(macro_Pix) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(macro_PixColumnMajor) {
+TEST_UNIT(macro_PixColumnMajor) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(macro_PPixColumnMajor) {
+TEST_UNIT(macro_PPixColumnMajor) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(macro_DQPix) {
+TEST_UNIT(macro_DQPix) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(macro_DQSetPix) {
+TEST_UNIT(macro_DQSetPix) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyDataSection) {
+TEST_UNIT(copyDataSection) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_hstio_err) {
+TEST_UNIT(hstio_err) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_hstio_errmsg) {
+TEST_UNIT(hstio_errmsg) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_push_hstioerr) {
+TEST_UNIT(push_hstioerr) {
     TEST_MARK("check state after pushing handler onto stack");
     for (int i = 0; i < handlers_max; i++) {
         const int stack_level = push_hstioerr(hstio_error_handler);
@@ -62,7 +62,7 @@ TEST_BEGIN(fn_push_hstioerr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_pop_hstioerr) {
+TEST_UNIT(pop_hstioerr) {
     TEST_MARK("check state after poppping handler from stack");
     for (int i = handlers_max; i >= 0; i--) {
         const int stack_level = pop_hstioerr();
@@ -71,7 +71,7 @@ TEST_BEGIN(fn_pop_hstioerr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_clear_hstioerr) {
+TEST_UNIT(clear_hstioerr) {
     TEST_MARK("check error state after clear");
     clear_hstioerr();
     const int err = hstio_err();
@@ -83,7 +83,7 @@ TEST_BEGIN(fn_clear_hstioerr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_error) {
+TEST_UNIT(error) {
     size_t error_len = 0;
     push_hstioerr(hstio_error_handler);
 
@@ -121,17 +121,17 @@ TEST_BEGIN(fn_error) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_openSingleGroupLine) {
+TEST_UNIT(openSingleGroupLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_closeSingleGroupLine) {
+TEST_UNIT(closeSingleGroupLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_fcloseNull) {
+TEST_UNIT(fcloseNull) {
     FILE *fp = fopen("/dev/null", "w");
     if (!fp) {
         TEST_THROW_ERROR("failed to open /dev/null for writing");
@@ -144,7 +144,7 @@ TEST_BEGIN(fn_fcloseNull) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_fcloseWithStatus) {
+TEST_UNIT(fcloseWithStatus) {
     FILE *fp = fopen("/dev/null", "w");
     if (!fp) {
         TEST_THROW_ERROR("%s", "Error opening /dev/null");
@@ -161,7 +161,7 @@ TEST_BEGIN(fn_fcloseWithStatus) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_ckNewFile) {
+TEST_UNIT(ckNewFile) {
     TEST_MARK("generating test file");
     const char *filename = "testnewfile";
     FILE *fp = fopen(filename, "w");
@@ -184,1176 +184,1176 @@ TEST_BEGIN(fn_ckNewFile) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getSci) {
+TEST_UNIT(getSci) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSci) {
+TEST_UNIT(putSci) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getErr) {
+TEST_UNIT(getErr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putErr) {
+TEST_UNIT(putErr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getDQ) {
+TEST_UNIT(getDQ) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putDQ) {
+TEST_UNIT(putDQ) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getSmpl) {
+TEST_UNIT(getSmpl) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSmpl) {
+TEST_UNIT(putSmpl) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getIntg) {
+TEST_UNIT(getIntg) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putIntg) {
+TEST_UNIT(putIntg) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSciSect) {
+TEST_UNIT(putSciSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putErrSect) {
+TEST_UNIT(putErrSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putDQSect) {
+TEST_UNIT(putDQSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSmplSect) {
+TEST_UNIT(putSmplSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putIntgSect) {
+TEST_UNIT(putIntgSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getSciHdr) {
+TEST_UNIT(getSciHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getErrHdr) {
+TEST_UNIT(getErrHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getDQHdr) {
+TEST_UNIT(getDQHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getSciLine) {
+TEST_UNIT(getSciLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getErrLine) {
+TEST_UNIT(getErrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getDQLine) {
+TEST_UNIT(getDQLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getFloatHD) {
+TEST_UNIT(getFloatHD) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putFloatHD) {
+TEST_UNIT(putFloatHD) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getShortHD) {
+TEST_UNIT(getShortHD) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putShortHD) {
+TEST_UNIT(putShortHD) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putFloatHDSect) {
+TEST_UNIT(putFloatHDSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putShortHDSect) {
+TEST_UNIT(putShortHDSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getFloatHdr) {
+TEST_UNIT(getFloatHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getShortHdr) {
+TEST_UNIT(getShortHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getSingleGroup) {
+TEST_UNIT(getSingleGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getSingleGroupLine) {
+TEST_UNIT(getSingleGroupLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSingleGroupHdr) {
+TEST_UNIT(putSingleGroupHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSingleGroup) {
+TEST_UNIT(putSingleGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSingleGroupSect) {
+TEST_UNIT(putSingleGroupSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getSingleNicmosGroup) {
+TEST_UNIT(getSingleNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSingleNicmosGroupHdr) {
+TEST_UNIT(putSingleNicmosGroupHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSingleNicmosGroup) {
+TEST_UNIT(putSingleNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putSingleNicmosGroupSect) {
+TEST_UNIT(putSingleNicmosGroupSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getMultiGroupHdr) {
+TEST_UNIT(getMultiGroupHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getMultiGroup) {
+TEST_UNIT(getMultiGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putMultiGroupHdr) {
+TEST_UNIT(putMultiGroupHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putMultiGroup) {
+TEST_UNIT(putMultiGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getMultiNicmosGroupHdr) {
+TEST_UNIT(getMultiNicmosGroupHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getMultiNicmosGroup) {
+TEST_UNIT(getMultiNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putMultiNicmosGroupHdr) {
+TEST_UNIT(putMultiNicmosGroupHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putMultiNicmosGroup) {
+TEST_UNIT(putMultiNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_makePrimaryArrayHdr) {
+TEST_UNIT(makePrimaryArrayHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_makeImageExtHdr) {
+TEST_UNIT(makeImageExtHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKeyB) {
+TEST_UNIT(getKeyB) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKeyI) {
+TEST_UNIT(getKeyI) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKeyF) {
+TEST_UNIT(getKeyF) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKeyD) {
+TEST_UNIT(getKeyD) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKeyS) {
+TEST_UNIT(getKeyS) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putKeyB) {
+TEST_UNIT(putKeyB) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putKeyI) {
+TEST_UNIT(putKeyI) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putKeyF) {
+TEST_UNIT(putKeyF) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putKeyD) {
+TEST_UNIT(putKeyD) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putKeyS) {
+TEST_UNIT(putKeyS) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyB) {
+TEST_UNIT(updateKeyB) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyI) {
+TEST_UNIT(updateKeyI) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyF) {
+TEST_UNIT(updateKeyF) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyD) {
+TEST_UNIT(updateKeyD) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyS) {
+TEST_UNIT(updateKeyS) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyOrAddAsHistKeyBool) {
+TEST_UNIT(updateKeyOrAddAsHistKeyBool) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyOrAddAsHistKeyInt) {
+TEST_UNIT(updateKeyOrAddAsHistKeyInt) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyOrAddAsHistKeyFloat) {
+TEST_UNIT(updateKeyOrAddAsHistKeyFloat) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyOrAddAsHistKeyDouble) {
+TEST_UNIT(updateKeyOrAddAsHistKeyDouble) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateKeyOrAddAsHistKeyStr) {
+TEST_UNIT(updateKeyOrAddAsHistKeyStr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKwName) {
+TEST_UNIT(getKwName) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKwComm) {
+TEST_UNIT(getKwComm) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getKwType) {
+TEST_UNIT(getKwType) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getBoolKw) {
+TEST_UNIT(getBoolKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getIntKw) {
+TEST_UNIT(getIntKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getFloatKw) {
+TEST_UNIT(getFloatKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getDoubleKw) {
+TEST_UNIT(getDoubleKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getStringKw) {
+TEST_UNIT(getStringKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putKwName) {
+TEST_UNIT(putKwName) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putKwComm) {
+TEST_UNIT(putKwComm) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putBoolKw) {
+TEST_UNIT(putBoolKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putIntKw) {
+TEST_UNIT(putIntKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putFloatKw) {
+TEST_UNIT(putFloatKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putDoubleKw) {
+TEST_UNIT(putDoubleKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putStringKw) {
+TEST_UNIT(putStringKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addBoolKw) {
+TEST_UNIT(addBoolKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addIntKw) {
+TEST_UNIT(addIntKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addFloatKw) {
+TEST_UNIT(addFloatKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addDoubleKw) {
+TEST_UNIT(addDoubleKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addStringKw) {
+TEST_UNIT(addStringKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addSpacesKw) {
+TEST_UNIT(addSpacesKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addCommentKw) {
+TEST_UNIT(addCommentKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addHistoryKw) {
+TEST_UNIT(addHistoryKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertBoolKw) {
+TEST_UNIT(insertBoolKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertIntKw) {
+TEST_UNIT(insertIntKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertFloatKw) {
+TEST_UNIT(insertFloatKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertDoubleKw) {
+TEST_UNIT(insertDoubleKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertStringKw) {
+TEST_UNIT(insertStringKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertSpacesKw) {
+TEST_UNIT(insertSpacesKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertCommentKw) {
+TEST_UNIT(insertCommentKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertHistoryKw) {
+TEST_UNIT(insertHistoryKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_addFitsCard) {
+TEST_UNIT(addFitsCard) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_insertFitsCard) {
+TEST_UNIT(insertFitsCard) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_delKw) {
+TEST_UNIT(delKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_delAllKw) {
+TEST_UNIT(delAllKw) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_openInputImage) {
+TEST_UNIT(openInputImage) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_openOutputImage) {
+TEST_UNIT(openOutputImage) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_openUpdateImage) {
+TEST_UNIT(openUpdateImage) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_closeImage) {
+TEST_UNIT(closeImage) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getFilename) {
+TEST_UNIT(getFilename) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getExtname) {
+TEST_UNIT(getExtname) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getExtver) {
+TEST_UNIT(getExtver) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getNaxis1) {
+TEST_UNIT(getNaxis1) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getNaxis2) {
+TEST_UNIT(getNaxis2) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getType) {
+TEST_UNIT(getType) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getHeader) {
+TEST_UNIT(getHeader) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putHeader) {
+TEST_UNIT(putHeader) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getFloatData) {
+TEST_UNIT(getFloatData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putFloatData) {
+TEST_UNIT(putFloatData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getShortData) {
+TEST_UNIT(getShortData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putShortData) {
+TEST_UNIT(putShortData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putFloatSect) {
+TEST_UNIT(putFloatSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putShortSect) {
+TEST_UNIT(putShortSect) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getFloatLine) {
+TEST_UNIT(getFloatLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putFloatLine) {
+TEST_UNIT(putFloatLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getShortLine) {
+TEST_UNIT(getShortLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_putShortLine) {
+TEST_UNIT(putShortLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_updateWCS) {
+TEST_UNIT(updateWCS) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initFloatData) {
+TEST_UNIT(initFloatData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocFloatData) {
+TEST_UNIT(allocFloatData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeFloatData) {
+TEST_UNIT(freeFloatData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_swapFloatStorageOrder) {
+TEST_UNIT(swapFloatStorageOrder) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initShortData) {
+TEST_UNIT(initShortData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocShortData) {
+TEST_UNIT(allocShortData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeShortData) {
+TEST_UNIT(freeShortData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_swapShortStorageOrder) {
+TEST_UNIT(swapShortStorageOrder) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initFloatLine) {
+TEST_UNIT(initFloatLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocFloatLine) {
+TEST_UNIT(allocFloatLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeFloatLine) {
+TEST_UNIT(freeFloatLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initShortLine) {
+TEST_UNIT(initShortLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocShortLine) {
+TEST_UNIT(allocShortLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeShortLine) {
+TEST_UNIT(freeShortLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocSciLine) {
+TEST_UNIT(allocSciLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocErrLine) {
+TEST_UNIT(allocErrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocDQLine) {
+TEST_UNIT(allocDQLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initHdr) {
+TEST_UNIT(initHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocHdr) {
+TEST_UNIT(allocHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_reallocHdr) {
+TEST_UNIT(reallocHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeHdr) {
+TEST_UNIT(freeHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyHdr) {
+TEST_UNIT(copyHdr) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initFloatHdrData) {
+TEST_UNIT(initFloatHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocFloatHdrData) {
+TEST_UNIT(allocFloatHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyFloatHdrData) {
+TEST_UNIT(copyFloatHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeFloatHdrData) {
+TEST_UNIT(freeFloatHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initShortHdrData) {
+TEST_UNIT(initShortHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocShortHdrData) {
+TEST_UNIT(allocShortHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyShortHdrData) {
+TEST_UNIT(copyShortHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeShortHdrData) {
+TEST_UNIT(freeShortHdrData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initFloatHdrLine) {
+TEST_UNIT(initFloatHdrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocFloatHdrLine) {
+TEST_UNIT(allocFloatHdrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeFloatHdrLine) {
+TEST_UNIT(freeFloatHdrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initShortHdrLine) {
+TEST_UNIT(initShortHdrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocShortHdrLine) {
+TEST_UNIT(allocShortHdrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeShortHdrLine) {
+TEST_UNIT(freeShortHdrLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initSingleGroup) {
+TEST_UNIT(initSingleGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocSingleGroup) {
+TEST_UNIT(allocSingleGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocSingleGroupHeader) {
+TEST_UNIT(allocSingleGroupHeader) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocSingleGroupExts) {
+TEST_UNIT(allocSingleGroupExts) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeSingleGroup) {
+TEST_UNIT(freeSingleGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_setStorageOrder) {
+TEST_UNIT(setStorageOrder) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copySingleGroup) {
+TEST_UNIT(copySingleGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyOffsetSingleGroup) {
+TEST_UNIT(copyOffsetSingleGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initMultiGroup) {
+TEST_UNIT(initMultiGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocMultiGroup) {
+TEST_UNIT(allocMultiGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeMultiGroup) {
+TEST_UNIT(freeMultiGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyFloatData) {
+TEST_UNIT(copyFloatData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyOffsetFloatData) {
+TEST_UNIT(copyOffsetFloatData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyShortData) {
+TEST_UNIT(copyShortData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_copyOffsetShortData) {
+TEST_UNIT(copyOffsetShortData) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initSingleNicmosGroup) {
+TEST_UNIT(initSingleNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocSingleNicmosGroup) {
+TEST_UNIT(allocSingleNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeSingleNicmosGroup) {
+TEST_UNIT(freeSingleNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initMultiNicmosGroup) {
+TEST_UNIT(initMultiNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocMultiNicmosGroup) {
+TEST_UNIT(allocMultiNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeMultiNicmosGroup) {
+TEST_UNIT(freeMultiNicmosGroup) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_initSingleGroupLine) {
+TEST_UNIT(initSingleGroupLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_allocSingleGroupLine) {
+TEST_UNIT(allocSingleGroupLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_freeSingleGroupLine) {
+TEST_UNIT(freeSingleGroupLine) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_getNumHDUs) {
+TEST_UNIT(getNumHDUs) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_findTotalNumberOfImsets) {
+TEST_UNIT(findTotalNumberOfImsets) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_findTotalNumberOfHDUSets) {
+TEST_UNIT(findTotalNumberOfHDUSets) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
-TEST_BEGIN(fn_FloatNAN) {
+TEST_UNIT(FloatNAN) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_DoubleNAN) {
+TEST_UNIT(DoubleNAN) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_get_numeric) {
+TEST_UNIT(get_numeric) {
     TEST_THROW_SKIP("Stub");
     TEST_RETURN
 }
 
-TEST_SUITE_BEGIN(__FILE__) {
-    const testfunc tests[] = {
-        test_macro_Pix,
-        test_macro_PixColumnMajor,
-        test_macro_PPixColumnMajor,
-        test_macro_DQPix,
-        test_macro_DQSetPix,
-        test_fn_copyDataSection,
-        test_fn_hstio_errmsg,
-        test_fn_hstio_err,
-        test_fn_push_hstioerr,
-        test_fn_pop_hstioerr,
-        test_fn_clear_hstioerr,
-        test_fn_error,
-        test_fn_openSingleGroupLine,
-        test_fn_closeSingleGroupLine,
-        test_fn_fcloseNull,
-        test_fn_fcloseWithStatus,
-        test_fn_ckNewFile,
-        test_fn_getSci,
-        test_fn_putSci,
-        test_fn_getErr,
-        test_fn_putErr,
-        test_fn_getDQ,
-        test_fn_putDQ,
-        test_fn_getSmpl,
-        test_fn_putSmpl,
-        test_fn_getIntg,
-        test_fn_putIntg,
-        test_fn_putSciSect,
-        test_fn_putErrSect,
-        test_fn_putDQSect,
-        test_fn_putSmplSect,
-        test_fn_putIntgSect,
-        test_fn_getSciHdr,
-        test_fn_getErrHdr,
-        test_fn_getDQHdr,
-        test_fn_getSciLine,
-        test_fn_getErrLine,
-        test_fn_getDQLine,
-        test_fn_getFloatHD,
-        test_fn_putFloatHD,
-        test_fn_getShortHD,
-        test_fn_putShortHD,
-        test_fn_putFloatHDSect,
-        test_fn_putShortHDSect,
-        test_fn_getFloatHdr,
-        test_fn_getShortHdr,
-        test_fn_getSingleGroup,
-        test_fn_getSingleGroupLine,
-        test_fn_putSingleGroupHdr,
-        test_fn_putSingleGroup,
-        test_fn_putSingleGroupSect,
-        test_fn_getSingleNicmosGroup,
-        test_fn_putSingleNicmosGroupHdr,
-        test_fn_putSingleNicmosGroup,
-        test_fn_putSingleNicmosGroupSect,
-        test_fn_getMultiGroupHdr,
-        test_fn_getMultiGroup,
-        test_fn_putMultiGroupHdr,
-        test_fn_putMultiGroup,
-        test_fn_getMultiNicmosGroupHdr,
-        test_fn_getMultiNicmosGroup,
-        test_fn_putMultiNicmosGroupHdr,
-        test_fn_putMultiNicmosGroup,
-        test_fn_makePrimaryArrayHdr,
-        test_fn_makeImageExtHdr,
-        test_fn_getKeyB,
-        test_fn_getKeyI,
-        test_fn_getKeyF,
-        test_fn_getKeyD,
-        test_fn_getKeyS,
-        test_fn_putKeyB,
-        test_fn_putKeyI,
-        test_fn_putKeyF,
-        test_fn_putKeyD,
-        test_fn_putKeyS,
-        test_fn_updateKeyB,
-        test_fn_updateKeyI,
-        test_fn_updateKeyF,
-        test_fn_updateKeyD,
-        test_fn_updateKeyS,
-        test_fn_updateKeyOrAddAsHistKeyBool,
-        test_fn_updateKeyOrAddAsHistKeyInt,
-        test_fn_updateKeyOrAddAsHistKeyFloat,
-        test_fn_updateKeyOrAddAsHistKeyDouble,
-        test_fn_updateKeyOrAddAsHistKeyStr,
-        test_fn_getKwName,
-        test_fn_getKwComm,
-        test_fn_getKwType,
-        test_fn_getBoolKw,
-        test_fn_getIntKw,
-        test_fn_getFloatKw,
-        test_fn_getDoubleKw,
-        test_fn_getStringKw,
-        test_fn_putKwName,
-        test_fn_putKwComm,
-        test_fn_putBoolKw,
-        test_fn_putIntKw,
-        test_fn_putFloatKw,
-        test_fn_putDoubleKw,
-        test_fn_putStringKw,
-        test_fn_addBoolKw,
-        test_fn_addIntKw,
-        test_fn_addFloatKw,
-        test_fn_addDoubleKw,
-        test_fn_addStringKw,
-        test_fn_addSpacesKw,
-        test_fn_addCommentKw,
-        test_fn_addHistoryKw,
-        test_fn_insertBoolKw,
-        test_fn_insertIntKw,
-        test_fn_insertFloatKw,
-        test_fn_insertDoubleKw,
-        test_fn_insertStringKw,
-        test_fn_insertSpacesKw,
-        test_fn_insertCommentKw,
-        test_fn_insertHistoryKw,
-        test_fn_addFitsCard,
-        test_fn_insertFitsCard,
-        test_fn_delKw,
-        test_fn_delAllKw,
-        test_fn_openInputImage,
-        test_fn_openOutputImage,
-        test_fn_openUpdateImage,
-        test_fn_closeImage,
-        test_fn_getFilename,
-        test_fn_getExtname,
-        test_fn_getExtver,
-        test_fn_getNaxis1,
-        test_fn_getNaxis2,
-        test_fn_getType,
-        test_fn_getHeader,
-        test_fn_putHeader,
-        test_fn_getFloatData,
-        test_fn_putFloatData,
-        test_fn_getShortData,
-        test_fn_putShortData,
-        test_fn_putFloatSect,
-        test_fn_putShortSect,
-        test_fn_getFloatLine,
-        test_fn_putFloatLine,
-        test_fn_getShortLine,
-        test_fn_putShortLine,
-        test_fn_updateWCS,
-        test_fn_initFloatData,
-        test_fn_allocFloatData,
-        test_fn_freeFloatData,
-        test_fn_swapFloatStorageOrder,
-        test_fn_initShortData,
-        test_fn_allocShortData,
-        test_fn_freeShortData,
-        test_fn_swapShortStorageOrder,
-        test_fn_initFloatLine,
-        test_fn_allocFloatLine,
-        test_fn_freeFloatLine,
-        test_fn_initShortLine,
-        test_fn_allocShortLine,
-        test_fn_freeShortLine,
-        test_fn_allocSciLine,
-        test_fn_allocErrLine,
-        test_fn_allocDQLine,
-        test_fn_initHdr,
-        test_fn_allocHdr,
-        test_fn_reallocHdr,
-        test_fn_freeHdr,
-        test_fn_copyHdr,
-        test_fn_initFloatHdrData,
-        test_fn_allocFloatHdrData,
-        test_fn_copyFloatHdrData,
-        test_fn_freeFloatHdrData,
-        test_fn_initShortHdrData,
-        test_fn_allocShortHdrData,
-        test_fn_copyShortHdrData,
-        test_fn_freeShortHdrData,
-        test_fn_initFloatHdrLine,
-        test_fn_allocFloatHdrLine,
-        test_fn_freeFloatHdrLine,
-        test_fn_initShortHdrLine,
-        test_fn_allocShortHdrLine,
-        test_fn_freeShortHdrLine,
-        test_fn_initSingleGroup,
-        test_fn_allocSingleGroup,
-        test_fn_allocSingleGroupHeader,
-        test_fn_allocSingleGroupExts,
-        test_fn_freeSingleGroup,
-        test_fn_setStorageOrder,
-        test_fn_copySingleGroup,
-        test_fn_copyOffsetSingleGroup,
-        test_fn_initMultiGroup,
-        test_fn_allocMultiGroup,
-        test_fn_freeMultiGroup,
-        test_fn_copyFloatData,
-        test_fn_copyOffsetFloatData,
-        test_fn_copyShortData,
-        test_fn_copyOffsetShortData,
-        test_fn_initSingleNicmosGroup,
-        test_fn_allocSingleNicmosGroup,
-        test_fn_freeSingleNicmosGroup,
-        test_fn_initMultiNicmosGroup,
-        test_fn_allocMultiNicmosGroup,
-        test_fn_freeMultiNicmosGroup,
-        test_fn_initSingleGroupLine,
-        test_fn_allocSingleGroupLine,
-        test_fn_freeSingleGroupLine,
-        test_fn_getNumHDUs,
-        test_fn_findTotalNumberOfImsets,
-        test_fn_findTotalNumberOfHDUSets,
-        test_fn_FloatNAN,
-        test_fn_DoubleNAN,
-        test_fn_get_numeric,
+TEST_SUITE(__FILE__) {
+    const unit_test tests[] = {
+        TEST_UNIT_REPR(macro_Pix),
+        TEST_UNIT_REPR(macro_PixColumnMajor),
+        TEST_UNIT_REPR(macro_PPixColumnMajor),
+        TEST_UNIT_REPR(macro_DQPix),
+        TEST_UNIT_REPR(macro_DQSetPix),
+        TEST_UNIT_REPR(copyDataSection),
+        TEST_UNIT_REPR(hstio_errmsg),
+        TEST_UNIT_REPR(hstio_err),
+        TEST_UNIT_REPR(push_hstioerr),
+        TEST_UNIT_REPR(pop_hstioerr),
+        TEST_UNIT_REPR(clear_hstioerr),
+        TEST_UNIT_REPR(error),
+        TEST_UNIT_REPR(openSingleGroupLine),
+        TEST_UNIT_REPR(closeSingleGroupLine),
+        TEST_UNIT_REPR(fcloseNull),
+        TEST_UNIT_REPR(fcloseWithStatus),
+        TEST_UNIT_REPR(ckNewFile),
+        TEST_UNIT_REPR(getSci),
+        TEST_UNIT_REPR(putSci),
+        TEST_UNIT_REPR(getErr),
+        TEST_UNIT_REPR(putErr),
+        TEST_UNIT_REPR(getDQ),
+        TEST_UNIT_REPR(putDQ),
+        TEST_UNIT_REPR(getSmpl),
+        TEST_UNIT_REPR(putSmpl),
+        TEST_UNIT_REPR(getIntg),
+        TEST_UNIT_REPR(putIntg),
+        TEST_UNIT_REPR(putSciSect),
+        TEST_UNIT_REPR(putErrSect),
+        TEST_UNIT_REPR(putDQSect),
+        TEST_UNIT_REPR(putSmplSect),
+        TEST_UNIT_REPR(putIntgSect),
+        TEST_UNIT_REPR(getSciHdr),
+        TEST_UNIT_REPR(getErrHdr),
+        TEST_UNIT_REPR(getDQHdr),
+        TEST_UNIT_REPR(getSciLine),
+        TEST_UNIT_REPR(getErrLine),
+        TEST_UNIT_REPR(getDQLine),
+        TEST_UNIT_REPR(getFloatHD),
+        TEST_UNIT_REPR(putFloatHD),
+        TEST_UNIT_REPR(getShortHD),
+        TEST_UNIT_REPR(putShortHD),
+        TEST_UNIT_REPR(putFloatHDSect),
+        TEST_UNIT_REPR(putShortHDSect),
+        TEST_UNIT_REPR(getFloatHdr),
+        TEST_UNIT_REPR(getShortHdr),
+        TEST_UNIT_REPR(getSingleGroup),
+        TEST_UNIT_REPR(getSingleGroupLine),
+        TEST_UNIT_REPR(putSingleGroupHdr),
+        TEST_UNIT_REPR(putSingleGroup),
+        TEST_UNIT_REPR(putSingleGroupSect),
+        TEST_UNIT_REPR(getSingleNicmosGroup),
+        TEST_UNIT_REPR(putSingleNicmosGroupHdr),
+        TEST_UNIT_REPR(putSingleNicmosGroup),
+        TEST_UNIT_REPR(putSingleNicmosGroupSect),
+        TEST_UNIT_REPR(getMultiGroupHdr),
+        TEST_UNIT_REPR(getMultiGroup),
+        TEST_UNIT_REPR(putMultiGroupHdr),
+        TEST_UNIT_REPR(putMultiGroup),
+        TEST_UNIT_REPR(getMultiNicmosGroupHdr),
+        TEST_UNIT_REPR(getMultiNicmosGroup),
+        TEST_UNIT_REPR(putMultiNicmosGroupHdr),
+        TEST_UNIT_REPR(putMultiNicmosGroup),
+        TEST_UNIT_REPR(makePrimaryArrayHdr),
+        TEST_UNIT_REPR(makeImageExtHdr),
+        TEST_UNIT_REPR(getKeyB),
+        TEST_UNIT_REPR(getKeyI),
+        TEST_UNIT_REPR(getKeyF),
+        TEST_UNIT_REPR(getKeyD),
+        TEST_UNIT_REPR(getKeyS),
+        TEST_UNIT_REPR(putKeyB),
+        TEST_UNIT_REPR(putKeyI),
+        TEST_UNIT_REPR(putKeyF),
+        TEST_UNIT_REPR(putKeyD),
+        TEST_UNIT_REPR(putKeyS),
+        TEST_UNIT_REPR(updateKeyB),
+        TEST_UNIT_REPR(updateKeyI),
+        TEST_UNIT_REPR(updateKeyF),
+        TEST_UNIT_REPR(updateKeyD),
+        TEST_UNIT_REPR(updateKeyS),
+        TEST_UNIT_REPR(updateKeyOrAddAsHistKeyBool),
+        TEST_UNIT_REPR(updateKeyOrAddAsHistKeyInt),
+        TEST_UNIT_REPR(updateKeyOrAddAsHistKeyFloat),
+        TEST_UNIT_REPR(updateKeyOrAddAsHistKeyDouble),
+        TEST_UNIT_REPR(updateKeyOrAddAsHistKeyStr),
+        TEST_UNIT_REPR(getKwName),
+        TEST_UNIT_REPR(getKwComm),
+        TEST_UNIT_REPR(getKwType),
+        TEST_UNIT_REPR(getBoolKw),
+        TEST_UNIT_REPR(getIntKw),
+        TEST_UNIT_REPR(getFloatKw),
+        TEST_UNIT_REPR(getDoubleKw),
+        TEST_UNIT_REPR(getStringKw),
+        TEST_UNIT_REPR(putKwName),
+        TEST_UNIT_REPR(putKwComm),
+        TEST_UNIT_REPR(putBoolKw),
+        TEST_UNIT_REPR(putIntKw),
+        TEST_UNIT_REPR(putFloatKw),
+        TEST_UNIT_REPR(putDoubleKw),
+        TEST_UNIT_REPR(putStringKw),
+        TEST_UNIT_REPR(addBoolKw),
+        TEST_UNIT_REPR(addIntKw),
+        TEST_UNIT_REPR(addFloatKw),
+        TEST_UNIT_REPR(addDoubleKw),
+        TEST_UNIT_REPR(addStringKw),
+        TEST_UNIT_REPR(addSpacesKw),
+        TEST_UNIT_REPR(addCommentKw),
+        TEST_UNIT_REPR(addHistoryKw),
+        TEST_UNIT_REPR(insertBoolKw),
+        TEST_UNIT_REPR(insertIntKw),
+        TEST_UNIT_REPR(insertFloatKw),
+        TEST_UNIT_REPR(insertDoubleKw),
+        TEST_UNIT_REPR(insertStringKw),
+        TEST_UNIT_REPR(insertSpacesKw),
+        TEST_UNIT_REPR(insertCommentKw),
+        TEST_UNIT_REPR(insertHistoryKw),
+        TEST_UNIT_REPR(addFitsCard),
+        TEST_UNIT_REPR(insertFitsCard),
+        TEST_UNIT_REPR(delKw),
+        TEST_UNIT_REPR(delAllKw),
+        TEST_UNIT_REPR(openInputImage),
+        TEST_UNIT_REPR(openOutputImage),
+        TEST_UNIT_REPR(openUpdateImage),
+        TEST_UNIT_REPR(closeImage),
+        TEST_UNIT_REPR(getFilename),
+        TEST_UNIT_REPR(getExtname),
+        TEST_UNIT_REPR(getExtver),
+        TEST_UNIT_REPR(getNaxis1),
+        TEST_UNIT_REPR(getNaxis2),
+        TEST_UNIT_REPR(getType),
+        TEST_UNIT_REPR(getHeader),
+        TEST_UNIT_REPR(putHeader),
+        TEST_UNIT_REPR(getFloatData),
+        TEST_UNIT_REPR(putFloatData),
+        TEST_UNIT_REPR(getShortData),
+        TEST_UNIT_REPR(putShortData),
+        TEST_UNIT_REPR(putFloatSect),
+        TEST_UNIT_REPR(putShortSect),
+        TEST_UNIT_REPR(getFloatLine),
+        TEST_UNIT_REPR(putFloatLine),
+        TEST_UNIT_REPR(getShortLine),
+        TEST_UNIT_REPR(putShortLine),
+        TEST_UNIT_REPR(updateWCS),
+        TEST_UNIT_REPR(initFloatData),
+        TEST_UNIT_REPR(allocFloatData),
+        TEST_UNIT_REPR(freeFloatData),
+        TEST_UNIT_REPR(swapFloatStorageOrder),
+        TEST_UNIT_REPR(initShortData),
+        TEST_UNIT_REPR(allocShortData),
+        TEST_UNIT_REPR(freeShortData),
+        TEST_UNIT_REPR(swapShortStorageOrder),
+        TEST_UNIT_REPR(initFloatLine),
+        TEST_UNIT_REPR(allocFloatLine),
+        TEST_UNIT_REPR(freeFloatLine),
+        TEST_UNIT_REPR(initShortLine),
+        TEST_UNIT_REPR(allocShortLine),
+        TEST_UNIT_REPR(freeShortLine),
+        TEST_UNIT_REPR(allocSciLine),
+        TEST_UNIT_REPR(allocErrLine),
+        TEST_UNIT_REPR(allocDQLine),
+        TEST_UNIT_REPR(initHdr),
+        TEST_UNIT_REPR(allocHdr),
+        TEST_UNIT_REPR(reallocHdr),
+        TEST_UNIT_REPR(freeHdr),
+        TEST_UNIT_REPR(copyHdr),
+        TEST_UNIT_REPR(initFloatHdrData),
+        TEST_UNIT_REPR(allocFloatHdrData),
+        TEST_UNIT_REPR(copyFloatHdrData),
+        TEST_UNIT_REPR(freeFloatHdrData),
+        TEST_UNIT_REPR(initShortHdrData),
+        TEST_UNIT_REPR(allocShortHdrData),
+        TEST_UNIT_REPR(copyShortHdrData),
+        TEST_UNIT_REPR(freeShortHdrData),
+        TEST_UNIT_REPR(initFloatHdrLine),
+        TEST_UNIT_REPR(allocFloatHdrLine),
+        TEST_UNIT_REPR(freeFloatHdrLine),
+        TEST_UNIT_REPR(initShortHdrLine),
+        TEST_UNIT_REPR(allocShortHdrLine),
+        TEST_UNIT_REPR(freeShortHdrLine),
+        TEST_UNIT_REPR(initSingleGroup),
+        TEST_UNIT_REPR(allocSingleGroup),
+        TEST_UNIT_REPR(allocSingleGroupHeader),
+        TEST_UNIT_REPR(allocSingleGroupExts),
+        TEST_UNIT_REPR(freeSingleGroup),
+        TEST_UNIT_REPR(setStorageOrder),
+        TEST_UNIT_REPR(copySingleGroup),
+        TEST_UNIT_REPR(copyOffsetSingleGroup),
+        TEST_UNIT_REPR(initMultiGroup),
+        TEST_UNIT_REPR(allocMultiGroup),
+        TEST_UNIT_REPR(freeMultiGroup),
+        TEST_UNIT_REPR(copyFloatData),
+        TEST_UNIT_REPR(copyOffsetFloatData),
+        TEST_UNIT_REPR(copyShortData),
+        TEST_UNIT_REPR(copyOffsetShortData),
+        TEST_UNIT_REPR(initSingleNicmosGroup),
+        TEST_UNIT_REPR(allocSingleNicmosGroup),
+        TEST_UNIT_REPR(freeSingleNicmosGroup),
+        TEST_UNIT_REPR(initMultiNicmosGroup),
+        TEST_UNIT_REPR(allocMultiNicmosGroup),
+        TEST_UNIT_REPR(freeMultiNicmosGroup),
+        TEST_UNIT_REPR(initSingleGroupLine),
+        TEST_UNIT_REPR(allocSingleGroupLine),
+        TEST_UNIT_REPR(freeSingleGroupLine),
+        TEST_UNIT_REPR(getNumHDUs),
+        TEST_UNIT_REPR(findTotalNumberOfImsets),
+        TEST_UNIT_REPR(findTotalNumberOfHDUSets),
+        TEST_UNIT_REPR(FloatNAN),
+        TEST_UNIT_REPR(DoubleNAN),
+        TEST_UNIT_REPR(get_numeric),
     };
     TEST_SUITE_RUN(tests);
     TEST_SUITE_RETURN

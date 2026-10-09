@@ -10,22 +10,22 @@ static inline int teardown() {
     return 0;
 }
 
-TEST_BEGIN(fn_its_true) {
+TEST_UNIT(its_true) {
     TEST_ASSERT(true == true, "Message when not true");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_its_false) {
+TEST_UNIT(its_false) {
     TEST_ASSERT(false == false, "Message when not false");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_its_always_false) {
+TEST_UNIT(its_always_false) {
     TEST_ASSERT(false == true, "This cannot be");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_its_a_failure) {
+TEST_UNIT(its_a_failure) {
     if (true) {
         TEST_THROW_FAIL("Something failed and continuing may segfault");
     }
@@ -33,7 +33,7 @@ TEST_BEGIN(fn_its_a_failure) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_its_an_error) {
+TEST_UNIT(its_an_error) {
     if (true) {
         TEST_THROW_ERROR("Something went wrong (allocation error, etc)");
     }
@@ -41,7 +41,7 @@ TEST_BEGIN(fn_its_an_error) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_its_a_skip) {
+TEST_UNIT(its_a_skip) {
     if (true) {
         TEST_THROW_SKIP("Stub");
     }
@@ -49,7 +49,7 @@ TEST_BEGIN(fn_its_a_skip) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_its_checking_on_screen_output) {
+TEST_UNIT(its_checking_on_screen_output) {
     const char *mesg = "hello world\nwhat a fine day it is\ntoday\n";
     printf("%s", mesg);
 
@@ -73,7 +73,7 @@ TEST_BEGIN(fn_its_checking_on_screen_output) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_its_checking_on_screen_output_manually) {
+TEST_UNIT(its_checking_on_screen_output_manually) {
     const char *outfile = "capture.txt";
     const char *mesg = "hello world\nwhat a fine day it is\ntoday\n";
 
@@ -107,16 +107,16 @@ TEST_BEGIN(fn_its_checking_on_screen_output_manually) {
     TEST_RETURN
 }
 
-TEST_SUITE_BEGIN(__FILE__) {
-    const testfunc tests[] = {
-        test_fn_its_true,
-        test_fn_its_false,
-        test_fn_its_always_false,
-        test_fn_its_an_error,
-        test_fn_its_a_failure,
-        test_fn_its_a_skip,
-        test_fn_its_checking_on_screen_output,
-        test_fn_its_checking_on_screen_output_manually,
+TEST_SUITE(__FILE__) {
+    const unit_test tests[] = {
+        TEST_UNIT_REPR(its_true),
+        TEST_UNIT_REPR(its_false),
+        TEST_UNIT_REPR(its_always_false),
+        TEST_UNIT_REPR(its_an_error),
+        TEST_UNIT_REPR(its_a_failure),
+        TEST_UNIT_REPR(its_a_skip),
+        TEST_UNIT_REPR(its_checking_on_screen_output),
+        TEST_UNIT_REPR(its_checking_on_screen_output_manually),
     };
 
     // Configure setup/teardown fixtures to execute before and after each test

@@ -1,6 +1,10 @@
 #ifndef HSTCAL_UNITTEST_H
 #define HSTCAL_UNITTEST_H
 
+#include "str_util.h"
+
+
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -38,15 +42,15 @@
 #define TEST_TERM_COLOR_BG_CYAN "\033[46m"
 #define TEST_TERM_COLOR_BG_WHITE "\033[47m"
 
-// Valid testfixture array indicies
+// Valid unit_test_fixture array indicies
 enum {
-    TEST_F_SETUP=0,
-    TEST_F_TEARDOWN,
-    TEST_F_ARRAY_MAX,
+    TEST_FUNC_SETUP=0,
+    TEST_FUNC_TEARDOWN,
+    TEST_FUNC_ARRAY_MAX,
 };
 
 /**
- * Valid testfunc return codes
+ * Valid unit_test return codes
  */
 enum {
     TEST_T_PASS=0,
@@ -65,7 +69,7 @@ enum {
         setvbuf(stderr, NULL, _IONBF, 0); \
     } while (0)
 
-#define TEST_SUITE_BEGIN(NAME) \
+#define TEST_SUITE(NAME) \
     int main(int argc, char *argv[]) { \
         (void) argc; \
         (void) argv; \
@@ -86,18 +90,18 @@ enum {
     TEST_DISABLE_BUFFERING();          \
     const size_t TEST_LOCAL_TESTFUNC_COUNT = sizeof((TESTFUNC_ARRAY)) / sizeof((TESTFUNC_ARRAY)[0]); \
     for (size_t i = 0; i < TEST_LOCAL_TESTFUNC_COUNT; i++) { \
-        const testfunc TEST_LOCAL_TESTFUNC = (TESTFUNC_ARRAY)[i]; \
+        const unit_test TEST_LOCAL_TESTFUNC = (TESTFUNC_ARRAY)[i]; \
         const int TEST_LOCAL_RESULT = TEST_LOCAL_TESTFUNC(); \
         TEST_STATS_UPDATE(TEST_LOCAL_RESULT); \
     }
 
-#define TEST_SUITE_SET_FIXTURE_SETUP(fn) \
+#define TEST_SUITE_SET_FIXTURE_SETUP(func) \
     do { \
-        TEST_SUITE_FIXTURES[TEST_F_SETUP] = (fn); \
+        TEST_SUITE_FIXTURES[TEST_FUNC_SETUP] = (func); \
     } while (0)
-#define TEST_SUITE_SET_FIXTURE_TEARDOWN(fn) \
+#define TEST_SUITE_SET_FIXTURE_TEARDOWN(func) \
     do { \
-        TEST_SUITE_FIXTURES[TEST_F_TEARDOWN] = (fn); \
+        TEST_SUITE_FIXTURES[TEST_FUNC_TEARDOWN] = (func); \
     } while (0)
 
 #define TEST_SUITE_FIXTURE_RUN(FIXTURE) \
@@ -110,19 +114,19 @@ enum {
         } \
     } while (0)
 
-/* Generate a function signature suffixed with FN_NAME and configure local variables
+/* Generate a function signature suffixed with FUNC_NAME and configure local variables
  * required by other unit test functions
  *
  * TEST_RETURN must be called to properly close the signature
  *
  * // Basic test definition
- * TEST_BEGIN(mytest) {
+ * TEST_UNIT(mytest) {
  *     // To skip a test that is broken or not implemented
- *     // TEST_FORCE_SKIP
+ *     // TEST_THROW_SKIP("Reason here")
  *
  *     // To fail a test with an error (i.e. can't continue)
  *     // if (condition) {
- *     //     TEST_FORCE_ERROR
+ *     //     TEST_THROW_ERROR("Because condition");
  *     // }
  *
  *     // Asserts
@@ -134,18 +138,18 @@ enum {
  * }
  *
  *
- * TEST_SUITE_BEGIN() {
- *     testfunc tests[] = {
- *         test_mytest,
+ * TEST_SUITE() {
+ *     unit_test tests[] = {
+ *         TEST_UNIT_REPR(mytest),
  *     };
  *     TEST_SUITE_RUN(tests)
  *     TEST_SUITE_RETURN
  * }
  *
- * @param FN_NAME function name
+ * @param FUNC_NAME function name
  */
-#define TEST_BEGIN(FN_NAME) \
-    static int test_##FN_NAME() { \
+#define TEST_UNIT(FUNC_NAME) \
+    static int test__##FUNC_NAME() { \
         int TEST_LOCAL_FIXTURE_RESULT = 0; \
         int TEST_LOCAL_ERROR_COUNT = 0; \
         struct TestRedirect TEST_LOCAL_REDIRECT = {0}; \
@@ -153,7 +157,10 @@ enum {
             " %s... " TEST_TERM_COLOR_RESET, \
             __func__); \
         TEST_REDIRECT_OUTPUT(&TEST_LOCAL_REDIRECT); \
-        TEST_SUITE_FIXTURE_RUN(TEST_F_SETUP);
+        TEST_SUITE_FIXTURE_RUN(TEST_FUNC_SETUP);
+
+#define TEST_UNIT_REPR(FUNC_NAME) test__##FUNC_NAME
+#define REPR(FUNC_NAME) test__##FUNC_NAME
 
 #define TEST_FAILED \
     do { \
@@ -162,8 +169,8 @@ enum {
 
 #define TEST_RETURN \
         do { \
-            if (TEST_SUITE_FIXTURES[TEST_F_TEARDOWN]) { \
-                TEST_SUITE_FIXTURE_RUN(TEST_F_TEARDOWN); \
+            if (TEST_SUITE_FIXTURES[TEST_FUNC_TEARDOWN]) { \
+                TEST_SUITE_FIXTURE_RUN(TEST_FUNC_TEARDOWN); \
             } \
             if (TEST_LOCAL_ERROR_COUNT != 0) { \
                 return TEST_THROW(TEST_T_FAIL); \
@@ -499,7 +506,7 @@ static inline int TEST_MSG(FILE *stream, const char *color, const char *prefix, 
         if (MESSAGE && strlen(MESSAGE)) { \
             TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "REASON " TEST_TERM_COLOR_YELLOW, "", MESSAGE, ##__VA_ARGS__); \
         } \
-        TEST_SUITE_FIXTURE_RUN(TEST_F_TEARDOWN); \
+        TEST_SUITE_FIXTURE_RUN(TEST_FUNC_TEARDOWN); \
         return TEST_THROW(TEST_T_SKIP); \
     } while (0)
 
@@ -644,9 +651,9 @@ static inline int TEST_FILE_CONTAINS(const char *filename, const char *pattern, 
     return 0;
 }
 
-typedef int (*testfunc)(void);
-typedef int (*testfixture)(void);
+typedef int (*unit_test)(void);
+typedef int (*unit_test_fixture)(void);
 
-testfixture TEST_SUITE_FIXTURES[TEST_F_ARRAY_MAX] = {NULL, NULL};
+unit_test_fixture TEST_SUITE_FIXTURES[TEST_FUNC_ARRAY_MAX] = {NULL, NULL};
 
 #endif // HSTCAL_UNITTEST_H

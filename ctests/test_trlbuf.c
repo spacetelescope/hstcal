@@ -31,7 +31,7 @@ static int teardown_trl() {
     return 0;
 }
 
-TEST_BEGIN(fn_InitTrlBuf) {
+TEST_UNIT(InitTrlBuf) {
     TEST_ASSERT(trlbuf.init != 0, "trlbuf.init not initialized");
     TEST_ASSERT(trlbuf.fp == NULL, "trlbuf.fp is not NULL");
     TEST_ASSERT(trlbuf.overwrite == 0, "trlbuf.overwrite mode should not be active");
@@ -45,7 +45,7 @@ TEST_BEGIN(fn_InitTrlBuf) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_InitTrlFile) {
+TEST_UNIT(InitTrlFile) {
     const char *filename = "output.txt";
     remove(filename);
     const char *test_strings[] = {
@@ -82,7 +82,7 @@ TEST_BEGIN(fn_InitTrlFile) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_WriteTrlFile) {
+TEST_UNIT(WriteTrlFile) {
     const char *filename = "output.txt";
     TEST_ASSERT(InitTrlFile("", (char *) filename) == 0, "output file creation failed");
     trlmessage("This is a test message");
@@ -94,40 +94,40 @@ TEST_BEGIN(fn_WriteTrlFile) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_SetTrlPrefaceMode) {
+TEST_UNIT(SetTrlPrefaceMode) {
     TEST_ASSERT(trlbuf.usepref == 1, "preface mode is enabled by default, but isn't");
     SetTrlPrefaceMode(0);
     TEST_ASSERT(trlbuf.usepref == 0, "preface mode is not disabled");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_SetTrlOverwriteMode) {
+TEST_UNIT(SetTrlOverwriteMode) {
     TEST_ASSERT(trlbuf.overwrite == 0, "overwrite mode should not enabled by default");
     SetTrlOverwriteMode(1);
     TEST_ASSERT(trlbuf.overwrite == 1, "overwrite mode should be enabled");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_SetTrlQuietMode) {
+TEST_UNIT(SetTrlQuietMode) {
     TEST_ASSERT(trlbuf.quiet == 0, "quiet mode should not be enabled");
     SetTrlQuietMode(1);
     TEST_ASSERT(trlbuf.quiet == 1, "quiet mode should enabled");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_InitTrlPreface) {
+TEST_UNIT(InitTrlPreface) {
     TEST_ASSERT(trlbuf.preface != NULL, "preface should not be NULL");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_ResetTrlPreface) {
+TEST_UNIT(ResetTrlPreface) {
     ResetTrlPreface();
     TEST_ASSERT(trlbuf.preface != NULL, "trlbuf.preface should be initialized");
     TEST_ASSERT(strlen(trlbuf.preface) == 0, "trlbuf.preface should be empty");
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_CloseTrlBuf) {
+TEST_UNIT(CloseTrlBuf) {
     CloseTrlBuf(&trlbuf);
     TEST_ASSERT(trlbuf.buffer == NULL, "trlbuf.buffer should be NULL after close");
     TEST_ASSERT(trlbuf.preface == NULL, "trlbuf.preface should be NULL after close");
@@ -136,7 +136,7 @@ TEST_BEGIN(fn_CloseTrlBuf) {
 
 static const size_t huge_message_size = 512;
 
-TEST_BEGIN(fn_trlmessage) {
+TEST_UNIT(trlmessage) {
     const char *filename = "output.txt";
     trlmessage("message");
     trlmessage("message %s", "variadic");
@@ -155,7 +155,7 @@ TEST_BEGIN(fn_trlmessage) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_trlwarn) {
+TEST_UNIT(trlwarn) {
     const char *filename = "output.txt";
     trlwarn("message");
     trlwarn("message %s", "variadic");
@@ -174,7 +174,7 @@ TEST_BEGIN(fn_trlwarn) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_trlerror) {
+TEST_UNIT(trlerror) {
     const char *filename = "output.txt";
     trlerror("message");
     trlerror("message %s", "variadic");
@@ -193,7 +193,7 @@ TEST_BEGIN(fn_trlerror) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_trlopenerr) {
+TEST_UNIT(trlopenerr) {
     // trlopenerr does not check the file, it only prints an error message using trlerror
     const char *filename = "output.txt";
     InitTrlFile("", (char *) filename);
@@ -209,7 +209,7 @@ TEST_BEGIN(fn_trlopenerr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_trlreaderr) {
+TEST_UNIT(trlreaderr) {
     // trlreaderr does not check the file, it only prints an error message using trlerror
     const char *filename = "output.txt";
     InitTrlFile("", (char *) filename);
@@ -225,7 +225,7 @@ TEST_BEGIN(fn_trlreaderr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_trlkwerr) {
+TEST_UNIT(trlkwerr) {
     // trlkwerr does not check the file, it only prints an error message using trlerror
     const char *filename = "output.txt";
     const char *kw = "TEST";
@@ -242,7 +242,7 @@ TEST_BEGIN(fn_trlkwerr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_trlfilerr) {
+TEST_UNIT(trlfilerr) {
     // trlfilerr does not check the file, it only prints an error message using trlerror
     const char *filename = "output.txt";
     InitTrlFile("", (char *) filename);
@@ -259,7 +259,7 @@ TEST_BEGIN(fn_trlfilerr) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_printfAndFlush) {
+TEST_UNIT(printfAndFlush) {
     // More of a kernel behavior test than anything. The strings should be written to stdout in order.
     printfAndFlush("flushing first");
     printfAndFlush("flushing second");
@@ -283,35 +283,35 @@ TEST_BEGIN(fn_printfAndFlush) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_trlGitInfo) {
+TEST_UNIT(trlGitInfo) {
     // NOQA
     trlGitInfo();
     TEST_RETURN
 }
 
-TEST_SUITE_BEGIN(__FILE__) {
+TEST_SUITE(__FILE__) {
     TEST_SUITE_SET_FIXTURE_SETUP(setup_trl);
     TEST_SUITE_SET_FIXTURE_TEARDOWN(teardown_trl);
 
-    const testfunc tests[] = {
-        test_fn_InitTrlBuf,
-        test_fn_InitTrlFile,
-        test_fn_WriteTrlFile,
-        test_fn_SetTrlPrefaceMode,
-        test_fn_SetTrlOverwriteMode,
-        test_fn_SetTrlQuietMode,
-        test_fn_InitTrlPreface,
-        test_fn_ResetTrlPreface,
-        test_fn_CloseTrlBuf,
-        test_fn_trlmessage,
-        test_fn_trlwarn,
-        test_fn_trlerror,
-        test_fn_trlopenerr,
-        test_fn_trlreaderr,
-        test_fn_trlkwerr,
-        test_fn_trlfilerr,
-        test_fn_printfAndFlush,
-        test_fn_trlGitInfo,
+    const unit_test tests[] = {
+        TEST_UNIT_REPR(InitTrlBuf),
+        TEST_UNIT_REPR(InitTrlFile),
+        TEST_UNIT_REPR(WriteTrlFile),
+        TEST_UNIT_REPR(SetTrlPrefaceMode),
+        TEST_UNIT_REPR(SetTrlOverwriteMode),
+        TEST_UNIT_REPR(SetTrlQuietMode),
+        TEST_UNIT_REPR(InitTrlPreface),
+        TEST_UNIT_REPR(ResetTrlPreface),
+        TEST_UNIT_REPR(CloseTrlBuf),
+        TEST_UNIT_REPR(trlmessage),
+        TEST_UNIT_REPR(trlwarn),
+        TEST_UNIT_REPR(trlerror),
+        TEST_UNIT_REPR(trlopenerr),
+        TEST_UNIT_REPR(trlreaderr),
+        TEST_UNIT_REPR(trlkwerr),
+        TEST_UNIT_REPR(trlfilerr),
+        TEST_UNIT_REPR(printfAndFlush),
+        TEST_UNIT_REPR(trlGitInfo),
     };
     TEST_SUITE_RUN(tests);
     TEST_SUITE_RETURN

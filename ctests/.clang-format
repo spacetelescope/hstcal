@@ -1,6 +1,6 @@
 BasedOnStyle: InheritParentConfig
 IncludeIsMainRegex: '([-_](test|unittest))?$'
-MacroBlockBegin: '^(TEST_BEGIN|TEST_SUITE_BEGIN)\(.*\)$'
+MacroBlockBegin: '^(TEST_UNIT|TEST_SUITE)\(.*\)$'
 MacroBlockEnd: ''
 StatementMacros:
   - TEST_FORCE_SKIP

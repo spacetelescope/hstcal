@@ -3,7 +3,7 @@
 
 #include <ctype.h>
 
-TEST_BEGIN(fn_repchar_s) {
+TEST_UNIT(repchar_s) {
     char test_string[10];
     const char ch = '.';
 
@@ -57,7 +57,7 @@ static size_t count_upper_chars(const char *s) {
     return result;
 }
 
-TEST_BEGIN(fn_upperCase) {
+TEST_UNIT(upperCase) {
     char *test_strings[] = {
         ".....a.....",
         " a b c d e ",
@@ -93,7 +93,7 @@ TEST_BEGIN(fn_upperCase) {
     TEST_RETURN
 }
 
-TEST_BEGIN(fn_isStrInLanguage) {
+TEST_UNIT(isStrInLanguage) {
     char *test_strings[] = {
         "I am HSTCAL",
         "1 will fail",
@@ -125,11 +125,11 @@ TEST_BEGIN(fn_isStrInLanguage) {
     TEST_RETURN
 }
 
-TEST_SUITE_BEGIN(__FILE__) {
-    const testfunc tests[] = {
-        test_fn_repchar_s,
-        test_fn_upperCase,
-        test_fn_isStrInLanguage,
+TEST_SUITE(__FILE__) {
+    const unit_test tests[] = {
+        TEST_UNIT_REPR(repchar_s),
+        TEST_UNIT_REPR(upperCase),
+        TEST_UNIT_REPR(isStrInLanguage),
     };
     TEST_SUITE_RUN(tests);
     TEST_SUITE_RETURN
