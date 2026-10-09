@@ -5,6 +5,7 @@ set(CMAKE_C_STANDARD 99)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
+option(ENABLE_COVERAGE "Enable code coverage" OFF)
 option(ENABLE_ASAN "Enable AddressSanitizer" OFF)
 option(ENABLE_ASAN_RECOVER "When ASAN reports a problem, don't halt execution" OFF)
 option(ENABLE_WARNINGS "Enable compiler warnings" ON)
@@ -51,6 +52,15 @@ configure_file(config.h.in config.h @ONLY)
 
 if(NOT HAVE_SNPRINTF OR NOT HAVE_STRDUP OR NOT HAVE_INT_MAX)
 	message(FATAL_ERROR "Required symbol is missing!")
+endif()
+
+message(CHECK_START "Compile with code coverage")
+if(ENABLE_COVERAGE)
+	message(CHECK_PASS "yes")
+	add_compile_options(--coverage -g -O0)
+	add_link_options(--coverage)
+else()
+	message(CHECK_PASS "no")
 endif()
 
 if(ENABLE_ASAN)
