@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 /**
  * Terminal colors
@@ -205,6 +206,10 @@ struct TestRedirect {
  * @return 0 on success
  */
 static inline int TEST_REDIRECT_OUTPUT(struct TestRedirect *r) {
+    if (strlen(r->filename)) {
+        remove(r->filename);
+    }
+
     r->fd_stdout = dup(STDOUT_FILENO);
     if (r->fd_stdout < 0) {
         fprintf(stderr, "Unable to dup() stdout\n");
@@ -217,7 +222,12 @@ static inline int TEST_REDIRECT_OUTPUT(struct TestRedirect *r) {
         return -1;
     }
 
-    char template[] = "test_output_XXXXXX";
+    char template[4096] = {0};
+    const char *logdir = "unittest_logs";
+    mkdir(logdir, 0700);
+
+    snprintf(template, sizeof(template), "%s/test_output_XXXXXX", logdir);
+
     const int fd = mkstemp(template);
     if (fd < 0) {
         fprintf(stderr, "Unable to create temporary file\n");
