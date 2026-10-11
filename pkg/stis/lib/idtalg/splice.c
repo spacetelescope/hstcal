@@ -27,7 +27,6 @@ static int FindIndex (double *, int, double);
    orders carry the same number of pixels, which is a reasonable
    assumption as long as calstis6std doesn't change its behavior.
 
-
    Revision history:
    ----------------
    13 Mar 00  -  Implemented (I.Busko)
@@ -42,7 +41,7 @@ Spliced *merge;			o: output spliced spectrum
 */
 	double **twave, **tflux, *wmerge, *fmerge;
 	double midw;
-	int i, i1, i2, i3, j, j1, j2, jstep, k, npt;
+	int i, i1, i2, i3, j, j1, jstep, k, npt;
 
 	double **Alloc2DArrayD (int, int);
 	void Free2DArrayD (double **, int);
@@ -53,11 +52,9 @@ Spliced *merge;			o: output spliced spectrum
 
 	if (x1d[nrows-1]->wave[0] < x1d[0]->wave[0]) {
 	    j1 = nrows-1;
-	    j2 = 0;
 	    jstep = -1;
 	} else {
 	    j1 = 0;
-	    j2 = nrows-1;
 	    jstep = 1;
 	}
 

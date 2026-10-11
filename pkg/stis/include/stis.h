@@ -11,9 +11,9 @@
 # define STIS_LINE    1025
 # define STIS_FITS_REC  81
 
-/* This signals that "no value" was passed as input parameter in the 
+/* This signals that "no value" was passed as input parameter in the
    command line to the blazeshift variable in calstis6. This definition
-   was moved from calstis6 to here since it is now shared by calstis6, 
+   was moved from calstis6 to here since it is now shared by calstis6,
    calstis7, calstis0, and a library function (IB, 4/16/02).
 */
 
@@ -244,7 +244,7 @@ int MkName (char *input, char *isuffix, char *osuffix,
 		char *output, int maxch);
 
 int MkOutName (char *input, char **isuffix, char **osuffix, int nsuffix,
-		char *output, int maxch);
+		char *output, size_t maxch);
 
 int OmitStep (int flag);
 

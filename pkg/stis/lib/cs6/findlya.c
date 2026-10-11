@@ -13,7 +13,7 @@
 
 # define    SAFETY_MARGIN 15  /* safety around the slit projected image */
 
-static int FindPixel (double, double *, int);
+static int FindPixel (double, double *);
 
 /*
    Find the region in the image that is contaminated by geocoronal Lya.
@@ -62,7 +62,7 @@ static int FindPixel (double, double *, int);
 */
 
 void FindLya (StisInfo6 *sts, SingleGroup *in, ApInfo *slit,
-              double *wave, int size,
+              double *wave,
               int *avoid1a, int *avoid2a,
               int *avoid1b, int *avoid2b) {
 
@@ -77,7 +77,7 @@ int avoid1b, avoid2b;
 */
 
 	float *image, *crosscor, norm, pval;
-	int centera, centerb, width, pindex, offset;
+	int centera, centerb, width, pindex=0, offset;
 	int i, j, image_index, box_index;
 
 	/* Initialize to default. */
@@ -99,8 +99,8 @@ int avoid1b, avoid2b;
         */
 	if (strcmp (sts->opt_elem, "PRISM") == 0) {
 
-	    centera = FindPixel (1216., wave, size);
-	    centerb = FindPixel (1300., wave, size);
+	    centera = FindPixel (1216., wave);
+	    centerb = FindPixel (1300., wave);
 	    width   = (int) (slit->width[0] / -(sts->cd[1]) / 3600.) *
                             (wave[centera+1] - wave[centera]);
 
@@ -196,7 +196,7 @@ int avoid1b, avoid2b;
    This is a modifed version of a function in calstis7 by Phil Hodge.
 */
 
-static int FindPixel (double wl, double *wave, int size) {
+static int FindPixel (double wl, double *wave) {
 
 	int x_low, x_high;	/* pixel numbers at ends of test range */
 	int x_test;		/* pixel number at middle of test range */

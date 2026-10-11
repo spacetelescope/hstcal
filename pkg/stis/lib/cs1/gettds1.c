@@ -29,7 +29,7 @@ typedef struct {
 } TblRow;
 
 
-static int OpenTdsTab1 (char *, TblInfo *, TdsInfo *);
+static int OpenTdsTab1 (char *, TblInfo *);
 static int ReadTdsTab1 (TblInfo *, int, TblRow *);
 static int ReadTdsArray1 (TblInfo *, int, TdsInfo *);
 static int CloseTdsTab1 (TblInfo *);
@@ -80,7 +80,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
 	void FreeTds1 (TdsInfo *);
 
 	/* Open the time-dependent sensitivity table. */
-	if ((status = OpenTdsTab1 (tabname, &tabinfo, tds)))
+	if ((status = OpenTdsTab1 (tabname, &tabinfo)))
 	    return (status);
 
 	for (row = 1;  row <= tabinfo.nrows;  row++) {
@@ -129,7 +129,7 @@ TdsInfo *tds     o: time-dependent sensitivity info
    dependence, and gets the total number of rows in the table.
 */
 
-static int OpenTdsTab1 (char *tname, TblInfo *tabinfo, TdsInfo *tds) {
+static int OpenTdsTab1 (char *tname, TblInfo *tabinfo) {
 
 	tabinfo->tp = c_tbtopn (tname, IRAF_READ_ONLY, 0);
 	if (c_iraferr()) {
@@ -188,7 +188,6 @@ static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
 	int nwl, ntemp, i;
         /*int nt, ns, ini, ndim, dim[2];*/
-	int status = 0;
 
 	/* Find out how many elements there are in the arrays. */
 
@@ -201,7 +200,7 @@ static int ReadTdsArray1 (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	tds->wl        = (double *) calloc (tds->nwl, sizeof(double));
 	tds->temp_sens = (double *) calloc (tds->nwl, sizeof(double));
 	if (tds->temp_sens == NULL || tds->wl == NULL) {
-	    status = CloseTdsTab1 (tabinfo);
+	    CloseTdsTab1 (tabinfo);
 	    return (OUT_OF_MEMORY);
 	}
 	tds->format = COS_TDS_FORMAT;		/* this is not relevant */

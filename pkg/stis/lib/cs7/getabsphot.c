@@ -249,7 +249,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 		   Row starts at 1 because underlying table code is IRAF-centric and
 		   1-indexed
 	    */
-		
+
 	    for (row = 1;  row <= blazetabinfo.nrows;  row++) {
 
 	        if ((status = ReadBlazeTab (&blazetabinfo, row, &tabrow))) {
@@ -295,7 +295,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	                    sts->opt_elem, sts->cenwave, sporder);
 	        }
 	        return (ROW_NOT_FOUND);
-	
+
 	    }
 	}
 
@@ -503,7 +503,7 @@ static int ReadBlazeTab (BlazeTblInfo *tabinfo, int row, TblRow *tabrow) {
 
 	if (c_iraferr())
 	    return (TABLE_ERROR);
-	
+
 	if (tabinfo->cp_cenwave != 0) {
 	    c_tbegti (tabinfo->tp, tabinfo->cp_cenwave, row, &tabrow->cenwave);
 	    if (c_iraferr())
@@ -600,7 +600,7 @@ static int ReadPhotData (TblInfo *tabinfo, int row, PhotInfo *phot) {
 
 static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double expstart) {
 
-    int ndates, nd;
+    int ndates;
 	int i;
 	int matched_index;
 	double matching_useafter;
@@ -620,8 +620,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 
 	useafter = (double *) malloc (ndates * sizeof(double));
 
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_useafter, row,
-	                useafter, 1, ndates);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_useafter, row, useafter, 1, ndates);
 
 	/* compare expstart with the members of useafter to see which
 	   index corresponds to the latest date in the useafter dates
@@ -645,8 +644,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	   each one, and fill the phot->blaze parameters*/
 
 	reford = (int *) malloc (ndates * sizeof(int));
-	nd = c_tbagti (tabinfo->tp, tabinfo->cp_mref, row,
-	                reford, 1, ndates);
+	c_tbagti (tabinfo->tp, tabinfo->cp_mref, row, reford, 1, ndates);
 	if (c_iraferr()) {
 		free (reford);
 		return (TABLE_ERROR);
@@ -655,8 +653,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	free (reford);
 
 	refwav = (double *) malloc (ndates * sizeof(double));
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_wref, row,
-	                refwav, 1, ndates);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_wref, row, refwav, 1, ndates);
 	if (c_iraferr()) {
 		free (refwav);
 	    return (TABLE_ERROR);
@@ -666,8 +663,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	free (refwav);
 
 	refy = (float *) malloc (ndates * sizeof(float));
-	nd = c_tbagtr (tabinfo->tp, tabinfo->cp_yref, row,
-	                refy, 1, ndates);
+	c_tbagtr (tabinfo->tp, tabinfo->cp_yref, row, refy, 1, ndates);
 	if (c_iraferr()) {
 		free (refy);
 		return (TABLE_ERROR);
@@ -677,8 +673,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	free (refy);
 
 	refmjd = (double *) malloc (ndates * sizeof(double));
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mjd, row,
-	                refmjd, 1, ndates);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_mjd, row, refmjd, 1, ndates);
 	if (c_iraferr()) {
 		free (refmjd);
 	    return (TABLE_ERROR);
@@ -687,8 +682,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	free (refmjd);
 
 	bshift_vs_x = (double *) malloc (ndates * sizeof(double));
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mx, row,
-	                bshift_vs_x, 1, ndates);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_mx, row, bshift_vs_x, 1, ndates);
 	if (c_iraferr()) {
 		free (bshift_vs_x);
 		return (TABLE_ERROR);
@@ -698,8 +692,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	free (bshift_vs_x);
 
 	bshift_vs_y = (double *) malloc (ndates * sizeof(double));
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_my, row,
-	                bshift_vs_y, 1, ndates);
+    c_tbagtd (tabinfo->tp, tabinfo->cp_my, row, bshift_vs_y, 1, ndates);
 	if (c_iraferr()) {
 		free (bshift_vs_y);
 	    return (TABLE_ERROR);
@@ -708,8 +701,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	free (bshift_vs_y);
 
 	bshift_vs_t = (double *) malloc (ndates * sizeof(double));
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mt, row,
-	                bshift_vs_t, 1, ndates);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_mt, row, bshift_vs_t, 1, ndates);
 	if (c_iraferr()) {
 		free (bshift_vs_t);
 		return (TABLE_ERROR);
@@ -719,8 +711,7 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	free (bshift_vs_t);
 
 	bshift_offset = (double *) malloc (ndates * sizeof(double));
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_m0, row,
-	                bshift_offset, 1, ndates);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_m0, row, bshift_offset, 1, ndates);
 	if (c_iraferr()) {
 		free (bshift_offset);
 	    return (TABLE_ERROR);

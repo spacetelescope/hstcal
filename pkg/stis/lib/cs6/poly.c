@@ -27,7 +27,7 @@ void swap(double *a, double *b) {
    Polynomial least squares fit.
 
    Modified/updated original routines to move away from copyright
-   code.  These routines work in double precision, and handle a 
+   code.  These routines work in double precision, and handle a
    origin-offseted data set, in order to improve accuracy.  Improved
    comments and variable naming.
 
@@ -184,7 +184,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 	basisFunc = dblVector((long)1, (long)ndim);
 
 	for (int j = 1; j <= ndim; j++)
-		if (coeffMask[j]) 
+		if (coeffMask[j])
             mfit++;
 
 	if (mfit == 0) {
@@ -193,7 +193,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 	}
 
 	for (int j = 1; j <= mfit; j++) {
-		for (int k = 1; k <= mfit; k++) 
+		for (int k = 1; k <= mfit; k++)
             covar[j][k] = 0.0;
 		beta[j][1] = 0.0;
 	}
@@ -207,7 +207,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 		ym = ydat[i];
 		if (mfit < ndim) {
 			for (j = 1; j <= ndim; j++)
-				if (!coeffMask[j]) 
+				if (!coeffMask[j])
                     ym -= coeff[j] * basisFunc[j];
 		}
 		sig2i = 1.0 / sqrt(sigma[i]);
@@ -215,7 +215,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 			if (coeffMask[l]) {
 				weight = basisFunc[l] * sig2i;
 				for (j++, k = 0, m = 1; m <= l; m++)
-					if (coeffMask[m]) 
+					if (coeffMask[m])
                         covar[j][++k] += weight * basisFunc[m];
 				beta[j][1] += ym * weight;
 			}
@@ -230,7 +230,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 	    return (status);
 
 	for (j = 0, l = 1; l <= ndim; l++)
-		if (coeffMask[l]) 
+		if (coeffMask[l])
             coeff[l] = beta[++j][1];
 
 	Scovsrt (covar, ndim, coeffMask, mfit);
@@ -243,7 +243,7 @@ static int Slfit (double xdat[], double ydat[], double sigma[], int ndat, double
 
 /*
  * Redistribute the covariance values into the full covariance
- * matrix 
+ * matrix
  */
 static void Scovsrt (double **covar, int ndim, int data[], int mfit)
 {
@@ -258,9 +258,9 @@ static void Scovsrt (double **covar, int ndim, int data[], int mfit)
 
 	for (int j = ndim; j >= 1; j--) {
 		if (data[j]) {
-			for (int i = 1; i <= ndim; i++) 
+			for (int i = 1; i <= ndim; i++)
                 swap(&covar[i][k], &covar[i][j]);
-			for (int i = 1; i <= ndim; i++) 
+			for (int i = 1; i <= ndim; i++)
                 swap(&covar[k][i], &covar[j][i]);
 			k--;
 		}
@@ -276,14 +276,14 @@ static void Scovsrt (double **covar, int ndim, int data[], int mfit)
 static int Sgaussj (double **a, int n, double **b, int m)
 {
 	int *index_col, *index_row, *index_pivot;
-	int col, row;
+	int col=0, row=0;
 	double maxElement, temp, pivot_element;
 
 	index_col = intVector((long)1, (long)n);
 	index_row = intVector((long)1, (long)n);
 	index_pivot = intVector((long)1, (long)n);
 
-	for (int j = 1; j <= n; j++) 
+	for (int j = 1; j <= n; j++)
         index_pivot[j] = 0;
 
     /*
@@ -312,12 +312,12 @@ static int Sgaussj (double **a, int n, double **b, int m)
          * Exchange the rows to put the pivot on the diagonal
          */
 		if (row != col) {
-			for (int l = 1; l <= n; l++) 
+			for (int l = 1; l <= n; l++)
                 swap(&a[row][l], &a[col][l]);
-			for (int l = 1; l <= m; l++) 
+			for (int l = 1; l <= m; l++)
                 swap(&b[row][l], &b[col][l]);
 		}
- 
+
         /*
          * Divide the pivot row by the pivot element, but make
          * sure there is no divide-by-zero.
@@ -332,10 +332,10 @@ static int Sgaussj (double **a, int n, double **b, int m)
 		pivot_element = 1.0 / a[col][col];
 		a[col][col] = 1.0;
 
-		for (int l = 1; l <= n; l++) 
+		for (int l = 1; l <= n; l++)
             a[col][l] *= pivot_element;
 
-		for (int l = 1; l <= m; l++) 
+		for (int l = 1; l <= m; l++)
             b[col][l] *= pivot_element;
 
         /*
@@ -345,16 +345,16 @@ static int Sgaussj (double **a, int n, double **b, int m)
 			if (j != col) {
 				temp = a[j][col];
 				a[j][col] = 0.0;
-				for (int l = 1; l <= n; l++) 
+				for (int l = 1; l <= n; l++)
                    a[j][l] -= a[col][l] * temp;
-				for (int l = 1; l <= m; l++) 
+				for (int l = 1; l <= m; l++)
                    b[j][l] -= b[col][l] * temp;
 			}
         }
 	}
 
     /*
-     * Fix up the inverse matrix by re-arranging the columns in the 
+     * Fix up the inverse matrix by re-arranging the columns in the
      * reverse order the initial matrix was built.
      */
 	for (int l = n; l >= 1; l--) {
@@ -374,7 +374,7 @@ static int *intVector(long nLow, long nHigh) {
 	int *v;
 
 	v = (int *)malloc((unsigned int) ((nHigh - nLow + 1 + 1) * sizeof(int)));
-	if (!v) 
+	if (!v)
         nrerror("Memory allocation failure in intVector().");
 	return v - nLow + 1;
 }
@@ -383,13 +383,13 @@ static double *dblVector(long nLow, long nHigh) {
 	double *v;
 
 	v = (double *)malloc((size_t) ((nHigh - nLow + 1 + 1) * sizeof(double)));
-	if (!v) 
+	if (!v)
         nrerror("Memory allocation failure in dblVector().");
 	return v - nLow + 1;
 }
 
 static double **dmatrix(long lowRow, long highRow, long lowCol, long highCol) {
-    long nrow = highRow-lowRow+1; 
+    long nrow = highRow-lowRow+1;
     long ncol = highCol-lowCol+1;
 	double **m;
 
@@ -403,7 +403,7 @@ static double **dmatrix(long lowRow, long highRow, long lowCol, long highCol) {
 	m[lowRow] += 1;
 	m[lowRow] -= lowCol;
 
-	for (long i = lowRow + 1; i <= highRow; i++) 
+	for (long i = lowRow + 1; i <= highRow; i++)
         m[i] = m[i-1] + ncol;
 
 	return m;

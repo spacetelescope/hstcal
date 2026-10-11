@@ -66,7 +66,7 @@ int main (int argc, char **argv) {
 	int printtime = 0;	/* print time after each step? */
 	int verbose = 0;	/* print additional info? */
 	int too_many = 0;	/* too many command-line arguments? */
-	int w_option;		/* which option for selecting wavecal */
+	int w_option=0;		/* which option for selecting wavecal */
 	int i, j;		/* loop indexes */
 
 	IRAFPointer w_imt, s_imt;	/* imt list pointers */

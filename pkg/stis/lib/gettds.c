@@ -235,8 +235,7 @@ static int ReadTdsTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
 static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 
-	int nwl, nt, ns, ntemp, dim[2], ini, ndim, i;
-	int status = 0;
+	int nwl, nt, ntemp, dim[2], ini, ndim, i;
 
 	/* Find out how many elements there are in the arrays. */
 
@@ -256,7 +255,7 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	tds->intercept = (double **) calloc (tds->nt, sizeof(double *));
 	if (tds->temp_sens == NULL || tds->wl == NULL || tds->time == NULL ||
 	    tds->slope == NULL || tds->intercept == NULL) {
-	    status = CloseTdsTab (tabinfo);
+	    CloseTdsTab (tabinfo);
 	    return (OUT_OF_MEMORY);
 	}
 	for (i = 0; i < tds->nt; i++) {
@@ -286,8 +285,8 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	c_tbciga (tabinfo->tp, tabinfo->cp_slope, &ndim, dim, 2);
 	ini = 1;	/* Arrays are 1-indexed in spp */
 	for (i = 0; i < tds->nt; i++) {
-	    ns = c_tbagtd (tabinfo->tp, tabinfo->cp_slope, row,
-	                   tds->slope[i], ini, tds->nwl);
+	    c_tbagtd (tabinfo->tp, tabinfo->cp_slope, row,
+	        tds->slope[i], ini, tds->nwl);
 	    if (c_iraferr())
 	        return (TABLE_ERROR);
 
@@ -296,8 +295,8 @@ static int ReadTdsArray (TblInfo *tabinfo, int row, TdsInfo *tds) {
 	if (tabinfo->cp_intercept != 0) {
 	    ini = 1;
 	    for (i = 0; i < tds->nt; i++) {
-		ns = c_tbagtd (tabinfo->tp, tabinfo->cp_intercept, row,
-			       tds->intercept[i], ini, tds->nwl);
+		c_tbagtd (tabinfo->tp, tabinfo->cp_intercept, row,
+		    tds->intercept[i], ini, tds->nwl);
 		if (c_iraferr())
 		    return (TABLE_ERROR);
 

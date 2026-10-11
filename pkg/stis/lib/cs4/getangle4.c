@@ -63,8 +63,8 @@ double *angle    o: incidence angle, in arcseconds
 	TblInfo tabinfo;	/* pointer to table descriptor, etc */
 	TblRow tabrow;		/* values read from a table row */
 
-	double ap_offset;	/* offset of aperture used for observation */
-	double ref_offset;	/* offset of reference aperture */
+	double ap_offset=0.0;	/* offset of aperture used for observation */
+	double ref_offset=0.0;	/* offset of reference aperture */
 	int row;		/* number of rows, and loop index */
 	int ap_found;		/* true if aperture found in table */
 	int ref_found;		/* true if reference aperture found in table */

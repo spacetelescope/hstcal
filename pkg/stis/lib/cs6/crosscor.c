@@ -27,9 +27,6 @@
    same changes in DefineBackRegions function. This function executes
    a similar algorithm and there are lots of code duplication (IB, 01/10/00).
 
-
-
-
    Revision history:
    ----------------
    20 Feb 97  -  Implemented (I.Busko)
@@ -46,15 +43,13 @@
 */
 
 int CrossCorr (StisInfo6 *sts, SpTrace *trc, SingleGroup *in,
-               FloatHdrData *ssgx, FloatHdrData *ssgy, int maxsearch,
+               int maxsearch,
                int avoid1, int avoid2) {
 
 /* arguments:
 StisInfo6 *sts      io: calibration switches and info
 SpTrace *trc;       i:  full list of spectrum traces
 SingleGroup *in	    i:  input image
-FloatHdrData ssgx;  i:  small-scale distortion in X (not used)
-FloatHdrData ssgy;  i:  small-scale distortion in Y (not used)
 int maxsearch       i:  maximum range for cross correlation
 int avoid1, avoid2; i:  Lya region to avoid (in physical pixels)
 */

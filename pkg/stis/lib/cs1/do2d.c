@@ -270,11 +270,9 @@ int ngood_extver   io: incremented unless the current imset has zero
 	    }
 	}
 
-	if (sts->detector != CCD_DETECTOR) {
-	    /* Allocate string for Doppler message. */
-	    if ((doppstr = calloc (STIS_LINE+1, sizeof (char))) == NULL)
+    /* Allocate string for Doppler message. */
+    if ((doppstr = calloc (STIS_LINE+1, sizeof (char))) == NULL)
 		return (OUT_OF_MEMORY);
-	}
 
 	/* Data quality initialization and (for the CCD) check saturation. */
 	dqiMsg (sts, *ngood_extver);

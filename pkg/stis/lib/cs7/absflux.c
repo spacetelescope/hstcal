@@ -151,11 +151,10 @@ double *blazeshift;    o: blaze shift value actually used
 	sum = 0.;
 
 	/* Generate time-dependent sensitivity correction factors. */
-	if (sts->tdscorr == PERFORM) {
-	    tds_factors = (double *) malloc (tds->nwl * sizeof (double));
-	    if (tds_factors == NULL)
-	        return (OUT_OF_MEMORY);
-
+    tds_factors = (double *) malloc (tds->nwl * sizeof (double));
+    if (tds_factors == NULL)
+        return (OUT_OF_MEMORY);
+    if (sts->tdscorr == PERFORM) {
 	    TdsCorrection (tds, sts->expstart, sts->detector_temp,
 				tds_factors);
 	}

@@ -83,19 +83,18 @@ double *delta    o: offset in dispersion direction, arcseconds
 		    return (status);
 		if (pedigree == DUMMY_PEDIGREE) {
 		    trlwarn("DUMMY pedigree in row %d of %s.",
-			row, sts->apdestab.name);
+            row, sts->apdestab.name);
 		    *delta = 0.;
 		    sts->x2dcorr_o = DUMMY;
 		    CloseApTab (&tabinfo);
 		    return (0);
-		} else {
-		    if (sts->dispaxis == 1)
-			*delta = slit->ap_offset[0] - tabrow.offset[0];
-		    else if (sts->dispaxis == 2)
-			*delta = slit->ap_offset[1] - tabrow.offset[1];
-		    else
-			*delta = 0.;
 		}
+	        if (sts->dispaxis == 1)
+	            *delta = slit->ap_offset[0] - tabrow.offset[0];
+		    else if (sts->dispaxis == 2)
+		        *delta = slit->ap_offset[1] - tabrow.offset[1];
+		    else
+		        *delta = 0.;
 
 		break;
 	    }
@@ -168,7 +167,7 @@ static int CheckPedigree (TblInfo *tabinfo, int row, int *pedigree) {
 
 	char *str_pedigree;
 
-	if (tabinfo->cp_pedigree > 0) {
+	if (tabinfo->cp_pedigree != NULL) {
 
 	    if ((str_pedigree = calloc (STIS_LINE+1, sizeof(char))) == NULL) {
 		trlerror("Out of memory.");

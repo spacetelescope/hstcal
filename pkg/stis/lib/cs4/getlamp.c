@@ -226,7 +226,7 @@ static int ReadLampTab (TblInfo *tabinfo, int row, TblRow *tabrow) {
 
 static int ReadLampArray (TblInfo *tabinfo, int row, LampInfo *lamp) {
 
-	double wsave, wlast, wnext;
+	double wsave, wlast, wnext=0.0;
 	int nwl, nflux;		/* actual number of elements read */
 	int j;
 
