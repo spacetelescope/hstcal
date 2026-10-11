@@ -4,8 +4,6 @@
 # include <stdlib.h>		/* calloc */
 # include <string.h>
 
-# include "c_iraf.h"		/* for c_irafinit */
-
 # include "stis.h"
 # include "hstcalerr.h"
 # include "cs2.h"
@@ -23,8 +21,6 @@ int main (int argc, char **argv) {
 	int 	newpar[MAX_PAR+1];	/* user specifiable parameters */
 
 	int cs2_command (int, char **, char *, char *, clpar *, int []);
-
-	c_irafinit (argc, argv);
 
 	if (argc < 2) {
 		printf("ERROR    missing input file name\n");

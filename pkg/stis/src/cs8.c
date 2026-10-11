@@ -5,7 +5,6 @@
 # include <string.h>
 
 #include "hstcal_memory.h"
-# include "c_iraf.h"		/* for c_irafinit */
 
 # include "../stis.h"
 # include "calstis8.h"
@@ -43,8 +42,6 @@ int main (int argc, char **argv) {
 	int verbose = 0;	/* print additional info? */
 	int too_many = 0;	/* too many command-line arguments? */
 	int i, j;		/* loop indexes */
-
-	c_irafinit (argc, argv);
 
     PtrRegister ptrReg;
     initPtrRegister(&ptrReg);

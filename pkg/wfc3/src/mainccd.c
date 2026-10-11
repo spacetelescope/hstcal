@@ -9,7 +9,6 @@ extern int status;
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
-# include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 # include "hstio.h"
 
@@ -40,7 +39,7 @@ char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
    file names, calibration switches, and flags, and then calls WF3ccd.
 
    Warren Hack, 1998 June 1:
-   	Revised for ACS... It will work on 1 ACS image at a time. Based on 
+   	Revised for ACS... It will work on 1 ACS image at a time. Based on
 	original CALSTIS code by Phil Hodge.
    Howard Bushouse, 2000 Aug 29:
 	Revised for WFC3.
@@ -74,7 +73,7 @@ int main (int argc, char **argv) {
 
 	/* reference file keywords and names */
 	RefFileInfo refnames;
-		
+
 	void InitRefFile (RefFileInfo *);
 	void FreeRefFile (RefFileInfo *);
 	void initCCDSwitches (CCD_Switch *);
@@ -87,9 +86,6 @@ int main (int argc, char **argv) {
 
 /*===========================================================================*/
     status = 0;
-
-	/* Initialize IRAF interface environment */
-	c_irafinit (argc, argv);
 
 	/* Post HSTIO error handler */
 	push_hstioerr (errchk);
@@ -116,7 +112,7 @@ int main (int argc, char **argv) {
 	outlist[0] = '\0';
 	input[0]   = '\0';
 	output[0]  = '\0';
-	
+
 	/* Initialize the lists of reference file keywords and names. */
 	InitRefFile (&refnames);
 	addPtr(&ptrReg, &refnames, &FreeRefFile);
@@ -230,13 +226,13 @@ int main (int argc, char **argv) {
 	for (n = 0;  n < n_in;  n++) {
 
 	    i = c_imtgetim (i_imt, input, CHAR_LINE_LENGTH);
-		
+
 	    if (n_out > 0) {
 		    i = c_imtgetim (o_imt, output, CHAR_LINE_LENGTH);
 	    } else {
     		output[0] = '\0';
         }
-        
+
 	    if (MkOutName (input, isuffix, osuffix, nsuffix, output, CHAR_LINE_LENGTH)) {
 	        WhichError (status);
 	        trlmessage("Skipping %s", input);

@@ -8,7 +8,6 @@ extern int status;
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
-# include "c_iraf.h"		/* for c_irafinit */
 
 # include "wf3.h"
 # include "wf3sum.h"
@@ -29,7 +28,7 @@ static void printHelp(void)
     printSyntax();
 }
 
-/* 
+/*
     This function will only return either 0 (WF3_OK) if everything
     processed normally or ERROR_RETURN (2) if there was some error.
 
@@ -38,7 +37,7 @@ static void printHelp(void)
 	parameter to WF3SUM. This parameter will only be controlled by
 	CALWF3, not by individual tasks.
 */
-        
+
 int main (int argc, char **argv) {
 
 	char *input, *output;	/* file names */
@@ -55,9 +54,6 @@ int main (int argc, char **argv) {
 
 /*===========================================================================*/
     status = 0;
-
-	/* Initialize IRAF interface */
-	c_irafinit (argc, argv);
 
     PtrRegister ptrReg;
     initPtrRegister(&ptrReg);

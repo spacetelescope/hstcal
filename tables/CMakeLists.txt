@@ -2,7 +2,6 @@ project(tables C)
 add_library(${PROJECT_NAME} SHARED
 	addCol.c
 	c_imt.c
-	c_irafinit.c
 	c_phopar.c
 	c_tbagt.c
 	c_tbapt.c
@@ -61,4 +60,3 @@ set_target_properties(${PROJECT_NAME}
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION lib
 )
-

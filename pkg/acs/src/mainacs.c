@@ -45,7 +45,6 @@ int main(int argc, char **argv) {
     unsigned nThreads = 0;
 
 	/* Function definitions */
-	void c_irafinit (int, char **);
 	int CalAcsRun (char *, int, int, int, int, const unsigned nThreads, const int gen1cte, const char * pcteTabNameFromCmd);
     void WhichError (int);
 
@@ -53,9 +52,6 @@ int main(int argc, char **argv) {
 	status = ACS_OK;
 	MsgText[0] = '\0';
 	input[0] = '\0';
-
-	/* Initialize IRAF environment */
-	c_irafinit(argc, argv);
 
 	/* Command line arguments:
 	**       0. Check for --version option

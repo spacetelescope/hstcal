@@ -7,7 +7,6 @@
 
 extern int status;			/* zero is OK */
 
-# include <c_iraf.h>		/* for c_irafinit */
 #include "hstcal_memory.h"
 #include "hstcal.h"
 # include "ximio.h"
@@ -95,7 +94,6 @@ int main (int argc, char **argv) {
     int Get2dSw (CalSwitch *, Hdr *);
 
     status = 0;
-    c_irafinit (argc, argv);
 
     /* Allocate space for file names. */
     PtrRegister ptrReg;

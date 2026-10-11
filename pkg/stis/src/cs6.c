@@ -3,7 +3,6 @@
 # include <string.h>
 
 #include "hstcal_memory.h"
-# include "c_iraf.h"		/* for c_irafinit, IRAFPointer */
 # include "ximio.h"		/* for the imt routines */
 
 # include "stis.h"
@@ -136,8 +135,6 @@ int main (int argc, char **argv) {
 	/* Initialize the structure for managing trailer file comments */
 	InitTrlBuf();
 	addPtr(&ptrReg, &trlbuf , &CloseTrlBuf);
-
-	c_irafinit (argc, argv);
 
 	/* Get command line parameters. */
 	if (CommLine (argc, argv, input, output, &backcorr, &dispcorr,

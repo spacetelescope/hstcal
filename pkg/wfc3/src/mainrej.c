@@ -6,7 +6,6 @@
 
 #include "hstcal_memory.h"
 #include "hstcal.h"
-# include "c_iraf.h"        /* for c_irafinit */
 # include "hstio.h"
 
 # include "wf3.h"
@@ -33,9 +32,6 @@ int main (int argc, char **argv) {
 
     status = 0;
 
-    /* Initialize the IRAF interface */
-    c_irafinit (argc, argv);
-
     /* Post HSTIO error handler */
     push_hstioerr (errchk);
 
@@ -48,7 +44,7 @@ int main (int argc, char **argv) {
     /* Initialize the structure for managing trailer file comments */
     InitTrlBuf ();
     addPtr(&ptrReg, &trlbuf, &CloseTrlBuf);
-    
+
     /* Get input and output file names and switches in the command line. */
     if (rej_command (argc, argv, &input, output, &par, newpar)){
         if (input)
@@ -73,4 +69,3 @@ int main (int argc, char **argv) {
         exit (status);
     }
 }
-
