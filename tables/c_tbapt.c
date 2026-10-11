@@ -142,7 +142,7 @@ int nelem               i: number of elements to write
         fits_write_col_int (tbl_descr->fptr, col_descr->colnum,
                 (long)row, (long)first, (long)nelem, buffer, &status);
         for (i = 0;  i < nelem;  i++) {
-            if (buffer[i] == IRAF_INDEFI) {
+            if (buffer[i] == (int) IRAF_INDEFI) {
                 firstelem = i + first;
                 fits_write_col_null (tbl_descr->fptr, col_descr->colnum,
                         (long)row, firstelem, one_elem, &status);
@@ -189,7 +189,7 @@ int nelem               i: number of elements to write
 }
 
 void c_tbaptt (IRAFPointer tp, IRAFPointer cp, int row, char **cbuf,
-                int maxch, int first, int nelem) {
+                int first, int nelem) {
 
 /* Write an array of text strings to a table column.
 arguments:
@@ -197,7 +197,6 @@ IRAFPointer tp          i: table descriptor
 IRAFPointer cp          i: column descriptor
 int row                 i: row number (one indexed)
 char **cbuf             i: array of strings to write to the table
-int maxch               i: length of each string (currently ignored)
 int first               i: first element to write (one indexed)
 int nelem               i: number of elements to write
 */

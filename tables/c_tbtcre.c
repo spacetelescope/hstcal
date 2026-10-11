@@ -18,7 +18,7 @@ argument:
 IRAFPointer tp          i: table descriptor
 */
 
-        fitsfile *fptr, *template_fptr;
+        fitsfile *fptr, *template_fptr=NULL;
 	TableDescr *tbl_descr, *template_descr;
         IRAFPointer cp;
         ColumnDescr *col_descr;

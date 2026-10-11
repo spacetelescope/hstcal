@@ -92,13 +92,13 @@ IRAFPointer imt         i: file name template descriptor
         imt_descr->current_index = 0;
 }
 
-int c_imtgetim (IRAFPointer imt, char *outstr, int maxch) {
+int c_imtgetim (IRAFPointer imt, char *outstr, size_t maxch) {
 
 /* Get the next file name in the list.
 arguments:
 IRAFPointer imt         i: file name template descriptor
 char *outstr            o: file name
-int maxch               i: maximum length of the string (not incl NULL)
+size_t maxch            i: maximum length of the string (not incl NULL)
 
 function value          o: length of the file name, or 0 if there are no
                            more names in the list
@@ -149,7 +149,7 @@ IRAFPointer imt         i: file name template descriptor
         ImtDescr * imt_descr = (ImtDescr *)imt;
         if (imt_descr->pattern)
             free (imt_descr->pattern);
-        {unsigned i;
+        {int i;
         for (i = 0;  i < imt_descr->nfiles;  i++)
         {
             if (imt_descr->files[i])

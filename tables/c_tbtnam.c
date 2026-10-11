@@ -2,20 +2,20 @@
 # include <fitsio.h>
 # include "ctables.h"
 
-void c_tbtnam (IRAFPointer tp, char *tablename, int maxch) {
+void c_tbtnam (IRAFPointer tp, char *tablename, size_t maxch) {
 
 /* Get the name of an open table.
 arguments:
 IRAFPointer tp          i: table descriptor
 char *tablename         o: name of table; may include extname or HDU number
                            in brackets (HDU = 0 is the primary HDU)
-int maxch               i: maximum length of 'tablename' string (not
+size_t maxch            i: maximum length of 'tablename' string (not
                            including '\0')
 */
 
         TableDescr *tbl_descr;
         char hdu_string[SZ_FITS_STR+1];
-        int len;
+        size_t len;
 
         tbl_descr = (TableDescr *)tp;
 

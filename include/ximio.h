@@ -2,6 +2,7 @@
 #define INCL_XIMIO_H
 
 # include <c_iraf.h>
+#include <stddef.h>
 
 IRAFPointer c_imtopen(char *pattern);
 
@@ -9,7 +10,7 @@ int c_imtlen(IRAFPointer imt);
 
 void c_imtrew(IRAFPointer imt);
 
-int c_imtgetim(IRAFPointer imt, char *outstr, int maxch);
+int c_imtgetim(IRAFPointer imt, char *outstr, size_t maxch);
 
 void c_imtclose(IRAFPointer imt);
 
