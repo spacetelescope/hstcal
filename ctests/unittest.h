@@ -84,6 +84,54 @@ typedef int (*unit_test_fixture)(void);
  * Fixtures
  */
 unit_test_fixture TEST_SUITE_FIXTURES[TEST_FUNC_ARRAY_MAX] = {NULL, NULL};
+
+/**
+ * Diagnostic compile-time information
+ */
+static const int TEST_EXE_USES_FORTIFIED_SOURCE =
+#ifdef __USE_FORTIFY_LEVEL
+    __USE_FORTIFY_LEVEL;
+#else
+    0;
+#endif
+
+static const int TEST_EXE_USES_ASAN =
+#ifdef __SANITIZE_ADDRESS__
+    1;
+#else
+    0;
+#endif
+
+static const int TEST_EXE_USES_COVERAGE =
+#ifdef __GCOV__
+    1;
+#else
+    0;
+#endif
+
+static const int TEST_EXE_USES_STACK_PROTECTOR =
+#if defined(__SSP_ALL__)
+    1;
+#elif defined(__SSP_STRONG__)
+    2;
+#elif defined(__SSP__)
+    3;
+#else
+    0;
+#endif
+
+static int TEST_VERBOSE() {
+#ifdef DEBUG
+    // Always enable verbose output during development
+    return 1;
+#else
+    if (getenv("UNITTEST_VERBOSE")) {
+        return 1;
+    }
+#endif
+    return 0;
+}
+
 /**
  * Disable line buffering (useful for CI)
  */
@@ -101,7 +149,31 @@ unit_test_fixture TEST_SUITE_FIXTURES[TEST_FUNC_ARRAY_MAX] = {NULL, NULL};
         const char *TEST_LOCAL_SUITE_NAME = (NAME); \
         int TEST_LOCAL_STATS[TEST_STATS_ARRAY_MAX] = {0}; \
         TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "SUITE", " %s%s...%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
-            TEST_LOCAL_SUITE_NAME, TEST_TERM_COLOR_RESET);
+            TEST_LOCAL_SUITE_NAME, TEST_TERM_COLOR_RESET); \
+        if (TEST_VERBOSE()) { \
+            const char *ssp_type; \
+            switch (TEST_EXE_USES_STACK_PROTECTOR) { \
+                case 1: \
+                    ssp_type = "Yes (all)"; \
+                    break; \
+                case 2: \
+                    ssp_type = "Yes (strong)"; \
+                    break; \
+                case 3: \
+                    ssp_type = "Yes"; \
+                    break; \
+                default: \
+                    ssp_type = ""; \
+            }; \
+            TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with _FORTIFIED_SOURCE...%s %s (level %d)%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
+               TEST_TERM_COLOR_RESET, TEST_EXE_USES_FORTIFIED_SOURCE ? "Yes" : "No", TEST_EXE_USES_FORTIFIED_SOURCE, TEST_TERM_COLOR_RESET); \
+            TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with stack protector...%s %s%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
+                TEST_TERM_COLOR_RESET, ssp_type, TEST_TERM_COLOR_RESET); \
+            TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with AddressSanitizer...%s %s%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
+                TEST_TERM_COLOR_RESET, TEST_EXE_USES_ASAN ? "Yes" : "No", TEST_TERM_COLOR_RESET); \
+            TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with coverage...%s %s%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
+                TEST_TERM_COLOR_RESET, TEST_EXE_USES_COVERAGE ? "Yes" : "No", TEST_TERM_COLOR_RESET); \
+        } \
 
 #define TEST_SUITE_RETURN \
     TEST_STATS_SHOW(); \
@@ -454,6 +526,9 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
     }
 
     char line[0x1000] = {0};
+    if (TEST_VERBOSE()) {
+        fprintf(stdout, TEST_TERM_COLOR_BRIGHT_BLUE "  DUMP" TEST_TERM_COLOR_RESET TEST_TERM_COLOR_BRIGHT_WHITE " %s" TEST_TERM_COLOR_RESET "\n", r->filename);
+    }
     while (fgets(line, sizeof(line) - 1, fp) != NULL) {
         if (is_ansi_and_empty(line)) {
             fprintf(stdout, "%s", line);
