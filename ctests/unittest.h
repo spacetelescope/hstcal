@@ -400,7 +400,6 @@ static inline int TEST_REDIRECT_OUTPUT_RESTORE(struct TestRedirect *r) {
 #define TEST_ANSI_CSI_FINAL_LOW 0x40      // '@'
 #define TEST_ANSI_CSI_FINAL_HIGH 0x7e     // '~'
 
-
 static inline void strip_ansi_codes(char *s) {
     char *src = s;
     char *dst = s;
