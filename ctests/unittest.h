@@ -609,6 +609,36 @@ static inline int TEST_THROW_(const int action, struct TestRedirect *r) {
     return action;
 }
 
+#define TEST_THROW_ERROR(MESSAGE, ...) \
+    do { \
+        if (MESSAGE && strlen(MESSAGE)) { \
+            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "EXCEPTION " TEST_TERM_COLOR_BOLD TEST_TERM_COLOR_BRIGHT_RED, "", MESSAGE, ##__VA_ARGS__); \
+        } \
+        return TEST_THROW(TEST_T_ERROR); \
+    } while (0)
+
+#define TEST_THROW_FAIL(MESSAGE, ...) \
+    do { \
+        if (MESSAGE && strlen(MESSAGE)) { \
+            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "EXCEPTION " TEST_TERM_COLOR_RED, "", MESSAGE, ##__VA_ARGS__); \
+        } \
+        return TEST_THROW(TEST_T_FAIL); \
+    } while (0)
+
+#define TEST_THROW_SKIP(MESSAGE, ...) \
+    do { \
+        if (MESSAGE && strlen(MESSAGE)) { \
+            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "REASON " TEST_TERM_COLOR_YELLOW, "", MESSAGE, ##__VA_ARGS__); \
+        } \
+        return TEST_THROW(TEST_T_SKIP); \
+    } while (0)
+
+#define TEST_STATS_UPDATE(RES) \
+    do { \
+        TEST_STATS_UPDATE_(TEST_LOCAL_STATS, (RES)); \
+    } while (0);
+
+
 static inline int TEST_VMSG(FILE *stream, const char *color, const char *prefix, const char *fmt, va_list ap) {
     va_list ap_copy;
     va_copy(ap_copy, ap);
@@ -643,35 +673,6 @@ static inline int TEST_MSG(FILE *stream, const char *color, const char *prefix, 
     return len;
 }
 
-#define TEST_THROW_ERROR(MESSAGE, ...) \
-    do { \
-        if (MESSAGE && strlen(MESSAGE)) { \
-            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "EXCEPTION " TEST_TERM_COLOR_BOLD TEST_TERM_COLOR_BRIGHT_RED, "", MESSAGE, ##__VA_ARGS__); \
-        } \
-        return TEST_THROW(TEST_T_ERROR); \
-    } while (0)
-
-#define TEST_THROW_FAIL(MESSAGE, ...) \
-    do { \
-        if (MESSAGE && strlen(MESSAGE)) { \
-            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "EXCEPTION " TEST_TERM_COLOR_RED, "", MESSAGE, ##__VA_ARGS__); \
-        } \
-        return TEST_THROW(TEST_T_FAIL); \
-    } while (0)
-
-#define TEST_THROW_SKIP(MESSAGE, ...) \
-    do { \
-        if (MESSAGE && strlen(MESSAGE)) { \
-            TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_CYAN "REASON " TEST_TERM_COLOR_YELLOW, "", MESSAGE, ##__VA_ARGS__); \
-        } \
-        TEST_SUITE_FIXTURE_RUN(TEST_FUNC_TEARDOWN); \
-        return TEST_THROW(TEST_T_SKIP); \
-    } while (0)
-
-#define TEST_STATS_UPDATE(RES) \
-    do { \
-        TEST_STATS_UPDATE_(TEST_LOCAL_STATS, (RES)); \
-    } while (0);
 
 static inline void TEST_STATS_UPDATE_(int *stats, const int result) {
     switch (result) {
