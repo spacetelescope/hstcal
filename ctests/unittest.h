@@ -551,6 +551,7 @@ static inline int TEST_REDIRECT_SAVE(struct TestRedirect *r, const char *filenam
     FILE *outstream = fopen(filename, "w+");
     if (!outstream) {
         fprintf(stderr, "Unable to open output file: %s\n", filename);
+        TEST_REDIRECT_OUTPUT(r);
         return -1;
     }
 
@@ -558,6 +559,7 @@ static inline int TEST_REDIRECT_SAVE(struct TestRedirect *r, const char *filenam
     if (!fp) {
         fprintf(stderr, "Unable to open log file: %s\n", r->filename);
         fclose(outstream);
+        TEST_REDIRECT_OUTPUT(r);
         return -1;
     }
 
