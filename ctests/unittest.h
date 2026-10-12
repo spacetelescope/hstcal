@@ -787,6 +787,10 @@ static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_coun
 static inline int TEST_FILE_CONTAINS(const char *filename, const char *pattern, const ssize_t range_start, const ssize_t range_end, char **result, size_t *result_lineno) {
     size_t line_count = 0;
     char **lines = TEST_FILE_AS_ARRAY(filename, &line_count);
+    if (!lines) {
+        return -1;
+    }
+
     for (ssize_t i = 0; i < (ssize_t) line_count; i++) {
         if (range_end >= 0 && i > range_end) {
             break;
