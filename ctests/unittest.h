@@ -753,6 +753,10 @@ static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_coun
             alloc *= 2;
             char **tmp = realloc(arr, alloc + 1 * sizeof(*arr));
             if (!tmp) {
+                TEST_ARRAY_FREE(arr, used);
+                free(line);
+                line = NULL;
+                fclose(fp);
                 return NULL;
             }
             arr = tmp;
@@ -795,6 +799,7 @@ static inline int TEST_FILE_CONTAINS(const char *filename, const char *pattern, 
             if (result) {
                 *result = strdup(lines[i]);
                 if (!*result) {
+                    TEST_ARRAY_FREE(lines, line_count);
                     return -1;
                 }
                 if (result_lineno) {
