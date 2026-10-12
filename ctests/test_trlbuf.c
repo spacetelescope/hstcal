@@ -264,8 +264,6 @@ TEST_UNIT(printfAndFlush) {
     printfAndFlush("flushing first");
     printfAndFlush("flushing second");
     printfAndFlush("flushing third");
-    fsync(TEST_LOCAL_REDIRECT.fd_stdout);
-    fsync(TEST_LOCAL_REDIRECT.fd_stderr);
 
     const char *patterns[] = {
         "flushing first\n",
