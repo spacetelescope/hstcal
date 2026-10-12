@@ -267,9 +267,6 @@ static int TEST_VERBOSE() {
 
 #define TEST_RETURN \
         do { \
-            if (TEST_SUITE_FIXTURES[TEST_FUNC_TEARDOWN]) { \
-                TEST_SUITE_FIXTURE_RUN(TEST_FUNC_TEARDOWN); \
-            } \
             if (TEST_LOCAL_ERROR_COUNT != 0) { \
                 return TEST_THROW(TEST_T_FAIL); \
             } \
@@ -604,6 +601,9 @@ static inline int TEST_THROW_(const int action, struct TestRedirect *r) {
             action_msg = "UNHANDLED ACTION";
             color = TEST_TERM_COLOR_RED;
             break;
+    }
+    if (TEST_SUITE_FIXTURES[TEST_FUNC_TEARDOWN]) {
+        TEST_SUITE_FIXTURES[TEST_FUNC_TEARDOWN]();
     }
     TEST_REDIRECT_OUTPUT_RESTORE(r);
     printf("%s%s\n" TEST_TERM_COLOR_RESET, color, action_msg);
