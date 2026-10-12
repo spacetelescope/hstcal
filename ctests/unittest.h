@@ -438,7 +438,7 @@ static inline void strip_ansi_codes(char *s) {
  * @param s character array to tally
  * @return total characters
  */
-static size_t strlen_sans_ansi_codes(const char *s) {
+static inline size_t strlen_sans_ansi_codes(const char *s) {
     size_t count = 0;
 
     while (*s != '\0') {
