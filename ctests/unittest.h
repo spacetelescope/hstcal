@@ -178,6 +178,7 @@ unit_test_fixture TEST_SUITE_FIXTURES[TEST_FUNC_ARRAY_MAX] = {NULL, NULL};
         int TEST_LOCAL_FIXTURE_RESULT = 0; \
         int TEST_LOCAL_ERROR_COUNT = 0; \
         struct TestRedirect TEST_LOCAL_REDIRECT = {0}; \
+        snprintf(TEST_LOCAL_REDIRECT.origin, sizeof(TEST_LOCAL_REDIRECT.origin), "%s", __func__); \
         printf(TEST_TERM_COLOR_BRIGHT_BLUE "  UNIT" TEST_TERM_COLOR_RESET TEST_TERM_COLOR_BRIGHT_WHITE \
             " %s... " TEST_TERM_COLOR_RESET, \
             __func__); \
@@ -224,6 +225,7 @@ struct TestRedirect {
     int fd_stdout;
     int fd_stderr;
     char filename[4096];
+    char origin[255];
 };
 
 /**
@@ -263,8 +265,7 @@ static inline int TEST_REDIRECT_OUTPUT(struct TestRedirect *r) {
     char template[4096] = {0};
     const char *logdir = "unittest_logs";
     mkdir(logdir, 0700);
-
-    snprintf(template, sizeof(template), "%s/test_output_XXXXXX", logdir);
+    snprintf(template, sizeof(template), "%s/test_output_%s_XXXXXX", logdir, strlen(r->origin) ? r->origin : "");
 
     const int fd = mkstemp(template);
     if (fd < 0) {
@@ -466,6 +467,7 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
         remove(r->filename);
     }
     *r->filename = '\0';
+    *r->origin = '\0';
 
     return 0;
 }
