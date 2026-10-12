@@ -717,6 +717,16 @@ static inline void TEST_STATS_SHOW_(const int *stats, const char *name) {
     printf("%s%-6s%s... %-8d\n", TEST_TERM_COLOR_YELLOW, "Skip", TEST_TERM_COLOR_RESET, stats[TEST_T_SKIP]);
 }
 
+#define TEST_ARRAY_FREE(PTR, COUNT) \
+    do { \
+        for (size_t LOCAL_I = 0; LOCAL_I < (COUNT); LOCAL_I++) { \
+            free((PTR[LOCAL_I])); \
+            (PTR[LOCAL_I]) = NULL; \
+        } \
+        free(PTR); \
+        (PTR) = NULL; \
+    } while (0)
+
 #define TEST_FILE_ARRAY_CHUNK 1024
 static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_count) {
     FILE *fp = fopen(filename, "r");
@@ -758,15 +768,6 @@ static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_coun
     return arr;
 }
 
-#define TEST_ARRAY_FREE(PTR, COUNT) \
-    do { \
-        for (size_t i = 0; i < (COUNT); i++) { \
-            free((PTR[i])); \
-            (PTR[i]) = NULL; \
-        } \
-        free(PTR); \
-        (PTR) = NULL; \
-    } while (0)
 
 /**
  * Find a substring in a file
