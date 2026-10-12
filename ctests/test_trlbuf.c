@@ -274,7 +274,7 @@ TEST_UNIT(printfAndFlush) {
     };
     char *match = NULL;
     size_t match_lineno = 0;
-    for (size_t i = 0; i < sizeof(patterns)/sizeof(patterns[0]); i++) {
+    for (size_t i = 0; i < sizeof(patterns) / sizeof(patterns[0]); i++) {
         const char *pattern = patterns[i];
         TEST_FILE_CONTAINS(TEST_LOCAL_REDIRECT.filename, pattern, (ssize_t) i, (ssize_t) i, &match, &match_lineno);
         TEST_ASSERT(match != NULL, "'%s' not found in file '%s'", pattern, TEST_LOCAL_REDIRECT.filename);
