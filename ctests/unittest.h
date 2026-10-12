@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef UNITTEST_H
+#define UNITTEST_H
 
 #include <ctype.h>
 #include <stdio.h>
