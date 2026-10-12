@@ -15,6 +15,17 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+#define TEST_LIB_VERSION_MAJOR "1"
+#define TEST_LIB_VERSION_MINOR "0"
+#define TEST_LIB_VERSION_PATCH "0"
+#define TEST_LIB_VERSION TEST_LIB_VERSION_MAJOR "." TEST_LIB_VERSION_MINOR "." TEST_LIB_VERSION_PATCH
+
+static void TEST_SHOW_LIB_INFO() {
+    printf("UNITTEST v%s\n", TEST_LIB_VERSION);
+    printf("Copyright (C) 2026 Association of Universities for Research in Astronomy (AURA)\n");
+    printf("\n");
+}
+
 /**
  * Terminal colors
  */
@@ -76,6 +87,7 @@ enum {
     int main(int argc, char *argv[]) { \
         (void) argc; \
         (void) argv; \
+        TEST_SHOW_LIB_INFO(); \
         const char *TEST_LOCAL_SUITE_NAME = (NAME); \
         int TEST_LOCAL_STATS[TEST_STATS_ARRAY_MAX] = {0}; \
         TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "SUITE", " %s%s...%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
