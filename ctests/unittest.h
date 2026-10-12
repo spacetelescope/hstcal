@@ -1,5 +1,3 @@
-#ifndef HSTCAL_UNITTEST_H
-#define HSTCAL_UNITTEST_H
 /*
  * Copyright (C) 2026 Association of Universities for Research in Astronomy (AURA)
  * SPDX-License-Identifier: BSD-3-Clause
