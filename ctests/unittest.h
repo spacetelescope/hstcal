@@ -227,13 +227,24 @@ struct TestRedirect {
 };
 
 /**
+ * Test whether we should keep the output from each unit test
+ * @return 1=defined, 0=undefined
+ */
+static int TEST_REDIRECT_CHECK_KEEP_LOGS() {
+    if (getenv("UNITTEST_KEEP_LOGS")) {
+        return 1;
+    }
+    return 0;
+}
+
+/**
  * Redirect stdout/stderr to a temporary file. Save file descriptors and file
  * name in TestRedirect structure.
  * @param r TestRedirect structure
  * @return 0 on success
  */
 static inline int TEST_REDIRECT_OUTPUT(struct TestRedirect *r) {
-    if (strlen(r->filename)) {
+    if (strlen(r->filename) && !TEST_REDIRECT_CHECK_KEEP_LOGS()) {
         remove(r->filename);
     }
 
@@ -451,7 +462,7 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
     }
     fclose(fp);
 
-    if (strlen(r->filename)) {
+    if (strlen(r->filename) && !TEST_REDIRECT_CHECK_KEEP_LOGS()) {
         remove(r->filename);
     }
     *r->filename = '\0';
