@@ -751,7 +751,7 @@ static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_coun
 
         if (used >= alloc) {
             alloc *= 2;
-            char **tmp = realloc(arr, alloc + 1 * sizeof(*arr));
+            char **tmp = realloc(arr, (alloc + 1) * sizeof(*arr));
             if (!tmp) {
                 TEST_ARRAY_FREE(arr, used);
                 free(line);
