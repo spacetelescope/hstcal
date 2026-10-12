@@ -75,6 +75,16 @@ enum {
 };
 
 /**
+ * Function pointers
+ */
+typedef int (*unit_test)(void);
+typedef int (*unit_test_fixture)(void);
+
+/**
+ * Fixtures
+ */
+unit_test_fixture TEST_SUITE_FIXTURES[TEST_FUNC_ARRAY_MAX] = {NULL, NULL};
+/**
  * Disable line buffering (useful for CI)
  */
 #define TEST_DISABLE_BUFFERING() \
@@ -717,9 +727,5 @@ static inline int TEST_FILE_CONTAINS(const char *filename, const char *pattern, 
     return 0;
 }
 
-typedef int (*unit_test)(void);
-typedef int (*unit_test_fixture)(void);
-
-unit_test_fixture TEST_SUITE_FIXTURES[TEST_FUNC_ARRAY_MAX] = {NULL, NULL};
 
 #endif // HSTCAL_UNITTEST_H
