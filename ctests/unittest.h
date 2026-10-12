@@ -617,6 +617,7 @@ static inline void TEST_STATS_SHOW_(const int *stats, const char *name) {
     printf("%s%-6s%s... %-8d\n", TEST_TERM_COLOR_YELLOW, "Skip", TEST_TERM_COLOR_RESET, stats[TEST_T_SKIP]);
 }
 
+#define TEST_FILE_ARRAY_CHUNK 1024
 static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_count) {
     FILE *fp = fopen(filename, "r");
     if (!fp) {
@@ -624,8 +625,12 @@ static inline char **TEST_FILE_AS_ARRAY(const char *filename, size_t *lines_coun
     }
 
     size_t used = 0;
-    size_t alloc = 1024;
-    char **arr = calloc(alloc + 1,sizeof(*arr));
+    size_t alloc = TEST_FILE_ARRAY_CHUNK;
+    char **arr = calloc(alloc + 1, sizeof(*arr));
+    if (!arr) {
+        fclose(fp);
+        return NULL;
+    }
 
     size_t line_len = 0;
     char *line = NULL;
