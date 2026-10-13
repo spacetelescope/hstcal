@@ -362,6 +362,7 @@ static inline int TEST_REDIRECT_OUTPUT(struct TestRedirect *r) {
 
     r->fd_stderr = dup(STDERR_FILENO);
     if (r->fd_stderr < 0) {
+        close(r->fd_stdout);
         fprintf(stderr, "Unable to dup() stderr\n");
         return -1;
     }
