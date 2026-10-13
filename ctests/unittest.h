@@ -311,6 +311,10 @@ static inline const char *TEST_SUITE_SAFE_NAME(const char *s) {
 
 #define TEST_ASSERT(COND, REASON, ...) \
     do { \
+        if (TEST_VERBOSE()) { \
+            TEST_MSG(stdout, TEST_TERM_COLOR_BRIGHT_CYAN "ASSERT" TEST_TERM_COLOR_RESET, "", \
+                TEST_TERM_COLOR_MAGENTA " " #COND TEST_TERM_COLOR_RESET, ##__VA_ARGS__); \
+        } \
         if (!(COND)) { \
             TEST_MSG(stderr, TEST_TERM_COLOR_BRIGHT_RED "ASSERTION FAILED", "", \
                 TEST_TERM_COLOR_MAGENTA " " #COND TEST_TERM_COLOR_RESET TEST_TERM_COLOR_RED \
