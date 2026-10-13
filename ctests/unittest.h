@@ -6,7 +6,9 @@
 #ifndef UNITTEST_H
 #define UNITTEST_H
 
+#include <fcntl.h>
 #include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -55,6 +57,9 @@ static void TEST_SHOW_LIB_INFO() {
 #define TEST_TERM_COLOR_BG_MAGENTA "\033[45m"
 #define TEST_TERM_COLOR_BG_CYAN "\033[46m"
 #define TEST_TERM_COLOR_BG_WHITE "\033[47m"
+
+static const char *TEST_SUITE_NAME;
+#define TEST_SUITE_NAME_MAX 255
 
 // Valid unit_test_fixture array indicies
 enum {
@@ -141,15 +146,39 @@ static int TEST_VERBOSE() {
         setvbuf(stderr, NULL, _IONBF, 0); \
     } while (0)
 
+/**
+ * Sanitize a test suite name so it can be used as a directory name on the filesystem
+ * @param s name of the test suite
+ * @return safe name
+ */
+static inline const char *TEST_SUITE_SAFE_NAME(const char *s) {
+    static char name[TEST_SUITE_NAME_MAX] = {0};
+    const char *a_path = strrchr(s, '/');
+    if (a_path && strlen(a_path)) {
+        s = a_path + 1;
+    }
+
+    const int len = snprintf(name, sizeof(name), "%s", s);
+    if (len > (int) sizeof(name)) {
+        fprintf(stderr, "Test suite name is too long (>%zu characters)! String truncated!\n", sizeof(name) - 1);
+    }
+    for (size_t i = 0; i < strlen(s); i++) {
+        if (iscntrl(name[i]) || isblank(name[i]) || isspace(name[i])) {
+            name[i] = '_';
+        }
+    }
+    return name;
+}
+
 #define TEST_SUITE(NAME) \
     int main(int argc, char *argv[]) { \
         (void) argc; \
         (void) argv; \
         TEST_SHOW_LIB_INFO(); \
-        const char *TEST_LOCAL_SUITE_NAME = (NAME); \
+        TEST_SUITE_NAME = TEST_SUITE_SAFE_NAME(NAME); \
         int TEST_LOCAL_STATS[TEST_STATS_ARRAY_MAX] = {0}; \
         TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "SUITE", " %s%s...%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
-            TEST_LOCAL_SUITE_NAME, TEST_TERM_COLOR_RESET); \
+            TEST_SUITE_NAME, TEST_TERM_COLOR_RESET); \
         if (TEST_VERBOSE()) { \
             const char *ssp_type; \
             switch (TEST_EXE_USES_STACK_PROTECTOR) { \
@@ -250,7 +279,8 @@ static int TEST_VERBOSE() {
         int TEST_LOCAL_FIXTURE_RESULT = 0; \
         int TEST_LOCAL_ERROR_COUNT = 0; \
         struct TestRedirect TEST_LOCAL_REDIRECT = {0}; \
-        snprintf(TEST_LOCAL_REDIRECT.origin, sizeof(TEST_LOCAL_REDIRECT.origin), "%s", __func__); \
+        snprintf(TEST_LOCAL_REDIRECT.unit_suite, sizeof(TEST_LOCAL_REDIRECT.unit_suite), "%s", TEST_SUITE_NAME); \
+        snprintf(TEST_LOCAL_REDIRECT.unit_name, sizeof(TEST_LOCAL_REDIRECT.unit_name), "%s", __func__); \
         printf(TEST_TERM_COLOR_BRIGHT_BLUE "  UNIT" TEST_TERM_COLOR_RESET TEST_TERM_COLOR_BRIGHT_WHITE \
             " %s... " TEST_TERM_COLOR_RESET, \
             __func__); \
@@ -294,7 +324,8 @@ struct TestRedirect {
     int fd_stdout;
     int fd_stderr;
     char filename[4096];
-    char origin[255];
+    char unit_name[255];
+    char unit_suite[255];
 };
 
 /**
@@ -331,28 +362,41 @@ static inline int TEST_REDIRECT_OUTPUT(struct TestRedirect *r) {
         return -1;
     }
 
-    char template[4096] = {0};
-    const char *logdir = "unittest_logs";
-    mkdir(logdir, 0700);
-    snprintf(template, sizeof(template), "%s/test_output_%s_XXXXXX", logdir, strlen(r->origin) ? r->origin : "");
-
-    const int fd = mkstemp(template);
-    if (fd < 0) {
-        fprintf(stderr, "Unable to create temporary file\n");
+    const char *logdir_root = "unittest_logs";
+    if (mkdir(logdir_root, 0700) && errno != EEXIST) {
+        close(r->fd_stderr);
+        close(r->fd_stdout);
+        fprintf(stderr, "Unable to create log root %s: %s\n", logdir_root, strerror(errno));
         return -1;
     }
-    strncpy(r->filename, template, sizeof(r->filename) - 1);
-    r->filename[sizeof(r->filename) - 1] = '\0';
+
+    char logdir[1024] = {0};
+    snprintf(logdir, sizeof(logdir), "%s/%s", logdir_root, strlen(r->unit_suite) ? r->unit_suite : "unnamed_suite");
+    if (mkdir(logdir, 0700) < 0 && errno != EEXIST) {
+        fprintf(stderr, "Unable to create log dir %s: %s\n", logdir, strerror(errno));
+        return -1;
+    }
+
+    char logfile[4096] = {0};
+    snprintf(logfile, sizeof(logfile), "%s/%s.log", logdir,
+        strlen(r->unit_name) ? r->unit_name : "unnamed_unit");
+
+    int fd = open(logfile, O_RDWR | O_CREAT | O_TRUNC, 0600);
+    if (fd < 0) {
+        fprintf(stderr, "Unable to open logfile: %s\n", logfile);
+        return -1;
+    }
+    snprintf(r->filename, sizeof(r->filename), "%s", logfile);
 
     fflush(stdout);
     fflush(stderr);
 
     if (dup2(fd, STDOUT_FILENO) < 0) {
-        fprintf(stderr, "Unable to dup2() stdout to %s\n", template);
+        fprintf(stderr, "Unable to dup2() stdout to %s\n", logfile);
         return -1;
     }
     if (dup2(fd, STDERR_FILENO) < 0) {
-        fprintf(stderr, "Unable to dup2() stderr to %s\n", template);
+        fprintf(stderr, "Unable to dup2() stderr to %s\n", logfile);
         return -1;
     }
     return close(fd);
@@ -538,7 +582,8 @@ static inline int TEST_REDIRECT_OUTPUT_DUMP(struct TestRedirect *r) {
         remove(r->filename);
     }
     *r->filename = '\0';
-    *r->origin = '\0';
+    *r->unit_name = '\0';
+    *r->unit_suite = '\0';
 
     return 0;
 }
@@ -698,7 +743,7 @@ static inline void TEST_STATS_UPDATE_(int *stats, const int result) {
 
 #define TEST_STATS_SHOW() \
     do { \
-        TEST_STATS_SHOW_(TEST_LOCAL_STATS, TEST_LOCAL_SUITE_NAME); \
+        TEST_STATS_SHOW_(TEST_LOCAL_STATS, TEST_SUITE_NAME); \
     } while (0);
 
 static inline void TEST_STATS_SHOW_(const int *stats, const char *name) {
