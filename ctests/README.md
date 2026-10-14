@@ -139,6 +139,7 @@ Setup and teardown fixtures are defined per-suite and run before, and after each
 
 ## Setup/Teardown
 
+```c
 static int setup(void) {
     puts("Inside setup");
     return 0;
@@ -148,6 +149,7 @@ static int teardown(void) {
     puts("Inside teardown");
     return 0;
 }
+```
 
 ## Register Fixtures
 
