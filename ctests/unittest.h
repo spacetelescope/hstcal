@@ -93,7 +93,7 @@ unit_test_fixture TEST_SUITE_FIXTURES[TEST_FUNC_ARRAY_MAX] = {NULL, NULL};
 /**
  * Diagnostic compile-time information
  */
-static const int TEST_EXE_USES_FORTIFIED_SOURCE =
+static const int TEST_EXE_USES_FORTIFY_SOURCE =
 #ifdef __USE_FORTIFY_LEVEL
     __USE_FORTIFY_LEVEL;
 #else
@@ -194,8 +194,8 @@ static inline const char *TEST_SUITE_SAFE_NAME(const char *s) {
                 default: \
                     ssp_type = ""; \
             }; \
-            TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with _FORTIFIED_SOURCE...%s %s (level %d)%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
-               TEST_TERM_COLOR_RESET, TEST_EXE_USES_FORTIFIED_SOURCE ? "Yes" : "No", TEST_EXE_USES_FORTIFIED_SOURCE, TEST_TERM_COLOR_RESET); \
+            TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with _FORTIFY_SOURCE...%s %s (level %d)%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
+               TEST_TERM_COLOR_RESET, TEST_EXE_USES_FORTIFY_SOURCE ? "Yes" : "No", TEST_EXE_USES_FORTIFY_SOURCE, TEST_TERM_COLOR_RESET); \
             TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with stack protector...%s %s%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
                 TEST_TERM_COLOR_RESET, ssp_type, TEST_TERM_COLOR_RESET); \
             TEST_MSG(stdout, NULL, TEST_TERM_COLOR_BRIGHT_BLUE "  EXE", " %sCompiled with AddressSanitizer...%s %s%s", TEST_TERM_COLOR_BRIGHT_WHITE, \
