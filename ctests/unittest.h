@@ -146,6 +146,16 @@ static int TEST_VERBOSE() {
         setvbuf(stderr, NULL, _IONBF, 0); \
     } while (0)
 
+#define TEST_CHECKPOINT(MSG, ...) \
+    do { \
+        TEST_MSG(stdout, TEST_TERM_COLOR_BRIGHT_CYAN "CHECKPOINT" TEST_TERM_COLOR_RESET, "", \
+            " #%d - " MSG TEST_TERM_COLOR_RESET, TEST_LOCAL_CHECKPOINT_CALL_COUNT, ##__VA_ARGS__); \
+        TEST_LOCAL_CHECKPOINT = TEST_LOCAL_ERROR_COUNT; \
+        TEST_LOCAL_CHECKPOINT_CALL_COUNT++; \
+    } while (0)
+
+#define TEST_CHECKPOINT_FAILED() (TEST_LOCAL_ERROR_COUNT - TEST_LOCAL_CHECKPOINT) != 0
+
 /**
  * Sanitize a test suite name so it can be used as a directory name on the filesystem
  * @param s name of the test suite
@@ -278,6 +288,9 @@ static inline const char *TEST_SUITE_SAFE_NAME(const char *s) {
     static int test__##FUNC_NAME() { \
         int TEST_LOCAL_FIXTURE_RESULT = 0; \
         int TEST_LOCAL_ERROR_COUNT = 0; \
+        int TEST_LOCAL_CHECKPOINT = 0; \
+        int TEST_LOCAL_CHECKPOINT_CALL_COUNT = 0; \
+        (void) TEST_LOCAL_CHECKPOINT; \
         struct TestRedirect TEST_LOCAL_REDIRECT = {0}; \
         snprintf(TEST_LOCAL_REDIRECT.unit_suite, sizeof(TEST_LOCAL_REDIRECT.unit_suite), "%s", TEST_SUITE_NAME); \
         snprintf(TEST_LOCAL_REDIRECT.unit_name, sizeof(TEST_LOCAL_REDIRECT.unit_name), "%s", __func__); \
@@ -297,7 +310,7 @@ static inline const char *TEST_SUITE_SAFE_NAME(const char *s) {
 
 #define TEST_RETURN \
         do { \
-            if (TEST_LOCAL_ERROR_COUNT != 0) { \
+            if (TEST_LOCAL_ERROR_COUNT) { \
                 return TEST_THROW(TEST_T_FAIL); \
             } \
             return TEST_THROW(TEST_T_PASS); \
