@@ -349,7 +349,7 @@ struct TestRedirect {
  * Test whether we should keep the output from each unit test
  * @return 1=defined, 0=undefined
  */
-static int TEST_REDIRECT_CHECK_KEEP_LOGS() {
+static inline int TEST_REDIRECT_CHECK_KEEP_LOGS() {
     if (getenv("UNITTEST_KEEP_LOGS")) {
         return 1;
     }
