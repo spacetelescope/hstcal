@@ -317,9 +317,9 @@ static inline const char *TEST_SUITE_SAFE_NAME(const char *s) {
         } while (0); \
     }
 
-#define TEST_MARK(DESC) \
+#define TEST_MARK(DESC, ...) \
     do { \
-        printf(TEST_TERM_COLOR_BRIGHT_CYAN "MARK" TEST_TERM_COLOR_RESET " %s\n" TEST_TERM_COLOR_RESET, DESC); \
+        printf(TEST_TERM_COLOR_BRIGHT_CYAN "MARK" TEST_TERM_COLOR_RESET " %s\n" TEST_TERM_COLOR_RESET, DESC, ##__VA_ARGS__); \
     } while (0)
 
 #define TEST_ASSERT(COND, REASON, ...) \
