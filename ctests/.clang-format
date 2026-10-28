@@ -1,0 +1,12 @@
+BasedOnStyle: InheritParentConfig
+IncludeIsMainRegex: '([-_](test|unittest))?$'
+MacroBlockBegin: '^(TEST_UNIT|TEST_SUITE)\(.*\)$'
+MacroBlockEnd: ''
+StatementMacros:
+  - TEST_FORCE_SKIP
+  - TEST_FORCE_ERROR
+  - TEST_MARK
+  - TEST_SUITE_RUN
+  - TEST_STATS_SHOW
+  - TEST_RETURN
+  - TEST_SUITE_RETURN

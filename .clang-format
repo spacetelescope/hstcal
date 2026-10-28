@@ -1,8 +1,66 @@
-AllowShortFunctionsOnASingleLine: Inline
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
+---
+Language: Cpp
+BasedOnStyle: LLVM
+AlignConsecutiveAssignments: false
+AlignConsecutiveBitFields: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: false
+AlignOperands: false
+AlignTrailingComments: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: None
+BinPackLongBracedList: false
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+BreakBeforeBraces: Attach
+BreakStringLiterals: false
+ColumnLimit: 120
+IncludeCategories:
+  - Regex: '^<.*'
+    Priority: 1
+  - Regex: '^".*'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
+IndentCaseLabels: true
 IndentWidth: 4
-InsertBraces: true
-SortIncludes: false
+ContinuationIndentWidth: 4
+AlignAfterOpenBracket: false
+InsertNewlineAtEOF: true
+AlignEscapedNewlines: DontAlign
+MaxEmptyLinesToKeep: 2
+PenaltyBreakAssignment: 100
+PenaltyBreakBeforeFirstCallParameter: 100
+PenaltyBreakComment: 100
+PenaltyBreakFirstLessLess: 100
+PenaltyBreakOpenParenthesis: 100
+PenaltyExcessCharacter: 1000
+PenaltyReturnTypeOnItsOwnLine: 100
+PointerAlignment: Right
+PPIndentWidth: 4
+ReflowComments: false
+SortIncludes: Never
+SpaceAfterCStyleCast: true
+SpacesInParens: Custom
+SpacesInParensOptions:
+  InEmptyParentheses: false
+  InConditionalStatements: false
+  InCStyleCasts: false
 TabWidth: 4
 UseTab: Never
+...

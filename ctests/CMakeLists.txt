@@ -1,3 +1,21 @@
+set(STCUNIT_VERSION 1.0.0)
+set(STCUNIT_ARCHIVE ${STCUNIT_VERSION}.tar.gz)
+set(STCUNIT_DIR stcunit-${STCUNIT_VERSION})
+set(STCUNIT_DEST ${CMAKE_BINARY_DIR}/ctests)
+
+if(NOT EXISTS "${STCUNIT_DEST}/${STCUNIT_DIR}")
+    message(STATUS "Downloading ${STCUNIT_DIR}")
+    file(DOWNLOAD https://github.com/spacetelescope/stcunit/archive/refs/tags/${STCUNIT_ARCHIVE} ${STCUNIT_DEST}/${STCUNIT_ARCHIVE})
+    message(STATUS "Unpacking ${STCUNIT_DIR}")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xvf "${STCUNIT_ARCHIVE}"
+                    WORKING_DIRECTORY "${STCUNIT_DEST}"
+                    RESULT_VARIABLE STCUNIT_USABLE)
+    if (NOT STCUNIT_USABLE EQUAL 0)
+        message(FATAL_ERROR "Unpack failed in ${CMAKE_BINARY_DIR}")
+    endif()
+endif()
+include_directories(${STCUNIT_DEST}/${STCUNIT_DIR})
+
 add_executable(testphot
     test_getphttab.c
 )
@@ -20,4 +38,65 @@ add_test(NAME test_acscte_rotateamp
 target_link_libraries(test_acscte_rotateamp
     PUBLIC acs
     PUBLIC hstcalib
+)
+
+add_executable(test_hstio
+    test_hstio.c
+)
+add_test(NAME test_hstio
+    COMMAND $<TARGET_FILE:test_hstio>
+)
+target_link_libraries(test_hstio
+    PUBLIC hstio
+)
+
+add_executable(test_pointer_registry
+        test_pointer_registry.c
+)
+add_test(NAME test_pointer_registry
+        COMMAND $<TARGET_FILE:test_pointer_registry>
+)
+target_link_libraries(test_pointer_registry
+        PUBLIC hstcalib
+)
+
+add_executable(test_str_util
+        test_str_util.c
+)
+add_test(NAME test_str_util
+        COMMAND $<TARGET_FILE:test_str_util>
+)
+target_link_libraries(test_str_util
+        PUBLIC hstcalib
+)
+
+add_executable(test_trlbuf
+        test_trlbuf.c
+)
+add_test(NAME test_trlbuf
+        COMMAND $<TARGET_FILE:test_trlbuf>
+)
+target_link_libraries(test_trlbuf
+        PUBLIC hstcalib
+)
+
+
+add_executable(test_tables
+    test_tables.c
+)
+add_test(NAME test_tables
+    COMMAND $<TARGET_FILE:test_tables>
+)
+target_link_libraries(test_tables
+    PUBLIC hstcalib tables 
+)
+
+add_executable(test_timestamp
+    test_timestamp.c
+)
+add_test(NAME test_timestamp
+    COMMAND $<TARGET_FILE:test_timestamp>
+)
+target_link_libraries(test_timestamp
+    PUBLIC hstcalib 
 )
