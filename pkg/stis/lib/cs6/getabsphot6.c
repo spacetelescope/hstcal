@@ -170,7 +170,8 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	BlazeTblInfo blazetabinfo;       /* pointer to blaze table descriptor, etc */
 
 	int row;		/* loop index */
-	int foundit = 0;	/* true if parameters found in table */
+	int phot_foundit = 0;	/* true if parameters found in PHOTTAB table */
+	int blaze_foundit = 0;	/* true if parameters found in BLAZETAB table */
 
 	/* Assign the units for the calibrated data. */
 	strcpy (phot->bunit, "erg /s /cm**2 /angstrom /arcsec**2");
@@ -194,7 +195,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	    if (SameString (tabrow.opt_elem, sts->opt_elem)) {
 
-		foundit = 1;
+		phot_foundit = 1;
 
 		/* Get pedigree & descrip from the row. */
 		if ((status = RowPedigree (&sts->phottab, row,
@@ -219,7 +220,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	if ((status = ClosePhotTab (&tabinfo)))
 	    return (status);
 
-	if (!foundit) {
+	if (!phot_foundit) {
 	    if (print) {
 	        trlerror("Matching row not found in PHOTTAB %s",
 	                sts->phottab.name);
@@ -229,12 +230,22 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	    return (ROW_NOT_FOUND);
 	}
     
-	if (sts->echelle && sts->blazetab.exists == EXISTS_YES) {
-	
-	    *warn = 1;
-	    /* Check for existence of BLAZETAB reference file*/
-	    if ((status = OpenBlazeTab (sts, &blazetabinfo, phot, warn)))
-	        return (status);
+	if (sts->echelle) {
+		/* If no BLAZETAB is specified, just return. */
+	    if (strcmp(sts->blazetab.name, "N/A") == 0)
+	        return (0);
+
+	    /* OpenBLAZETAB reference file*/
+	    if ((status = OpenBlazeTab (sts, &blazetabinfo, phot, warn))) {
+		    trlwarn("Unable to open BLAZETAB %s", sts->blazetab.name);
+			if (phot->blazecorr) {
+				trlmessage("Defaulting to blaze correction from PHOTTAB");
+			} else {
+				trlwarn("Blaze correction omitted as no blaze parameters found in PHOTTAB");
+			}
+			/* Return 0 since we are defaulting to PHOTTAB blaze correction or omitting */
+	        return (0);
+        }
 
 	    /* Check each row for a match with keyword values, then read
 	       the arrays of blaze coefficients if there's a match.
@@ -244,6 +255,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 
 	        if ((status = ReadBlazeTab (&blazetabinfo, row, &tabrow))) {
 			    trlerror("Error reading row %d in ReadBlazeTab, status: %d\n", row, status);
+				CloseBlazeTab (&blazetabinfo);
 		        return (status);
 			}
 	        if (!SameInt (tabrow.cenwave, sts->cenwave) ||
@@ -251,33 +263,36 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	            continue;
 
 	        if (SameString (tabrow.opt_elem, sts->opt_elem)) {
-		        foundit = 1;
+		        blaze_foundit = 1;
 
 		        /* Get pedigree & descrip from the row. */
-		        if ((status = RowPedigree (&sts->phottab, row,
+		        if ((status = RowPedigree (&sts->blazetab, row,
                             blazetabinfo.tp, blazetabinfo.cp_pedigree,
 							blazetabinfo.cp_descrip))) {
 					trlerror("Error getting pedigree and descrip from row %d, status: %d\n", row, status);
+					CloseBlazeTab (&blazetabinfo);
 		            return (status);
 				}
 
-		        if (sts->phottab.goodPedigree == DUMMY_PEDIGREE) {
+		        if (sts->blazetab.goodPedigree == DUMMY_PEDIGREE) {
 		            sts->x1d_o = DUMMY;
 		            CloseBlazeTab (&blazetabinfo);
 		            return (0);
 		        }
 
 		        /* Read blaze coefficients into phot. */
-		        if ((status = ReadBlazeData (&blazetabinfo, row, phot, sts->expstart)))
+		        if ((status = ReadBlazeData (&blazetabinfo, row, phot, sts->expstart))) {
+					trlerror("Error reading blaze data from row %d, status: %d\n", row, status);
+					CloseBlazeTab (&blazetabinfo);
 		            return (status);
-
+				}
 		        break;
 	        }
 		}
 	    if ((status = CloseBlazeTab (&blazetabinfo)))
 	        return (status);
 
-	    if (!foundit) {
+	    if (!blaze_foundit) {
 	        if (print) {
 	            trlerror("Matching row not found in BLAZETAB %s",
 	                    sts->blazetab.name);
@@ -623,9 +638,24 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	    return (TABLE_ERROR);
 
 	useafter = (double *) malloc (ndates * sizeof(double));
+	if (useafter == NULL) {
+		trlerror("Failed to allocate memory for USEAFTER array");
+		return (TABLE_ERROR);
+	}
 
+	/* Read the USEAFTER array from the table */
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_useafter, row,
 	                useafter, 1, ndates);
+	if (nd != ndates) {
+		trlerror("Number of elements read from USEAFTER array does not match expected number of dates in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (useafter);
+		return (TABLE_ERROR);
+	}
+    if (c_iraferr()) {
+        free (useafter);
+        return (TABLE_ERROR);
+    }
 
 	/* compare expstart with the members of useafter to see which
 	   index corresponds to the latest date in the useafter dates
@@ -634,13 +664,14 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	matched_index = -1;
 	matching_useafter = 0.0;
 	for (i = 0; i < ndates; i++) {
-		if (expstart > useafter[i] &&  useafter[i] > matching_useafter) {
+		if (expstart >= useafter[i] &&  useafter[i] > matching_useafter) {
 			matched_index = i;
 			matching_useafter = useafter[i];
 		}
 	}
+	free (useafter);
 
-    if (matched_index == -1) {
+	if (matched_index == -1) {
 		trlerror("Observation date is before all useafter dates in blaze table");
 		return (TABLE_ERROR);
 	}
@@ -649,18 +680,39 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	   each one, and fill the phot->blaze parameters*/
 
     reford = (int *) malloc (ndates * sizeof(int));
+	if (reford == NULL) {
+		trlerror("Failed to allocate memory for MREF array");
+		return (TABLE_ERROR);
+	}
 	nd = c_tbagti (tabinfo->tp, tabinfo->cp_mref, row,
 	                reford, 1, ndates);
-	if (c_iraferr()) {
-	    free (reford);
-	    return (TABLE_ERROR);
+	if (nd != ndates) {
+		trlerror("Number of MREF array elements read does not match expected number of elements in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (reford);
+		return (TABLE_ERROR);
 	}
+    if (c_iraferr()) {
+        free (reford);
+        return (TABLE_ERROR);
+    }
+
 	phot->mref = reford[matched_index];
     free (reford);
 
     refwav = (double *) malloc (ndates * sizeof(double));
+	if (refwav == NULL) {
+		trlerror("Failed to allocate memory for WREF array");
+		return (TABLE_ERROR);
+	}
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_wref, row,
 	                refwav, 1, ndates);
+	if (nd != ndates) {
+		trlerror("Number of WREF array elements read does not match expected number of elements in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (refwav);
+		return (TABLE_ERROR);
+	}
 	if (c_iraferr()) {
 	    free (refwav);
 	    return (TABLE_ERROR);
@@ -670,8 +722,18 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     free (refwav);
 
     refy = (float *) malloc (ndates * sizeof(float));
+	if (refy == NULL) {
+		trlerror("Failed to allocate memory for YREF array");
+		return (TABLE_ERROR);
+	}
 	nd = c_tbagtr (tabinfo->tp, tabinfo->cp_yref, row,
 	                refy, 1, ndates);
+	if (nd != ndates) {
+		trlerror("Number of YREF array elements read does not match expected number of elements in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (refy);
+		return (TABLE_ERROR);
+	}
 	if (c_iraferr()) {
 	    free (refy);
 	    return (TABLE_ERROR);
@@ -681,8 +743,18 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     free (refy);
 
     refmjd = (double *) malloc (ndates * sizeof(double));
+	if (refmjd == NULL) {
+		trlerror("Failed to allocate memory for REFMJD array");
+		return (TABLE_ERROR);
+	}
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mjd, row,
 	                refmjd, 1, ndates);
+	if (nd != ndates) {
+		trlerror("Number of REFMJD array elements read does not match expected number of elements in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (refmjd);
+		return (TABLE_ERROR);
+	}
 	if (c_iraferr()) {
 	    free (refmjd);
 	    return (TABLE_ERROR);
@@ -692,8 +764,18 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     free (refmjd);
 
     bshift_vs_x = (double *) malloc (ndates * sizeof(double));
+	if (bshift_vs_x == NULL) {
+		trlerror("Failed to allocate memory for MX array");
+		return (TABLE_ERROR);
+	}
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mx, row,
 	                bshift_vs_x, 1, ndates);
+	if (nd != ndates) {
+		trlerror("Number of MX array elements read does not match expected number of elements in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (bshift_vs_x);
+		return (TABLE_ERROR);
+	}
 	if (c_iraferr()) {
 	    free (bshift_vs_x);
 	    return (TABLE_ERROR);
@@ -703,8 +785,18 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     free (bshift_vs_x);
 
     bshift_vs_y = (double *) malloc (ndates * sizeof(double));
+	if (bshift_vs_y == NULL) {
+		trlerror("Failed to allocate memory for MY array");
+		return (TABLE_ERROR);
+	}
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_my, row,
 	                bshift_vs_y, 1, ndates);
+	if (nd != ndates) {
+		trlerror("Number of MY array elements read does not match expected number of elements in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (bshift_vs_y);
+		return (TABLE_ERROR);
+	}
 	if (c_iraferr()) {
 	    free (bshift_vs_y);
 	    return (TABLE_ERROR);
@@ -714,8 +806,18 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     free (bshift_vs_y);
 
     bshift_vs_t = (double *) malloc (ndates * sizeof(double));
+	if (bshift_vs_t == NULL) {
+		trlerror("Failed to allocate memory for MT array");
+		return (TABLE_ERROR);
+	}
 	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_mt, row,
 	                bshift_vs_t, 1, ndates);
+	if (nd != ndates) {
+		trlerror("Number of MT array elements read does not match expected number of elements in blaze table row");
+		trlerror("Expected: %d, got %d", ndates, nd);
+		free (bshift_vs_t);
+		return (TABLE_ERROR);
+	}
 	if (c_iraferr()) {
 	    free (bshift_vs_t);
 	    return (TABLE_ERROR);
@@ -724,16 +826,31 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	phot->mt = bshift_vs_t[matched_index];
     free (bshift_vs_t);
 
-    bshift_offset = (double *) malloc (ndates * sizeof(double));
-	nd = c_tbagtd (tabinfo->tp, tabinfo->cp_m0, row,
-	                bshift_offset, 1, ndates);
-	if (c_iraferr()) {
-	    free (bshift_offset);
-	    return (TABLE_ERROR);
-	}
+	if (tabinfo->cp_m0 == 0) {
+		phot->m0 = 0.0;
+	} else {
 
-	phot->m0 = bshift_offset[matched_index];
-    free (bshift_offset);
+		bshift_offset = (double *) malloc (ndates * sizeof(double));
+		if (bshift_offset == NULL) {
+			trlerror("Failed to allocate memory for M0 array");
+			return (TABLE_ERROR);
+		}
+		nd = c_tbagtd (tabinfo->tp, tabinfo->cp_m0, row,
+	                	bshift_offset, 1, ndates);
+		if (nd != ndates) {
+			trlerror("Number of M0 array elements read does not match expected number of elements in blaze table row");
+			trlerror("Expected: %d, got %d", ndates, nd);
+			free (bshift_offset);
+			return (TABLE_ERROR);
+		}
+		if (c_iraferr()) {
+	    	free (bshift_offset);
+	    	return (TABLE_ERROR);
+		}
+
+		phot->m0 = bshift_offset[matched_index];
+    	free (bshift_offset);
+	}
 
 
 	phot->allocated = 1;			/* set flag */

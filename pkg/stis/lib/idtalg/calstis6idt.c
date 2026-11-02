@@ -1896,7 +1896,7 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	        xx = kx[0][0] + j * kx[0][1] + i * kx[1][0] + j * i * kx[1][1];
 	        yy = ky[0][0] + j * ky[0][1] + i * ky[1][0] + j * i * ky[1][1];
 	        ii = (int)NINT(xx);
-	        jj = (int)NINT(xx);
+	        jj = (int)NINT(yy);
 	        ii = (ii < 0) ? 0 : ii;
 	        jj = (jj < 0) ? 0 : jj;
 	        ii = (ii >= nx) ? (nx - 1) : ii;
