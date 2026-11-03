@@ -6,8 +6,8 @@
 
 /* Function to implement a self-test of this library */
 int main(int argc, char **argv) {
-    (void) argc;  // unused
-    (void) argv;  // unused
+    (void)argc; // unused
+    (void)argv; // unused
 
     void compute_values(char[], char[], double, float, float, FILE *);
     char *outfile;

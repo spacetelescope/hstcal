@@ -377,8 +377,8 @@ static int square_test_case_derot(int amp_id) {
 }
 
 int main(int argc, char **argv) {
-    (void) argc;  // unused
-    (void) argv;  // unused
+    (void)argc; // unused
+    (void)argv; // unused
 
     int i, test_status = 0;
 
