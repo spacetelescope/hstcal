@@ -1,3 +1,8 @@
+### 02-Nov-2026 - CALSTIS version 3.6.1:
+    - Cleaned up blazetab code.
+      Fixed a long-standing indexing bug in the echelle scattering code that was
+      affecting E230H and E230M data.
+
 ### 16-Sep-2026 - CALSTIS Version 3.6.0:
     - Implement time-dependent blaze correction.  This separates out the blaze
       corrections from the PHOTTAB reference file to their own BLAZETAB reference
