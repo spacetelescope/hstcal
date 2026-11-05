@@ -30,8 +30,6 @@ static void printHelp(void)
     printSyntax();
 }
 
-struct TrlBuf trlbuf = { 0 };
-
 /* This is the main module for acs2d.  It gets the input and output
    file names, calibration switches, and flags, and then calls acs2d.
 
