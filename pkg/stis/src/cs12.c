@@ -8,7 +8,6 @@
 static int WavOption (char *, int *);
 
 #include "hstcal_memory.h"
-# include "c_iraf.h"		/* for c_irafinit */
 # include "ximio.h"
 
 # include "stis.h"
@@ -73,8 +72,6 @@ int main (int argc, char **argv) {
 	char *inwav, *insci;	/* wavecal and science file names */
 	int n_wav, n_sci;	/* number of files in each list */
 	int n;
-
-	c_irafinit (argc, argv);
 
 	PtrRegister ptrReg;
 	initPtrRegister(&ptrReg);
