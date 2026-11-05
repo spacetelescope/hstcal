@@ -22,7 +22,6 @@ IRAFPointer *cp         o: column descriptor
 
         TableDescr *tbl_descr = (TableDescr *)tp;
 
-        {
         for (int i = 0;  i < tbl_descr->ncols;  ++i) {
             ColumnDescr * col_descr = (ColumnDescr *)tbl_descr->columns[i];
             str_lower (lc_name, col_descr->name);
@@ -30,7 +29,7 @@ IRAFPointer *cp         o: column descriptor
                 *cp = tbl_descr->columns[i];
                 return;
             }
-        }}
+        }
 }
 
 IRAFPointer c_tbcfnd1_retPtr (IRAFPointer tp, const char *colname)
