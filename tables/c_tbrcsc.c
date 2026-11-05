@@ -20,8 +20,7 @@ int ncols               i: number of columns to be copied (this is the length
                            of arrays 'icp' and 'ocp')
 */
 
-        TableDescr *itbl_descr, *otbl_descr;
-        ColumnDescr *icol_descr, *ocol_descr;
+        ColumnDescr *icol_descr;
 
         /* buffers for copying data */
         double dx, *d_array;
@@ -35,12 +34,8 @@ int ncols               i: number of columns to be copied (this is the length
         int datatype, nelem, width;
         int status = 0;
 
-        itbl_descr = (TableDescr *)itp;
-        otbl_descr = (TableDescr *)otp;
-
         for (j = 0;  j < ncols;  j++) {
             icol_descr = (ColumnDescr *)icp[j];
-            ocol_descr = (ColumnDescr *)ocp[j];
             datatype = c_tbcigi (icp[j], TBL_COL_DATATYPE);
             nelem = c_tbcigi (icp[j], TBL_COL_LENDATA);
             if (nelem > 1) {
@@ -105,7 +100,7 @@ int ncols               i: number of columns to be copied (this is the length
                         }
                     }
                     c_tbagtt (itp, icp[j], irow, t_array, 1, nelem, width);
-                    c_tbaptt (otp, ocp[j], orow, t_array, width, 1, nelem);
+                    c_tbaptt (otp, ocp[j], orow, t_array, 1, nelem);
                     for (i = 0;  i < nelem;  i++)
                         free (t_array[i]);
                     free (t_array);

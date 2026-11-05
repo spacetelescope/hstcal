@@ -54,7 +54,7 @@ Bool *buffer            o: value (True or False) read from table
         } else if (col_descr->datatype == IRAF_INT) {
             int i_value;
             c_tbegti (tp, cp, row, &i_value);
-            if (i_value == IRAF_INDEFI)
+            if (i_value == (int) IRAF_INDEFI)
                 *buffer = False;
             else if (i_value)
                 *buffer = True;
@@ -121,7 +121,7 @@ double *buffer          o: value read from table
         } else if (col_descr->datatype == IRAF_INT) {
             int i_value;
             c_tbegti (tp, cp, row, &i_value);
-            if (i_value == IRAF_INDEFI)
+            if (i_value == (int) IRAF_INDEFI)
                 *buffer = IRAF_INDEFD;
             else
                 *buffer = i_value;
@@ -180,7 +180,7 @@ float *buffer           o: value read from table
         } else if (col_descr->datatype == IRAF_INT) {
             int i_value;
             c_tbegti (tp, cp, row, &i_value);
-            if (i_value == IRAF_INDEFI)
+            if (i_value == (int) IRAF_INDEFI)
                 *buffer = IRAF_INDEFR;
             else
                 *buffer = i_value;
@@ -316,7 +316,7 @@ short *buffer           o: value read from table
         } else if (col_descr->datatype == IRAF_INT) {
             int i_value;
             c_tbegti (tp, cp, row, &i_value);
-            if (i_value == IRAF_INDEFI)
+            if (i_value == (int) IRAF_INDEFI)
                 *buffer = IRAF_INDEFS;
             else
                 *buffer = (short)i_value;
@@ -394,7 +394,7 @@ int maxch               i: maximum length of the string (not incl NULL)
         } else if (col_descr->datatype == IRAF_INT) {
             int i_value;
             c_tbegti (tp, cp, row, &i_value);
-            if (i_value == IRAF_INDEFI)
+            if (i_value == (int) IRAF_INDEFI)
                 strcpy (value, "INDEF");
             else
                 sprintf (value, "%d", i_value);

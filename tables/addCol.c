@@ -15,13 +15,12 @@ IRAFPointer cp          i: column descriptor
 char *colname           i: column name
 char *colunits          i: units for column, or null
 */
-        
+
         TableDescr *tbl_descr;
         ColumnDescr *col_descr;
         char *keyword;
         int colnum;
         int datatype;           /* IRAF data type */
-        int indef_int, indef_short;
         int status = 0;
 
         tbl_descr = (TableDescr *)tp;
@@ -32,8 +31,6 @@ char *colunits          i: units for column, or null
 
             colnum = col_descr->colnum;           /* one indexed */
             datatype = col_descr->datatype;
-            indef_int = IRAF_INDEFI;
-            indef_short = IRAF_INDEFS;
 
             /* fits_insert_col = fficol */
             fits_insert_col (tbl_descr->fptr, colnum, colname,
