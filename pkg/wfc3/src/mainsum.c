@@ -17,9 +17,6 @@ extern int status;
 # include "hstcalversion.h"
 # include "trlbuf.h"
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-
 static void printSyntax(void)
 {
     printf ("syntax:  wf3sum [--help] [-t] [-v] [-q] [-r] [--version] [--gitinfo] input output\n");

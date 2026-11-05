@@ -18,9 +18,6 @@
 
 extern int	status;
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-
 static void printSyntax(void)
 {
     printf("syntax:  calwf3.e [--help] [-t] [-s] [-v] [-q] [-r] [-1] [--version] [--gitinfo] input \n");
