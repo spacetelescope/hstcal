@@ -17,6 +17,7 @@ add_library(${PROJECT_NAME} STATIC
 	ctehelpers.c
 )
 target_link_libraries(${PROJECT_NAME}
+	PUBLIC hstcalib
 	PUBLIC hstio
 	PUBLIC tables
 )

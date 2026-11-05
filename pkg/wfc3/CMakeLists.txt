@@ -44,7 +44,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC wf3
 	PUBLIC ctegen2
-	PUBLIC hstcalib
 )
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION bin

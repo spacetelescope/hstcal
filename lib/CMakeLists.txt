@@ -5,12 +5,12 @@ add_library(${PROJECT_NAME} SHARED
 	hstcal_memory.c
 	hstcalversion.c
 	str_util.c
-	timestamp.c
 	trlbuf.c
+	timestamp.c
 )
 target_link_libraries(${PROJECT_NAME}
-	hstio
 	tables
+	hstio
 	${cfitsio_LDFLAGS}
 )
 target_include_directories(${PROJECT_NAME}
