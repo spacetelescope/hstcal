@@ -99,7 +99,7 @@
 #include "hstcalversion.h"
 #include "hstio.h"
 
-char MsgText[MSG_BUFF_LENGTH];
+char MsgText[MSG_BUFF_LENGTH] = {0}; // Global scratch buffer
 const unsigned initLength = 2; // Should always be > 0 to prevent issues with use of realloc().
 extern int status;
 

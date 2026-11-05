@@ -20,8 +20,6 @@ extern int status;			/* zero is OK */
 # include "acsversion.h"
 #include "trlbuf.h"
 
-struct TrlBuf trlbuf = { 0 };
-
 static void printSyntax(void)
 {
     printf ("syntax:  acsccd [--help] [-t] [-v] [-q] [--version] [--gitinfo] input output\n");

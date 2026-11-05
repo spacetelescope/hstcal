@@ -45,7 +45,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC acs
 	PUBLIC ctegen2
-	PUBLIC hstcalib
 )
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION bin
@@ -72,7 +71,6 @@ target_include_directories(${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}
 	PUBLIC acs
-	PUBLIC hstcalib
 )
 install(TARGETS ${PROJECT_NAME}
 	DESTINATION bin

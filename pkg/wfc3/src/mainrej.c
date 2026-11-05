@@ -16,9 +16,6 @@
 
 extern int status;
 
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
-
 int main (int argc, char **argv) {
 
     char    *input, output[CHAR_LINE_LENGTH+1];      /* file names */

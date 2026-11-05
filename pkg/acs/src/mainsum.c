@@ -15,8 +15,6 @@ extern int status;			/* zero is OK */
 # include "hstcalversion.h"
 #include "trlbuf.h"
 
-struct TrlBuf trlbuf = { 0 };
-
 /*
     This function will only return either 0 (ACS_OK) if everything
         processed normally or ERROR_RETURN (2) if there was some error.

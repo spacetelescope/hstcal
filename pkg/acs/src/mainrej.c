@@ -12,8 +12,6 @@
 # include "hstcalversion.h"
 #include "trlbuf.h"
 
-struct TrlBuf trlbuf = { 0 };
-
 int main (int argc, char **argv) {
 
     char    *input, output[CHAR_LINE_LENGTH];    /* file names */

@@ -16,8 +16,6 @@
 
 /* CALACS driver: retrieves input table name and calls pipeline
 */
-struct TrlBuf trlbuf = { 0 };
-
 static void printSyntax(void)
 {
     printf("syntax:  calacs.e [--help] [-t] [-s] [-v] [-q] [-r] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
