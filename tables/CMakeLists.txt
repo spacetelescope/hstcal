@@ -2,7 +2,6 @@ project(tables C)
 add_library(${PROJECT_NAME} SHARED
 	addCol.c
 	c_imt.c
-	c_irafinit.c
 	c_tbagt.c
 	c_tbapt.c
 	c_tbcdef1.c

@@ -7,7 +7,6 @@
 
 extern int status;			/* zero is OK */
 
-# include <c_iraf.h>		/* for c_irafinit */
 #include "hstcal_memory.h"
 #include "hstcal.h"
 # include "ximio.h"
@@ -29,8 +28,6 @@ static void printHelp(void)
 {
     printSyntax();
 }
-
-struct TrlBuf trlbuf = { 0 };
 
 /* This is the main module for acs2d.  It gets the input and output
    file names, calibration switches, and flags, and then calls acs2d.
@@ -95,7 +92,6 @@ int main (int argc, char **argv) {
     int Get2dSw (CalSwitch *, Hdr *);
 
     status = 0;
-    c_irafinit (argc, argv);
 
     /* Allocate space for file names. */
     PtrRegister ptrReg;

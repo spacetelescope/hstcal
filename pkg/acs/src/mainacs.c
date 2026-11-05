@@ -16,8 +16,6 @@
 
 /* CALACS driver: retrieves input table name and calls pipeline
 */
-struct TrlBuf trlbuf = { 0 };
-
 static void printSyntax(void)
 {
     printf("syntax:  calacs.e [--help] [-t] [-s] [-v] [-q] [-r] [--version] [--gitinfo] [-1|--nthreads <N>] [--ctegen <1|2>] [--pctetab <path>] input \n");
@@ -45,7 +43,6 @@ int main(int argc, char **argv) {
     unsigned nThreads = 0;
 
 	/* Function definitions */
-	void c_irafinit (int, char **);
 	int CalAcsRun (char *, int, int, int, int, const unsigned nThreads, const int gen1cte, const char * pcteTabNameFromCmd);
     void WhichError (int);
 
@@ -53,9 +50,6 @@ int main(int argc, char **argv) {
 	status = ACS_OK;
 	MsgText[0] = '\0';
 	input[0] = '\0';
-
-	/* Initialize IRAF environment */
-	c_irafinit(argc, argv);
 
 	/* Command line arguments:
 	**       0. Check for --version option

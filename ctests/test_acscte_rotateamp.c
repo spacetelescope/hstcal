@@ -376,7 +376,10 @@ static int square_test_case_derot(int amp_id) {
     return test_status;
 }
 
-int main() {
+int main(int argc, char **argv) {
+    (void)argc; // unused
+    (void)argv; // unused
+
     int i, test_status = 0;
 
     test_status += square_test_case_transpose();

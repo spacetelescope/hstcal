@@ -133,11 +133,11 @@ set(CPACK_SOURCE_IGNORE_FILES
 set(CPACK_VERBATIM_VARIABLES YES)
 include(CPack)
 
-add_subdirectory(ctegen2)
 add_subdirectory(cvos)
 add_subdirectory(hstio)
-add_subdirectory(lib)
 add_subdirectory(tables)
+add_subdirectory(lib)
+add_subdirectory(ctegen2)
 add_subdirectory(pkg)
 
 # Toggle testing

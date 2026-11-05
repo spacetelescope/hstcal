@@ -14,8 +14,6 @@ MLS 2015
 # include <time.h>
 # include <string.h>
 
-
-# include <c_iraf.h>		/* for c_irafinit */
 #include "hstcal_memory.h"
 #include "hstcal.h"
 # include "ximio.h"
@@ -49,9 +47,6 @@ static void printHelp(void)
 {
     printSyntax();
 }
-
-/* Standard string buffer for use in messages */
-char MsgText[MSG_BUFF_LENGTH]; // Global char auto initialized to '\0'
 
 /*
 
@@ -88,7 +83,6 @@ int main (int argc, char **argv) {
     /* For image header access */
     Hdr phdr;
 
-    c_irafinit (argc, argv);
     push_hstioerr(errchk);
 
     PtrRegister ptrReg;
