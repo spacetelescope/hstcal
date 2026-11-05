@@ -149,12 +149,12 @@ IRAFPointer imt         i: file name template descriptor
         ImtDescr * imt_descr = (ImtDescr *)imt;
         if (imt_descr->pattern)
             free (imt_descr->pattern);
-        {
+        
         for (int i = 0;  i < imt_descr->nfiles;  i++)
         {
             if (imt_descr->files[i])
                 free (imt_descr->files[i]);
-        }}
+        }
         if (imt_descr->files)
             free (imt_descr->files);
         if (imt_descr)
