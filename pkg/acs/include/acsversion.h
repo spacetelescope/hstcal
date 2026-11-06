@@ -2,7 +2,7 @@
 #define INCL_ACSVERSION_H
 
 /* This string is written to the output primary header as CAL_VER. */
-#define ACS_CAL_VER "10.5.0 (16-Mar-2026)"
+#define ACS_CAL_VER "10.5.0 (25-Aug-2026)"
 #define ACS_CAL_VER_NUM "10.5.0"
 
 /* This Generation of the CTE algorithm is obsolete.  These strings
