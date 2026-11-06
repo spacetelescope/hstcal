@@ -11,7 +11,7 @@ static int square_test_case_transpose();
 static int square_test_case_rot(int);
 static int square_test_case_derot(int);
 
-const char amps[5] = "ABCD\0";
+const char amps[5] = "ABCD";
 
 static int setup_input_array(FloatTwoDArray *da, int nx, int ny) {
     int iy, ix;

@@ -3,13 +3,6 @@
 #include "hstio.h"
 #include "hstcal_memory.h"
 
-void * newPtrRegister()
-{
-    void * this = malloc(sizeof(PtrRegister));
-    initPtrRegister(this);
-    addPtr(this, this, &free); // Note: freeFunctions[0] is ignored anyhow
-    return this;
-}
 void initPtrRegister(PtrRegister * reg)
 {
     reg->cursor = 0; //points to last ptr NOT next slot
@@ -70,7 +63,7 @@ void freePtr(PtrRegister * reg, void * ptr)
     if (!reg || !ptr || !reg->cursor)
         return;
 
-    int i;
+    unsigned i;
     Bool found = False;
     for (i = reg->cursor; i > 0 ; --i)
     {
