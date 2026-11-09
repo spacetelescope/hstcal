@@ -294,6 +294,7 @@ int bias_shift_corr(ACSInfo *acs, int nGroups, ...) {
 void cross_talk_corr(SingleGroup *im) {
   /* iteration variables */
   int i, j;
+  float *y;
 
   /* cross talk scaling constant */
   double cross_scale = 9.1e-5;
@@ -303,13 +304,22 @@ void cross_talk_corr(SingleGroup *im) {
   const int arr_rows = im->sci.data.ny;
   const int arr_cols = im->sci.data.nx;
 
+  y = calloc(arr_cols, sizeof(float));
+
   for (i = 0; i < arr_rows; i++) {
+    /* Copy out original row for corr_fac calculation. */
     for (j = 0; j < arr_cols; j++) {
-      temp = Pix(im->sci.data, arr_cols-j-1, i) * cross_scale;
+      y[j] = Pix(im->sci.data, j, i);
+    }
+
+    for (j = 0; j < arr_cols; j++) {
+      temp = y[arr_cols - j - 1] * cross_scale;
 
       Pix(im->sci.data, j, i) += (float) temp;
     }
   }
+
+  free(y);
 }
 
 
