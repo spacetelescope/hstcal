@@ -3,6 +3,6 @@
 
 /* This string is written to the output primary header as CAL_VER. */
 
-# define STIS_CAL_VER "3.6.1 (02-Nov-2026)"
+# define STIS_CAL_VER "3.6.2 (10-Nov-2026)"
 
 #endif /* INCL_STISVERSION_H */

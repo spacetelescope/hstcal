@@ -322,13 +322,13 @@ int *ihigh_end;	        that maps into the convolution buffer
 	        for (k = 0; k < ksize; k++) {
 	            l = i - ksize/2 + k;
 	            /* We do not normalize for rejected pixels yet. */
-	            if (l >=0 && l < npix) {
-	                if (!(DQPix (in->dq.data, l, j) & sts->sdqflags))
-	                    buffers[jpix][i] += Pix(in->sci.data, l, j) *
-                                                kernel[k];
+	            if (l >=0 && l < npix && !(DQPix (in->dq.data, l, j) & sts->sdqflags)) {
+	                buffers[jpix][i] += Pix(in->sci.data, l, j) *
+                                            kernel[k];
 	                buffere[jpix][i] += Pix(in->err.data, l, j) *
                                             Pix(in->err.data, l, j) *
                                             kernel[k];
+
 	            }
 	        }
 	    }
