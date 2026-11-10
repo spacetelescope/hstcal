@@ -93,17 +93,26 @@
       dimension rfac(15), jfac(15)
       equivalence (rfac(1), jfac(1))
       data ntryh(1),ntryh(2),ntryh(3),ntryh(4)/3,4,2,5/
+      ntry = 0
       nl = n
       nf = 0
       j = 0
   101 j = j+1
-      if (j-4) 102,102,103
+      IF (j-4 .LE. 0) THEN
+        GO TO 102
+      ELSE
+        GO TO 103
+      ENDIF
   102 ntry = ntryh(j)
       go to 104
   103 ntry = ntry+2
   104 nq = nl/ntry
       nr = nl-ntry*nq
-      if (nr) 101,105,101
+      IF (nr .EQ. 0) THEN
+        GO TO 105
+      ELSE
+        GO TO 101
+      ENDIF
   105 nf = nf+1
       jfac(nf+2) = ntry
       nl = nq
