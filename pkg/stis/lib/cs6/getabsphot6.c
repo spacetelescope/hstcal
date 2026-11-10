@@ -619,7 +619,7 @@ static int ReadPhotData (TblInfo *tabinfo, int row, PhotInfo *phot) {
 
 static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double expstart) {
 
-    int ndates;
+    int ndates, nd;
 	int i;
 	int matched_index;
 	double matching_useafter;

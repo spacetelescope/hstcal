@@ -1853,8 +1853,8 @@ double* mline;		i: fractional order # associated with each image row
 static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 
 	char opt_elem[STIS_CBUF];	/* grating */
-	double kx[2][2];	/* ghost image warp matrices */
-	double xx;
+	double kx[2][2], ky[2][2];	/* ghost image warp matrices */
+	double xx, yy;
 	float **ghost, **cghost;
 	int i, j, ii, jj, status;
 
@@ -1871,19 +1871,19 @@ static int AddGhost (Hdr *phdr, float **im, int nx, int ny) {
 	    kx[0][1] = -0.000844246;
 	    kx[1][0] =  0.998378;
 	    kx[1][1] = 3.51736e-06;
-	    // ky[0][0] = 5.46450;
-	    // ky[0][1] = 1.00869;
-	    // ky[1][0] = 9.48275e-05;
-	    // ky[1][1] = -1.10486e-06;
+	    ky[0][0] = 5.46450;
+	    ky[0][1] = 1.00869;
+	    ky[1][0] = 9.48275e-05;
+	    ky[1][1] = -1.10486e-06;
 	} else if (streq_ic (opt_elem, "E230H")) {
 	    kx[0][0] = -16.4834;
 	    kx[0][1] = -0.000280014;
 	    kx[1][0] =  0.998752;
 	    kx[1][1] = 1.51807e-06;
-	    // ky[0][0] = 5.59971;
-	    // ky[0][1] = 1.00791;
-	    // ky[1][0] = 1.58386e-05;
-	    // ky[1][1] = -7.14570e-07;
+	    ky[0][0] = 5.59971;
+	    ky[0][1] = 1.00791;
+	    ky[1][0] = 1.58386e-05;
+	    ky[1][1] = -7.14570e-07;
 	} else
 	    return (STIS_OK);
 
