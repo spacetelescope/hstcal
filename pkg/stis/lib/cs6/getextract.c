@@ -278,7 +278,6 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 
 	int status;
 
-	int ncoeff;		/* number of coefficients read from table */
 	XtractInfo *newd;
 	int NewXtract (XtractInfo **, XtractInfo *);
 
@@ -304,8 +303,8 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 		newd->ncoeffsl);
 	    return (TABLE_ERROR);
 	}
-	ncoeff = c_tbagtd (tabinfo->tp, tabinfo->cp_sltcoeff, row,
-                           newd->sltcoeff, 1, newd->ncoeffsl);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_sltcoeff, row,
+	    newd->sltcoeff, 1, newd->ncoeffsl);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 
@@ -315,8 +314,8 @@ static int ReadXtractArray (TblInfo *tabinfo, int row, XtractInfo **extract) {
 		newd->ncoeffbk);
 	    return (TABLE_ERROR);
 	}
-	ncoeff = c_tbagtd (tabinfo->tp, tabinfo->cp_bktcoeff, row,
-                           newd->bktcoeff, 1, newd->ncoeffbk);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_bktcoeff, row,
+	    newd->bktcoeff, 1, newd->ncoeffbk);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 

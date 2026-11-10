@@ -215,7 +215,7 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
                              double *subscale) {
 	int status;
 
-	int npts1, npts2;
+	int npts1;
 	ProfileArray *newp;
 	int NewProfile (ProfileArray **, ProfileArray *);
 
@@ -248,8 +248,8 @@ static int ReadProfileArray (TblInfo *tabinfo, int row, ProfileArray **profa,
 			 newp->profoff, 1, newp->nptsoff);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
-	npts2 = c_tbagtd (tabinfo->tp, tabinfo->cp_prof, row,
-			 newp->prof, 1, newp->npts);
+	c_tbagtd (tabinfo->tp, tabinfo->cp_prof, row,
+	    newp->prof, 1, newp->npts);
 	if (c_iraferr())
 	    return (TABLE_ERROR);
 
@@ -282,6 +282,3 @@ static int CloseProfileTab (TblInfo *tabinfo) {
 
 	return (0);
 }
-
-
-

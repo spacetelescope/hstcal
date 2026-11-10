@@ -58,7 +58,7 @@ int vx[2], vy[2]      o: range of pixel numbers for virtual overscan region
 	int A_bsect[2];			/* biassect if amp A used */
 
 	/* sizes of overscan regions for amp actually used */
-	int left, right, bottom, top;
+	int left=-1, right=-1, bottom=-1, top=-1;
 
 
 	/* The overscan sizes depend on whether the image is full-frame,

@@ -229,7 +229,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	    }
 	    return (ROW_NOT_FOUND);
 	}
-    
+
 	if (sts->echelle) {
 		/* If no BLAZETAB is specified, just return. */
 	    if (strcmp(sts->blazetab.name, "N/A") == 0)
@@ -250,7 +250,7 @@ int *warn	io: if set to zero, turn off blaze shift warning
 	    /* Check each row for a match with keyword values, then read
 	       the arrays of blaze coefficients if there's a match.
 	    */
-		
+
 	    for (row = 1;  row <= blazetabinfo.nrows;  row++) {
 
 	        if ((status = ReadBlazeTab (&blazetabinfo, row, &tabrow))) {
@@ -506,7 +506,7 @@ static int ReadBlazeTab (BlazeTblInfo *tabinfo, int row, TblRow *tabrow) {
 
 	if (c_iraferr())
 	    return (TABLE_ERROR);
-	
+
 	if (tabinfo->cp_cenwave != 0) {
 	    c_tbegti (tabinfo->tp, tabinfo->cp_cenwave, row, &tabrow->cenwave);
 	    if (c_iraferr())
@@ -829,7 +829,6 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 	if (tabinfo->cp_m0 == 0) {
 		phot->m0 = 0.0;
 	} else {
-
 		bshift_offset = (double *) malloc (ndates * sizeof(double));
 		if (bshift_offset == NULL) {
 			trlerror("Failed to allocate memory for M0 array");
@@ -852,7 +851,6 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
     	free (bshift_offset);
 	}
 
-
 	phot->allocated = 1;			/* set flag */
 
 	if (phot->mref == 0   ||
@@ -868,7 +866,6 @@ static int ReadBlazeData (BlazeTblInfo *tabinfo, int row, PhotInfo *phot, double
 
 	return (0);
 }
-
 
 
 /* This routine closes the phottab table. */
